@@ -1177,7 +1177,7 @@ new_qt(int argc, VALUE * argv, VALUE klass)
 static VALUE qt_invoke(int argc, VALUE * argv, VALUE self);
 static VALUE qt_signal(int argc, VALUE * argv, VALUE self);
 
-static VALUE
+VALUE
 new_qobject(int argc, VALUE * argv, VALUE klass)
 {
     if (rb_funcall(qt_internal_module, rb_intern("hasMembers"), 1, klass) == Qtrue) {

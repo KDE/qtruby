@@ -1,3 +1,7 @@
+2004-03-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* The f'n new_qobject is no longer static, and can be called from korundum
+
 2004-03-01  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Fixed bugs in QCString, QString and QByteArray marshalling.
