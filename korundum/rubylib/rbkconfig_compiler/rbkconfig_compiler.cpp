@@ -605,9 +605,9 @@ QString param( const QString &type )
 }
 
 /**
-  Actual C++ storage type for given type.
+  Actual Ruby initializer value to give a type.
 */
-QString cppType( const QString &type )
+QString rbType( const QString &type )
 {
     if ( type == "String" )           return "\"\"";
     else if ( type == "StringList" )  return "[]";
@@ -669,16 +669,6 @@ QString itemType( const QString &type )
   return t;
 }
 
-static QString itemDeclaration(const CfgEntry *e)
-{
-  if (itemAccessors)
-     return QString::null;
-
-  return "  item" + e->name() + 
-         ( (!e->param().isEmpty())?(QString("[%1]").arg(e->paramMax()+1)) : QString::null) + 
-         "\n";
-}
-
 static QString itemVar(const CfgEntry *e)
 {
   if (itemAccessors)
@@ -697,9 +687,31 @@ QString newItem( const QString &type, const QString &name, const QString &key,
   if ( !defaultValue.isEmpty() ) {
     t += ", ";
     if ( type == "String" ) t += defaultValue;
+    else t+= defaultValue;
+  }
+  t += " )";
+
+  return t;
+}
+
+QString addItem( const QString &type, const QString &name, const QString &key,
+                 const QString &defaultValue, const QString &param = QString::null,
+                 const QString &paramName = QString::null )
+{
+  QString t = "addItem" + itemType( type ) +
+              "( " + key + ", " + varName( name ) + param;
+  if ( type == "Enum" ) t += ", values" + name;
+  if ( !defaultValue.isEmpty() ) {
+    t += ", ";
+    if ( type == "String" ) t += defaultValue;
     else if ( type == "Enum" ) t += enumValue(defaultValue);
     else t+= defaultValue;
   }
+  
+  if (!paramName.isNull()) {
+    t += ", \"" + paramName + "\"";
+  }
+  
   t += " )";
 
   return t;
@@ -736,13 +748,11 @@ QString paramString(const QString &group, const QStringList &parameters)
   {
      if (paramString.contains("$("+*it+")"))
      {
-//       QString tmp;
-//       tmp.sprintf("%%%d", i++);
        i++;
        paramString.replace("$("+*it+")", "%s");
-	   if (i > 1) {
+       if (i > 1) {
          arguments += ", ";
-	   }
+       }
        arguments += " @param"+*it;
      }
   }
@@ -833,8 +843,6 @@ int main( int argc, char **argv )
   QString visibility = codegenConfig.readEntry("Visibility");
   if (!visibility.isEmpty()) visibility+=" ";
   bool singleton = codegenConfig.readBoolEntry("Singleton", false);
-  bool staticAccessors = false;
-//  bool staticAccessors = singleton;
   bool customAddons = codegenConfig.readBoolEntry("CustomAdditions");
   QString memberVariables = codegenConfig.readEntry("MemberVariables");
   QStringList headerIncludes = codegenConfig.readListEntry("IncludeFiles");
@@ -952,7 +960,6 @@ int main( int argc, char **argv )
 #endif
 
   QString implementationFileName = baseName + ".rb";
-  QString cppPreamble; // code to be inserted at the beginnin of the rb file, e.g. initialization of static values
 
   QFile implementation( baseDir + implementationFileName );
   if ( !implementation.open( IO_WriteOnly ) ) {
@@ -1007,78 +1014,52 @@ int main( int argc, char **argv )
       for( itChoice = choices.begin(); itChoice != choices.end(); ++itChoice ) {
         if (globalEnums) {
           values.append( enumValue((*itChoice).name) );
-		} else {
+        } else {
           values.append( enumName(e->name()) + "_" + (*itChoice).name );
-		}
+        }
       }
       if (!globalEnums) {
         values.append( enumName(e->name()) + "_COUNT" );
       }
-	  int count = 0;
+      int count = 0;
       for ( QStringList::Iterator it = values.begin(); it != values.end(); ++it, count++ ) {
         rb << "    " << *it << " = " << count << endl;
       }
-	  rb << endl;
+      rb << endl;
     }
-	
+    
     QStringList values = e->paramValues();
     if ( !values.isEmpty() ) {
-	  int count = 0;
+      int count = 0;
       for ( QStringList::Iterator it = values.begin(); it != values.end(); ++it, count++ ) {
         if (globalEnums) {
           rb << "    " << enumValue(*it) << " = " << count << endl;
-		} else {
+        } else {
           rb << "    " << enumName(e->param()) << "_" << *it << " = " << count << endl;
-		}
+        }
       }
       if (!globalEnums) {
         rb << "    " << enumName(e->param()) << "_COUNT = " << count << endl;
       }
-	  rb << endl;
-	  
+      rb << endl;
+      
       rb << "    def " << enumName(e->param()) << "ToString(i)" << endl;
-	  rb << "        [";
-	  count = 0;
+      rb << "        [";
+      count = 0;
       for ( QStringList::Iterator it = values.begin(); it != values.end(); ++it, count++ ) {
-	  	if (count > 0) {
-		  rb << ", ";
-		}
-		
+          if (count > 0) {
+          rb << ", ";
+        }
+        
         rb << "\"" << *it << "\"";
       }
-	  
-	  rb << "].at(i)" << endl;
+      
+      rb << "].at(i)" << endl;
       rb << "    end" << endl;
     }
   }
 
   rb << endl;
-
-  // Constructor or singleton accessor
-  if ( !singleton ) {
-//    rb << "    initialize(";
-//    if (cfgFileNameArg)
-//       rb << " config" << (parameters.isEmpty() ? " " : ", ");
-//    for (QStringList::ConstIterator it = parameters.begin();
-//         it != parameters.end(); ++it)
-//    {
-//       if (it != parameters.begin())
-//         rb << ",";
-//       rb << " " << *it;
-//    }
-//    rb << " )" << endl;
-  } else {
-//    rb << "    @@" << className << " self" << endl;
-  }
-
-  // Destructor
-
-  QString This;
-  QString Const;
-  if (staticAccessors)
-    This = "@@self.";
-  else
-    Const = " ";
 
   for( e = entries.first(); e; e = entries.next() ) {
     QString n = e->name();
@@ -1090,13 +1071,11 @@ int main( int argc, char **argv )
       rb << "    #" << endl;
       rb << "    #  Set " << e->label() << endl;
       rb << "    #" << endl;
-      if (staticAccessors)
-        rb << "    " << endl;
       rb << "    def " << setFunction(n) << "( ";
       if (!e->param().isEmpty())
         rb  << " i, ";
       rb << " v )" << endl;
-      rb << "        if !" << This << "immutable? \"";
+      rb << "        if !" << "immutable? \"";
       if (!e->param().isEmpty()) {
         rb << e->paramName().replace("$("+e->param()+")", "%s") << "\" % ";
         if ( e->paramType() == "Enum" ) {
@@ -1111,8 +1090,8 @@ int main( int argc, char **argv )
         }
       } else
         rb << n << "\"";
-	  rb << endl;
-      rb << "            " << This << varName(n);
+      rb << endl;
+      rb << "            " << varName(n);
       if (!e->param().isEmpty())
         rb << "[i]";
       rb << " = v" << endl;
@@ -1124,14 +1103,12 @@ int main( int argc, char **argv )
     rb << "    #" << endl;
     rb << "    # Get " << e->label() << endl;
     rb << "    #" << endl;
-    if (staticAccessors)
-      rb << "    " << endl;
     rb << "    def " << getFunction(n) << "(";
     if (!e->param().isEmpty())
       rb << " "  <<" i ";
-    rb << ")" << Const << endl;
+    rb << ")" << endl;
 //    rb << "    {" << endl;
-    rb << "        return " << This << varName(n);
+    rb << "        return " << varName(n);
     if (!e->param().isEmpty()) rb << "[i]";
     rb << endl << "    end" << endl;
 
@@ -1156,84 +1133,12 @@ int main( int argc, char **argv )
     rb << endl;
   }
 
-  // Static writeConfig method for singleton
-//  if ( singleton ) {
-//    rb << "    def writeConfig()" << endl;
-//    rb << "        writeConfig()" << endl;
-//   rb << "    end" << endl;
-//  }
-
-//  rb << "  protected:" << endl;
-
-  // Private constructor for singleton
-//  if ( singleton ) {
-//    rb << "    def initialize()" << endl;
-//    rb << "    " << className << " @@self = nil" << endl << endl;
-//  }
-
-  // Member variables
-//  if ( !memberVariables.isEmpty() && memberVariables != "private" ) {
-//   rb << "  " << memberVariables << "" << endl;
-//  }
-
-  // Class Parameters
-//  for (QStringList::ConstIterator it = parameters.begin();
-//       it != parameters.end(); ++it)
-//  {
-//     rb << "    @param" << *it << "" << endl;
-//  }
-
-//  if ( itemAccessors ) {
-//    for( e = entries.first(); e; e = entries.next() ) {
-//      rb << "    Item"  << itemVar( e );
-//      if (!e->param().isEmpty() ) rb << QString("[%1]").arg( e->paramMax()+1 );
-//      rb << endl;
-//    }
-//  }
 
   if (customAddons)
   {
      rb << "    # Include custom additions" << endl;
   }
 
-
-
-//  rb << "# This file is generated by rbkconfig_compiler from " << args->url(0).fileName() << "." << endl;
-//  rb << "# All changes you do to this file will be lost." << endl << endl;
-
-
-//  if ( setUserTexts ) rb << "#include <klocale.h>" << endl << endl;
-
-  // Includes
-//  for( it = includes.begin(); it != includes.end(); ++it ) {
-//    rb << "#include <" << *it << ">" << endl;
-//  }
-
-  // Header required by singleton implementation
-//  if ( singleton )
-//    rb << "#include <kstaticdeleter.h>" << endl << endl;
-
-//  if ( !nameSpace.isEmpty() )
-//    rb << "using namespace " << nameSpace << ";" << endl << endl;
-
-  // Singleton implementation
-//  if ( singleton ) {
-//    rb << className << " *" << className << "::mSelf = 0;" << endl;
-//    rb << "static KStaticDeleter<" << className << "> static" << className << "Deleter;" << endl << endl;
-
-//    rb << className << " *" << className << "::self()" << endl;
-//    rb << "{" << endl;
-//    rb << "  if ( !mSelf ) {" << endl;
-//    rb << "    static" << className << "Deleter.setObject( mSelf, new " << className << "() );" << endl;
-//    rb << "    mSelf->readConfig();" << endl;
-//    rb << "  }" << endl << endl;
-//    rb << "  return mSelf;" << endl;
-//    rb << "}" << endl << endl;
-//  }
-  
- 
-  if ( !cppPreamble.isEmpty() )
-    rb << cppPreamble << endl;
 
   // Constructor
   rb << "    def initialize( ";
@@ -1269,19 +1174,15 @@ int main( int argc, char **argv )
       rb << "        # " << group << endl;
     }
     if (e->param().isEmpty()) {
-      rb << "        " << varName(e->name()) << " = " << cppType(e->type());
-	} else {
-      rb << "        " << varName(e->name()) << QString(" = Array.new(%1, %2)").arg(e->paramMax()+1).arg(cppType(e->type()));
+      rb << "        " << varName(e->name()) << " = " << rbType(e->type());
+    } else {
+      rb << "        " << varName(e->name()) << QString(" = Array.new(%1, %2)").arg(e->paramMax()+1).arg(rbType(e->type()));
     }
-	rb << endl;
+    rb << endl;
   }
 
   rb << endl;
 
-  // Needed in case the singleton class is used as baseclass for
-  // another singleton.
-//  if ( singleton )
-//    rb << "  @@self = self" << endl;
 
   group = QString::null;
   for( e = entries.first(); e; e = entries.next() ) {
@@ -1302,8 +1203,7 @@ int main( int argc, char **argv )
       QValueList<CfgEntry::Choice> choices = e->choices();
       QValueList<CfgEntry::Choice>::ConstIterator it;
       for( it = choices.begin(); it != choices.end(); ++it ) {
-//        rb << "  {" << endl;
-        rb << "        choice = KDE::ConfigSkeleton::ItemEnum::Choice.new" << endl;
+        rb << "        choice = ItemEnum::Choice.new" << endl;
         rb << "        choice.name = \"" << enumValue((*it).name) << "\" " << endl;
         if ( setUserTexts ) {
           if ( !(*it).label.isEmpty() )
@@ -1312,10 +1212,9 @@ int main( int argc, char **argv )
             rb << "        choice.whatsThis = i18n(" << quoteString((*it).whatsThis) << ")" << endl;
         }
         rb << "        values" << e->name() << " << choice" << endl;
-//        rb << "  }" << endl;
       }
     }
-//    rb << itemDeclaration(e);
+	
     if (e->param().isEmpty())
     {
       // Normal case
@@ -1329,17 +1228,17 @@ int main( int argc, char **argv )
 
       if ( setUserTexts )
         rb << userTextsFunctions( e );
-
-      rb << "        addItem( " << itemVar(e);
+      
+	  rb << "        addItem( " << itemVar(e);
       QString quotedName = e->name();
       addQuotes( quotedName );
-      if ( quotedName != key ) rb << ",  \"" << e->name() << "\"";
+      if ( quotedName != key ) rb << ", \"" << e->name() << "\"";
       rb << " )" << endl;
     }
     else
     {
       // Indexed
-	  rb << "        " << itemVar(e) << " = Array.new(" << e->paramMax()+1 << ")" << endl;
+      rb << "        " << itemVar(e) << " = Array.new(" << e->paramMax()+1 << ")" << endl;
       for(int i = 0; i <= e->paramMax(); i++)
       {
         QString defaultStr;
@@ -1351,8 +1250,8 @@ int main( int argc, char **argv )
           defaultStr = paramString(e->defaultValue(), e, i);
         else
           defaultStr = defaultValue( e->type() );
-
-        rb << "        " << itemVarStr << " = "
+        
+		rb << "        " << itemVarStr << " = "
             << newItem( e->type(), e->name(), paramString(key, e, i), defaultStr, QString("[%1]").arg(i) )
             << endl;
 
@@ -1360,7 +1259,7 @@ int main( int argc, char **argv )
           rb << userTextsFunctions( e, itemVarStr, e->paramName() );
 
         // Make mutators for enum parameters work by adding them with $(..) replaced by the 
-        // param name. The check for immutable? in the set* functions doesn't have the param 
+        // param name. The check for isImmutable in the set* functions doesn't have the param 
         // name available, just the corresponding enum value (int), so we need to store the 
         // param names in a separate static list!.
         rb << "        addItem( " << itemVarStr << ", \"";
@@ -1369,19 +1268,13 @@ int main( int argc, char **argv )
         else
           rb << e->paramName().replace( "$("+e->param()+")", "%1").arg(i);
         rb << "\" )" << endl;
+
       }
     }
   }
 
   rb << "    end" << endl << endl;
 
-  // Destructor
-//  rb << className << "::~" << className << "()" << endl;
-//  rb << "{" << endl;
-//  if ( singleton ) {
-//    rb << "  if ( mSelf == this )" << endl;
-//    rb << "    static" << className << "Deleter.setObject( mSelf, 0, false );" << endl;
-//  }
   rb << "end" << endl << endl;
   
   if ( !nameSpace.isEmpty() ) rb << "end" << endl << endl;
