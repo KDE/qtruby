@@ -387,6 +387,11 @@ module KDE
 	end
 end
 
+class Object
+	def I18N_NOOP(x) x end
+	def I18N_NOOP2(comment, x) x end
+end
+
 class Module
 	include KDE
 
