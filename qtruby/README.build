@@ -1,3 +1,11 @@
+Needed configure flags
+----------------------
+
+In order to build korundum:
+   ./configure --with-smoke="qt kde"
+in order to build just qtruby: (this is the default in fact, so you can just use ./configure)
+   ./configure --with-smoke="qt"
+
 Possibly of use to people without KDE build process
 ---------------------------------------------------
 
