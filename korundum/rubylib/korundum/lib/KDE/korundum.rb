@@ -369,6 +369,7 @@ module KDE
 		def exec
 			super
 			self.dispose
+			Qt::Internal.application_terminated = true
 		end
 	end
 	
@@ -381,6 +382,7 @@ module KDE
 		def exec
 			super
 			self.dispose
+			Qt::Internal.application_terminated = true
 		end
 	end
 end
