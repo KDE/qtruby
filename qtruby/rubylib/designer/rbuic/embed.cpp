@@ -137,7 +137,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
     out << "#" << endl;
     out << "# WARNING! All changes made in this file will be lost!" << endl;
     out << endl;
-    out << "require Qt" << endl;
+    out << "require 'Qt'" << endl;
     out << endl;
 
     out << indent << "class MimeSourceFactory_" << cProject << " < Qt::MimeSourceFactory" << endl;
@@ -166,10 +166,6 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << "# " << *it << endl;
         QString imgname = (const char *)e->cname;
 
-
-//my $i0 = Qt::Image($image_0_data, 22, 22, 32, undef, &Qt::Image::BigEndian);
-//$i0->setAlphaBuffer(1);
-//my $image0 = Qt::Pixmap($i0);
 	QString s;
 	if ( e->depth == 1 )
 	    img = img.convertBitOrder(QImage::BigEndian);
@@ -204,17 +200,27 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << endl;
 	out << indent << "def uic_findImage( name )" << endl;
 	++indent;
-	out << indent << "if !@@images[name].nil? return @@images[name]" << endl;
-        out << indent << "if @@embed_images[name].nil? return Qt::Image.new()" << endl;
-        out << indent << endl;
+	out << indent << "if !@@images[name].nil?" << endl;
+	++indent;
+	out << indent << "return @@images[name]" << endl;
+	--indent;
+	out << indent << "end" << endl;
+	
+    out << indent << "if @@embed_images[name].nil?" << endl;
+	++indent;
+    out << indent << "return Qt::Image.new()" << endl;
+	--indent;
+    out << indent << "end" << endl;
+    out << indent << endl;
 #ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
-	out << indent << "baunzip = qUncompress( @@embed_images[name][0]," << endl;
+	out << indent << "baunzip = qUncompress( @@embed_images[name][0].pack(\"C*\")," << endl;
 	out << indent << "                       @@embed_images[name][0].length )" << endl;
-	out << indent << "img = Qt::Image.new( baunzip.data()," << endl;
+	out << indent << "img = Qt::Image.new( baunzip," << endl;
 	out << indent << "                     @@embed_images[name][1]," << endl;
 	out << indent << "                     @@embed_images[name][2]," << endl;
 	out << indent << "                     @@embed_images[name][3]," << endl;
 	out << indent << "                     @@embed_images[name][4]," << endl;
+	out << indent << "                     0," << endl;
 	out << indent << "                     Qt::Image::BigEndian )" << endl;
 #else
 	out << indent << "img = Qt::Image.new( @@embed_images[name][0].pack(\"C*\")," << endl;
@@ -222,6 +228,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << indent << "                     @@embed_images[name][2]," << endl;
 	out << indent << "                     @@embed_images[name][3]," << endl;
 	out << indent << "                     @@embed_images[name][4]," << endl;
+	out << indent << "                     0," << endl;
 	out << indent << "                     Qt::Image::BigEndian )" << endl;
 #endif
     out << indent << "if @@embed_images[name][5]" << endl;
@@ -259,15 +266,15 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
         ++indent;
         out << indent << "@@factories = Hash.new" << endl;
         out << indent << endl;
-	out << indent << "def StaticInitImages_" << cProject << ".qInitImages" << endl;
+        out << indent << "def StaticInitImages_" << cProject << ".qInitImages" << endl;
         ++indent;
         out << indent << "factory = MimeSourceFactory_" << cProject << ".new()" << endl;
         out << indent << "Qt::MimeSourceFactory.defaultFactory().addFactory(factory)" << endl;
         out << indent << "@@factories['MimeSourceFactory_" << cProject << "'] = factory" << endl;
         --indent;
         out << indent << "end" << endl;
-	out << endl;
-	out << indent << "def StaticInitImages_" << cProject << ".qCleanupImages" << endl;
+        out << endl;
+        out << indent << "def StaticInitImages_" << cProject << ".qCleanupImages" << endl;
         ++indent;
         out << indent << "for values in @@factories" << endl;
         ++indent;
@@ -277,9 +284,10 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
         out << indent << "@@factories = nil" << endl;
         --indent;
         out << indent << "end" << endl;
+        out << endl;
+        out << indent << "StaticInitImages_" << cProject << ".qInitImages" << endl;
         --indent;
         out << indent << "end" << endl;
-	out << endl;
-    out << endl;
+        out << endl;
     }
 }

@@ -507,14 +507,13 @@ void marshall_ucharP(Marshall *m) {
 		break;
 	    }
 	    if(m->cleanup()) {
-                m->item().s_voidp = (void *) rb_str_new2("");
+                m->item().s_voidp = StringValuePtr(rv);
 	    } else {
                 m->item().s_voidp = StringValuePtr(rv);
 	    }
 	}
 	break;
       case Marshall::ToVALUE:
-	// This will need to be implemented with some sort of tied array
       default:
 	m->unsupported();
 	break;
@@ -598,14 +597,14 @@ static void marshall_QByteArray(Marshall *m) {
 	break;
       case Marshall::ToVALUE:
 	{
-		VALUE rv = *(m->var());
+		VALUE rv = rb_str_new2("");
 	    QByteArray *s = (QByteArray*)m->item().s_voidp;
 	    if(s) {
-			rb_str_resize(rv, 0);
 			rb_str_cat(rv, (const char *)s->data(), s->size());
         } else {
 			rv = Qnil;
 		}
+		*(m->var()) = rv;
 	    if(m->cleanup())
 		delete s;
 	}

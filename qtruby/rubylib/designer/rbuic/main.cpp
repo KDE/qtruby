@@ -224,16 +224,12 @@ int main( int argc, char * argv[] )
 	out << "#" << endl;
 	out << "# WARNING! All changes made in this file will be lost!" << endl;
 	out << endl;
-	out << endl;
     }
-    out << endl;
     out << endl;
 
     Uic uic( fileName, out, doc, subcl, trmacro ? trmacro : "trUtf8", className, nofwd, uicClass );
 
     if (execCode) {
-	out << endl;
-	out << endl;
     out << endl;
 	out << indent << "if $0 == __FILE__" << endl;
 	++indent;
