@@ -211,10 +211,12 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 				const SmokeType &t = args[i].st;
 				switch(t.elem()) {
 				case Smoke::t_bool:
+					{
 					Q_INT8 temp;
 					*stream >> temp;
 					stack[i].s_bool = temp;
 					break;
+					}
 				case Smoke::t_char:
 					{
 					Q_INT8 temp;
