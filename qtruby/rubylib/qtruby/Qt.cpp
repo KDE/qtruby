@@ -356,6 +356,11 @@ public:
     MethodCall(Smoke *smoke, Smoke::Index method, VALUE target, VALUE *sp, int items) :
 	_cur(-1), _smoke(smoke), _method(method), _target(target), _current_object(0), _sp(sp), _items(items), _called(false)
     {
+	
+	if (TYPE(_target) != T_DATA && _target != Qnil) {
+		rb_raise(rb_eArgError, "Instance not initialized");
+	}
+	
 	if (_target != Qnil) {
 	    smokeruby_object *o = value_obj_info(_target);
 		if (o && o->ptr) {
