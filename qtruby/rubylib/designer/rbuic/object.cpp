@@ -231,16 +231,10 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		
 	    if ( stdset ) {
 			call += mkStdSet( prop ) + "( ";
-	    	if ( prop == "accel" )
-				call += "Qt::KeySequence.new( " + value + " ) )";
-	    	else
-				call += value + " )";
+			call += value + " )";
 	    } else {
 			call += "setProperty( \"" + prop + "\", Qt::Variant.new(" ;
-	    	if ( prop == "accel" )
-				call += "Qt::KeySequence.new( " + value + " ) ) )";
-	    	else
-				call += value + " ) )";
+			call += value + " ) )";
 	    }
 
 	    if ( n.firstChild().toElement().tagName() == "string" ||
