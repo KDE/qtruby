@@ -1,5 +1,12 @@
 2003-11-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* When marshalling a const ref type to a ruby VALUE, it is now copied
+	* Applied some fixes for construct_copy() from the PerlQt version of
+	  handlers.cpp
+	* Fixed some minor bugs in the progress.rb Qt example
+
+2003-11-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Added method selector caching for class methods and constructors,
 	  although performance still 'sedate' compared with C++ or Perl.
 

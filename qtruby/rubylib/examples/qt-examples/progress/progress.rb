@@ -22,7 +22,7 @@ class AnimatedThingy < Qt::Label
     end
 
     def show
-        startTimer(150) unless isVisible
+        startTimer(100) unless isVisible
         super
     end
 
@@ -48,15 +48,15 @@ class AnimatedThingy < Qt::Label
     end
 
     def timerEvent(e)
-	painter = Qt::Painter.new(self)
-	pn = painter.pen
+	p = Qt::Painter.new(self)
+	pn = p.pen
 	pn.setWidth(2)
 	pn.setColor(backgroundColor)
-	painter.setPen(pn)
+	p.setPen(pn)
 
 	@step = (@step + 1) % NQIX
 
-	painter.drawLine(@ox0[@step], @oy0[@step], @ox1[@step], @oy1[@step])
+	p.drawLine(@ox0[@step], @oy0[@step], @ox1[@step], @oy1[@step])
 
 	inc(@x0, @dx0, width)  { |x,dx| @x0, @dx0 = x, dx }
 	inc(@y0, @dy0, height) { |y,dy| @y0, @dy0 = y, dy }
@@ -70,12 +70,31 @@ class AnimatedThingy < Qt::Label
 	c = Qt::Color.new
 	c.setHsv( (@step*255)/NQIX, 255, 255 ) # rainbow effect
 	pn.setColor(c)
-	painter.setPen(pn)
-	painter.drawLine(@ox0[@step], @oy0[@step], @ox1[@step], @oy1[@step])
-	painter.setPen(white)
-	painter.drawText(rect(), AlignCenter, @label)
-	painter.end()
+	pn.setWidth(2)
+	p.setPen(pn)
+	p.drawLine(@ox0[@step], @oy0[@step], @ox1[@step], @oy1[@step])
+	p.setPen(colorGroup().text())
+	p.drawText(rect(), AlignCenter, @label)
+	p.end()
     end
+
+	def paintEvent(event)
+		p = Qt::Painter.new(self)
+		pn = p.pen()
+		pn.setWidth(2)
+		p.setPen(pn)
+		p.setClipRect(event.rect())
+		0.upto(NQIX-1) do |i|
+			c = Qt::Color.new()
+			c.setHsv( (i*255)/NQIX, 255, 255 ) # rainbow effect
+			pn.setColor(c)
+			p.setPen(pn)
+			p.drawLine(@ox0[i], @oy0[i], @ox1[i], @oy1[i])
+		end		
+		p.setPen(colorGroup().text())
+		p.drawText(rect(), AlignCenter, @label)
+		p.end
+	end
 end
 
 class CPUWaster < Qt::Widget

@@ -191,22 +191,26 @@ construct_copy(smokeruby_object *o)
     sprintf(ccArg, "const %s&", className);
 
     Smoke::Index ccMeth = o->smoke->findMethod(o->classId, ccId);
-    if(!ccMeth)
+
+    if(!ccMeth) {
 	return 0;
-    if(ccMeth > 0) {
+    }
 	Smoke::Index method = o->smoke->methodMaps[ccMeth].method;
+    if(method > 0) {
 	// Make sure it's a copy constructor
 	if(!matches_arg(o->smoke, method, 0, ccArg)) {
             delete[] ccArg;
 	    return 0;
         }
+        delete[] ccArg;
         ccMeth = method;
     } else {
         // ambiguous method, pick the copy constructor
-	Smoke::Index i = -ccMeth;
+	Smoke::Index i = -method;
 	while(o->smoke->ambiguousMethodList[i]) {
 	    if(matches_arg(o->smoke, o->smoke->ambiguousMethodList[i], 0, ccArg))
-	        break;
+		break;
+            i++;
 	}
         delete[] ccArg;
 	ccMeth = o->smoke->ambiguousMethodList[i];
@@ -439,12 +443,18 @@ marshall_basetype(Marshall *m)
 //		    o->allocated = true;
 
 		const char * classname = m->smoke()->binding->className(m->type().classId());
+		
+		if(m->type().isConst() && m->type().isRef()) {
+		    p = construct_copy( o );
+		    if(p) {
+			o->ptr = p;
+			o->allocated = true;
+		    }
+		}
+		
 		obj = set_obj_info(classname, o);
 		if (do_debug & qtdb_calls) {
-			if (m->type().isStack()) {
-				printf("allocating stack based %s %p -> %p\n", classname, o->ptr, obj);
-			}
-				printf("allocating %s %p -> %p\n", classname, o->ptr, obj);
+			printf("allocating %s %p -> %p\n", classname, o->ptr, obj);
 		}
 		
 		*(m->var()) = obj;
