@@ -125,9 +125,6 @@ QtRuby features a very complete coverage of the Qt api:
 		there are occasions when you need to delete the C++ ahead of garbage collection, and
 		whether or not it has a parent. Use the dispose() and isDisposed() methods like this:
 		
-			item0.takeItem(item1)  
-			item0.insertItem(item1)  
-		
 			item2.dispose
 			if item2.isDisposed
 				puts "item2 is disposed"
@@ -161,12 +158,14 @@ QtRuby features a very complete coverage of the Qt api:
 		
 		Use 'nil?' to test the value returned in the Boolean
 		
-	- String internationalisation. QtRuby supports $KCODE values of 'u', 'e' and 
+	- String i18n 
+	
+	   QtRuby supports $KCODE values of 'u', 'e' and 
 	  's' or the corresponding '-K' options from the command line. Qt Designer
 	  .ui files have UTF-8 strings so if you use any 8 bit UTF-8 characters, you
 	  will need to set $KCODE='u' or use the -Ku command line option.
  	
-	- Use Qt Designer
+	- Qt Designer
 		A 'rbuic' tool is included in qtruby/rubylib/designer/rbuic to compile
 		.ui files into ruby code. As described above, Qt Designer uses UTF-8.
 		In addition to the options in the original uic C++ utility an '-x' flag
@@ -187,6 +186,29 @@ QtRuby features a very complete coverage of the Qt api:
 		Then you can test the example code straight away:
 			
 		$ ruby mainform.rb
+
+	- Loading .ui files at runtime with QWidgetFactory
+		You can load a Qt Designer .ui file at runtime with the qui extension,
+		for example:
+		
+			require 'Qt'
+			require 'qui'
+
+			a = Qt::Application.new(ARGV)
+			if ARGV.length == 0
+				exit
+			end
+
+			if ARGV.length == 2
+				QUI::WidgetFactory.loadImages( ARGV[ 0 ] )
+    			w = QUI::WidgetFactory.create( ARGV[ 1 ] )
+    			if w.nil?
+					exit
+				end
+    			w.show()
+    			a.connect( a, SIGNAL('lastWindowClosed()'), a, SLOT('quit()') )
+    			a.exec()
+			end
 			
 	- QtRuby shell
 		You can use the QtRuby shell in bin/rbqtsh to create widgets 

@@ -1,3 +1,28 @@
+2004-09-12  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * Added a 'qui' extension for reading in .ui Qt Designer files at runtime
+ * For example:
+
+     require 'Qt'
+     require 'qui'
+
+     a = Qt::Application.new(ARGV)
+     if ARGV.length == 0
+         exit
+     end
+
+     if ARGV.length == 2
+         QUI::WidgetFactory.loadImages( ARGV[ 0 ] )
+             w = QUI::WidgetFactory.create( ARGV[ 1 ] )
+             if w.nil?
+             exit
+         end
+             w.show()
+            a.connect( a, SIGNAL('lastWindowClosed()'), a, SLOT('quit()') )
+            a.exec()
+     end
+
+
 2004-09-07  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * Upped the version to 1.0.1 for the current Rubyforge release
