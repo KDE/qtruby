@@ -47,8 +47,9 @@ static VALUE kde_internal_module;
 Marshall::HandlerFn getMarshallFn(const SmokeType &type);
 
 /*
-	Copy items from the stream to the stack, each item has a corresponding description in the 
-	args array of MocArguments. Used for marshalling DCOP replies and emitting DCOP signals.
+	Copy items from the stack to the stream, each item has a corresponding description in the 
+	args array of MocArguments. Used for marshalling the args to DCOP calls and sends, and 
+	converting the return value of a DCOP slot to a stream.
 */
 static void
 smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int items, MocArgument* args)
@@ -180,8 +181,9 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 }
 
 /*
-	Copy items from the stack to the stream, each item has a corresponding description in the 
-	args array of MocArguments. Used for marshalling the arguments to a DCOP slot invocation.
+	Copy items from the stream to the stack, each item has a corresponding description in the 
+	args array of MocArguments.   Used for marshalling the arguments to a DCOP slot invocation,
+	and for converting a dcop reply to a ruby value.
 */
 static void
 smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int items, MocArgument* args)
