@@ -24,10 +24,10 @@ class LCDRange < Qt::Widget
 		
 		setFocusProxy(@slider)
 		
-		l = Qt::VBoxLayout.new( self )
-		l.addWidget( @lcd, 1 )
-		l.addWidget( @slider )
-		l.addWidget( @label )
+		@l = Qt::VBoxLayout.new( self )
+		@l.addWidget( @lcd, 1 )
+		@l.addWidget( @slider )
+		@l.addWidget( @label )
 	end
 	
 	def value()
