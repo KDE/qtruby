@@ -1,5 +1,23 @@
 2004-10-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+ * An optimization in the overloaded method resolution matching causes a crash;
+   instead of throwing a ruby exception when a programming error is made.
+   If there is only one method found in the Smoke runtime, it assumes that it must 
+   be the right one and just takes that.
+
+ * For example:
+
+     lay = Qt::HBoxLayout.new(self)
+     ed = Qt::LineEdit.new('blah',self)
+     # The next line should be: lay.addWidget(ed)
+     lay.addLayout(ed)
+
+  * Fixes problem reported by Han Holl
+
+  CCMAIL: kde-bindings@kde.org
+
+2004-10-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
  * A common programming error is to accidently leave off the 'new' method call when
    creating an instance. The QtRuby runtime wasn't correctly trapping an attempt to
    call an instance method on a class object, and was seg faulting rather than
