@@ -1,10 +1,10 @@
-/**
-\page kconfig_compiler The KDE Configuration Compiler
+=begin
+\page kconfig_compiler The KDE Configuration Compiler for Ruby
 
-kconfig_compiler generates C++ source code from an XML file containing 
+rbkconfig_compiler generates Ruby source code from an XML file containing 
 information about configuration options (.kcfg) and a file that provides 
 the code generation options (.kcfgc) The generated class is based on 
-KConfigSkeleton and provides an API for the application to access its
+KDE::ConfigSkeleton and provides an API for the application to access its
 configuration data.
 
 <h2>XML description of the configuration options</h2>
@@ -14,9 +14,6 @@ The structure of the .kcfg file is described by its DTD kcfg.dtd.
 The \<kcfgfile\> tag contains the name of the configuration file described.
 Omitting the name will make the generated class use the default configuration
 file ("<appname>rc").
-
-The \<include\> tags are optional and may contain C++ header files that
-are needed to compile the code needed to compute default values.
 
 The remaining entries in the XML file are grouped by the tag \<group\> 
 which describes the corresponding group in the configuration file.
@@ -28,7 +25,7 @@ all spaces from \<key\>.
 
 An entry must also have a type. The list of allowable types is
 specified in the DTD and loosely follows the list of types supported
-by the QVariant with exception of the clearly binary types
+by the Qt::Variant with exception of the clearly binary types
 (e.g. Pixmap, Image...) which are not supported. Besides those basic
 type the following special types are supported:
 
@@ -43,7 +40,7 @@ type the following special types are supported:
   compatibility.
 
 - IntList  This indicates a list of integers. This information is provided
-  to the application as QValueList<int>. Useful for storing QSplitter
+  to the application as an Array of Integers. Useful for storing Qt::Splitter
   geometries.
 
 An entry can optionally have a default value which is used as default when
@@ -51,9 +48,7 @@ the value isn't specified in any config file. Default values are interpreted
 as literal constant values. If a default value needs to be computed
 or if it needs to be obtained from a function call, the \<default\> tag
 should contain the code="true" attribute. The contents of the \<default\>
-tag is then considered to be a C++ expression. Note that in this case you
-might have to add an \<include\> tag as described above so that the code
-which computes the default value can be compiled.
+tag is then considered to be a ruby expression.
 
 Additional code for computing default values can be provided via
 the \<code\> tag. The contents of the \<code\> tag is inserted as-is. A
@@ -62,7 +57,7 @@ then be referenced by multiple entries that follow.
 
 <h2>Code generation options</h2>
 
-The options for generating the C++ sources are read from the file with the
+The options for generating the Ruby sources are read from the file with the
 extension .kcfgc. To generate a class add the corresponding kcfgc file to the
 SOURCES line in the Makefile.am.
 
@@ -211,8 +206,8 @@ color_2=#0000ff
 color_3=#ffff00
 
 The configuration options will be accessible to the application via
-a QColor color(int ColorIndex) and a 
-void setColor(int ColorIndex, const QColor &v) function.
+a color(colorIndex) and a 
+setColor(colorIndex, v) method.
 
 Example 2:
 \verbatim
@@ -237,8 +232,8 @@ sound_Crash=crash.wav
 sound_Missile=missile.wav
 
 The configuration options will be accessible to the application via
-a QString sound(int SoundEvent) and a 
-void setSound(int SoundEvent, const QString &v) function.
+a sound(soundEvent) and a 
+setSound(soundEvent, v) method.
 
 - Parameterized groups
 
@@ -250,4 +245,8 @@ void setSound(int SoundEvent, const QString &v) function.
 
 If you have questions or comments please contact Cornelius Schumacher
 <schumacher@kde.org> or Waldo Bastian <bastian@kde.org>
-*/
+
+For Ruby specific questions please contact Richard Dale 
+<Richard_Dale@tipitina.demon.co.uk>
+=end
+
