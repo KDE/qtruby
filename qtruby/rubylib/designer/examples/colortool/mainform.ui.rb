@@ -12,7 +12,7 @@ class MainForm
 def init()
     @clipboard = Qt::Application.clipboard()
     if @clipboard.supportsSelection()
-        @clipboard.setSelectionMode( true )
+        @clipboard.selectionMode = true
     end
 
     findForm = 0
@@ -63,7 +63,7 @@ def populate()
             end
         end
 
-        @colorTable.setNumRows( @colors.length )
+        @colorTable.numRows = @colors.length
         if ! @colors.empty?
             pixmap = Qt::Pixmap.new( 22, 22 )
             row = 0
@@ -76,7 +76,7 @@ def populate()
                 @colorTable.setText( row, COL_HEX, color.name().upcase() )
                 if @show_web
                     item = Qt::CheckTableItem.new( @colorTable, "" )
-                    item.setChecked( isWebColor( color ) )
+                    item.checked = webColor?( color )
                     @colorTable.setItem( row, COL_WEB, item )
                 end
                 row += 1
@@ -109,8 +109,8 @@ def colorSwatch( color )
     pixmap.fill( white )
     painter = Qt::Painter.new
     painter.begin( pixmap )
-    painter.setPen( NoPen )
-    painter.setBrush( color )
+    painter.pen = NoPen
+    painter.brush = color
     painter.drawEllipse( 0, 0, 80, 80 )
     painter.end()
     return pixmap
@@ -118,7 +118,7 @@ end
 
 def fileNew()
     if okToClear()
-        @filename = ""
+        @filename = nil
         @changed = false
         @table_dirty = true
         @icons_dirty = true
@@ -224,7 +224,7 @@ def okToClear()
         if @filename.nil?
             msg = "Unnamed colors "
         else
-            msg = "Colors '@filename'\n"
+            msg = "Colors '#{@filename}'\n"
         end
         msg += "has been changed."
         ans = Qt::MessageBox.information(
@@ -279,7 +279,7 @@ def editCut()
             end
             item.dispose
             if current
-                @colorIconView.setCurrentItem( current )
+                @colorIconView.currentItem = current
             end
             @colorIconView.arrangeItemsInGrid()
         end
@@ -313,7 +313,7 @@ def editCopy()
         when CLIP_AS_RGB
             text = "#{color.red},#{color.green},#{color.blue}"
         end
-        @clipboard.setText( text )
+        @clipboard.text = text
         statusBar().message( "Copied '" + text + "' to the clipboard" )
     end
 end
@@ -353,14 +353,14 @@ def lookfor( text )
         item = start.nextItem() unless start.nil?
         while !item.nil?
             if item.text().downcase().include?( ltext ) 
-                @colorIconView.setCurrentItem( item )
+                @colorIconView.currentItem = item
                 @colorIconView.ensureItemVisible( item )
                 found = true
             end
             item = item.nextItem()
         end
         if ! found && !start.nil?
-            @colorIconView.setCurrentItem( start )
+            @colorIconView.currentItem = start
         end
     end
     if ! found
@@ -396,19 +396,19 @@ def changedColor( name )
     b = color.blue()
     statusBar().message( "%s \"%s\" (%d,%d,%d) %s {%.3f %.3f %.3f}" % 
                          [name, color.name.upcase, 
-                         r, g, b, isWebColor( color ) ? ' web' : '', 
+                         r, g, b, webColor?( color ) ? ' web' : '', 
                          r / 255.0, g / 255.0, b / 255.0] )
 end
 
 def changeView(action)
     if action == @viewTableAction
-    @colorWidgetStack.raiseWidget( @tablePage )
+        @colorWidgetStack.raiseWidget( @tablePage )
     else
-    @colorWidgetStack.raiseWidget( @iconsPage )
+        @colorWidgetStack.raiseWidget( @iconsPage )
     end
 end
 
-def isWebColor( color )
+def webColor?( color )
     r = color.red()
     g = color.green()
     b = color.blue()
@@ -434,7 +434,7 @@ def editAdd()
         end
     end
     color = Qt::ColorDialog.getColor( color, self )
-    if color.isValid()
+    if color.valid?
         pixmap = Qt::Pixmap.new( 80, 10 )
         pixmap.fill( color )
         colorForm = ColorNameForm.new( self, "color", true )
@@ -452,14 +452,14 @@ def editAdd()
             @colorTable.setText( row, COL_HEX, color.name().upcase() )
             if @show_web
                 item = Qt::CheckTableItem.new( @colorTable, "" )
-                item.setChecked( isWebColor( color ) )
+                item.checked = webColor?( color )
                 @colorTable.setItem( row, COL_WEB, item )
             end
             @colorTable.setCurrentCell( row, 0 )
 
             Qt::IconViewItem.new( @colorIconView, name,
-                      colorSwatch( color ) )
-            @changed = true;
+                                  colorSwatch( color ) )
+            @changed = true
         end
     end
 end
@@ -468,26 +468,24 @@ def editOptions()
     options = OptionsForm.new( self, "options", true )
     case @clip_as
     when CLIP_AS_HEX
-        options.hexRadioButton.setChecked( true )
+        options.hexRadioButton.checked = true
     when CLIP_AS_NAME
-        options.nameRadioButton.setChecked( true )
+        options.nameRadioButton.checked = true 
     when CLIP_AS_RGB
-        options.rgbRadioButton.setChecked( true )
+        options.rgbRadioButton.checked = true
     end
-    options.webCheckBox.setChecked( @show_web )
+    options.webCheckBox.checked = @show_web
 
     if options.exec()
-        if options.hexRadioButton.isChecked()
+        if options.hexRadioButton.checked?
             @clip_as = CLIP_AS_HEX
-        elsif options.nameRadioButton.isChecked()
+        elsif options.nameRadioButton.checked?
             @clip_as = CLIP_AS_NAME
-        elsif options.rgbRadioButton.isChecked()
+        elsif options.rgbRadioButton.checked?
             @clip_as = CLIP_AS_RGB
         end
-        @table_dirty = @show_web !=
-            options.webCheckBox.isChecked()
-        @show_web = options.webCheckBox.isChecked()
-
+        @table_dirty = @show_web != options.webCheckBox.checked?
+        @show_web = options.webCheckBox.checked?
         populate()
     end
 end
@@ -502,8 +500,8 @@ def loadSettings()
     @clip_as = settings.readNumEntry( APP_KEY + "ClipAs", CLIP_AS_HEX )
     @show_web = settings.readBoolEntry( APP_KEY + "ShowWeb", true )
     if ! settings.readBoolEntry( APP_KEY + "View", true )
-    @colorWidgetStack.raiseWidget( @iconsPage )
-    @viewIconsAction.setOn( true )
+        @colorWidgetStack.raiseWidget( @iconsPage )
+        @viewIconsAction.on = true
     end
 
     resize( windowWidth, windowHeight )
