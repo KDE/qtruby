@@ -116,14 +116,10 @@ module Qt
 		def normalize_classname(classname)
 			if classname =~ /^Q/
 				classname.sub(/^Q(?=[A-Z])/,'Qt::')
-			elsif classname =~ /^KParts__/
-				classname.sub(/^KParts__/,'KParts::')
-			elsif classname =~ /^KIO__/
-				classname.sub(/^KIO__/,'KIO::')
-			elsif classname =~ /^khtml__/
-				classname.sub(/^khtml__/,'khtml::')
-			else
+			elsif classname !~ /::/
 				classname.sub(/^K?(?=[A-Z])/,'KDE::')
+			else
+				classname
 			end
 		end
 
@@ -502,6 +498,7 @@ class Object
 	# The Object.display() method conflicts with display() methods in Qt,
 	# so remove it..
 	undef_method :display
+	undef_method :type
 	def SIGNAL(string) ; return "2" + string; end
 	def SLOT(string)   ; return "1" + string; end
 	def emit(signal)   ; end
