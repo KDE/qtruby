@@ -612,6 +612,10 @@ marshall_basetype(Marshall *m)
 	switch(m->action()) {
 	  case Marshall::FromVALUE:
 	    {
+		if(*(m->var()) == Qnil) {
+            m->item().s_class = 0;
+		    break;
+		}
 		if(TYPE(*(m->var())) != T_DATA) {
             rb_raise(rb_eArgError, "Invalid type, expecting %s\n", m->type().name());
 		    break;
