@@ -2,78 +2,537 @@
 
 require 'Korundum'
 
-#
 # in order to use KURL's as constants one must place this KApplication init 
 # at the top of the file otherwise KInstance isn't init'ed before KURL usage
 #
 about = KDE::AboutData.new("one", "two", "three")
-KDE::CmdLineArgs.init(1, ["four"], about)
+KDE::CmdLineArgs.init(1, ["RubberDoc"], about)
 a = KDE::Application.new()
 
 # Qt::Internal::setDebug Qt::QtDebugChannel::QTDB_ALL
 # Qt.debug_level = Qt::DebugLevel::High
 
+class String
+   def trigrams
+      list = []
+      0.upto(self.length-3) {
+         |p|
+         list << self.slice(p, 3)
+      }
+      list
+   end
+end
+
+class GenericTriGramIndex
+   attr_accessor :trigrams
+
+   def initialize
+      clear
+   end
+
+   def clear
+      @trigrams = Hash.new{ |h,k| h[k] = [] }
+   end
+
+   def insert_with_key string, key
+      string.downcase.trigrams.each {
+         |trigram| @trigrams[trigram] << key
+      }
+   end
+
+   # returns a list of matching keys
+   def search search_string
+      trigs = search_string.trigrams
+      key_subset = trigrams[trigs.delete_at(0)]
+      trigs.each {
+         |trigram|
+         key_subset &= trigrams[trigram]
+      }
+      key_subset
+   end
+end
+
+# TODO - clear/remake trigram index if node lists are invalidated 
+
 class MyBase < Qt::VBox
-   HOME = KDE::URL.new ENV["BASEDOCURL"]
-   slots "go_back()", "go_forward()", "goto_url()", "go_home()", "debug()"
+   slots "go_back()", "go_forward()", "goto_url()", "goto_search()", "go_home()", "search(const QString&)",
+         "clicked_result(QListViewItem*)", "blank_completed()", "update_highlight()"
    attr_accessor :back, :forward, :url
+   DEBUG        = false
+   DEBUG_IDX    = false
+   DEBUG_FAST   = true
+   DEBUG_SEARCH = false
    def initialize( *k )
-      super *k
+      super( *k )
+      @index     = GenericTriGramIndex.new
+      @nodeindex = GenericTriGramIndex.new
       buttons = Qt::HBox.new self
-      @w = KDE::HTMLPart.new self
+      @panes = Qt::Splitter.new self
+      @panes.setOrientation Qt::Splitter::Horizontal
+      setStretchFactor @panes, 10
+      @listview = Qt::ListView.new @panes
+      @listview.addColumn "IDXs"
+      @listview.hideColumn 1 unless DEBUG_IDX
+      @listview.addColumn "URIs"
+      @listview.setResizeMode Qt::ListView::LastColumn
+      @listview.setRootIsDecorated true
+      @rightpane = Qt::Splitter.new @panes
+      @rightpane.setOrientation Qt::Splitter::Vertical
+      @viewed = KDE::HTMLPart.new @rightpane
+      @viewed.openURL KDE::URL.new("about:blank")
+      @logger = Qt::TextEdit.new @rightpane
+      @logger.setTextFormat Qt::LogText
       @history = []
       @popped_history = []
-      @url      = HOME
       @forward  = KDE::PushButton.new(buttons) { setText "Forward" }
       @back     = KDE::PushButton.new(buttons) { setText "Back" }
       @home     = KDE::PushButton.new(buttons) { setText "Home" }
-      @debug    = KDE::PushButton.new(buttons) { setText "Debug" }
       @location = Qt::LineEdit.new buttons
+      @search   = Qt::LineEdit.new buttons
       @label    = Qt::Label.new self
-      Qt::Object.connect( @back,    SIGNAL( "clicked()" ),
-                          self,     SLOT(   "go_back()" ) )
-      Qt::Object.connect( @forward, SIGNAL( "clicked()" ),
-                          self,     SLOT(   "go_forward()" ) )
-      Qt::Object.connect( @home,    SIGNAL( "clicked()" ),
-                          self,     SLOT(   "go_home()" ) )
-      Qt::Object.connect( @debug,   SIGNAL( "clicked()" ),
-                          self,     SLOT(   "debug()" ) )
-      Qt::Object.connect( @location,SIGNAL( "returnPressed()" ),
-                          self,     SLOT(   "goto_url()" ) )
-      load_page
+      Qt::Object.connect @back,     SIGNAL("clicked()"),
+                         self,      SLOT("go_back()")
+      Qt::Object.connect @forward,  SIGNAL("clicked()"),
+                         self,      SLOT("go_forward()")
+      Qt::Object.connect @home,     SIGNAL("clicked()"),
+                         self,      SLOT("go_home()")
+      Qt::Object.connect @search,   SIGNAL("textChanged(const QString&)"),
+                         self,      SLOT("search(const QString&)")
+      Qt::Object.connect @search,   SIGNAL("returnPressed()"),
+                         self,      SLOT("goto_search()")
+      Qt::Object.connect @location, SIGNAL("returnPressed()"),
+                         self,      SLOT("goto_url()")
+      Qt::Object.connect @listview, SIGNAL("clicked(QListViewItem*)"),
+                         self,      SLOT("clicked_result(QListViewItem*)")
+      Qt::Object.connect @viewed,   SIGNAL("completed()"),
+                         self,      SLOT("blank_completed()")
+      @timer = Qt::Timer.new self
+      Qt::Object.connect @timer,    SIGNAL("timeout()"), 
+                         self,      SLOT("update_highlight()")
       update_ui_elements
-      self.resize 800,600
+      @current_node_index = 0
+      @cur_doc_idx = 0
+      @freq_sorted_idxs = nil
+      @idx2uri, @idx2title = {}, {}
+      @cidx = nil
+      @search_text = nil
    end
-   def debug
-      node = @w.document
-      indent = 0
-      until node.isNull
-         puts "NODE NAME :: #{node.inspect}"
-         if node.nodeType == 9 # DOM::Node::TEXT_NODE
-            blah = Qt::Internal::cast_object_to(node, "KDE::DOM::Text")
-            str = puts '"' + blah.data.string + '"'
+   def log s
+      @logger.append s
+      @logger.scrollToBottom
+   end
+   def blank_completed
+      Qt::Object.disconnect @viewed,   SIGNAL("completed()"),
+                            self,      SLOT("blank_completed()")
+      @viewed.setJScriptEnabled true
+      @viewed.setJavaEnabled    false
+      @viewed.setPluginsEnabled false
+      @viewed.setAutoloadImages false
+
+      # todo - save these settings
+      desktop = Qt::Application::desktop
+      sx = (desktop.width  * (2.0/3.0)).to_i
+      sy = (desktop.height * (2.0/3.0)).to_i
+
+      resize sx, sy
+
+      logsize     = 0
+      resultssize = (sx /  5.0).to_i
+
+      @rightpane.setSizes [sy-logsize, logsize]
+      @panes.setSizes     [resultssize, sx-resultssize]
+
+      # @rightpane.setResizeMode @viewed, Qt::Splitter::KeepSize - bug in khtml?
+      @rightpane.setResizeMode @logger, Qt::Splitter::KeepSize
+
+      @panes.setResizeMode @listview,   Qt::Splitter::KeepSize
+      @panes.setResizeMode @rightpane,  Qt::Splitter::KeepSize
+
+      index_documents
+
+      search "chomp" if DEBUG_SEARCH
+   end
+   def first_url
+      KDE::URL.new ENV["BASEDOCURL"]
+   end
+   require "yaml"
+   require "stringio"
+   def get_count s
+      s.slice! 0
+      s.to_i
+   end
+   def index_documents
+      index_fname     = ENV["BASEDOCURL"].gsub(/\//,",") + ".docuidx"
+      nodeindex_fname = ENV["BASEDOCURL"].gsub(/\//,",") + ".nodeidx"
+      if File.exists? index_fname and File.exists? nodeindex_fname
+time_me("reading doc index") {
+         File.open(index_fname, "r") {
+            |file| 
+            index = GenericTriGramIndex.new
+            len = get_count file.gets
+            len.times {
+               trigram = ""
+               3.times { trigram << file.gets.to_i.chr }
+               doc_list = []
+               doc_list_len = get_count file.gets
+               doc_list_len.times {
+                  doc_list << file.gets.to_i
+               }
+               index.trigrams[trigram] = doc_list
+            }
+            @index = index
+         }
+}         
+time_me("reading node index") {
+         File.open(nodeindex_fname, "r") {
+            |file| 
+            index = GenericTriGramIndex.new
+            len = get_count file.gets
+            len.times {
+               trigram = ""
+               3.times { trigram << file.gets.to_i.chr }
+               node_list = []
+               node_list_len = get_count file.gets
+               node_list_len.times {
+                  doc_idx = file.gets.to_i
+                  node_path = file.read(4).unpack("V*")
+                  node_list << DocNodeRef.new(doc_idx, node_path)
+               }
+               index.trigrams[trigram] = node_list
+            }
+            @nodeindex = index
+         }
+}         
+         p @nodeindex
+         @url = first_url
+         load_page
+         self.show
+         return
+      end
+      t1 = Time.now
+      @viewed.hide
+      @done = []
+      @todo_links = []
+      @t1 = Time.now
+      progress = Qt::ProgressDialog.new("Indexing files...", "Abort Indexing", 100, nil, "progress", true)
+      progress.setProgress 1
+      count = 1
+      @url = first_url
+      @todo_links = [ DOM::DOMString.new first_url.url ]
+      until @todo_links.empty?
+         progress.setProgress count
+         count += 10 # TODO base on rate decrease in page number growth providing total estimate and use done number as current
+                     # possibly use some sort of averaging algorithm to stop the progress bar being going crazy
+                     # possibly make use of the kde version which iirc has a bouncing version that can be used before estimate is stable
+         follow_links
+         fail "errr, you really didn't want to do that dave" if progress.wasCanceled
+      end
+      progress.reset
+      progress.setTotalSteps @index.trigrams.length
+      progress.setLabelText  "Writing document index..."
+      progress.setProgress   1
+time_me("writing doc index") {
+      File.open(index_fname, "w") {
+         |file| 
+         index = @index
+         file.puts ":" + index.trigrams.length.to_s
+         n = 0
+         index.trigrams.each_pair {
+            |trigram, doc_list|
+            trigram.each_byte {
+               |byte|
+               file.puts byte.to_s
+            }
+            file.puts ":" + doc_list.length.to_s
+            doc_list.each {
+               |idx|
+               file.puts idx.to_s
+            }
+            progress.setProgress n += 1
+            n += 1
+            fail "errr, you really didn't want to do that dave" if progress.wasCanceled
+         }
+      }
+}
+      progress.setTotalSteps @nodeindex.trigrams.length
+      progress.setLabelText  "Writing node index..."
+      progress.setProgress   1
+time_me("writing node index") {
+      File.open(nodeindex_fname, "w") {
+         |file| 
+         index = @nodeindex
+         # trigrams
+         file.puts ":" + index.trigrams.length.to_s
+         n = 0
+         index.trigrams.each_pair {
+            |trigram, node_list|
+            # letters in trigram
+            trigram.each_byte {
+               |byte|
+               file.puts byte.to_s
+            }
+            # node_list
+            file.puts ":" + node_list.length.to_s
+            node_list.each {
+               |noderef|
+               # doc_idx
+               file.puts noderef.doc_idx.to_s
+               # node_path
+               file.write noderef.node_path.pack("V*")
+            }
+            progress.setProgress n += 1
+            n += 1
+            fail "errr, you really didn't want to do that dave" if progress.wasCanceled
+         }
+      }
+}
+      p @nodeindex
+      progress.reset
+      @viewed.show
+      t2 = Time.now
+      log "all documents indexed in #{(t2 - t1).to_i}s"
+      self.show
+   end
+   def find_node doc, path_a
+      n = doc
+      path_a.reverse.each {
+         |index|
+         n = n.childNodes.item index
+      }
+      n
+   end
+   def get_node_path node
+      n = node
+      path_a = []
+      until n.isNull
+         path_a << n.index if (n.elementId != 0)
+         n = n.parentNode
+      end
+      path_a 
+   end
+   def time_me str
+      t1 = Time.now
+      yield
+      t2 = Time.now
+      puts "#{str}: #{"%.02f" % (t2 - t1).to_f}s"
+   end
+   def update_highlight
+      return if @search_text.empty?
+      @viewed.setUserStyleSheet "span.searchword  { background-color: yellow }"
+      searched_for = @search_text
+      doc = @viewed.document
+      replaced_nodes, highlighted_nodes = [], []
+      @nodeindex.search(searched_for).each {
+         |ref|
+         next unless ref.doc_idx == @cidx
+         highlighted_nodes << ref.node_path
+      }
+      undo_highlight @to_undo unless @to_undo.nil? or @cidx != @to_undo_cidx
+      @to_undo = []
+      @to_undo_cidx = @cidx # we store this to prevent unhighlighting the wrong doc!
+      highlighted_nodes.reverse.each {
+         |path|
+         node      = find_node doc, path
+         nodetext  = node.nodeValue.string
+         match_idx = nodetext.downcase.index searched_for
+         if match_idx.nil?
+            warn "if you see this, then alex screwed up...." 
+            next
          end
+         before    = doc.createTextNode DOM::DOMString.new(nodetext.slice!(0, match_idx))
+         matched   = doc.createTextNode DOM::DOMString.new(nodetext.slice!(0, searched_for.length))
+         after     = doc.createTextNode DOM::DOMString.new(nodetext)
+         span      = doc.createElement  DOM::DOMString.new("span")
+         spanelt   = DOM::HTMLElement.new span
+         spanelt.setClassName DOM::DOMString.new("searchword")
+         span.appendChild matched
+         node.parentNode.insertBefore before, node
+         node.parentNode.insertBefore span,   node
+         node.parentNode.insertBefore after,  node
+         @to_undo       << [node.parentNode, before]
+         replaced_nodes << [node.parentNode, node]
+      }
+      replaced_nodes.each {
+         |pnn| pn, n = *pnn
+         pn.removeChild n
+      }
+   end
+   def undo_highlight to_undo
+      to_undo.each {
+         |pnn| pn, before = *pnn
+         mid        = before.nextSibling
+         after      = mid.nextSibling
+         beforetext = before.nodeValue.string
+         aftertext  = after.nodeValue.string
+         pn.removeChild after
+         midtxtnode = mid.childNodes.item(0)
+         midtext = midtxtnode.nodeValue.string
+         str = DOM::DOMString.new(beforetext + midtext + aftertext)
+         chardata = DOM::CharacterData.new(DOM::Node.new before)
+         chardata.setData str
+         pn.removeChild mid
+      }
+   end
+   def search s
+      @search_text = s
+      idx_hash = Hash.new { |h,k| h[k] = 0 }
+      @index.search(s).each {
+         |idx|
+         idx_hash[idx] += 1
+      }
+      @freq_sorted_idxs = idx_hash.to_a.sort_by { |a,b| a[0] <=> b[0] }.reverse
+      log "results for this search:"
+      update_lv
+      @timer.start 150, true unless @freq_sorted_idxs.empty?
+   end
+   def look_for_prefixes
+      prefixes = []
+      # TODO - fix this crappy hack
+      @idx2title.values.sort.each {
+         |title|
+         title.gsub! "\n", ""
+         p = title.index ":"
+         next if p.nil?
+         prefix = title[0..p-1]
+         prefixes << prefix
+         new_title = title[p+1..title.length]
+         new_title.gsub! /(\s\s+|^\s+|\s+$)/, ""
+         title.replace new_title 
+      }
+   end
+   # TODO - use kde icons
+   def update_lv
+      @listview.clear
+      lv_root = Qt::ListViewItem.new @listview, "results"
+      lv_root.setOpen true
+      look_for_prefixes
+      @freq_sorted_idxs.each {
+         |a| 
+         idx, count = *a
+         # TODO subclass listview ...
+         Qt::ListViewItem.new lv_root, idx.to_s, @idx2title[idx]
+      } unless @freq_sorted_idxs.nil?
+   end
+   def goto_search
+      idx, count = *(@freq_sorted_idxs.first)
+      @cidx = idx
+      goto_url @idx2uri[idx]
+      puts "goto_search"
+      puts idx
+   end
+   def clicked_result i
+      return if i == @listview.firstChild
+      idx = i.text(0).to_i
+      @cidx = idx 
+      goto_url @idx2uri[idx]
+      puts "clicked_result"
+      puts idx
+   end
+   def gather_for_current_page
+      title_map = {}
+      anchors = @viewed.htmlDocument.links
+      f = anchors.firstItem
+      count = anchors.length
+      idx = 0
+      caret_node = nil
+      while true
+         break if (count -= 1) < 0
+         text = ""
+         each_child(f) {
+            |node|
+            text << node.nodeValue.string if node.nodeType == DOM::Node::TEXT_NODE
+         }
+         link = Qt::Internal::cast_object_to f, "DOM::HTMLLinkElement"
+         if link.href.string =~ /^file:/ and !DEBUG_FAST
+            title_map[link.href.string] = text
+            @todo_links << link.href
+         end
+         f = anchors.nextItem
+         caret_node = f if idx == @current_node_index
+         idx += 1
+      end
+      @current_node_index += 1
+      @viewed.setCaretPosition caret_node, 0 unless caret_node.nil?
+   end
+   DocNodeRef = Struct.new :doc_idx, :node_path
+   def preload_text
+      log "preloading text for url #{@viewed.htmlDocument.URL.string}"
+      doc_text = ""
+      @idx2uri[@cur_doc_idx]   = @viewed.htmlDocument.URL.string
+      @idx2title[@cur_doc_idx] = @viewed.htmlDocument.title.string
+      each_child(@viewed.document) {
+         |node|
+         next unless node.nodeType == DOM::Node::TEXT_NODE
+         @index.insert_with_key node.nodeValue.string, @cur_doc_idx
+         ref = DocNodeRef.new @cur_doc_idx, get_node_path(node)
+         @nodeindex.insert_with_key node.nodeValue.string, ref
+         doc_text << node.nodeValue.string
+      }
+      t2 = Time.now
+      log "#{doc_text.length} bytes loaded and indexed in #{"%.02f" % (t2 - @t1).to_f}s"
+      @t1 = Time.now
+      @cidx = @cur_doc_idx
+      @cur_doc_idx += 1
+   end
+   def follow_links
+      was = @todo_links
+      todo_next = []
+      was.each {
+         |lhref|
+         idx = (lhref.string =~ /#/)
+         unless idx.nil?
+            lhref = lhref.copy
+            lhref.truncate idx 
+         end
+         skip = @done.include? lhref.string
+         next if skip
+         log "loading: #{lhref.string}"
+         @viewed.document.setAsync false
+         @viewed.document.load lhref
+         @done << lhref.string
+         @todo_links = []
+         gather_for_current_page
+         preload_text
+         todo_next += @todo_links
+      }
+      @todo_links = todo_next 
+   end
+   def debug_dom_tree
+      each_child(@viewed.document) {
+         |node|
+         puts "NODE NAME :: #{node.inspect}"
+         puts node.nodeType
+         if node.nodeType == DOM::Node::TEXT_NODE
+            p node.nodeValue.string
+         end
+      }
+   end
+   def each_child node
+      indent = 0
+      until node.isNull 
+         yield node
          if not node.firstChild.isNull
             node = node.firstChild
             indent += 1
          elsif not node.nextSibling.isNull
             node = node.nextSibling
          else
-            while !node.isNull and node.nextSibling.isNull
+            while indent > 0 and !node.isNull and node.nextSibling.isNull
                node = node.parentNode
                indent -= 1
             end
             if not node.isNull
                node = node.nextSibling
             end
-         end 
+         end
+         break if indent == 0
       end
    end
    def load_page
-      @w.setCaretMode true
-      @w.openURL @url
-      @w.show
-      # @w.slotDebugDOMTree
+      @viewed.setCaretMode true
+      @viewed.document.setAsync false
+      @viewed.document.load DOM::DOMString.new @url.url
+      @viewed.show
    end
    def update_ui_elements
       @forward.setDisabled @popped_history.empty?
@@ -94,11 +553,11 @@ class MyBase < Qt::VBox
       @location.setText @url.prettyURL
    end
    def go_home
-      goto_url HOME
+      goto_url first_url
    end
    def goto_url url = nil, history_store = true
       @popped_history = []
-      @url = KDE::URL.new (url.nil? ? @location.text : url)
+      @url = KDE::URL.new(url.nil? ? @location.text : url)
       @label.setText "going somewhere - #{@url.prettyURL}"
       if history_store
          @history << @url
@@ -106,17 +565,15 @@ class MyBase < Qt::VBox
       end
       load_page
       update_loc unless url.nil?
+      update_highlight
    end
 end
 
-Thread.new {
-   puts "indexing"
-}
-
-browser = MyBase.new
-browser.show
-a.setMainWidget(browser)
-a.exec()
+begin
+   browser = MyBase.new
+   a.setMainWidget(browser)
+   a.exec()
+end
 
 __END__
 
@@ -138,11 +595,13 @@ can't get tabwidget working. umm... wonder what i'm messing up...
 
       tabwidget = KDE::TabWidget.new browser
       tabwidget.setTabPosition Qt::TabWidget::Top
-      @w = KDE::HTMLPart.new tabwidget
+      @viewed = KDE::HTMLPart.new tabwidget
       w2 = KDE::HTMLPart.new tabwidget
-      tabwidget.changeTab @w, Qt::IconSet.new, "blah blah"
-      tabwidget.showPage @w
+      tabwidget.changeTab @viewed, Qt::IconSet.new, "blah blah"
+      tabwidget.showPage @viewed
       tabwidget.show
-      @w.show
+      @viewed.show
+
+# possible BUG DOM::Text.new(node).data.string # strange that this one doesn't work...
 
 dcop = KDE::DCOPObject.new()
