@@ -14,6 +14,17 @@ module Qt
                 Off, Minimal, High = *(0..2).to_a
         end
 
+	module QtDebugChannel 
+		QTDB_NONE = 0x00
+		QTDB_AMBIGUOUS = 0x01
+		QTDB_METHOD_MISSING = 0x02
+		QTDB_CALLS = 0x04
+		QTDB_GC = 0x08
+		QTDB_VIRTUAL = 0x10
+		QTDB_VERBOSE = 0x20
+                QTDB_ALL = QTDB_VERBOSE | QTDB_VIRTUAL | QTDB_GC | QTDB_CALLS | QTDB_METHOD_MISSING | QTDB_AMBIGUOUS
+	end
+
         @@debug_level = DebugLevel::Off
         def Qt.debug_level=(level)
                 @@debug_level = level
@@ -188,6 +199,7 @@ module Qt
 		end
 
 		def find_class(classname)
+			# puts @@classes.keys.sort.join "\n"
 			@@classes[classname]
 		end
 		
