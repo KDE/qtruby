@@ -1,3 +1,9 @@
+2004-01-28  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Fixed bug where a QCString was being ranked equally with a QString,
+	  when resolving ambiguous method overloading. Caused the KDE::URL
+	  constructor to fail with a string arg.
+
 2003-11-29  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added DOM:: namespace for the DOM:: classes in the Smoke library.

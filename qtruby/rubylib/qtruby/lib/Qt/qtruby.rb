@@ -164,7 +164,7 @@ module Qt
 			elsif argtype == 's'
 				if typename =~ /^(?:u?char\*|const u?char\*|(?:const )?((Q(C?)String)|QByteArray)[*&]?)$/
 					qstring = !$1.nil?
-					c = !$2.nil?
+					c = ("C" == $3)
 					return c ? 1 : (qstring ? 2 : 0)
 				end
 			elsif argtype == 'a'
