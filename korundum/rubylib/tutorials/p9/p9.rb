@@ -94,7 +94,9 @@ end
     aboutdata.addAuthor("Antonio Larrosa Jimenez",
       "Original Developer/Mantainer","larrosa@kde.org",
       "http://devel-home.kde.org/~larrosa/index.html")
-    
+    aboutdata.addAuthor("Richard Dale",
+      "Ruby port","Richard_Dale@tipitina.demon.co.uk",
+      "")    
 	KDE::CmdLineArgs.init(ARGV, aboutdata)
 	
     a = KDE::UniqueApplication.new()
