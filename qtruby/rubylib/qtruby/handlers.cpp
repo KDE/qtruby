@@ -1115,7 +1115,7 @@ void marshall_QValueListInt(Marshall *m) {
 	    QValueList<int> *valuelist = new QValueList<int>;
 	    long i;
 	    for(i = 0; i < count; i++) {
-	    VALUE item = rb_ary_entry(list, i);
+		VALUE item = rb_ary_entry(list, i);
 		if(TYPE(item) != T_FIXNUM && TYPE(item) != T_BIGNUM) {
 		    valuelist->append(0);
 		    continue;
@@ -1149,9 +1149,11 @@ void marshall_QValueListInt(Marshall *m) {
 	    for(QValueListIterator<int> it = valuelist->begin();
 		it != valuelist->end();
 		++it)
-		rb_ary_push(av, INT2NUM((int)*it));
+		rb_ary_push(av, INT2NUM(*it));
 	    if(m->cleanup())
 		delete valuelist;
+  	    else
+	        *(m->var()) = av;
 	}
 	break;
       default:
