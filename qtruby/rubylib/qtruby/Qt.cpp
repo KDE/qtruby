@@ -1251,7 +1251,6 @@ getslotinfo(VALUE self, int id, char *&slotname, int &index, bool isSignal = fal
     int offset = isSignal ? metaobject->signalOffset() : metaobject->slotOffset();
 
     index = id - offset;   // where we at
-    // FIXME: make slot inheritance work
     if(index < 0) return Qnil;
 
     if (isSignal) {
@@ -1373,13 +1372,6 @@ class_name(VALUE self)
 {
     VALUE klass = rb_funcall(self, rb_intern("class"), 0);
     return rb_funcall(klass, rb_intern("name"), 0);
-}
-
-static VALUE
-dontRecurse(VALUE self)
-{
-    avoid_fetchmethod = true;
-    return self;
 }
 
 static void
@@ -2091,7 +2083,6 @@ Init_qtruby()
     rb_define_method(qt_internal_module, "getMethStat", (VALUE (*) (...)) getMethStat, 0);
     rb_define_method(qt_internal_module, "getClassStat", (VALUE (*) (...)) getClassStat, 0);
     rb_define_method(qt_internal_module, "getIsa", (VALUE (*) (...)) getIsa, 1);
-    rb_define_method(qt_internal_module, "dontRecurse", (VALUE (*) (...)) dontRecurse, 0);
     rb_define_method(qt_internal_module, "allocateMocArguments", (VALUE (*) (...)) allocateMocArguments, 1);
     rb_define_method(qt_internal_module, "setMocType", (VALUE (*) (...)) setMocType, 4);
     rb_define_method(qt_internal_module, "setDebug", (VALUE (*) (...)) setDebug, 1);

@@ -1,3 +1,14 @@
+2004-03-01  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Fixed bugs in QCString, QString and QByteArray marshalling.
+	  - When a C++ method with a mutable, non-const QCString arg type 
+	    is called from ruby, the C++ arg value is copied back into the
+	    corresponding ruby arg VALUE after the call.
+	  - A pointer to a locally allocated QString was being returned,
+	    giving memory corruption problems.
+	* The default debug level in qtruby.rb is DebugLevel::OFF, otherwise
+	  very verbose error messages are produced.
+
 2004-01-28  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Fixed bug where a QCString was being ranked equally with a QString,

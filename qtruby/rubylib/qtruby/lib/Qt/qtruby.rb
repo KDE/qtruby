@@ -33,7 +33,7 @@ module Qt
                 QTDB_ALL = QTDB_VERBOSE | QTDB_VIRTUAL | QTDB_GC | QTDB_CALLS | QTDB_METHOD_MISSING | QTDB_AMBIGUOUS
 	end
 
-        @@debug_level = DebugLevel::Minimal
+        @@debug_level = DebugLevel::Off
         def Qt.debug_level=(level)
                 @@debug_level = level
                 Internal::setDebug Qt::QtDebugChannel::QTDB_ALL if level >= DebugLevel::Extensive
@@ -429,7 +429,7 @@ module Qt
 	end
 
 	def getMocArguments(member)
-		argStr = member.sub(/.*\(/, '').sub!(/\)$/, '')
+		argStr = member.sub(/.*\(/, '').sub(/\)$/, '')
 		args = argStr.scan(/[^,]+/)
 		mocargs = allocateMocArguments(args.length)
                 args.each_with_index {
