@@ -253,14 +253,30 @@ module Qt
 		def checkarg(argtype, typename)
 			puts "      #{typename} (#{argtype})" if debug_level >= DebugLevel::High
 			if argtype == 'i'
-				if typename =~ /^int$/
+				if typename =~ /^int&?$/
 					return 1
-				elsif typename =~ /^(?:short|ushort|uint|long|ulong|signed|unsigned)$/
+				elsif typename =~ /^(?:short|ushort|uint|long|ulong|signed|unsigned|float|double)$/
 					return 0
+				else 
+					t = typename.sub(/^const\s+/, '')
+					t.sub!(/[&*]$/, '')
+					if isEnum(t)
+						return 0
+					end
 				end
 			elsif argtype == 'n'
 				if typename =~ /^(?:float|double)$/
+					return 1
+				elsif typename =~ /^int&?$/
 					return 0
+				elsif typename =~ /^(?:short|ushort|uint|long|ulong|signed|unsigned|float|double)$/
+					return 0
+				else 
+					t = typename.sub(/^const\s+/, '')
+					t.sub!(/[&*]$/, '')
+					if isEnum(t)
+						return 0
+					end
 				end
 			elsif argtype == 'B'
 				if typename =~ /^(?:bool)[*&]?$/
@@ -315,7 +331,10 @@ module Qt
 					return 1
 				elsif classIsa(argtype, t)
 					return 0
-				elsif isEnum(argtype) and t =~ /int|uint|long|ulong/
+				elsif isEnum(argtype) and 
+						(t =~ /int|uint|long|ulong|WFlags|WState|ProcessEventsFlags|ComparisonFlags/ or
+						t =~ /SFlags|SCFlags|WId|difference_type/ or
+						t =~ /KStyleFlags|KonqPopupFlags/)
 					return 0
 				end
 			end
@@ -421,9 +440,7 @@ module Qt
 			end
 			
 			chosen = nil
-			if methodIds.length == 1 && method !~ /^operator/
-				chosen = methodIds[0]
-			elsif methodIds.length > 0
+			if methodIds.length > 0
 				best_match = -1
 				methodIds.each do
 					|id|

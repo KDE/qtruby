@@ -1,5 +1,17 @@
 2004-10-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+ * Han Holl's report about a when you pass an incorrect arg type to a QtRuby
+   method, it caused a crash has opened a 'can of worms'. This was because there
+   was no arg type checking if there was only one candidate method in the
+   Smoke runtime. Now that arg type checking is applied to all QtRuby method calls, not
+   not just those that after lookup in Smoke map onto a single method, the overloaded
+   method resolution via the arg types has had to be greatly improved. This has
+   been done, and so the arg type matching is now extremely fussy.
+
+ CCMAIL: kde-bindings@kde.org
+
+2004-10-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
  * An optimization in the overloaded method resolution matching causes a crash;
    instead of throwing a ruby exception when a programming error is made.
    If there is only one method found in the Smoke runtime, it assumes that it must 
