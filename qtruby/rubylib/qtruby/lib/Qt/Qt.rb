@@ -158,13 +158,13 @@ module Qt
 	end
 		
 	def hasMembers(aClass)
-		classname = aClass.name if aClass.type <= Module
+		classname = aClass.name if aClass.is_a? Module
 		meta = Meta[classname]
 		return meta != nil && (meta.signals.length > 0 or meta.slots.length > 0)
 	end
 
 	def getSignalNames(aClass)
-		classname = aClass.name if aClass.type <= Module
+		classname = aClass.name if aClass.is_a? Module
 		signalNames = Array.new
 		signals = Meta[classname].signals
 		if signals != nil
@@ -176,12 +176,12 @@ module Qt
 	end
 	
 	def signalInfo(qobject, signalName)
-		classname = qobject.class.name if qobject.class.type <= Module
+		classname = qobject.class.name if qobject.class.is_a? Module
 		signals = Meta[classname].signals
 		i = 0
 		result = Array.new
 		for signal in signals
-			if signal.sub(/\(.*/, '') =~ signalName
+			if signal.sub(/\(.*/, '').include? signalName
 				result.push(signal)
 				result.push(i)
 				return result
@@ -191,12 +191,12 @@ module Qt
 	end
 		
 	def signalAt(qobject, index)
-		classname = qobject.class.name if qobject.class.type <= Module
+		classname = qobject.class.name if qobject.class.is_a? Module
 		return Meta[classname].signals[index]
 	end
-	
+
 	def slotAt(qobject, index)
-		classname = qobject.class.name if qobject.class.type <= Module
+		classname = qobject.class.name if qobject.class.is_a? Module
 		return Meta[classname].slots[index]
 	end
 	

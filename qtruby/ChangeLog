@@ -1,5 +1,6 @@
 2003-08-02  Alexander Kellett   <lypanov@kde.org>
 
+	* Fix several deprecation warnings when running under 1.8.x
 	* Several more build fixes
 
 2003-08-01  Alexander Kellett   <lypanov@kde.org>
