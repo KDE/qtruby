@@ -33,7 +33,7 @@ class TellMe < Qt::Widget
 
 		@t = DynamicTip.new(self)
 
-		Qt::ToolTip.add(self, r3, 'this color is called red')
+		Qt::ToolTip.add(self, @r3, 'this color is called red')
 	end
 
 	def tip(point)
