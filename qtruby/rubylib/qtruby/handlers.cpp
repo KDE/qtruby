@@ -689,92 +689,56 @@ static void marshall_charP_array(Marshall *m) {
 
 void marshall_QStringList(Marshall *m) {
     switch(m->action()) {
-      case Marshall::FromVALUE:
-	{
-	    VALUE list = *(m->var());
-	    if (TYPE(list) != T_ARRAY) {
-//	    if(!SvROK(sv) || SvTYPE(SvRV(sv)) != SVt_PVAV ||
-//		av_len((AV*)SvRV(sv)) < 0) {
-		m->item().s_voidp = 0;
-		break;
-	    }
-//	    AV *list = (AV*)SvRV(sv);
-	    int count = RARRAY(list)->len;
-	    QStringList *stringlist = new QStringList;
-	    long i;
-//            bool lc = PL_hints & HINT_LOCALE;
-	    for(i = 0; i <= count; i++) {
-		VALUE item = rb_ary_entry(list, i);
-		if(TYPE(item) != T_STRING) {
-		    stringlist->append(QString());
-		    continue;
+		case Marshall::FromVALUE: {
+			VALUE list = *(m->var());
+			if (TYPE(list) != T_ARRAY) {
+				m->item().s_voidp = 0;
+				break;
+			}
+
+			int count = RARRAY(list)->len;
+			QStringList *stringlist = new QStringList;
+			long i;
+			for(i = 0; i <= count; i++) {
+				VALUE item = rb_ary_entry(list, i);
+				if(TYPE(item) != T_STRING) {
+					stringlist->append(QString());
+					continue;
+				}
+				stringlist->append(QString::fromUtf8(STR2CSTR(item)));
+			}
+
+			m->item().s_voidp = stringlist;
+			m->next();
+
+			if(m->cleanup()) {
+				rb_ary_clear(list);
+				for(QStringList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it)
+					rb_ary_push(list, rb_str_new2((const char *)*it));
+				delete stringlist;
+			}
+			break;
 		}
+		case Marshall::ToVALUE: {
+			QStringList *stringlist = (QStringList*)m->item().s_voidp;
+			if(!stringlist) {
+				*(m->var()) = Qundef;
+				break;
+			}
 
-//               if(SvUTF8(*item))
-//		    stringlist->append(QString::fromUtf8(SvPV_nolen(*item)));
-//                else if(lc)
-//                    stringlist->append(QString::fromLocal8Bit(SvPV_nolen(*item)));
-//                else
-//                    stringlist->append(QString::fromLatin1(SvPV_nolen(*item)));
-			stringlist->append(QString::fromUtf8(STR2CSTR(item)));
-	    }
-
-	    m->item().s_voidp = stringlist;
-	    m->next();
-
-	    if(m->cleanup()) {
-		rb_ary_clear(list);
-		for(QStringList::Iterator it = stringlist->begin();
-		    it != stringlist->end();
-		    ++it)
-		    rb_ary_push(list, rb_str_new2((const char *)*it));
-		delete stringlist;
-	    }
-	}
-	break;
-      case Marshall::ToVALUE:
-	{
-	    QStringList *stringlist = (QStringList*)m->item().s_voidp;
-	    if(!stringlist) {
-	    *(m->var()) = Qundef;
-		break;
-	    }
-
-	    VALUE av = rb_ary_new();
-//	    {
-//		VALUE rv = newRV_noinc((SV*)av);
-//		sv_setsv_mg(m->var(), rv);
-//		SvREFCNT_dec(rv);
-//	    }
-//            if(!(PL_hints & HINT_BYTES))
-//                for(QStringList::Iterator it = stringlist->begin();
-//                    it != stringlist->end();
-//                    ++it) {
-//                    VALUE sv = newSVpv((const char *)(*it).utf8(), 0);
-//                    SvUTF8_on(sv);
-//                    av_push(av, sv);
-//                }
-//           else if(PL_hints & HINT_LOCALE)
-//                for(QStringList::Iterator it = stringlist->begin();
-//                    it != stringlist->end();
-//                    ++it) {
-//                    VALUE sv = newSVpv((const char *)(*it).local8Bit(), 0);
-//                    av_push(av, sv);
-//                }
-//            else
-	        for(QStringList::Iterator it = stringlist->begin();
-		    it != stringlist->end();
-		    ++it) {
-                    VALUE rv = rb_str_new2((const char *)(*it).latin1());
-		    rb_ary_push(av, rv);
-                }
-	    if(m->cleanup())
-		delete stringlist;
-	}
-	break;
-      default:
-	m->unsupported();
-	break;
+			VALUE av = rb_ary_new();
+	        for(QStringList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it) {
+				VALUE rv = rb_str_new2((const char *)(*it).latin1());
+				rb_ary_push(av, rv);
+			}
+			if(m->cleanup())
+				delete stringlist;
+			break;
+		}
+		default: {
+			m->unsupported();
+			break;
+		}
     }
 }
 
