@@ -5,7 +5,7 @@ module Qt
 		CppName	= Hash.new
 		IdClass	= Array.new
 		Operators = Hash.new { [] }
-		
+
 		def init_class(c)
 			classname = c.sub(/^Q/, 'Qt::')			
 			classId = idClass(c)
@@ -24,7 +24,7 @@ module Qt
 		end
 
 		DEBUG = false
-		
+
 		def checkarg(argtype, method, i)
 			p "argtype == #{argtype}" if DEBUG
 			typename = getTypeNameOfArg(method, i)
@@ -72,7 +72,7 @@ module Qt
 			end
 			return nil
 		end
-		
+
 		def argmatch(methodIds, args, i)
 			match = Hash.new
 			argtype = getVALUEtype(args[i])
@@ -83,12 +83,12 @@ module Qt
 			p match if DEBUG
 			return match.sort {|a,b| a[1] <=> b[1]}
 		end
-		
+
 		def find_class(classname)
 			value = Classes[classname]
 			return Classes[classname]
 		end
-		
+
 		def try_initialize(instance, *args)
 			initializer = instance.method(:initialize)
 			return callcc {|continuation|
@@ -96,7 +96,7 @@ module Qt
 				initializer.call(*args)
 			}
 		end
-		
+
 		def continue_new_instance(instance)
 			@@current_initializer.call(instance)
 		end
@@ -111,7 +111,7 @@ module Qt
 			if method == "new"
 				method = classname.dup
 			end
-						
+
 			method_argstr = ""
 			for arg in args
 				if arg.nil? or isObject(arg)
@@ -191,7 +191,7 @@ module Qt
 				p method_ids if DEBUG
 				p dumpCandidates(method_ids) if DEBUG
 			end
-                        
+
 			p chosen if DEBUG
 			setCurrentMethod(chosen) if chosen
 			return nil
@@ -221,7 +221,7 @@ module Qt
 			@slots = Array.new
 		end
 	end
-		
+
 	def hasMembers(aClass)
 		classname = aClass.name if aClass.is_a? Module
 		meta = Meta[classname]
@@ -248,7 +248,7 @@ module Qt
 		end
 		return signalNames
 	end
-	
+
 	def signalInfo(qobject, signalName)
 		classname = qobject.class.name if qobject.class.is_a? Module
 		signals = Meta[classname].signals
@@ -263,7 +263,7 @@ module Qt
 			i += 1
 		end
 	end
-		
+
 	def signalAt(qobject, index)
 		classname = qobject.class.name if qobject.class.is_a? Module
 		return Meta[classname].signals[index]
@@ -273,7 +273,7 @@ module Qt
 		classname = qobject.class.name if qobject.class.is_a? Module
 		return Meta[classname].slots[index]
 	end
-	
+
 	def getMocArguments(member)
 		argStr = member.sub(/.*\(/, '')
 		argStr.sub!(/\)$/, '')
@@ -295,7 +295,7 @@ module Qt
 		result.push(mocargs)
 		return result
 	end
-	
+
 	def makeMetaData(data)
 		if data.nil?
 			return nil
@@ -320,7 +320,7 @@ module Qt
 		
 		return make_QMetaData_tbl(tbl)
 	end
-		
+	
 	def getMetaObject(qobject)
 		meta = Meta[qobject.class.name]
 		if meta.nil?
@@ -340,10 +340,10 @@ module Qt
 		
 		return meta.metaobject
 	end
-	
+
 	def emit(signal)
 	end
-	
+
 	IO_Direct     = 0x0100
 	IO_Sequential = 0x0200
 	IO_Combined   = 0x0300
@@ -375,22 +375,22 @@ class Object
 	# The Object.display() method conflicts with display() methods in Qt,
 	# so remove it..
 	undef_method :display
-	
+
 	def SIGNAL(string)
 		return "2" + string
 	end
-	
+
 	def SLOT(string)
 		return "1" + string
 	end
-	
+
 	def emit(signal)
 	end
 end
 
 class Module
 	include Qt
-	
+
 	def signals(*signal_list)
 		meta = Meta[self.name]
 		if meta.nil?
@@ -398,7 +398,7 @@ class Module
 		end
 		meta.signals += signal_list
 	end
-	
+
 	def slots(*slot_list)
 		meta = Meta[self.name]
 		if meta.nil?
@@ -407,4 +407,3 @@ class Module
 		meta.slots += slot_list
 	end
 end
-
