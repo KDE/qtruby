@@ -50,6 +50,21 @@ smokeruby_mark(void * p)
 	if(do_debug & qtdb_gc) printf("Checking for mark (%s*)%p\n", className, o->ptr);
 		
     if(o->ptr && o->allocated) {
+		if (isDerivedFromByName(o->smoke, className, "QListView")) {
+			QListView * listview = (QListView *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QListView"));
+			QListViewItemIterator it(listview);
+			QListViewItem *item;
+
+			while ( (item = it.current()) != 0 ) {
+				++it;
+				obj = getPointerObject(item);
+				if (obj != Qnil) {
+					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, item, obj);
+					rb_gc_mark(obj);
+				}
+			}
+		}
+		
 		if (isDerivedFromByName(o->smoke, className, "QObject")) {
 			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
 			const QObjectList *l = qobject->children();
@@ -82,13 +97,12 @@ smokeruby_free(void * p)
 	if (	strcmp(className, "QObject") == 0
 			|| strcmp(className, "QListBoxItem") == 0
 			|| strcmp(className, "QStyleSheetItem") == 0
-			|| strcmp(className, "QTableItem") == 0
 			|| strcmp(className, "QSqlCursor") == 0 )
 	{
 		// Don't delete instances of these classes for now
 		return;
-	} else if (strcmp(className, "QLayoutItem") == 0) {
-		QLayoutItem * item = (QLayoutItem *) o->ptr;
+	} else if (isDerivedFromByName(o->smoke, className, "QLayoutItem")) {
+		QLayoutItem * item = (QLayoutItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayoutItem"));
 		if (item->layout() != 0 || item->widget() != 0 || item->spacerItem() != 0) {
 			return;
 		}
@@ -107,8 +121,8 @@ smokeruby_free(void * p)
 		if (item->parent() != 0 || item->listView() != 0) {
 			return;
 		}
-	} else if (strcmp(className, "QTableItem") == 0) {
-		QTableItem * item = (QTableItem *) o->ptr;
+	} else if (isDerivedFromByName(o->smoke, className, "QTableItem")) {
+		QTableItem * item = (QTableItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTableItem"));
 		if (item->table() != 0) {
 			return;
 		}

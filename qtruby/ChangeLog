@@ -1,3 +1,8 @@
+2003-10-29  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* The smokeruby_mark() f'n now marks the QListViewItems in a QListView
+	* Fixed a QLayoutItem crash in smokeruby_free()
+
 2003-10-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* The smokeruby_mark() f'n was completely wrong, as it is only called if 
