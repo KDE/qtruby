@@ -6,11 +6,23 @@ class TicTacButton < Qt::PushButton
 
 	Blank, Circle, Cross = 0, 1, 2
 	
-	def initialize(p,n='')
-		#super(0,0,0,0)
-		super(p,n)
+	def initialize(p)
+		super(p)
 		@type = Blank
 	end
+
+	def drawButtonLabel(p)
+		r = rect()
+		p.setPen( Qt::Pen.new( Qt::white,2 ) ) #set fat pen
+		if ( @type == Circle )
+			p.drawEllipse( r.left()+4, r.top()+4, r.width()-8, r.height()-8 )
+		elsif (@type == Cross)
+			#draw cross
+			p.drawLine( r.topLeft()   +Qt::Point.new(4,4), r.bottomRight()-Qt::Point.new(4,4));
+			p.drawLine( r.bottomLeft()+Qt::Point.new(4,-4),r.topRight()   -Qt::Point.new(4,-4));
+		end
+	   end
+		   
 
 end
 
@@ -30,13 +42,15 @@ class TicTacGameBoard < Qt::Widget
 		@computer_starts = false
 		@buttons = Array.new(n)
 		@btArray = Array.new(n)
+		@btArray.each{|bt|
+			bt = TicTacButton::Blank
+		}
 
 		grid = Qt::GridLayout.new(self, n, n, 4)
 		p = Qt::Palette.new(Qt::blue)
 
 		for i in (0..n-1)
 			ttb = TicTacButton.new(self)
-			#ttb = Qt::PushButton.new(self)
 			ttb.setPalette(p)
 			ttb.setEnabled(false)
 			connect(ttb, SIGNAL('clicked()'), self, SLOT('buttonClicked()'))
@@ -60,13 +74,13 @@ class TicTacGameBoard < Qt::Widget
 
 	def updateButtons
 		for i in 0..(@nBoard*@nBoard)-1
-			#if @buttons[i].type != @btArray[i]
-			#	@buttons[i].type = @btArray[i]
-			#end
-			if @btArray[i] == TicTacButton::Blank
+			if @buttons[i].type != @btArray[i]
+				@buttons[i].type = @btArray[i]
+			end
+			if @buttons[i].type == TicTacButton::Blank
 				@buttons[i].setEnabled(true)
 			else
-				@buttons[i].setEnabled(true)
+				@buttons[i].setEnabled(false)
 			end
 		end
 	end
@@ -77,26 +91,46 @@ class TicTacGameBoard < Qt::Widget
 		col = 0
 		won = false
 
-		for row in 0..nBoard-1
-			if won
+		for row in 0..@nBoard-1
+			if won == true
 				break
 			end
-			t = @buttons[row*@nBoard]
-			if (t == Blank)
+			t = @btArray[row*@nBoard]
+			if (t == TicTacButton::Blank)
 				next
 			end
 			col = 1
-			while ( (col < @nBoard) && (@buttons[row*@nBoard] == t) )
+			while ( (col < @nBoard) && (@buttons[row*@nBoard].type == t) )
 				col = col + 1
 			end
 			if (col == @nBoard)
 				won = true
 			end
 		end
-		#for col in 
+		for col in 0..@nBoard-1
+			if won == true
+				break
+			end
+			t = @btArray[col]
+			if (t == TicTacButton::Blank)
+				next
+			end
+			while ( (row < @nBoard) && (@btArray[row*@nBoard+col] == t) )
+				row = row +1
+			end
+			if (row == @nBoard)
+				won = true
+			end
+		end
+		if (won == false)
+			t = 0
+		end
+		t
 	end
 
 	def computerMove
+		numButtons = @nBoard*@nBoard
+		
 	end
 
 	def buttonClicked
@@ -117,11 +151,19 @@ class TicTacGameBoard < Qt::Widget
 			@btArray[at] = TicTacButton::Circle
 			updateButtons
 		end
-		if (checkBoard == 0)
+
+		case checkBoard
+		when TicTacButton::Blank
 			computerMove
+		when TicTacButton::Circle
+			@state = HumanWon
+			emit finished()
+		when TicTacButton::Cross
+			@state = ComputerWon
+			emit finished()
 		end
 	end
-	
+
 end
 
 class TicTacToe < Qt::Widget
