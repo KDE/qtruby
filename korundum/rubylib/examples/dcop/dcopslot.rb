@@ -21,11 +21,14 @@ require 'Korundum'
 #
 class MyWidget < KDE::PushButton
 
-	k_dcop	'void mySlot(QString)', 'QPoint getPoint(QString)',
+	k_dcop	'void mySlot(QString)', 
+			'QPoint getPoint(QString)',
 			'QMap<QCString,DCOPRef> actionMap()', 
 			'QValueList<DCOPRef> windowList()',
 			'QValueList<QCString> propertyNames(bool)',
-			'KURL::List urlList()'
+			'KURL::List urlList()',
+			'bool isFoo()',
+			'bool hasBar()'
 				
 	def initialize(parent, name)
 		super
@@ -60,6 +63,14 @@ class MyWidget < KDE::PushButton
 		list = []
 		list << KDE::URL.new("http://www.kde.org/") << KDE::URL.new("http://dot.kde.org/")
 		return list
+	end
+	
+	def isFoo
+		true
+	end
+	
+	def hasBar
+		true
 	end
 end
 
