@@ -24,13 +24,13 @@ class Page3 < Qt::Object
         ivLbl.setGeometry(x, y, 100, 20)
         ivLbl.show()
 
-        iv = KDE::LineEdit.new(page)
-        iv.setGeometry(x, y + 20, 100, 20)
-        iv.show()
-        connect(iv, SIGNAL("textChanged(const QString&)"), SLOT('ivChanged()'))
+        @iv = KDE::LineEdit.new(page)
+        @iv.setGeometry(x, y + 20, 100, 20)
+        @iv.show()
+        connect(@iv, SIGNAL("textChanged(const QString&)"), SLOT('ivChanged()'))
 
-        ivVal = KDE::IntValidator.new(page)
-        ivVal.setRange(20, 50)
+        @ivVal = KDE::IntValidator.new(page)
+        @ivVal.setRange(20, 50)
 
         ivRngLbl = Qt::Label.new("Range is 20 - 50", page)
         ivRngLbl.setGeometry(x, y + 45, 100, 20)
@@ -61,13 +61,13 @@ class Page3 < Qt::Object
         fvLbl.setGeometry(x, y, 100, 20)
         fvLbl.show()
 
-        fv = KDE::LineEdit.new(page)
-        fv.setGeometry(x, y + 20, 100, 20)
-        fv.show()
-        connect(fv, SIGNAL("textChanged(const QString&)"), SLOT('fvChanged()'))
+        @fv = KDE::LineEdit.new(page)
+        @fv.setGeometry(x, y + 20, 100, 20)
+        @fv.show()
+        connect(@fv, SIGNAL("textChanged(const QString&)"), SLOT('fvChanged()'))
 
-        fvVal = KDE::DoubleValidator.new(page)
-        fvVal.setRange(10.0, 40.0)
+        @fvVal = KDE::DoubleValidator.new(page)
+        @fvVal.setRange(10.0, 40.0)
 
         fvRngLbl = Qt::Label.new("Range is 10.0 - 40.0", page)
         fvRngLbl.setGeometry(x, y + 45, 100, 20)
@@ -98,12 +98,12 @@ class Page3 < Qt::Object
         dvLbl.setGeometry(x, y, 100, 20)
         dvLbl.show()
 
-        dv = KDE::LineEdit.new(page)
-        dv.setGeometry(x, y + 20, 100, 20)
-        dv.show()
+        @dv = KDE::LineEdit.new(page)
+        @dv.setGeometry(x, y + 20, 100, 20)
+        @dv.show()
 #        page.connect(dv, SIGNAL("textChanged(const Qt::String &)"), dvChanged)
 
-        dvVal = KDE::DateValidator.new(page)
+        @dvVal = KDE::DateValidator.new(page)
 #        dvVal.setRange(10.0, 40.0)
 
 #        dvRngLbl = Qt::Label.new("Range is 10.0 - 40.0", page)
@@ -144,8 +144,8 @@ class Page3 < Qt::Object
         @ivInterLed.off()
         @ivAccLed.off()
 
-		i = Qt::Integer.new
-        state = ivVal.validate(iv.text(), i)
+		i = Qt::Integer.new(0)
+        state = @ivVal.validate(@iv.text(), i)
 
         if state == Qt::Validator::Acceptable
             @ivAccLed.on()
@@ -161,8 +161,8 @@ class Page3 < Qt::Object
         @fvInterLed.off()
         @fvAccLed.off()
 
-		i = Qt::Integer.new
-        state = fvVal.validate(fv.text(), i)
+		i = Qt::Integer.new(0)
+        state = @fvVal.validate(@fv.text(), i)
 
         if state == Qt::Validator::Acceptable
             @fvAccLed.on()
@@ -178,8 +178,8 @@ class Page3 < Qt::Object
         @dvInterLed.off()
         @dvAccLed.off()
 
-		i = Qt::Integer.new
-        state = dvVal.validate(dv.text(), i)
+		i = Qt::Integer.new(0)
+        state = @dvVal.validate(@dv.text(), i)
 
         if state == Qt::Validator::Acceptable
             @dvAccLed.on()
@@ -232,7 +232,7 @@ def UIMisc.miscKDockWindow(parent)
     parent.currentPageObj = PageNotImpl.new(parent)
 end
 
-def UIMisc.miscKFloatValidator(parent)
+def UIMisc.miscKDoubleValidator(parent)
     parent.currentPageObj = Page3.new(parent)
 end
 
