@@ -24,7 +24,7 @@ module KDE
 	# Example 
 	#  int foobar(QString,bool)
 	#  :name is 'foobar'
-	#  :full_name is 'int foobar(QString,bool)'
+	#  :full_name is 'foobar(QString,bool)'
 	#  :arg_types is 'QString,bool'
 	#  :reply_type is 'int'
 	DCOPMember = Struct.new :name, :full_name, :arg_types, :reply_type
@@ -44,7 +44,7 @@ module KDE
 		def add_signals(signal_list)
 			signal_list.each do |signal|
 				if signal =~ /^(.*)\s([^\s]*)\((.*)\)/
-					@k_dcop_signals[$2] = DCOPMember.new($2, signal, $3, $1)
+					@k_dcop_signals[$2] = DCOPMember.new($2, $2 + "(" + $3 + ")", $3, $1)
 				end
 			end
 		end

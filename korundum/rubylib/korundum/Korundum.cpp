@@ -409,7 +409,7 @@ public:
 		
 class EmitDCOPSignal : public Marshall {
 	VALUE _obj;
-	char * _signalName;
+	const char * _signalName;
 	QByteArray *_data;
 	QDataStream *_stream;
     int _id;
@@ -420,7 +420,7 @@ class EmitDCOPSignal : public Marshall {
     Smoke::Stack _stack;
     bool _called;
 public:
-    EmitDCOPSignal(VALUE obj, char * signalName, int items, VALUE *sp, VALUE args) :
+    EmitDCOPSignal(VALUE obj, const char * signalName, int items, VALUE *sp, VALUE args) :
 		_obj(obj), _signalName(signalName), _sp(sp), _items(items), _cur(-1), _called(false)
     {
 		_data = new QByteArray();
@@ -609,11 +609,12 @@ extern VALUE khtml_module;
 static VALUE kde_internal_module;
 
 VALUE
-getdcopinfo(VALUE self, char * signalname)
+getdcopinfo(VALUE self, QString & signalname)
 {
     VALUE member = rb_funcall(	kde_internal_module, 
 								rb_intern("fullSignalName"), 
 								2, self, rb_str_new2(signalname) );
+	signalname = (const char *) STR2CSTR(member);
     return rb_funcall(	qt_internal_module, 
 						rb_intern("getMocArguments"), 
 						1, member );
@@ -624,12 +625,12 @@ k_dcop_signal(int argc, VALUE * argv, VALUE self)
 {
 	VALUE dcopObject = rb_funcall(kde_module, rb_intern("createDCOPObject"), 1, self);
 	
-    char * signalname = rb_id2name(rb_frame_last_func());
+    QString signalname(rb_id2name(rb_frame_last_func()));
     VALUE args = getdcopinfo(self, signalname);
 
     if(args == Qnil) return Qfalse;
 
-    EmitDCOPSignal signal(dcopObject, signalname, argc, argv, args);
+    EmitDCOPSignal signal(dcopObject, (const char *) signalname, argc, argv, args);
     signal.next();
 
     return Qtrue;
