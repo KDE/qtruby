@@ -157,7 +157,7 @@ module Qt
 				remainingIds = methodIds.dup
 				matching = (0...args.length).each {
 					|i|
-					puts "arg #{i}:"
+					puts "arg #{i}:" if debug_level >= DebugLevel::High
 					matching = arg_matches?(remainingIds, args, i)
 					remainingIds.delete_if { |id| matching.assoc(id).nil? }
 					puts "remaining ids => #{remainingIds.inspect}" if debug_level >= DebugLevel::High
