@@ -3,7 +3,9 @@ Startup Crashes
 
 For some strange reason ruby occasionally needs to be compiled 
 with --enable-pthread. Gentoo at the very least doesn't default
-this to using this unfortunately. 
+this to using this unfortunately. Even worse, using this flag
+makes programs using the gnome2 bindings randomly crash so its
+highly unlikely it'll get into distributions / ruby by default.
 
 Possibly of use to people without KDE build process
 ---------------------------------------------------
