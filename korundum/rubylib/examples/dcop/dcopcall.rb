@@ -1,27 +1,28 @@
 #!/usr/bin/env ruby
 
 require 'Korundum'
+include KDE
 
-class SenderWidget < KDE::PushButton
+class SenderWidget < PushButton
 	def initialize(parent, name)
 		super
-		Qt::Object::connect(self, SIGNAL('clicked()'), self, SLOT('doit()'))
+		connect(self, SIGNAL('clicked()'), self, SLOT('doit()'))
 	end
 	
 	slots 'doit()'
 	
 	def doit()
 		puts "In doit.."
-		dcopRef = KDE::DCOPRef.new("dcopslot", "MyWidget")
-		result = dcopRef.call("QPoint getPoint(QString)", "Hello from dcopsend")
+		dcopRef = DCOPRef.new("dcopslot", "MyWidget")
+		result = dcopRef.call("QPoint getPoint(QString)", "Hello from dcopcall")
 		puts "result class: #{result.class.name} x: #{result.x} y: #{result.y}"
 	end
 end
 
-about = KDE::AboutData.new("dcopcall", "DCOPCallTest", "0.1")
-KDE::CmdLineArgs.init(ARGV, about)
-a = KDE::UniqueApplication.new()
+about = AboutData.new("dcopcall", "DCOP Call Test", "0.1")
+CmdLineArgs.init(ARGV, about)
+a = UniqueApplication.new
 calltest = SenderWidget.new(nil, "calltest") { setText 'DCOP Call Test' }
-a.setMainWidget(calltest)
-calltest.show()
-a.exec()
+a.mainWidget = calltest
+calltest.show
+a.exec
