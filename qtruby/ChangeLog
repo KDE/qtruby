@@ -1,5 +1,9 @@
 2003-07-31  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* Fixed bug in marshalling QString::null to a ruby VALUE
+
+2003-07-31  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Changed require in Qt.cpp to 'Qt/Qt.rb' instead of 'lib/Qt/Qt.rb'
 
 2003-07-31  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>

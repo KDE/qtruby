@@ -448,7 +448,11 @@ static void marshall_QString(Marshall *m) {
 	{
 	    QString *s = (QString*)m->item().s_voidp;
 	    if(s) {
-			*(m->var()) = rb_str_new2(s->latin1());
+	    	if (s->isNull()) {
+				*(m->var()) = rb_str_new2("");
+	     	} else {
+				*(m->var()) = rb_str_new2(s->latin1());
+			}
 //                if(!(PL_hints & HINT_BYTES))
 //                {
 //		    sv_setpv_mg(m->var(), (const char *)s->utf8());
