@@ -446,8 +446,16 @@ public:
 				
 				rb_ary_push(_result, obj);
 			}
-		} else if (replyType == "QMap<QCString,DCOPRef>") {
+		} else if (replyType == "QValueList<QCString>") {
 			// And special case this type too 
+			QValueList<QCString> propertyList;
+			ds >> propertyList;
+			_result = rb_ary_new();
+			for (QValueListIterator<QCString> it = propertyList.begin(); it != propertyList.end(); ++it) {
+				rb_ary_push(_result, rb_str_new2((const char *) *it));
+			}
+		} else if (replyType == "QMap<QCString,DCOPRef>") {
+			// And another.. 
 			QMap<QCString,DCOPRef>	actionMap;
 			ds >> actionMap;
 			_result = rb_hash_new();
@@ -734,10 +742,22 @@ public:
 			}
 			QDataStream retval(*_retval, IO_WriteOnly);
 			retval << windowList;
+		} else if (	strcmp(_replyTypeName, "QValueList<QCString>") == 0
+					&& TYPE(result) == T_ARRAY ) 
+		{
+			// And special case this type too 
+			QValueList<QCString> propertyList;
+			
+			for (long i = 0; i < RARRAY(result)->len; i++) {
+				VALUE item = rb_ary_entry(result, i);
+				propertyList.append(QCString(StringValuePtr(item)));
+			}
+			QDataStream retval(*_retval, IO_WriteOnly);
+			retval << propertyList;
 		} else if (	strcmp(_replyTypeName, "QMap<QCString,DCOPRef>") == 0
 					&& TYPE(result) == T_HASH ) 
 		{
-			// And special case this type too 
+			// And another.. 
 			QMap<QCString,DCOPRef> actionMap;
 			VALUE temp = rb_funcall(kde_internal_module, rb_intern("action_map_to_list"), 1, result);
 

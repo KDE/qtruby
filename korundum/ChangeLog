@@ -1,5 +1,9 @@
 2004-07-21  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* Added QValueList<QCString> marshalling ruby <--> dcop
+
+2004-07-21  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Ruby dcop slots can now return actionMaps and windowLists as
 	  'QMap<QString,DCOPRef>' and 'QValueList<DCOPRef>' types
 
