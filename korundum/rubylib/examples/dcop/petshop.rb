@@ -42,7 +42,7 @@ class DeadParrotObject < KDE::DCOPObject
 		if rand(2) == 0
 			"This parrot, a #{@parrot_type}, is pining for the fjords"
 		else
-			"This parrot, #{age} months old, is a #{@parrot_type}"
+			"This parrot, #{@age} months old, is a #{@parrot_type}"
 		end
 	end
 	
