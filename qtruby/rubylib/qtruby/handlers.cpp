@@ -21,6 +21,7 @@
 #include <qobjectlist.h>
 #include <qtextcodec.h>
 #include <qhostaddress.h>
+#include <qpair.h>
 
 #include <private/qucomextra_p.h>
 
@@ -1653,6 +1654,45 @@ void marshall_QRgb_array(Marshall *m) {
     }
 }
 
+void marshall_QPairintint(Marshall *m) {
+    switch(m->action()) {
+      case Marshall::FromVALUE:
+	{
+	    VALUE list = *(m->var());
+	    if (TYPE(list) != T_ARRAY || RARRAY(list)->len != 2) {
+		m->item().s_voidp = 0;
+		break;
+	    }
+		int int0;
+		int int1;
+		VALUE item = rb_ary_entry(list, 0);
+		if(TYPE(item) != T_FIXNUM && TYPE(item) != T_BIGNUM) {
+		    int0 = 0;
+		} else {
+			int0 = NUM2INT(item);
+		}
+		
+		item = rb_ary_entry(list, 1);
+		if(TYPE(item) != T_FIXNUM && TYPE(item) != T_BIGNUM) {
+		    int1 = 0;
+		} else {
+			int1 = NUM2INT(item);
+		}
+		
+		QPair<int,int> * qpair = new QPair<int,int>(int0,int1);
+	    m->item().s_voidp = qpair;
+	    m->next();
+	    if(m->cleanup())
+		delete qpair;
+	}
+	break;
+      case Marshall::ToVALUE:
+      default:
+	m->unsupported();
+	break;
+    }
+}
+
 #define DEF_LIST_MARSHALLER(ListIdent,ItemList,Item,Itr) namespace { char ListIdent##STR[] = #Item; };  \
         Marshall::HandlerFn marshall_##ListIdent = marshall_ItemList<Item,ItemList,Itr,ListIdent##STR>;
 
@@ -1809,6 +1849,7 @@ TypeHandler Qt_handlers[] = {
     { "char**", marshall_charP_array },
     { "uchar*", marshall_ucharP },
     { "QRgb*", marshall_QRgb_array },
+    { "QPair<int,int>&", marshall_QPairintint },
     { "QUObject*", marshall_QUObject },
     { "const QCOORD*", marshall_QCOORD_array },
     { "void", marshall_void },
