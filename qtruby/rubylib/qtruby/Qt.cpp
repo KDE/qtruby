@@ -2100,9 +2100,9 @@ Init_qtruby()
     rb_define_method(qt_base_class, "isDisposed", (VALUE (*) (...)) is_disposed, 0);
     rb_define_method(qt_base_class, "disposed?", (VALUE (*) (...)) is_disposed, 0);
     
-	rb_define_module_function(qt_module, "qDebug", (VALUE (*) (...)) qdebug, 1);
-	rb_define_module_function(qt_module, "qFatal", (VALUE (*) (...)) qfatal, 1);
-	rb_define_module_function(qt_module, "qWarning", (VALUE (*) (...)) qwarning, 1);
+	rb_define_method(rb_cObject, "qDebug", (VALUE (*) (...)) qdebug, 1);
+	rb_define_method(rb_cObject, "qFatal", (VALUE (*) (...)) qfatal, 1);
+	rb_define_method(rb_cObject, "qWarning", (VALUE (*) (...)) qwarning, 1);
 
 	kde_module = rb_define_module("KDE");
     rb_define_singleton_method(kde_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
