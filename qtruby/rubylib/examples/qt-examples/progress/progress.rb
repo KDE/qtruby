@@ -216,7 +216,7 @@ class CPUWaster < Qt::Widget
 
     def newProgressDialog(label, steps, modal)
         d = Qt::ProgressDialog.new(label, "Cancel", steps, self, "progress", modal)
-        d.setMinimumDuration(true) if @options.isItemChecked(@md_id)
+        d.setMinimumDuration(0) if @options.isItemChecked(@md_id)
         d.setLabel( AnimatedThingy.new(d, label) ) unless @default_label
 	d.show
         d
