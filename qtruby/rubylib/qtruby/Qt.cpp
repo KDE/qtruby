@@ -838,6 +838,10 @@ set_obj_info(const char * className, smokeruby_object * o)
 			     rb_intern("find_class"),
 			     1,
 			     rb_str_new2(className) );
+	Smoke::Index *r = classcache.find(className);
+	if (r != 0) {
+		o->classId = (int)*r;
+	}
     VALUE obj = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, (void *) o);
     return obj;
 }
@@ -884,7 +888,7 @@ get_VALUEtype(VALUE ruby_value)
 	r = "s";
     else if(strcmp(classname, "Qt::ByteArray") == 0)
 	r = "b";
-    else if(strcmp(classname, "Qt::Boolean") == 0)
+    else if(ruby_value == Qtrue || ruby_value == Qfalse || strcmp(classname, "Qt::Boolean") == 0)
 	r = "B";
     else if(strcmp(classname, "Qt::Enum") == 0) {
 	VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qenum_type"), 1, ruby_value);

@@ -1,5 +1,18 @@
 2004-10-05  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+ * Given a C++ instance and an approximate classname, the QtRuby runtime uses the
+   various Qt rtti mechanisms such as QObject::className() to improve the resolution
+   of the name. However, the numeric classId into the array of classnames in the Smoke
+   runtime was not being updated in line with the more accurate name. 
+ * This caused problems with method argument matching which uses the numeric classId
+   rather than the ruby object's classname, and so QtRuby wrongly assumed that a an
+   instance of a Qt::Widget was a Qt::Object.
+ * Fixes problem reported by Han Holl
+
+ CCMAIL: kde-bindings@kde.org
+
+2004-10-05  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
  * Fixed a couple of errors in the rbuic generated code found as a result of
    the recently improved stricter arg type matching.
 
