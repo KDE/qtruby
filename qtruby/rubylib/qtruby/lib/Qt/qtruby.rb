@@ -121,12 +121,12 @@ module Qt
 	class Integer
 		attr_accessor :value
 		def initialize(n) @value = n end
-		def +(n) n + @value end
-		def -(n) n - @value end
-		def *(n) n * @value end
-		def /(n) n / @value end
-		def %(n) n % @value end
-		def **(n) n ** @value end
+		def +(n) @value + n end
+		def -(n) @value - n end
+		def *(n) @value * n end
+		def /(n) @value / n end
+		def %(n) @value % n end
+		def **(n) @value ** n end
 		def to_f() return @value.to_f end
 		def to_i() return @value.to_i end
 		def to_s() return @value.to_s end
