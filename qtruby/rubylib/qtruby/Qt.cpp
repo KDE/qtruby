@@ -16,6 +16,7 @@
  ***************************************************************************/
 
 #include <stdio.h>
+#include <stdarg.h>
 
 #include <qglobal.h>
 #include <qregexp.h>
@@ -861,21 +862,35 @@ char *get_VALUEtype(VALUE ruby_value)
     return r;
 }
 
+void rb_str_catf(VALUE self, const char *format, ...) __attribute__ ((format (printf, 2, 3)));
+
+void rb_str_catf(VALUE self, const char *format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+    char *p = 0;
+    int len;
+    if (len = vasprintf(&p, format, ap), len != -1) {
+	rb_str_cat(self, p, len);
+	free(p);
+    }
+    va_end(ap);
+}
+
 VALUE prettyPrintMethod(Smoke::Index id) {
     VALUE r = rb_str_new2("");
     Smoke::Method &meth = qt_Smoke->methods[id];
     const char *tname = qt_Smoke->types[meth.ret].name;
-    (void) tname;
-//    if(meth.flags & Smoke::mf_static) sv_catpv(r, "static ");
-//    sv_catpvf(r, "%s ", (tname ? tname:"void"));
-//    sv_catpvf(r, "%s::%s(", qt_Smoke->classes[meth.classId].className, qt_Smoke->methodNames[meth.name]);
-//    for(int i = 0; i < meth.numArgs; i++) {
-//        if(i) sv_catpv(r, ", ");
-//        tname = qt_Smoke->types[qt_Smoke->argumentList[meth.args+i]].name;
-//        sv_catpv(r, (tname ? tname:"void"));
-//    }
-//    sv_catpv(r, ")");
-//    if(meth.flags & Smoke::mf_const) sv_catpv(r, " const");
+    if(meth.flags & Smoke::mf_static) rb_str_catf(r, "static ");
+    rb_str_catf(r, "%s ", (tname ? tname:"void"));
+    rb_str_catf(r, "%s::%s(", qt_Smoke->classes[meth.classId].className, qt_Smoke->methodNames[meth.name]);
+    for(int i = 0; i < meth.numArgs; i++) {
+        if(i) rb_str_catf(r, ", ");
+        tname = qt_Smoke->types[qt_Smoke->argumentList[meth.args+i]].name;
+        rb_str_catf(r, "%s", (tname ? tname:"void"));
+    }
+    rb_str_catf(r, ")");
+    if(meth.flags & Smoke::mf_const) rb_str_catf(r, " const");
     return r;
 }
 
@@ -1776,23 +1791,6 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
         }
     }
     return result;
-}
-
-#include <stdarg.h>
-
-void rb_str_catf(VALUE self, const char *format, ...) __attribute__ ((format (printf, 2, 3)));
-
-void rb_str_catf(VALUE self, const char *format, ...)
-{
-    va_list ap;
-    va_start(ap, format);
-    char *p = 0;
-    int len;
-    if (len = vasprintf(&p, format, ap), len != -1) {
-	rb_str_cat(self, p, len);
-	free(p);
-    }
-    va_end(ap);
 }
 
 static VALUE
