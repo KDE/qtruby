@@ -984,13 +984,7 @@ method_missing(int argc, VALUE * argv, VALUE self)
 
 				if (_current_method == -1) {
 					free(temp_stack);
-					// AK - umm.. this is *REALLY* wrong... need to call super.method_missing...
-					// No I disagree with Alex here, this code is correct! - Richard
-					if (islower(methodName[0])) {
-						rb_raise(rb_eArgError, "unresolved method call %s\n", methodName);
-					} else {
-						rb_raise(rb_eArgError, "unresolved constant reference %s\n", methodName);
-					}
+					rb_call_super(argc, argv);
 				}
 			}
 			// Success. Cache result.
@@ -1048,11 +1042,7 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
 			free(temp_stack);
 			return result;
 		} else {
-			if (islower(methodName[0])) {
-				rb_raise(rb_eArgError, "unresolved method call %s\n", methodName);
-			} else {
-				rb_raise(rb_eArgError, "unresolved constant reference %s\n", methodName);
-			}
+			rb_call_super(argc, argv);
 		}
     }
 
@@ -1141,7 +1131,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	if (_current_method == -1) {
 		free(temp_stack);
 		// Another longjmp here..
-		rb_raise(rb_eArgError, "unresolved constructor call\n");
+		rb_raise(rb_eArgError, "unresolved constructor call %s\n", rb_class2name(klass));
 	}
 
 	{
