@@ -10,6 +10,25 @@
 
 Here is a Ruby SMOKE adaptor for Qt
 
+Why ruby?
+On 8/28/03 8:56 PM, "Scott Thompson" <easco@mac.com> wrote:
+
+>> : Can anyone give me a good reason why I would want to use Ruby over
+>> Python?
+>> 
+>> Ruby smells better than Python.  Also, it has cuter girls.
+>> 
+>> Python sometimes tastes better if you prepare it right.
+> 
+> I hadn't noticed the odor thing.  It does have a faintly floral aroma
+> doesn't it.
+> 
+> Of course it is no surprise that you can get more and cuter girls with
+> Rubies than you can with Pythons.
+> 
+> Scott
+There you have it!
+
 Here is 'Hello World' in QtRuby:
 
 #!/usr/bin/ruby -w
