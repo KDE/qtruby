@@ -484,6 +484,8 @@ module Qt
 				signal = Qt::Object.normalizeSignalSlot(signal)
 				if signal =~ /([^\s]*)\((.*)\)/
 					@signals.push QObjectMember.new($1, signal, $2)
+				else
+					qWarning( "#{@klass.name}: Invalid signal format: '#{signal}'" )
 				end
 			end
 		end
@@ -507,6 +509,8 @@ module Qt
 				slot = Qt::Object.normalizeSignalSlot(slot)
 				if slot =~ /([^\s]*)\((.*)\)/
 					@slots.push QObjectMember.new($1, slot, $2)
+				else
+					qWarning( "#{@klass.name}: Invalid slot format: '#{slot}'" )
 				end
 			end
 		end
