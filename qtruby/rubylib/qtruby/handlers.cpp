@@ -779,11 +779,22 @@ void marshall_QStringList(Marshall *m) {
     }
 }
 
-void marshall_QCanvasItemList(Marshall *m) {
+
+template <class Item, class ItemList, class ItemListIterator, int type_handler_map_idx> void marshall_ItemList(Marshall *m);
+
+Marshall::HandlerFn marshall_QCanvasItemList = marshall_ItemList<QCanvasItem, QCanvasItemList, QValueListIterator<QCanvasItem*>, 0 >;
+
+// NB - This array is used to work around the inability to template a method with a string literal as a template param
+const char * handler_type_mapping[] = {
+    "QCanvasItem", // index 0
+};
+
+template <class Item, class ItemList, class ItemListIterator, int type_handler_map_idx>
+void marshall_ItemList(Marshall *m) {
     switch(m->action()) {
       case Marshall::ToVALUE:
 	{
-	    QCanvasItemList *valuelist = (QCanvasItemList*)m->item().s_voidp;
+	    ItemList *valuelist = (ItemList*)m->item().s_voidp;
 	    if(!valuelist) {
 		*(m->var()) = Qundef;
 		break;
@@ -791,13 +802,12 @@ void marshall_QCanvasItemList(Marshall *m) {
 
 	    VALUE av = rb_ary_new();
 
-	    int ix = m->smoke()->idClass( "QCanvasItem" );
+	    int ix = m->smoke()->idClass( handler_type_mapping[type_handler_map_idx] );
 	    const char * className = m->smoke()->binding->className(ix);
 
-	    for(QValueListIterator<QCanvasItem*> it = valuelist->begin();
+	    for(ItemListIterator it = valuelist->begin();
 		it != valuelist->end();
 		++it) {
-		QCanvasItem* t = *it;
 		void *p = *it;
 
 		if(m->item().s_voidp == 0) {
@@ -812,9 +822,7 @@ void marshall_QCanvasItemList(Marshall *m) {
 		    o->classId = m->type().classId();
 		    o->ptr = p;
 		    o->allocated = false;
-
-		    const char * classname = m->smoke()->binding->className(m->type().classId());
-		    obj = set_obj_info(classname, o);
+		    obj = set_obj_info(className, o);
 		}
 
 		rb_ary_push(av, obj);
@@ -999,7 +1007,7 @@ static VALUE type_handlers = 0;
 void install_handlers(TypeHandler *h) {
     if(type_handlers == 0) {
     	type_handlers = rb_hash_new();
-		rb_gc_register_address(&type_handlers);     
+	rb_gc_register_address(&type_handlers);     
     }
     
     while(h->name) {
@@ -1017,15 +1025,15 @@ Marshall::HandlerFn getMarshallFn(const SmokeType &type) {
 	return marshall_unknown;
     }
     unsigned int len = strlen(type.name());
-	VALUE name = rb_str_new2(type.name());
+    VALUE name = rb_str_new2(type.name());
     VALUE svp = rb_hash_aref(type_handlers, name);
     if(svp == Qnil && type.isConst() && len > strlen("const ")) {
     	svp = rb_hash_aref(type_handlers, rb_str_new2(type.name() + strlen("const ")));
-	}
+    }
 	
-	if(svp != Qnil) {
-		TypeHandler *h = (TypeHandler*)NUM2INT(svp);
-		return h->fn;
+    if(svp != Qnil) {
+	TypeHandler *h = (TypeHandler*)NUM2INT(svp);
+	return h->fn;
     }
 
     return marshall_unknown;
