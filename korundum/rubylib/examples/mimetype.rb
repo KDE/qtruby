@@ -244,7 +244,7 @@ class KMimeTypeTab < Qt::Widget
 
         y = y + 80
 
-		acc = 0 # int* args don't work, so acc doesn't get updated here
+		acc = Qt::Integer.new(0) # Create a mutable integer value to pass as an 'int*' arg
         fc = KDE::MimeType.findByFileContent("mimetype.rb", acc)
         fclbl = Qt::Label.new("KDE::MimeType.findByFileContent('mimetype.rb')", self)
         fclbl.setGeometry(x, y, 250, 20)
