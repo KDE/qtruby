@@ -13,13 +13,12 @@ class AnimatedThingy < Qt::Label
         super(*k)
         @label = k[1] + "\n... and wasting CPU\nwith this animation!\n"
         @step = 0
-        @ox0 = @oy0 = @ox1 = @oy1 = 0
+        @ox0, @oy0, @ox1, @oy1 = *Array.new(4) { Array.new(10, 0) }
         @x0 = @y0 = @x1 = @y1 = 0
         @dx0 = rand(8)+2
         @dy0 = rand(8)+2
         @dx1 = rand(8)+2
         @dy1 = rand(8)+2
-        setBackgroundColor(black)
     end
 
     def show
@@ -36,8 +35,6 @@ class AnimatedThingy < Qt::Label
 	Qt::Size.new(120,100)
     end
 
-    # TODO
-=begin
     def inc(x, dx, b)
 	x += dx
 	if x < 0
@@ -47,46 +44,46 @@ class AnimatedThingy < Qt::Label
             x = b-1
             dx = -(rand(8)+2) 
         end
-	return ($x, $dx)
+	yield x, dx
     end
 
-    def timerEvent
-	p = Qt::Painter.new(self)
-	pn = p.pen
+    def timerEvent(e)
+	painter = Qt::Painter.new(self)
+	pn = painter.pen
 	pn.setWidth(2)
-	pn.setColor(backgroundColor())
-	p.setPen($pn)
+	pn.setColor(backgroundColor)
+	painter.setPen(pn)
 
 	@step = (@step + 1) % NQIX
 
-	$p.drawLine(ox0[@step], @oy.[0][@step], @ox1[@step], @oy.[1][@step])
+	painter.drawLine(@ox0[@step], @oy0[@step], @ox1[@step], @oy1[@step])
 
-	(@x0, @dx0) = inc(@x0, @dx0, width)
-	(@y0, @dy0) = inc(@y0, @dy0, height)
-	(@x1, @dx1) = inc(@x1, @dx1, width)
-	(@y1, @dy1) = inc(@y1, @dy1, height)
-	@ox.[0][@step] = @x0
-	@oy.[0][@step] = @y0
-	@ox.[1][@step] = @x1
-	@oy.[1][@step] = @y1
+	inc(@x0, @dx0, width)  { |x,dx| @x0, @dx0 = x, dx }
+	inc(@y0, @dy0, height) { |y,dy| @y0, @dy0 = y, dy }
+	inc(@x1, @dx1, width)  { |x,dx| @x1, @dx1 = x, dx }
+	inc(@y1, @dy1, height) { |y,dy| @y1, @dy1 = y, dy }
+	@ox0[@step] = @x0
+	@oy0[@step] = @y0
+	@ox1[@step] = @x1
+	@oy1[@step] = @y1
 
-	c= Qt::Color.new
-	c.setHsv( (@step*255)/NQIX, 255, 255 ); # rainbow effect
-	pn.setColor($c)
-	p.setPen($pn)
-	p.drawLine(@ox.[0][@step], @oy.[0][@step], @ox.[1][@step], @oy.[1][@step])
-	p.setPen(white)
-	p.drawText(rect(), &AlignCenter, @label)
+	c = Qt::Color.new
+	c.setHsv( (@step*255)/NQIX, 255, 255 ) # rainbow effect
+	pn.setColor(c)
+        puts "red == #{pn.color.red}"
+	painter.setPen(pn)
+	painter.drawLine(@ox0[@step], @oy0[@step], @ox1[@step], @oy1[@step])
+	painter.setPen(white)
+	painter.drawText(rect(), AlignCenter, @label)
     end
-=end
 end
 
 class CPUWaster < Qt::Widget
     attr_accessor :menubar, :file, :options, :rects, :pb
     attr_accessor :td_id , :ld_id, :dl_id, :cl_id, :md_id
     attr_accessor :got_stop, :timer_driven, :default_label
-    slots 'drawItemRects(int)', 'doMenuItem(int)', 'stopDrawing', 'timerDriven'
-    slots 'loopDriven', 'defaultLabel', 'customLabel', 'toggleMinimumDuration'
+    slots 'drawItemRects(int)', 'doMenuItem(int)', 'stopDrawing()', 'timerDriven()'
+    slots 'loopDriven()', 'defaultLabel()', 'customLabel()', 'toggleMinimumDuration()'
 
     FIRST_DRAW_ITEM = 1000
     LAST_DRAW_ITEM  = 1006
@@ -95,7 +92,7 @@ class CPUWaster < Qt::Widget
         super(*k)
 
         @menubar = Qt::MenuBar.new(self, "menu")
-        @pb = 0
+        @pb = nil
 
         @file = Qt::PopupMenu.new
         @menubar.insertItem( "&File", file )
@@ -115,11 +112,12 @@ class CPUWaster < Qt::Widget
         @options.insertSeparator
         @md_id = options.insertItem("No minimum duration", self, SLOT('toggleMinimumDuration()'))
         @options.setCheckable true
-        loopDriven()
-        customLabel()
+
+	loopDriven
+	defaultLabel
 
         setFixedSize(400, 300)
-        setBackgroundColor(black)
+        setBackgroundColor(white)
     end
 
     def drawItemRects(id)
@@ -132,16 +130,15 @@ class CPUWaster < Qt::Widget
         r
     end
 
-=begin
     def doMenuItem(id)
-        draw(drawItemRects(id)) if (id >= FIRST_DRAW_ITEM && id <= LAST_DRAW_ITEM)
+        draw drawItemRects(id) if id >= FIRST_DRAW_ITEM && id <= LAST_DRAW_ITEM
     end
 
     def stopDrawing
         @got_stop = 1 
     end
 
-    def timerDriven()
+    def timerDriven
         @timer_driven = true
         @options.setItemChecked(@td_id, true)
         @options.setItemChecked(@ld_id, false)
@@ -155,14 +152,14 @@ class CPUWaster < Qt::Widget
 
     def defaultLabel
         @default_label = true
-        @options.setItemChecked( @dl_id, true )
-        @options.setItemChecked( @cl_id, false )
+        @options.setItemChecked(@dl_id, true)
+        @options.setItemChecked(@cl_id, false)
     end
 
     def customLabel
         @default_label = false
-        @options.setItemChecked( @dl_id, false )
-        @options.setItemChecked( @cl_id, true )
+        @options.setItemChecked(@dl_id, false)
+        @options.setItemChecked(@cl_id, true)
     end
 
     def toggleMinimumDuration
@@ -170,48 +167,43 @@ class CPUWaster < Qt::Widget
         @options.setItemChecked(@md_id, !checked)
     end
 
-    def timerEvent
-        @pb.setProgress( @pb.totalSteps - @rects ) if(!(@rects%100))
-        rects--
+    def timerEvent(e)
+        @pb.setProgress( @pb.totalSteps - @rects ) if @rects % 100 == 0
+        @rects -= 1
 
-        {
-            my $p = Qt::Painter(self)
+	painter = Qt::Painter.new(self)
 
-            my $ww = width()
-            my $wh = height()
+	ww = width
+	puts  "ww = =" ,ww
+	wh = height
 
-            if ( $ww > 8 && $wh > 8 )
-            {
-                my $c = Qt::Color(rand(255), rand(255), rand(255))
-                my $x = rand($ww-8)
-                my $y = rand($wh-8)
-                my $w = rand($ww-$x)
-                my $h = rand($wh-$y)
-                $p.fillRect( $x, $y, $w, $h, Brush($c) )
-            }
-        }
+	if ww > 8 and wh > 8
+	    c = Qt::Color(rand(255), rand(255), rand(255))
+	    x = rand(ww - 8)
+	    y = rand(wh - 8)
+	    w = rand(ww - x)
+	    h = rand(wh - y)
+            puts "my red = ", c.red
+	    painter.fillRect(x, y, w, h, Qt::Brush.new(c))
+	end
 
-        if (!@rects || @got_stop)
-        {
-            @pb.setProgress( @pb.totalSteps )
-            my $p = Qt::Painter(self)
-            $p.fillRect(0, 0, width(), height(), Brush(backgroundColor()))
-            enableDrawingItems(1)
+        if @rects < 0 || @got_stop
+            @pb.setProgress(@pb.totalSteps)
+            painter = Qt::Painter.new(self)
+            painter.fillRect(0, 0, width(), height(), Qt::Brush.new(backgroundColor))
+            enableDrawingItems(true)
             killTimers()
-            @pb = 0
-        }
+            @pb = nil
+        end
     end
-=end
 
     def newProgressDialog(label, steps, modal)
-        d = ProgressDialog.new(label, "Cancel", steps, self, "progress", modal)
-        checked = @options.isItemChecked(@md_id)
-        d.setMinimumDuration(0) if checked
+        d = Qt::ProgressDialog.new(label, "Cancel", steps, self, "progress", modal)
+        d.setMinimumDuration(true) if @options.isItemChecked(@md_id)
         d.setLabel( AnimatedThingy.new(d, label) ) unless @default_label
+	d.show
         d
     end
-
-=begin
 
     def enableDrawingItems(yes)
         FIRST_DRAW_ITEM.upto(LAST_DRAW_ITEM) {
@@ -221,41 +213,42 @@ class CPUWaster < Qt::Widget
 
     def draw(n)
         if timer_driven
-            if pb
+            if @pb.nil?
                 warn("This cannot happen!")
                 return
             end
             @rects = n
-            @pb = newProgressDialog("Drawing rectangles.\nUsing timer event.", n, 0)
+            @pb = newProgressDialog("Drawing rectangles.\nUsing timer event.", n, false)
+	    puts "WERAGGGH"
             @pb.setCaption("Please Wait")
             connect(@pb, SIGNAL('cancelled()'), self, SLOT('stopDrawing()'))
             enableDrawingItems(0)
             startTimer(0)
             @got_stop = 0
         else
-            lpb = newProgressDialog("Drawing rectangles.\nUsing loop.", n, 1)
+            lpb = newProgressDialog("Drawing rectangles.\nUsing loop.", n, true)
+	    puts "WERAGGGH1"
             lpb.setCaption("Please Wait")
 
-            p = Qt::Painter.new(self)
-            0..upto(n) { |i|
+            painter = Qt::Painter.new(self)
+            0.upto(n) { |i|
 		if (i % 100) == 0
 		    lpb.setProgress(i)
                     break if lpb.wasCancelled
                 end
                 cw, ch = width, height
-                c = Qt::Color(rand(255), rand(255), rand(255))
-                x = rand($cw - 8)
-                y = rand($cw - 8)
-                w = rand($cw - x)
-                h = rand($cw - y)
-                p.fillRect(x, y, w, h, Brush.new(c))
+                c = Qt::Color.new(rand(255), rand(255), rand(255))
+                x = rand(cw - 8)
+                y = rand(cw - 8)
+                w = rand(cw - x)
+                h = rand(cw - y)
+                painter.fillRect(x, y, w, h, Qt::Brush.new(c))
+		p "drawRect"
             }
             lpb.cancel
-            p.fillRect(0, 0, width, height, Brush.new(backgroundColor))
-        }
+            painter.fillRect(0, 0, width, height, Qt::Brush.new(backgroundColor))
+        end
     end
-=end
-
 end
 
 a = Qt::Application.new(ARGV)
