@@ -86,6 +86,8 @@ VALUE kio_module = Qnil;
 VALUE khtml_module = Qnil;
 VALUE dom_module = Qnil;
 VALUE kontact_module = Qnil;
+VALUE kate_module = Qnil;
+VALUE ktexteditor_module = Qnil;
 VALUE qt_internal_module = Qnil;
 VALUE qt_base_class = Qnil;
 VALUE qt_qmetaobject_class = Qnil;
@@ -2076,6 +2078,14 @@ Init_qtruby()
 	kontact_module = rb_define_module("Kontact");
     rb_define_singleton_method(kontact_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
     rb_define_singleton_method(kontact_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	ktexteditor_module = rb_define_module("KTextEditor");
+    rb_define_singleton_method(ktexteditor_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+    rb_define_singleton_method(ktexteditor_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	kate_module = rb_define_module("Kate");
+    rb_define_singleton_method(kate_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+    rb_define_singleton_method(kate_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 
     rb_define_method(qt_internal_module, "getMethStat", (VALUE (*) (...)) getMethStat, 0);
     rb_define_method(qt_internal_module, "getClassStat", (VALUE (*) (...)) getClassStat, 0);
