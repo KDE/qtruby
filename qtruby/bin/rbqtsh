@@ -10,9 +10,9 @@
 require 'stringio'
 
 case File.basename $0
-when "rbqtapi"
+when "rbqtsh"
    require 'Qt'
-when "rbkdeapi"
+when "rbkdesh"
    require 'Korundum'
 end
 
