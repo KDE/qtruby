@@ -551,7 +551,8 @@ module Qt
 		end
 		
 		# Runs the initializer as far as allocating the Qt C++ instance.
-		# Then use the @@current_initializer continuation to jump back to here
+		# Then use a throw to jump back to here with the C++ instance 
+		# wrapped in a new ruby variable of type T_DATA
 		def try_initialize(instance, *args)
 			# If a debugger calls an inspect method with the half 
 			# constructed instance, it will fail. So prevent that by
@@ -566,19 +567,12 @@ module Qt
 			end
 			
 			initializer = instance.method(:initialize)
-			return callcc {
-                                |continuation|
-				@@current_initializer = continuation
+			catch "newqt" do 
 				initializer.call(*args)
-			}
-		end
-
-                # continues off here after first stage initialize is complete
-		def continue_new_instance(instance)
-			@@current_initializer.call(instance)
+			end
 		end
 		
-                # If a block was passed to the constructor, then
+        # If a block was passed to the constructor, then
 		# run that now. Either run the context of the new instance
 		# if no args were passed to the block. Or otherwise,
 		# run the block in the context of the arg.

@@ -1475,7 +1475,7 @@ instance.
 
 The solution is to run the initialize code twice. First, only up to the
 'super(parent, name)' call, where the QWidget would get instantiated in
-initialize_qt(). And then continue_new_instance() jumps out of the
+initialize_qt(). And then rb_throw() jumps out of the
 initializer returning the wrapped object as a result.
 
 The second time round 'self' will be the wrapped instance of type T_DATA,
@@ -1547,7 +1547,9 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
     mapObject(result, result);
 	free(temp_stack);
 	// Off with a longjmp, never to return..
-    return rb_funcall(qt_internal_module, rb_intern("continue_new_instance"), 1, result);
+    rb_throw("newqt", result);
+	/*NOTREACHED*/
+	return self;
 }
 
 VALUE

@@ -1,3 +1,12 @@
+2004-12-21  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* The qtruby runtime needs to be able to run the code for an initialize() method up
+	  to the point where the C++ instance has been constructed and wrapped, and then
+	  jump out. It then re-runs initialize() with the wrapped instance. Before a callcc() call
+	  had been used for the jumping which worked fine. However, it made the frame stack
+	  look strange when debugging code with the KDevelop debugger. The fix is to use 
+	  catch and throw instead, as they leave the stack in a more normal looking state.
+
 2004-12-20  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added a work round for a bug caused by an incompatibility between QtRuby
