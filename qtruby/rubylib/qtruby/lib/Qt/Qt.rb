@@ -105,13 +105,13 @@ module Qt
 					return 0
 				end
 			elsif argtype == 's'
-				if typename =~ /^(?:char\*|const char\*|(?:const )?(Q(C?)String)[*&]?)$/
+				if typename =~ /^(?:u?char\*|const u?char\*|(?:const )?((Q(C?)String)|QByteArray)[*&]?)$/
 					qstring = !$1.nil?
 					c = !$2.nil?
 					return c ? 1 : (qstring ? 2 : 0)
 				end
 			elsif argtype == 'a'
-				# FIXME: shouldn't be hardcoded. Installed handlers should tell what perl type they expect.
+				# FIXME: shouldn't be hardcoded. Installed handlers should tell what ruby type they expect.
 				if typename =~ /^(?:
 						const\ QCOORD\*|
 						(?:const\ )?

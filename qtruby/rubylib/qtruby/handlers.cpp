@@ -48,7 +48,6 @@ smokeruby_mark(void * p)
 				|| strcmp(className, "QListBoxItem") == 0
 				|| strcmp(className, "QStyleSheetItem") == 0
 				|| strcmp(className, "QTableItem") == 0
-				|| strcmp(className, "QColor") == 0
 				|| strcmp(className, "QSqlCursor") == 0 )
 		{
 			// Don't allow instances of these classes to be garbage collected for now
@@ -418,9 +417,9 @@ static void marshall_charP(Marshall *m) {
                 break;
 	    }
 	    if(m->cleanup()) {
-                m->item().s_voidp = STR2CSTR(rv);
+                m->item().s_voidp = StringValuePtr(rv);
 	    } else {
-                m->item().s_voidp = STR2CSTR(rv);
+                m->item().s_voidp = StringValuePtr(rv);
 	    }
 	}
 	break;
@@ -453,7 +452,7 @@ void marshall_ucharP(Marshall *m) {
 	    if(m->cleanup()) {
                 m->item().s_voidp = (void *) rb_str_new2("");
 	    } else {
-                m->item().s_voidp = STR2CSTR(rv);
+                m->item().s_voidp = StringValuePtr(rv);
 	    }
 	}
 	break;
@@ -480,7 +479,7 @@ static void marshall_QString(Marshall *m) {
                     s = QString::fromLatin1(SvPV_nolen(*(m->var())));
 #else
             // Treat everything as UTF-8..for now
-            s = QString::fromUtf8(STR2CSTR(*(m->var())) );
+            s = QString::fromUtf8(StringValuePtr(*(m->var())) );
 #endif
             } else if(m->type().isRef()) {
                 s = QString::null;
@@ -522,6 +521,44 @@ static void marshall_QString(Marshall *m) {
     }
 }
 
+static void marshall_QByteArray(Marshall *m) {
+    switch(m->action()) {
+      case Marshall::FromVALUE:
+	{
+	    VALUE rv = *(m->var());
+	    QByteArray *s = 0;
+	    if(rv != Qnil && rv != Qundef) {
+            s = new QByteArray(RSTRING(rv)->len);
+			memcpy((void*)s->data(), StringValuePtr(rv), RSTRING(rv)->len);
+        } else {
+            s = new QByteArray(0);
+	    }
+	    m->item().s_voidp = s;
+	    m->next();
+	    if(s && m->cleanup())
+		delete s;
+	}
+	break;
+      case Marshall::ToVALUE:
+	{
+		VALUE rv = *(m->var());
+	    QByteArray *s = (QByteArray*)m->item().s_voidp;
+	    if(s) {
+			rb_str_resize(rv, 0);
+			rb_str_cat(rv, (const char *)s->data(), s->size());
+        } else {
+			rv = Qundef;
+		}
+	    if(m->cleanup())
+		delete s;
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
+    }
+}
+
 #if 0
 static const char *not_ascii(const char *s, uint &len)
 {
@@ -543,7 +580,7 @@ static void marshall_QCString(Marshall *m) {
 	    QCString *s = 0;
 	    VALUE rv = *(m->var());
 	    if (rv != Qundef || m->type().isStack()) {
-		s = new QCString(STR2CSTR(*(m->var())));
+		s = new QCString(StringValuePtr(*(m->var())));
             }
 	    m->item().s_voidp = s;
 	    m->next();
@@ -707,7 +744,7 @@ static void marshall_charP_array(Marshall *m) {
 	    long i;
 	    for(i = 0; i < RARRAY(arglist)->len; i++) {
                 VALUE item = rb_ary_entry(arglist, i);
-                char *s = STR2CSTR(item);
+                char *s = StringValuePtr(item);
                 argv[i] = new char[strlen(s) + 1];
                 strcpy(argv[i], s);
 	    }
@@ -748,7 +785,7 @@ void marshall_QStringList(Marshall *m) {
 		    stringlist->append(QString());
 		    continue;
 		}
-		stringlist->append(QString::fromUtf8(STR2CSTR(item)));
+		stringlist->append(QString::fromUtf8(StringValuePtr(item)));
 	    }
 
 	    m->item().s_voidp = stringlist;
@@ -1054,6 +1091,9 @@ TypeHandler Qt_handlers[] = {
     { "QUObject*", marshall_voidP },
     { "const QCOORD*", marshall_QCOORD_array },
     { "void", marshall_void },
+    { "QByteArray", marshall_QByteArray },
+    { "QByteArray&", marshall_QByteArray },
+    { "QByteArray*", marshall_QByteArray },
     { "QValueList<int>", marshall_QValueListInt },
     { "QValueList<int>*", marshall_QValueListInt },
     { "QValueList<int>&", marshall_QValueListInt },
