@@ -27,6 +27,7 @@
 #include <kapplication.h>
 #include <kurl.h>
 #include <kconfigskeleton.h>
+#include <kio/global.h>
 
 #include <ruby.h>
 
@@ -39,6 +40,7 @@ extern "C" {
 extern VALUE qt_internal_module;
 extern VALUE kconfigskeleton_class;
 extern VALUE kconfigskeleton_itemenum_choice_class;
+extern VALUE kio_udsatom_class;
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
 extern void set_kde_resolve_classname(const char * (*kde_resolve_classname) (Smoke*, int, void *));
 extern const char * kde_resolve_classname(Smoke* smoke, int classId, void * ptr);
@@ -1105,6 +1107,61 @@ set_choice_whatsthis(VALUE self, VALUE whatsthis)
 	return self;
 }
 
+static VALUE
+udsatom_str(VALUE self)
+{
+	smokeruby_object *o = value_obj_info(self);
+	KIO::UDSAtom * udsatom = (KIO::UDSAtom *) o->ptr;
+	if (udsatom->m_str.isNull()) {
+		return Qnil;
+	} else {
+		return rb_str_new2(udsatom->m_str.latin1());
+	}
+}
+
+static VALUE
+udsatom_long(VALUE self)
+{
+	smokeruby_object *o = value_obj_info(self);
+	KIO::UDSAtom * udsatom = (KIO::UDSAtom *) o->ptr;
+	return LL2NUM(udsatom->m_long);
+}
+
+static VALUE
+udsatom_uds(VALUE self)
+{
+	smokeruby_object *o = value_obj_info(self);
+	KIO::UDSAtom * udsatom = (KIO::UDSAtom *) o->ptr;
+	return UINT2NUM(udsatom->m_uds);
+}
+
+static VALUE
+set_udsatom_str(VALUE self, VALUE str)
+{
+	smokeruby_object *o = value_obj_info(self);
+	KIO::UDSAtom * udsatom = (KIO::UDSAtom *) o->ptr;
+	udsatom->m_str = QString(StringValuePtr(str));
+	return self;
+}
+
+static VALUE
+set_udsatom_long(VALUE self, VALUE m_long)
+{
+	smokeruby_object *o = value_obj_info(self);
+	KIO::UDSAtom * udsatom = (KIO::UDSAtom *) o->ptr;
+	udsatom->m_long = NUM2LL(m_long);
+	return self;
+}
+
+static VALUE
+set_udsatom_uds(VALUE self, VALUE uds)
+{
+	smokeruby_object *o = value_obj_info(self);
+	KIO::UDSAtom * udsatom = (KIO::UDSAtom *) o->ptr;
+	udsatom->m_uds = NUM2UINT(uds);
+	return self;
+}
+
 void
 Init_korundum()
 {
@@ -1133,6 +1190,13 @@ Init_korundum()
 	rb_define_method(kconfigskeleton_itemenum_choice_class, "name=", (VALUE (*) (...)) set_choice_name, 1);
 	rb_define_method(kconfigskeleton_itemenum_choice_class, "label=", (VALUE (*) (...)) set_choice_label, 1);
 	rb_define_method(kconfigskeleton_itemenum_choice_class, "whatsThis=", (VALUE (*) (...)) set_choice_whatsthis, 1);
+	
+	rb_define_method(kio_udsatom_class, "m_str", (VALUE (*) (...)) udsatom_str, 0);
+	rb_define_method(kio_udsatom_class, "m_long", (VALUE (*) (...)) udsatom_long, 0);
+	rb_define_method(kio_udsatom_class, "m_uds", (VALUE (*) (...)) udsatom_uds, 0);
+	rb_define_method(kio_udsatom_class, "m_str=", (VALUE (*) (...)) set_udsatom_str, 1);
+	rb_define_method(kio_udsatom_class, "m_long=", (VALUE (*) (...)) set_udsatom_long, 1);
+	rb_define_method(kio_udsatom_class, "m_uds=", (VALUE (*) (...)) set_udsatom_uds, 1);
 	
 	rb_require("KDE/korundum.rb");
 }

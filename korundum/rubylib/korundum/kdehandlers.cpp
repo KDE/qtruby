@@ -786,6 +786,89 @@ void marshall_KURLList(Marshall *m) {
 	}
 }
 
+void marshall_UDSEntryList(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE:
+	{
+		VALUE list = *(m->var());
+		if (TYPE(list) != T_ARRAY) {
+			m->item().s_voidp = 0;
+			break;
+		}
+		
+		KIO::UDSEntryList *cpplist = new KIO::UDSEntryList;
+		
+		for(long i = 0; i < RARRAY(list)->len; i++) {
+			VALUE item = rb_ary_entry(list, i);
+			KIO::UDSEntry *cppsublist = new KIO::UDSEntry;
+			
+			for (int j = 0; j < RARRAY(item)->len; j++) {
+				VALUE subitem = rb_ary_entry(item, j);
+				smokeruby_object *o = value_obj_info(subitem);
+				if(!o || !o->ptr)
+					continue;
+				void *ptr = o->ptr;
+				ptr = o->smoke->cast(ptr, o->classId, o->smoke->idClass("KIO::UDSAtom"));
+				cppsublist->append(*(KIO::UDSAtom*)ptr);
+			}
+			
+			cpplist->append(*cppsublist);
+		}
+
+		m->item().s_voidp = cpplist;
+		m->next();
+	}
+	break;
+	case Marshall::ToVALUE:
+	{
+	  	KIO::UDSEntryList *valuelist = (KIO::UDSEntryList*)m->item().s_voidp;
+		if (!valuelist) {
+			*(m->var()) = Qnil;
+			break;
+		}
+
+		VALUE av = rb_ary_new();
+
+		int ix = m->smoke()->idClass("KIO::UDSAtom");
+
+		for (	KIO::UDSEntryList::Iterator it = valuelist->begin();
+				it != valuelist->end();
+				++it ) 
+		{
+			KIO::UDSEntry * udsentry = &(*it);
+			VALUE subav = rb_ary_new();
+
+			for (	KIO::UDSEntry::Iterator it = udsentry->begin();
+					it != udsentry->end();
+					++it ) 
+			{
+				void * p = &(*it);
+				VALUE obj = getPointerObject(p);
+				if(obj == Qnil) {
+					smokeruby_object  * o = ALLOC(smokeruby_object);
+					o->smoke = m->smoke();
+					o->classId = ix;
+					o->ptr = p;
+					o->allocated = false;
+					obj = set_obj_info("KIO::UDSAtom", o);
+				}
+				
+				rb_ary_push(subav, obj);
+			}
+			
+			rb_ary_push(av, subav);
+		}
+		
+		*(m->var()) = av;
+	}
+	break;
+	default:
+		m->unsupported();
+		break;
+	}
+}
+
+
 // Some time saving magic from Alex Kellett here..
 template <class Item, class ItemList, const char *ItemSTR >
 void marshall_ItemList(Marshall *m) {
@@ -992,6 +1075,7 @@ DEF_VALUELIST_MARSHALLER( KAboutPersonList, QValueList<KAboutPerson>, KAboutPers
 DEF_VALUELIST_MARSHALLER( KAboutTranslatorList, QValueList<KAboutTranslator>, KAboutTranslator, QValueList<KAboutTranslator>::Iterator )
 DEF_VALUELIST_MARSHALLER( KIOCopyInfoList, QValueList<KIO::CopyInfo>, KIO::CopyInfo, QValueList<KIO::CopyInfo>::Iterator )
 DEF_VALUELIST_MARSHALLER( KServiceOfferList, QValueList<KServiceOffer>, KServiceOffer, QValueList<KServiceOffer>::Iterator )
+DEF_VALUELIST_MARSHALLER( UDSEntry, QValueList<KIO::UDSAtom>, KIO::UDSAtom, QValueList<KIO::UDSAtom>::Iterator )
 
 template <class Key, class Value, class ItemMapIterator, const char *KeySTR, const char *ValueSTR >
 void marshall_Map(Marshall *m) {
@@ -1210,6 +1294,8 @@ TypeHandler KDE_handlers[] = {
     { "QValueList<KAboutPerson>", marshall_KAboutPersonList },
     { "QValueList<KAboutTranslator>", marshall_KAboutTranslatorList },
     { "QValueList<KIO::CopyInfo>&", marshall_KIOCopyInfoList },
+	{ "KIO::UDSEntry&", marshall_UDSEntry },
+    { "KIO::UDSEntryList&", marshall_UDSEntryList },
     { "KServiceTypeProfile::OfferList", marshall_KServiceOfferList },
     { "KEntryMap", marshall_QMapKEntryKeyKEntry },
     { "KEntryMap&", marshall_QMapKEntryKeyKEntry },
