@@ -13,8 +13,8 @@ a = KDE::Application.new()
 # Qt.debug_level = Qt::DebugLevel::High
 
 class MyBase < Qt::VBox
-   HOME = KDE::URL.new "http://www.gentoo.org/"
-   slots "go_back()", "go_forward()", "goto_url()", "go_home()"
+   HOME = KDE::URL.new ENV["BASEDOCURL"]
+   slots "go_back()", "go_forward()", "goto_url()", "go_home()", "debug()"
    attr_accessor :back, :forward, :url
    def initialize *k
       super *k
@@ -22,27 +22,53 @@ class MyBase < Qt::VBox
       @w = KDE::HTMLPart.new self
       @history = []
       @popped_history = []
-      @url     = KDE::URL.new "http://www.gentoo.org/"
-      @forward = KDE::PushButton.new(buttons) { setText "Forward" }
-      @back    = KDE::PushButton.new(buttons) { setText "Back" }
-      @home    = KDE::PushButton.new(buttons) { setText "Home" }
-      @label   = Qt::Label.new(buttons)
-      @location = Qt::LineEdit.new(buttons)
+      @url      = HOME
+      @forward  = KDE::PushButton.new(buttons) { setText "Forward" }
+      @back     = KDE::PushButton.new(buttons) { setText "Back" }
+      @home     = KDE::PushButton.new(buttons) { setText "Home" }
+      @debug    = KDE::PushButton.new(buttons) { setText "Debug" }
+      @location = Qt::LineEdit.new buttons
+      @label    = Qt::Label.new self
       Qt::Object.connect( @back,    SIGNAL( "clicked()" ),
                           self,     SLOT(   "go_back()" ) )
       Qt::Object.connect( @forward, SIGNAL( "clicked()" ),
                           self,     SLOT(   "go_forward()" ) )
       Qt::Object.connect( @home,    SIGNAL( "clicked()" ),
                           self,     SLOT(   "go_home()" ) )
+      Qt::Object.connect( @debug,   SIGNAL( "clicked()" ),
+                          self,     SLOT(   "debug()" ) )
       Qt::Object.connect( @location,SIGNAL( "returnPressed()" ),
                           self,     SLOT(   "goto_url()" ) )
       load_page
       update_ui_elements
+      self.resize 800,600
+   end
+   def debug
+      node = @w.document
+      indent = 0
+      until node.isNull
+         puts node.nodeName.string
+         if not node.firstChild.isNull
+            node = node.firstChild
+            indent += 1
+         elsif not node.nextSibling.isNull
+            node = node.nextSibling
+         else
+            while !node.isNull and node.nextSibling.isNull
+               node = node.parentNode
+               indent -= 1
+            end
+            if not node.isNull
+               node = node.nextSibling
+            end
+         end 
+      end
    end
    def load_page
+      @w.setCaretMode true
       @w.openURL @url
-      self.resize 500,400
       @w.show
+      # @w.slotDebugDOMTree
    end
    def update_ui_elements
       @forward.setDisabled @popped_history.empty?
@@ -78,11 +104,16 @@ class MyBase < Qt::VBox
    end
 end
 
-browser = MyBase.new
-browser.show
-a.setMainWidget(browser)
-a.exec()
+Thread.new {
+   puts "indexing"
+}
 
+Thread.new {
+   browser = MyBase.new
+   browser.show
+   a.setMainWidget(browser)
+   a.exec()
+}.join
 
 __END__
 
@@ -91,6 +122,24 @@ w = KDE::HTMLPart  # notice the missing .new
 w.begin
 => crashes badly
 
+./kde.rb:29:in `method_missing': Cannot handle 'const QIconSet&' as argument to QTabWidget::changeTab (ArgumentError)
+        from ./kde.rb:29:in `initialize'
+        from ./kde.rb:92:in `new'
+        from ./kde.rb:92
+for param nil given to param const QIconSet &
+occurs frequently
+
 dum di dum
+
+can't get tabwidget working. umm... wonder what i'm fucking up...
+
+      tabwidget = KDE::TabWidget.new self
+      tabwidget.setTabPosition Qt::TabWidget::Top
+      @w = KDE::HTMLPart.new tabwidget
+      w2 = KDE::HTMLPart.new tabwidget
+      tabwidget.changeTab @w, Qt::IconSet.new, "blah blah"
+      tabwidget.showPage @w
+      tabwidget.show
+      @w.show
 
 dcop = KDE::DCOPObject.new()
