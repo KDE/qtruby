@@ -1,5 +1,1 @@
-####### kdevelop will overwrite this part!!! (begin)##########
-
 SUBDIRS = Qt 
-
-####### kdevelop will overwrite this part!!! (end)############
