@@ -8,9 +8,9 @@ def initialize()
     setMinimumSize(200, 120)
     setMaximumSize(200, 120)
 
-    quit = Qt::PushButton.new("Quit", self, "quit")
+    quit = Qt::PushButton.new('Quit', self, 'quit')
     quit.setGeometry(62, 40, 75, 30)
-    quit.setFont(Qt::Font.new("Times", 18, Qt::Font.Bold))
+    quit.setFont(Qt::Font.new('Times', 18, Qt::Font.Bold))
     $qApp.connect(quit, SIGNAL('clicked()'), SLOT('quit()'))
 end
 

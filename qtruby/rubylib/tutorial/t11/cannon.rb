@@ -1,17 +1,17 @@
-require 'Qt'
 include Math
+require 'Qt'
 
 class CannonField < Qt::Widget
 	
-	signals "angleChanged(int)", "forceChanged(int)"
-	slots "setAngle(int)", "setForce(int)", "shoot()", "moveShot()"
+	signals 'angleChanged(int)', 'forceChanged(int)'
+	slots 'setAngle(int)', 'setForce(int)', 'shoot()', 'moveShot()'
 	
 	def initialize(parent, name)
 		super
 		@ang = 45
 		@f = 0
 		@timerCount = 0;
-        @autoShootTimer = Qt::Timer.new( self, "movement handler" )
+        @autoShootTimer = Qt::Timer.new( self, 'movement handler' )
         connect( @autoShootTimer, SIGNAL('timeout()'),
                  self, SLOT('moveShot()') );
         @shoot_ang = 0

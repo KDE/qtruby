@@ -1,13 +1,13 @@
 require 'Qt'
 
 class LCDRange < Qt::VBox
-	signals "valueChanged(int)"
-	slots "setValue(int)", "setRange(int, int)"
+	signals 'valueChanged(int)'
+	slots 'setValue(int)', 'setRange(int, int)'
 
 	def initialize(parent, name)
 		super
-		lcd = Qt::LCDNumber.new(2, self, "lcd")
-	    @slider = Qt::Slider.new(Qt::VBox.Horizontal, self, "slider")
+		lcd = Qt::LCDNumber.new(2, self, 'lcd')
+	    @slider = Qt::Slider.new(Qt::VBox.Horizontal, self, 'slider')
 	    @slider.setRange(0, 99)
 	    @slider.setValue(0)
 		connect(@slider, SIGNAL('valueChanged(int)'), lcd, SLOT('display(int)'))

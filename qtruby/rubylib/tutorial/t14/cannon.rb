@@ -14,7 +14,7 @@ class CannonField < Qt::Widget
 		@ang = 45
 		@f = 0
 		@timerCount = 0;
-        @autoShootTimer = Qt::Timer.new( self, "movement handler" )
+        @autoShootTimer = Qt::Timer.new( self, 'movement handler' )
         connect( @autoShootTimer, SIGNAL('timeout()'),
                  self, SLOT('moveShot()') )
         @shoot_ang = 0
@@ -166,8 +166,8 @@ class CannonField < Qt::Widget
 
 		if @gameEnded
 			p.setPen( black )
-			p.setFont( Qt::Font.new( "Courier", 48, Qt::Font.Bold ) )
-			p.drawText( rect(), Qt.AlignCenter, "Game Over" )
+			p.setFont( Qt::Font.new( 'Courier', 48, Qt::Font.Bold ) )
+			p.drawText( rect(), Qt.AlignCenter, 'Game Over' )
 		end
 		if updateR.intersects( cannonRect() )
 			paintCannon( p )

@@ -1,5 +1,6 @@
-require "lcdrange.rb"
-require "cannon.rb"
+require 'Qt'
+require 'lcdrange.rb'
+require 'cannon.rb'
 
 class GameBoard < Qt::Widget
 
@@ -7,18 +8,18 @@ class GameBoard < Qt::Widget
 
 	def initialize()
 		super
-    	quit = Qt::PushButton.new("&Quit", self, "quit")
-    	quit.setFont(Qt::Font.new("Times", 18, Qt::Font.Bold))
+    	quit = Qt::PushButton.new('&Quit', self, 'quit')
+    	quit.setFont(Qt::Font.new('Times', 18, Qt::Font.Bold))
     
 		connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
     
-		angle = LCDRange.new( "ANGLE", self, "angle" )
+		angle = LCDRange.new( 'ANGLE', self, 'angle' )
 		angle.setRange( 5, 70 )
 		
-		force  = LCDRange.new( "FORCE", self, "force" )
+		force  = LCDRange.new( 'FORCE', self, 'force' )
 		force.setRange( 10, 50 )
 		
-		@cannonField = CannonField.new( self, "cannonField" )
+		@cannonField = CannonField.new( self, 'cannonField' )
 
 		connect( angle, SIGNAL('valueChanged(int)'),
 				@cannonField, SLOT('setAngle(int)') )
@@ -35,22 +36,22 @@ class GameBoard < Qt::Widget
 		connect( @cannonField, SIGNAL('missed()'),
 					self, SLOT('missed()') )
 				
-		shoot = Qt::PushButton.new( "&Shoot", self, "shoot" )
-		shoot.setFont( Qt::Font.new( "Times", 18, Qt::Font.Bold ) )
+		shoot = Qt::PushButton.new( '&Shoot', self, 'shoot' )
+		shoot.setFont( Qt::Font.new( 'Times', 18, Qt::Font.Bold ) )
 
 		connect( shoot, SIGNAL('clicked()'), SLOT('fire()') )
 		connect( @cannonField, SIGNAL('canShoot(bool)'),
 					shoot, SLOT('setEnabled(bool)') )
 								
-		restart = Qt::PushButton.new( "&New Game", self, "newgame" )
-		restart.setFont( Qt::Font.new( "Times", 18, Qt::Font.Bold ) )
+		restart = Qt::PushButton.new( '&New Game', self, 'newgame' )
+		restart.setFont( Qt::Font.new( 'Times', 18, Qt::Font.Bold ) )
 
 		connect( restart, SIGNAL('clicked()'), self, SLOT('newGame()') )
 
-		@hits = Qt::LCDNumber.new( 2, self, "hits" )
-		@shotsLeft = Qt::LCDNumber.new( 2, self, "shotsleft" )
-		hitsL = Qt::Label.new( "HITS", self, "hitsLabel" )
-		shotsLeftL = Qt::Label.new( "SHOTS LEFT", self, "shotsleftLabel" )
+		@hits = Qt::LCDNumber.new( 2, self, 'hits' )
+		@shotsLeft = Qt::LCDNumber.new( 2, self, 'shotsleft' )
+		hitsL = Qt::Label.new( 'HITS', self, 'hitsLabel' )
+		shotsLeftL = Qt::Label.new( 'SHOTS LEFT', self, 'shotsleftLabel' )
 				
 		grid = Qt::GridLayout.new( self, 2, 2, 10 )
 		grid.addWidget( quit, 0, 0 )

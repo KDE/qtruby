@@ -1,13 +1,13 @@
 #!/usr/bin/env ruby -w
 require 'Qt'
-require "lcdrange.rb"
+require 'lcdrange.rb'
 
 class MyWidget < Qt::VBox
 
 def initialize()
 	super
-    quit = Qt::PushButton.new("Quit", self, "quit")
-    quit.setFont(Qt::Font.new("Times", 18, Qt::Font.Bold))
+    quit = Qt::PushButton.new('Quit', self, 'quit')
+    quit.setFont(Qt::Font.new('Times', 18, Qt::Font.Bold))
     
 	connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
 	grid = Qt::Grid.new( 4, self )

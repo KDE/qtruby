@@ -1,5 +1,5 @@
-require 'Qt'
 include Math
+require 'Qt'
 
 class CannonField < Qt::Widget
 	
@@ -11,7 +11,7 @@ class CannonField < Qt::Widget
 		@ang = 45
 		@f = 0
 		@timerCount = 0;
-        @autoShootTimer = Qt::Timer.new( self, "movement handler" )
+        @autoShootTimer = Qt::Timer.new( self, 'movement handler' )
         connect( @autoShootTimer, SIGNAL('timeout()'),
                  self, SLOT('moveShot()') );
         @shoot_ang = 0

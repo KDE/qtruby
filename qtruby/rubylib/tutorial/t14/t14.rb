@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby -w
 require 'Qt'
-require "gamebrd.rb"
+require 'gamebrd.rb'
 
 
 Qt::Application.setColorSpec( Qt::Application.CustomColor )

@@ -1,8 +1,8 @@
 require 'Qt'
 
 class CannonField < Qt::Widget
-	signals "angleChanged(int)"
-	slots "setAngle(int)"
+	signals 'angleChanged(int)'
+	slots 'setAngle(int)'
 	
 	def initialize(parent, name)
 		super

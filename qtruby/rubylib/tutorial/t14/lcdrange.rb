@@ -11,12 +11,12 @@ class LCDRange < Qt::Widget
 	end
 	
 	def init()
-		@lcd = Qt::LCDNumber.new(2, self, "lcd")
-	    @slider = Qt::Slider.new(Qt::VBox.Horizontal, self, "slider")
+		@lcd = Qt::LCDNumber.new(2, self, 'lcd')
+	    @slider = Qt::Slider.new(Qt::VBox.Horizontal, self, 'slider')
 	    @slider.setRange(0, 99)
 	    @slider.setValue(0)
 		
-		@label = Qt::Label.new( " ", self, "label"  )
+		@label = Qt::Label.new( ' ', self, 'label'  )
 		@label.setAlignment( Qt.AlignCenter )
 			
 		connect(@slider, SIGNAL('valueChanged(int)'), @lcd, SLOT('display(int)'))

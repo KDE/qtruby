@@ -1,24 +1,24 @@
 #!/usr/bin/env ruby -w
 require 'Qt'
-require "lcdrange.rb"
-require "cannon.rb"
+require 'lcdrange.rb'
+require 'cannon.rb'
 
 class MyWidget < Qt::Widget
 
 	def initialize()
 		super
-    	quit = Qt::PushButton.new("&Quit", self, "quit")
-    	quit.setFont(Qt::Font.new("Times", 18, Qt::Font.Bold))
+    	quit = Qt::PushButton.new('&Quit', self, 'quit')
+    	quit.setFont(Qt::Font.new('Times', 18, Qt::Font.Bold))
     
 		connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
     
-		angle = LCDRange.new( "ANGLE", self, "angle" )
+		angle = LCDRange.new( 'ANGLE', self, 'angle' )
 		angle.setRange( 5, 70 )
 		
-		force  = LCDRange.new( "FORCE", self, "force" )
+		force  = LCDRange.new( 'FORCE', self, 'force' )
 		force.setRange( 10, 50 )
 		
-		cannonField = CannonField.new( self, "cannonField" )
+		cannonField = CannonField.new( self, 'cannonField' )
 
 		connect( angle, SIGNAL('valueChanged(int)'),
 				cannonField, SLOT('setAngle(int)') )
@@ -30,8 +30,8 @@ class MyWidget < Qt::Widget
 		connect( cannonField, SIGNAL('forceChanged(int)'),
 				force, SLOT('setValue(int)') )
 		
-		shoot = Qt::PushButton.new( "&Shoot", self, "shoot" )
-		shoot.setFont( Qt::Font.new( "Times", 18, Qt::Font.Bold ) )
+		shoot = Qt::PushButton.new( '&Shoot', self, 'shoot' )
+		shoot.setFont( Qt::Font.new( 'Times', 18, Qt::Font.Bold ) )
 
 		connect( shoot, SIGNAL('clicked()'), cannonField, SLOT('shoot()') )
 			
