@@ -1778,36 +1778,48 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
     return result;
 }
 
-static VALUE
-dumpCandidates(VALUE self, VALUE /*rmeths*/)
+#include <stdarg.h>
+
+void rb_str_catf(VALUE self, const char *format, ...) __attribute__ ((format (printf, 2, 3)));
+
+void rb_str_catf(VALUE self, const char *format, ...)
 {
-/*
-    if(SvROK(rmeths) && SvTYPE(SvRV(rmeths)) == SVt_PVAV) {
-        AV *methods = (AV*)SvRV(rmeths);
-        VALUE errmsg = rb_str_new2("");
-        for(int i = 0; i <= av_len(methods); i++) {
-                sv_catpv(errmsg, "\t");
-                IV id = SvIV(*(av_fetch(methods, i, 0)));
-                Smoke::Method &meth = qt_Smoke->methods[id];
-                const char *tname = qt_Smoke->types[meth.ret].name;
-                if(meth.flags & Smoke::mf_static) sv_catpv(errmsg, "static ");
-                sv_catpvf(errmsg, "%s ", (tname ? tname:"void"));
-                sv_catpvf(errmsg, "%s::%s(", qt_Smoke->classes[meth.classId].className, qt_Smoke->methodNames[meth.name]);
-                for(int i = 0; i < meth.numArgs; i++) {
-                        if(i) sv_catpv(errmsg, ", ");
-                        tname = qt_Smoke->types[qt_Smoke->argumentList[meth.args+i]].name;
-                        sv_catpv(errmsg, (tname ? tname:"void"));
-                }
-                sv_catpv(errmsg, ")");
-                if(meth.flags & Smoke::mf_const) sv_catpv(errmsg, " const");
-                sv_catpv(errmsg, "\n");
-        }
-        return self;=errmsg;
+    va_list ap;
+    va_start(ap, format);
+    char *p = 0;
+    int len;
+    if (len = vasprintf(&p, format, ap), len != -1) {
+	rb_str_cat(self, p, len);
+	free(p);
     }
-    else
-        return self;=rb_str_new2("");
-   */
-    return self;
+    va_end(ap);
+}
+
+static VALUE
+dumpCandidates(VALUE /*self*/, VALUE rmeths)
+{
+    VALUE errmsg = rb_str_new2("");
+    if(rmeths != Qnil) {
+	int count = RARRAY(rmeths)->len;
+        for(int i = 0; i < count; i++) {
+	    rb_str_catf(errmsg, "\t");
+	    int id = NUM2INT(rb_ary_entry(rmeths, i));
+	    Smoke::Method &meth = qt_Smoke->methods[id];
+	    const char *tname = qt_Smoke->types[meth.ret].name;
+	    if(meth.flags & Smoke::mf_static) rb_str_catf(errmsg, "static ");
+	    rb_str_catf(errmsg, "%s ", (tname ? tname:"void"));
+	    rb_str_catf(errmsg, "%s::%s(", qt_Smoke->classes[meth.classId].className, qt_Smoke->methodNames[meth.name]);
+	    for(int i = 0; i < meth.numArgs; i++) {
+		if(i) rb_str_catf(errmsg, ", ");
+		tname = qt_Smoke->types[qt_Smoke->argumentList[meth.args+i]].name;
+		rb_str_catf(errmsg, "%s", (tname ? tname:"void"));
+	    }
+	    rb_str_catf(errmsg, ")");
+	    if(meth.flags & Smoke::mf_const) rb_str_catf(errmsg, " const");
+	    rb_str_catf(errmsg, "\n");
+        }
+    }
+    return errmsg;
 }
 
 #if 0
