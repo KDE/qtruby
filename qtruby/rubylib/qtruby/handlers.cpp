@@ -751,6 +751,55 @@ static void marshall_QString(Marshall *m) {
     }
 }
 
+static void marshall_QChar(Marshall *m) {
+    switch(m->action()) {
+      case Marshall::FromVALUE:
+	{
+	    QChar* c = 0;
+	    if( *(m->var()) != Qnil) {
+            c = new QChar(StringValuePtr(*(m->var()))[0]);
+            } else {
+                c = 0;
+            }
+		
+	    m->item().s_voidp = c;
+	    m->next();
+		
+		if (!m->type().isConst() && *(m->var()) != Qnil && c != 0) {
+			rb_str_resize(*(m->var()), 0);
+			char temp[2];
+			sprintf(temp, "%c", (char)*c);
+			rb_str_cat2(*(m->var()), temp);
+		}
+	    
+		if(c && m->cleanup())
+		delete c;
+	}
+	break;
+      case Marshall::ToVALUE:
+	{
+	    QChar *c = (QChar*)m->item().s_voidp;
+	    if(c) {
+	    	if (c->isNull()) {
+                    *(m->var()) = Qnil;
+	     	} else {
+					char temp[2];
+					sprintf(temp, "%c", c->latin1());
+                    *(m->var()) = rb_str_new2(temp);
+	     	}
+//	     	if(m->cleanup())
+//	     	delete c;
+            } else {
+                *(m->var()) = Qnil;
+            }
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
+    }
+}
+
 static void marshall_QByteArray(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE:
@@ -1409,6 +1458,9 @@ DEF_LIST_MARSHALLER( QWidgetList, QWidgetList, QWidget, QPtrListStdIterator<QWid
 DEF_LIST_MARSHALLER( QCanvasItemList, QCanvasItemList, QCanvasItem, QValueListIterator<QCanvasItem*> )
 
 TypeHandler Qt_handlers[] = {
+    { "QChar", marshall_QChar },
+    { "QChar&", marshall_QChar },
+    { "QChar*", marshall_QChar },
     { "QString", marshall_QString },
     { "QString&", marshall_QString },
     { "QString*", marshall_QString },

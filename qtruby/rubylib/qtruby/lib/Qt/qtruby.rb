@@ -204,7 +204,7 @@ module Qt
 					return 3
 				end
 			elsif argtype == 's'
-				if typename =~ /^(const )?(QByteArray[*&]?)$/
+				if typename =~ /^(const )?((QByteArray|QChar)[*&]?)$/
 					return 1
 				elsif typename =~ /^(?:u?char\*|const u?char\*|(?:const )?(Q(C?)String)[*&]?)$/
 					qstring = !$1.nil?
