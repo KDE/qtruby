@@ -125,12 +125,19 @@ module Qt
 	class Integer
 		attr_accessor :value
 		def initialize(n=0) @value = n end
-		def +(n) @value + n end
-		def -(n) @value - n end
-		def *(n) @value * n end
-		def /(n) @value / n end
-		def %(n) @value % n end
-		def **(n) @value ** n end
+		def +(n) @value + n.to_i end
+		def -(n) @value - n.to_i end
+		def *(n) @value * n.to_i end
+		def /(n) @value / n.to_i end
+		def %(n) @value % n.to_i end
+		def **(n) @value ** n.to_i end
+		
+		def |(n) @value | n.to_i end
+		def &(n) @value & n.to_i end
+		def ^(n) @value ^ n.to_i end
+		def <<(n) @value << n.to_i end
+		def >>(n) @value >> n.to_i end
+		
 		def to_f() return @value.to_f end
 		def to_i() return @value.to_i end
 		def to_s() return @value.to_s end
@@ -139,13 +146,14 @@ module Qt
 	# If a C++ enum was converted to an ordinary ruby Integer, the
 	# name of the type is lost. The enum name is needed for overloaded
 	# method resolution when two methods differ only by an enum type.
-	class Enum < Integer
+	class Enum < Qt::Integer
 		attr_accessor :type
 		def initialize(n, type)
 			super(n) 
 			@value = n 
 			@type = type
 		end
+		def to_i() return @value end
 	end
 	
 	# Provides a mutable boolean class for passing to methods with

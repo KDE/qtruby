@@ -1,5 +1,16 @@
 2004-07-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* The Qt::Enum class was missing bit operations, so various bit methods
+	  were added to Qt::Enum's superclass, Qt::Integer.
+	
+	* This was causing this line from examples/uimodules/uidialogs.rb to fail:
+
+	    dlg =   KDE::DialogBase.new(parent, "sample_dialog", false, caption,
+                                        KDE::DialogBase::Ok | KDE::DialogBase::Cancel, 
+	                                KDE::DialogBase::Ok, true )
+
+2004-07-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Added error messages for invalid slot or signal declarations
 
 2004-07-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
