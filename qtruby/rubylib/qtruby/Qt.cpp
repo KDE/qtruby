@@ -57,7 +57,7 @@
 
 // #define DEBUG
 
-#define QTRUBY_VERSION "1.0.0"
+#define QTRUBY_VERSION "1.0.1"
 
 extern Smoke *qt_Smoke;
 extern void init_qt_Smoke();
@@ -85,6 +85,9 @@ VALUE kparts_module = Qnil;
 VALUE kio_module = Qnil;
 VALUE khtml_module = Qnil;
 VALUE dom_module = Qnil;
+VALUE kontact_module = Qnil;
+VALUE kate_module = Qnil;
+VALUE ktexteditor_module = Qnil;
 VALUE qt_internal_module = Qnil;
 VALUE qt_base_class = Qnil;
 VALUE qt_qmetaobject_class = Qnil;
@@ -1954,6 +1957,15 @@ kde_package_to_class(const char * package)
 	} else if (QString(package).startsWith("DOM::")) {
 		klass = rb_define_class_under(dom_module, package+strlen("DOM::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (QString(package).startsWith("Kontact::")) {
+		klass = rb_define_class_under(kontact_module, package+strlen("Kontact::"), qt_base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (QString(package).startsWith("Kate::")) {
+		klass = rb_define_class_under(kate_module, package+strlen("Kate::"), qt_base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (QString(package).startsWith("KTextEditor::")) {
+		klass = rb_define_class_under(ktexteditor_module, package+strlen("KTextEditor::"), qt_base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	}
 	
 	return klass;
@@ -2044,6 +2056,7 @@ Init_qtruby()
 
     rb_define_method(qt_base_class, "dispose", (VALUE (*) (...)) dispose, 0);
     rb_define_method(qt_base_class, "isDisposed", (VALUE (*) (...)) is_disposed, 0);
+    rb_define_method(qt_base_class, "disposed?", (VALUE (*) (...)) is_disposed, 0);
     
 	rb_define_module_function(qt_module, "qDebug", (VALUE (*) (...)) qdebug, 1);
 	rb_define_module_function(qt_module, "qFatal", (VALUE (*) (...)) qfatal, 1);
@@ -2068,6 +2081,18 @@ Init_qtruby()
 	dom_module = rb_define_module("DOM");
     rb_define_singleton_method(dom_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
     rb_define_singleton_method(dom_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	kontact_module = rb_define_module("Kontact");
+    rb_define_singleton_method(kontact_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+    rb_define_singleton_method(kontact_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	ktexteditor_module = rb_define_module("KTextEditor");
+    rb_define_singleton_method(ktexteditor_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+    rb_define_singleton_method(ktexteditor_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	kate_module = rb_define_module("Kate");
+    rb_define_singleton_method(kate_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+    rb_define_singleton_method(kate_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 
     rb_define_method(qt_internal_module, "getMethStat", (VALUE (*) (...)) getMethStat, 0);
     rb_define_method(qt_internal_module, "getClassStat", (VALUE (*) (...)) getClassStat, 0);

@@ -368,7 +368,7 @@ module Qt
 			end
 			if method == "new"
 				method = classname.dup 
-				method.gsub!(/^(KParts|KIO|khtml|DOM)::/,"")
+				method.gsub!(/^(KParts|KIO|khtml|DOM|Kontact|Kate|KTextEditor)::/,"")
 			end
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
 			# Change foobar= to setFoobar()					
