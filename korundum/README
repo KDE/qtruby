@@ -29,7 +29,30 @@ KDE Specific Infomation:
 		Note that the class doesn't have to inherit from DCOPObject. If you
 		  include a 'k_dcop' slots declaration a 'listener' dcop object 
 		  instance is created automatically.
-		  
+	
+	- Define a dcop slot like this in one ruby program:
+
+	    k_dcop 'QPoint getPoint(QString)'
+
+	    def getPoint(msg)
+		puts "message: #{msg}"
+		return Qt::Point.new(50, 100)
+	    end
+
+	- Call it from another program and print the reply, like this:
+
+	    dcopRef = KDE::DCOPRef.new("dcopslot", "MyWidget")
+	    res = dcopRef.call("QPoint getPoint(QString)", "Hello from dcopsend")
+	    puts "result class: #{res.class.name} x: #{res.x} y: #{res.y}"
+
+	- Send to a DCOPRef is similar:
+	    
+	    dcopRef = KDE::DCOPRef.new("dcopslot", "MyWidget")
+	    dcopRef.send("mySlot(QString)", "Hello from dcopsend")
+	
+	-  Note that the full type signature of the target dcop slot must be
+	  specified at present.	
+	  	  
 	- Use the '-kde' option with the rbuic tool to require the 'Korundum' 
 		extension rather than the 'Qt' one. If the '-x' option is used in 
 		conjunction, it generates a KDE top level. For example:

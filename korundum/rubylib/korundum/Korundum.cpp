@@ -2,7 +2,7 @@
                           Korundum.cpp  -  Runtime for KDE services, DCOP etc
                              -------------------
     begin                : Sun Sep 28 2003
-    copyright            : (C) 2003 by Richard Dale
+    copyright            : (C) 2003-2004 by Richard Dale
     email                : Richard_Dale@tipitina.demon.co.uk
  ***************************************************************************/
 
@@ -20,6 +20,7 @@
 
 #include <dcopclient.h>
 #include <dcopobject.h>
+#include <dcopref.h>
 #include <kapplication.h>
 
 #include <ruby.h>
@@ -211,9 +212,203 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 	    }
 	}
 }
+
+/*
+	Converts a QByteArray returned from a DCOP call to a ruby value.
+*/
+class DCOPReturn : public Marshall {
+    MocArgument *	_replyType;
+    QDataStream * _retval;
+    Smoke::Stack _stack;
+	VALUE * _result;
+public:
+	DCOPReturn(QByteArray & retval, VALUE * result, VALUE replyType) 
+	{
+		_retval = new QDataStream(retval, IO_ReadOnly);
+		_result = result;
+		Data_Get_Struct(rb_ary_entry(replyType, 1), MocArgument, _replyType);
+		_stack = new Smoke::StackItem[1];
+		Marshall::HandlerFn fn = getMarshallFn(type());
+		(*fn)(this);
+		smokeStackFromStream(this, _stack, _retval, 1, _replyType);
+    }
+
+    SmokeType type() { 
+		return _replyType[0].st; 
+	}
+    Marshall::Action action() { return Marshall::ToVALUE; }
+    Smoke::StackItem &item() { return _stack[0]; }
+    VALUE * var() {
+    	return _result;
+    }
+	
+	void unsupported() 
+	{
+		rb_raise(rb_eArgError, "Cannot handle '%s' as DCOP return-type", type().name());
+    }
+	Smoke *smoke() { return type().smoke(); }
+    
+	void next() {}
+    
+	bool cleanup() { return false; }
+};
+
+class DCOPCall : public Marshall {
+	VALUE _obj;
+	QCString & _remFun;
+    int _items;
+    VALUE *_sp;
+	QByteArray *_data;
+	QDataStream *_stream;
+    int _id;
+    MocArgument *_args;
+	VALUE _replyType;
+	QByteArray *	_retval;
+	bool _useEventLoop;
+	int _timeout;
+    int _cur;
+    Smoke::Stack _stack;
+    VALUE result;
+    bool _called;
+public:
+    DCOPCall(VALUE obj, QCString & remFun, int items, VALUE *sp, VALUE args, VALUE replyType, bool useEventLoop, int timeout) :
+		_obj(obj), _remFun(remFun), _items(items), _sp(sp), _replyType(replyType), 
+		_useEventLoop(useEventLoop), _timeout(timeout), _cur(-1), _called(false)
+    {
+		_data = new QByteArray();
+		_retval = new QByteArray();
+		_stream = new QDataStream(*_data, IO_WriteOnly);
+		Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
+		_stack = new Smoke::StackItem[_items];
+		result = Qnil;
+    }
+	
+	~DCOPCall() 
+	{
+		delete[] _stack;
+	}
+    const MocArgument &arg() { return _args[_cur]; }
+    SmokeType type() { return arg().st; }
+    Marshall::Action action() { return Marshall::FromVALUE; }
+    Smoke::StackItem &item() { return _stack[_cur]; }
+    VALUE * var() {
+	if(_cur < 0) return &result;
+	return _sp + _cur;
+    }
+	
+    void unsupported() 
+	{
+		rb_raise(rb_eArgError, "Cannot handle '%s' as a DCOP call argument", type().name());
+    }
+	
+    Smoke *smoke() { return type().smoke(); }
+	
+    void dcopCall() 
+	{
+		if(_called) return;
+		_called = true;
+
+		smokeStackToStream(this, _stack, _stream, _items, _args);
+		smokeruby_object *o = value_obj_info(_obj);
+		DCOPRef * dcopRef = (DCOPRef *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("DCOPRef"));
+		DCOPClient* dc = dcopRef->dcopClient();
+		QCString replyType;
+		dc->call(dcopRef->app(), dcopRef->obj(), _remFun, *_data, replyType, *_retval, _useEventLoop, _timeout);
+		
+		if (_replyType != Qnil) {
+			DCOPReturn dcopReturn(*_retval, &result, _replyType);
+		}
+    }
+	
+    void next() 
+	{
+		int oldcur = _cur;
+		_cur++;
+
+		while(!_called && _cur < _items) {
+			Marshall::HandlerFn fn = getMarshallFn(type());
+			(*fn)(this);
+			_cur++;
+		}
+
+		dcopCall();
+		_cur = oldcur;
+    }
+	
+    bool cleanup() { return true; }
+};
+
+class DCOPSend : public Marshall {
+	VALUE _obj;
+	QCString & _remFun;
+	QByteArray *_data;
+	QDataStream *_stream;
+    int _id;
+    MocArgument *_args;
+    int _items;
+    VALUE *_sp;
+    int _cur;
+    Smoke::Stack _stack;
+    bool _called;
+public:
+    DCOPSend(VALUE obj, QCString & remFun, int items, VALUE *sp, VALUE args) :
+		_obj(obj), _remFun(remFun), _items(items), _sp(sp), _cur(-1), _called(false)
+    {
+		_data = new QByteArray();
+		_stream = new QDataStream(*_data, IO_WriteOnly);
+		Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
+		_stack = new Smoke::StackItem[_items];
+    }
+	
+	~DCOPSend() 
+	{
+		delete[] _stack;
+	}
+    const MocArgument &arg() { return _args[_cur]; }
+    SmokeType type() { return arg().st; }
+    Marshall::Action action() { return Marshall::FromVALUE; }
+    Smoke::StackItem &item() { return _stack[_cur]; }
+    VALUE * var() { return _sp + _cur; }
+	
+    void unsupported() 
+	{
+		rb_raise(rb_eArgError, "Cannot handle '%s' as a DCOP send argument", type().name());
+    }
+	
+    Smoke *smoke() { return type().smoke(); }
+	
+    void dcopSend() 
+	{
+		if(_called) return;
+		_called = true;
+
+		smokeStackToStream(this, _stack, _stream, _items, _args);
+		smokeruby_object *o = value_obj_info(_obj);
+		DCOPRef * dcopRef = (DCOPRef *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("DCOPRef"));
+		DCOPClient* dc = dcopRef->dcopClient();
+		dc->send(dcopRef->app(), dcopRef->obj(), _remFun, *_data);
+    }
+	
+    void next() 
+	{
+		int oldcur = _cur;
+		_cur++;
+
+		while(!_called && _cur < _items) {
+			Marshall::HandlerFn fn = getMarshallFn(type());
+			(*fn)(this);
+			_cur++;
+		}
+
+		dcopSend();
+		_cur = oldcur;
+    }
+	
+    bool cleanup() { return true; }
+};
 		
 class EmitDCOPSignal : public Marshall {
-	DCOPObject * _obj;
+	VALUE _obj;
 	char * _signalName;
 	QByteArray *_data;
 	QDataStream *_stream;
@@ -225,7 +420,7 @@ class EmitDCOPSignal : public Marshall {
     Smoke::Stack _stack;
     bool _called;
 public:
-    EmitDCOPSignal(DCOPObject * obj, char * signalName, int items, VALUE *sp, VALUE args) :
+    EmitDCOPSignal(VALUE obj, char * signalName, int items, VALUE *sp, VALUE args) :
 		_obj(obj), _signalName(signalName), _sp(sp), _items(items), _cur(-1), _called(false)
     {
 		_data = new QByteArray();
@@ -257,7 +452,9 @@ public:
 		_called = true;
 
 		smokeStackToStream(this, _stack, _stream, _items, _args);
-		_obj->emitDCOPSignal(_signalName, *_data);
+		smokeruby_object *o = value_obj_info(_obj);
+		DCOPObject * dcopObject = (DCOPObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("DCOPObject"));
+		dcopObject->emitDCOPSignal(_signalName, *_data);
     }
 	
     void next() 
@@ -278,6 +475,9 @@ public:
     bool cleanup() { return true; }
 };
 
+/*
+	Converts a ruby value returned by a DCOP slot invocation to a QByteArray
+*/
 class DCOPReplyValue : public Marshall {
     MocArgument *	_replyType;
     QDataStream * _retval;
@@ -423,14 +623,13 @@ VALUE
 k_dcop_signal(int argc, VALUE * argv, VALUE self)
 {
 	VALUE dcopObject = rb_funcall(kde_module, rb_intern("createDCOPObject"), 1, self);
-    smokeruby_object *o = value_obj_info(dcopObject);
 	
     char * signalname = rb_id2name(rb_frame_last_func());
     VALUE args = getdcopinfo(self, signalname);
 
     if(args == Qnil) return Qfalse;
 
-    EmitDCOPSignal signal((DCOPObject *) o->ptr, signalname, argc, argv, args);
+    EmitDCOPSignal signal(dcopObject, signalname, argc, argv, args);
     signal.next();
 
     return Qtrue;
@@ -482,6 +681,33 @@ dcop_process(VALUE /*self*/, VALUE target, VALUE slotname, VALUE args, VALUE dat
 }
 
 static VALUE
+dcop_call(int argc, VALUE * argv, VALUE /*self*/)
+{
+	QCString fun(STR2CSTR(argv[1]));
+	VALUE args = argv[2];
+	VALUE replyType = argv[4];
+	bool useEventLoop = (argv[argc-2] == Qtrue ? true : false);
+	int timeout = NUM2INT(argv[argc-1]);
+	
+	DCOPCall dcopCall(argv[0], fun, argc-7, argv+5, args, replyType, useEventLoop, timeout);
+	dcopCall.next();
+	
+	return *(dcopCall.var());
+}
+
+static VALUE
+dcop_send(int argc, VALUE * argv, VALUE /*self*/)
+{
+	QCString fun(STR2CSTR(argv[1]));
+	VALUE args = argv[2];
+	
+	DCOPSend dcopSend(argv[0], fun, argc-3, argv+3, args);
+	dcopSend.next();
+	
+	return Qtrue;
+}
+
+static VALUE
 new_kde(int argc, VALUE * argv, VALUE klass)
 {
 	// Note this should really call only new_qobject if the instance is a QObject,
@@ -524,6 +750,8 @@ Init_korundum()
 	
     kde_internal_module = rb_define_module_under(kde_module, "Internal");
 	rb_define_singleton_method(kde_module, "dcop_process", (VALUE (*) (...)) dcop_process, 6);
+	rb_define_singleton_method(kde_module, "dcop_call", (VALUE (*) (...)) dcop_call, -1);
+	rb_define_singleton_method(kde_module, "dcop_send", (VALUE (*) (...)) dcop_send, -1);
 	
 	rb_require("KDE/korundum.rb");
 }

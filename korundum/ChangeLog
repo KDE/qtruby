@@ -1,3 +1,29 @@
+2004-06-30  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added DCOPRef.call() and send() support. 
+	* Define a dcop slot like this in one ruby program:
+
+	    k_dcop 'QPoint getPoint(QString)'
+
+	    def getPoint(msg)
+		puts "message: #{msg}"
+		return Qt::Point.new(50, 100)
+	    end
+
+	* Call it from another program and print the reply, like this:
+
+	    dcopRef = KDE::DCOPRef.new("dcopslot", "MyWidget")
+	    res = dcopRef.call("QPoint getPoint(QString)", "Hello from dcopsend")
+	    puts "result class: #{res.class.name} x: #{res.x} y: #{res.y}"
+
+	* Send to a DCOPRef is similar:
+	    
+	    dcopRef = KDE::DCOPRef.new("dcopslot", "MyWidget")
+	    dcopRef.send("mySlot(QString)", "Hello from dcopsend")
+	
+	* Note that the full type signature of the target dcop slot must be
+	  specified at present.
+
 2004-03-10  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added marshaller for KTrader::OfferList to ruby array

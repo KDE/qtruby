@@ -7,21 +7,21 @@ class SenderWidget < KDE::PushButton
 	
 	def initialize(parent, name)
 		super
-		Qt::Object::connect(self, SIGNAL('clicked()'), self, SLOT('do_it()'))
+		Qt::Object::connect(self, SIGNAL('clicked()'), self, SLOT('doit()'))
 	end
 	
-	slots 'do_it()'
+	slots 'doit()'
 	
-	def do_it()
-		puts "In do_it.."
+	def doit()
+		puts "In doit.."
 		emit testEmitSignal("Hello DCOP Slot")
 	end
 end
 
-about = KDE::AboutData.new("dcopsignal", "dcopSignalTest", "0.1")
+about = KDE::AboutData.new("dcopsignal", "DCOPSignalTest", "0.1")
 KDE::CmdLineArgs.init(ARGV, about)
-a = KDE::Application.new()
-hello = SenderWidget.new(nil, "foobar") { setText 'DCOP Signal Test' }
-a.setMainWidget(hello)
-hello.show()
+a = KDE::UniqueApplication.new()
+signaltest = SenderWidget.new(nil, "foobar") { setText 'DCOP Signal Test' }
+a.mainWidget = signaltest
+signaltest.show()
 a.exec()

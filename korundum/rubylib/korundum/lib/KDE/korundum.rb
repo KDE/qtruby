@@ -3,7 +3,7 @@
                           Korundum.rb  -  KDE specific ruby runtime, dcop etc.
                              -------------------
     begin                : Sun Sep 28 2003
-    copyright            : (C) 2003 by Richard Dale
+    copyright            : (C) 2003-2004 by Richard Dale
     email                : Richard_Dale@tipitina.demon.co.uk
  ***************************************************************************/
 
@@ -122,7 +122,7 @@ module KDE
 	end
 
 	# If a class contains a k_dcop slots list declaration, then create a DCOPObject
-	# asccociated with it	
+	# associated with it	
 	def createDCOPObject(instance)
 		meta = DCOPMeta[instance.class.name]
 		return nil if meta.nil?
@@ -138,6 +138,54 @@ module KDE
 		end
 
 		meta.dcop_object
+	end
+	
+	class DCOPRef < Qt::Base
+		def call(fun, *k)
+			k << NoEventLoop << -1
+			callExt(fun, *k)
+		end
+
+		def callExt(fun, *k)
+			if isNull
+				puts( "DCOPRef: call #{fun} on null reference error" )
+			end
+			dc = dcopClient()
+			if !dc || !dc.isAttached
+				puts( "DCOPRef::call():  no DCOP client or client not attached error" )
+			end
+			puts "fun: #{fun}"
+			if fun =~ /^(.*)\s([^\s]*)(\(.*\))/
+				reply_type = $1
+				full_name = $2+$3
+			else
+				puts( "DCOPRef: call #{fun} invalid format, expecting '<reply_type> <function_name>(<args>)'" )
+			end
+			puts "reply_type: #{reply_type} full_name: #{full_name}"
+			return KDE::dcop_call(	self, 
+									full_name, 
+									Qt::getMocArguments(full_name),
+									reply_type, 
+									(reply_type == 'void' or reply_type == 'ASYNC') ? nil : Qt::getMocArguments(reply_type), 
+									*k )
+		end
+
+		def send(fun, *k)
+			if isNull
+				puts( "DCOPRef: send #{fun} on null reference error" )
+			end
+			dc = dcopClient()
+			if !dc || !dc.isAttached
+				puts( "DCOPRef::send():  no DCOP client or client not attached error" )
+			end
+			if !fun =~ /^([^\s]*)(\(.*\))/
+				puts( "DCOPRef: send #{fun} invalid format, expecting '<function_name>(<args>)'" )
+			end
+			return KDE::dcop_send(	self, 
+									fun, 
+									Qt::getMocArguments(fun),
+									*k )
+		end
 	end
 	
 	def CmdLineArgs::init(*k)
