@@ -38,6 +38,7 @@
 #include <khtml_part.h>
 #include <kuserprofile.h>
 #include <kaboutdata.h>
+#include <kmountpoint.h>
 #include <kio/jobclasses.h>
 #include <dom/dom_node.h>
 #include <dom/dom_string.h>
@@ -408,6 +409,51 @@ void marshall_KServiceTypeList(Marshall *m) {
 	    
 		if(m->cleanup())
 		delete offerList;
+		}
+		break;
+	default:
+		m->unsupported();
+		break;
+	}
+}
+
+void marshall_KMountPointList(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE: 
+		{
+		}
+		break;
+	case Marshall::ToVALUE: 
+		{
+	    KMountPoint::List *list = (KMountPoint::List*)m->item().s_voidp;
+	    if(!list) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+
+	    VALUE av = rb_ary_new();
+
+	    for(KMountPoint::List::Iterator it = list->begin();
+		it != list->end();
+		++it) {
+		KMountPoint * item = new KMountPoint(*((KMountPoint*)*it));
+
+		VALUE obj = getPointerObject(item);
+		if(obj == Qnil) {
+		    smokeruby_object  * o = ALLOC(smokeruby_object);
+		    o->smoke = m->smoke();
+		    o->classId = m->smoke()->idClass("KMountPoint");
+		    o->ptr = item;
+		    o->allocated = true;
+		    obj = set_obj_info("KDE::MountPoint", o);
+		}
+		rb_ary_push(av, obj);
+            }
+
+	    *(m->var()) = av;		
+	    
+		if(m->cleanup())
+		delete list;
 		}
 		break;
 	default:
@@ -947,6 +993,7 @@ TypeHandler KDE_handlers[] = {
     { "KService::Ptr", marshall_KServicePtr },
     { "KService::List", marshall_KServiceList },
     { "KServiceGroup::Ptr", marshall_KServiceGroupPtr },
+    { "KMountPoint::List", marshall_KMountPointList },
     { "KServiceType::List", marshall_KServiceTypeList },
     { "KTrader::OfferList", marshall_KTraderOfferList },
     { "KURL::List", marshall_KURLList },
