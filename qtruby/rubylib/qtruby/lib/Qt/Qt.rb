@@ -72,7 +72,7 @@ module Qt
 			match = Hash.new
 			argtype = getVALUEtype(args[i])
 			for method in methodIds
-			    match[method] = 0 if checkarg(argtype, method, i)
+				match[method] = 0 if checkarg(argtype, method, i)
 			end
 			return match.sort {|a,b| a[1] <=> b[1]}
 		end
@@ -108,7 +108,7 @@ module Qt
 				method = classname * 1
 			end
 						
-                        method_argstr = ""
+			method_argstr = ""
 			for arg in args
 				if arg.nil? or isObject(arg)
 					method_argstr << "#"
@@ -139,16 +139,16 @@ module Qt
 				methodStr = method + "#" + method_argstr
 			        methodIds = Operators[ClassAndMethod.new(classname, methodStr)]
 				methodIds.flatten.each {
-				    |id|
-				    argtype = getVALUEtype(args[0])
-				    chosen = id if checkarg(argtype, id, 0)
+					|id|
+					argtype = getVALUEtype(args[0])
+					chosen = id if checkarg(argtype, id, 0)
 				}
 				unless chosen.nil?
-				    return FriendOperators.send(method, this, *args)
+					return FriendOperators.send(method, this, *args)
 				end
 			end
                         
-                        setCurrentMethod(chosen || -1)
+			setCurrentMethod(chosen || -1)
 			return nil
 		end
 
