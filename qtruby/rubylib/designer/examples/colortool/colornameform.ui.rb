@@ -12,7 +12,7 @@ def validate()
      ( @colors.empty? || ! @colors.has_key?( name ) ) 
     accept()
     else
-    @colorLineEdit.selectAll()
+        @colorLineEdit.selectAll()
     end
 end
 

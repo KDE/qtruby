@@ -343,6 +343,7 @@ def lookfor( text )
                 @colorTable.clearSelection()
                 @colorTable.selectRow( i )
                 found = true
+				break
             end
         end
         if ! found
@@ -356,6 +357,7 @@ def lookfor( text )
                 @colorIconView.currentItem = item
                 @colorIconView.ensureItemVisible( item )
                 found = true
+				break
             end
             item = item.nextItem()
         end
