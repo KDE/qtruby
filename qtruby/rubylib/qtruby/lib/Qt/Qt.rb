@@ -174,7 +174,11 @@ module Qt
                 # If a block was passed to the constructor then
 				# run that now in the context of the new instance
 		def run_initializer_block(instance, block)
-			instance.instance_eval(&block)
+			if block.arity == -1
+				instance.instance_eval(&block)
+			else
+				block.call(instance)
+			end
 		end
 		
 		def type_char(arg)
@@ -197,9 +201,6 @@ module Qt
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
 #			Change foobar= to setFoobar()					
 			method = 'set' + method[0,1].upcase + method[1,method.length].sub("=", "") if method =~ /.*=$/
-#			Don't convert boolean property foobar? to isFoobar() for now as they can also		
-#			be hasFoobar() or just foobar()	in Qt
-#			method = 'is' + method[0,1].upcase + method[1,method.length].sub("?", "") if method =~ /.*\?$/
 
 			method_argstr = ""
 			args.each {

@@ -411,7 +411,6 @@ marshall_basetype(Marshall *m)
 	  case Marshall::ToVALUE:
 	    {
 		if(m->item().s_voidp == 0) {
-				printf("undef var\n");
                     *(m->var()) = Qnil;
 		    break;
 		}
@@ -419,7 +418,6 @@ marshall_basetype(Marshall *m)
 		void *p = m->item().s_voidp;
 		VALUE obj = getPointerObject(p);
 		if(obj != Qnil) {
-				printf("var already exists\n");
                     *(m->var()) = obj;
 		    break;
 		}

@@ -111,6 +111,19 @@ QtRuby features a very complete coverage of the Qt api:
 			
 			w = MyWidget.new(nil) { setCaption("foobar") }
 			
+		They are run in the context of the new instance.
+		
+		And there's more! You can also pass an arg to the block, and it will
+			be run in the context of the arg:
+			
+			w = MyWidget.new { |theWidget| theWidget.setCaption "foobar" }
+			
+		I got this idea from the FXRuby bindings, from the ChangeLog:
+		
+		"This approach has the advantage that the initialization code now has
+			access to the outer scope, as blocks normally would. Thanks to
+			Rich Kilmer for this suggestion."
+			
 	- Use Qt Designer
 		A 'rbuic' tool is included in qtruby/rubylib/designer/rbuic to compile
 			.ui files into ruby code.

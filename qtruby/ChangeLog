@@ -1,5 +1,23 @@
 2003-09-12  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* More passing blocks to constructors fun! You can now also pass 
+	  an arg to the block, and it will be run in the context of the arg:
+		
+		w = MyWidget.new { |theWidget| theWidget.setCaption "foobar" }
+
+	I got this idea from the FXRuby bindings, from the ChangeLog:
+
+	"This approach has the advantage that the initialization code now has
+	access to the outer scope, as blocks normally would. Thanks to
+	Rich Kilmer for this suggestion."
+
+	If you don't pass an arg to the block, the block is run in the context 
+	  of the new instance as before.
+
+	* Debugging left in handlers.cpp (must stop doing this)
+
+2003-09-12  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Marshallers now return Qnil, rather than Qundef (for internal use only)
 
 2003-09-10  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
