@@ -22,6 +22,7 @@
 #include <qregexp.h>
 #include <qstring.h>
 #include <qptrdict.h>
+#include <qintdict.h>
 #include <qapplication.h>
 #include <qmetaobject.h>
 #include <private/qucomextra_p.h>
@@ -56,7 +57,7 @@
 
 // #define DEBUG
 
-#define QTRUBY_VERSION "0.9.5"
+#define QTRUBY_VERSION "0.9.6"
 
 extern Smoke *qt_Smoke;
 extern void init_qt_Smoke();
@@ -74,6 +75,8 @@ int object_count = 0;
 
 QAsciiDict<Smoke::Index> methcache(2179);
 QAsciiDict<Smoke::Index> classcache(2179);
+// Maps from a classname in the form Qt::Widget to an int id
+QIntDict<char> classname(2179);
 
 extern "C" {
 VALUE qt_module = Qnil;
@@ -751,42 +754,7 @@ public:
     }
 
     char *className(Smoke::Index classId) {
-	const char *className = smoke->className(classId);
-	char *buf;
-	if (QString(className).startsWith("Q")) {
-		buf = new char[strlen(className) + strlen("Qt::") + 1];
-		strcpy(buf, "Qt::");
-		strcat(buf, className + 1);
-	} else {
-		if (QString(className).startsWith("KParts__")) {
-			buf = new char[strlen(className) + strlen("KParts::") + 1];
-			strcpy(buf, "KParts::");
-			strcat(buf, className);
-		} else {
-			if (QString(className).startsWith("KIO__")) {
-				buf = new char[strlen(className) + strlen("KIO::") + 1];
-				strcpy(buf, "KIO::");
-				strcat(buf, className);
-			} else {
-				if (QString(className).startsWith("khtml__")) {
-					buf = new char[strlen(className) + strlen("khtml::") + 1];
-					strcpy(buf, "khtml::");
-					strcat(buf, className);
-				} else {
-					if (QString(className).startsWith("K")) {
-						buf = new char[strlen(className) + strlen("KDE::") + 1];
-						strcpy(buf, "KDE::");
-						strcat(buf, className + 1);
-					} else {
-						buf = new char[strlen(className) + strlen("KDE::") + 1];
-						strcpy(buf, "KDE::");
-						strcat(buf, className);
-					}
-				}
-			}
-		}
-	}
-	return buf;
+		return classname.find((int) classId);
     }
 };
 
@@ -850,7 +818,7 @@ get_VALUEtype(VALUE ruby_value)
 	if(!o) {
 	    r = "a";
 	} else {
-	    r = o->smoke->className(o->classId);
+	    r = o->smoke->classes[o->classId].className;
     }
 	}
     else {
@@ -949,29 +917,31 @@ method_missing(int argc, VALUE * argv, VALUE self)
 	temp_stack[count+3] = argv[count];
     }
 
-	QCString mcid = find_cached_selector(argc+3, temp_stack, klass, methodName);
-	
-	if (_current_method == -1) {
-		// Find the C++ method to call. Do that from Ruby for now
+	{
+		QCString mcid = find_cached_selector(argc+3, temp_stack, klass, methodName);
 
-		VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, temp_stack);
-    	if (_current_method == -1) {
-			QRegExp rx("^[-+%/|]$");
-			QString op(rb_id2name(SYM2ID(argv[0])));
-			if (rx.search(op) != -1) {
-				// Look for operator methods of the form 'operator+=', 'operator-=' and so on..
-				temp_stack[1] = rb_str_new2((const char *) op.append("="));
-				retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, temp_stack);
-			}
-    		
+		if (_current_method == -1) {
+			// Find the C++ method to call. Do that from Ruby for now
+
+			VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, temp_stack);
 			if (_current_method == -1) {
-				free(temp_stack);
-				rb_raise(rb_eArgError, "unresolved method call\n");
-				return Qnil;
+				QRegExp rx("^[-+%/|]$");
+				QString op(rb_id2name(SYM2ID(argv[0])));
+				if (rx.search(op) != -1) {
+					// Look for operator methods of the form 'operator+=', 'operator-=' and so on..
+					temp_stack[1] = rb_str_new2((const char *) op.append("="));
+					retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, temp_stack);
+				}
+
+				if (_current_method == -1) {
+					free(temp_stack);
+					rb_raise(rb_eArgError, "unresolved method call\n");
+					return Qnil;
+				}
 			}
-    	}
-		// Success. Cache result.
-        methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
+			// Success. Cache result.
+			methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
+		}
 	}
 	
     MethodCall c(qt_Smoke, _current_method, self, temp_stack+4, argc-1);
@@ -996,13 +966,15 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
 	temp_stack[count+3] = argv[count];
     }
 
-    QCString mcid = find_cached_selector(argc+3, temp_stack, klass, methodName);
-    
-    if (_current_method == -1) {
-		VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, temp_stack);
-		if (_current_method != -1) {
-			// Success. Cache result.
-        	methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
+    {
+		QCString mcid = find_cached_selector(argc+3, temp_stack, klass, methodName);
+
+		if (_current_method == -1) {
+			VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, temp_stack);
+			if (_current_method != -1) {
+				// Success. Cache result.
+				methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
+			}
 		}
 	}
 
@@ -1072,6 +1044,7 @@ static VALUE
 initialize_qt(int argc, VALUE * argv, VALUE self)
 {
 	VALUE retval;
+	VALUE temp_obj;
 	
 	if (TYPE(self) == T_DATA) {
 		// If a block was passed then run that now
@@ -1094,31 +1067,45 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	temp_stack[count+4] = argv[count];
     }
 
-	QCString mcid = find_cached_selector(argc+4, temp_stack, klass, rb_class2name(klass));
-    
-	if (_current_method == -1) {
-    	retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+4, temp_stack);
+	{ 
+		// Put this in a block so that the mcid will be de-allocated at the end of the block,
+		// rather than on f'n exit, to avoid the longjmp problem described below
+		QCString mcid = find_cached_selector(argc+4, temp_stack, klass, rb_class2name(klass));
+
+		if (_current_method == -1) {
+			retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+4, temp_stack);
+			if (_current_method != -1) {
+				// Success. Cache result.
+				methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
+			}
+		}
 	}
 
-    if (_current_method == -1) {
+	if (_current_method == -1) {
 		free(temp_stack);
+		// Another longjmp here..
 		rb_raise(rb_eArgError, "unresolved constructor call\n");
 	}
 
-    // Success. Cache result.
-    methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
-
-    MethodCall c(qt_Smoke, _current_method, self, temp_stack+4, argc);
-    c.next();
-    VALUE temp_obj = *(c.var());
-    void * ptr = 0;
-    Data_Get_Struct(temp_obj, smokeruby_object, ptr);
+	{
+		// Allocate the MethodCall within a block. Otherwise, because the continue_new_instance()
+		// call below will longjmp out, it wouldn't give C++ an opportunity to clean up
+		MethodCall c(qt_Smoke, _current_method, self, temp_stack+4, argc);
+		c.next();
+		temp_obj = *(c.var());
+    }
+	
+	smokeruby_object * p = 0;
+    Data_Get_Struct(temp_obj, smokeruby_object, (void *) p);
 	smokeruby_object  * o = (smokeruby_object *) malloc(sizeof(smokeruby_object));
-	memcpy(o, ptr, sizeof(smokeruby_object));
+	memcpy(o, p, sizeof(smokeruby_object));
+	p->ptr = 0;
+	p->allocated = false;
 	o->allocated = true;
     VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, o);
     mapObject(result, result);
 	free(temp_stack);
+	// Off with a longjmp, never to return..
     return rb_funcall(qt_internal_module, rb_intern("continue_new_instance"), 1, result);
 }
 
@@ -1444,6 +1431,7 @@ insert_pclassid(VALUE self, VALUE p_value, VALUE ix_value)
     char *p = STR2CSTR(p_value);
     int ix = NUM2INT(ix_value);
     classcache.insert(p, new Smoke::Index((Smoke::Index)ix));
+    classname.insert(ix, strdup(p));
     return self;
 }
 

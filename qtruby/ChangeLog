@@ -1,3 +1,14 @@
+2003-11-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Finally fixed huge leak, causing the progress.rb example to grow by
+	  1 Mb a minute.
+	* Added a cache from ruby classname to Smoke class id
+	* Speeded up method selector look ups
+	* Put some C++ code inside blocks to ensure that the destructor clean
+	  up code was called, when the current f'n longjmp's up the stack rather
+	  than returns normally.
+	* QtRuby looking good, raised the version to 0.9.6 to celebrate
+
 2003-11-07  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Fixed some memory leaks
