@@ -60,7 +60,7 @@ smokeruby_mark(void * p)
 			}
 		} else if (strcmp(className, "QLayoutItem") == 0) {
 			QLayoutItem * item = (QLayoutItem *) o->ptr;
-			if (item->layout() != 0 && item->widget() != 0 && item->spacerItem() != 0) {
+			if (item->layout() != 0 || item->widget() != 0 || item->spacerItem() != 0) {
 				obj = getPointerObject(o->ptr);
 				if (obj != Qnil) {
 					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
@@ -78,7 +78,7 @@ smokeruby_mark(void * p)
 			}
 		} else if (strcmp(className, "QCheckListItem") == 0) {
 			QCheckListItem * item = (QCheckListItem *) o->ptr;
-			if (item->parent() != 0 && item->listView() != 0) {
+			if (item->parent() != 0 || item->listView() != 0) {
 				obj = getPointerObject(o->ptr);
 				if (obj != Qnil) {
 					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
@@ -87,7 +87,7 @@ smokeruby_mark(void * p)
 			}
 		} else if (strcmp(className, "QListViewItem") == 0) {
 			QListViewItem * item = (QListViewItem *) o->ptr;
-			if (item->parent() != 0 && item->listView() != 0) {
+			if (item->parent() != 0 || item->listView() != 0) {
 				obj = getPointerObject(o->ptr);
 				if (obj != Qnil) {
 					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
