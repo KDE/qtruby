@@ -6,8 +6,10 @@ class Viewer < Qt::Widget
 
 		setFontSubstitutions
 
-		greeting_heb = 'Hello in Hebrew'
-		greeting_ru = 'Hello in Russian'
+		codec = Qt::TextCodec::codecForName("utf8")
+		
+		greeting_heb = codec.toUnicode([0327, 0251, 0327, 0234, 0327, 0225, 0327, 0235].pack("U*"))
+		greeting_ru = codec.toUnicode([0320, 0227, 0320, 0264, 0321, 0200, 0320, 0260, 0320, 0262, 0321, 0201, 0321, 0202, 0320, 0262, 0321, 0203, 0320, 0271, 0321, 0202, 0320, 0265].pack("U*"))
 		greeting_en = 'Hello'
 
 		@greetings = Qt::TextView.new(self, 'textview')
