@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby -w
 
  #
  # A class that lets the user draw with the mouse. The
@@ -19,7 +19,7 @@ require 'Qt'
 			# initialize member variables
 			@_buffer = Qt::Pixmap.new()
 			@_last = Qt::Point.new()
-			@_currentcolor = black()
+			@_currentcolor = black
 			
 			# don't blank the window before repainting
 			setBackgroundMode( NoBackground )
@@ -44,7 +44,7 @@ require 'Qt'
 		 #
 		def slotClearArea()
 			# fill the off screen buffer with plain white
-			@_buffer.fill( white() )
+			@_buffer.fill( white )
 			
 			# and copy it over to the window
 			bitBlt( self, 0, 0, @_buffer )
@@ -138,7 +138,7 @@ require 'Qt'
 		def resizeEvent(event)
 			save = Qt::Pixmap.new( @_buffer )
 			@_buffer.resize( event.size() )
-			@_buffer.fill( white() )
+			@_buffer.fill( white )
 			bitBlt( @_buffer, 0, 0, save )
 		end
 	end
@@ -221,15 +221,15 @@ class ScribbleWindow < Qt::Widget
 	def slotColorMenu( item )
 		case item
 			when COLOR_MENU_ID_BLACK
-				emit colorChanged(black())
+				emit colorChanged( black )
 			when COLOR_MENU_ID_RED
-				emit colorChanged(darkRed())
+				emit colorChanged( darkRed )
 			when COLOR_MENU_ID_BLUE
-				emit colorChanged(darkBlue())
+				emit colorChanged( darkBlue )
 			when COLOR_MENU_ID_GREEN
-				emit colorChanged(darkGreen())
+				emit colorChanged( darkGreen )
 			when COLOR_MENU_ID_YELLOW
-				emit colorChanged(yellow())
+				emit colorChanged( yellow )
 		end
 	end
 	
@@ -245,7 +245,7 @@ class ScribbleWindow < Qt::Widget
 		 #
 		filename = Qt::FileDialog.getOpenFileName( ".", "*.bmp", self )
 		if !filename.nil?
-			emit load(filename)
+			emit load( filename )
 		end
 	end
 	
@@ -260,15 +260,15 @@ class ScribbleWindow < Qt::Widget
 		 #
 		filename = Qt::FileDialog.getSaveFileName( ".", "*.bmp", self )
 		if !filename.nil?
-			emit save(filename)
+			emit save( filename )
 		end
 	end
 end
 	
-	myapp = Qt::Application.new(ARGV)
-	mywidget = ScribbleWindow.new()
-	mywidget.setGeometry(50, 500, 400, 400)
+myapp = Qt::Application.new(ARGV)
+mywidget = ScribbleWindow.new()
+mywidget.setGeometry(50, 500, 400, 400)
 
-	myapp.setMainWidget(mywidget)
-	mywidget.show()
-	myapp.exec()
+myapp.setMainWidget(mywidget)
+mywidget.show()
+myapp.exec()
