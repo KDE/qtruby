@@ -988,6 +988,7 @@ TypeHandler KDE_handlers[] = {
     { "KCmdLineOptions*", marshall_KCmdLineOptions },
     { "KFileItemList", marshall_KFileItemList },
     { "QPtrList<KAction>", marshall_KActionList },
+    { "QPtrList<KAction>&", marshall_KActionList },
     { "KMimeType::List", marshall_KMimeTypeList },
     { "KMimeType::Ptr", marshall_KMimeTypePtr },
     { "KService::Ptr", marshall_KServicePtr },
