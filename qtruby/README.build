@@ -72,8 +72,7 @@ $ make
 
 # Build the 'qui' QWidgetFactory extension
 $ cd qtruby/rubylib/designer/uilib
-$ ruby extconf.rb --with-qtruby-include=../../qtruby --with-qt-dir=/Developer/qt \
-       --with-smoke-include=../../../../smoke
+$ ruby extconf.rb --with-qtruby-include=../../qtruby --with-qt-dir=/Developer/qt
 $ make
 $ make install
 
