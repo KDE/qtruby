@@ -1,5 +1,9 @@
 2004-03-02  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* Slots and signals couldn't be added to KDE classes, such as KDE::PushButton
+
+2004-03-02  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* A DCOPClient instance is now created for classes with a 'k_dcop_signals'
 	  declaration, and emitDCOPSignal() is called on that.
 

@@ -396,6 +396,7 @@ extern "C" {
 extern void Init_qtruby();
 extern void set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE));
 extern VALUE new_qt(int argc, VALUE * argv, VALUE klass);
+extern VALUE new_qobject(int argc, VALUE * argv, VALUE klass);
 extern VALUE qt_module;
 extern VALUE qt_internal_module;
 extern VALUE qt_base_class;
@@ -482,7 +483,9 @@ dcop_process(VALUE /*self*/, VALUE target, VALUE slotname, VALUE args, VALUE dat
 static VALUE
 new_kde(int argc, VALUE * argv, VALUE klass)
 {
-	VALUE instance = new_qt(argc, argv, klass);
+	// Note this should really call only new_qobject if the instance is a QObject,
+	// and otherwise call new_qt().
+	VALUE instance = new_qobject(argc, argv, klass);
 	
 	if (rb_funcall(kde_module, rb_intern("hasDCOPSignals"), 1, klass) == Qtrue) {
 		VALUE signalNames = rb_funcall(kde_module, rb_intern("getDCOPSignalNames"), 1, klass);
