@@ -845,7 +845,7 @@ static void marshall_QString(Marshall *m) {
 			rb_str_cat2(*(m->var()), StringValuePtr(temp));
 		}
 	    
-		if(s && m->cleanup())
+		if(s && m->type().isConst() && m->cleanup())
 		delete s;
 	}
 	break;
@@ -1039,7 +1039,7 @@ static void marshall_longlong(Marshall *m) {
 		
 	    m->next();
 		
-	    if(m->cleanup()) {
+	    if(m->cleanup() && m->type().isConst()) {
 			delete (long long *) m->item().s_voidp;
 		}
 	}
@@ -1064,7 +1064,7 @@ static void marshall_ulonglong(Marshall *m) {
 		
 	    m->next();
 		
-	    if(m->cleanup()) {
+	    if(m->cleanup() && m->type().isConst()) {
 			delete (unsigned long long *) m->item().s_voidp;
 		}
 	}
@@ -1085,22 +1085,22 @@ static void marshall_intR(Marshall *m) {
       case Marshall::FromVALUE:
 	{
 	    VALUE rv = *(m->var());
-		int i = 0;
+		int * i = new int;
 		if (TYPE(rv) == T_OBJECT) {
 			// A Qt::Integer has been passed as an integer value
 			VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, rv);
-			i = NUM2INT(temp);
-			m->item().s_voidp = &i;
+			*i = NUM2INT(temp);
+			m->item().s_voidp = i;
 			m->next();
-			rb_funcall(qt_internal_module, rb_intern("set_qinteger"), 2, rv, INT2NUM(i));
+			rb_funcall(qt_internal_module, rb_intern("set_qinteger"), 2, rv, INT2NUM(*i));
 			rv = temp;
 		} else {
-			i = NUM2INT(rv);
-			m->item().s_voidp = &i;
+			*i = NUM2INT(rv);
+			m->item().s_voidp = i;
 			m->next();
 		}
-	    if(m->cleanup()) {
-			;
+	    if(m->cleanup() && m->type().isConst()) {
+			delete i;
 	    } else {
 		m->item().s_voidp = new int((int)NUM2INT(rv));
 	    }
@@ -1131,18 +1131,21 @@ static void marshall_boolR(Marshall *m) {
       case Marshall::FromVALUE:
 	{
 	    VALUE rv = *(m->var());
-		bool b;
+		bool * b = new bool;
 		if (TYPE(rv) == T_OBJECT) {
 			// A Qt::Boolean has been passed as a value
 			VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qboolean"), 1, rv);
-			b = (temp == Qtrue ? true : false);
-			m->item().s_voidp = &b;
+			*b = (temp == Qtrue ? true : false);
+			m->item().s_voidp = b;
 			m->next();
-			rb_funcall(qt_internal_module, rb_intern("set_qboolean"), 2, rv, (b ? Qtrue : Qfalse));
+			rb_funcall(qt_internal_module, rb_intern("set_qboolean"), 2, rv, (*b ? Qtrue : Qfalse));
 		} else {
-			b = (rv == Qtrue ? true : false);
-			m->item().s_voidp = &b;
+			*b = (rv == Qtrue ? true : false);
+			m->item().s_voidp = b;
 			m->next();
+		}
+	    	if(m->cleanup() && m->type().isConst()) {
+			delete b;
 		}
 	}
 	break;
@@ -1227,12 +1230,15 @@ void marshall_QStringList(Marshall *m) {
 	    m->item().s_voidp = stringlist;
 	    m->next();
 
-	    if(m->cleanup()) {
-		rb_ary_clear(list);
-		for(QStringList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it)
-		    rb_ary_push(list, rstringFromQString(&(*it)));
+		
+		if (stringlist != 0 && !m->type().isConst()) {
+			rb_ary_clear(list);
+			for(QStringList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it)
+		    	rb_ary_push(list, rstringFromQString(&(*it)));
+		}
+			
+		if (stringlist != 0 && m->type().isConst() && m->cleanup())
 		delete stringlist;
-	    }
 	    break;
       }
       case Marshall::ToVALUE: 
@@ -1862,12 +1868,16 @@ TypeHandler Qt_handlers[] = {
     { "long long int&", marshall_longlong },
     { "Q_INT64", marshall_longlong },
     { "Q_INT64&", marshall_longlong },
+    { "Q_LLONG", marshall_longlong },
+    { "Q_LLONG&", marshall_longlong },
     { "KIO::filesize_t", marshall_longlong },
     { "DOM::DOMTimeStamp", marshall_ulonglong },
     { "unsigned long long int", marshall_ulonglong },
     { "unsigned long long int&", marshall_ulonglong },
     { "Q_UINT64", marshall_ulonglong },
     { "Q_UINT64&", marshall_ulonglong },
+    { "Q_ULLONG", marshall_ulonglong },
+    { "Q_ULLONG&", marshall_ulonglong },
     { "int&", marshall_intR },
     { "int*", marshall_intR },
     { "bool&", marshall_boolR },

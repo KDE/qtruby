@@ -106,6 +106,7 @@ void logger_backend(const char *format, ...) __attribute__ ((format (printf, 1, 
 void rb_str_catf(VALUE self, const char *format, ...) __attribute__ ((format (printf, 2, 3)));
 
 static VALUE (*_new_kde)(int, VALUE *, VALUE) = 0;
+static VALUE (*_kconfigskeletonitem_immutable)(VALUE) = 0;
 
 Smoke::Index _current_method = 0;
 
@@ -2322,6 +2323,8 @@ kde_package_to_class(const char * package)
 	} else if (QString(package).startsWith("KDE::ConfigSkeleton::")) {
 		klass = rb_define_class_under(kconfigskeleton_class, package+strlen("KDE::ConfigSkeleton::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+		rb_define_method(klass, "immutable?", (VALUE (*) (...)) _kconfigskeletonitem_immutable, 0);
+		rb_define_method(klass, "isImmutable", (VALUE (*) (...)) _kconfigskeletonitem_immutable, 0);
 	} else if (QString(package).startsWith("KDE::")) {
 		klass = rb_define_class_under(kde_module, package+strlen("KDE::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
@@ -2412,6 +2415,12 @@ void
 set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE))
 {
 	_new_kde = new_kde;
+}
+
+void
+set_kconfigskeletonitem_immutable(VALUE (*kconfigskeletonitem_immutable) (VALUE))
+{
+	_kconfigskeletonitem_immutable = kconfigskeletonitem_immutable;
 }
 
 static VALUE
