@@ -176,7 +176,7 @@ class CPUWaster < Qt::Widget
 	wh = height
 
 	if ww > 8 and wh > 8
-	    c = Qt::Color(rand(255), rand(255), rand(255))
+	    c = Qt::Color.new(rand(255), rand(255), rand(255))
 	    x = rand(ww - 8)
 	    y = rand(wh - 8)
 	    w = rand(ww - x)
