@@ -116,6 +116,14 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 							QCString temp((const QCString&) *((QCString *) si->s_voidp));
 							*stream << temp;
 							break;
+						} else if (strcmp(t.name(), "QCStringList") == 0) {
+							QCStringList temp((const QCStringList&) *((QCStringList *) si->s_voidp));
+							*stream << temp;
+							break;
+						} else if (strcmp(t.name(), "QStringList") == 0) {
+							QStringList temp((const QStringList&) *((QStringList *) si->s_voidp));
+							*stream << temp;
+							break;
 						}
 						// Look for methods of the form: QDataStream & operator<<(QDataStream&, const MyClass&)
 						Smoke::Index meth = t.smoke()->findMethod("QGlobalSpace", "operator<<##");
@@ -233,6 +241,16 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 							*stream >> temp;
 							stack[i].s_voidp = new QCString(temp);
 							break;
+						} else if (strcmp(t.name(), "QCStringList") == 0) {
+							QCStringList temp;
+							*stream >> temp;
+							stack[i].s_voidp = new QCStringList(temp);
+							break;
+						} else if (strcmp(t.name(), "QStringList") == 0) {
+							QStringList temp;
+							*stream >> temp;
+							stack[i].s_voidp = new QStringList(temp);
+							break;
 						}
 						// First construct an instance to read the QDataStream into,
 						// so look for a no args constructor
@@ -323,6 +341,11 @@ public:
 	void next() {}
     
 	bool cleanup() { return false; }
+	
+	~DCOPReturn() 
+	{
+		delete[] _stack;
+	}
 };
 
 class DCOPCall : public Marshall {
@@ -355,6 +378,8 @@ public:
 	~DCOPCall() 
 	{
 		delete[] _stack;
+		delete _data;
+		delete _stream;
 	}
     const MocArgument &arg() { return _args[_cur]; }
     SmokeType type() { return arg().st; }
@@ -465,6 +490,8 @@ public:
 	~DCOPSend() 
 	{
 		delete[] _stack;
+		delete _data;
+		delete _stream;
 	}
     const MocArgument &arg() { return _args[_cur]; }
     SmokeType type() { return arg().st; }
@@ -583,19 +610,18 @@ public:
 */
 class DCOPReplyValue : public Marshall {
     MocArgument *	_replyType;
-    QDataStream * _retval;
     Smoke::Stack _stack;
 	VALUE * _result;
 public:
 	DCOPReplyValue(QByteArray & retval, VALUE * result, VALUE replyType) 
 	{
-		_retval = new QDataStream(retval, IO_WriteOnly);
+		QDataStream _retval(retval, IO_WriteOnly);
 		_result = result;
 		Data_Get_Struct(rb_ary_entry(replyType, 1), MocArgument, _replyType);
 		_stack = new Smoke::StackItem[1];
 		Marshall::HandlerFn fn = getMarshallFn(type());
 		(*fn)(this);
-		smokeStackToStream(this, _stack, _retval, 1, _replyType);
+		smokeStackToStream(this, _stack, &_retval, 1, _replyType);
     }
 
     SmokeType type() { 
@@ -616,6 +642,10 @@ public:
 	void next() {}
     
 	bool cleanup() { return false; }
+	
+	~DCOPReplyValue() {
+		delete[] _stack;
+	}
 };
 
 class InvokeDCOPSlot : public Marshall {
@@ -829,11 +859,13 @@ new_kde(int argc, VALUE * argv, VALUE klass)
 	if (	rb_funcall(kde_module, rb_intern("hasDCOPSlots"), 1, klass) == Qtrue
 			|| rb_funcall(kde_module, rb_intern("hasDCOPSignals"), 1, klass) == Qtrue ) 
 	{
-		rb_funcall(kde_module, rb_intern("createDCOPObject"), 1, instance);
-		rb_define_method(klass, "interfaces", (VALUE (*) (...)) dcop_interfaces, 0);
-		rb_define_method(klass, "functions", (VALUE (*) (...)) dcop_functions, 0);
-		rb_define_method(klass, "connectDCOPSignal", (VALUE (*) (...)) dcop_connect_signal, 5);
-		rb_define_method(klass, "disconnectDCOPSignal", (VALUE (*) (...)) dcop_disconnect_signal, 4);
+		VALUE dcop_object = rb_funcall(kde_module, rb_intern("createDCOPObject"), 1, instance);
+		if (dcop_object != Qnil) {
+			rb_define_method(klass, "interfaces", (VALUE (*) (...)) dcop_interfaces, 0);
+			rb_define_method(klass, "functions", (VALUE (*) (...)) dcop_functions, 0);
+			rb_define_method(klass, "connectDCOPSignal", (VALUE (*) (...)) dcop_connect_signal, 5);
+			rb_define_method(klass, "disconnectDCOPSignal", (VALUE (*) (...)) dcop_disconnect_signal, 4);
+		}
 	}
 	
 	return instance;

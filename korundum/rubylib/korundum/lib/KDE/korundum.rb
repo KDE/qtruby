@@ -29,6 +29,9 @@ module KDE
 	#  :reply_type is 'int'
 	DCOPMember = Struct.new :name, :full_name, :arg_types, :reply_type
 	
+	# If the class with the 'k_dcop' slots declaration is not a subclass of DCOPObject,
+	# then 'dcop_object' holds a instance of DCOPObject for the class to use as a
+	# proxy. For subclasses of DCOPObject, 'dcop_object' will always be nil
 	class DCOPMetaInfo
 		attr_accessor :dcop_object, :changed
 		attr_reader :k_dcop_signals, :k_dcop
@@ -84,11 +87,15 @@ module KDE
 		return signals[signalName].full_name
 	end
 
-	class RubyDCOPObject < KDE::DCOPObject
-		def initialize(instance, functions)
-			super(instance.class.name)
-			@instance = instance
-			@functions = functions
+	class KDE::DCOPObject
+		def initialize(*k)
+			if k.length == 2
+				super(k[0].class.name)
+				@instance = k[0]
+				@functions = k[1]
+			else
+				super
+			end
 		end
 
 		def process(fun, data, replyType, replyData)
@@ -118,8 +125,15 @@ module KDE
 		end
 
 		def functions()
-			functions = super()
-			return functions + @functions
+			funcs = super()
+			return funcs + @functions
+		end
+		
+		# This is for a ruby class which actually is a subclass of DCOPObject
+		def set_functions(funcs)
+			@functions = funcs
+			@instance = self
+			return self
 		end
 	end
 
@@ -135,11 +149,20 @@ module KDE
 				func_name = value.name + '(' + value.arg_types + ')'
 				funcs << func_name 
 			end
-			meta.dcop_object = RubyDCOPObject.new(instance, funcs)
 			meta.changed = false
+			if instance.kind_of? DCOPObject
+				meta.dcop_object = nil
+				instance.set_functions(funcs)
+			else
+				meta.dcop_object = DCOPObject.new(instance, funcs)
+			end
 		end
 
-		meta.dcop_object
+		if instance.kind_of? DCOPObject
+			return nil
+		else
+			meta.dcop_object
+		end
 	end
 	
 	class DCOPRef < Qt::Base
