@@ -58,7 +58,7 @@ end
 def populate()
     if @table_dirty
         (0...@colorTable.numRows).each do |r|
-            (0...@colorTable.numRows).each do |c|
+            (0...@colorTable.numCols).each do |c|
                 @colorTable.clearCell( r, c )
             end
         end
@@ -207,7 +207,7 @@ def load( filename )
         file.close()
         @filename = filename
         setCaption( "Color Tool -- #{@filename}" )
-        statusBar().message( "Loaded '{@filename}'", 3000 )
+        statusBar().message( "Loaded '#{@filename}'", 3000 )
         visible = @colorWidgetStack.visibleWidget()
         @icons_dirty = ! ( @table_dirty = ( visible == @tablePage ) )
         populate()
