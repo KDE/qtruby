@@ -31,71 +31,7 @@
 
 extern "C" {
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
-extern void marshall_basetype(Marshall *m);
-extern void * construct_copy(smokeruby_object *o);
-extern void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *lastptr);
 };
-
-/* 
-	Note this marshaller is identical to marshall_basetype() in qtruby/handlers.cpp, apart 
-	from using DOM::Node rtti to obtain a more accurate classname when instantiating 
-	the ruby value.
-*/
-void marshall_DOMNode(Marshall *m) {
-	switch(m->action()) {
-	case Marshall::FromVALUE: 
-		{
-			marshall_basetype(m);
-		}
-	case Marshall::ToVALUE: 
-		{
-			void *p = m->item().s_voidp;
-			if(p == 0) {
-				*(m->var()) = Qnil;
-				break;
-			}
-
-			VALUE obj = getPointerObject(p);
-			if (obj != Qnil) {
-				*(m->var()) = obj;
-				break;
-			}
-
-			smokeruby_object  * o = (smokeruby_object *) malloc(sizeof(smokeruby_object));
-			o->smoke = m->smoke();
-			o->classId = m->type().classId();
-			o->ptr = p;
-			o->allocated = false;
-
-			const char * classname = static_cast<DOM::Node *>(m->item().s_voidp)->nodeName().string();
-		
-			if (m->type().isConst() && m->type().isRef()) {
-				p = construct_copy( o );
-				if (p) {
-					o->ptr = p;
-					o->allocated = true;
-				}
-			}
-		
-			obj = set_obj_info(classname, o);
-			if (do_debug & qtdb_calls) {
-				printf("allocating %s %p -> %p\n", classname, o->ptr, (void*)obj);
-			}
-
-			if (m->type().isStack()) {
-				o->allocated = true;
-				// Keep a mapping of the pointer so that it is only wrapped once as a ruby VALUE
-				mapPointer(obj, o, o->classId, 0);
-			}
-		
-			*(m->var()) = obj;		
-		}
-		break;
-	default:
-		m->unsupported();
-		break;
-    }
-}
 
 void marshall_QCStringList(Marshall *m) {
     switch(m->action()) {
@@ -418,8 +354,6 @@ DEF_LIST_MARSHALLER( KFileItemList, KFileItemList, KFileItem, KFileItemList::Ite
 DEF_LIST_MARSHALLER( KMainWindowList, QPtrList<KMainWindow>, KMainWindow, QPtrList<KMainWindow>::Iterator )
 
 TypeHandler KDE_handlers[] = {
-    { "DOM::Node", marshall_DOMNode },
-    { "DOM::Node&", marshall_DOMNode },
     { "QCStringList", marshall_QCStringList },
     { "QCStringList&", marshall_QCStringList },
     { "QCStringList*", marshall_QCStringList },
