@@ -192,7 +192,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
         {
 	    out << indent << "\"" << e->name << "\"" << " => [" << e->cname << "_data, "
                 << e->width << ", " << e->height << ", " << e->depth << ", "
-                << (e->numColors ? e->cname + "_ctable" : "[]" ) << ", "
+                << (e->numColors ? e->cname + "_ctable" : QString::fromLatin1( "[]" ) ) << ", "
                 << (e->alpha ? "true" : "false") << "]," << endl;
 	    e = list_image.next();
 	}
@@ -209,7 +209,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << indent << "return @@images[name]" << endl;
 	--indent;
 	out << indent << "end" << endl;
-	
+
     out << indent << "if @@embed_images[name].nil?" << endl;
 	++indent;
     out << indent << "return Qt::Image.new()" << endl;
