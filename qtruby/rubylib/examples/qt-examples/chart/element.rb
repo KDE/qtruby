@@ -18,7 +18,7 @@ class Element
             labelColor = Qt::black )
         init( value, valueColor, valuePattern, label, labelColor )
         @propoints = []
-        (0...MAX_PROPOINTS * 2).each do |i|
+        for i in 0...MAX_PROPOINTS * 2
             @propoints[i] = NO_PROPORTION
         end
     end
@@ -46,7 +46,7 @@ class Element
     end
     
     def setValuePattern( valuePattern )
-        if  Qt::SolidPattern >= valuePattern || Qt::DiagCrossPattern <= valuePattern
+        if  valuePattern < Qt::SolidPattern.to_i || valuePattern > Qt::DiagCrossPattern.to_i
             valuePattern = Qt::SolidPattern
         end
         @valuePattern = valuePattern
@@ -81,7 +81,6 @@ end
 class Qt::TextStream
 
     alias op_write <<
-    alias op_read >>
 	
     def <<( item )
 		if !item.kind_of? Element
@@ -93,7 +92,7 @@ class Qt::TextStream
         element.valuePattern().to_i << Element::FIELD_SEP <<
         element.labelColor().name() << Element::FIELD_SEP
     
-        (0...Element::MAX_PROPOINTS).each do |i|
+        for i in 0...Element::MAX_PROPOINTS
             self << element.proX( i ) << Element::XY_SEP << element.proY( i )
             self << ( i == Element::MAX_PROPOINTS - 1 ? Element::FIELD_SEP : Element::PROPOINT_SEP )
         end
@@ -103,7 +102,9 @@ class Qt::TextStream
         return self
     end
     
-    def >>( item )
+    alias op_read >>
+    
+	def >>( item )
 		if !item.kind_of? Element
 			return op_read(item)
 		end

@@ -58,7 +58,7 @@ class ChartForm
             return
         end
         ts = Qt::TextStream.new( file )
-        (0...MAX_ELEMENTS).each do |i|
+        for i in 0...MAX_ELEMENTS
             if  @elements[i].isValid()
                 ts << @elements[i]
             end

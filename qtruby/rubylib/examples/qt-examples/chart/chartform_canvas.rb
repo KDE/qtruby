@@ -15,7 +15,7 @@ class ChartForm
         total = 0.0
         scales = Array.new(MAX_ELEMENTS)
     
-        (0...MAX_ELEMENTS).each do |i|
+        for i in 0...MAX_ELEMENTS
             if  @elements[i].isValid() 
                 value = @elements[i].value()
                 count += 1
@@ -29,7 +29,7 @@ class ChartForm
     
         if count > 0
                 # 2nd loop because of total and biggest
-            (0...MAX_ELEMENTS).each do |i|
+            for i in 0...MAX_ELEMENTS
                 if  @elements[i].isValid()
                     if  @chartType == PIE
                         scales[i] = (@elements[i].value() * scaleFactor) / total
@@ -61,7 +61,7 @@ class ChartForm
         y = height / 2
         angle = 0
     
-        (0...MAX_ELEMENTS).each do |i|
+        for i in 0...MAX_ELEMENTS
             if  @elements[i].isValid() 
                 extent = scales[i]
                 arc = Qt::CanvasEllipse.new( size, size, angle, extent, @canvas )
@@ -112,7 +112,7 @@ class ChartForm
         pen = Qt::Pen.new
         pen.style = NoPen
     
-        (0...MAX_ELEMENTS).each do |i|
+        for i in 0...MAX_ELEMENTS
             if  @elements[i].isValid() 
                 extent = scales[i]
                 y = height - extent
@@ -154,7 +154,7 @@ class ChartForm
         pen = Qt::Pen.new
         pen.style = NoPen
     
-        (0...MAX_ELEMENTS).each do |i|
+        for i in 0...MAX_ELEMENTS
             if  @elements[i].isValid() 
                 extent = scales[i]
                 rect = Qt::CanvasRectangle.new(0, y, extent, proheight, @canvas )

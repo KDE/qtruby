@@ -17,6 +17,9 @@ class ChartForm < Qt::MainWindow
         'helpAboutQt()',
         'saveOptions()'
 
+	attr_accessor :changed
+	attr_reader :chartType, :optionsMenu
+	
     MAX_ELEMENTS = 100
     MAX_RECENTFILES = 9 # Must not exceed 9
     
@@ -145,17 +148,17 @@ class ChartForm < Qt::MainWindow
         @fileMenu.insertSeparator()
         fileQuitAction.addTo( @fileMenu )
     
-        optionsMenu = Qt::PopupMenu.new( self )
-        menuBar().insertItem( "&Options", optionsMenu )
-        optionsSetDataAction.addTo( optionsMenu )
-        optionsMenu.insertSeparator()
-        @optionsPieChartAction.addTo( optionsMenu )
-        @optionsHorizontalBarChartAction.addTo( optionsMenu )
-        @optionsVerticalBarChartAction.addTo( optionsMenu )
-        optionsMenu.insertSeparator()
-        optionsSetFontAction.addTo( optionsMenu )
-        optionsMenu.insertSeparator()
-        optionsSetOptionsAction.addTo( optionsMenu )
+        @optionsMenu = Qt::PopupMenu.new( self )
+        menuBar().insertItem( "&Options", @optionsMenu )
+        optionsSetDataAction.addTo( @optionsMenu )
+        @optionsMenu.insertSeparator()
+        @optionsPieChartAction.addTo( @optionsMenu )
+        @optionsHorizontalBarChartAction.addTo( @optionsMenu )
+        @optionsVerticalBarChartAction.addTo( @optionsMenu )
+        @optionsMenu.insertSeparator()
+        optionsSetFontAction.addTo( @optionsMenu )
+        @optionsMenu.insertSeparator()
+        optionsSetOptionsAction.addTo( @optionsMenu )
     
         menuBar().insertSeparator()
     
@@ -182,7 +185,7 @@ class ChartForm < Qt::MainWindow
         @font.fromString(
             settings.readEntry( APP_KEY + "Font", @font.toString() ) )
         @recentFiles = []
-        (0...MAX_RECENTFILES).each do |i|
+        for i in 0...MAX_RECENTFILES
             filename = settings.readEntry( APP_KEY + "File" + ( i + 1 ).to_s )
             if !filename.nil?
                 @recentFiles.push( filename )
@@ -243,7 +246,7 @@ class ChartForm < Qt::MainWindow
         @elements[9]  = Element.new( Element::INVALID, darkGreen )
         @elements[10] = Element.new( Element::INVALID, darkMagenta )
         @elements[11] = Element.new( Element::INVALID, darkBlue )
-        (12...MAX_ELEMENTS).each do |i|
+        for i in 12...MAX_ELEMENTS
             x = (i.to_f / MAX_ELEMENTS) * 360
             y = ((x * 256) % 105) + 151
             z = ((i * 17) % 105) + 151;
@@ -327,7 +330,7 @@ class ChartForm < Qt::MainWindow
     
     
     def updateRecentFilesMenu()
-        (0...MAX_RECENTFILES).each do |i|
+        for i in 0...MAX_RECENTFILES
             if @fileMenu.findItem( i )
                 @fileMenu.removeItem( i )
             end
@@ -384,7 +387,7 @@ class ChartForm < Qt::MainWindow
         settings.writeEntry( APP_KEY + "AddValues", @addValues )
         settings.writeEntry( APP_KEY + "Decimals", @decimalPlaces )
         settings.writeEntry( APP_KEY + "Font", @font.toString() )
-        (0...@recentFiles.length).each do |i|
+        for i in 0...@recentFiles.length
             settings.writeEntry( APP_KEY + "File" + ( i + 1 ).to_s,
                         @recentFiles[i] )
         end
@@ -397,7 +400,6 @@ class ChartForm < Qt::MainWindow
             @changed = true
             drawElements()
         end
-        setDataForm.dispose
     end
     
     
@@ -440,7 +442,7 @@ class ChartForm < Qt::MainWindow
     def optionsSetOptions()
         optionsForm = OptionsForm.new( self )
         optionsForm.chartTypeComboBox.setCurrentItem( @chartType )
-        optionsForm.setFont( @font )
+        optionsForm.font = @font
         case @addValues
         when NO
             optionsForm.noRadioButton.setChecked( true )
@@ -452,7 +454,7 @@ class ChartForm < Qt::MainWindow
         optionsForm.decimalPlacesSpinBox.setValue( @decimalPlaces )
         if optionsForm.exec()
             setChartType( optionsForm.chartTypeComboBox.currentItem() )
-            @font = optionsForm.font()
+            @font = optionsForm.font
             if optionsForm.noRadioButton.isChecked()
                 @addValues = NO
             elsif optionsForm.yesRadioButton.isChecked()

@@ -20,7 +20,7 @@ class SetDataForm < Qt::Dialog
         setCaption( "Chart -- Set Data" )
         resize( 540, 440 )
     
-        tableButtonBox = Qt::VBoxLayout.new( self, 11, 6, "@table button box layout" )
+        @tableButtonBox = Qt::VBoxLayout.new( self, 11, 6, "@table button box layout" )
     
         @table = Qt::Table.new( self, "data @table" )
         @table.setNumCols( 5 )
@@ -39,30 +39,30 @@ class SetDataForm < Qt::Dialog
         th.setLabel( 2, "Pattern" )
         th.setLabel( 3, "Label" )
         th.setLabel( 4, "Color" )
-        tableButtonBox.addWidget( @table )
+        @tableButtonBox.addWidget( @table )
     
-        buttonBox = Qt::HBoxLayout.new( nil, 0, 6, "button box layout" )
+        @buttonBox = Qt::HBoxLayout.new( nil, 0, 6, "button box layout" )
     
         @colorPushButton = Qt::PushButton.new( self, "color button" )
         @colorPushButton.setText( "&Color..." )
         @colorPushButton .setEnabled( false )
-        buttonBox.addWidget( @colorPushButton )
+        @buttonBox.addWidget( @colorPushButton )
     
         spacer = Qt::SpacerItem.new( 0, 0, Qt::SizePolicy::Expanding,
                                                     Qt::SizePolicy::Minimum )
-        buttonBox.addItem( spacer )
+        @buttonBox.addItem( spacer )
     
         okPushButton = Qt::PushButton.new( self, "ok button" )
         okPushButton.setText( "OK" )
         okPushButton.setDefault( true )
-        buttonBox.addWidget( okPushButton )
+        @buttonBox.addWidget( okPushButton )
     
         cancelPushButton = Qt::PushButton.new( self, "cancel button" )
         cancelPushButton.setText( "Cancel" )
         cancelPushButton.setAccel( Qt::KeySequence.new(Key_Escape) )
-        buttonBox.addWidget( cancelPushButton )
+        @buttonBox.addWidget( cancelPushButton )
     
-        tableButtonBox.addLayout( buttonBox )
+        @tableButtonBox.addLayout( @buttonBox )
     
         connect( @table, SIGNAL( 'clicked(int,int,int,const QPoint&)' ),
                 self, SLOT( 'setColor(int,int)' ) )
@@ -93,7 +93,7 @@ class SetDataForm < Qt::Dialog
         rect = @table.cellRect( 0, 1 )
         pix = Qt::Pixmap.new( rect.width(), rect.height() )
     
-        (0...ChartForm::MAX_ELEMENTS).each do |i|
+        for i in 0...ChartForm::MAX_ELEMENTS
             element = @elements[i]
     
             if element.isValid()
@@ -106,7 +106,7 @@ class SetDataForm < Qt::Dialog
             @table.setText( i, 1, color.name() )
     
             combobox = Qt::ComboBox.new
-            (0...MAX_PATTERNS).each do |j|
+            for j in 0...MAX_PATTERNS
                 combobox.insertItem( patterns[j] )
             end
             combobox.setCurrentItem( element.valuePattern() - 1 )
@@ -164,7 +164,7 @@ class SetDataForm < Qt::Dialog
     
     
     def accept()
-        (0...ChartForm::MAX_ELEMENTS).each do |i|
+        for i in 0...ChartForm::MAX_ELEMENTS
             element = @elements[i]
             d = @table.text( i, 0 ).to_f
             if d

@@ -126,8 +126,6 @@ module Qt
 	class Application < Qt::Base
 		def exec
 			super
-			widgets = topLevelWidgets
-			widgets.each {|widget| widget.dispose}
 			self.dispose
 			Qt::Internal.application_terminated = true
 		end

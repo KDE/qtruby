@@ -1,6 +1,5 @@
 class CanvasView < Qt::CanvasView
 
-
     def initialize(canvas, elements, parent = nil, name = "canvas view", f = 0)
         super(canvas, parent, name, f)
         @elements = elements
@@ -32,12 +31,12 @@ class CanvasView < Qt::CanvasView
     
     
     def contentsMouseMoveEvent( e )
-        if  @movingItem 
+        if @movingItem 
             offset = e.pos() - @pos
             @movingItem.moveBy( offset.x(), offset.y() )
             @pos = e.pos()
             form = parent()
-            form.setChanged( true )
+            form.changed = true
             chartType = form.chartType()
             item = @movingItem
             i = item.index()

@@ -1,5 +1,12 @@
 2004-10-13  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+ * All the Qt::CanvasItems owned by a Qt::Canvas are marked with rb_gc_mark() to
+   prevent them being garbage collected
+ * The top level widgets are no longer disposed() on Qt::Application exit
+ * Fixed some bugs in the chart example. 
+
+2004-10-13  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
  * Fixed arg matching to give priority to 'int' or 'signed' when passed a ruby Integer, or
    'double' when passed a ruby Float
  * The chart example can now save and load chart files

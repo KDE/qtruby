@@ -111,6 +111,19 @@ smokeruby_mark(void * p)
 			return;		
 		}
 		
+		if (isDerivedFromByName(o->smoke, className, "QCanvas")) {
+			QCanvas * canvas = (QCanvas *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QCanvas"));
+    		QCanvasItemList list = canvas->allItems();
+    		for ( QCanvasItemList::iterator it = list.begin(); it != list.end(); ++it ) {
+				obj = getPointerObject(*it);
+				if (obj != Qnil) {
+					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, *it, (void*)obj);
+					rb_gc_mark(obj);
+				}
+			}
+			return;
+		}
+		
 		if (isDerivedFromByName(o->smoke, className, "QObject")) {
 			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
 			const QObjectList *l = qobject->children();
