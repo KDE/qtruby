@@ -150,7 +150,7 @@ void Uic::createFormImpl( const QDomElement &e )
             for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
                 if ( n2.tagName() == "function" ) {
                     QString fname;
-                    if(n2.attribute("name") != QString::null )
+                    if( !n2.attribute("name").isNull() )
                     {
                         fname = n2.attribute( "name" );
                         fname = Parser::cleanArgs( fname );
