@@ -17,6 +17,8 @@
  ***************************************************************************/
 =end
 
+require 'pp'
+
 module Qt
         module DebugLevel
                 Off, Minimal, High, Extensive = 0, 1, 2, 3
@@ -128,6 +130,102 @@ module Qt
 			super
 			self.dispose
 			Qt::Internal.application_terminated = true
+		end
+	end
+	
+	class Color < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " red=%d, green=%d, blue=%d>" % [red, green, blue])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n red=%d,\n green=%d,\n blue=%d>" % [red, green, blue])
+		end
+	end
+	
+	class Font < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " family=%s, pointSize=%d, weight=%d, italic=%s, bold=%s>" % [family, pointSize, weight, italic, bold])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n family=%s,\n pointSize=%d,\n weight=%d,\n italic=%s,\n bold=%s>" % [family, pointSize, weight, italic, bold])
+		end
+	end
+	
+	class Point < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " x=%d, y=%d>" % [x, y])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n x=%d,\n y=%d>" % [x, y])
+		end
+	end
+	
+	class Rect < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " left=%d, right=%d, top=%d, bottom=%d>" % [left, right, top, bottom])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n left=%d,\n right=%d,\n top=%d,\n bottom=%d>" % [left, right, top, bottom])
+		end
+	end
+	
+	class Size < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " width=%d, height=%d>" % [width, height])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n width=%d,\n height=%d>" % [width, height])
+		end
+	end
+	
+	class Date < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " %s>" % toString)
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, " %s>" % toString)
+		end
+	end
+	
+	class DateTime < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " %s>" % toString)
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, " %s>" % toString)
+		end
+	end
+	
+	class Time < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " %s>" % toString)
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, " %s>" % toString)
 		end
 	end
 	

@@ -1,3 +1,8 @@
+2004-12-09  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * More inspect() and pretty_print() methods for common classes to improve debugging -
+   Qt::Color, Qt::Font, Qt::Point, Qt::Rect, Qt::Size, Qt::Date, Qt::DateTime and Qt::Time
+   
 2004-12-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * Added inspect() and pretty_print() methods for Qt::Objects that get the QObject properties and
