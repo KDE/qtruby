@@ -153,6 +153,23 @@ module Qt
 			@value = n 
 			@type = type
 		end
+		
+		def |(n) 
+			return Enum.new(@value | n.to_i, @type)
+		end
+		def &(n) 
+			return Enum.new(@value & n.to_i, @type)
+		end
+		def ^(n) 
+			return Enum.new(@value ^ n.to_i, @type)
+		end
+		def <<(n) 
+			return Enum.new(@value << n.to_i, @type)
+		end
+		def >>(n) 
+			return Enum.new(@value >> n.to_i, @type)
+		end
+		
 		def to_i() return @value end
 	end
 	

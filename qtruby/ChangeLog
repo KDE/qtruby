@@ -1,5 +1,21 @@
 2004-07-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* The recently added Qt::Integer bit operators were returning a ruby Integer
+	  type. When they were nested, the Integer didn't know how to convert the
+	  Enum it was being or'd with to an Integer.
+	
+	* The solution is to add bit operators to the Enum class which return Enums
+	  rather than Integers.
+
+	* The following code didn't work:
+	    
+	    def initialize(message)
+	        super(nil, "passivedlg",
+	                Qt::WStyle_Customize | Qt::WX11BypassWM | Qt::WStyle_StaysOnTop |
+	                Qt::WStyle_Tool | Qt::WStyle_NoBorder)
+
+2004-07-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Replaced QString casts to 'const char *' with latin1() calls
 
 2004-07-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
