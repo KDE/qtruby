@@ -1,3 +1,7 @@
+2004-12-11  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * DCOPObject inspect() and pretty_print() methods added
+
 2004-12-09  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * More inspect() and pretty_print() methods for common classes to improve debugging -

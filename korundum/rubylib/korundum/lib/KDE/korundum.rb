@@ -140,6 +140,16 @@ module KDE
 		def client=(obj)
 			@client = obj
 		end
+		
+		def inspect
+			str = super
+			str.sub(/>$/, " objId=%s>" % objId.inspect)
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n objId=%s>" % objId.inspect)
+		end
 	end
 
 	# If a class contains a k_dcop slots list declaration, then create a DCOPObject
@@ -324,12 +334,12 @@ module KDE
 		
 		def inspect
 			str = super
-			str.sub(/>$/, " app=%s, obj=%s>" % [app, obj])
+			str.sub(/>$/, " app=%s, obj=%s>" % [app.inspect, obj.inspect])
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, "\n app=%s,\n obj=%s>" % [app, obj])
+			pp.text str.sub(/>$/, "\n app=%s,\n obj=%s>" % [app.inspect, obj.inspect])
 		end
 	end
 	
@@ -392,37 +402,37 @@ module KDE
 		def inspect
 			str = super
 			str.sub(/>$/, " appName=%s, programName=%s, version=%s, shortDescription=%s, homepage=%s, bugAddress=%s>" %
-						[appName, programName, version, shortDescription, homepage, bugAddress])
+						[appName.inspect, programName.inspect, version.inspect, shortDescription.inspect, homepage.inspect, bugAddress.inspect])
 		end
 		
 		def pretty_print(pp)
 			str = to_s
 			pp.text str.sub(/>$/, "\n appName=%s,\n programName=%s,\n version=%s,\n shortDescription=%s,\n homepage=%s,\n bugAddress=%s>" % 
-						[appName, programName, version, shortDescription, homepage, bugAddress])
+						[appName.inspect, programName.inspect, version.inspect, shortDescription.inspect, homepage.inspect, bugAddress.inspect])
 		end
 	end
 	
 	class Service
 		def inspect
 			str = super
-			str.sub(/>$/, " library=%s, type=%s, name=%s>" % [library, type, name])
+			str.sub(/>$/, " library=%s, type=%s, name=%s>" % [library.inspect, type.inspect, name.inspect])
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, "\n library=%s,\n type=%s,\n name=%s>" % [library, type, name])
+			pp.text str.sub(/>$/, "\n library=%s,\n type=%s,\n name=%s>" % [library.inspect, type.inspect, name.inspect])
 		end
 	end
 	
 	class URL
 		def inspect
 			str = super
-			str.sub(/>$/, " url=%s, protocol=%s, host=%s, port=%d>" % [url, protocol, host, port])
+			str.sub(/>$/, " url=%s, protocol=%s, host=%s, port=%d>" % [url.inspect, protocol.inspect, host.inspect, port])
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, "\n url=%s,\n protocol=%s,\n host=%s,\n port=%d>" % [url, protocol, host, port])
+			pp.text str.sub(/>$/, "\n url=%s,\n protocol=%s,\n host=%s,\n port=%d>" % [url.inspect, protocol.inspect, host.inspect, port])
 		end
 	end
 end
