@@ -87,12 +87,13 @@ KDE Specific Infomation:
 		
 		Or with error checking:
 		
+		puts "age was: #{parrot.age}"
 		result = parrot.age = 9
 		if result.nil?
 			puts "DCOP call failed"
 		else
 			puts "DCOP call succeeded"
-			puts "age: #{age}"
+			puts "age now: #{parrot.age}"
 		end
 
 	- Send to a DCOPRef is similar:
