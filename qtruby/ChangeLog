@@ -1,3 +1,9 @@
+2003-11-29  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added DOM:: namespace for the DOM:: classes in the Smoke library.
+	* The scope operator in nested classnames is now '::' rather
+	  than '__', so changed the qtruby runtime to expect that.
+
 2003-11-13  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added the KillerFilter event filtering example from chapter 16
