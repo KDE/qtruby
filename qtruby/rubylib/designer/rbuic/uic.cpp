@@ -141,10 +141,11 @@ bool Uic::isEmptyFunction( const QString& fname )
  */
 Uic::Uic( const QString &fn, QTextStream &outStream, QDomDocument doc,
 	  bool subcl, const QString &trm, const QString& subClass,
-	  bool omitForwardDecls, QString &uicClass )
+	  bool omitForwardDecls, QString &uicClass, bool useKDE )
     : out( outStream ), trout( &languageChangeBody ),
       trmacro( trm ), nofwd( omitForwardDecls )
 {
+	Uic::hasKDEwidget = useKDE;
     fileName = fn;
     writeSlotImpl = TRUE;
     defMargin = BOXLAYOUT_DEFAULT_MARGIN;

@@ -53,7 +53,7 @@ class Uic : public Qt
 public:
     Uic( const QString &fn, QTextStream& out, QDomDocument doc, bool subcl,
 	 const QString &trm, const QString& subclname, bool omitForwardDecls,
-	 QString &uicClass );
+	 QString &uicClass, bool useKDE );
 
     static void setIndent(const RubyIndent &rubyind) {indent = rubyind;}
 

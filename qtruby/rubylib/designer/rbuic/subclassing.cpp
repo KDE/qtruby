@@ -49,7 +49,11 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
     QString objClass = getClassName( e );
     if ( objClass.isEmpty() )
 	return;
-    out << indent << "require 'Qt'" << endl;
+	if (hasKDEwidget) {
+    	out << indent << "require 'Korundum'" << endl;
+	} else {
+    	out << indent << "require 'Qt'" << endl;
+	}
     out << indent << subClass << " < " << nameOfClass << endl;
 
     out << endl;

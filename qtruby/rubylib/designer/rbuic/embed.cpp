@@ -137,7 +137,11 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
     out << "#" << endl;
     out << "# WARNING! All changes made in this file will be lost!" << endl;
     out << endl;
-    out << "require 'Qt'" << endl;
+	if (hasKDEwidget) {
+    	out << "require 'Korundum'" << endl;
+	} else {
+    	out << "require 'Qt'" << endl;
+	}
     out << endl;
 
     out << indent << "class MimeSourceFactory_" << cProject << " < Qt::MimeSourceFactory" << endl;

@@ -1,3 +1,8 @@
+2004-05-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added a '-kde' option to the rbuic tool to generate require 'Korundum'
+	  instead of require 'Qt' statements, and use KDE widgets.
+
 2004-04-30  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Applied patch from Marek Janukowicz.

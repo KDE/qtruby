@@ -46,7 +46,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <zlib.h>
-#define RBUIC_VERSION "0.1"
+#define RBUIC_VERSION "0.9"
 
 void getDBConnections( Uic& uic, QString& s);
 
@@ -64,6 +64,7 @@ int main( int argc, char * argv[] )
     const char* projectName = 0;
     const char* trmacro = 0;
     bool nofwd = FALSE;
+    bool useKDE = FALSE;
     bool fix = FALSE;
     QApplication app(argc, argv, FALSE);
     QString uicClass;
@@ -94,6 +95,8 @@ int main( int argc, char * argv[] )
 		    projectName = &opt[1];
 	    } else if ( opt == "nofwd" ) {
 		nofwd = TRUE;
+	    } else if ( opt == "kde" ) {
+		useKDE = TRUE;
 	    } else if ( opt == "subimpl" ) {
 		subcl = TRUE;
 		if ( !(n < argc-1) ) {
@@ -171,6 +174,7 @@ int main( int argc, char * argv[] )
 		 "\t-o file\t\tWrite output to file rather than stdout\n"
 		 "\t-p indent\tSet the indent in spaces (0 to use a tab)\n"
 		 "\t-nofwd\t\tOmit imports of custom widgets\n"
+		 "\t-kde\t\tUse kde widgets, require 'Korundum' extension\n"
 		 "\t-tr func\tUse func(...) rather than trUtf8(...) for i18n\n"
 		 "\t-x\t\tGenerate extra code to test the class\n"
 		 "\t-version\tDisplay version of rbuic\n"
@@ -227,7 +231,7 @@ int main( int argc, char * argv[] )
     }
     out << endl;
 
-    Uic uic( fileName, out, doc, subcl, trmacro ? trmacro : "trUtf8", className, nofwd, uicClass );
+    Uic uic( fileName, out, doc, subcl, trmacro ? trmacro : "trUtf8", className, nofwd, uicClass, useKDE );
 
     if (execCode) {
     out << endl;

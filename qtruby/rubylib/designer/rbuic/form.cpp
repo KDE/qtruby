@@ -100,7 +100,11 @@ void Uic::createFormImpl( const QDomElement &e )
 	return;
     QString objName = getObjectName( e );
 //    out << indent << "class " << nameOfClass << endl;
-    out << indent << "require 'Qt'" << endl;
+	if (hasKDEwidget) {
+    	out << indent << "require 'Korundum'" << endl;
+	} else {
+    	out << indent << "require 'Qt'" << endl;
+	}
 
     // generate local and local includes required
     QStringList globalIncludes, localIncludes;
