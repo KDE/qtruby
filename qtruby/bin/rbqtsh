@@ -222,8 +222,8 @@ class QtShellControl < Qt::MainWindow
    attr_accessor :fileSaveAction, :fileSaveAsAction, :filePrintAction, :fileExitAction
    attr_accessor :helpExampleAction, :comboBox, :sessionLog, :executedLines, :printer
    slots 'fileOpen()', 'fileOpen()', 'fileSave()', 'fileSaveAs()'
-   slots 'filePrint()', 'fileExit()', 'helpExample()'
-   signals 'fileNeedsEval(QString)'
+   slots 'filePrint()', 'fileExit()', 'runSelection()', 'helpExample()'
+   signals 'fileNeedsEval(QString)', 'selection(QString)'
 
     def initialize(*k)
         super(*k)
@@ -269,6 +269,11 @@ class QtShellControl < Qt::MainWindow
         @fileExitAction.setMenuText(trUtf8("E&xit"))
         @fileExitAction.setAccel(KeySequence.new(trUtf8("Ctrl+E")))
 
+        @runAction = Qt::Action.new(self, "runAction");
+        @runAction.setText(trUtf8("Run Selection"));
+        @runAction.setMenuText(trUtf8("&Run Selection"));
+        @runAction.setAccel(KeySequence.new(trUtf8("Ctrl+R")));
+
         @helpExampleAction = Qt::Action.new(self, "helpExampleAction");
         @helpExampleAction.setText(trUtf8("Example"));
         @helpExampleAction.setMenuText(trUtf8("Examp&le"));
@@ -295,6 +300,12 @@ class QtShellControl < Qt::MainWindow
        
         @menubar.insertSeparator
 
+        @runMenu= Qt::PopupMenu.new(self)
+        @runAction.addTo(@runMenu)
+        @menubar.insertItem(trUtf8("Run"), @runMenu)
+        
+		@menubar.insertSeparator
+
         @helpMenu= Qt::PopupMenu.new(self)
         @helpExampleAction.addTo(helpMenu)
         @menubar.insertItem(trUtf8("&Help"), helpMenu)
@@ -304,6 +315,7 @@ class QtShellControl < Qt::MainWindow
         connect(@fileSaveAsAction, SIGNAL('activated()'), self, SLOT('fileSaveAs()'))
         connect(@filePrintAction, SIGNAL('activated()'), self, SLOT('filePrint()'))
         connect(@fileExitAction, SIGNAL('activated()'), self, SLOT('fileExit()'))
+        connect(@runAction, SIGNAL('activated()'), self, SLOT('runSelection()'))
         connect(@helpExampleAction, SIGNAL('activated()'), self, SLOT('helpExample()'))
 
         @executedLines = []
@@ -450,6 +462,10 @@ class QtShellControl < Qt::MainWindow
         empty
     end
 
+    def runSelection
+		emit selection(@sessionLog.selectedText())
+    end
+
     def helpExample
         emit fileNeedsEval("__DATA__")
     end
@@ -457,7 +473,7 @@ class QtShellControl < Qt::MainWindow
 end
 
 class QtShell < Qt::MainWindow
-    slots 'evalInput()', 'evalFile(QString)'
+    slots 'evalInput()', 'evalFile(QString)', 'evalSelection(QString)'
     attr_accessor :shellWindow
     @@binding = binding
 def bind
@@ -480,6 +496,7 @@ def initialize(*k)
     self.setCaption("MainWindow - this")
     @shellWindow.sessionLog.setText("Ready.<br>")
     connect(@shellWindow, SIGNAL('fileNeedsEval(QString)'), self, SLOT('evalFile(QString)'))
+    connect(@shellWindow, SIGNAL('selection(QString)'), self, SLOT('evalSelection(QString)'))
 end
 
 def logAppend(str)
@@ -570,6 +587,10 @@ def evalFile(fname)
         evalOneLine(line)    
     }
     file.close
+end
+
+def evalSelection(selection)
+	evalOneLine(selection.sub(/.*span>/, ""))
 end
 
 end
