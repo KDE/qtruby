@@ -72,6 +72,7 @@ class CannonField < Qt::Widget
 		@shoot_ang = @ang
 		@shoot_f = @f
 		@autoShootTimer.start( 50 )
+		emit canShoot( false )
 	end
 
     @@first_time = true
