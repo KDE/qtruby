@@ -195,7 +195,7 @@ class ChartForm
         newLabel = label
         if  !label.empty?
             if  @chartType == VERTICAL_BAR
-                newLabel += '\n'
+                newLabel += "\n"
             else
                 newLabel += ' '
             end
@@ -203,7 +203,7 @@ class ChartForm
         if  @addValues == YES
             newLabel += "%.#{@decimalPlaces}f" % value
         elsif  @addValues == AS_PERCENTAGE
-            newLabel += "%.#{@decimalPlaces}f" % (value / total) * 100
+            newLabel += "%.#{@decimalPlaces}f%s" % [(value / total) * 100, '%']
         end
         return newLabel
     end
