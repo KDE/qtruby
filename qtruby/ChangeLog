@@ -1,3 +1,14 @@
+2005-03-30  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* An 'include Qt' statement in qtruby.rb where a couple of methods were being added to
+	  class Module was causing all the Qt methods to be added to Module. Oops, this a really
+	  serious bug. Various methods in qtruby.rb are now module methods in the Qt::Internal
+	  module. Big thanks to Eric Veensta and Samir Patel for pointing out this can of worms.
+
+	* It also fixes a problem reported by David Crosby where a "require 'time'" statement was
+	  incompatible with a "require 'Qt'" statement. As the cause was unknown, a hacky workround
+	  had to be added, which is no longer needed.
+
 2005-03-24  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* When a subclass of QObject is instantiated in the C++ world, and the exact class doesn't
