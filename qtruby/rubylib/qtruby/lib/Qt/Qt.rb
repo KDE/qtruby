@@ -116,7 +116,9 @@ module Qt
 			if methodIds.length > 1
 				for i in 0..(args.length - 1)
 					matching = argmatch(methodIds, args, i)
-					if matching != nil
+					# Match if there is either just a single result returned, or if there are
+					# multiple matches and the first match is a better match than subequent ones
+					if matching != nil and (matching.length == 1 or matching[0][1] != matching[1][1])
 						methodIds[0] = matching[0][0]
 #						print("Resolved Method #{classname}::#{method} => " + methodIds[0].to_s + "\n")
 						break
