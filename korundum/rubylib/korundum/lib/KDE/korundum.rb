@@ -256,7 +256,7 @@ module KDE
 	end
 	
 	# A sane alternative to the strange looking C++ template version,
-	# this takes a list of ruby classes to restore
+	# this takes a variable number of ruby args as classes to restore
 	def MainWindow::kRestoreMainWindows(*k)
 		n = 1
 		while MainWindow.canBeRestored(n)
