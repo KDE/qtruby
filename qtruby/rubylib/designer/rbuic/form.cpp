@@ -529,7 +529,6 @@ void Uic::createFormImpl( const QDomElement &e )
     out << indent << "def initialize(*k)" << endl;
     ++indent;
 	out << indent << "super(*k)" << endl;
-	out << indent << "statusBar()" << endl;
 	isMainWindow = TRUE;
     } else {
     out << indent << "def initialize(*k)" << endl;
@@ -595,7 +594,7 @@ void Uic::createFormImpl( const QDomElement &e )
 		} else if ( prop == "name" ) {
 		    out << indent << "if name.nil?" << endl;
 		    out << indent << "\t" << call << endl;
-		    out << indent << "end";
+		    out << indent << "end" << endl;
 		} else {
 		    out << indent << call << endl;
 		}

@@ -368,11 +368,11 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 			
 		QString call = objName + ".";
 		if ( stdset ) {
-		    call += mkStdSet( prop ) + "( ";
+		    call += mkStdSet( prop ) + "(" + value + ")";
 		} else {
 		    call += "setProperty( \"" + prop + "\", ";
+			call += "Qt::Variant.new(" + value + "))";
 		}
-		call += "Qt::Variant.new(" + value + "))";
 		
 		if ( n2.firstChild().toElement().tagName() == "string" ) {
 		    trout << indent << call << endl;
@@ -412,12 +412,12 @@ void Uic::createToolbarImpl( const QDomElement &n, const QString &parentClass, c
     for ( int i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement ae = nl.item( i ).toElement();
 	QString dock = get_dock( ae.attribute( "dock" ) );
-	QString objName = getObjectName( ae );
+	QString objName = "@" + getObjectName( ae );
  	out << indent << objName << " = Qt::ToolBar.new(\"\", self, " << dock << ")" << endl;
 	createObjectImpl( ae, parentClass, parent );
 	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 	    if ( n2.tagName() == "action" ) {
-		out << indent << n2.attribute( "name" ) << ".addTo(" << objName << ")" << endl;
+		out << indent << "@" << n2.attribute( "name" ) << ".addTo( " << objName << " )" << endl;
 	    } else if ( n2.tagName() == "separator" ) {
 		out << indent << objName << ".addSeparator;" << endl;
 	    } else if ( n2.tagName() == "widget" ) {
@@ -436,14 +436,14 @@ void Uic::createToolbarImpl( const QDomElement &n, const QString &parentClass, c
 
 void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, const QString &parent )
 {
-    QString objName = getObjectName( n );
+    QString objName = "@" + getObjectName( n );
     out << indent << objName << " = Qt::MenuBar.new( self, \"" << objName << "\" )" << endl;
     createObjectImpl( n, parentClass, parent );
     int i = 0;
     QDomElement c = n.firstChild().toElement();
     while ( !c.isNull() ) {
 	if ( c.tagName() == "item" ) {
-	    QString itemName = c.attribute( "name" );
+	    QString itemName = "@" + c.attribute( "name" );
 	    out << endl;
 	    out << indent << itemName << " = Qt::PopupMenu.new( self )" << endl;
 	    createPopupMenuImpl( c, parentClass, itemName );
@@ -464,19 +464,19 @@ void Uic::createPopupMenuImpl( const QDomElement &e, const QString &parentClass,
 	if ( n.tagName() == "action" ) {
 	    QDomElement n2 = n.nextSibling().toElement();
 	    if ( n2.tagName() == "item" ) { // the action has a sub menu
-		QString itemName = n2.attribute( "name" );
+		QString itemName = "@" + n2.attribute( "name" );
 		QString itemText = n2.attribute( "text" );
 		out << indent << itemName << " = Qt::PopupMenu.new( self )" << endl;
 		out << indent << parent << ".setAccel( tr( \"" << n2.attribute( "accel" ) << "\" ), " << endl;
-		out << indent << indent << parent << ".insertItem( " << n.attribute( "name" ) << ".iconSet(),";
+		out << indent << indent << parent << ".insertItem( @" << n.attribute( "name" ) << ".iconSet(),";
 		out << trcall( itemText ) << ", " << itemName << " ) )" << endl;
 		createPopupMenuImpl( n2, parentClass, itemName );
 		n = n2;
 	    } else {
-		out << indent << n.attribute( "name" ) << ".addTo( " << parent << " )" << endl;
+		out << indent << "@" << n.attribute( "name" ) << ".addTo( " << parent << " )" << endl;
 	    }
 	} else if ( n.tagName() == "separator" ) {
-	    out << indent << parent << "insertSeparator()" << endl;
+	    out << indent << parent << ".insertSeparator()" << endl;
 	}
     }
 }
@@ -653,7 +653,7 @@ QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &pare
 		}
 	    } else if ( attrib == "clickable" )
 		clickable = v.toBool();
-	    else if ( attrib == "resizeable" )
+	    else if ( attrib == "resizable" || attrib == "resizeable" )
 		resizeable = v.toBool();
 	}
 	n = n.nextSibling().toElement();
@@ -667,9 +667,9 @@ QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &pare
     if ( !pix.isEmpty() )
 	s += indent + parent + ".header().setLabel(" + parent + ".header().count() - 1," + pix + ", " + trcall( txt, com ) + ")\n";
     if ( !clickable )
-	s += indent + parent + ".header().setClickEnabled( 0, " + parent + ".header().count() - 1 )\n";
+	s += indent + parent + ".header().setClickEnabled( false, " + parent + ".header().count() - 1 )\n";
     if ( !resizeable )
-	s += indent + parent + ".header().setResizeEnabled( 0, " + parent + ".header().count() - 1 )\n";
+	s += indent + parent + ".header().setResizeEnabled( false, " + parent + ".header().count() - 1 )\n";
 
     return s;
 }

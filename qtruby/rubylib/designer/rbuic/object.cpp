@@ -107,7 +107,7 @@ static bool createdCentralWidget = FALSE;
 QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass, const QString& par, const QString& layout )
 {
     QString parent( par );
-    if ( parent == "this" && isMainWindow ) {
+    if ( parent == "self" && isMainWindow ) {
 	if ( !createdCentralWidget )
 	    out << indent << "setCentralWidget(Qt::Widget.new(self, \"qt_central_widget\"))" << endl;
 	createdCentralWidget = TRUE;
@@ -224,7 +224,11 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		 QRegExp("echoMode|hMargin|maxLength|maxLines|undoEnabled").exactMatch(prop) )
 		continue;
 		
-	    QString call = objName + ".";
+	    QString call = fullObjName + ".";
+		if (! call.startsWith("@")) {
+			call.prepend("@");
+		}
+		
 	    if ( stdset ) {
 			call += mkStdSet( prop ) + "( ";
 	    	if ( prop == "accel" )
@@ -530,6 +534,8 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	if ( !pixmapLoaderFunction.isEmpty() ) {
 	    s.prepend( pixmapLoaderFunction + "(" + QString( externPixmaps ? "\"" : "" ) );
 	    s.append( QString( externPixmaps ? "\"" : "" ) + ")" );
+	} else {
+		s.prepend("@");
 	}
 	v = v.arg( s );
     } else if ( e.tagName() == "image" ) {
