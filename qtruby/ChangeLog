@@ -1,3 +1,8 @@
+2003-10-11  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added khtml:: namespace, although it isn't in the SmokeKDE runtime yet
+	* Improved method_missing error messages if a method can't be resolved
+
 2003-10-09  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added KIO:: and KParts:: namespaces for the new classes in libsmokekde

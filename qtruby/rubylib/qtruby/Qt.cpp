@@ -80,6 +80,7 @@ VALUE qt_module = Qnil;
 VALUE kde_module = Qnil;
 VALUE kparts_module = Qnil;
 VALUE kio_module = Qnil;
+VALUE khtml_module = Qnil;
 VALUE qt_internal_module = Qnil;
 VALUE qt_base_class = Qnil;
 VALUE qt_qmetaobject_class = Qnil;
@@ -750,8 +751,6 @@ public:
 	}
 
 	VirtualMethodCall c(smoke, method, args, obj);
-	// exception variable, just temporary
-
 	c.next();
 	return true;
     }
@@ -774,14 +773,20 @@ public:
 				strcpy(buf, "KIO::");
 				strcat(buf, className);
 			} else {
-				if (QString(className).startsWith("K")) {
-					buf = new char[strlen(className) + strlen("KDE::") + 1];
-					strcpy(buf, "KDE::");
-					strcat(buf, className + 1);
-				} else {
-					buf = new char[strlen(className) + strlen("KDE::") + 1];
-					strcpy(buf, "KDE::");
+				if (QString(className).startsWith("khtml__")) {
+					buf = new char[strlen(className) + strlen("khtml::") + 1];
+					strcpy(buf, "khtml::");
 					strcat(buf, className);
+				} else {
+					if (QString(className).startsWith("K")) {
+						buf = new char[strlen(className) + strlen("KDE::") + 1];
+						strcpy(buf, "KDE::");
+						strcat(buf, className + 1);
+					} else {
+						buf = new char[strlen(className) + strlen("KDE::") + 1];
+						strcpy(buf, "KDE::");
+						strcat(buf, className);
+					}
 				}
 			}
 		}
@@ -952,10 +957,8 @@ method_missing(int argc, VALUE * argv, VALUE self)
 		if (retval != Qnil)
 		return retval;
 	
-    	// If the method can't be found allow the default method_missing
-    	//	to display an error message, by calling super on the method
     	if (_current_method == -1) {
-			return rb_call_super(argc, argv);
+			rb_raise(rb_eArgError, "unresolved method call\n");
     	}
 #ifdef DEBUG
 		if ((do_debug & qtdb_calls) && rcid && *rcid != _current_method) printf("method_missing cache ERROR: %s\n", (const char *) mcid);
@@ -1001,7 +1004,7 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
     		}
 			return method_missing(argc-1, method_stack, argv[1]);
 		} else {
-			return rb_call_super(argc, argv);
+			rb_raise(rb_eArgError, "unresolved method call\n");
 		}
     }
 
@@ -1088,11 +1091,9 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
     c.next();
     VALUE temp_obj = *(c.var());
     void * ptr = 0;
-rb_gc_register_address(&temp_obj);
     Data_Get_Struct(temp_obj, smokeruby_object, ptr);
     VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, ptr);
     mapObject(result, result);
-fflush(stdout);	
     return rb_funcall(qt_internal_module, rb_intern("continue_new_instance"), 1, result);
 }
 
@@ -1568,7 +1569,7 @@ dumpObjects(VALUE self)
 static VALUE
 setAllocated(VALUE self, VALUE obj, VALUE b_value)
 {
-    bool b = (bool) NUM2INT(b_value);
+    bool b = b_value != Qfalse && b_value != Qnil;
     smokeruby_object *o = value_obj_info(obj);
     if(o) {
 	o->allocated = b;
@@ -1580,9 +1581,10 @@ static VALUE
 deleteObject(VALUE self, VALUE obj)
 {
     smokeruby_object *o = value_obj_info(obj);
-    if(!o) { return Qnil; }
+    if(!o || !o->ptr) { return Qnil; }
     QObject *qobj = (QObject*)o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
     delete qobj;
+	o->ptr = 0;
     return self;
 }
 
@@ -1867,6 +1869,28 @@ getClassList(VALUE /*self*/)
 }
 
 static VALUE
+kde_package_to_class(const char * package)
+{
+	VALUE klass = Qnil;
+	
+	if (QString(package).startsWith("KDE::")) {
+		klass = rb_define_class_under(kde_module, package+strlen("KDE::"), qt_base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (QString(package).startsWith("KParts::")) {
+		klass = rb_define_class_under(kparts_module, package+strlen("KParts::"), qt_base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (QString(package).startsWith("KIO::")) {
+		klass = rb_define_class_under(kio_module, package+strlen("KIO::"), qt_base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (QString(package).startsWith("khtml::")) {
+		klass = rb_define_class_under(khtml_module, package+strlen("khtml::"), qt_base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	}
+	
+	return klass;
+}
+
+static VALUE
 create_qobject_class(VALUE /*self*/, VALUE package_value)
 {
     const char *package = STR2CSTR(package_value);
@@ -1880,10 +1904,7 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
 		}
 	} else {
-		if (QString(package).startsWith("KDE::")) {
-    		klass = rb_define_class_under(kde_module, package+strlen("KDE::"), qt_base_class);
-			rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
-		}
+		klass = kde_package_to_class(package);
 	}
 
     return klass;
@@ -1898,9 +1919,7 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 	if (QString(package).startsWith("Qt::")) {
     	klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
 	} else {
-		if (QString(package).startsWith("KDE::")) {
-    		klass = rb_define_class_under(kde_module, package+strlen("KDE::"), qt_base_class);
-		}
+		klass = kde_package_to_class(package);
 	}
 
     if (strcmp(package, "Qt::MetaObject") == 0) {
@@ -1963,6 +1982,10 @@ Init_Qt()
 	kio_module = rb_define_module("KIO");
     rb_define_singleton_method(kio_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
     rb_define_singleton_method(kio_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	khtml_module = rb_define_module("khtml");
+    rb_define_singleton_method(khtml_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+    rb_define_singleton_method(khtml_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 
     rb_define_method(qt_internal_module, "getMethStat", (VALUE (*) (...)) getMethStat, 0);
     rb_define_method(qt_internal_module, "getClassStat", (VALUE (*) (...)) getClassStat, 0);

@@ -78,7 +78,7 @@ module Qt
 				return Qt::==(self, a)
 			end
 		end
-		
+			
 	require 'delegate.rb'
 	
 	# Allows a QByteArray to be wrapped in an instance which
@@ -107,17 +107,14 @@ module Qt
 				classname.sub(/^KParts__/,'KParts::')
 			elsif classname =~ /^KIO__/
 				classname.sub(/^KIO__/,'KIO::')
+			elsif classname =~ /^khtml__/
+				classname.sub(/^khtml__/,'khtml::')
 			else
 				classname.sub(/^K?(?=[A-Z])/,'KDE::')
 			end
 		end
 
 		def init_class(c)
-			# Exclude these classes for now as they cause a crash
-			if c =~ /KMimeType|KURLBar|KURLComboBox|KURL__List|KWin__Info|TerminalInterface/
-				return
-			end
-			
 			classname = normalize_classname(c)
 			classId = idClass(c)
 			insert_pclassid(classname, classId)
