@@ -53,6 +53,8 @@
 #include "smokeruby.h"
 #include "smoke.h"
 
+// #define DEBUG
+
 extern Smoke *qt_Smoke;
 extern void init_qt_Smoke();
 extern void smokeruby_mark(void * ptr);
@@ -1360,7 +1362,7 @@ setDebug(VALUE self, VALUE on_value)
 
 #ifdef DEBUG
 static VALUE
-debug(VALUE /*self*/)
+debugging(VALUE /*self*/)
 {
     return INT2NUM(do_debug);
 }
@@ -1741,13 +1743,13 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
     VALUE classid = argv[0];
     VALUE result = rb_hash_new();
     if(classid != Qundef) {
-#ifdef DEBUG
-	printf("findAllMethods called with classid = %d, pat == %s\n", c, pat);
-#endif
         Smoke::Index c = (Smoke::Index) NUM2INT(classid);
         char * pat = 0L;
         if(argc > 1 && TYPE(argv[1]) == T_STRING)
             pat = STR2CSTR(argv[1]);
+#ifdef DEBUG
+	printf("findAllMethods called with classid = %d, pat == %s\n", c, pat);
+#endif
         Smoke::Index imax = qt_Smoke->numMethodMaps;
         Smoke::Index imin = 0, icur = -1, methmin, methmax;
 	methmin = -1; methmax = -1; // kill warnings
@@ -1950,7 +1952,7 @@ Init_Qt()
 	rb_define_method(qt_internal_module, "setMocType", (VALUE (*) (...)) setMocType, 4);
 #ifdef DEBUG
 	rb_define_method(qt_internal_module, "setDebug", (VALUE (*) (...)) setDebug, 1);
-	rb_define_method(qt_internal_module, "debug", (VALUE (*) (...)) debug, 0);
+	rb_define_method(qt_internal_module, "debug", (VALUE (*) (...)) debugging, 0);
 #endif
 	rb_define_method(qt_internal_module, "getTypeNameOfArg", (VALUE (*) (...)) getTypeNameOfArg, 2);
 	rb_define_method(qt_internal_module, "classIsa", (VALUE (*) (...)) classIsa, 2);
