@@ -1,5 +1,23 @@
 2004-10-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+ * A common programming error is to accidently leave off the 'new' method call when
+   creating an instance. The QtRuby runtime wasn't correctly trapping an attempt to
+   call an instance method on a class object, and was seg faulting rather than
+   throwing an exception.
+
+ * For example:
+
+                    # The next line should be:  lay = Qt::HBoxLayout.new(self)
+                   lay = Qt::HBoxLayout
+                   ed = Qt::LineEdit.new('blah',self)
+                   lay.addWidget(ed)
+
+ * Fixes problem reported by Han Holl
+
+ CCMAIL: kde-bindings@kde.org
+
+2004-10-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
  * Upped version to 1.0.3 for the KDE 3.3.1 release
 
 2004-10-02  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
