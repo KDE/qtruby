@@ -34,13 +34,13 @@ require 'myoptions_base.rb'
   configSkeleton = ExamplePrefsBase.new( "dummy1", "dummy2" )
   configSkeleton.readConfig()
 
-  dialog = KDE::ConfigDialog( nil, "settings", configSkeleton )
+  dialog = KDE::ConfigDialog.new( nil, "settings", configSkeleton )
   
   general = GeneralBase.new(nil)
-  dialog.addPage( general, i18n("General"), "General", "" )
+  dialog.addPage( general, app.i18n("General"), "General", "" )
 
   myOptions = MyOptionsBase.new( nil )
-  dialog.addPage( myOptions, i18n("MyOptions"), "MyOptions", "" )
+  dialog.addPage( myOptions, app.i18n("MyOptions"), "MyOptions", "" )
 
   app.mainWidget = dialog 
 

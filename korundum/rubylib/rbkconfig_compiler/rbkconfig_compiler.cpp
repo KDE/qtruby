@@ -666,7 +666,6 @@ QString itemType( const QString &type )
 
   t = type;
   t.replace( 0, 1, t.left( 1 ).upper() );
-
   return t;
 }
 
@@ -687,6 +686,10 @@ QString newItem( const QString &type, const QString &name, const QString &key,
   if ( type == "Enum" ) {
     t += ".toInt";  
     t += ", values" + name;
+  } else if ( type == "Path" ) {
+    t += ".toString";  
+  } else if ( type == "Int64" ) {
+    t += ".toLongLong";  
   } else {
     t += ".to" + itemType( type );
   }
@@ -1136,6 +1139,10 @@ int main( int argc, char **argv )
     if (!e->param().isEmpty()) rb << "[i]";
     if ( e->type() == "Enum" ) {
 	  rb << ".toInt" << endl;
+    } else if ( e->type() == "Int64" ) {
+	  rb << ".toLongLong" << endl;
+    } else if ( e->type() == "Path" ) {
+	  rb << ".toString" << endl;
 	} else {
 	  rb << ".to" << itemType( e->type() ) << endl;
 	}

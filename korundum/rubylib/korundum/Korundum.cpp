@@ -877,6 +877,7 @@ public:
 extern "C" {
 extern void Init_qtruby();
 extern void set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE));
+extern void set_kconfigskeletonitem_immutable(VALUE (*kconfigskeletonitem_immutable) (VALUE));
 extern void set_kde_resolve_classname(const char * (*kde_resolve_classname) (Smoke*, int, void *));
 extern const char * kde_resolve_classname(Smoke* smoke, int classId, void * ptr);
 extern VALUE new_qt(int argc, VALUE * argv, VALUE klass);
@@ -1020,13 +1021,25 @@ new_kde(int argc, VALUE * argv, VALUE klass)
 }
 
 static VALUE
+kconfigskeletonitem_immutable(VALUE self)
+{
+	smokeruby_object *o = value_obj_info(self);
+	KConfigSkeletonItem * item = (KConfigSkeletonItem *) o->ptr;
+	return item->isImmutable() ? Qtrue : Qfalse;
+}
+
+static VALUE
 config_additem(int argc, VALUE * argv, VALUE self)
 {
 	smokeruby_object *o = value_obj_info(self);
 	KConfigSkeleton * config = (KConfigSkeleton *) o->ptr;
 	
-	if (argc < 1 || argc > 2 || TYPE(argv[0]) != T_DATA) {
+	if (argc < 1 || argc > 2) {
 		rb_raise(rb_eArgError, "wrong number of arguments(%d for 2)\n", argc);
+	}
+	
+	if (TYPE(argv[0]) != T_DATA) {
+		rb_raise(rb_eArgError, "wrong argument type, expected KDE::ConfigSkeletonItem\n", argc);
 	}
 	
 	smokeruby_object *c = value_obj_info(argv[0]);
@@ -1096,6 +1109,7 @@ void
 Init_korundum()
 {
 	set_new_kde(new_kde);
+	set_kconfigskeletonitem_immutable(kconfigskeletonitem_immutable);
 	set_kde_resolve_classname(kde_resolve_classname);
 		
 	// The Qt extension is linked against libsmokeqt.so, but Korundum links against
