@@ -964,7 +964,6 @@ method_missing(int argc, VALUE * argv, VALUE self)
 	QRegExp px("^.*[?]$");
 	QString pred(rb_id2name(SYM2ID(argv[0])));
 	if (px.search(pred) != -1) {
-		printf("found a boolean predicate\n");
 		smokeruby_object *o = value_obj_info(self);
 		if(!o || !o->ptr) {
 			rb_call_super(argc, argv);
@@ -975,11 +974,11 @@ method_missing(int argc, VALUE * argv, VALUE self)
 		
 		pred.replace(0, 1, pred.at(0).upper());
 		pred.replace(0, 0, QString("is"));
-		Smoke::Index meth = qt_Smoke->findMethod(qt_Smoke->classes[o->classId].className, pred.latin1());
+		Smoke::Index meth = o->smoke->findMethod(o->smoke->classes[o->classId].className, pred.latin1());
 		
 		if (meth == 0) {
 			pred.replace(0, 2, QString("has"));
-			meth = qt_Smoke->findMethod(qt_Smoke->classes[o->classId].className, pred.latin1());
+			meth = o->smoke->findMethod(o->smoke->classes[o->classId].className, pred.latin1());
 		}
 		
 		if (meth > 0) {
