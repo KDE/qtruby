@@ -424,23 +424,25 @@ static void marshall_QString(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE:
 	{
-	    QString *s = 0;
+	    QString s;
 	    if(*(m->var()) != Qundef || m->type().isStack()) {
-	    	s = new QString( STR2CSTR(*(m->var())) );
-//               if(SvUTF8(*(m->var())))
-//		    s = new QString(QString::fromUtf8(SvPV_nolen(*(m->var()))));
-//                else if(PL_hints & HINT_LOCALE)
-//                    s = new QString(QString::fromLocal8Bit(SvPV_nolen(*(m->var()))));
-//                else
-//                    s = new QString(QString::fromLatin1(SvPV_nolen(*(m->var()))));
+#if 0
+               if(SvUTF8(*(m->var())))
+                    s = QString::fromUtf8(SvPV_nolen(*(m->var())));
+               else if(PL_hints & HINT_LOCALE)
+                    s = QString::fromLocal8Bit(SvPV_nolen(*(m->var())));
+               else
+                    s = QString::fromLatin1(SvPV_nolen(*(m->var())));
+#else
+            // Treat everything as UTF-8..for now
+            s = QString::fromUtf8(STR2CSTR(*(m->var())) );
+#endif
             } else if(m->type().isRef()) {
-                s = new QString;
+                s = QString::null;
             }
 		
-	    m->item().s_voidp = s;
+	    m->item().s_voidp = &s;
 	    m->next();
-	    if(s && m->cleanup())
-		delete s;
 	}
 	break;
       case Marshall::ToVALUE:
