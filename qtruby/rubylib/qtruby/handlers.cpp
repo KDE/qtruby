@@ -32,12 +32,12 @@ extern VALUE set_obj_info(const char * className, smokeruby_object * o);
 };
 
 void
-smokeruby_mark(void * p)
+smokeruby_mark(void * /*p*/)
 {
 }
 
 void
-smokeruby_free(void * p)
+smokeruby_free(void * /*p*/)
 {
 //    smokeperl_object *o = (smokeperl_object*)mg->mg_ptr;
 
@@ -358,7 +358,7 @@ marshall_basetype(Marshall *m)
     }
 }
 
-static void marshall_void(Marshall *m) {}
+static void marshall_void(Marshall * /*m*/) {}
 static void marshall_unknown(Marshall *m) {
     m->unsupported();
 }
@@ -476,6 +476,7 @@ static void marshall_QString(Marshall *m) {
     }
 }
 
+#if 0
 static const char *not_ascii(const char *s, uint &len)
 {
     bool r = false;
@@ -487,6 +488,7 @@ static const char *not_ascii(const char *s, uint &len)
       }
     return r ? s : 0L;
 }
+#endif
 
 static void marshall_QCString(Marshall *m) {
     switch(m->action()) {
