@@ -19,6 +19,7 @@
 #include <qstringlist.h>
 
 #include <dcopclient.h>
+#include <dcopobject.h>
 #include <kapplication.h>
 
 #include <ruby.h>
@@ -212,7 +213,7 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 }
 		
 class EmitDCOPSignal : public Marshall {
-	VALUE _obj;
+	DCOPObject * _obj;
 	char * _signalName;
 	QByteArray *_data;
 	QDataStream *_stream;
@@ -224,7 +225,7 @@ class EmitDCOPSignal : public Marshall {
     Smoke::Stack _stack;
     bool _called;
 public:
-    EmitDCOPSignal(VALUE obj, char * signalName, int items, VALUE *sp, VALUE args) :
+    EmitDCOPSignal(DCOPObject * obj, char * signalName, int items, VALUE *sp, VALUE args) :
 		_obj(obj), _signalName(signalName), _sp(sp), _items(items), _cur(-1), _called(false)
     {
 		_data = new QByteArray();
@@ -256,7 +257,7 @@ public:
 		_called = true;
 
 		smokeStackToStream(this, _stack, _stream, _items, _args);
-		kapp->dcopClient()->emitDCOPSignal(_signalName, *_data);
+		_obj->emitDCOPSignal(_signalName, *_data);
     }
 	
     void next() 
@@ -419,14 +420,15 @@ getdcopinfo(VALUE self, char * signalname)
 VALUE
 k_dcop_signal(int argc, VALUE * argv, VALUE self)
 {
-//    smokeruby_object *o = value_obj_info(self);
+	VALUE dcopObject = rb_funcall(kde_module, rb_intern("createDCOPObject"), 1, self);
+    smokeruby_object *o = value_obj_info(dcopObject);
 	
     char * signalname = rb_id2name(rb_frame_last_func());
     VALUE args = getdcopinfo(self, signalname);
 
     if(args == Qnil) return Qfalse;
 
-    EmitDCOPSignal signal(self, signalname, argc, argv, args);
+    EmitDCOPSignal signal((DCOPObject *) o->ptr, signalname, argc, argv, args);
     signal.next();
 
     return Qtrue;
@@ -444,6 +446,20 @@ dcop_interfaces(VALUE self)
 {
 	VALUE dcopObject = rb_funcall(kde_module, rb_intern("createDCOPObject"), 1, self);
 	return rb_funcall(dcopObject, rb_intern("interfaces"), 0);
+}
+
+static VALUE
+dcop_connect_signal(VALUE self, VALUE sender, VALUE senderObj, VALUE signal, VALUE slot, VALUE volatile_connect)
+{
+	VALUE dcopObject = rb_funcall(kde_module, rb_intern("createDCOPObject"), 1, self);
+	return rb_funcall(dcopObject, rb_intern("connectDCOPSignal"), 5, sender, senderObj, signal, slot, volatile_connect);
+}
+
+static VALUE
+dcop_disconnect_signal(VALUE self, VALUE sender, VALUE senderObj, VALUE signal, VALUE slot)
+{
+	VALUE dcopObject = rb_funcall(kde_module, rb_intern("createDCOPObject"), 1, self);
+	return rb_funcall(dcopObject, rb_intern("disconnectDCOPSignal"), 4, sender, senderObj, signal, slot);
 }
 
 static VALUE
@@ -476,10 +492,14 @@ new_kde(int argc, VALUE * argv, VALUE klass)
 		}
 	}
 	
-	if (rb_funcall(kde_module, rb_intern("hasDCOPSlots"), 1, klass) == Qtrue) {
+	if (	rb_funcall(kde_module, rb_intern("hasDCOPSlots"), 1, klass) == Qtrue
+			|| rb_funcall(kde_module, rb_intern("hasDCOPSignals"), 1, klass) == Qtrue ) 
+	{
 		rb_funcall(kde_module, rb_intern("createDCOPObject"), 1, instance);
 		rb_define_method(klass, "interfaces", (VALUE (*) (...)) dcop_interfaces, 0);
 		rb_define_method(klass, "functions", (VALUE (*) (...)) dcop_functions, 0);
+		rb_define_method(klass, "connectDCOPSignal", (VALUE (*) (...)) dcop_connect_signal, 5);
+		rb_define_method(klass, "disconnectDCOPSignal", (VALUE (*) (...)) dcop_disconnect_signal, 4);
 	}
 	
 	return instance;
