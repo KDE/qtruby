@@ -360,9 +360,9 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
     for ( QDomElement ae = n; !ae.isNull(); ae = ae.nextSibling().toElement() ) {
 	QString objName = registerObject( getObjectName( ae ) );
 	if ( ae.tagName() == "action" )
-	    out << indent << objName << "= Qt::Action.new(" << parent << ", \"" << objName << "\")" << endl;
+	    out << indent << objName << "= Qt::Action.new(" << parent << ", \"" << objName.mid(1) << "\")" << endl;
 	else if ( ae.tagName() == "actiongroup" )
-	    out << indent << objName << "= Qt::ActionGroup.new(" << parent << ", \"" << objName << "\")" << endl;
+	    out << indent << objName << "= Qt::ActionGroup.new(" << parent << ", \"" << objName.mid(1) << "\")" << endl;
 	else
 	    continue;
 	bool subActionsDone = FALSE;
@@ -459,7 +459,7 @@ void Uic::createToolbarImpl( const QDomElement &n, const QString &parentClass, c
 void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, const QString &parent )
 {
     QString objName = "@" + getObjectName( n );
-    out << indent << objName << " = Qt::MenuBar.new( self, \"" << objName << "\" )" << endl;
+    out << indent << objName << " = Qt::MenuBar.new( self, \"" << objName.mid(1) << "\" )" << endl;
     createObjectImpl( n, parentClass, parent );
     int i = 0;
     QDomElement c = n.firstChild().toElement();
@@ -817,7 +817,7 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
 	    if ( !DomTool::hasProperty( e, "margin" ) )
 		margin = "0";
 	}
-	out << ", " << optcells << margin << ", " << spacing << ", '" << objName << "')" << endl;
+	out << ", " << optcells << margin << ", " << spacing << ", '" << objName.mid(1) << "')" << endl;
     }
     if ( !resizeMode.isEmpty() )
 	out << indent << objName << ".setResizeMode( Qt::Layout::" << resizeMode << " )" << endl;
@@ -1091,9 +1091,9 @@ QString Uic::createObjectInstance( const QString& objClass, const QString& paren
 {
 
     if ( objClass.mid( 4 ) == "ComboBox" ) {
-	return objClass + ".new(false, " + parent + ", \"" + objName + "\")";
+	return objClass + ".new(false, " + parent + ", \"" + objName.mid(1) + "\")";
     }
-    return objClass + ".new(" + parent + ", \"" + objName + "\")";
+    return objClass + ".new(" + parent + ", \"" + objName.mid(1) + "\")";
 }
 
 bool Uic::isLayout( const QString& name ) const
