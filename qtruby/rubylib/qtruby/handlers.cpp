@@ -735,6 +735,8 @@ void marshall_QStringList(Marshall *m) {
 			if(m->cleanup())
 				delete stringlist;
 
+			*(m->var()) = av;
+
 			break;
 		}
 		default: {
