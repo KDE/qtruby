@@ -416,11 +416,11 @@ public:
 	if(_called) return;
 	_called = true;
 		
-	if (	_smoke->methodNames[method().name]  != _smoke->className(method().classId)
+	if (	_smoke->methodNames[method().name] != _smoke->className(method().classId)
 			&& TYPE(_target) != T_DATA 
-			&& _target != Qnil ) 
+			&& _target != Qnil
+			&& !(method().flags & Smoke::mf_static) ) 
 	{
-//	printf("TYPE(_target): %d\n", TYPE(_target));
 		rb_raise(rb_eArgError, "Instance is not initialized, cannot call %s", 
 					_smoke->methodNames[method().name]);
 	}
