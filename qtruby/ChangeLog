@@ -1,3 +1,8 @@
+2003-09-06  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Set methods such as autoMask= are converted to setAutoMask()
+	* Get methods such as modal? are converted to isModal()
+
 2003-08-31  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* rbuic code generation brought up to date wrt Qt 3.2 uic

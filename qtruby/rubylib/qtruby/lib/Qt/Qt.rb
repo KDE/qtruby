@@ -188,7 +188,9 @@ module Qt
 				return nil
 			end
 			method = classname.dup if method == "new"
-			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/;
+			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
+			method = 'set' + method[0,1].upcase + method[1,method.length].sub("=", "") if method =~ /.*=$/
+			method = 'is' + method[0,1].upcase + method[1,method.length].sub("?", "") if method =~ /.*\?$/
 			method_argstr = ""
 			args.each {
 				|arg| method_argstr << type_char(arg)
