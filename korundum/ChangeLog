@@ -1,3 +1,9 @@
+2004-07-07  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Translated the excellent pykde 'UISampler' app to ruby
+	* Added KAction list marshalling
+	* KDE::MainWindow.RESTORE() and kRestoreMainWindows() methods added.
+
 2004-07-06  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added more translated pykde examples

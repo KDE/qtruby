@@ -198,6 +198,29 @@ module KDE
 			super
 		end
 	end
+	
+	def MainWindow::RESTORE(klass)
+		n = 1
+		while MainWindow.canBeRestored(n)
+			klass.new.restore(n)
+			n += 1
+		end
+	end
+	
+	# A sane alternative to the strange looking C++ template version,
+	# this takes a variable of ruby classes to restore
+	def MainWindow::kRestoreMainWindows(*k)
+		n = 1
+		while MainWindow.canBeRestored(n)
+			className = MainWindow.classNameOfToplevel(n)
+			k.each do |klass|
+				if klass.name == className
+					klass.new.restore(n)
+				end
+			end
+			n += 1
+		end
+	end
 end
 
 class Module

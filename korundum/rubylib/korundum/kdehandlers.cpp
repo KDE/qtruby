@@ -29,6 +29,7 @@
 #include <kfileview.h>
 #include <kurl.h>
 #include <kcmdlineargs.h>
+#include <kaction.h>
 #include <dom/dom_node.h>
 #include <dom/dom_string.h>
 
@@ -574,6 +575,7 @@ void marshall_ItemList(Marshall *m) {
 
 DEF_LIST_MARSHALLER( KFileItemList, KFileItemList, KFileItem, KFileItemList::Iterator )
 DEF_LIST_MARSHALLER( KMainWindowList, QPtrList<KMainWindow>, KMainWindow, QPtrList<KMainWindow>::Iterator )
+DEF_LIST_MARSHALLER( KActionList, QPtrList<KAction>, KAction, QPtrList<KAction>::Iterator )
 
 TypeHandler KDE_handlers[] = {
     { "QCStringList", marshall_QCStringList },
@@ -588,6 +590,9 @@ TypeHandler KDE_handlers[] = {
     { "KMainWindowList", marshall_KMainWindowList },
     { "KMainWindowList&", marshall_KMainWindowList },
     { "KMainWindowList*", marshall_KMainWindowList },
+    { "QPtrList<KAction>", marshall_KActionList },
+    { "QPtrList<KAction>&", marshall_KActionList },
+    { "QPtrList<KAction>*", marshall_KActionList },
     { "KMimeType::List", marshall_KMimeTypeList },
     { "KMimeType::Ptr", marshall_KMimeTypePtr },
     { "KService::List", marshall_KServiceList },
