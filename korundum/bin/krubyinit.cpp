@@ -17,9 +17,13 @@
  *                                                                         *
  ***************************************************************************/
 
+// this name can be used to allow apps 
+// to detect what they were started with
+static const char* script_name = "krubyinit_app";
+
 int main(int argc, char **argv) {
      ruby_init();
-     ruby_script("embedded");
-     ruby_options(argc, argv);
+     ruby_script((char*)script_name);
+     ruby_options(argc, argv); 
      ruby_run();
 }
