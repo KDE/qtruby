@@ -37,7 +37,7 @@ class DigitalClock < Qt::LCDNumber
 	end
 
 	def stopDate
-		killTimer(showDateTimer)
+		killTimer(@showDateTimer)
 		@showDateTimer = -1
 		showTime
 	end
@@ -61,7 +61,7 @@ class DigitalClock < Qt::LCDNumber
 		date = Qt::Date.currentDate
 		s = sprintf('%2d %2d', date.month, date.day)
 		display(s)				# sets the LCD number/text
-		showDateTimer = startTimer(2000)	# keep this state for 2 secs
+		@showDateTimer = startTimer(2000)	# keep this state for 2 secs
 	end
 
 end
