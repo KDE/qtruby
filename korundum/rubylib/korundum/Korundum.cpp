@@ -138,8 +138,6 @@ static void
 smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int items, MocArgument* args)
 {
 	for(int i = 0; i < items; i++) {
-		Smoke::StackItem *si = stack + i;
-		
 		switch(args[i].argType) {
 		case xmoc_bool:
 			*stream >> stack[i].s_bool;
@@ -181,14 +179,29 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 				case Smoke::t_class:
 				case Smoke::t_voidp:
 					{
+						// First construct an instance to read the QDataStream into,
+						// so look for a no args constructor
+    					Smoke::Index ctorId = t.smoke()->idMethodName(t.name());
+						Smoke::Index ctorMeth = t.smoke()->findMethod(t.classId(), ctorId);
+						Smoke::Index ctor = t.smoke()->methodMaps[ctorMeth].method;
+						if(ctor < 1) {
+							break; // Ambiguous or non-existent method, shouldn't happen with a no arg constructor
+						}
+						// Okay, ctor is the constructor. Time to call it.
+						Smoke::StackItem args[1];
+						args[0].s_voidp = 0;
+						Smoke::ClassFn classfn = t.smoke()->classes[t.classId()].classFn;
+						(*classfn)(t.smoke()->methods[ctor].method, 0, args);
+						stack[i].s_voidp = args[0].s_voidp;
+						
 						// Look for methods of the form: QDataStream & operator>>(QDataStream&, MyClass&)
 						Smoke::Index meth = t.smoke()->findMethod("QGlobalSpace", "operator>>##");
-						Smoke::Index i;
+						Smoke::Index ix;
 						if (meth > 0) {
-							i = t.smoke()->methodMaps[meth].method;
-							i = -i;		// turn into ambiguousMethodList index
-							while (t.smoke()->ambiguousMethodList[i]) {
-								Smoke::Method &method = t.smoke()->methods[t.smoke()->ambiguousMethodList[i]];
+							ix = t.smoke()->methodMaps[meth].method;
+							ix = -ix;		// turn into ambiguousMethodList index
+							while (t.smoke()->ambiguousMethodList[ix]) {
+								Smoke::Method &method = t.smoke()->methods[t.smoke()->ambiguousMethodList[ix]];
 								QString	refType(t.name());
 								refType += "&";
 								if (	strcmp(	"QDataStream&", 
@@ -197,16 +210,15 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 													t.smoke()->types[t.smoke()->argumentList[method.args+1]].name ) == 0 ) 
 								{
 									Smoke::ClassFn fn = t.smoke()->classes[method.classId].classFn;
-									Smoke::Stack local_stack = new Smoke::StackItem[3];
+									Smoke::StackItem local_stack[3];
 									local_stack[1].s_voidp = stream;
-									local_stack[2].s_voidp = si->s_voidp; 
+									local_stack[2].s_voidp = stack[i].s_voidp;
 									// Call the QDataStream marshaller read method
 									// on the instance to be marshalled
 									(*fn)(method.method, 0, local_stack);
-									delete local_stack;
 									break;
 								}
-								i++;
+								ix++;
 							}
 						}					
 					}
@@ -233,9 +245,9 @@ public:
 		VALUE temp = rb_funcall(qt_internal_module, rb_intern("getMocArguments"), 1, replyType);
 		Data_Get_Struct(rb_ary_entry(temp, 1), MocArgument, _replyType);
 		_stack = new Smoke::StackItem[1];
+		smokeStackFromStream(this, _stack, _retval, 1, _replyType);
 		Marshall::HandlerFn fn = getMarshallFn(type());
 		(*fn)(this);
-		smokeStackFromStream(this, _stack, _retval, 1, _replyType);
     }
 
     SmokeType type() { 
