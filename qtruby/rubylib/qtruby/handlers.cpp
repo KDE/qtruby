@@ -500,10 +500,10 @@ marshall_basetype(Marshall *m)
       case Smoke::t_ushort:
 	switch(m->action()) {
 	  case Marshall::FromVALUE:
-	    m->item().s_ushort = (unsigned short) NUM2INT(*(m->var()));
+	    m->item().s_ushort = (unsigned short) NUM2UINT(*(m->var()));
 	    break;
 	  case Marshall::ToVALUE:
-	    *(m->var()) = INT2NUM(m->item().s_ushort);
+	    *(m->var()) = UINT2NUM(m->item().s_ushort);
 	    break;
 	  default:
 	    m->unsupported();
@@ -537,7 +537,7 @@ marshall_basetype(Marshall *m)
 		}
 	    break;
 	  case Marshall::ToVALUE:
-	    *(m->var()) = INT2NUM(m->item().s_uint);
+	    *(m->var()) = UINT2NUM(m->item().s_uint);
 	    break;
 	  default:
 	    m->unsupported();
