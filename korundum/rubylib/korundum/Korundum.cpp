@@ -290,7 +290,6 @@ public:
 		_result = result;
 		Data_Get_Struct(rb_ary_entry(replyType, 1), MocArgument, _replyType);
 		_stack = new Smoke::StackItem[1];
-
 		Marshall::HandlerFn fn = getMarshallFn(type());
 		(*fn)(this);
 		smokeStackToStream(this, _stack, _retval, 1, _replyType);
@@ -355,7 +354,9 @@ public:
 		}
 		_called = true;
         VALUE result = rb_funcall2(_obj, _slotname, _items, _sp);
-		DCOPReplyValue dcopReply(*_retval, &result, _replyType);
+		if (_replyType != Qnil) {
+			DCOPReplyValue dcopReply(*_retval, &result, _replyType);
+		}
    }
 
     void next() 

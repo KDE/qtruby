@@ -100,8 +100,14 @@ module KDE
 				# Can't find an entry for the slot being called? This shouldn't happen..
 				return false
 			end
+			
 			replyType << dcop_slot.reply_type
-			KDE::dcop_process(@instance, dcop_slot.name, Qt::getMocArguments(fun), data, Qt::getMocArguments(replyType), replyData)
+			KDE::dcop_process(	@instance, 
+								dcop_slot.name, 
+								Qt::getMocArguments(fun), 
+								data, 
+								(replyType == 'void' or replyType == 'ASYNC') ? nil : Qt::getMocArguments(replyType), 
+								replyData )
 		end
 
 		def interfaces()
