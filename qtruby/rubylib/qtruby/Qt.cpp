@@ -794,6 +794,27 @@ void logger_backend(const char *format, ...)
 
 extern "C" {
 
+static VALUE
+qdebug(VALUE klass, VALUE msg)
+{
+	qDebug("%s", StringValuePtr(msg));
+	return klass;
+}
+
+static VALUE
+qfatal(VALUE klass, VALUE msg)
+{
+	qFatal("%s", StringValuePtr(msg));
+	return klass;
+}
+
+static VALUE
+qwarning(VALUE klass, VALUE msg)
+{
+	qWarning("%s", StringValuePtr(msg));
+	return klass;
+}
+ 
 // ----------------   Helpers -------------------
 
 //---------- All functions except fully qualified statics & enums ---------
@@ -1997,6 +2018,10 @@ Init_qtruby()
 
     rb_define_method(qt_base_class, "dispose", (VALUE (*) (...)) dispose, 0);
     rb_define_method(qt_base_class, "isDisposed", (VALUE (*) (...)) is_disposed, 0);
+    
+	rb_define_module_function(qt_module, "qDebug", (VALUE (*) (...)) qdebug, 1);
+	rb_define_module_function(qt_module, "qFatal", (VALUE (*) (...)) qfatal, 1);
+	rb_define_module_function(qt_module, "qWarning", (VALUE (*) (...)) qwarning, 1);
 
 	kde_module = rb_define_module("KDE");
     rb_define_singleton_method(kde_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
