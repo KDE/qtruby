@@ -10,8 +10,9 @@
 
 Here is a Ruby SMOKE adaptor for Qt
 
-Why ruby?
-On 8/28/03 8:56 PM, "Scott Thompson" <easco@mac.com> wrote:
+Why ruby? From the rubytalk list
+
+On 8/28/03 8:56 PM, "Scott Thompson" wrote:
 
 >> : Can anyone give me a good reason why I would want to use Ruby over
 >> Python?
@@ -27,7 +28,8 @@ On 8/28/03 8:56 PM, "Scott Thompson" <easco@mac.com> wrote:
 > Rubies than you can with Pythons.
 > 
 > Scott
-There you have it! :)
+
+So there you have it! :)
 
 Here is 'Hello World' in QtRuby:
 
@@ -93,6 +95,15 @@ QtRuby features a very complete coverage of the Qt api:
 		And emit signals like this:
 		
 			emit colorChanged( black )
+
+	- Constructors
+		You can call constructors in the conventional style:
+		
+		    quit = Qt::PushButton.new("Quit", self, "quit")
+			
+		Or you can pass a block (if there is a constructor that needs no args):
+		
+			w = MyWidget.new { setCaption("foobar") }
 			
 	- Use Qt Designer
 		A 'rbuic' tool is included in qtruby/rubylib/designer/rbuic to compile

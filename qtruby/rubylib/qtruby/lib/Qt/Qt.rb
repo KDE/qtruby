@@ -170,7 +170,13 @@ module Qt
 		def continue_new_instance(instance)
 			@@current_initializer.call(instance)
 		end
-
+		
+                # If a block was passed to the constructor then
+				# run that now in the context of the new instance
+		def run_initializer_block(instance, block)
+			instance.instance_eval(&block)
+		end
+		
 		def type_char(arg)
 		    if arg.nil? or isObject(arg)
 			    "#"

@@ -1066,7 +1066,12 @@ so initialize() can be allowed to proceed to the end.
 static VALUE
 initialize_qt(int argc, VALUE * argv, VALUE self)
 {
-    if (TYPE(self) == T_DATA) {
+	if (TYPE(self) == T_DATA) {
+		// If a block was passed then run that now
+		if (rb_block_given_p()) {
+		rb_funcall(qt_internal_module, rb_intern("run_initializer_block"), 2, self, rb_block_proc());
+		}
+    
 	return self;
     }
 
@@ -1087,16 +1092,10 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
     if (retval != Qnil)
 	return retval;
 
-    // If the method can't be found, allow the default method_missing
-    //	to display an error message, by calling super on the method
     if (_current_method == -1) {
-	if (argc == 0) {
-	    fprintf(stderr, "FATAL ERROR: unresolved constructor call\n");
-            exit(0);
-	} else {
-            return rb_call_super(argc, argv);
-        }
-    }
+		rb_raise(rb_eArgError, "unresolved constructor call\n");
+		return self;
+	}
 
     // Success. Cache result.
     //methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
@@ -1108,12 +1107,17 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
     Data_Get_Struct(temp_obj, smokeruby_object, ptr);
     VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, ptr);
     mapObject(result, result);
+	
     return rb_funcall(qt_internal_module, rb_intern("continue_new_instance"), 1, result);
 }
 
 static VALUE
 new_qt(int argc, VALUE * argv, VALUE klass)
 {
+	if (rb_block_given_p()) {
+		printf("new_qt: passed a block\n");
+	}
+	
     VALUE * localstack = ALLOCA_N(VALUE, argc + 1);
     localstack[0] = rb_obj_alloc(klass);
     for (int count = 0; count < argc; count++) {
@@ -1735,14 +1739,10 @@ findMethodFromIds(VALUE /*self*/, VALUE idclass_value, VALUE idmethodname_value)
 	Smoke::Index i = qt_Smoke->methodMaps[meth].method;
 	if(i >= 0) {	// single match
 		result = INT2NUM((int) i);
-//	    PUSHs(sv_2mortal(newSViv((IV)i)));
 	} else {		// multiple match
 	    i = -i;		// turn into ambiguousMethodList index
 	    while(qt_Smoke->ambiguousMethodList[i]) {
 		result = INT2NUM((int) qt_Smoke->ambiguousMethodList[i]);
-//		PUSHs(sv_2mortal(newSViv(
-//		    (IV)qt_Smoke->ambiguousMethodList[i]
-//		)));
 		i++;
 	    }
 	}
