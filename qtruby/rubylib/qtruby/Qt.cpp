@@ -56,7 +56,7 @@
 
 // #define DEBUG
 
-#define QTRUBY_VERSION "0.8.5"
+#define QTRUBY_VERSION "0.9.0"
 
 extern Smoke *qt_Smoke;
 extern void init_qt_Smoke();
@@ -64,7 +64,7 @@ extern void smokeruby_mark(void * ptr);
 extern void smokeruby_free(void * ptr);
 
 #ifdef DEBUG
-int do_debug = qtdb_gc | qtdb_calls;
+int do_debug = qtdb_gc;
 #else
 int do_debug = qtdb_none;
 #endif
@@ -72,53 +72,20 @@ int do_debug = qtdb_none;
 QPtrDict<VALUE> pointer_map(2179);
 int object_count = 0;
 
-bool temporary_virtual_function_success = false;
-
 QAsciiDict<Smoke::Index> methcache(2179);
 QAsciiDict<Smoke::Index> classcache(2179);
 
-VALUE ruby_self = Qundef;
-VALUE qt_module = Qundef;
-VALUE kde_module = Qundef;
-VALUE qt_internal_module = Qundef;
-VALUE qt_base_class = Qundef;
-VALUE qt_qmetaobject_class = Qundef;
+extern "C" {
+VALUE qt_module = Qnil;
+VALUE kde_module = Qnil;
+VALUE qt_internal_module = Qnil;
+VALUE qt_base_class = Qnil;
+VALUE qt_qmetaobject_class = Qnil;
+};
+
+static VALUE (*_new_kde)(int, VALUE *, VALUE) = 0;
 
 Smoke::Index _current_method = 0;
-/*
- * Type handling by moc is simple.
- *
- * If the type name matches /^(?:const\s+)?\Q$types\E&?$/, use the
- * static_QUType, where $types is join('|', qw(bool int double char* QString);
- *
- * Everything else is passed as a pointer! There are types which aren't
- * Smoke::tf_ptr but will have to be passed as a pointer. Make sure to keep
- * track of what's what.
- */
-
-/*
- * Simply using typeids isn't enough for signals/slots. It will be possible
- * to declare signals and slots which use arguments which can't all be
- * found in a single smoke object. Instead, we need to store smoke => typeid
- * pairs. We also need additional informatation, such as whether we're passing
- * a pointer to the union element.
- */
-
-enum MocArgumentType {
-    xmoc_ptr,
-    xmoc_bool,
-    xmoc_int,
-    xmoc_double,
-    xmoc_charstar,
-    xmoc_QString
-};
-
-struct MocArgument {
-    // smoke object and associated typeid
-    SmokeType st;
-    MocArgumentType argType;
-};
-
 
 extern TypeHandler Qt_handlers[];
 void install_handlers(TypeHandler *);
@@ -141,7 +108,7 @@ void *value_to_ptr(VALUE ruby_value) {  // ptr on success, null on fail
 VALUE getPointerObject(void *ptr);
 
 bool isQObject(Smoke *smoke, Smoke::Index classId) {
-    if(!strcmp(smoke->classes[classId].className, "QObject"))
+    if(strcmp(smoke->classes[classId].className, "QObject") == 0)
 	return true;
     for(Smoke::Index *p = smoke->inheritanceList + smoke->classes[classId].parents;
 	*p;
@@ -186,7 +153,13 @@ void unmapPointer(smokeruby_object *o, Smoke::Index classId, void *lastptr) {
 	lastptr = ptr;
 	if (pointer_map[ptr] != 0) {
 		VALUE * obj_ptr = pointer_map[ptr];
-	    pointer_map.remove(ptr);
+		
+		if (do_debug & qtdb_gc) {
+			const char *className = o->smoke->classes[o->classId].className;
+			printf("unmapPointer (%s*)%p -> %p\n", className, ptr, obj_ptr);
+		}
+	    
+		pointer_map.remove(ptr);
 		free((void*) obj_ptr);
 	}
     }
@@ -202,22 +175,27 @@ void unmapPointer(smokeruby_object *o, Smoke::Index classId, void *lastptr) {
 
 void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *lastptr) {
     void *ptr = o->smoke->cast(o->ptr, o->classId, classId);
-    if(ptr != lastptr) {
-	lastptr = ptr;
-	VALUE * obj_ptr = (VALUE *) malloc(sizeof(VALUE));
-	memcpy(obj_ptr, &obj, sizeof(VALUE));
-	if (do_debug & qtdb_gc) {
-    	const char *className = o->smoke->classes[o->classId].className;
-		printf("mapPointer (%s*)%p -> %p\n", className, ptr, obj);
-	}
 	
-	pointer_map.insert(ptr, obj_ptr);
+    if (ptr != lastptr) {
+		lastptr = ptr;
+		VALUE * obj_ptr = (VALUE *) malloc(sizeof(VALUE));
+		memcpy(obj_ptr, &obj, sizeof(VALUE));
+		
+		if (do_debug & qtdb_gc) {
+			const char *className = o->smoke->classes[o->classId].className;
+			printf("mapPointer (%s*)%p -> %p\n", className, ptr, obj);
+		}
+	
+		pointer_map.insert(ptr, obj_ptr);
     }
+	
     for(Smoke::Index *i = o->smoke->inheritanceList + o->smoke->classes[classId].parents;
 	*i;
 	i++) {
 	mapPointer(obj, o, *i, lastptr);
     }
+	
+	return;
 }
 
 Marshall::HandlerFn getMarshallFn(const SmokeType &type);
@@ -263,7 +241,6 @@ class VirtualMethodCall : public Marshall {
     Smoke::Index *_args;
     VALUE *_sp;
     bool _called;
-    VALUE _savethis;
 
 public:
     SmokeType type() { return SmokeType(_smoke, _args[_cur]); }
@@ -304,14 +281,11 @@ public:
 
     VirtualMethodCall(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack, VALUE obj) :
     _smoke(smoke), _method(meth), _stack(stack), _obj(obj), _cur(-1), _sp(0), _called(false) {
-	_savethis = ruby_self;
-	ruby_self = obj;
 	_sp = ALLOC_N(VALUE, method().numArgs);
 	_args = _smoke->argumentList + method().args;
     }
 
     ~VirtualMethodCall() {
-	ruby_self = _savethis;
     }
 };
 
@@ -373,7 +347,7 @@ public:
 	_args = _smoke->argumentList + _smoke->methods[_method].args;
 	_items = _smoke->methods[_method].numArgs;
 	_stack = new Smoke::StackItem[items + 1];
-	_retval = Qundef;
+	_retval = Qnil;
     }
 
     ~MethodCall() {
@@ -776,11 +750,8 @@ public:
 	VirtualMethodCall c(smoke, method, args, obj);
 	// exception variable, just temporary
 
-	temporary_virtual_function_success = true;
 	c.next();
-	bool ret = temporary_virtual_function_success;
-	temporary_virtual_function_success = true;
-	return ret;
+	return true;
     }
 
     char *className(Smoke::Index classId) {
@@ -837,29 +808,6 @@ VALUE catArguments(VALUE * /*sp*/, int /*n*/)
     return r;
 }
 
-Smoke::Index package_classid(const char *p)
-{
-    Smoke::Index *item = classcache.find(p);
-    if(item)
-	return *item;
-    char *nisa = new char[strlen(p)+6];
-    strcpy(nisa, p);
-    strcat(nisa, "::ISA");
-//     AV* isa=get_av(nisa, true);
-    delete[] nisa;
-//     for(int i=0; i<=av_len(isa); i++) {
-//         SV** np = av_fetch(isa, i, 0);
-//         if(np) {
-//             Smoke::Index ix = package_classid(SvPV_nolen(*np));
-//             if(ix) {
-//                 classcache.insert(p, new Smoke::Index(ix));
-//                 return ix;
-//             }
-//         }
-//     }
-    return (Smoke::Index) 0;
-}
-
 VALUE
 set_obj_info(const char * className, smokeruby_object * o)
 {
@@ -874,7 +822,7 @@ set_obj_info(const char * className, smokeruby_object * o)
 char *get_VALUEtype(VALUE ruby_value)
 {
     char *r = strdup("");
-    if(ruby_value == Qundef)
+    if(ruby_value == Qnil)
 	r = strdup("u");
     else if(TYPE(ruby_value) == T_FIXNUM || TYPE(ruby_value) == T_BIGNUM)
 	r = strdup("i");
@@ -1059,7 +1007,6 @@ static VALUE kde_module_method_missing(int argc, VALUE * argv, VALUE /*klass*/)
     return class_method_missing(argc, argv, kde_module);
 }
 
-static VALUE setThis(VALUE self, VALUE obj);
 static VALUE mapObject(VALUE self, VALUE obj);
 
 /*
@@ -1127,14 +1074,15 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
     c.next();
     VALUE temp_obj = *(c.var());
     void * ptr = 0;
+rb_gc_register_address(&temp_obj);
     Data_Get_Struct(temp_obj, smokeruby_object, ptr);
     VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, ptr);
     mapObject(result, result);
-	
+fflush(stdout);	
     return rb_funcall(qt_internal_module, rb_intern("continue_new_instance"), 1, result);
 }
 
-static VALUE
+VALUE
 new_qt(int argc, VALUE * argv, VALUE klass)
 {
     VALUE * localstack = ALLOCA_N(VALUE, argc + 1);
@@ -1262,9 +1210,6 @@ qt_signal(int argc, VALUE * argv, VALUE self)
     if(args == Qnil) return Qfalse;
 
     // Okay, we have the signal info. *whew*
-//    if(items < argc)
-//	rb_raise(rb_eArgError, "Insufficient arguments to emit signal");
-
     EmitSignal signal(qobj, offset + index, argc, args, argv);
     signal.next();
 
@@ -1296,8 +1241,6 @@ qt_invoke(VALUE self, VALUE id_value, VALUE quobject)
     bool isSignal = strcmp(rb_id2name(rb_frame_last_func()), "qt_emit") == 0;
     VALUE mocArgs = getslotinfo(self, id, slotname, index, isSignal);
     if(mocArgs == Qnil) {
-	// throw an exception - evil style
-	temporary_virtual_function_success = false;
 	return Qfalse;
     }
 
@@ -1310,7 +1253,7 @@ qt_invoke(VALUE self, VALUE id_value, VALUE quobject)
 }
 
 
-// --------------- Ruby C functions for Qt::_internal::* helpers  ----------------
+// --------------- Ruby C functions for Qt::_internal.* helpers  ----------------
 
 
 static VALUE
@@ -1389,7 +1332,6 @@ setMocType(VALUE /*self*/, VALUE ptr, VALUE idx_value, VALUE name_value, VALUE s
     return Qtrue;
 }
 
-#ifdef DEBUG
 static VALUE
 setDebug(VALUE self, VALUE on_value)
 {
@@ -1397,15 +1339,12 @@ setDebug(VALUE self, VALUE on_value)
     do_debug = on;
     return self;
 }
-#endif
 
-#ifdef DEBUG
 static VALUE
 debugging(VALUE /*self*/)
 {
     return INT2NUM(do_debug);
 }
-#endif
 
 static VALUE
 getTypeNameOfArg(VALUE /*self*/, VALUE method_value, VALUE idx_value)
@@ -1624,13 +1563,6 @@ setAllocated(VALUE self, VALUE obj, VALUE b_value)
 }
 
 static VALUE
-setThis(VALUE self, VALUE obj)
-{
-    ruby_self = obj;
-    return self;
-}
-
-static VALUE
 deleteObject(VALUE self, VALUE obj)
 {
     smokeruby_object *o = value_obj_info(obj);
@@ -1667,9 +1599,9 @@ isValidAllocatedPointer(VALUE /*self*/, VALUE obj)
 {
     smokeruby_object *o = value_obj_info(obj);
     if(o && o->ptr && o->allocated) {
-	return INT2NUM(1);
+	return Qtrue;
     } else {
-	return INT2NUM(0);
+	return Qfalse;
     }
 }
 
@@ -1750,7 +1682,7 @@ findMethodFromIds(VALUE /*self*/, VALUE idclass_value, VALUE idmethodname_value)
 {
     int idclass = NUM2INT(idclass_value);
     int idmethodname = NUM2INT(idmethodname_value);
-    VALUE result = Qundef;
+    VALUE result = Qnil;
     Smoke::Index meth = qt_Smoke->findMethod(idclass, idmethodname);
     if(!meth) {
 	// empty list
@@ -1776,7 +1708,7 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
 {
     VALUE classid = argv[0];
     VALUE result = rb_hash_new();
-    if(classid != Qundef) {
+    if(classid != Qnil) {
         Smoke::Index c = (Smoke::Index) NUM2INT(classid);
         char * pat = 0L;
         if(argc > 1 && TYPE(argv[1]) == T_STRING)
@@ -1928,17 +1860,17 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 	
 	if (QString(package).startsWith("Qt::")) {
     	klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
+		if (strcmp(package, "Qt::Application") == 0) {
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qapplication, -1);
+		} else {
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
+		}
 	} else {
 		if (QString(package).startsWith("KDE::")) {
     		klass = rb_define_class_under(kde_module, package+strlen("KDE::"), qt_base_class);
+			rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 		}
 	}
-
-    if (strcmp(package, "Qt::Application") == 0) {
-	rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qapplication, -1);
-    } else {
-	rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
-    }
 
     return klass;
 }
@@ -1977,6 +1909,12 @@ qtruby_version(VALUE /*self*/)
 }
 
 void
+set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE))
+{
+	_new_kde = new_kde;
+}
+
+void
 Init_Qt()
 {
     init_qt_Smoke();
@@ -2010,10 +1948,8 @@ Init_Qt()
     rb_define_method(qt_internal_module, "dontRecurse", (VALUE (*) (...)) dontRecurse, 0);
     rb_define_method(qt_internal_module, "allocateMocArguments", (VALUE (*) (...)) allocateMocArguments, 1);
     rb_define_method(qt_internal_module, "setMocType", (VALUE (*) (...)) setMocType, 4);
-#ifdef DEBUG
     rb_define_method(qt_internal_module, "setDebug", (VALUE (*) (...)) setDebug, 1);
     rb_define_method(qt_internal_module, "debug", (VALUE (*) (...)) debugging, 0);
-#endif
     rb_define_method(qt_internal_module, "getTypeNameOfArg", (VALUE (*) (...)) getTypeNameOfArg, 2);
     rb_define_method(qt_internal_module, "classIsa", (VALUE (*) (...)) classIsa, 2);
     rb_define_method(qt_internal_module, "insert_pclassid", (VALUE (*) (...)) insert_pclassid, 2);
@@ -2028,7 +1964,6 @@ Init_Qt()
     rb_define_method(qt_internal_module, "make_metaObject", (VALUE (*) (...)) make_metaObject, 6);
     rb_define_method(qt_internal_module, "dumpObjects", (VALUE (*) (...)) dumpObjects, 0);
     rb_define_method(qt_internal_module, "setAllocated", (VALUE (*) (...)) setAllocated, 2);
-    rb_define_method(qt_internal_module, "setThis", (VALUE (*) (...)) setThis, 1);
     rb_define_method(qt_internal_module, "deleteObject", (VALUE (*) (...)) deleteObject, 1);
     rb_define_method(qt_internal_module, "mapObject", (VALUE (*) (...)) mapObject, 1);
     // isQOjbect => isaQObject

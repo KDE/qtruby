@@ -18,6 +18,7 @@
 #include "qtruby.h"
 #include "marshall.h"
 
+
 class SmokeRuby;
 
 class SmokeType {
@@ -279,6 +280,40 @@ public:
      * Create a SmokeObject from the given VALUE
      */
     virtual SmokeObject getObject(VALUE value) = 0;
+};
+
+/*
+ * Type handling by moc is simple.
+ *
+ * If the type name matches /^(?:const\s+)?\Q$types\E&?$/, use the
+ * static_QUType, where $types is join('|', qw(bool int double char* QString);
+ *
+ * Everything else is passed as a pointer! There are types which aren't
+ * Smoke::tf_ptr but will have to be passed as a pointer. Make sure to keep
+ * track of what's what.
+ */
+
+/*
+ * Simply using typeids isn't enough for signals/slots. It will be possible
+ * to declare signals and slots which use arguments which can't all be
+ * found in a single smoke object. Instead, we need to store smoke => typeid
+ * pairs. We also need additional informatation, such as whether we're passing
+ * a pointer to the union element.
+ */
+
+enum MocArgumentType {
+    xmoc_ptr,
+    xmoc_bool,
+    xmoc_int,
+    xmoc_double,
+    xmoc_charstar,
+    xmoc_QString
+};
+
+struct MocArgument {
+    // smoke object and associated typeid
+    SmokeType st;
+    MocArgumentType argType;
 };
 
 #endif // SMOKERUBY_H

@@ -34,6 +34,7 @@
 
 extern "C" {
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
+extern VALUE qt_internal_module;
 };
 
 extern bool isDerivedFromByName(Smoke *smoke, const char *className, const char *baseClassName);
@@ -41,9 +42,11 @@ extern bool isDerivedFromByName(Smoke *smoke, const char *className, const char 
 void
 smokeruby_mark(void * p)
 {
-    smokeruby_object * o = (smokeruby_object *) p;
 	VALUE obj;
+    smokeruby_object * o = (smokeruby_object *) p;
     const char *className = o->smoke->classes[o->classId].className;
+    
+	if(do_debug & qtdb_gc) printf("Checking for mark (%s*)%p\n", className, o->ptr);
 		
     if(o->ptr) {
  		if (	strcmp(className, "QObject") == 0
@@ -138,8 +141,9 @@ void
 smokeruby_free(void * p)
 {
     smokeruby_object *o = (smokeruby_object*)p;
-
     const char *className = o->smoke->classes[o->classId].className;
+	
+	if(do_debug & qtdb_gc) printf("Checking for delete (%s*)%p allocated: %s\n", className, o->ptr, o->allocated ? "true" : "false");
     
 	if(o->allocated && o->ptr) {
         if(do_debug & qtdb_gc) printf("Deleting (%s*)%p\n", className, o->ptr);
@@ -469,7 +473,7 @@ static void marshall_charP(Marshall *m) {
       case Marshall::FromVALUE:
 	{
 	    VALUE rv = *(m->var());
-	    if(rv == Qundef || rv == Qnil) {
+	    if(rv == Qnil) {
                 m->item().s_voidp = 0;
                 break;
 	    }
@@ -502,7 +506,7 @@ void marshall_ucharP(Marshall *m) {
       case Marshall::FromVALUE:
 	{
 	    VALUE rv = *(m->var());
-	    if(rv == Qundef || rv == Qnil) {
+	    if(rv == Qnil) {
 		m->item().s_voidp = 0;
 		break;
 	    }
@@ -525,7 +529,7 @@ static void marshall_QString(Marshall *m) {
       case Marshall::FromVALUE:
 	{
 	    QString s;
-	    if( (*(m->var()) != Qundef && *(m->var()) != Qnil) || m->type().isStack()) {
+	    if( *(m->var()) != Qnil || m->type().isStack()) {
 #if 0
                if(SvUTF8(*(m->var())))
                     s = QString::fromUtf8(SvPV_nolen(*(m->var())));
@@ -535,7 +539,7 @@ static void marshall_QString(Marshall *m) {
                     s = QString::fromLatin1(SvPV_nolen(*(m->var())));
 #else
             // Treat everything as UTF-8..for now
-            s = QString::fromUtf8(StringValuePtr(*(m->var())) );
+            s = QString::fromUtf8(StringValuePtr(*(m->var())), RSTRING(*(m->var()))->len);
 #endif
             } else if(m->type().isRef()) {
                 s = QString::null;
@@ -553,7 +557,7 @@ static void marshall_QString(Marshall *m) {
                     *(m->var()) = Qnil;
 	     	} else {
                     *(m->var()) = rb_str_new2(s->latin1());
-                }
+	     	}
 //                if(!(PL_hints & HINT_BYTES))
 //                {
 //		    sv_setpv_mg(m->var(), (const char *)s->utf8());
@@ -563,12 +567,11 @@ static void marshall_QString(Marshall *m) {
 //                    sv_setpv_mg(m->var(), (const char *)s->local8Bit());
 //                else
 //                    sv_setpv_mg(m->var(), (const char *)s->latin1());
+	     	if(m->cleanup())
+	     	delete s;
             } else {
                 *(m->var()) = Qnil;
             }
-		
-	    if(m->cleanup())
-		delete s;
 	}
 	break;
       default:
@@ -583,9 +586,17 @@ static void marshall_QByteArray(Marshall *m) {
 	{
 	    VALUE rv = *(m->var());
 	    QByteArray *s = 0;
-	    if(rv != Qnil && rv != Qundef) {
-            s = new QByteArray(RSTRING(rv)->len);
-			memcpy((void*)s->data(), StringValuePtr(rv), RSTRING(rv)->len);
+	    if(rv != Qnil) {
+		printf("About to get a Qt::ByteArray 1\n");
+			if (rb_respond_to(rv, rb_intern("data")) != 0) {
+				VALUE data = rb_funcall(qt_internal_module, rb_intern("get_qbytearray"), 1, rv);
+		printf("Found a Qt::ByteArray as QByteArray\n");
+				 Data_Get_Struct(data, QByteArray, s);
+			} else {
+		printf("Found a Qt::ByteArray as String\n");
+            	s = new QByteArray(RSTRING(rv)->len);
+				memcpy((void*)s->data(), StringValuePtr(rv), RSTRING(rv)->len);
+			}
         } else {
             s = new QByteArray(0);
 	    }
@@ -597,14 +608,16 @@ static void marshall_QByteArray(Marshall *m) {
 	break;
       case Marshall::ToVALUE:
 	{
-		VALUE rv = rb_str_new2("");
+		VALUE result;
 	    QByteArray *s = (QByteArray*)m->item().s_voidp;
 	    if(s) {
-			rb_str_cat(rv, (const char *)s->data(), s->size());
+			VALUE string = rb_str_new2("");
+			rb_str_cat(string, (const char *)s->data(), s->size());
+			result = rb_funcall(qt_internal_module, rb_intern("create_qbytearray"), 2, string, Data_Wrap_Struct(rb_cObject, 0, 0, s));
         } else {
-			rv = Qnil;
+			result = Qnil;
 		}
-		*(m->var()) = rv;
+		*(m->var()) = result;
 	    if(m->cleanup())
 		delete s;
 	}
@@ -635,8 +648,8 @@ static void marshall_QCString(Marshall *m) {
 	{
 	    QCString *s = 0;
 	    VALUE rv = *(m->var());
-	    if ( (rv != Qundef && rv != Qnil) || m->type().isStack()) {
-		s = new QCString(StringValuePtr(*(m->var())));
+	    if ( (rv != Qnil) || m->type().isStack()) {
+		s = new QCString(StringValuePtr(*(m->var())), RSTRING(*(m->var()))->len);
             }
 	    m->item().s_voidp = s;
 	    m->next();
@@ -647,7 +660,7 @@ static void marshall_QCString(Marshall *m) {
       case Marshall::ToVALUE:
 	{
 	    QCString *s = (QCString*)m->item().s_voidp;
-	    if(s) {
+	    if(s && (const char *) *s != 0) {
 		*(m->var()) = rb_str_new2((const char *)*s);
 //                const char * p = (const char *)*s;
 //                uint len =  s->length();
@@ -661,11 +674,11 @@ static void marshall_QCString(Marshall *m) {
 //                  #endif
 //                    SvUTF8_on(*(m->var()));
 //                }
-            } else {
+	    	if(m->cleanup())
+				delete s;
+	    } else {
                 *(m->var()) = Qnil;
-            }
-	    if(m->cleanup())
-		delete s;
+	    }
 	}
 	break;
       default:
@@ -841,7 +854,7 @@ void marshall_QStringList(Marshall *m) {
 		    stringlist->append(QString());
 		    continue;
 		}
-		stringlist->append(QString::fromUtf8(StringValuePtr(item)));
+		stringlist->append(QString::fromUtf8(StringValuePtr(item), RSTRING(item)->len));
 	    }
 
 	    m->item().s_voidp = stringlist;
@@ -1014,18 +1027,11 @@ void marshall_QValueListInt(Marshall *m) {
 	    }
 
 	    VALUE av = rb_ary_new();
-//	    AV *av = newAV();
-//	    {
-//		VALUE rv = newRV_noinc((SV*)av);
-//		sv_setsv_mg(m->var(), rv);
-//		SvREFCNT_dec(rv);
-//	    }
 
 	    for(QValueListIterator<int> it = valuelist->begin();
 		it != valuelist->end();
 		++it)
 		rb_ary_push(av, INT2NUM((int)*it));
-//		av_push(av, newSViv((int)*it));
 	    if(m->cleanup())
 		delete valuelist;
 	}
@@ -1041,20 +1047,14 @@ void marshall_voidP(Marshall *m) {
       case Marshall::FromVALUE:
 	{
 	    VALUE rv = *(m->var());
-//	    if(SvROK(sv) && SvRV(sv) && SvOK(SvRV(sv)))
-	    if (rv != Qundef && rv != Qnil)
+	    if (rv != Qnil)
 		m->item().s_voidp = (void*)NUM2INT(*(m->var()));
-//		m->item().s_voidp = (void*)SvIV(SvRV(*(m->var())));
 	    else
 		m->item().s_voidp = 0;
 	}
 	break;
       case Marshall::ToVALUE:
 	{
-//	    VALUE sv = newSViv((IV)m->item().s_voidp);
-//	    VALUE rv = newRV_noinc(sv);
-//	    sv_setsv_mg(m->var(), rv);
-//	    SvREFCNT_dec(rv);
 	    *(m->var()) = Data_Wrap_Struct(rb_cObject, 0, 0, m->item().s_voidp);
 	}
 	break;
@@ -1070,12 +1070,9 @@ void marshall_QRgb_array(Marshall *m) {
 	{
 	    VALUE list = *(m->var());
 	    if (TYPE(list) != T_ARRAY) {
-//	    if(!SvROK(sv) || SvTYPE(SvRV(sv)) != SVt_PVAV ||
-//		av_len((AV*)SvRV(sv)) < 0) {
 		m->item().s_voidp = 0;
 		break;
 	    }
-//	    AV *list = (AV*)SvRV(sv);
 	    int count = RARRAY(list)->len;
 	    QRgb *rgb = new QRgb[count + 2];
 	    long i;

@@ -1,3 +1,14 @@
+=begin
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+=end
+
 module Qt
         module DebugLevel
                 Off, Minimal, High = *(0..2).to_a
@@ -68,6 +79,21 @@ module Qt
 			end
 		end
 		
+	require 'delegate.rb'
+	
+	# Allows a QByteArray to be wrapped in an instance which
+	# behaves just like a normal ruby String. TODO: override
+	# methods which alter the underlying string, in order to
+	# sync the QByteArray with the changed string.
+	class ByteArray < DelegateClass(String)
+		attr_reader :data
+		
+		def initialize(string, data)
+			super(string)
+			@data = data
+		end
+	end
+	
 	module Internal
 
 		@@classes   = {}
@@ -84,9 +110,10 @@ module Qt
 
 		def init_class(c)
 			# Exclude these classes for now as they cause a crash
-			if c =~ /KMimeType|KURLBar|KURLComboBox|KURL__List|KWin__Info/
+			if c =~ /KMimeType|KURLBar|KURLComboBox|KURL__List|KWin__Info|TerminalInterface/
 				return
 			end
+			
 			classname = normalize_classname(c)
 			classId = idClass(c)
 			insert_pclassid(classname, classId)
@@ -163,7 +190,7 @@ module Qt
 		def find_class(classname)
 			@@classes[classname]
 		end
-                
+		
 				# Runs the initializer as far as allocating the Qt C++ instance.
 				# Then use the @@current_initializer continuation to jump back to here
 		def try_initialize(instance, *args)
@@ -284,6 +311,17 @@ module Qt
 					init_class(c)
 				end
                         }
+			# Special case QByteArray, as it's disguised as a ruby String
+			# and not in the public api.
+			@@classes['Qt::ByteArray'] = Qt::ByteArray.class
+		end
+		
+		def create_qbytearray(string, data)
+			return Qt::ByteArray.new(string, data)
+		end
+		
+		def get_qbytearray(string)
+			return string.data
 		end
 	end
 
@@ -331,8 +369,9 @@ module Qt
 		signals = Meta[classname].signals
                 signals.each_with_index {
                         |signal, i|
-                        matches = signal.sub(/\(.*/, '').include? signalName
-			return [signal, i] if matches
+                        if signal.sub(/\(.*/, '') == signalName
+                        	return [signal, i]
+                        end
                 }
 	end
 
@@ -370,7 +409,7 @@ module Qt
 			argStr = entry.sub(/.*\(/, '')
 			argStr.sub!(/\)$/, '')
 			params = []
-			args = argStr.scan(/[^, ]+/)
+			args = argStr.scan(/[^,]+/)
 			args.each {
 				|arg|
 				name = '' # umm.. is this the aim?, well. it works. soo... ;-)
@@ -427,7 +466,7 @@ module Qt
 	IO_AbortError      = 6
 	IO_TimeOutError    = 7
 	IO_UnspecifiedError= 8
-	
+		
 end
 
 class Object

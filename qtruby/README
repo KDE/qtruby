@@ -118,12 +118,6 @@ QtRuby features a very complete coverage of the Qt api:
 			
 			w = MyWidget.new { |theWidget| theWidget.setCaption "foobar" }
 			
-		I got this idea from the FXRuby bindings, from the ChangeLog:
-		
-		"This approach has the advantage that the initialization code now has
-			access to the outer scope, as blocks normally would. Thanks to
-			Rich Kilmer for this suggestion."
-			
 	- Use Qt Designer
 		A 'rbuic' tool is included in qtruby/rubylib/designer/rbuic to compile
 			.ui files into ruby code.

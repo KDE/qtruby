@@ -1,3 +1,8 @@
+2003-10-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Korundum KDE ruby extension 
+	  - made various changes so it can be linked against the QtRuby code
+
 2003-09-18  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Removed leading 'K' from class names of when adding to KDE:: namespace.
