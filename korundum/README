@@ -86,6 +86,13 @@ KDE Specific Infomation:
 		klipper = DCOPRef.new("klipper", "klipper")
 		klipper.clipboardContents = "Hello there klipper"
 		
+		Amaze your friends! Do the programming equivalent of leaping
+		over tall buildings in one bound! Here with one line of quite
+		clear code, we read a file from disc and assign it the 
+		'clipboardContents' klipper attribute via dcop:
+		
+		klipper.clipboardContents = IO.readlines("myfile").to_s
+		
 	- Send to a DCOPRef is similar:
 	    
 		There are two different ways to specify a DCOP send:
