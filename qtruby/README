@@ -44,21 +44,10 @@ a.setMainWidget(hello)
 hello.show()
 a.exec()
 
-To call super in an overriden virtual method, you will need
-to use ruby 1.8 or higher:
+Ruby 1.8 is unfortunately implicitly required as with 1.6.x it is not possible to:
 
-def paintEvent( e )
-	print("hello there")
-	super
-end
-
-Also as only ruby 1.8 or higher provides const_missing 
-syntax such as Qt::RichText will not be available to users
-of older versions. To keep your programs running with
-older versions of ruby simply use the old syntax (Qt.RichText)
-
-There are no other known problems with older versions of ruby, but it is much 
-better to upgrade to 1.8.
+   Make dynamic constants available (thus forcing syntax such as Qt.RichText rather than Qt::RichText)<br>
+   Call super in the initialize method thus making subclassing of non trivial classes impossible
 
 QtRuby features a very complete coverage of the Qt api:
 
