@@ -9,10 +9,18 @@ app = KDE::Application.new()
 # Qt.debug_level = Qt::DebugLevel::High
 # Qt.debug_level = Qt::DebugLevel::Extensive
 
+# TODO
+# improve appearence of sidebar massively
+#    cut off after certain number of results?
+#    seperate title from proof of hit?
+# when pressing return adjust the current node
+# major speed ups for ctrl-n/p
+# ...
+
 DEBUG        = false
 DEBUG_IDX    = false
 DEBUG_FAST   = true
-DEBUG_SEARCH = false
+DEBUG_SEARCH = true
 DEBUG_GOTO   = false # crashes?
 
 def time_me str
@@ -118,7 +126,7 @@ class GenericTriGramIndex
 
    # returns a list of matching keys
    def search search_string
-      puts "searching for a nil???" if search_string.nil?
+      warn "searching for a nil???" if search_string.nil?
       return [] if search_string.nil?
       return [] if search_string.length < 3
       trigs = search_string.downcase.trigrams
@@ -143,6 +151,7 @@ module LoggedDebug
 
    def log s
       @logger.append s
+      puts "LOG: #{s}"
       scrolldown_logger
    end
 
@@ -167,17 +176,12 @@ module MyGui
       @viewed = KDE::HTMLPart.new @rightpane
       init_logger @rightpane
 
-      @listview = Qt::ListView.new @results_pane
-      @listview.addColumn "IDXs"
-      @listview.hideColumn 1 unless DEBUG_IDX
-      @listview.addColumn "URIs"
-      @listview.setResizeMode Qt::ListView::LastColumn
-      @listview.setRootIsDecorated true
+      @listbox = Qt::ListBox.new @results_pane
 
       @label    = Qt::Label.new self
 
-      Qt::Object.connect @listview, SIGNAL("clicked(QListViewItem*)"),
-                         self,      SLOT("clicked_result(QListViewItem*)")
+      Qt::Object.connect @listbox,  SIGNAL("clicked(QListBoxItem*)"),
+                         self,      SLOT("clicked_result(QListBoxItem*)")
       Qt::Object.connect @viewed,   SIGNAL("completed()"),
                          self,      SLOT("khtml_part_init_complete()")
 
@@ -218,7 +222,8 @@ module MyGui
       KDE::Action.new "&Choose...",  "select",   KDE::Shortcut.new(), 
                       self, SLOT("project_goto()"),             @main.actionCollection, "project_goto"
 
-      clearLocation = KDE::Action.new "Clear Location Bar", "locationbar_erase", KDE::Shortcut.new(), self, SLOT("clear_location()"), @main.actionCollection, "clear_location"
+      clearLocation = KDE::Action.new "Clear Location Bar", "locationbar_erase", KDE::Shortcut.new(), 
+                      self, SLOT("clear_location()"), @main.actionCollection, "clear_location"
       clearLocation.setWhatsThis "Clear Location bar<p>Clears the content of the location bar."
 
       @searchlabel = Qt::Label.new @main
@@ -259,12 +264,7 @@ module MyGui
 
    def open_url kurl
       url, anchor = uri_anchor_split kurl.url
-      id = @id2uri.invert[url]
-      if id.nil?
-         log "link points outside indexed space!" 
-         return
-      end
-      goto_id_and_hl id unless id == @shown_doc_id
+      goto_url url, false unless id == @shown_doc_id
       @viewed.gotoAnchor anchor unless anchor.nil?
    end
 
@@ -292,9 +292,9 @@ end
 
 module IndexStorage
 
-   INDEX_VERSION = 2
+   INDEX_VERSION = 3
 
-   IndexStore = Struct.new :index, :nodeindex, :id2title, :id2uri, :id2depth, :version
+   IndexStore = Struct.new :index, :nodeindex, :textcache, :id2title, :id2uri, :id2depth, :version
 
    def index_fname
       basedir = ENV["HOME"] + "/.rubberdocs"
@@ -303,19 +303,32 @@ module IndexStorage
       "#{prefix}.doc"
    end
 
+   def depth_debug
+      puts "depth_debug : begin"
+      @id2depth.each_key {
+         |id|
+         puts "indexed to depth #{@id2depth[id]} : #{@id2uri[id]}"
+      }
+      puts "end :"
+   end
+
    def load_indexes
       return false unless File.exists? index_fname
+      Qt::Application::setOverrideCursor(Qt::Cursor.new Qt::WaitCursor)
       File.open(index_fname, "r") {
          |file| 
-         w = Marshal.load file
-         return false if w.version < INDEX_VERSION
+         w = Marshal.load file rescue nil
+         return false if w.nil? || w.version < INDEX_VERSION
          @index     = w.index
          @nodeindex = w.nodeindex
+         @textcache = w.textcache
          @id2title  = w.id2title
          @id2uri    = w.id2uri
          @id2depth  = w.id2depth
+         @indexed_more = false
          true
       }
+      Qt::Application::restoreOverrideCursor
    end
 
    def save_indexes
@@ -325,6 +338,7 @@ module IndexStorage
          w = IndexStore.new
          w.index      = @index
          w.nodeindex  = @nodeindex
+         w.textcache  = @textcache
          w.id2title   = @id2title
          w.id2uri     = @id2uri
          w.id2depth   = @id2depth
@@ -348,7 +362,6 @@ module HTMLIndexer
       # fix this to use kde's actual dir
       @t1 = Time.now
       @url = first_url
-      @indexed_more = false
       already_indexed = load_indexes
       @top_doc_id = already_indexed ? @id2uri.keys.max + 1 : 0
       return if already_indexed 
@@ -388,6 +401,7 @@ module HTMLIndexer
 
    def gather_for_current_page
       index_current_title
+      return [] if @id2depth[@shown_doc_id] >= IndexDepths::LinksFollowed
       todo_links = []
       title_map = {}
       anchors = @viewed.htmlDocument.links
@@ -417,10 +431,11 @@ module HTMLIndexer
       return id
    end
 
+   # sets @shown_doc_id
    def index_current_title
-      log "making space for url #{@viewed.htmlDocument.URL.string.sub(@pref,"")}"
       id = find_allocated_uri(@viewed.htmlDocument.URL.string)
       return if !id.nil? and @id2depth[id] >= IndexDepths::TitleIndexed
+      log "making space for url #{@viewed.htmlDocument.URL.string.sub(@pref,"")}"
       id = alloc_index_space @viewed.htmlDocument.URL.string if id.nil?
       @indexed_more = true
       @id2title[id] = @viewed.htmlDocument.title.string
@@ -464,11 +479,11 @@ module HTMLIndexer
 
    def preload_text
       return if @id2depth[@shown_doc_id] >= IndexDepths::Node
-      @indexed_more = true
       Qt::Application::setOverrideCursor(Qt::Cursor.new Qt::WaitCursor)
+      @indexed_more = true
+      index_current_document
       log "deep indexing url #{@viewed.htmlDocument.URL.string.sub(@pref,"")}"
       @label.setText "Indexing : #{@url.prettyURL}"
-      index_current_document
       doc_text = ""
       t1 = Time.now
       DOMUtils.each_child(@viewed.document) {
@@ -476,6 +491,7 @@ module HTMLIndexer
          next unless node.nodeType == DOM::Node::TEXT_NODE
          ref = DocNodeRef.new @shown_doc_id, DOMUtils.get_node_path(node)
          @nodeindex.insert_with_key node.nodeValue.string, ref
+         @textcache[ref] = node.nodeValue.string
          doc_text << node.nodeValue.string
       }
       @id2depth[@shown_doc_id] = IndexDepths::Node
@@ -514,6 +530,12 @@ module TermHighlighter
       @in_update_highlight = false
    end
 
+   def mark_screwup
+      @screwups = 0 if @screwups.nil?
+      warn "if you see this, then alex screwed up!.... #{@screwups} times!"
+      @screwups += 1
+   end
+
    def highlight_node_list highlighted_nodes
       doc = @viewed.document
       no_undo_buffer = @to_undo.nil?
@@ -531,18 +553,14 @@ module TermHighlighter
       @viewed.setCaretPosition caretnode, 0
       caret_path = DOMUtils.get_node_path(caretnode)
       count = 0
-      @skipped_highlight_requests = []
+      @skipped_highlight_requests = false
       @current_matched_href       = nil
-      highlighted_nodes.each {
+      highlighted_nodes.sort.each {
          |path|
          node      = DOMUtils.find_node doc, path
+         next mark_screwup if node.nodeValue.string.nil?
          match_idx = node.nodeValue.string.downcase.index @search_text.downcase
-         if match_idx.nil?
-            @screwups = 0 if @screwups.nil?
-            warn "if you see this, then alex screwed up!.... #{@screwups} times!"
-            @screwups += 1
-            next
-         end
+         next mark_screwup if match_idx.nil?
          parent_info = DOMUtils.list_parent_node_types node
          has_title_parent = !(parent_info.detect { |a| FORBIDDEN_TAGS.include? a[:elementId] }.nil?)
          next if has_title_parent
@@ -578,13 +596,14 @@ module TermHighlighter
             @in_node_highlight = true
             Qt::Application::eventLoop.processEvents Qt::EventLoop::AllEvents, 10 
             @in_node_highlight = false
-            if !@skipped_highlight_requests.empty?
+            if @skipped_highlight_requests
+               @timer.start 50, true
                return false 
             end
             @viewed.view.layout
          end
       }
-      if !@skipped_highlight_requests.empty?
+      if @skipped_highlight_requests
          @timer.start 50, true
       end
       Qt::Application::restoreOverrideCursor if cursor_override
@@ -848,7 +867,7 @@ class RubberDoc < Qt::VBox
 
    slots "khtml_part_init_complete()", 
          "go_back()", "go_forward()", "go_home()", "goto_url()", 
-         "goto_search()", "clicked_result(QListViewItem*)",
+         "goto_search()", "clicked_result(QListBoxItem*)",
          "search(const QString&)", "update_highlight()",
          "quit()", "open_url(const KURL&)", "index_all()",
          "goto_prev_match()", "goto_next_match()", "clear_location()", "activated()",
@@ -867,6 +886,7 @@ class RubberDoc < Qt::VBox
    def init_blah
       @index     = GenericTriGramIndex.new
       @nodeindex = GenericTriGramIndex.new
+      @textcache = {}
       @id2uri, @id2title, @id2depth = {}, {}, {}
 
       @history, @popped_history = [], []
@@ -878,6 +898,8 @@ class RubberDoc < Qt::VBox
 
       @in_update_highlight = false
       @in_node_highlight   = false
+
+      @lvis = nil
    end
 
    def initialize parent
@@ -885,7 +907,7 @@ class RubberDoc < Qt::VBox
       @main = parent
 
       load_projects
-      @current_project_name = @projects_data.project_list.keys.first
+      @current_project_name = @projects_data.enabled_name
 
       init_blah
 
@@ -926,8 +948,8 @@ class RubberDoc < Qt::VBox
 
       @viewed.show
 
-      search "chomp" if DEBUG_SEARCH || DEBUG_GOTO
-      goto_search    if DEBUG_GOTO
+      search "qlistview" if DEBUG_SEARCH || DEBUG_GOTO
+      goto_search        if DEBUG_GOTO
 
       @init_connected = false
    end
@@ -952,7 +974,6 @@ class RubberDoc < Qt::VBox
       @viewed.setUserStyleSheet "span.searchword { background-color: yellow }
                                  span.foundword  { background-color: green }"
       Qt::Application::eventLoop.processEvents Qt::EventLoop::ExcludeUserInput
-      index_current_document unless @id2depth[@shown_doc_id] >= HTMLIndexer::IndexDepths::Partial
    end
 
    attr_accessor :current_project_name
@@ -963,19 +984,23 @@ class RubberDoc < Qt::VBox
 
    def search s
       if @in_node_highlight
-         @skipped_highlight_requests << s
+         @skipped_highlight_requests = true
          return
       end
+      puts "search request: #{s}"
       @search_text = s
-      idx_hash = Hash.new { |h,k| h[k] = 0 }
+
       results = @index.search(s)
+      results += @nodeindex.search(s).collect { |docref| docref.doc_idx }
+
+      idx_hash = Hash.new { |h,k| h[k] = 0 }
       results.each {
-         |idx|
-         idx_hash[idx] += 1
+         |idx| idx_hash[idx] += 1
       }
-      @freq_sorted_idxs = idx_hash.to_a.sort_by { |a,b| a[0] <=> b[0] }.reverse
-      log "results for this search:"
+      @freq_sorted_idxs = idx_hash.to_a.sort_by { |val| val[1] }.reverse
+
       update_lv
+
       hl_timeout = 150 # continuation search should be slower?
       @timer.start hl_timeout, true unless @freq_sorted_idxs.empty?
    end
@@ -996,23 +1021,60 @@ class RubberDoc < Qt::VBox
       }
    end
 
-   def each_result
+   class ResultItem < Qt::ListBoxItem
+      def initialize header, text
+         super()
+         @text, @header = text, header
+         @font  = Qt::Font.new("Helvetica", 8)
+         @flags = Qt::AlignLeft | Qt::WordBreak
+      end
+      def paint painter
+         w, h = width(listBox), height(listBox)
+         header_height = (text_height @font, @header) + 5
+         painter.setFont @font
+         painter.fillRect 5, 5, w - 10, header_height, Qt::Brush.new(Qt::Color.new 150,100,150)
+         painter.drawText 5, 5, w - 10, header_height, @flags, @header
+         painter.fillRect 5, header_height, w - 10, h - 10, Qt::Brush.new(Qt::Color.new 100,150,150)
+         painter.setFont @font
+         painter.drawText 5, header_height + 2, w - 10, h - 10, @flags, @text
+      end
+      def text_height font, text
+         fm = Qt::FontMetrics.new font
+         br = fm.boundingRect 0, 0, width(listBox) - 20, 8192, @flags, text
+         br.height
+      end
+      def height listbox
+         h = 0
+         h += text_height @font, @text
+         h += text_height @font, @header
+         return h + 10
+      end
+      def width listbox
+         listBox.width - 5
+      end
+   end
+
+   CUTOFF = 100
+   def update_lv
+      @listbox.clear
+      @lvis = {}
       look_for_prefixes
       return if @freq_sorted_idxs.nil?
       @freq_sorted_idxs.each {
-         |a| 
-         idx, count = *a
-         yield idx, @id2title[idx]
-      }
-   end
-
-   def update_lv
-      @listview.clear
-      lv_root = Qt::ListViewItem.new @listview, "", "results"
-      lv_root.setOpen true
-      each_result {
-         |idx, title|
-         Qt::ListViewItem.new lv_root, idx.to_s, title
+         |a| idx, count = *a
+         title = @id2title[idx]
+         # we must re-search until we have a doc -> nodes list
+         matches_text = ""
+         @nodeindex.search(@search_text).each {
+            |ref|
+            break if matches_text.length > CUTOFF
+            next unless ref.doc_idx == idx
+            matches_text << @textcache[ref] << "\n"
+         }
+         matches_text = matches_text.slice 0..CUTOFF
+         lvi = ResultItem.new "(#{count}) #{title}", matches_text
+         @listbox.insertItem lvi
+         @lvis[lvi] = idx
       }
    end
 
@@ -1022,8 +1084,8 @@ class RubberDoc < Qt::VBox
    end
 
    def clicked_result i
-      return if i == @listview.firstChild or i.nil?
-      idx = i.text(0).to_i
+      return if i.nil?
+      idx = @lvis[i]
       goto_id_and_hl idx
    end
 
@@ -1040,6 +1102,10 @@ class RubberDoc < Qt::VBox
 
    def skip_matches n
       @current_matching_node_index += n # autowraps
+      if @in_node_highlight
+         @skipped_highlight_requests = true
+         return
+      end
       update_highlight
    end
 
@@ -1119,20 +1185,23 @@ time_me("loading") {
       end
       @url = KDE::URL.new(url.nil? ? @location.text : url)
       @label.setText "Loading : #{@url.prettyURL}"
+      urlonly, = uri_anchor_split @url.url
+      id = @id2uri.invert[@url.url]
+      if id.nil? and !(should_follow? urlonly)
+            warn "link points outside indexed space!" 
+            return
+      end
       load_page
+      if id.nil?
+         gather_for_current_page
+         id = @shown_doc_id
+         index_current_document
+      else
+         @shown_doc_id = id
+      end
       @label.setText "Ready"
       update_loc unless url.nil?
       update_ui_elements
-      id = @id2uri.invert[@url.url]
-      if id.nil?
-         warn "link points outside indexed space!" 
-         return
-      end
-      @shown_doc_id = id
-      urlonly, = uri_anchor_split @url.url
-      if should_follow? urlonly and @id2depth[id] < IndexDepths::TitleIndexed
-         gather_for_current_page
-      end
    end
 
 end
@@ -1140,7 +1209,9 @@ end
 m = KDE::MainWindow.new
 browser = RubberDoc.new m
 browser.update_ui_elements
-m.createGUI Dir.pwd + "/RubberDoc.rc"
+guixmlfname = Dir.pwd + "/RubberDoc.rc"
+guixmlfname = File.dirname(File.readlink $0) + "/RubberDoc.rc" unless File.exists? guixmlfname
+m.createGUI guixmlfname
 m.setCentralWidget browser
 app.setMainWidget(m)
 m.show
@@ -1190,3 +1261,5 @@ class ProjectSelectDialog < KDE::DialogBase
       blah blah
    end
 end
+
+# painter.fillRect 5, 5, width(listBox) - 10, height(listBox) - 10, Qt::Color.new(255,0,0)
