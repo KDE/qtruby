@@ -40,8 +40,8 @@
 #include <kparts/plugin.h>
 #include <kuserprofile.h>
 #include <kaboutdata.h>
-#include <kplugininfo.h>
 #if KDE_VERSION >= 0x030200
+#include <kplugininfo.h>
 #include <kmountpoint.h>
 #endif
 #include <kio/jobclasses.h>
@@ -527,6 +527,59 @@ void marshall_KMountPointList(Marshall *m) {
 		break;
 	}
 }
+
+void marshall_KPluginInfoList(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE: 
+		{
+	    }			
+		break;
+	case Marshall::ToVALUE: 
+		{
+	    KPluginInfo::List *valuelist = (KPluginInfo::List*)m->item().s_voidp;
+	    if(!valuelist) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+
+	    VALUE av = rb_ary_new();
+
+	    int ix = m->smoke()->idClass("KPluginInfo");
+	    const char * className = m->smoke()->binding->className(ix);
+
+	    for(KPluginInfo::List::Iterator it = valuelist->begin();
+		it != valuelist->end();
+		++it) {
+		void *p = (*it);
+
+		if(m->item().s_voidp == 0) {
+		    *(m->var()) = Qnil;
+		    break;
+		}
+
+		VALUE obj = getPointerObject(p);
+		if(obj == Qnil) {
+		    smokeruby_object  * o = ALLOC(smokeruby_object);
+		    o->smoke = m->smoke();
+		    o->classId = o->smoke->idClass("KPluginInfo");
+		    o->ptr = p;
+		    o->allocated = false;
+		    obj = set_obj_info(className, o);
+		}
+		rb_ary_push(av, obj);
+            }
+
+	    if(m->cleanup())
+		delete valuelist;
+	    else
+	        *(m->var()) = av;		
+		}
+		break;
+	default:
+		m->unsupported();
+		break;
+	}
+}
 #endif
 
 void marshall_KTraderOfferList(Marshall *m) {
@@ -574,7 +627,6 @@ void marshall_KTraderOfferList(Marshall *m) {
 		break;
 	}
 }
-
 
 void marshall_KURLList(Marshall *m) {
 	switch(m->action()) {
@@ -658,59 +710,6 @@ void marshall_KURLList(Marshall *m) {
 		delete kurllist;
 	    else
 	        *(m->var()) = av;		}
-		break;
-	default:
-		m->unsupported();
-		break;
-	}
-}
-
-void marshall_KPluginInfoList(Marshall *m) {
-	switch(m->action()) {
-	case Marshall::FromVALUE: 
-		{
-	    }			
-		break;
-	case Marshall::ToVALUE: 
-		{
-	    KPluginInfo::List *valuelist = (KPluginInfo::List*)m->item().s_voidp;
-	    if(!valuelist) {
-		*(m->var()) = Qnil;
-		break;
-	    }
-
-	    VALUE av = rb_ary_new();
-
-	    int ix = m->smoke()->idClass("KPluginInfo");
-	    const char * className = m->smoke()->binding->className(ix);
-
-	    for(KPluginInfo::List::Iterator it = valuelist->begin();
-		it != valuelist->end();
-		++it) {
-		void *p = (*it);
-
-		if(m->item().s_voidp == 0) {
-		    *(m->var()) = Qnil;
-		    break;
-		}
-
-		VALUE obj = getPointerObject(p);
-		if(obj == Qnil) {
-		    smokeruby_object  * o = ALLOC(smokeruby_object);
-		    o->smoke = m->smoke();
-		    o->classId = o->smoke->idClass("KPluginInfo");
-		    o->ptr = p;
-		    o->allocated = false;
-		    obj = set_obj_info(className, o);
-		}
-		rb_ary_push(av, obj);
-            }
-
-	    if(m->cleanup())
-		delete valuelist;
-	    else
-	        *(m->var()) = av;		
-		}
 		break;
 	default:
 		m->unsupported();
@@ -1117,6 +1116,7 @@ TypeHandler KDE_handlers[] = {
     { "KServiceGroup::Ptr", marshall_KServiceGroupPtr },
 #if KDE_VERSION >= 0x030200
     { "KMountPoint::List", marshall_KMountPointList },
+    { "KPluginInfo::List", marshall_KPluginInfoList },
 #endif
     { "KServiceType::List", marshall_KServiceTypeList },
     { "KTrader::OfferList", marshall_KTraderOfferList },
@@ -1133,7 +1133,6 @@ TypeHandler KDE_handlers[] = {
     { "QPtrList<KParts::Plugin>", marshall_KPartPluginList },
     { "QPtrList<KParts::ReadOnlyPart>", marshall_KPartReadOnlyPartList },
     { "QPtrList<KServiceTypeProfile>&", marshall_KServiceTypeProfileList },
-    { "KPluginInfo::List>", marshall_KPluginInfoList },
     { "QValueList<KAboutPerson>", marshall_KAboutPersonList },
     { "QValueList<KAboutTranslator>", marshall_KAboutTranslatorList },
     { "QValueList<KIO::CopyInfo>&", marshall_KIOCopyInfoList },
