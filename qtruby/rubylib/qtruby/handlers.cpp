@@ -123,8 +123,12 @@ smokeruby_mark(void * p)
 				++it;
 				obj = getPointerObject(child);
 				if (obj != Qnil) {
-					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, child, (void*)obj);
+					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", child->className(), child, (void*)obj);
 					rb_gc_mark(obj);
+					if (child->children()) {
+						smokeruby_object * c = value_obj_info(obj);
+						smokeruby_mark(c);
+					}
 				}
 			}
 			return;

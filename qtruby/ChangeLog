@@ -1,3 +1,9 @@
+2004-10-10  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * The smokeruby_mark() function was only marking the immediate children of a
+   Qt::Object for not being garbage collected. It now marks all the Qt::Objects
+   in the object tree below it.
+
 2004-10-07  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * Added Qt Designer Tutorial 'Creating Dialogs' translated into QtRuby. It
