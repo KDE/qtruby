@@ -1,3 +1,9 @@
+2005-03-30  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Fixed problems caused ''include Qt'' and "include KDE" statements in korundum.rb where a 
+	  couple of methods were being added to  class Module was causing all the Qt and KDE methods
+	  to be added to Module.
+
 2005-02-01  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added marshallers for KIO::UDSEntry and KIO::UDSEntryList, and accessor methods for

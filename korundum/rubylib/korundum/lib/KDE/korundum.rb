@@ -18,8 +18,6 @@
 =end
 
 module KDE
-	include Qt
-	
 	DCOPMeta = {}
 
 	# An entry for each dcop signal or slot
@@ -68,27 +66,27 @@ module KDE
 				end
 			end
 		end
-	end
+	end # DCOPMetaInfo
 
-	def hasDCOPSignals(aClass)
+	def KDE.hasDCOPSignals(aClass)
 		classname = aClass.name if aClass.is_a? Module
 		meta = DCOPMeta[classname]
 		return !meta.nil? && meta.k_dcop_signals.length > 0
 	end
 
-	def hasDCOPSlots(aClass)
+	def KDE.hasDCOPSlots(aClass)
 		classname = aClass.name if aClass.is_a? Module
 		meta = DCOPMeta[classname]
 		return !meta.nil? && meta.k_dcop.length > 0
 	end
 
-	def getDCOPSignalNames(aClass)
+	def KDE.getDCOPSignalNames(aClass)
 		classname = aClass.name if aClass.is_a? Module
 		signals = DCOPMeta[classname].k_dcop_signals
 		return signals.keys
 	end
 
-	def fullSignalName(instance, signalName)
+	def KDE.fullSignalName(instance, signalName)
 		classname = instance.class.name if instance.class.is_a? Module
 		signals = DCOPMeta[classname].k_dcop_signals
 		return signals[signalName].full_name
@@ -114,10 +112,10 @@ module KDE
 			replyType << dcop_slot.reply_type
 			KDE::dcop_process(	@client, 
 								dcop_slot.name, 
-								Qt::getMocArguments(fun), 
+								Qt::Internal::getMocArguments(fun), 
 								data,
 								replyType, 
-								(replyType == 'void' or replyType == 'ASYNC') ? nil : Qt::getMocArguments(replyType), 
+								(replyType == 'void' or replyType == 'ASYNC') ? nil : Qt::Internal::getMocArguments(replyType), 
 								replyData )
 		end
 
@@ -158,7 +156,7 @@ module KDE
 
 	# If a class contains a k_dcop slots list declaration, then create a DCOPObject
 	# associated with it	
-	def createDCOPObject(instance)
+	def KDE.createDCOPObject(instance)
 		meta = DCOPMeta[instance.class.name]
 		return nil if meta.nil?
 
@@ -309,7 +307,7 @@ module KDE
 			end
 			return KDE::dcop_call(	self, 
 									full_name, 
-									Qt::getMocArguments(full_name),
+									Qt::Internal::getMocArguments(full_name),
 									*k )
 		end
 
@@ -332,7 +330,7 @@ module KDE
 			end
 			return KDE::dcop_send(	self, 
 									fun, 
-									Qt::getMocArguments(sig),
+									Qt::Internal::getMocArguments(sig),
 									*k )
 		end
 		
@@ -511,16 +509,14 @@ class Object
 end
 
 class Module
-	include KDE
-
 	def k_dcop_signals(*signal_list)
-		meta = DCOPMeta[self.name] || DCOPMetaInfo.new(self)
+		meta = KDE::DCOPMeta[self.name] || KDE::DCOPMetaInfo.new(self)
 		meta.add_signals(signal_list)
 		meta.changed = true
 	end
 
 	def k_dcop(*slot_list)
-		meta = DCOPMeta[self.name] || DCOPMetaInfo.new(self)
+		meta = KDE::DCOPMeta[self.name] || KDE::DCOPMetaInfo.new(self)
 		meta.add_slots(slot_list)
 		meta.changed = true
 	end
