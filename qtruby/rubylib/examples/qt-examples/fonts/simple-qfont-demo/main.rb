@@ -2,10 +2,10 @@
 
 require 'Qt'
 require 'viewer'
+$KCODE='u'
 
 
 a = Qt::Application.new(ARGV)
-n = 3 # get board size n
 
 textViewer = Viewer.new
 textViewer.setCaption('QtRuby Example - Simple QFont Demo')

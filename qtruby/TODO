@@ -1,14 +1,10 @@
 	* Implement the special case method in Qt::Image constructor
 	
-	* Add more marshalling types for the various Qt lists
-	
 	* Allow 'String' and other ruby types to be used in SIGNALs/SLOTs
 	
-	* More documentation or example code welcome
+	* More documentation or example code - contributions welcome!
 	
 	* See the separate TODO list for the rbuic tool
-	
-	* Add a QtRuby project template to KDevelop
 	
 	* Write a rubyeditor plugin for Qt Designer
 	

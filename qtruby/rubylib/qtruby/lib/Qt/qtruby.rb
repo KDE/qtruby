@@ -161,13 +161,23 @@ module Qt
 			return Integer.new(@value >> n.to_i)
 		end
 		
+		def <=>(n)
+			if @value < n
+				return -1
+			elsif @value > n
+				return 1
+			else
+				return 0
+			end
+		end
+		
 		def to_f() return @value.to_f end
 		def to_i() return @value.to_i end
 		def to_s() return @value.to_s end
 	end
 	
 	# If a C++ enum was converted to an ordinary ruby Integer, the
-	# name of the type is lost. The enum name is needed for overloaded
+	# name of the type is lost. The enum type name is needed for overloaded
 	# method resolution when two methods differ only by an enum type.
 	class Enum < Qt::Integer
 		attr_accessor :type
@@ -193,6 +203,7 @@ module Qt
 			return Enum.new(@value >> n.to_i, @type)
 		end
 		
+		def ==(n) return @value == n.to_i end
 		def to_i() return @value end
 	end
 	
@@ -258,8 +269,8 @@ module Qt
 			elsif argtype == 'b'
 				# An argtype 'b' means a Qt::ByteArray has been passed to a C++ method expecting a QByteArray arg.
 				# In that case a Qt::ByteArray must take precedence over any String, and scores 3. Note that a
-				# ruby String would only score 1 when passed to the same QByteArray method - an alternative 
-				# method expecting a QString arg would take precedence over it with a score of 2.
+				# ruby String would only score 2 when passed to the same QByteArray method - an alternative 
+				# method expecting a QString arg would take precedence over it with a score of 3.
 				if typename =~ /^(const )?(QByteArray[*&]?)$/
 					return 3
 				end
@@ -269,7 +280,7 @@ module Qt
 				elsif typename =~ /^(?:u?char\*|const u?char\*|(?:const )?(Q(C?)String)[*&]?)$/
 					qstring = !$1.nil?
 					c = ("C" == $2)
-					return c ? 1 : (qstring ? 2 : 0)
+					return c ? 2 : (qstring ? 3 : 0)
 				end
 			elsif argtype == 'a'
 				# FIXME: shouldn't be hardcoded. Installed handlers should tell what ruby type they expect.
@@ -303,6 +314,8 @@ module Qt
 				if argtype == t
 					return 1
 				elsif classIsa(argtype, t)
+					return 0
+				elsif isEnum(argtype) and t =~ /int|uint|long|ulong/
 					return 0
 				end
 			end
@@ -487,10 +500,6 @@ module Qt
 		
 		def create_qenum(num, type)
 			return Qt::Enum.new(num, type)
-		end
-		
-		def get_qenum(e)
-			return e.value
 		end
 		
 		def get_qenum_type(e)

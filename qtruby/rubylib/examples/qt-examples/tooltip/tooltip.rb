@@ -5,7 +5,7 @@ class DynamicTip < Qt::ToolTip
 		super(p)
 	end
 
-	def maybeTip (p)
+	def maybeTip(p)
 		if !parentWidget.inherits('TellMe')
 			return
 		end
@@ -63,6 +63,8 @@ class TellMe < Qt::Widget
 			p.setBrush(Qt::red)
 			p.drawRect(@r3)
 		end
+		
+		p.end
 	end
 
 	def mousePressEvent (e)

@@ -1,3 +1,24 @@
+2004-07-28  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* If a class doesn't have a virtual destructor, then no mapping was being
+	  kept from the C++ instance to the corresponding ruby value. If the class
+	  had virtual method callbacks, this meant that the ruby instance couldn't
+	  be found, and the callback couldn't be made.
+	
+	* Hence, the Qt::ToolTip callback in examples/qt-examples/tooltip didn't
+	  work, as that class doesn't have a virtual destructor.
+
+	* Added an 'isEnum()' function to use when matching args in overloaded
+	  method resolution.
+
+	* QCString arg types are chosen in preference to QByteArray ones, matching
+	  against ruby strings, when resolving an overloaded method call.
+
+	* Qt::Enums and Qt::Integers can be marshalled to uints, longs and ulongs as
+	  well as ints.
+	  
+	* Added a '==' operator to Qt::Enums so they can be compared with ruby Integers
+
 2004-07-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Qt::Integer arithmetic and bit operations return Qt::Integers, rather

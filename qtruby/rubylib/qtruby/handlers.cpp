@@ -111,8 +111,6 @@ smokeruby_free(void * p)
 		return;
 	}
 	
-	SmokeClass sc(o->smoke, o->classId);
-   Q_UNUSED(sc);
 	unmapPointer(o, o->classId, 0);
 	object_count --;
 	
@@ -470,7 +468,11 @@ marshall_basetype(Marshall *m)
       case Smoke::t_uint:
 	switch(m->action()) {
 	  case Marshall::FromVALUE:
-	    m->item().s_uint = (unsigned int) NUM2UINT(*(m->var()));
+	    if (TYPE(*(m->var())) == T_OBJECT) {
+			m->item().s_int = (unsigned int) NUM2UINT(rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, *(m->var())));
+		} else {
+	    	m->item().s_uint = (unsigned int) NUM2UINT(*(m->var()));
+		}
 	    break;
 	  case Marshall::ToVALUE:
 	    *(m->var()) = INT2NUM(m->item().s_uint);
@@ -483,7 +485,11 @@ marshall_basetype(Marshall *m)
       case Smoke::t_long:
 	switch(m->action()) {
 	  case Marshall::FromVALUE:
-	    m->item().s_long = (long) NUM2LONG(*(m->var()));
+	    if (TYPE(*(m->var())) == T_OBJECT) {
+			m->item().s_int = (long) NUM2LONG(rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, *(m->var())));
+		} else {
+	    	m->item().s_long = (long) NUM2LONG(*(m->var()));
+		}
 	    break;
 	  case Marshall::ToVALUE:
 	    *(m->var()) = INT2NUM(m->item().s_long);
@@ -496,7 +502,11 @@ marshall_basetype(Marshall *m)
       case Smoke::t_ulong:
 	switch(m->action()) {
 	  case Marshall::FromVALUE:
-	    m->item().s_ulong = (long) NUM2ULONG(*(m->var()));
+	    if (TYPE(*(m->var())) == T_OBJECT) {
+			m->item().s_int = (unsigned long) NUM2ULONG(rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, *(m->var())));
+		} else {
+	    	m->item().s_ulong = (unsigned long) NUM2ULONG(*(m->var()));
+		}
 	    break;
 	  case Marshall::ToVALUE:
 	    *(m->var()) = INT2NUM(m->item().s_ulong);
@@ -537,8 +547,8 @@ marshall_basetype(Marshall *m)
 	  case Marshall::FromVALUE:
 	  	{
 		if (TYPE(*(m->var())) == T_OBJECT) {
-			// A Qt::Enum
-			VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qenum"), 1, *(m->var()));
+			// A Qt::Enum is a subclass of Qt::Integer, so 'get_qinteger()' can be called ok
+			VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, *(m->var()));
 	    	m->item().s_enum = (long) NUM2LONG(temp);
 		} else {
 	    	m->item().s_enum = (long) NUM2LONG(*(m->var()));
@@ -623,7 +633,7 @@ marshall_basetype(Marshall *m)
 			// Keep a mapping of the pointer so that it is only wrapped once as a ruby VALUE
 		    mapPointer(obj, o, o->classId, 0);
 		}
-		
+			
 		*(m->var()) = obj;
 	    }
 	    break;

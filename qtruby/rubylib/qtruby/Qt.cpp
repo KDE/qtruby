@@ -131,6 +131,8 @@ bool isQObject(Smoke *smoke, Smoke::Index classId) {
 }
 
 bool isDerivedFrom(Smoke *smoke, Smoke::Index classId, Smoke::Index baseId) {
+    if(classId == 0 && baseId == 0)
+	return false;
     if(classId == baseId)
 	return true;
     for(Smoke::Index *p = smoke->inheritanceList + smoke->classes[classId].parents;
@@ -1449,6 +1451,17 @@ classIsa(VALUE /*self*/, VALUE className_value, VALUE base_value)
 }
 
 static VALUE
+isEnum(VALUE /*self*/, VALUE enumName_value)
+{
+    char *enumName = StringValuePtr(enumName_value);
+    Smoke::Index typeId = qt_Smoke->idType(enumName);
+    Smoke::Index classId = qt_Smoke->idClass(enumName);
+	// If something is a smoke type but not a class it must be an enum.
+	// Note this is true iff this function is called from qtruby.rb/checkarg()
+	return (typeId > 0 && classId == 0 ? Qtrue : Qfalse);
+}
+
+static VALUE
 insert_pclassid(VALUE self, VALUE p_value, VALUE ix_value)
 {
     char *p = StringValuePtr(p_value);
@@ -1667,10 +1680,6 @@ mapObject(VALUE self, VALUE obj)
     smokeruby_object *o = value_obj_info(obj);
     if(!o)
         return Qnil;
-    SmokeClass c( o->smoke, o->classId );
-    if(!c.hasVirtual() ) {
-	return Qnil;
-    }
     mapPointer(obj, o, o->classId, 0);
     return self;
 }
@@ -2042,6 +2051,7 @@ Init_qtruby()
     rb_define_method(qt_internal_module, "debug", (VALUE (*) (...)) debugging, 0);
     rb_define_method(qt_internal_module, "getTypeNameOfArg", (VALUE (*) (...)) getTypeNameOfArg, 2);
     rb_define_method(qt_internal_module, "classIsa", (VALUE (*) (...)) classIsa, 2);
+    rb_define_method(qt_internal_module, "isEnum", (VALUE (*) (...)) isEnum, 1);
     rb_define_method(qt_internal_module, "insert_pclassid", (VALUE (*) (...)) insert_pclassid, 2);
     rb_define_method(qt_internal_module, "find_pclassid", (VALUE (*) (...)) find_pclassid, 1);
     rb_define_method(qt_internal_module, "insert_mcid", (VALUE (*) (...)) insert_mcid, 2);
