@@ -2050,6 +2050,7 @@ Init_qtruby()
 
     rb_define_method(qt_base_class, "dispose", (VALUE (*) (...)) dispose, 0);
     rb_define_method(qt_base_class, "isDisposed", (VALUE (*) (...)) is_disposed, 0);
+    rb_define_method(qt_base_class, "disposed?", (VALUE (*) (...)) is_disposed, 0);
     
 	rb_define_module_function(qt_module, "qDebug", (VALUE (*) (...)) qdebug, 1);
 	rb_define_module_function(qt_module, "qFatal", (VALUE (*) (...)) qfatal, 1);
