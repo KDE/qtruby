@@ -210,7 +210,6 @@ module Qt
 				do_method_missing(package, method, klass.superclass, this, *args)
 				return nil
 			end
-			method.sub!("foobar", "init")
 			method = classname.dup if method == "new"
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
 #			Change foobar= to setFoobar()					
