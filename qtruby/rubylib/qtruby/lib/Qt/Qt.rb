@@ -154,16 +154,20 @@ module Qt
 			end
 			if methodIds.length > 1
 				puts "attempting to resolve:" if debug_level >= DebugLevel::High
-				(0...args.length).each {
+				remainingIds = methodIds.dup
+				matching = (0...args.length).each {
 					|i|
 					puts "arg #{i}:"
-					matching = arg_matches?(methodIds, args, i)
+					matching = arg_matches?(remainingIds, args, i)
+					remainingIds.delete_if { |id| matching.assoc(id).nil? }
+					puts "remaining ids => #{remainingIds.inspect}" if debug_level >= DebugLevel::High
 					puts "arg_matches => #{matching.inspect}" if debug_level >= DebugLevel::High
-					next if matching.empty?
-					methodIds[0] = matching[0][0]
-					puts "Resolved to id: #{methodIds[0]}" if debug_level >= DebugLevel::High
-					break
+					break matching if remainingIds.length <= 1
 				}
+				unless matching.nil?
+				    methodIds[0] = matching[0][0]
+				    puts "Resolved to id: #{methodIds[0]}" if debug_level >= DebugLevel::High
+				end
 			end
 			chosen = methodIds[0]
 
