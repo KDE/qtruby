@@ -2,19 +2,6 @@
 
 require 'Qt'
 
-# HACK
-def new_point_array(a)
-    pa = Qt::PointArray.new(a.length / 2)
-    p a.length / 2
-    0.upto((a.length / 2) - 1) {
-        |i| 
-        p i
-        p a[i*2], a[(i*2)+1]
-        pa.setPoint(i, a[i*2], a[(i*2)+1])
-    }
-    pa
-end
-
 # an analog clock widget using an internal QTimer
 #
 class AnalogClock < Qt::Widget
@@ -93,13 +80,13 @@ class AnalogClock < Qt::Widget
 
 	paint.save
 	paint.rotate(30*(@_time.hour%12-3) + @_time.minute/2)
-	pts = new_point_array([-20,0, 0,-20, 300,0, 0,20])
+	pts = Qt::PointArray.new(4, [-20,0, 0,-20, 300,0, 0,20])
 	paint.drawConvexPolygon(pts)
 	paint.restore
 
 	paint.save
 	paint.rotate((@_time.minute-15)*6)
-	pts = new_point_array([-10,0, 0,-10, 400,0, 0,10])
+	pts = Qt::PointArray.new(4, [-10,0, 0,-10, 400,0, 0,10])
 	paint.drawConvexPolygon(pts)
 	paint.restore;
 
