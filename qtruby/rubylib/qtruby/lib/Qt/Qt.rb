@@ -37,9 +37,8 @@ module Qt
                 end
 
 		def checkarg(argtype, method, i)
-			p "argtype == #{argtype}" if debug_level >= DebugLevel::High
 			typename = getTypeNameOfArg(method, i)
-			p "typename == #{typename}" if debug_level >= DebugLevel::High
+			puts "   arg #{i}: #{typename} (#{argtype})" if debug_level >= DebugLevel::High
 			if argtype == 'i'
 				if typename =~ /^(?:short|ushort|int|uint|long|ulong|signed|unsigned)$/
 					return 0
@@ -84,15 +83,15 @@ module Qt
 			return nil
 		end
 
-		def argmatch(methodIds, args, i)
+		def arg_matches?(methodIds, args, i)
 			match = {}
 			argtype = getVALUEtype(args[i])
                         methodIds.each {
-                                |method|
-				match_value = checkarg(argtype, method, i)
-				match[method] = match_value unless match_value.nil?
+                                |id|
+				puts methodj if debug_level >= DebugLevel::High
+				match_value = checkarg(argtype, id, i)
+				match[id] = match_value unless match_value.nil?
                         }
-			p match if debug_level >= DebugLevel::High
 			return match.sort {|a,b| a[1] <=> b[1]}
 		end
 
@@ -115,54 +114,60 @@ module Qt
 			@@current_initializer.call(instance)
 		end
 
+		def type_char(arg)
+		    if arg.nil? or isObject(arg)
+			    "#"
+		    elsif arg.kind_of? Array or arg.kind_of? Hash
+			    "?"
+		    else
+			    "$"
+		    end
+		end
+
 		def do_method_missing(package, method, klass, this, *args)
 			classname = @@cpp_names[klass.name]
-			if classname.nil? and klass != Object
+			if classname.nil? && klass != Object
 				do_method_missing(package, method, klass.superclass, this, *args)
 				return nil
 			end
-
-			if method == "new"
-				method = classname.dup
-			end
+			method = classname.dup if method == "new"
 
 			method_argstr = ""
-			for arg in args
-				if arg.nil? or isObject(arg)
-					method_argstr << "#"
-				elsif arg.kind_of? Array or arg.kind_of? Hash
-					method_argstr << "?"
-				else
-					method_argstr << "$"
-				end
-			end
+			args.each {
+				|arg| method_argstr << type_char(arg)
+			}
 
 			chosen = nil
 
 			methodStr = method + method_argstr
 			methodIds = findMethod(classname, methodStr)
-			p classname if debug_level >= DebugLevel::High
-			p methodStr if debug_level >= DebugLevel::High
-			p methodIds if debug_level >= DebugLevel::High
+			if debug_level >= DebugLevel::High
+			    puts "classname == #{classname}"
+			    puts "methodStr == #{methodStr}"
+			    puts "methodIds == #{methodIds.inspect}"
+			    puts "-> candidate list:"
+			    prototypes = dumpCandidates(methodIds).split("\n")
+			    line_len = (prototypes.collect { |p| p.length }).max
+			    prototypes.zip(methodIds) { 
+				|prototype,id| puts "#{prototype.ljust line_len}  (#{id})" 
+			    }
+			end
 			if methodIds.length > 1
-#			unless methodIds.empty?
-				puts "resolving method" if debug_level >= DebugLevel::High
-				for i in 0..(args.length - 1)
-					matching = argmatch(methodIds, args, i)
+				puts "attempting to resolve:" if debug_level >= DebugLevel::High
+				(0...args.length).each {
+					|i|
+					matching = arg_matches?(methodIds, args, i)
 					print "matching list" if debug_level >= DebugLevel::High
 					p matching if debug_level >= DebugLevel::High
-					# Match if there is either just a single result returned, or if there are
-					# multiple matches and the first match is a better match than subequent ones
 					next if matching.empty?
 					puts "possible match" if debug_level >= DebugLevel::High
 					puts "matching == #{matching}" if debug_level >= DebugLevel::High
-#					chosen = matching[0][0]
 					methodIds[0] = matching[0][0]
 					puts "chosen == #{methodIds[0]}" if debug_level >= DebugLevel::High
 					p dumpCandidates([methodIds[0]]) if debug_level >= DebugLevel::High
-#					print("Resolved Method #{classname}::#{method_str} => " + methodIds[0].to_s + "\n")
+					print("Resolved Method #{classname}::#{method_str} => " + methodIds[0].to_s + "\n") if debug_level >= DebugLevel::High
 					break
-				end
+				}
 			end
 			chosen = methodIds[0]
 			print "chosen ==== #{chosen}" if debug_level >= DebugLevel::High
