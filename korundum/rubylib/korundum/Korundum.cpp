@@ -40,6 +40,8 @@ extern TypeHandler KDE_handlers[];
 extern void install_handlers(TypeHandler *);
 extern Smoke *qt_Smoke;
 
+
+static VALUE kde_internal_module;
 Marshall::HandlerFn getMarshallFn(const SmokeType &type);
 
 /*
@@ -679,6 +681,7 @@ class InvokeDCOPSlot : public Marshall {
 	int				_items;
     MocArgument *	_args;
 	QDataStream *	_stream;
+	const char *	_replyTypeName;
 	VALUE			_replyType;
 	QByteArray *	_retval;
 	int				_cur;
@@ -712,7 +715,48 @@ public:
 		}
 		_called = true;
         VALUE result = rb_funcall2(_obj, _slotname, _items, _sp);
-		if (_replyType != Qnil) {
+		
+		if (	strcmp(_replyTypeName, "QValueList<DCOPRef>") == 0
+				&& TYPE(result) == T_ARRAY ) 
+		{
+			// Special case QValueList<DCOPRef> as a QDataStream marshaller 
+			// isn't in the Smoke runtime
+			QValueList<DCOPRef> windowList;
+			
+			for (long i = 0; i < RARRAY(result)->len; i++) {
+				VALUE item = rb_ary_entry(result, i);
+				smokeruby_object *o = value_obj_info(item);
+				if( !o || !o->ptr)
+                    continue;
+				void * ptr = o->ptr;
+				ptr = o->smoke->cast(ptr, o->classId, o->smoke->idClass("DCOPRef"));
+				windowList.append((DCOPRef)*(DCOPRef*)ptr);
+			}
+			QDataStream retval(*_retval, IO_WriteOnly);
+			retval << windowList;
+		} else if (	strcmp(_replyTypeName, "QMap<QCString,DCOPRef>") == 0
+					&& TYPE(result) == T_HASH ) 
+		{
+			// And special case this type too 
+			QMap<QCString,DCOPRef> actionMap;
+			VALUE temp = rb_funcall(kde_internal_module, rb_intern("action_map_to_list"), 1, result);
+
+			for (long i = 0; i < RARRAY(temp)->len; i++) {
+				VALUE action = rb_ary_entry(temp, i);
+				i++;
+				
+				VALUE item = rb_ary_entry(temp, i);
+				smokeruby_object *o = value_obj_info(item);
+				if( !o || !o->ptr)
+                    continue;
+				void * ptr = o->ptr;
+				ptr = o->smoke->cast(ptr, o->classId, o->smoke->idClass("DCOPRef"));
+				
+				actionMap[QCString(StringValuePtr(action))] = (DCOPRef)*(DCOPRef*)ptr;
+			}
+			QDataStream retval(*_retval, IO_WriteOnly);
+			retval << actionMap;
+		} else if (_replyType != Qnil) {
 			DCOPReplyValue dcopReply(*_retval, &result, _replyType);
 		}
    }
@@ -732,9 +776,10 @@ public:
 		_cur = oldcur;
 	}
 
-    InvokeDCOPSlot(VALUE obj, ID slotname, VALUE args, QByteArray& data, VALUE replyType, QByteArray& returnValue) :
+    InvokeDCOPSlot(VALUE obj, ID slotname, VALUE args, QByteArray& data, VALUE replyTypeName, VALUE replyType, QByteArray& returnValue) :
 		_obj(obj), _slotname(slotname), _replyType(replyType), _cur(-1), _called(false)
 	{
+		_replyTypeName = StringValuePtr(replyTypeName);
 		_items = NUM2INT(rb_ary_entry(args, 0));
 		_stream = new QDataStream(data, IO_ReadOnly);
 		_retval = &returnValue;
@@ -763,8 +808,6 @@ extern VALUE kde_module;
 extern VALUE kio_module;
 extern VALUE kparts_module;
 extern VALUE khtml_module;
-
-static VALUE kde_internal_module;
 
 VALUE
 getdcopinfo(VALUE self, QString & signalname)
@@ -823,7 +866,7 @@ dcop_disconnect_signal(VALUE self, VALUE sender, VALUE senderObj, VALUE signal, 
 }
 
 static VALUE
-dcop_process(VALUE /*self*/, VALUE target, VALUE slotname, VALUE args, VALUE data, VALUE replyType, VALUE replyData)
+dcop_process(VALUE /*self*/, VALUE target, VALUE slotname, VALUE args, VALUE data, VALUE replyTypeName, VALUE replyType, VALUE replyData)
 {
 	VALUE _data = rb_funcall(qt_internal_module, rb_intern("get_qbytearray"), 1, data);
 	QByteArray * dataArray = 0;
@@ -833,7 +876,7 @@ dcop_process(VALUE /*self*/, VALUE target, VALUE slotname, VALUE args, VALUE dat
 	QByteArray * replyArray = 0;
 	Data_Get_Struct(_replyData, QByteArray, replyArray);
 
-	InvokeDCOPSlot dcopSlot(target, rb_intern(StringValuePtr(slotname)), args, *dataArray, replyType, *replyArray);
+	InvokeDCOPSlot dcopSlot(target, rb_intern(StringValuePtr(slotname)), args, *dataArray, replyTypeName, replyType, *replyArray);
 	dcopSlot.next();
 	
 	return Qtrue;
@@ -910,7 +953,7 @@ Init_korundum()
     install_handlers(KDE_handlers);
 	
     kde_internal_module = rb_define_module_under(kde_module, "Internal");
-	rb_define_singleton_method(kde_module, "dcop_process", (VALUE (*) (...)) dcop_process, 6);
+	rb_define_singleton_method(kde_module, "dcop_process", (VALUE (*) (...)) dcop_process, 7);
 	rb_define_singleton_method(kde_module, "dcop_call", (VALUE (*) (...)) dcop_call, -1);
 	rb_define_singleton_method(kde_module, "dcop_send", (VALUE (*) (...)) dcop_send, -1);
 	

@@ -3,7 +3,8 @@
 require 'Korundum'
 
 class MyWidget < KDE::PushButton
-	k_dcop 'void mySlot(QString)', 'QPoint getPoint(QString)'
+	k_dcop 'void mySlot(QString)', 'QPoint getPoint(QString)',
+			'QMap<QCString,DCOPRef> actionMap()', 'QValueList<DCOPRef> windowList()'
 	
 	def initialize(parent, name)
 		super
@@ -16,6 +17,18 @@ class MyWidget < KDE::PushButton
 	def getPoint(msg)
 		puts "message: #{msg}"
 		return Qt::Point.new(50, 100)
+	end
+	
+	def actionMap()
+		map = {}
+		map['foobar'] = KDE::DCOPRef.new("myapp", "myobj")
+		return map
+	end
+	
+	def windowList()
+		list = []
+		list[0] = KDE::DCOPRef.new("myapp", "myobj")
+		return list
 	end
 end
 

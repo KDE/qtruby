@@ -48,16 +48,17 @@ module KDE
 			signal_list.each do |signal|
 				signal = DCOPClient.normalizeFunctionSignature(signal)
 				if signal =~ /^(.*)\s([^\s]*)\((.*)\)/
-					@k_dcop_signals[$2] = DCOPMember.new($2, $2 + "(" + $3 + ")", $3, $1)
+					args = DCOPClient.normalizeFunctionSignature($3)
+					@k_dcop_signals[$2] = DCOPMember.new($2, $2 + "(" + args + ")", args, $1)
 				end
 			end
 		end
 		
 		def add_slots(slot_list)
 			slot_list.each do |slot|
-				slot = DCOPClient.normalizeFunctionSignature(slot)
-				if slot =~ /^(.*)\s([^\s]*)\((.*)\)/
-					@k_dcop[$2] = DCOPMember.new($2, slot, $3, $1)
+				if slot =~ /^([\w,<>]*)\s([^\s]*)\((.*)\)/
+					args = DCOPClient.normalizeFunctionSignature($3)
+					@k_dcop[$2] = DCOPMember.new($2, $1 + ' ' + $2 + "(" + args + ")", args, $1)
 				end
 			end
 		end
@@ -114,7 +115,8 @@ module KDE
 			KDE::dcop_process(	@instance, 
 								dcop_slot.name, 
 								Qt::getMocArguments(fun), 
-								data, 
+								data,
+								replyType, 
 								(replyType == 'void' or replyType == 'ASYNC') ? nil : Qt::getMocArguments(replyType), 
 								replyData )
 		end
@@ -146,8 +148,8 @@ module KDE
 		if meta.dcop_object.nil? or meta.changed
 			funcs = []
 			meta.k_dcop.each_value do |value| 
-				func_name = value.name + '(' + value.arg_types + ')'
-				funcs << func_name 
+				sig = value.reply_type + ' ' + value.name + '(' + value.arg_types + ')'
+				funcs << sig 
 			end
 			meta.changed = false
 			if instance.kind_of? DCOPObject
@@ -163,6 +165,17 @@ module KDE
 		else
 			meta.dcop_object
 		end
+	end
+	
+	# Flattens a hash of '<action name>,<DCOPRef>' pairs into an array
+	def action_map_to_list(map)
+		result = []
+#		map.each { |key, value| result << key << value }
+		map.each { |key, value| 
+		result << key << value 
+		puts "key: #{key} value: #{value}"
+		}
+		return result
 	end
 	
 	class DCOPRef < Qt::Base
