@@ -11,7 +11,7 @@
 
 module Qt
         module DebugLevel
-                Off, Minimal, High = *(0..2).to_a
+                Off, Minimal, High, Extensive = 0, 1, 2, 3
         end
 
 	module QtDebugChannel 
@@ -28,6 +28,7 @@ module Qt
         @@debug_level = DebugLevel::Minimal
         def Qt.debug_level=(level)
                 @@debug_level = level
+                Internal::setDebug Qt::QtDebugChannel::QTDB_ALL if level >= DebugLevel::Extensive
         end
         def Qt.debug_level
                 @@debug_level
