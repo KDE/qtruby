@@ -917,9 +917,7 @@ method_missing(int argc, VALUE * argv, VALUE self)
 		savestack[count+2] = argv[count];
 	}
 
-	VALUE ret_val = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+2, savestack);
-	if (ret_val != Qnil)
-		return ret_val;
+	rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+2, savestack);
 
 	// If the method can't be found allow the default method_missing
 	//	to display an error message, by calling super on the method
@@ -962,9 +960,7 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
 		savestack[count+2] = argv[count];
 	}
 
-	VALUE ret_val = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+2, savestack);
-	if (ret_val != Qnil)
-		return ret_val;
+	rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+2, savestack);
 
 	// If the method can't be found allow the default method_missing
 	//	to display an error message, by calling super on the method
@@ -1035,9 +1031,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 		savestack[count+3] = argv[count];
 	}
 
-	VALUE ret_val = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
-	if (ret_val != Qnil)
-		return ret_val;
+	rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
 
 	// If the method can't be found, allow the default method_missing
 	//	to display an error message, by calling super on the method

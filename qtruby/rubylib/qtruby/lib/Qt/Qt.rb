@@ -91,16 +91,10 @@ module Qt
 		end
 				
 		def do_method_missing(package, method, klass, *args)
-			if method == "SIGNAL"
-				return "2#{args[0]}"
-			elsif method == "SLOT"
-				return "1#{args[0]}"
-			end
-
 			classname = CppName[klass.name]
 			if classname.nil? and klass != Object
 				do_method_missing(package, method, klass.superclass, *args)
-				return nil
+				return 
 			end
 
 			method_original = method.clone
@@ -134,7 +128,6 @@ module Qt
 			end
 
 			setCurrentMethod(methodIds[0] || -1)
-			return nil
 		end
 		
 		def init()
