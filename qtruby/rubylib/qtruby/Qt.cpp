@@ -1201,9 +1201,10 @@ new_qapplication(int argc, VALUE * argv, VALUE klass)
     if (argc == 1 && TYPE(argv[0]) == T_ARRAY) {
 	// Convert '(ARGV)' to '(NUM, [$0]+ARGV)'
 	VALUE * local_argv = (VALUE *) calloc(argc + 1, sizeof(VALUE));
-	rb_ary_unshift(argv[0], rb_gv_get("$0"));
-	local_argv[0] = INT2NUM(RARRAY(argv[0])->len);
-	local_argv[1] = argv[0];
+	VALUE temp = rb_ary_dup(argv[0]);
+	rb_ary_unshift(temp, rb_gv_get("$0"));
+	local_argv[0] = INT2NUM(RARRAY(temp)->len);
+	local_argv[1] = temp;
 	result = new_qobject(2, local_argv, klass);
 	free(local_argv);
     } else {
