@@ -25,7 +25,7 @@ module Qt
                 QTDB_ALL = QTDB_VERBOSE | QTDB_VIRTUAL | QTDB_GC | QTDB_CALLS | QTDB_METHOD_MISSING | QTDB_AMBIGUOUS
 	end
 
-        @@debug_level = DebugLevel::Off
+        @@debug_level = DebugLevel::Minimal
         def Qt.debug_level=(level)
                 @@debug_level = level
         end
@@ -308,10 +308,10 @@ module Qt
 					puts "match => #{id} score: #{current_match}" if debug_level >= DebugLevel::High
 				end
 					
-				puts "Resolved to id: #{chosen}" if debug_level >= DebugLevel::High && !chosen.nil?
+				puts "Resolved to id: #{chosen}" if !chosen.nil? && debug_level >= DebugLevel::High
 			end
 
-			if debug_level >= DebugLevel::High && chosen.nil? && method !~ /^operator/
+			if debug_level >= DebugLevel::Minimal && chosen.nil? && method !~ /^operator/
 				id = find_pclassid(normalize_classname(klass.name))
 				hash = findAllMethods(id)
 				constructor_names = nil
