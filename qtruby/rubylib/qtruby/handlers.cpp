@@ -722,7 +722,7 @@ static QTextCodec *codec = 0;
 	    m->item().s_voidp = s;
 	    m->next();
 		
-		if (!m->type().isConst() && *(m->var()) != Qnil && s != 0) {
+		if (!m->type().isConst() && *(m->var()) != Qnil && s != 0 && !s->isNull()) {
 			rb_str_resize(*(m->var()), 0);
 			rb_str_cat2(*(m->var()), (const char *)*s);
 		}
@@ -751,7 +751,7 @@ static QTextCodec *codec = 0;
 	     	}
 	     	if(m->cleanup())
 	     	delete s;
-            } else {
+         } else {
                 *(m->var()) = Qnil;
             }
 	}
@@ -1492,7 +1492,6 @@ Marshall::HandlerFn getMarshallFn(const SmokeType &type) {
 	return marshall_basetype;
     if(!type.name())
 	return marshall_void;
-    
 	TypeHandler *h = type_handlers[type.name()];
     if(h == 0 && type.isConst() && strlen(type.name()) > strlen("const ")) {
     	h = type_handlers[type.name() + strlen("const ")];
