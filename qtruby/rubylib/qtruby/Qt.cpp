@@ -64,7 +64,7 @@ extern void smokeruby_mark(void * ptr);
 extern void smokeruby_free(void * ptr);
 
 #ifdef DEBUG
-int do_debug = qtdb_gc;
+int do_debug = qtdb_virtual;
 #else
 int do_debug = qtdb_none;
 #endif
@@ -737,11 +737,6 @@ public:
 		    smoke->methodNames[smoke->methods[method].name]
 		    );
 
-//	    printf("virtual %p->%s::%s() called\n", ptr,
-//		smoke->classes[smoke->methods[method].classId].className,
-//		smoke->methodNames[smoke->methods[method].name]
-//		);
-
 	if(!o) {
 	    if( do_debug & qtdb_virtual )   // if not in global destruction
 		printf("Cannot find object for virtual method %p -> %p\n", ptr, &obj);
@@ -841,27 +836,28 @@ set_obj_info(const char * className, smokeruby_object * o)
     return obj;
 }
 
-char *get_VALUEtype(VALUE ruby_value)
+const char *
+get_VALUEtype(VALUE ruby_value)
 {
-    char *r = strdup("");
+    const char *r = "";
     if(ruby_value == Qnil)
-	r = strdup("u");
+	r = "u";
     else if(TYPE(ruby_value) == T_FIXNUM || TYPE(ruby_value) == T_BIGNUM)
-	r = strdup("i");
+	r = "i";
     else if(TYPE(ruby_value) == T_FLOAT)
-	r = strdup("n");
+	r = "n";
     else if(TYPE(ruby_value) == T_STRING)
-	r = strdup("s");
+	r = "s";
     else if(TYPE(ruby_value) == T_DATA) {
 	smokeruby_object *o = value_obj_info(ruby_value);
 	if(!o) {
-	    r = strdup("a");
+	    r = "a";
 	} else {
-	    r = strdup(o->smoke->className(o->classId));
+	    r = o->smoke->className(o->classId);
     }
 	}
     else {
-	r = strdup("U");
+	r = "U";
 	}
 
     return r;
@@ -911,36 +907,17 @@ metaObject(VALUE self)
 
 bool avoid_fetchmethod = false;
 
-static VALUE
-method_missing(int argc, VALUE * argv, VALUE self)
+static QCString
+find_cached_selector(int argc, VALUE * argv, VALUE klass, char * methodName)
 {
-    VALUE klass = rb_funcall(self, rb_intern("class"), 0);
-	char * methodName = rb_id2name(SYM2ID(argv[0]));
-	VALUE * temp_stack = (VALUE *) calloc(argc + 3, sizeof(VALUE));
-    temp_stack[0] = rb_str_new2("Qt");
-    temp_stack[1] = rb_str_new2(methodName);
-    temp_stack[2] = klass;
-    temp_stack[3] = self;
-    for (int count = 1; count < argc; count++) {
-	temp_stack[count+3] = argv[count];
-    }
-
-    _current_method = -1;
-	
-	// Get the classid
-	smokeruby_object * o = value_obj_info(self);
-	if (o == 0 || o->ptr == 0) {
-		rb_raise(rb_eArgError, "unresolved method call (internal error)\n");
-	}
     // Look in the cache
-	char *cname = (char*)qt_Smoke->className(o->classId);
-	QCString mcid(cname);
+	QCString mcid(rb_class2name(klass));
 	mcid += ';';
 	mcid += methodName;
-	for(int i=1; i<argc ; i++)
+	for(int i=3; i<argc ; i++)
 	{
 		mcid += ';';
-		mcid += get_VALUEtype(temp_stack[i+3]);
+		mcid += get_VALUEtype(argv[i]);
 	}
 	
 	Smoke::Index *rcid = methcache.find((const char *)mcid);
@@ -950,14 +927,35 @@ method_missing(int argc, VALUE * argv, VALUE self)
 	
 	if (rcid) {
 		// Got a hit
-		_current_method = *rcid;
 #ifdef DEBUG
 		if (do_debug & qtdb_calls) printf("method_missing cache hit, mcid: %s\n", (const char *) mcid);
-	} {
-#else
-	} else {
 #endif
-		// Find the C++ method to call. I'll do that from Ruby for now
+		_current_method = *rcid;
+	} else {
+		_current_method = -1;
+	}
+	
+	return mcid;
+}
+
+static VALUE
+method_missing(int argc, VALUE * argv, VALUE self)
+{
+    VALUE klass = rb_funcall(self, rb_intern("class"), 0);
+	char * methodName = rb_id2name(SYM2ID(argv[0]));
+	VALUE * temp_stack = (VALUE *) calloc(argc+3, sizeof(VALUE));
+    temp_stack[0] = rb_str_new2("Qt");
+    temp_stack[1] = rb_str_new2(methodName);
+    temp_stack[2] = klass;
+    temp_stack[3] = self;
+    for (int count = 1; count < argc; count++) {
+	temp_stack[count+3] = argv[count];
+    }
+
+	QCString mcid = find_cached_selector(argc+3, temp_stack, klass, methodName);
+	
+	if (_current_method == -1) {
+		// Find the C++ method to call. Do that from Ruby for now
 
 		VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, temp_stack);
     	if (_current_method == -1) {
@@ -975,12 +973,10 @@ method_missing(int argc, VALUE * argv, VALUE self)
 				return Qnil;
 			}
     	}
-#ifdef DEBUG
-		if ((do_debug & qtdb_calls) && rcid && *rcid != _current_method) printf("method_missing cache ERROR: %s\n", (const char *) mcid);
-#endif        
 		// Success. Cache result.
         methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
 	}
+	
     MethodCall c(qt_Smoke, _current_method, self, temp_stack+4, argc-1);
     c.next();
     VALUE result = *(c.var());
@@ -993,23 +989,29 @@ static VALUE
 class_method_missing(int argc, VALUE * argv, VALUE klass)
 {
 	VALUE result = Qnil;
-	VALUE * temp_stack = (VALUE *) calloc(argc + 3, sizeof(VALUE));
+	char * methodName = rb_id2name(SYM2ID(argv[0]));
+	VALUE * temp_stack = (VALUE *) calloc(argc+3, sizeof(VALUE));
     temp_stack[0] = rb_str_new2("Qt");
-    temp_stack[1] = rb_str_new2(rb_id2name(SYM2ID(argv[0])));
+    temp_stack[1] = rb_str_new2(methodName);
     temp_stack[2] = klass;
     temp_stack[3] = Qnil;
     for (int count = 1; count < argc; count++) {
 	temp_stack[count+3] = argv[count];
     }
 
-    _current_method = -1;
-    VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, temp_stack);
+    QCString mcid = find_cached_selector(argc+3, temp_stack, klass, methodName);
+    
+    if (_current_method == -1) {
+		VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, temp_stack);
+		if (_current_method != -1) {
+			// Success. Cache result.
+        	methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
+		}
+	}
 
-    // If the method can't be found allow the default method_missing
-    //	to display an error message, by calling super on the method
     if (_current_method == -1) {
 		QRegExp rx("[a-zA-Z]+");
-		if (rx.search(rb_id2name(SYM2ID(argv[0]))) == -1) {
+		if (rx.search(methodName) == -1) {
 			// If an operator method hasn't been found as an instance method,
 			// then look for a class method - after 'op(self,a)' try 'self.op(a)' 
 	    	VALUE * method_stack = (VALUE *) calloc(argc - 1, sizeof(VALUE));
@@ -1072,6 +1074,8 @@ so initialize() can be allowed to proceed to the end.
 static VALUE
 initialize_qt(int argc, VALUE * argv, VALUE self)
 {
+	VALUE retval;
+	
 	if (TYPE(self) == T_DATA) {
 		// If a block was passed then run that now
 		if (rb_block_given_p()) {
@@ -1084,7 +1088,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
     VALUE klass = rb_funcall(self, rb_intern("class"), 0);
     VALUE constructor_name = rb_str_new2("new");
 
-    VALUE * temp_stack = (VALUE *) calloc(argc + 4, sizeof(VALUE));
+    VALUE * temp_stack = (VALUE *) calloc(argc+4, sizeof(VALUE));
     temp_stack[0] = rb_str_new2("Qt");
     temp_stack[1] = constructor_name;
     temp_stack[2] = klass;
@@ -1093,11 +1097,10 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	temp_stack[count+4] = argv[count];
     }
 
-    _current_method = -1;
-    VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+4, temp_stack);
-    if (retval != Qnil) {
-	free(temp_stack);
-	return retval;
+	QCString mcid = find_cached_selector(argc+4, temp_stack, klass, rb_class2name(klass));
+    
+	if (_current_method == -1) {
+    	retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+4, temp_stack);
 	}
 
     if (_current_method == -1) {
@@ -1106,7 +1109,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	}
 
     // Success. Cache result.
-    //methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
+    methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
 
     MethodCall c(qt_Smoke, _current_method, self, temp_stack+4, argc);
     c.next();
