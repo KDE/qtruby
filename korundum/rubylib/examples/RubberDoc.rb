@@ -11,7 +11,7 @@ app = KDE::Application.new()
 
 DEBUG        = false
 DEBUG_IDX    = false
-DEBUG_FAST   = false
+DEBUG_FAST   = true
 DEBUG_SEARCH = false
 DEBUG_GOTO   = false # crashes?
 
@@ -26,8 +26,8 @@ class String
    def trigrams
       list = []
       0.upto(self.length-3) {
-         |p|
-         list << self.slice(p, 3)
+         |pos|
+         list << self.slice(pos, 3)
       }
       list
    end
@@ -67,13 +67,19 @@ module DOMUtils
       n
    end
 
-   def DOMUtils.list_parent_node_types node
+   def DOMUtils.each_parent node
       n = node
-      types_a = []
       until n.isNull
-         types_a << { :nodeType => n.nodeType, :elementId => n.elementId }
+         yield n
          n = n.parentNode
       end
+   end
+
+   def DOMUtils.list_parent_node_types node
+      types_a = []
+      each_parent(node) {
+         |n| types_a << { :nodeType => n.nodeType, :elementId => n.elementId }
+      }
       types_a 
    end
 
@@ -112,6 +118,8 @@ class GenericTriGramIndex
 
    # returns a list of matching keys
    def search search_string
+      puts "searching for a nil???" if search_string.nil?
+      return [] if search_string.nil?
       return [] if search_string.length < 3
       trigs = search_string.downcase.trigrams
       key_subset = @trigrams[trigs.delete_at(0)]
@@ -181,14 +189,34 @@ module MyGui
                                     SIGNAL("openURLRequest(const KURL&, const KParts::URLArgs&)"),
                           self,     SLOT("openURL(const KURL&)")
 
-      KDE::Action.new "&Quit",        "quit",    KDE::Shortcut.new(), self, SLOT("quit()"),                     @main.actionCollection, "file_quit"
-      KDE::Action.new "&Index-All",              KDE::Shortcut.new(), self, SLOT("index_all()"),                @main.actionCollection, "index_all"
+      KDE::Action.new "&Quit",        "quit",    KDE::Shortcut.new(), 
+                      self, SLOT("quit()"),                     @main.actionCollection, "file_quit"
+      KDE::Action.new "&Index-All",              KDE::Shortcut.new(), 
+                      self, SLOT("index_all()"),                @main.actionCollection, "index_all"
       @back = \
-      KDE::Action.new "&Back",        "back",    KDE::Shortcut.new(), self, SLOT("go_back()"),                  @main.actionCollection, "back"
+      KDE::Action.new "&Back",        "back",    KDE::Shortcut.new(Qt::ALT + Qt::Key_Left), 
+                      self, SLOT("go_back()"),                  @main.actionCollection, "back"
       @forward = \
-      KDE::Action.new "&Forward",     "forward", KDE::Shortcut.new(), self, SLOT("go_forward()"),               @main.actionCollection, "forward"
-      KDE::Action.new "&Home",        "gohome",  KDE::Shortcut.new(), self, SLOT("go_home()"),                  @main.actionCollection, "home"
-      KDE::Action.new "&Next Match",  "next",    KDE::Shortcut.new(), self, SLOT("goto_next_match()"),          @main.actionCollection, "next_match"
+      KDE::Action.new "&Forward",     "forward", KDE::Shortcut.new(Qt::ALT + Qt::Key_Right), 
+                      self, SLOT("go_forward()"),               @main.actionCollection, "forward"
+      KDE::Action.new "&Home",        "gohome",  KDE::Shortcut.new(Qt::Key_Home), 
+                      self, SLOT("go_home()"),                  @main.actionCollection, "home"
+      KDE::Action.new "&Prev Match",  "previous",KDE::Shortcut.new(Qt::CTRL + Qt::Key_P), 
+                      self, SLOT("goto_prev_match()"),          @main.actionCollection, "prev_match"
+      KDE::Action.new "&Next Match",  "next",    KDE::Shortcut.new(Qt::CTRL + Qt::Key_N), 
+                      self, SLOT("goto_next_match()"),          @main.actionCollection, "next_match"
+      KDE::Action.new "&Follow Match","down",    KDE::Shortcut.new(Qt::Key_Return), 
+                      self, SLOT("goto_current_match_link()"),  @main.actionCollection, "open_match"
+
+      KDE::Action.new "Search",  "find",         KDE::Shortcut.new(Qt::Key_F6), 
+                      self, SLOT("focus_search()"),             @main.actionCollection, "focus_search"
+      KDE::Action.new "New Search", "find",      KDE::Shortcut.new(Qt::CTRL + Qt::Key_Slash), 
+                      self, SLOT("focus_and_clear_search()"),   @main.actionCollection, "focus_and_clear_search"
+
+      KDE::Action.new "&Create",  "new",         KDE::Shortcut.new(), 
+                      self, SLOT("project_create()"),           @main.actionCollection, "project_create"
+      KDE::Action.new "&Choose...",  "select",   KDE::Shortcut.new(), 
+                      self, SLOT("project_goto()"),             @main.actionCollection, "project_goto"
 
       clearLocation = KDE::Action.new "Clear Location Bar", "locationbar_erase", KDE::Shortcut.new(), self, SLOT("clear_location()"), @main.actionCollection, "clear_location"
       clearLocation.setWhatsThis "Clear Location bar<p>Clears the content of the location bar."
@@ -197,6 +225,7 @@ module MyGui
       @searchlabel.setText "Search: "
 
       @searchcombo = KDE::HistoryCombo.new @main
+      focus_search
       Qt::Object.connect @searchcombo,  SIGNAL("returnPressed()"),
                          self,          SLOT("goto_search()")
       Qt::Object.connect @searchcombo,  SIGNAL("textChanged(const QString&)"),
@@ -210,13 +239,27 @@ module MyGui
       Qt::WhatsThis::add @searchcombo, "Search<p>Enter a search term."
    end
 
+   def focus_search
+      @searchcombo.setFocus
+   end
+
+   def focus_and_clear_search
+      clear_location
+      focus_search
+   end
+
+
    def clear_location
       @searchcombo.clearEdit
    end
 
+   def uri_anchor_split url
+      url =~ /(.*?)(#(.*))?$/
+      return $1, $3
+   end
+
    def openURL kurl
-      kurl.url =~ /(.*?)(#(.*))?$/
-      url, anchor = $1, $3
+      url, anchor = uri_anchor_split kurl.url
       id = @id2uri.invert[url]
       if id.nil?
          log "link points outside indexed space!" 
@@ -250,35 +293,44 @@ end
 
 module IndexStorage
 
-   def dotfilepref
+   IndexStore = Struct.new :index, :nodeindex, :id2title, :id2uri, :id2depth, :version
+
+   def index_fname
       basedir = ENV["HOME"] + "/.rubberdocs"
       prefix = basedir + "/." + ENV["BASEDOCURL"].gsub(/\//,",") + ".idx"
       Dir.mkdir basedir unless File.exists? basedir
-      prefix
+      "#{prefix}.doc"
    end
 
-   def index_fname ;     "#{dotfilepref}.doc";    end
-   def nodeindex_fname ; "#{dotfilepref}.nodes";  end
-   def titles_fname;     "#{dotfilepref}.titles"; end
-   def uris_fname;       "#{dotfilepref}.uris";   end
-   def preloaded_fname;  "#{dotfilepref}.pfxed";  end
+   INDEX_VERSION = 2
 
    def load_indexes
-      return false unless File.exists? index_fname and File.exists? nodeindex_fname
-      File.open(index_fname,     "r") { |file| @index     = Marshal.load file }
-      File.open(nodeindex_fname, "r") { |file| @nodeindex = Marshal.load file }
-      File.open(titles_fname,    "r") { |file| @id2title  = Marshal.load file }
-      File.open(uris_fname,      "r") { |file| @id2uri    = Marshal.load file }
-      File.open(preloaded_fname, "r") { |file| @id2depth  = Marshal.load file }
-      true
+      return false unless File.exists? index_fname
+      File.open(index_fname, "r") {
+         |file| 
+         w = Marshal.load file
+         return false if w.version < INDEX_VERSION
+         @index     = w.index
+         @nodeindex = w.nodeindex
+         @id2title  = w.id2title
+         @id2uri    = w.id2uri
+         @id2depth  = w.id2depth
+         true
+      }
    end
 
    def save_indexes
-      File.open(index_fname,     "w") { |file| Marshal.dump @index,     file }
-      File.open(nodeindex_fname, "w") { |file| Marshal.dump @nodeindex, file }
-      File.open(titles_fname,    "w") { |file| Marshal.dump @id2title,  file }
-      File.open(uris_fname,      "w") { |file| Marshal.dump @id2uri,    file }
-      File.open(preloaded_fname, "w") { |file| Marshal.dump @id2depth,  file }
+      File.open(index_fname, "w") {
+         |file| 
+         w = IndexStore.new
+         w.index      = @index
+         w.nodeindex  = @nodeindex
+         w.id2title   = @id2title
+         w.id2uri     = @id2uri
+         w.id2depth   = @id2depth
+         w.version    = INDEX_VERSION
+         Marshal.dump w, file
+      }
    end
 
 end
@@ -291,6 +343,7 @@ module HTMLIndexer
       @url = first_url
       @indexed_more = false
       already_indexed = load_indexes
+      @top_doc_id = already_indexed ? @id2uri.keys.max + 1 : 0
       return if already_indexed 
       t1 = Time.now
       @viewed.hide
@@ -305,7 +358,6 @@ module HTMLIndexer
          while more_to_do
             progress.progressBar.setProgress @id2title.keys.length
          end
-         puts "now: #{@id2title.keys.length} / #{total_num_files}"
          @todo_links = @todo_next 
          fail "errr, you really didn't want to do that dave" if progress.wasCancelled
       end
@@ -315,61 +367,89 @@ module HTMLIndexer
       log "all documents indexed in #{(t2 - t1).to_i}s"
    end
 
-   def should_follow_link? href
-      return false if DEBUG_FAST
-      return case href
+   def should_follow? lhref
+      case lhref
       when /source/, /members/
-         false
+         ret = false
       when /^file:#{@pref}/
-         true
+         ret = true
       else
-         false
+         ret = false
       end
+      ret
    end
 
    def gather_for_current_page
+      index_current_title
       todo_links = []
       title_map = {}
       anchors = @viewed.htmlDocument.links
       f = anchors.firstItem
       count = anchors.length
-      idx = 0
-      caret_node = nil
-      while true
-         break if (count -= 1) < 0
+      until (count -= 1) < 0
          text = ""
          DOMUtils.each_child(f) {
             |node|
             text << node.nodeValue.string if node.nodeType == DOM::Node::TEXT_NODE
          }
          link = Qt::Internal::cast_object_to f, "DOM::HTMLLinkElement"
-         if should_follow_link? link.href.string
+         if should_follow? link.href.string
             title_map[link.href.string] = text
-            todo_links << link.href
+            urlonly, = uri_anchor_split link.href.string
+            add_link_to_index urlonly, text
+            todo_links << link.href unless DEBUG_FAST
          end
          f = anchors.nextItem
-         idx += 1
       end
-      todo_links
+      @id2depth[@shown_doc_id] = IndexDepths::LinksFollowed
+      return todo_links
    end
 
    DocNodeRef = Struct.new :doc_idx, :node_path
 
    module IndexDepths
-      Nothing, Partial, Node = 0, 1, 2
+      # TitleIndexed implies "LinkTitlesIndexed"
+      Allocated, TitleIndexed, LinksFollowed, Partial, Node = 0, 1, 2, 3, 4
    end
 
-   def alloc_for_current
+   def find_allocated_uri uri
+      id = @id2uri.invert[uri]
+      return id
+   end
+
+   def index_current_title
       log "making space for url #{@viewed.htmlDocument.URL.string.sub(@pref,"")}"
-      @id2uri[@shown_doc_id]   = @viewed.htmlDocument.URL.string
-      @id2title[@shown_doc_id] = @viewed.htmlDocument.title.string
-      @id2depth[@shown_doc_id] = IndexDepths::Nothing
-      @shown_doc_id += 1
+      id = find_allocated_uri(@viewed.htmlDocument.URL.string)
+      return if !id.nil? and @id2depth[id] >= IndexDepths::TitleIndexed
+      id = alloc_index_space @viewed.htmlDocument.URL.string if id.nil?
+      @indexed_more = true
+      @id2title[id] = @viewed.htmlDocument.title.string
+      @id2depth[id] = IndexDepths::TitleIndexed
+      @shown_doc_id = id
+   end
+
+   def alloc_index_space uri
+      @indexed_more = true
+      id = @top_doc_id
+        @id2uri[@top_doc_id] = uri
+      @id2title[@top_doc_id] = nil
+      @id2depth[@top_doc_id] = IndexDepths::Allocated
+      @top_doc_id += 1
+      id
+   end
+
+   def add_link_to_index uri, title
+      return unless find_allocated_uri(uri).nil?
+      @indexed_more = true
+      new_id = alloc_index_space uri
+      @id2title[new_id] = title
+      @index.insert_with_key title, new_id
    end
 
    def index_current_document
-      @indexed_more = true
       return if @id2depth[@shown_doc_id] >= IndexDepths::Partial
+      Qt::Application::setOverrideCursor(Qt::Cursor.new Qt::WaitCursor)
+      @indexed_more = true
       @label.setText "Scanning : #{@url.prettyURL}"
       log "indexing url #{@viewed.htmlDocument.URL.string.sub(@pref,"")}"
       DOMUtils.each_child(@viewed.document) {
@@ -379,11 +459,13 @@ module HTMLIndexer
       }
       @id2depth[@shown_doc_id] = IndexDepths::Partial
       @label.setText "Ready"
+      Qt::Application::restoreOverrideCursor
    end
 
    def preload_text
-      @indexed_more = true
       return if @id2depth[@shown_doc_id] >= IndexDepths::Node
+      @indexed_more = true
+      Qt::Application::setOverrideCursor(Qt::Cursor.new Qt::WaitCursor)
       log "deep indexing url #{@viewed.htmlDocument.URL.string.sub(@pref,"")}"
       @label.setText "Indexing : #{@url.prettyURL}"
       index_current_document
@@ -398,6 +480,7 @@ module HTMLIndexer
       }
       @id2depth[@shown_doc_id] = IndexDepths::Node
       @label.setText "Ready"
+      Qt::Application::restoreOverrideCursor
    end
 
 end
@@ -406,7 +489,6 @@ module TermHighlighter
 
    def update_highlight
       return if @search_text.nil? || @search_text.empty?
-      puts "WAAAAAAAAAH!!!!!!!!" if $doingit
       return if $doingit
       $doingit = true
       preload_text
@@ -416,14 +498,15 @@ module TermHighlighter
          next unless ref.doc_idx == @shown_doc_id
          highlighted_nodes << ref.node_path
       }
-      res = highlight_node_list highlighted_nodes
-      puts res
+      highlight_node_list highlighted_nodes
       $doingit = false
    end
 
-   ID_TITLE = 95
+   # TODO - this sucks, use khtml to get the values
+   ID_A     = 1
    ID_META  = 62
    ID_STYLE = 85
+   ID_TITLE = 95
 
    FORBIDDEN_TAGS = [ID_TITLE, ID_META, ID_STYLE]
 
@@ -435,6 +518,8 @@ module TermHighlighter
       @last_highlighted_doc_id = @shown_doc_id
       @to_undo = []
       return if highlighted_nodes.empty?
+      Qt::Application::setOverrideCursor(Qt::Cursor.new Qt::WaitCursor)
+      cursor_override = true
       @current_matching_node_index = 0 if @current_matching_node_index.nil?
       @current_matching_node_index = @current_matching_node_index.modulo highlighted_nodes.length
       caretnode = DOMUtils.find_node doc, highlighted_nodes[@current_matching_node_index]
@@ -443,18 +528,13 @@ module TermHighlighter
       caret_path = DOMUtils.get_node_path(caretnode)
       count = 0
       $blab_recall = []
+      @current_matched_href = nil
       highlighted_nodes.each {
          |path|
          node      = DOMUtils.find_node doc, path
          match_idx = node.nodeValue.string.downcase.index @search_text.downcase
          if match_idx.nil?
             $screwups = 0 if $screwups.nil?
-            puts match_idx
-            puts node
-            puts node.nodeValue
-            puts node.nodeValue.string
-            puts node.nodeValue.string.downcase
-            puts @search_text.downcase
             warn "if you see this, then alex screwed up!.... #{$screwups} times!"
             $screwups += 1
             next
@@ -462,6 +542,15 @@ module TermHighlighter
          parent_info = DOMUtils.list_parent_node_types node
          has_title_parent = !(parent_info.detect { |a| FORBIDDEN_TAGS.include? a[:elementId] }.nil?)
          next if has_title_parent
+         if path == caret_path
+            DOMUtils.each_parent(node) {
+               |n| 
+               next unless n.elementId == ID_A
+               # link = DOM::HTMLLinkElement.new n # WTF? why doesn't this work???
+               link = Qt::Internal::cast_object_to n, "DOM::HTMLLinkElement"
+               @current_matched_href = link.href.string
+            }
+         end
          before    = doc.createTextNode    node.nodeValue.split(0)
          matched   = doc.createTextNode  before.nodeValue.split(match_idx)
          after     = doc.createTextNode matched.nodeValue.split(@search_text.length)
@@ -473,20 +562,17 @@ module TermHighlighter
          spanelt.setClassName DOM::DOMString.new(classname)
          span.appendChild matched
          node.parentNode.insertBefore before, node
-         # p before.nodeValue.string
          node.parentNode.insertBefore span,   node
-         # p matched.nodeValue.string
          node.parentNode.insertBefore after,  node
-         # p after.nodeValue.string
          @to_undo       << [node.parentNode, before]
          node.parentNode.removeChild node
          rate = (count > 50) ? 50 : 10
          allow_user_input = ((count+=1) % rate == 0)
          if allow_user_input
-            puts "blab!"
+            Qt::Application::restoreOverrideCursor if cursor_override
+            cursor_override = false
             $blab = true
             Qt::Application::eventLoop.processEvents Qt::EventLoop::AllEvents, 10 
-            puts "unblab!"
             $blab = false
             if !$blab_recall.empty?
                return false 
@@ -494,15 +580,13 @@ module TermHighlighter
             @viewed.view.layout
          end
       }
-      puts "waza. finished"
       if !$blab_recall.empty?
-         puts "did stuff" 
-         @timer.start 0, true
+         @timer.start 50, true
       end
+      Qt::Application::restoreOverrideCursor if cursor_override
    end
 
    def undo_highlight to_undo
-      puts "undoing!"
       to_undo.reverse.each {
          |pnn| pn, before = *pnn
          mid        = before.nextSibling
@@ -512,21 +596,96 @@ module TermHighlighter
          pn.removeChild after
          midtxtnode = mid.childNodes.item(0)
          midtext    = midtxtnode.nodeValue
-         # p beforetext.string
-         # p midtext.string
-         # p aftertext.string
-         # puts "#{beforetext.string + midtext.string + aftertext.string}"
          str = DOM::DOMString.new ""
          str.insert aftertext, 0
          str.insert midtext, 0
          str.insert beforetext, 0
-         # p str
-         # puts "== #{str.string}"
          chardata = DOM::CharacterData.new(DOM::Node.new before)
          chardata.setData str
          pn.removeChild mid
       }
-      puts "done!"
+   end
+
+end
+
+class SmallIconSet
+   def SmallIconSet.[] name
+      loader = KDE::Global::instance.iconLoader
+      return loader.loadIconSet name, KDE::Icon::Small, 0
+   end
+end
+
+class BlahBlb2 < Qt::Object
+   slots "file_getter()"
+   def initialize parent=nil,name=nil,caption=nil
+      super(parent, name)
+      @parent = parent
+      @blah = KDE::DialogBase.new(parent,name, true, caption,
+                                  KDE::DialogBase::Ok|KDE::DialogBase::Cancel, KDE::DialogBase::Ok, false)
+
+      vbox = Qt::VBox.new @blah
+
+      grid = Qt::Grid.new 2, Qt::Horizontal, vbox
+
+      titlelabel = Qt::Label.new "Name:", grid
+      title = KDE::LineEdit.new grid
+      titlelabel.setBuddy title
+
+      urllabel   = Qt::Label.new "Location:", grid
+      lochbox = Qt::HBox.new grid
+      url   = KDE::LineEdit.new lochbox
+      urllabel.setBuddy url
+      locselc = Qt::PushButton.new lochbox
+      locselc.setIconSet SmallIconSet["up"]
+
+      Qt::Object.connect locselc, SIGNAL("clicked()"), 
+                         self,    SLOT("file_getter()")
+ 
+      title.setFocus
+
+      hbox = Qt::HBox.new vbox
+      Qt::PushButton.new "Delete", hbox
+
+      @blah.setMainWidget vbox
+   end
+   def file_getter
+      s = Qt::FileDialog::getOpenFileName "/home", "Images (*.png *.xpm *.jpg)",
+                                          @parent, "open file dialog", "Choose a file"
+   end
+   def exec
+      @blah.exec
+   end
+end
+
+class BlahBlb
+   def initialize parent=nil,name=nil,caption=nil
+      @blah = KDE::DialogBase.new(parent,name, true, caption,
+                                 KDE::DialogBase::Ok|KDE::DialogBase::Cancel|KDE::DialogBase::User1, KDE::DialogBase::Ok, 
+                                 false, KDE::GuiItem.new("&New..."))
+      listbox = Qt::ListBox.new @blah
+      listbox.insertItem "item 1"
+      listbox.insertItem "item 2"
+      Qt::Object.connect @blah,  SIGNAL("user1Clicked()"), 
+                         parent, SLOT("project_create()")
+      @blah.setMainWidget listbox
+   end
+   def exec
+      @blah.exec
+   end
+end
+
+module ProjectManager
+
+   def project_create
+      puts "project_create"
+      test = BlahBlb2.new self
+      test.exec
+   end
+
+   def project_goto
+      puts "project_goto"
+      test = BlahBlb.new self
+      test.exec
    end
 
 end
@@ -538,7 +697,9 @@ class RubberDoc < Qt::VBox
          "goto_search()", "clicked_result(QListViewItem*)",
          "search(const QString&)", "update_highlight()",
          "quit()", "openURL(const KURL&)", "index_all()",
-         "goto_next_match()", "clear_location()", "activated()"
+         "goto_prev_match()", "goto_next_match()", "clear_location()", "activated()",
+         "goto_current_match_link()", "focus_search()", "focus_and_clear_search()",
+         "project_create()", "project_goto()"
 
    def quit
       $main.close
@@ -551,6 +712,7 @@ class RubberDoc < Qt::VBox
    include IndexStorage
    include HTMLIndexer
    include TermHighlighter
+   include ProjectManager
 
    def initialize parent
       super parent
@@ -564,6 +726,7 @@ class RubberDoc < Qt::VBox
       @freq_sorted_idxs = nil
       @last_highlighted_doc_id, @to_undo = nil, nil, nil
       @search_text = nil
+      @current_matched_href = nil
 
       init_gui
       gui_init_proportions
@@ -611,6 +774,7 @@ class RubberDoc < Qt::VBox
       @viewed.document.load DOM::DOMString.new @url.url
       @viewed.setUserStyleSheet "span.searchword { background-color: yellow }
                                  span.foundword  { background-color: green }"
+      Qt::Application::eventLoop.processEvents Qt::EventLoop::ExcludeUserInput
       index_current_document unless @id2depth[@shown_doc_id] >= HTMLIndexer::IndexDepths::Partial
    end
 
@@ -620,11 +784,9 @@ class RubberDoc < Qt::VBox
 
    def search s
       if $blab
-         puts "got letter but ignored!!"
          $blab_recall << s
          return
       end
-      puts "got letter and reacted!!"
       @search_text = s
       idx_hash = Hash.new { |h,k| h[k] = 0 }
       results = @index.search(s)
@@ -637,20 +799,19 @@ class RubberDoc < Qt::VBox
       update_lv
       hl_timeout = 150 # continuation search should be slower?
       @timer.start hl_timeout, true unless @freq_sorted_idxs.empty?
-      puts "finished reacting!"
    end
 
    def look_for_prefixes
       prefixes = []
       # TODO - fix this crappy hack
-      @id2title.values.sort.each {
+      @id2title.values.compact.sort.each {
          |title|
          title.gsub! "\n", ""
-         p = title.index ":"
-         next if p.nil?
-         prefix = title[0..p-1]
+         pos = title.index ":"
+         next if pos.nil?
+         prefix = title[0..pos-1]
          prefixes << prefix
-         new_title = title[p+1..title.length]
+         new_title = title[pos+1..title.length]
          new_title.gsub! /(\s\s+|^\s+|\s+$)/, ""
          title.replace new_title 
       }
@@ -694,8 +855,17 @@ class RubberDoc < Qt::VBox
       update_highlight
    end
 
+   def goto_current_match_link
+      openURL KDE::URL.new(@current_matched_href) unless @current_matched_href.nil?
+   end
+
+   def goto_prev_match
+      @current_matching_node_index -= 1 # autowraps
+      update_highlight
+   end
+
    def goto_next_match
-      @current_matching_node_index += 1
+      @current_matching_node_index += 1 # autowraps
       update_highlight
    end
 
@@ -719,8 +889,8 @@ time_me("loading") {
       @viewed.document.load lhref
 }
       @done << lhref.string
-      alloc_for_current
-      @todo_next += gather_for_current_page
+      newlinks = gather_for_current_page
+      @todo_next += newlinks
    end
 
    def update_ui_elements
@@ -728,41 +898,20 @@ time_me("loading") {
       @back.setEnabled    !@history.empty?
    end
 
-   def ph
-      log "ph -> "
-      @history.each {
-         |kurl| log kurl.url
-      }
-      log ">"
-      log "ph@ -> "
-      @popped_history.each {
-         |kurl| log kurl.url
-      }
-      log ">"
-   end
-
    def go_back
-      log "go_back"
-      ph
       @popped_history << @url
-      log "BLAH:"
-      log @url.url
-      ph
       fail "ummm... already at the start, gui bug" if @history.empty?
       goto_url @history.pop, false, false
       update_loc
       update_ui_elements
-      ph
    end
 
    def go_forward
-      log "go_forward"
       fail "history bug" if @popped_history.empty?
       goto_url @popped_history.pop, false, false
       @history << @url
       update_loc
       update_ui_elements
-      ph
    end
 
    def update_loc
@@ -782,7 +931,6 @@ time_me("loading") {
    end
 
    def goto_url url = nil, history_store = true, blah = true
-      log "goto_url"
       @popped_history = [] if blah
       if history_store
          @history << @url
@@ -793,7 +941,16 @@ time_me("loading") {
       @label.setText "Ready"
       update_loc unless url.nil?
       update_ui_elements
-      ph
+      id = @id2uri.invert[@url.url]
+      if id.nil?
+         warn "link points outside indexed space!" 
+         return
+      end
+      @shown_doc_id = id
+      urlonly, = uri_anchor_split @url.url
+      if should_follow? urlonly and @id2depth[id] < IndexDepths::TitleIndexed
+         gather_for_current_page
+      end
    end
 
 end
@@ -804,7 +961,7 @@ $blab = false
 m = KDE::MainWindow.new
 browser = RubberDoc.new m
 browser.update_ui_elements
-m.createGUI Dir.pwd + "/xmlgui.rc"
+m.createGUI Dir.pwd + "/RubberDoc.rc"
 m.setCentralWidget browser
 $main = m
 app.setMainWidget(m)
@@ -847,3 +1004,11 @@ wierd khtml bug
 
 in order to use KURL's as constants one must place this KApplication init 
 at the top of the file otherwise KInstance isn't init'ed before KURL usage
+
+class BlahBlb < KDE::DialogBase
+   def initialize parent=nil,name=nil,caption=nil
+      super(parent,name, true, caption,
+            KDE::DialogBase::Ok|KDE::DialogBase::Cancel, KDE::DialogBase::Ok, false, KDE::GuiItem.new)
+      blah blah
+   end
+end

@@ -1,5 +1,5 @@
 <!DOCTYPE kpartgui SYSTEM "kpartgui.dtd">
-<kpartgui name="xmlgui" version="1">
+<kpartgui name="xmlgui" version="2">
 
 <MenuBar>
    <Menu name="file" noMerge="1"><text>&amp;File</text>
@@ -9,11 +9,20 @@
    </Menu>
 </MenuBar>
 
+<ToolBar name="projectToolbar" noMerge="1" fullWidth="true" iconText="icontextright"><text>Project Toolbar</text>
+   <Action name="project_create"/>
+   <Action name="project_delete"/>
+   <Action name="project_manage"/>
+   <Action name="project_goto"/>
+</ToolBar>
+
 <ToolBar name="mainToolBar" noMerge="1" fullWidth="true" iconText="icontextright"><text>Main Toolbar</text>
    <Action name="back"/>
    <Action name="forward"/>
    <Action name="home"/>
+   <Action name="prev_match"/>
    <Action name="next_match"/>
+   <Action name="open_match"/>
 </ToolBar>
 
 <ToolBar fullWidth="true" name="locationToolBar" newline="true"><text>Location Toolbar</text>
