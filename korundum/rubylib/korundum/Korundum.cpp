@@ -204,7 +204,7 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 			*stream >> stack[i].s_double;
 			break;
 		case xmoc_charstar:
-			*stream >> (char *) stack[i].s_voidp;
+			*stream >> (char *&) stack[i].s_voidp;
 			break;
 		case xmoc_QString:
 			{
