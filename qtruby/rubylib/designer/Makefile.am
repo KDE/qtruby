@@ -1,1 +1,1 @@
-SUBDIRS = rbuic
+SUBDIRS = rbuic uilib

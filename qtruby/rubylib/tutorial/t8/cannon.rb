@@ -33,6 +33,6 @@ class CannonField < Qt::Widget
 
 
 	def sizePolicy()
-    	return Qt::SizePolicy.new( Qt::SizePolicy.Expanding, Qt::SizePolicy.Expanding )
+    	return Qt::SizePolicy.new( Qt::SizePolicy::Expanding, Qt::SizePolicy::Expanding )
 	end
 end

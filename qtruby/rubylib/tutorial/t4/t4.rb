@@ -5,15 +5,15 @@ require 'Qt'
 
 class MyWidget < Qt::Widget
 
-def initialize()
+def initialize(parent = nil, name = nil)
 	super
     setMinimumSize(200, 120)
     setMaximumSize(200, 120)
 
     quit = Qt::PushButton.new('Quit', self, 'quit')
     quit.setGeometry(62, 40, 75, 30)
-    quit.setFont(Qt::Font.new('Times', 18, Qt::Font.Bold))
-    $qApp.connect(quit, SIGNAL('clicked()'), SLOT('quit()'))
+    quit.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
+    connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
 end
 
 end

@@ -103,18 +103,17 @@ KDE Specific Infomation:
 		
 		You can use this more rubyish form:
 		
-		result = dcopRef.foo?
-		if result.nil?
-			puts "DCOP predicate failed"
+		if dcopRef.foo?
+			puts "foo is true"
 		else
-			puts "foo? is #{result}"
+			puts "foo? is false"
 		end
 
 		Similarly you can use foo? as an alias for methods of the form 
 		hasFoo(). 
 		See examples/dcop/dcoppredicate.rb and dcopslot.rb
 		
-	- Underscore to camel case method name conversion
+	- Underscore to camel case DCOP method name conversion
 	
 		Any underscores in a method name are removed, and the following
 		character is capitalised. For example:
@@ -125,14 +124,14 @@ KDE Specific Infomation:
 		
 		res = dcopRef.getPoint("Hello from dcopsend")
 			
-	- Send to a DCOPRef is similar to a call:
+	- Send to a DCOPRef:
 	    
 		There are two different ways to specify a DCOP send:
 		1) res = dcopRef.send("mySlot(QString)", "Hello from dcopsend")
 	    2) res = dcopRef.send("mySlot", "Hello from dcopsend")
 		
 		The result will either be true or false (but not nil for fail like the
-		call() above)
+		DCOPRef.call() method described above).
 	
 	- When a call of the form 'dcopRef.getPoint(5, "foobar")' is made, the C++
 	  type signature is obtained from the list of those returned by 

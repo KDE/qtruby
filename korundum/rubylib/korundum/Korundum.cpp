@@ -20,6 +20,7 @@
 #include <qmap.h>
 #include <qdatastream.h>
 
+#include <kdeversion.h>
 #include <dcopclient.h>
 #include <dcopobject.h>
 #include <dcopref.h>
@@ -459,7 +460,11 @@ public:
 		DCOPClient* dc = dcopRef->dcopClient();
 		QCString replyType;
 		QByteArray dataReceived;
+#if KDE_VERSION >= 0x030200
 		bool ok = dc->call(dcopRef->app(), dcopRef->obj(), _remFun, *_data, replyType, dataReceived, _useEventLoop, _timeout);
+#else
+		bool ok = dc->call(dcopRef->app(), dcopRef->obj(), _remFun, *_data, replyType, dataReceived, _useEventLoop);
+#endif
 		
 		if (!ok) {
 			// Note that a failed dcop call returns 'nil', not 'false'

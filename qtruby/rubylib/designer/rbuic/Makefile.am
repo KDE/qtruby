@@ -13,7 +13,7 @@ librbuic_la_LIBADD  = $(LIB_QT) $(LIBZ)
 
 rbuic_SOURCES = main.cpp
 rbuic_LDADD   = librbuic.la $(all_libraries) 
-rbuic_LDFLAGS = $(KDE_RPATH)
+rbuic_LDFLAGS = 
 
 EXTRA_DIST = domtool.cpp domtool.h embed.cpp form.cpp globaldefs.h main.cpp object.cpp parser.cpp parser.h subclassing.cpp uic.cpp uic.h widgetdatabase.cpp widgetdatabase.h widgetinterface.h
 
