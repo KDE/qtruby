@@ -10,13 +10,6 @@
 require 'Qt'
 include Qt
 
-class QtShellControl < Qt::MainWindow
-   attr_accessor :menubar, :fileMenu, :helpMenu, :toolBar, :fileName, :fileOpenAction
-   attr_accessor :fileSaveAction, :fileSaveAsAction, :filePrintAction, :fileExitAction
-   attr_accessor :helpExampleAction, :comboBox, :sessionLog, :executedLines, :printer
-   slots 'fileOpen()', 'fileOpen()', 'fileSave()', 'fileSaveAs()'
-   slots 'filePrint()', 'fileExit()', 'helpExample()'
-
 $image0_data =
 ["22 22 7 1",
 ". c None",
@@ -222,162 +215,170 @@ $image3_data =
 ".#.l.z.A#l.z#m#m#m#n#o#o#p#p#q#q#p#o#p#fQtQt",
 "QtQt.d#r#s#s#t#p.T.T.T#u#u.z#e#e#v.o.kQtQtQt"]
 
-   def initialize(*k)
-      super(*k)
-      image0 = Qt::Pixmap.new($image0_data)
-      image1 = Qt::Pixmap.new($image1_data)
-      image2 = Qt::Pixmap.new($image2_data)
-      image3 = Qt::Pixmap.new($image3_data)
-      box = VBox.new(self);
-      @sessionLog = TextEdit.new(box, "sessionLog")
-      @sessionLog.setTextFormat(Qt::RichText)
-      @sessionLog.setReadOnly(1)
-      @comboBox = ComboBox.new(box, "comboBox")
-      @comboBox.setEditable(1)
-      @comboBox.setAutoCompletion(1)
-      self.setCentralWidget(box)
-      comboBox.setFocus
-      self.resize(500,300)
-      self.setCaption("PerlQt Shell")
-      def trUtf8(k)
-         return k
-      end
-      @fileOpenAction = Qt::Action.new(self, "fileOpenAction")
-      @fileOpenAction.setIconSet(Qt::IconSet.new(image1))
-      @fileOpenAction.setText(trUtf8("Open"))
-      @fileOpenAction.setMenuText(trUtf8("&Open..."))
-#     @fileOpenAction.setAccel(KeySequence(trUtf8("Ctrl+O")))
-      @fileSaveAction = Qt::Action.new(self, "fileSaveAction")
-      @fileSaveAction.setIconSet(Qt::IconSet.new(image2))
-      @fileSaveAction.setText(trUtf8("Save"))
-      @fileSaveAction.setMenuText(trUtf8("&Save"))
-#     @fileSaveAction.setAccel(KeySequence(trUtf8("Ctrl+S")))
-      @fileSaveAsAction = Qt::Action.new(self, "fileSaveAsAction")
-      @fileSaveAsAction.setText(trUtf8("Save As"))
-      @fileSaveAsAction.setMenuText(trUtf8("Save &As..."))
-#     @fileSaveAsAction.setAccel(KeySequence(trUtf8("Ctrl+A")))
-      @filePrintAction = Qt::Action.new(self, "filePrintAction")
-      @filePrintAction.setIconSet(Qt::IconSet.new(image3))
-      @filePrintAction.setText(trUtf8("Print"))
-      @filePrintAction.setMenuText(trUtf8("&Print..."))
-#     @filePrintAction.setAccel(KeySequence(trUtf8("Ctrl+P")))
-      @fileExitAction = Qt::Action.new(self, "fileExitAction")
-      @fileExitAction.setText(trUtf8("Exit"))
-      @fileExitAction.setMenuText(trUtf8("E&xit"))
-#     @fileExitAction.setAccel(KeySequence(trUtf8("Ctrl+E")))
 
-      @helpExampleAction= Qt::Action.new(self, "helpExampleAction");
-      @helpExampleAction.setText(trUtf8("Example"));
-      @helpExampleAction.setMenuText(trUtf8("Examp&le"));
-#     @helpExampleAction.setAccel(KeySequence(trUtf8("Ctrl+L")));
+class QtShellControl < Qt::MainWindow
+   attr_accessor :menubar, :fileMenu, :helpMenu, :toolBar, :fileName, :fileOpenAction
+   attr_accessor :fileSaveAction, :fileSaveAsAction, :filePrintAction, :fileExitAction
+   attr_accessor :helpExampleAction, :comboBox, :sessionLog, :executedLines, :printer
+   slots 'fileOpen()', 'fileOpen()', 'fileSave()', 'fileSaveAs()'
+   slots 'filePrint()', 'fileExit()', 'helpExample()'
 
-      @toolBar = Qt::ToolBar.new("", self, DockTop)
-      @toolBar.setLabel(trUtf8("Tools"))
+    def initialize(*k)
+        super(*k)
+        image0 = Qt::Pixmap.new($image0_data)
+        image1 = Qt::Pixmap.new($image1_data)
+        image2 = Qt::Pixmap.new($image2_data)
+        image3 = Qt::Pixmap.new($image3_data)
+        box = VBox.new(self);
+        @sessionLog = TextEdit.new(box, "sessionLog")
+        @sessionLog.setTextFormat(Qt::RichText)
+        @sessionLog.setReadOnly(1)
+        @comboBox = ComboBox.new(box, "comboBox")
+        @comboBox.setEditable(1)
+        @comboBox.setAutoCompletion(1)
+        self.setCentralWidget(box)
+        comboBox.setFocus
+        self.resize(500,300)
+        self.setCaption("PerlQt Shell")
+        def trUtf8(k)
+            return k
+        end
+        @fileOpenAction = Qt::Action.new(self, "fileOpenAction")
+        @fileOpenAction.setIconSet(Qt::IconSet.new(image1))
+        @fileOpenAction.setText(trUtf8("Open"))
+        @fileOpenAction.setMenuText(trUtf8("&Open..."))
+#       @fileOpenAction.setAccel(KeySequence(trUtf8("Ctrl+O")))
+        @fileSaveAction = Qt::Action.new(self, "fileSaveAction")
+        @fileSaveAction.setIconSet(Qt::IconSet.new(image2))
+        @fileSaveAction.setText(trUtf8("Save"))
+        @fileSaveAction.setMenuText(trUtf8("&Save"))
+#       @fileSaveAction.setAccel(KeySequence(trUtf8("Ctrl+S")))
+        @fileSaveAsAction = Qt::Action.new(self, "fileSaveAsAction")
+        @fileSaveAsAction.setText(trUtf8("Save As"))
+        @fileSaveAsAction.setMenuText(trUtf8("Save &As..."))
+#       @fileSaveAsAction.setAccel(KeySequence(trUtf8("Ctrl+A")))
+        @filePrintAction = Qt::Action.new(self, "filePrintAction")
+        @filePrintAction.setIconSet(Qt::IconSet.new(image3))
+        @filePrintAction.setText(trUtf8("Print"))
+        @filePrintAction.setMenuText(trUtf8("&Print..."))
+#       @filePrintAction.setAccel(KeySequence(trUtf8("Ctrl+P")))
+        @fileExitAction = Qt::Action.new(self, "fileExitAction")
+        @fileExitAction.setText(trUtf8("Exit"))
+        @fileExitAction.setMenuText(trUtf8("E&xit"))
+#       @fileExitAction.setAccel(KeySequence(trUtf8("Ctrl+E")))
 
-      @fileOpenAction.addTo(toolBar)
-      @fileSaveAction.addTo(toolBar)
-      @filePrintAction.addTo(toolBar)
+        @helpExampleAction= Qt::Action.new(self, "helpExampleAction");
+        @helpExampleAction.setText(trUtf8("Example"));
+        @helpExampleAction.setMenuText(trUtf8("Examp&le"));
+#       @helpExampleAction.setAccel(KeySequence(trUtf8("Ctrl+L")));
+       
+        @toolBar = Qt::ToolBar.new("", self, DockTop)
+        @toolBar.setLabel(trUtf8("Tools"))
+       
+        @fileOpenAction.addTo(toolBar)
+        @fileSaveAction.addTo(toolBar)
+        @filePrintAction.addTo(toolBar)
+       
+        @menubar= Qt::MenuBar.new(self, "menubar")
+       
+        @fileMenu= Qt::PopupMenu.new(self)
+        @fileOpenAction.addTo(fileMenu)
+        @fileSaveAction.addTo(fileMenu)
+        @fileSaveAsAction.addTo(fileMenu)
+        @fileMenu.insertSeparator
+        @filePrintAction.addTo(fileMenu)
+        @fileMenu.insertSeparator
+        @fileExitAction.addTo(fileMenu)
+        @menubar.insertItem(trUtf8("&File"), fileMenu)
+       
+        @menubar.insertSeparator
 
-      @menubar= Qt::MenuBar.new(self, "menubar")
+        @helpMenu= Qt::PopupMenu.new(self)
+        @helpExampleAction.addTo(helpMenu)
+        @menubar.insertItem(trUtf8("&Help"), helpMenu)
 
-      @fileMenu= Qt::PopupMenu.new(self)
-      @fileOpenAction.addTo(fileMenu)
-      @fileSaveAction.addTo(fileMenu)
-      @fileSaveAsAction.addTo(fileMenu)
-      @fileMenu.insertSeparator
-      @filePrintAction.addTo(fileMenu)
-      @fileMenu.insertSeparator
-      @fileExitAction.addTo(fileMenu)
-      @menubar.insertItem(trUtf8("&File"), fileMenu)
+        connect(@fileOpenAction, SIGNAL('activated()'), self, SLOT('fileOpen()'))
+        connect(@fileSaveAction, SIGNAL('activated()'), self, SLOT('fileSave()'))
+        connect(@fileSaveAsAction, SIGNAL('activated()'), self, SLOT('fileSaveAs()'))
+        connect(@filePrintAction, SIGNAL('activated()'), self, SLOT('filePrint()'))
+        connect(@fileExitAction, SIGNAL('activated()'), self, SLOT('fileExit()'))
+        connect(@helpExampleAction, SIGNAL('activated()'), self, SLOT('helpExample()'))
 
-      @menubar.insertSeparator
-  
-      @helpMenu= Qt::PopupMenu.new(self)
-      @helpExampleAction.addTo(helpMenu)
-      @menubar.insertItem(trUtf8("&Help"), helpMenu)
-  
-      connect(@fileOpenAction, SIGNAL('activated()'), self, SLOT('fileOpen()'))
-      connect(@fileSaveAction, SIGNAL('activated()'), self, SLOT('fileSave()'))
-      connect(@fileSaveAsAction, SIGNAL('activated()'), self, SLOT('fileSaveAs()'))
-      connect(@filePrintAction, SIGNAL('activated()'), self, SLOT('filePrint()'))
-      connect(@fileExitAction, SIGNAL('activated()'), self, SLOT('fileExit()'))
-      connect(@helpExampleAction, SIGNAL('activated()'), self, SLOT('helpExample()'))
+        @executedLines = []
+    end
 
-      @executedLines = []
-   end
-
-def fileOpen
-    fname = Qt::FileDialog::getOpenFileName(
-                                ".",
-                                "Pqtsh Session (*.pqts)",
-                                self,
-                                "open session",
-                                "Choose a file to open")
-    return if fname.nil?
-    emit fileNeedsEval(fname)
-end
-
-def getFileName
-    @fileName = Qt::FileDialog::getSaveFileName(
+    def fileOpen
+        fname = Qt::FileDialog::getOpenFileName(
                                     ".",
                                     "Pqtsh Session (*.pqts)",
                                     self,
-                                    "save session",
-                                    "Choose a filename" )
-    unless @fileName =~ /\.pqts$/
-        @fileName << ".pqts"
+                                    "open session",
+                                    "Choose a file to open")
+        return if fname.nil?
+        emit fileNeedsEval(fname)
     end
-    @fileName
-end
 
-def save(fname)
-    file = File.new(fname, "w")
-    if file.nil
-        # TODO fix ": unknown" to give a reason
-        Qt::MessageBox::critical( 
-                             self, 
-                             "Error" , 
-                             "Couldn't open #{fname} for writing: unknown",  
-                             Qt::MessageBox::Ok, 
-                             Qt::MessageBox::NoButton )
-        return
+    def getFileName
+        @fileName = Qt::FileDialog::getSaveFileName(
+                                        ".",
+                                        "Pqtsh Session (*.pqts)",
+                                        self,
+                                        "save session",
+                                        "Choose a filename" )
+        unless @fileName =~ /\.pqts$/
+            @fileName << ".pqts"
+        end
+        @fileName
     end
-    @executedLines.each {
-        |line|
-        next if line =~ /^\s*$/
-        line.chomp!
-        line << ";" unless line =~ /;\s*$/
-        file.puts(line)
-    }
-    file.close
-end
 
-def fileSave
-    return if emptySession
-    fname = @fileName || getFileName
-    return if fname.nil?
-    save fname
-end
-
-def fileSaveAs(cond = 0)
-    return if emptySession
-    fname = getFileName
-    return if fname.nil?
-    ret = nil
-    if File.exists(fname)
-        cond += 1
-        ret = Qt::MessageBox::warning(
-                                 self,
-                                 "Warning" ,
-                                 "File exists, overwrite ?",
-                                 Qt::MessageBox::Yes,
-                                 Qt::MessageBox::No )
-    else
-        cond = 0
+    def save(fname)
+        file = File.new(fname, "w")
+        if file.nil
+            # TODO fix ": unknown" to give a reason
+            Qt::MessageBox::critical( 
+                                 self, 
+                                 "Error" , 
+                                 "Couldn't open #{fname} for writing: unknown",  
+                                 Qt::MessageBox::Ok, 
+                                 Qt::MessageBox::NoButton )
+            return
+        end
+        @executedLines.each {
+            |line|
+            next if line =~ /^\s*$/
+            line.chomp!
+            line << ";" unless line =~ /;\s*$/
+            file.puts(line)
+        }
+        file.close
     end
-    fileSaveAs(cond) if (cond == 0) and ret == Qt::MessageBox::No
-    save(fname)
-end
+
+    def fileSave
+        return if emptySession
+        fname = @fileName || getFileName
+        return if fname.nil?
+        save fname
+    end
+
+    def fileSaveAs(cond = 0)
+        return if emptySession
+        fname = getFileName
+        return if fname.nil?
+        ret = nil
+        if File.exists(fname)
+            cond += 1
+            ret = Qt::MessageBox::warning(
+                                     self,
+                                     "Warning" ,
+                                     "File exists, overwrite ?",
+                                     Qt::MessageBox::Yes,
+                                     Qt::MessageBox::No )
+        else
+            cond = 0
+        end
+        fileSaveAs(cond) if (cond == 0) and ret == Qt::MessageBox::No
+        save(fname)
+    end
 
 =begin
 
@@ -423,39 +424,39 @@ sub filePrint
 
 =end
 
-def fileExit
-    emit Qt::app.quit if confirmExit
-end
-
-def closeEvent(e)
-   if confirmExit
-       e.accept
-   else
-       e.ignore
+    def fileExit
+        emit Qt::app.quit if confirmExit
     end
-end
 
-def confirmExit
-    ret = 0
-    return true if @executedLines.empty?
-    ret = Qt::MessageBox::warning(
-                            self,
-                            "Warning" ,
-                            "A session is opened, quit anyway ?",
-                             Qt::MessageBox::Yes,
-                             Qt::MessageBox::No)
-    return ret != Qt::MessageBox::No
-end
+    def closeEvent(e)
+       if confirmExit
+           e.accept
+       else
+           e.ignore
+        end
+    end
 
-def emptySession
-    empty = @executedLines.empty?
-    statusBar.message("Session is empty...", 3000) if empty
-    empty
-end
+    def confirmExit
+        ret = 0
+        return true if @executedLines.empty?
+        ret = Qt::MessageBox::warning(
+                                self,
+                                "Warning" ,
+                                "A session is opened, quit anyway ?",
+                                 Qt::MessageBox::Yes,
+                                 Qt::MessageBox::No)
+        return ret != Qt::MessageBox::No
+    end
 
-def helpExample
-    emit fileNeedsEval($example)
-end
+    def emptySession
+        empty = @executedLines.empty?
+        statusBar.message("Session is empty...", 3000) if empty
+        empty
+    end
+
+    def helpExample
+        emit fileNeedsEval($example)
+    end
 
 end
 
