@@ -33,6 +33,184 @@ extern void install_handlers(TypeHandler *);
 
 Marshall::HandlerFn getMarshallFn(const SmokeType &type);
 
+/*
+	Copy items from the stream to the stack, each item has a corresponding description in the 
+	args array of MocArguments. Used for marshalling DCOP replies and emitting DCOP signals.
+*/
+static void
+smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int items, MocArgument* args)
+{
+	for(int i = 0; i < items; i++) {
+		Smoke::StackItem *si = stack + i;
+			
+		switch(args[i].argType) {
+		case xmoc_bool:
+			*stream << si->s_bool;
+			break;
+		case xmoc_int:
+			*stream << si->s_int;
+			break;
+		case xmoc_double:
+			*stream << si->s_double;
+			break;
+		case xmoc_charstar:
+			*stream << (char *) si->s_voidp;
+			break;
+		case xmoc_QString:
+			{
+				QString temp((const QString&) *((QString *) si->s_voidp));
+				*stream << temp;
+			}
+			break;
+		default:
+			{
+				const SmokeType &t = args[i].st;
+				switch(t.elem()) {
+				case Smoke::t_bool:
+				case Smoke::t_char:
+				case Smoke::t_uchar:
+				case Smoke::t_short:
+				case Smoke::t_ushort:
+				case Smoke::t_int:
+				case Smoke::t_uint:
+				case Smoke::t_long:
+				case Smoke::t_ulong:
+				case Smoke::t_float:
+				case Smoke::t_double:
+					m->unsupported();
+					break;
+				case Smoke::t_enum:
+					break;
+				case Smoke::t_class:
+				case Smoke::t_voidp:
+					{
+						// Look for methods of the form: QDataStream & operator<<(QDataStream&, const MyClass&)
+						Smoke::Index meth = t.smoke()->findMethod("QGlobalSpace", "operator<<##");
+						Smoke::Index i;
+						if (meth > 0) {
+							i = t.smoke()->methodMaps[meth].method;
+							i = -i;		// turn into ambiguousMethodList index
+							while (t.smoke()->ambiguousMethodList[i]) {
+								Smoke::Method &method = t.smoke()->methods[t.smoke()->ambiguousMethodList[i]];
+								QString	refType("const ");
+								refType += t.name();
+								refType += "&";
+								if (	strcmp(	"QDataStream&", 
+												t.smoke()->types[t.smoke()->argumentList[method.args+0]].name ) == 0 
+										&& strcmp(	(const char *) refType, 
+													t.smoke()->types[t.smoke()->argumentList[method.args+1]].name ) == 0 ) 
+								{
+									Smoke::ClassFn fn = t.smoke()->classes[method.classId].classFn;
+									Smoke::Stack local_stack = new Smoke::StackItem[3];
+									local_stack[1].s_voidp = stream;
+									local_stack[2].s_voidp = si->s_voidp;
+									// Call the QDataStream marshaller write method
+									// with the instance to be marshalled
+									(*fn)(method.method, 0, local_stack);
+									delete local_stack;
+									break;
+								}
+								i++;
+							}
+						}
+					}
+					break;
+				default:
+					break;
+				}
+			}
+		}
+	}
+	return;
+}
+
+/*
+	Copy items from the stack to the stream, each item has a corresponding description in the 
+	args array of MocArguments. Used for marshalling the arguments to a DCOP slot invocation.
+*/
+static void
+smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int items, MocArgument* args)
+{
+	for(int i = 0; i < items; i++) {
+		Smoke::StackItem *si = stack + i;
+		
+		switch(args[i].argType) {
+		case xmoc_bool:
+			*stream >> stack[i].s_bool;
+			break;
+		case xmoc_int:
+			*stream >> stack[i].s_int;
+			break;
+		case xmoc_double:
+			*stream >> stack[i].s_double;
+			break;
+		case xmoc_charstar:
+			*stream >> (char *) stack[i].s_voidp;
+			break;
+		case xmoc_QString:
+			{
+				QString temp;
+				*stream >> temp;
+				stack[i].s_voidp = new QString(temp);
+			}
+			break;
+		default:	// case xmoc_ptr:
+			{
+				const SmokeType &t = args[i].st;
+				switch(t.elem()) {
+				case Smoke::t_bool:
+				case Smoke::t_char:
+				case Smoke::t_uchar:
+				case Smoke::t_short:
+				case Smoke::t_ushort:
+				case Smoke::t_int:
+				case Smoke::t_uint:
+				case Smoke::t_long:
+				case Smoke::t_ulong:
+				case Smoke::t_float:
+				case Smoke::t_double:
+				case Smoke::t_enum:
+					m->unsupported();
+					break;
+				case Smoke::t_class:
+				case Smoke::t_voidp:
+					{
+						// Look for methods of the form: QDataStream & operator>>(QDataStream&, MyClass&)
+						Smoke::Index meth = t.smoke()->findMethod("QGlobalSpace", "operator>>##");
+						Smoke::Index i;
+						if (meth > 0) {
+							i = t.smoke()->methodMaps[meth].method;
+							i = -i;		// turn into ambiguousMethodList index
+							while (t.smoke()->ambiguousMethodList[i]) {
+								Smoke::Method &method = t.smoke()->methods[t.smoke()->ambiguousMethodList[i]];
+								QString	refType(t.name());
+								refType += "&";
+								if (	strcmp(	"QDataStream&", 
+												t.smoke()->types[t.smoke()->argumentList[method.args+0]].name ) == 0 
+										&& strcmp(	(const char *) refType, 
+													t.smoke()->types[t.smoke()->argumentList[method.args+1]].name ) == 0 ) 
+								{
+									Smoke::ClassFn fn = t.smoke()->classes[method.classId].classFn;
+									Smoke::Stack local_stack = new Smoke::StackItem[3];
+									local_stack[1].s_voidp = stream;
+									local_stack[2].s_voidp = si->s_voidp; 
+									// Call the QDataStream marshaller read method
+									// on the instance to be marshalled
+									(*fn)(method.method, 0, local_stack);
+									delete local_stack;
+									break;
+								}
+								i++;
+							}
+						}					
+					}
+					break;
+				}
+			}
+	    }
+	}
+}
+		
 class EmitDCOPSignal : public Marshall {
 	VALUE _obj;
 	char * _signalName;
@@ -47,7 +225,7 @@ class EmitDCOPSignal : public Marshall {
     bool _called;
 public:
     EmitDCOPSignal(VALUE obj, char * signalName, int items, VALUE *sp, VALUE args) :
-		_obj(obj), _signalName(signalName), _items(items), _sp(sp), _cur(-1), _called(false)
+		_obj(obj), _signalName(signalName), _sp(sp), _items(items), _cur(-1), _called(false)
     {
 		_data = new QByteArray();
 		_stream = new QDataStream(*_data, IO_WriteOnly);
@@ -77,71 +255,7 @@ public:
 		if(_called) return;
 		_called = true;
 
-//	QUObject *o = new QUObject[_items + 1];
-		for(int i = 0; i < _items; i++) {
-//	    QUObject *po = o + i + 1;
-			Smoke::StackItem *si = _stack + i;
-			switch(_args[i].argType) {
-			case xmoc_bool:
-				*_stream << si->s_bool;
-				break;
-			case xmoc_int:
-				*_stream << si->s_int;
-				break;
-			case xmoc_double:
-				*_stream << si->s_double;
-				break;
-			case xmoc_charstar:
-				*_stream << (char *) si->s_voidp;
-				break;
-			case xmoc_QString:
-				*_stream << *((QString *) si->s_voidp);
-			break;
-				default:
-				{
-					const SmokeType &t = _args[i].st;
-					void *p;
-					switch(t.elem()) {
-					case Smoke::t_bool:
-					case Smoke::t_char:
-					case Smoke::t_uchar:
-					case Smoke::t_short:
-					case Smoke::t_ushort:
-					case Smoke::t_int:
-					case Smoke::t_uint:
-					case Smoke::t_long:
-					case Smoke::t_ulong:
-					case Smoke::t_float:
-					case Smoke::t_double:
-						unsupported();
-						break;
-					case Smoke::t_enum:
-						{
-			    // allocate a new enum value
-//			    Smoke::EnumFn fn = SmokeClass(t).enumFn();
-//			    if(!fn) {
-//				rb_warning("Unknown enumeration %s\n", t.name());
-//				p = new int((int)si->s_enum);
-//				break;
-//			    }
-//			    Smoke::Index id = t.typeId();
-//			    (*fn)(Smoke::EnumNew, id, p, si->s_enum);
-//			    (*fn)(Smoke::EnumFromLong, id, p, si->s_enum);
-			    // FIXME: MEMORY LEAK
-						}
-						break;
-					case Smoke::t_class:
-					case Smoke::t_voidp:
-//			p = si->s_voidp;
-						break;
-					default:
-						p = 0;
-						break;
-					}
-				}
-			}
-		}
-		
+		smokeStackToStream(this, _stack, _stream, _items, _args);
 		kapp->dcopClient()->emitDCOPSignal(_signalName, *_data);
     }
 	
@@ -163,25 +277,27 @@ public:
     bool cleanup() { return true; }
 };
 
-class DCOPReturnValue : public Marshall {
-    Smoke *_smoke;
-    Smoke::Index _returnType;
+class DCOPReplyValue : public Marshall {
+    MocArgument *	_replyType;
     QDataStream * _retval;
     Smoke::Stack _stack;
 	VALUE * _result;
 public:
-	DCOPReturnValue(Smoke *smoke, Smoke::Index returnType, Smoke::Stack stack, QByteArray & retval, VALUE result) :
-		_smoke(smoke), _returnType(returnType), _stack(stack)
+	DCOPReplyValue(QByteArray & retval, VALUE * result, VALUE replyType) 
 	{
 		_retval = new QDataStream(retval, IO_WriteOnly);
-		_result = &result;
+		_result = result;
+		Data_Get_Struct(rb_ary_entry(replyType, 1), MocArgument, _replyType);
+		_stack = new Smoke::StackItem[1];
+
 		Marshall::HandlerFn fn = getMarshallFn(type());
 		(*fn)(this);
+		smokeStackToStream(this, _stack, _retval, 1, _replyType);
     }
 
-    const Smoke::Method &method() { }
-//    const Smoke::Method &method() { return _smoke->methods[_method]; }
-    SmokeType type() { return SmokeType(_smoke, _returnType); }
+    SmokeType type() { 
+		return _replyType[0].st; 
+	}
     Marshall::Action action() { return Marshall::FromVALUE; }
     Smoke::StackItem &item() { return _stack[0]; }
     VALUE * var() {
@@ -190,14 +306,13 @@ public:
 	
 	void unsupported() 
 	{
-		rb_raise(rb_eArgError, "Cannot handle '%s' as DCOP return-type of %s::%s",
-		type().name(),
-		strcmp(_smoke->className(method().classId), "QGlobalSpace") == 0 ? "" : _smoke->className(method().classId),
-		_smoke->methodNames[method().name]);
+		rb_raise(rb_eArgError, "Cannot handle '%s' as DCOP reply-type", type().name());
     }
-    Smoke *smoke() { return _smoke; }
-    void next() {}
-    bool cleanup() { return false; }
+	Smoke *smoke() { return type().smoke(); }
+    
+	void next() {}
+    
+	bool cleanup() { return false; }
 };
 
 class InvokeDCOPSlot : public Marshall {
@@ -206,6 +321,7 @@ class InvokeDCOPSlot : public Marshall {
 	int				_items;
     MocArgument *	_args;
 	QDataStream *	_stream;
+	VALUE			_replyType;
 	QByteArray *	_retval;
 	int				_cur;
 	bool			_called;
@@ -227,59 +343,8 @@ public:
 	
     void copyArguments() 
 	{
-	for(int i = 0; i < _items; i++) {
-	    switch(_args[i].argType) {
-	      case xmoc_bool:
-		*_stream >> _stack[i].s_bool;
-		break;
-	      case xmoc_int:
-		*_stream >> _stack[i].s_int;
-		break;
-	      case xmoc_double:
-		*_stream >> _stack[i].s_double;
-		break;
-	      case xmoc_charstar:
-		*_stream >> (char *) _stack[i].s_voidp;
-		break;
-	      case xmoc_QString:
-		*_stream >> *(QString *) _stack[i].s_voidp;
-		break;
-	      default:	// case xmoc_ptr:
-		{
-		    const SmokeType &t = _args[i].st;
-		    switch(t.elem()) {
-		      case Smoke::t_bool:
-		      case Smoke::t_char:
-		      case Smoke::t_uchar:
-		      case Smoke::t_short:
-		      case Smoke::t_ushort:
-		      case Smoke::t_int:
-		      case Smoke::t_uint:
-		      case Smoke::t_long:
-		      case Smoke::t_ulong:
-		      case Smoke::t_float:
-		      case Smoke::t_double:
-		      case Smoke::t_enum:
-			{
-//			    Smoke::EnumFn fn = SmokeClass(t).enumFn();
-//			    if(!fn) {
-//				rb_warning("Unknown enumeration %s\n", t.name());
-//				_stack[i].s_enum = *(int*)p;
-//				break;
-//			    }
-//			    Smoke::Index id = t.typeId();
-//			    (*fn)(Smoke::EnumToLong, id, p, _stack[i].s_enum);
-			}
-			unsupported();
-			break;
-		      case Smoke::t_class:
-		      case Smoke::t_voidp:
-			_stack[i].s_voidp = 0;
-			break;
-		    }
-		}
-	    }
-	}
+		smokeStackFromStream(this, _stack, _stream, _items, _args);
+		return;
 	}
 	
     void invokeSlot() 
@@ -289,8 +354,7 @@ public:
 		}
 		_called = true;
         VALUE result = rb_funcall2(_obj, _slotname, _items, _sp);
-		
-		DCOPReturnValue r(smoke(), 0, _stack, *_retval, result);
+		DCOPReplyValue dcopReply(*_retval, &result, _replyType);
    }
 
     void next() 
@@ -308,8 +372,8 @@ public:
 		_cur = oldcur;
 	}
 
-    InvokeDCOPSlot(VALUE obj, ID slotname, VALUE args, QByteArray &data, QByteArray & returnValue) :
-		_obj(obj), _slotname(slotname), _cur(-1), _called(false)
+    InvokeDCOPSlot(VALUE obj, ID slotname, VALUE args, QByteArray& data, VALUE replyType, QByteArray& returnValue) :
+		_obj(obj), _slotname(slotname), _replyType(replyType), _cur(-1), _called(false)
 	{
 		_items = NUM2INT(rb_ary_entry(args, 0));
 		_stream = new QDataStream(data, IO_ReadOnly);
@@ -318,6 +382,7 @@ public:
 		Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
 		_sp = ALLOC_N(VALUE, _items);
 		_stack = new Smoke::StackItem[_items];
+		
 		copyArguments();
     }
 
@@ -354,7 +419,7 @@ getdcopinfo(VALUE self, char * signalname)
 VALUE
 k_dcop_signal(int argc, VALUE * argv, VALUE self)
 {
-    smokeruby_object *o = value_obj_info(self);
+//    smokeruby_object *o = value_obj_info(self);
 	
     char * signalname = rb_id2name(rb_frame_last_func());
     VALUE args = getdcopinfo(self, signalname);
@@ -382,7 +447,7 @@ dcop_interfaces(VALUE self)
 }
 
 static VALUE
-dcop_process(VALUE self, VALUE target, VALUE slotname, VALUE args, VALUE data, VALUE replyType, VALUE replyData)
+dcop_process(VALUE /*self*/, VALUE target, VALUE slotname, VALUE args, VALUE data, VALUE replyType, VALUE replyData)
 {
 	VALUE _data = rb_funcall(qt_internal_module, rb_intern("get_qbytearray"), 1, data);
 	QByteArray * dataArray = 0;
@@ -391,8 +456,9 @@ dcop_process(VALUE self, VALUE target, VALUE slotname, VALUE args, VALUE data, V
 	VALUE _replyData = rb_funcall(qt_internal_module, rb_intern("get_qbytearray"), 1, replyData);
 	QByteArray * replyArray = 0;
 	Data_Get_Struct(_replyData, QByteArray, replyArray);
-	InvokeDCOPSlot slot(target, rb_intern(STR2CSTR(slotname)), args, *dataArray, *replyArray);
-	slot.next();
+
+	InvokeDCOPSlot dcopSlot(target, rb_intern(STR2CSTR(slotname)), args, *dataArray, replyType, *replyArray);
+	dcopSlot.next();
 	
 	return Qtrue;
 }

@@ -50,7 +50,7 @@ void marshall_QCStringList(Marshall *m) {
 		    stringlist->append(QCString());
 		    continue;
 		}
-		stringlist->append(StringValuePtr(item));
+		stringlist->append(QCString(StringValuePtr(item), RSTRING(item)->len + 1));
 	    }
 
 	    m->item().s_voidp = stringlist;
