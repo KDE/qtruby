@@ -6,8 +6,12 @@ module Qt
 		IdClass	= Array.new
 		Operators = Hash.new { [] }
 
+		def normalize_classname(classname)
+			classname.sub(/^Q(?=[A-Z])/,'Qt::')
+		end
+
 		def init_class(c)
-			classname = c.sub(/^Q/, 'Qt::')			
+			classname = normalize_classname(c)
 			classId = idClass(c)
 			insert_pclassid(classname, classId)
 			IdClass[classId] = classname
@@ -184,12 +188,13 @@ module Qt
 				end
 			end
 
-			if chosen.nil?
-				id = find_pclassid(classname)
-				p id if DEBUG
-				method_ids = findAllMethods(id).values.flatten
-				p method_ids if DEBUG
-				p dumpCandidates(method_ids) if DEBUG
+			if chosen.nil? and method == classname
+				puts "No matching constructor found, possibles:\n"
+				id = find_pclassid(normalize_classname(klass.name))
+				hash = findAllMethods(id)
+				constructor_names = hash.keys.grep(/^#{classname}/)
+				method_ids = hash.values_at(*constructor_names).flatten
+				puts dumpCandidates(method_ids)
 			end
 
 			p chosen if DEBUG
