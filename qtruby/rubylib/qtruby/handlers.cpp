@@ -77,6 +77,7 @@ smokeruby_mark(void * p)
 					rb_gc_mark(obj);
 				}
 			}
+			return;
 		}
 		
 		if (isDerivedFromByName(o->smoke, className, "QTable")) {
@@ -92,7 +93,8 @@ smokeruby_mark(void * p)
 						rb_gc_mark(obj);
 					}
 				}
-			}		
+			}
+			return;		
 		}
 		
 		if (isDerivedFromByName(o->smoke, className, "QObject")) {
@@ -112,6 +114,7 @@ smokeruby_mark(void * p)
 					rb_gc_mark(obj);
 				}
 			}
+			return;
 		}
 	}
 }
