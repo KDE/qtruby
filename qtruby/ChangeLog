@@ -1,3 +1,31 @@
+2004-10-04  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * When a ruby app exits, rb_gc_call_finalizer_at_exit() is called and all the ruby
+   instances are garbage collected. The problem is that this is done in an arbitrary
+   order, and Qt::Application was occasionally crashing in its destructor because 
+   QMetaObject info it still needed was being deleted before then.
+
+ * Fixes problem reported by Thibauld Favre
+
+ CCMAIL: <tfavre@mandrakesoft.com>
+
+2004-10-04  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * When a QMetaData object was contructed the class name was a pointer from a ruby
+   string, and was being corrupted when the string was freed. The string is now copied.
+
+2004-10-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * Han Holl's report about a when you pass an incorrect arg type to a QtRuby
+   method, it caused a crash has opened a 'can of worms'. This was because there
+   was no arg type checking if there was only one candidate method in the
+   Smoke runtime. Now that arg type checking is applied to all QtRuby method calls, not
+   not just those that after lookup in Smoke map onto a single method, the overloaded
+   method resolution via the arg types has had to be greatly improved. This has
+   been done, and so the arg type matching is now extremely fussy.
+
+ CCMAIL: kde-bindings@kde.org
+
 2004-10-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * An optimization in the overloaded method resolution matching causes a crash;

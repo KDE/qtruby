@@ -120,6 +120,16 @@ module Qt
 		end
 	end
 	
+	# Delete the underlying C++ instance after exec returns
+	# Otherwise, rb_gc_call_finalizer_at_exit() can delete
+	# stuff that Qt::Application still needs for its cleanup.
+	class Application < Qt::Base
+		def exec
+			super
+			self.dispose
+		end
+	end
+	
 	# Provides a mutable numeric class for passing to methods with
 	# C++ 'int*' or 'int&' arg types
 	class Integer
@@ -253,14 +263,30 @@ module Qt
 		def checkarg(argtype, typename)
 			puts "      #{typename} (#{argtype})" if debug_level >= DebugLevel::High
 			if argtype == 'i'
-				if typename =~ /^int$/
+				if typename =~ /^int&?$/
 					return 1
-				elsif typename =~ /^(?:short|ushort|uint|long|ulong|signed|unsigned)$/
+				elsif typename =~ /^(?:short|ushort|uint|long|ulong|signed|unsigned|float|double)$/
 					return 0
+				else 
+					t = typename.sub(/^const\s+/, '')
+					t.sub!(/[&*]$/, '')
+					if isEnum(t)
+						return 0
+					end
 				end
 			elsif argtype == 'n'
 				if typename =~ /^(?:float|double)$/
+					return 1
+				elsif typename =~ /^int&?$/
 					return 0
+				elsif typename =~ /^(?:short|ushort|uint|long|ulong|signed|unsigned|float|double)$/
+					return 0
+				else 
+					t = typename.sub(/^const\s+/, '')
+					t.sub!(/[&*]$/, '')
+					if isEnum(t)
+						return 0
+					end
 				end
 			elsif argtype == 'B'
 				if typename =~ /^(?:bool)[*&]?$/
@@ -315,7 +341,10 @@ module Qt
 					return 1
 				elsif classIsa(argtype, t)
 					return 0
-				elsif isEnum(argtype) and t =~ /int|uint|long|ulong/
+				elsif isEnum(argtype) and 
+						(t =~ /int|uint|long|ulong|WFlags|WState|ProcessEventsFlags|ComparisonFlags/ or
+						t =~ /SFlags|SCFlags|WId|difference_type/ or
+						t =~ /KStyleFlags|KonqPopupFlags/)
 					return 0
 				end
 			end
@@ -421,9 +450,7 @@ module Qt
 			end
 			
 			chosen = nil
-			if methodIds.length == 1 && method !~ /^operator/
-				chosen = methodIds[0]
-			elsif methodIds.length > 0
+			if methodIds.length > 0
 				best_match = -1
 				methodIds.each do
 					|id|
@@ -725,6 +752,7 @@ class Object
 	# so remove it..
 	undef_method :display
 	undef_method :type
+	undef_method :exec
 	def SIGNAL(string) ; return "2" + string; end
 	def SLOT(string)   ; return "1" + string; end
 	def emit(signal)   ; end

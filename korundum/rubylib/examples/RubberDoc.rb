@@ -414,6 +414,7 @@ module HTMLIndexer
             text << node.nodeValue.string if node.nodeType == DOM::Node::TEXT_NODE
          }
          link = Qt::Internal::cast_object_to f, "DOM::HTMLLinkElement"
+			   puts "f classname: #{f.classname}"
          if should_follow? link.href.string
             title_map[link.href.string] = text
             urlonly, = uri_anchor_split link.href.string
@@ -569,6 +570,7 @@ module TermHighlighter
                |n| 
                next unless n.elementId == IDS::A
                # link = DOM::HTMLLinkElement.new n # WTF? why doesn't this work???
+			   puts "n classname: #{n.classname}"
                link = Qt::Internal::cast_object_to n, "DOM::HTMLLinkElement"
                @current_matched_href = link.href.string
             }

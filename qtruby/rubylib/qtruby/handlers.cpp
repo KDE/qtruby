@@ -151,7 +151,9 @@ smokeruby_free(void * p)
 	if (	strcmp(className, "QObject") == 0
 			|| strcmp(className, "QListBoxItem") == 0
 			|| strcmp(className, "QStyleSheetItem") == 0
-			|| strcmp(className, "QSqlCursor") == 0 )
+			|| strcmp(className, "QSqlCursor") == 0
+			|| strcmp(className, "QApplication") == 0
+			|| strcmp(className, "KApplication") == 0 )
 	{
 		// Don't delete instances of these classes for now
 		free(o);
