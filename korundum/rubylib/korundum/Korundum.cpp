@@ -883,7 +883,7 @@ getdcopinfo(VALUE self, QString & signalname)
     VALUE member = rb_funcall(	kde_internal_module, 
 								rb_intern("fullSignalName"), 
 								2, self, rb_str_new2(signalname) );
-	signalname.fromLatin1(StringValuePtr(member));
+	signalname.setLatin1(StringValuePtr(member));
     return rb_funcall(	qt_internal_module, 
 						rb_intern("getMocArguments"), 
 						1, member );
