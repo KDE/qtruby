@@ -9,7 +9,7 @@ quit = Qt::PushButton.new('Quit', nil)
 quit.resize(75, 30)
 quit.setFont(Qt::Font.new('Times', 18, Qt::Font.Bold))
 
-a.connect(quit, SIGNAL('clicked()'), SLOT('quit()'))
+Qt::Object.connect(quit, SIGNAL('clicked()'), a, SLOT('quit()'))
 
 a.setMainWidget(quit)
 quit.show

@@ -14,7 +14,7 @@ def initialize()
     
 	lcd = Qt::LCDNumber.new(2, self, 'lcd')
 
-    slider = Qt::Slider.new(Qt::VBox.Horizontal, self, 'slider')
+    slider = Qt::Slider.new(Horizontal, self, 'slider')
     slider.setRange(0, 99)
     slider.setValue(0)
 

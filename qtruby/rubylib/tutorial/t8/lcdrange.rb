@@ -25,10 +25,9 @@ class LCDRange < Qt::VBox
 	
 	def setRange( minVal, maxVal )
 		if minVal < 0 || maxVal > 99 || minVal > maxVal
-      		printf( "LCDRange::setRange(%d,%d)\n" +
+      		Qt.qWarning( "LCDRange::setRange(#{minVal},#{maxVal})\n" +
                		"\tRange must be 0..99\n" +
-               		"\tand minVal must not be greater than maxVal",
-               		minVal, maxVal )
+               		"\tand minVal must not be greater than maxVal" )
 			return
 		end
 		@slider.setRange( minVal, maxVal )
