@@ -189,7 +189,7 @@ void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *last
 		
 		if (do_debug & qtdb_gc) {
 			const char *className = o->smoke->classes[o->classId].className;
-			printf("mapPointer (%s*)%p -> %p\n", className, ptr, obj);
+			printf("mapPointer (%s*)%p -> %p\n", className, ptr, (void*)obj);
 		}
 	
 		pointer_map.insert(ptr, obj_ptr);
@@ -971,6 +971,7 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
 
 		if (_current_method == -1) {
 			VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, temp_stack);
+         Q_UNUSED(retval);
 			if (_current_method != -1) {
 				// Success. Cache result.
 				methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
