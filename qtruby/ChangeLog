@@ -1,3 +1,16 @@
+2004-12-30  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Fixed an interesting bug reported by Stephan Oehlert. Kernel has a method called 
+	  open() which takes a String as the first argument. But when a call is made to an open() 
+	  method in the Qt classes, it messes up the method_missing() logic to divert it to the 
+	  Smoke library. Instead it attempts to call the Kernel method with the wrong arg types.
+
+	* The problem is fixed by calling the appropriate method based on the 
+	  type of the first arg. However, it is no longer possible to override virtual methods
+	  called 'open'.
+
+	CCMAIL: stephan.oehlert@gmx.net
+
 2004-12-28  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added a parent attribute to the Qt::Object pretty_print() method

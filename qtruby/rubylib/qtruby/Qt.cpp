@@ -775,10 +775,15 @@ public:
 	}
 
 	const char *methodName = smoke->methodNames[smoke->methods[method].name];
-	if (rb_respond_to(obj, rb_intern(methodName)) == 0) {
+	
+	// If the virtual method hasn't been overriden, just call the C++ one.
+	// Special case open() to avoid a clash with the Kernel.open() method	
+	if (	rb_respond_to(obj, rb_intern(methodName)) == 0
+			|| strcmp(methodName, "open") == 0 ) 
+	{
 	    return false;
 	}
-
+	
 	VirtualMethodCall c(smoke, method, args, obj);
 	c.next();
 	return true;

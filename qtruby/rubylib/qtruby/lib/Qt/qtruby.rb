@@ -949,13 +949,37 @@ end
 
 class Object
 	# The Object.display() method conflicts with display() methods in Qt,
-	# so remove it..
+	# so remove it, and other methods with similar problems
+	alias_method :_display, :display
 	undef_method :display
+	
+	alias_method :_type, :type
 	undef_method :type
-	undef_method :exec
+	
 	def SIGNAL(string) ; return "2" + string; end
 	def SLOT(string)   ; return "1" + string; end
 	def emit(signal)   ; end
+end
+
+module Kernel
+	alias_method :_exec, :exec
+	undef_method :exec
+	
+	# Kernel has a method called open() which takes a String as
+	# the first argument. When a call is made to an open() method
+	# in the Qt classes, it messes up the method_missing()
+	# logic to divert it to the Smoke library. This code
+	# fixes that problem by calling the appropriate method based
+	# on the type of the first arg.
+	alias_method :_open, :open
+	
+	def open(*k)
+		if k.length > 0 and k[0].kind_of? String
+			_open(*k)
+		else
+			method_missing(:open, *k)
+		end
+	end
 end
 
 class Module
