@@ -93,6 +93,23 @@ KDE Specific Infomation:
 		
 		klipper.clipboardContents = IO.readlines("myfile").to_s
 		
+		Instead of:
+		
+		result = dcopRef.isFoo()
+		
+		You can use this more rubyish form:
+		
+		result = dcopRef.foo?
+		if result.nil?
+			puts "DCOP predicate failed"
+		else
+			puts "foo? is #{result}"
+		end
+
+		Similarly you can use foo? as an alias for methods of the form 
+		hasFoo(). 
+		See examples/dcop/dcoppredicate.rb and dcopslot.rb
+		
 	- Send to a DCOPRef is similar:
 	    
 		There are two different ways to specify a DCOP send:

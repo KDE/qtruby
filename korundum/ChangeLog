@@ -1,3 +1,17 @@
+2004-08-24  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * The form 'foo?' can be used as a synonym for isFoo() or hasFoo() dcop methods. 
+ * Instead of:
+         result = dcopRef.isFoo()
+ * Use this more rubyish form:
+         result = dcopRef.foo?
+         if result.nil?
+             puts "DCOP predicate failed"
+         else
+             puts "foo? is #{result}"
+         end
+
+
 2004-08-16  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * The 'qWarning()' calls in korundum.rb needed to be prefixed with the 'Qt.'' module
