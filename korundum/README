@@ -81,21 +81,21 @@ KDE Specific Infomation:
 		if the call succeeds or nil if it fails
 		
 		You can set a dcop attribute like this, instead of calling 
-		'parrot.setAge(9)':
+		'klipper.setClipboardContents("Hello there klipper")':
 		
-		parrot.age = 9
-		
+		klipper = DCOPRef.new("klipper", "klipper")
+
+		klipper.clipboardContents = "Hello there klipper"
+
 		Or with error checking:
-		
-		puts "age was: #{parrot.age}"
-		result = parrot.age = 9
+			
+		result = klipper.clipboardContents = "Hello there klipper"
 		if result.nil?
 			puts "DCOP call failed"
 		else
-			puts "DCOP call succeeded"
-			puts "age now: #{parrot.age}"
+			puts "result #{result}"
 		end
-
+		
 	- Send to a DCOPRef is similar:
 	    
 		There are two different ways to specify a DCOP send:
