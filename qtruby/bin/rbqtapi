@@ -6,7 +6,12 @@
 require 'getopts'
 getopts('r:hvimp')
 
-require 'Qt'
+case File.basename $0
+when "rbqtapi"
+   require 'Qt'
+when "rbkdeapi"
+   require 'Korundum'
+end
 
 if $OPT_v
     # TODO add and use version number #{Qt::VERSION}

@@ -8,7 +8,14 @@
 #
 
 require 'stringio'
-require 'Qt'
+
+case File.basename $0
+when "rbqtapi"
+   require 'Qt'
+when "rbkdeapi"
+   require 'Korundum'
+end
+
 include Qt
 
 $image0_data =
