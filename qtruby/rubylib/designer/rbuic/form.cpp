@@ -44,10 +44,12 @@
 
 static QByteArray unzipXPM( QString data, ulong& length )
 {
-    uchar *ba = new uchar[ data.length() / 2 ];
-    for ( int i = 0; i < (int)data.length() / 2; ++i ) {
-	char h = data[ 2 * i ].latin1();
-	char l = data[ 2 * i  + 1 ].latin1();
+    const int lengthOffset = 4;
+    int baSize = data.length() / 2 + lengthOffset;
+    uchar *ba = new uchar[ baSize ];
+    for ( int i = lengthOffset; i < baSize; ++i ) {
+        char h = data[ 2 * (i-lengthOffset) ].latin1();
+        char l = data[ 2 * (i-lengthOffset) + 1 ].latin1();
 	uchar r = 0;
 	if ( h <= '9' )
 	    r += h - '0';
@@ -60,21 +62,13 @@ static QByteArray unzipXPM( QString data, ulong& length )
 	    r += l - 'a' + 10;
 	ba[ i ] = r;
     }
-    // I'm not sure this makes sense. Why couldn't the compressed data be
-    // less than 20% of the original data? Maybe it's enough to trust the
-    // `length' passed as an argument. Quoting the zlib header:
-    // 		Upon entry, destLen is the total size of the destination
-    // 		buffer, which must be large enough to hold the entire
-    // 		uncompressed data. (The size of the uncompressed data must
-    // 		have been saved previously by the compressor and transmitted
-    // 		to the decompressor by some mechanism outside the scope of
-    // 		this compression library.)
-    // Which is the role of `length'. On the other hand this could prevent
-    // crashes in some cases of slightly corrupt UIC files.
-    if ( length <  data.length() * 5 )
-	length = data.length() * 5;
-    QByteArray baunzip( length );
-    ::uncompress( (uchar*) baunzip.data(), &length, ba, data.length()/2 );
+    // qUncompress() expects the first 4 bytes to be the expected length of the
+    // uncompressed data 
+    ba[0] = ( length & 0xff000000 ) >> 24;
+    ba[1] = ( length & 0x00ff0000 ) >> 16;
+    ba[2] = ( length & 0x0000ff00 ) >> 8;
+    ba[3] = ( length & 0x000000ff );
+    QByteArray baunzip = qUncompress( ba, baSize );
     delete[] ba;
     return baunzip;
 }

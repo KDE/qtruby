@@ -17,3 +17,29 @@ $ ruby extconf.rb --with-smoke-dir=/opt/kde3 \
       --with-qt-dir=/home/duke/src/kde/HEAD/qt-copy
 $ make
 $ make install
+
+Building on Mac OS X
+--------------------
+
+Automake/autoconf don't work very well on Mac OS X, and so qmake and
+exconf.rb must be used instead.
+
+$ ./configure '--with-qt-dir=/Developer/qt'  '--enable-mac'
+$ cd smoke/qt
+# Generate the Smoke library sources:
+$ perl generate.pl
+# Overwrite the automake generated Makefile:
+$ qmake -makefile
+# Build the Smoke library
+$ make
+$ make install
+...
+
+$ cd qtruby/rubylib/qtruby
+$ ruby extconf.rb --with-qt-dir=/Developer/qt --with-smoke-dir=/usr
+$ make
+$ make install
+...
+
+$ cd qtruby/rubylib/designer/rbuic
+$ qmake -makefile
