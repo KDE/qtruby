@@ -121,12 +121,12 @@ extern TypeHandler Qt_handlers[];
 void install_handlers(TypeHandler *);
 
 smokeruby_object *value_obj_info(VALUE ruby_value) {  // ptr on success, null on fail
-	if (TYPE(ruby_value) != T_DATA) {
-		return 0;
-	}
+    if (TYPE(ruby_value) != T_DATA) {
+	return 0;
+    }
 
-	smokeruby_object * o = 0;
-	Data_Get_Struct(ruby_value, smokeruby_object, o);
+    smokeruby_object * o = 0;
+    Data_Get_Struct(ruby_value, smokeruby_object, o);
     return o;
 }
 
@@ -181,11 +181,11 @@ void unmapPointer(smokeruby_object *o, Smoke::Index classId, void *lastptr) {
     VALUE hv = pointer_map;
     void *ptr = o->smoke->cast(o->ptr, o->classId, classId);
     if(ptr != lastptr) {
-		lastptr = ptr;
-		VALUE key = INT2NUM((int) ptr);
-		if (rb_hash_aref(hv, key) != Qnil) {
-			rb_hash_delete(hv, key);
-		}
+	lastptr = ptr;
+	VALUE key = INT2NUM((int) ptr);
+	if (rb_hash_aref(hv, key) != Qnil) {
+	    rb_hash_delete(hv, key);
+	}
     }
     for(Smoke::Index *i = o->smoke->inheritanceList + o->smoke->classes[classId].parents;
 	*i;
@@ -227,10 +227,10 @@ public:
     VALUE * var() { return &_retval; }
 
     void unsupported() {
-		rb_bug("Cannot handle '%s' as return-type of virtual method %s::%s",
-			type().name(),
-			_smoke->className(method().classId),
-			_smoke->methodNames[method().name]);
+	rb_bug("Cannot handle '%s' as return-type of virtual method %s::%s",
+		type().name(),
+		_smoke->className(method().classId),
+		_smoke->methodNames[method().name]);
     }
 
     Smoke *smoke() { return _smoke; }
@@ -238,10 +238,10 @@ public:
     bool cleanup() { return false; }
 
     VirtualMethodReturnValue(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack, VALUE retval) :
-	_smoke(smoke), _method(meth), _stack(stack), _retval(retval) {
-		_st.set(_smoke, method().ret);
- 		Marshall::HandlerFn fn = getMarshallFn(type());
-		(*fn)(this);
+    _smoke(smoke), _method(meth), _stack(stack), _retval(retval) {
+	_st.set(_smoke, method().ret);
+	Marshall::HandlerFn fn = getMarshallFn(type());
+	(*fn)(this);
    }
 };
 
@@ -263,42 +263,42 @@ public:
     VALUE * var() { return _sp + _cur; }
     const Smoke::Method &method() { return _smoke->methods[_method]; }
     void unsupported() {
-		rb_bug("Cannot handle '%s' as argument of virtual method %s::%s",
-			type().name(),
-			_smoke->className(method().classId),
-			_smoke->methodNames[method().name]);
+	rb_bug("Cannot handle '%s' as argument of virtual method %s::%s",
+		type().name(),
+		_smoke->className(method().classId),
+		_smoke->methodNames[method().name]);
     }
     Smoke *smoke() { return _smoke; }
     void callMethod() {
-		if(_called) return;
-		_called = true;
-		VALUE _retval = rb_funcall2(	_obj,
-										rb_intern(_smoke->methodNames[method().name]),
-										method().numArgs,
-										_sp );
-		VirtualMethodReturnValue r(_smoke, _method, _stack, _retval);
+	if(_called) return;
+	_called = true;
+	VALUE _retval = rb_funcall2(_obj,
+				    rb_intern(_smoke->methodNames[method().name]),
+				    method().numArgs,
+				    _sp );
+	VirtualMethodReturnValue r(_smoke, _method, _stack, _retval);
     }
 
-	void next() {
-		int oldcur = _cur;
-		_cur++;
-		while(!_called && _cur < method().numArgs) {
-	    	Marshall::HandlerFn fn = getMarshallFn(type());
-	    	(*fn)(this);
-	    	_cur++;
-		}
-		callMethod();
-		_cur = oldcur;
+    void next() {
+	int oldcur = _cur;
+	_cur++;
+	while(!_called && _cur < method().numArgs) {
+	    Marshall::HandlerFn fn = getMarshallFn(type());
+	    (*fn)(this);
+	    _cur++;
+	}
+	callMethod();
+	_cur = oldcur;
     }
 
     bool cleanup() { return false; }   // is this right?
 
     VirtualMethodCall(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack, VALUE obj) :
-	_smoke(smoke), _method(meth), _stack(stack), _obj(obj), _cur(-1), _sp(0), _called(false) {
-		_savethis = ruby_self;
-		ruby_self = obj;
-		_sp = ALLOC_N(VALUE, method().numArgs);
-		_args = _smoke->argumentList + method().args;
+    _smoke(smoke), _method(meth), _stack(stack), _obj(obj), _cur(-1), _sp(0), _called(false) {
+	_savethis = ruby_self;
+	ruby_self = obj;
+	_sp = ALLOC_N(VALUE, method().numArgs);
+	_args = _smoke->argumentList + method().args;
     }
 
     ~VirtualMethodCall() {
@@ -313,9 +313,9 @@ class MethodReturnValue : public Marshall {
     Smoke::Stack _stack;
 public:
     MethodReturnValue(Smoke *smoke, Smoke::Index method, Smoke::Stack stack, VALUE * retval) :
-	_smoke(smoke), _method(method), _retval(retval), _stack(stack) {
-		Marshall::HandlerFn fn = getMarshallFn(type());
-		(*fn)(this);
+    _smoke(smoke), _method(method), _retval(retval), _stack(stack) {
+	Marshall::HandlerFn fn = getMarshallFn(type());
+	(*fn)(this);
     }
 
     const Smoke::Method &method() { return _smoke->methods[_method]; }
@@ -349,15 +349,15 @@ class MethodCall : public Marshall {
 public:
     MethodCall(Smoke *smoke, Smoke::Index method, VALUE *sp, int items) :
 	_cur(-1), _smoke(smoke), _method(method), _sp(sp), _items(items), _called(false)
-	{
-		_args = _smoke->argumentList + _smoke->methods[_method].args;
-		_items = _smoke->methods[_method].numArgs;
-		_stack = new Smoke::StackItem[items + 1];
-		_retval = Qundef;
+    {
+	_args = _smoke->argumentList + _smoke->methods[_method].args;
+	_items = _smoke->methods[_method].numArgs;
+	_stack = new Smoke::StackItem[items + 1];
+	_retval = Qundef;
     }
 
     ~MethodCall() {
-		delete[] _stack;
+	delete[] _stack;
     }
 
     SmokeType type() {
@@ -372,8 +372,8 @@ public:
     }
 
     VALUE * var() {
-		if(_cur < 0) return &_retval;
-		return _sp + _cur;
+	if(_cur < 0) return &_retval;
+	return _sp + _cur;
     }
 
     inline const Smoke::Method &method() {
@@ -381,10 +381,10 @@ public:
     }
 
     void unsupported() {
-		rb_bug("Cannot handle '%s' as argument to %s::%s",
-			type().name(),
-			_smoke->className(method().classId),
-			_smoke->methodNames[method().name]);
+	rb_bug("Cannot handle '%s' as argument to %s::%s",
+		type().name(),
+		_smoke->className(method().classId),
+		_smoke->methodNames[method().name]);
     }
 
     Smoke *smoke() {
@@ -392,26 +392,26 @@ public:
     }
 
     inline void callMethod() {
-		if(_called) return;
-		_called = true;
-		Smoke::ClassFn fn = _smoke->classes[method().classId].classFn;
-		void *ptr = _smoke->cast(_current_object, _current_object_class, method().classId);
-		_items = -1;
-		(*fn)(method().method, ptr, _stack);
-		MethodReturnValue r(_smoke, _method, _stack, &_retval);
+	if(_called) return;
+	_called = true;
+	Smoke::ClassFn fn = _smoke->classes[method().classId].classFn;
+	void *ptr = _smoke->cast(_current_object, _current_object_class, method().classId);
+	_items = -1;
+	(*fn)(method().method, ptr, _stack);
+	MethodReturnValue r(_smoke, _method, _stack, &_retval);
     }
 
     void next() {
-		int oldcur = _cur;
-		_cur++;
+	int oldcur = _cur;
+	_cur++;
 
-		while(!_called && _cur < _items) {
-	    	Marshall::HandlerFn fn = getMarshallFn(type());
-	    	(*fn)(this);
-	    	_cur++;
-		}
-		callMethod();
-		_cur = oldcur;
+	while(!_called && _cur < _items) {
+	    Marshall::HandlerFn fn = getMarshallFn(type());
+	    (*fn)(this);
+	    _cur++;
+	}
+	callMethod();
+	_cur = oldcur;
     }
 
     bool cleanup() {
@@ -436,12 +436,12 @@ class EmitSignal : public Marshall {
     bool _called;
 public:
     EmitSignal(QObject *qobj, int id, int items, VALUE args, VALUE *sp) :
-	_qobj((UnencapsulatedQObject*)qobj), _id(id), _sp(sp), _items(items),
-	_cur(-1), _called(false)
-	{
-		_items = NUM2INT(rb_ary_entry(args, 0));
-		Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
-		_stack = new Smoke::StackItem[_items];
+    _qobj((UnencapsulatedQObject*)qobj), _id(id), _sp(sp), _items(items),
+    _cur(-1), _called(false)
+    {
+	_items = NUM2INT(rb_ary_entry(args, 0));
+	Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
+	_stack = new Smoke::StackItem[_items];
     }
     ~EmitSignal() {
 	delete[] _stack;
@@ -667,48 +667,48 @@ public:
 	}
     }
     void invokeSlot() {
-		if(_called) return;
-		_called = true;
+	if(_called) return;
+	_called = true;
 
         VALUE klass = rb_funcall(_obj, rb_intern("class"), 0);
         VALUE name = rb_funcall(klass, rb_intern("name"), 0);
 #ifdef DEBUG
-        printf(	"In InvokeSlot::invokeSlot 3 items: %d classname: %s\n",
-                        _items,
-                        STR2CSTR(name) );
+	printf(	"In InvokeSlot::invokeSlot 3 items: %d classname: %s\n",
+		_items,
+		STR2CSTR(name) );
 #else
-        (void) name;
+	(void) name;
 #endif
 			
         (void) rb_funcall2(_obj, _slotname, _items, _sp);
     }
 
     void next() {
-		int oldcur = _cur;
-		_cur++;
+	int oldcur = _cur;
+	_cur++;
 
-		while(!_called && _cur < _items) {
-	    	Marshall::HandlerFn fn = getMarshallFn(type());
-	    	(*fn)(this);
-	    	_cur++;
-		}
+	while(!_called && _cur < _items) {
+	    Marshall::HandlerFn fn = getMarshallFn(type());
+	    (*fn)(this);
+	    _cur++;
+	}
 
-		invokeSlot();
-		_cur = oldcur;
+	invokeSlot();
+	_cur = oldcur;
     }
 
     InvokeSlot(VALUE obj, ID slotname, VALUE args, QUObject *o) :
-	_obj(obj), _slotname(slotname), _o(o), _cur(-1), _called(false)
+    _obj(obj), _slotname(slotname), _o(o), _cur(-1), _called(false)
     {
-		_items = NUM2INT(rb_ary_entry(args, 0));
-		Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
-		_sp = ALLOC_N(VALUE, _items);
-		_stack = new Smoke::StackItem[_items];
-		copyArguments();
+	_items = NUM2INT(rb_ary_entry(args, 0));
+	Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
+	_sp = ALLOC_N(VALUE, _items);
+	_stack = new Smoke::StackItem[_items];
+	copyArguments();
     }
 
     ~InvokeSlot() {
-		delete[] _stack;
+	delete[] _stack;
     }
 };
 
@@ -717,62 +717,62 @@ public:
     QtRubySmokeBinding(Smoke *s) : SmokeBinding(s) {}
 
     void deleted(Smoke::Index classId, void *ptr) {
-		VALUE obj = getPointerObject(ptr);
-		smokeruby_object *o = value_obj_info(obj);
-		if(do_debug & qtdb_gc) {
-            printf("%p->~%s()\n", ptr, smoke->className(classId));
-            if(o && o->ptr)
-                object_count --;
+	VALUE obj = getPointerObject(ptr);
+	smokeruby_object *o = value_obj_info(obj);
+	if(do_debug & qtdb_gc) {
+	    printf("%p->~%s()\n", ptr, smoke->className(classId));
+	    if(o && o->ptr)
+		object_count --;
 	    //printf("Remaining objects: %d\n", object_count);
-        }
-		if(!o || !o->ptr) {
-	    	return;
-		}
-        unmapPointer(o, o->classId, 0);
-		o->ptr = 0;
+	}
+	if(!o || !o->ptr) {
+	    return;
+	}
+	unmapPointer(o, o->classId, 0);
+	o->ptr = 0;
     }
 
     bool callMethod(Smoke::Index method, void *ptr, Smoke::Stack args, bool /*isAbstract*/) {
-		VALUE obj = getPointerObject(ptr);
-		smokeruby_object *o = value_obj_info(obj);
+	VALUE obj = getPointerObject(ptr);
+	smokeruby_object *o = value_obj_info(obj);
 	if(do_debug & qtdb_virtual) 
 	    fprintf(stderr, "virtual %p->%s::%s() called\n", ptr,
-	    	smoke->classes[smoke->methods[method].classId].className,
-	    	smoke->methodNames[smoke->methods[method].name]
-        	);
+		    smoke->classes[smoke->methods[method].classId].className,
+		    smoke->methodNames[smoke->methods[method].name]
+		    );
 
-//		printf("virtual %p->%s::%s() called\n", ptr,
-//	    	smoke->classes[smoke->methods[method].classId].className,
-//	    	smoke->methodNames[smoke->methods[method].name]
-//        );
+//	    printf("virtual %p->%s::%s() called\n", ptr,
+//		smoke->classes[smoke->methods[method].classId].className,
+//		smoke->methodNames[smoke->methods[method].name]
+//		);
 
-		if(!o) {
+	if(!o) {
 //	    if(!PL_dirty && (do_debug & qtdb_virtual) )   // if not in global destruction
 //		fprintf(stderr, "Cannot find object for virtual method\n");
-	    	return false;
-		}
+	    return false;
+	}
 
-		const char *methodName = smoke->methodNames[smoke->methods[method].name];
-		if (rb_respond_to(obj, rb_intern(methodName)) == 0) {
-			return false;
-		}
+	const char *methodName = smoke->methodNames[smoke->methods[method].name];
+	if (rb_respond_to(obj, rb_intern(methodName)) == 0) {
+	    return false;
+	}
 
-		VirtualMethodCall c(smoke, method, args, obj);
+	VirtualMethodCall c(smoke, method, args, obj);
 	// exception variable, just temporary
 
-		temporary_virtual_function_success = true;
-		c.next();
-		bool ret = temporary_virtual_function_success;
-		temporary_virtual_function_success = true;
-		return ret;
+	temporary_virtual_function_success = true;
+	c.next();
+	bool ret = temporary_virtual_function_success;
+	temporary_virtual_function_success = true;
+	return ret;
     }
 
     char *className(Smoke::Index classId) {
-		const char *className = smoke->className(classId);
-		char *buf = new char[strlen(className) + strlen("Qt::") + 1];
-		strcpy(buf, "Qt::");
-		strcat(buf, className + 1);
-		return buf;
+	const char *className = smoke->className(classId);
+	char *buf = new char[strlen(className) + strlen("Qt::") + 1];
+	strcpy(buf, "Qt::");
+	strcat(buf, className + 1);
+	return buf;
     }
 };
 
@@ -810,14 +810,14 @@ VALUE catArguments(VALUE * /*sp*/, int /*n*/)
 
 Smoke::Index package_classid(const char *p)
 {
-     Smoke::Index *item = classcache.find(p);
-     if(item)
-         return *item;
-     char *nisa = new char[strlen(p)+6];
-     strcpy(nisa, p);
-     strcat(nisa, "::ISA");
+    Smoke::Index *item = classcache.find(p);
+    if(item)
+	return *item;
+    char *nisa = new char[strlen(p)+6];
+    strcpy(nisa, p);
+    strcat(nisa, "::ISA");
 //     AV* isa=get_av(nisa, true);
-     delete[] nisa;
+    delete[] nisa;
 //     for(int i=0; i<=av_len(isa); i++) {
 //         SV** np = av_fetch(isa, i, 0);
 //         if(np) {
@@ -828,18 +828,18 @@ Smoke::Index package_classid(const char *p)
 //             }
 //         }
 //     }
-     return (Smoke::Index) 0;
+    return (Smoke::Index) 0;
 }
 
 VALUE
 set_obj_info(const char * className, smokeruby_object * o)
 {
-	VALUE klass = rb_funcall(	qt_internal_module,
-								rb_intern("find_class"),
-								1,
-								rb_str_new2(className) );
-	VALUE obj = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, (void *) o);
-	return obj;
+    VALUE klass = rb_funcall(qt_internal_module,
+			     rb_intern("find_class"),
+			     1,
+			     rb_str_new2(className) );
+    VALUE obj = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, (void *) o);
+    return obj;
 }
 
 char *get_VALUEtype(VALUE ruby_value)
@@ -856,7 +856,7 @@ char *get_VALUEtype(VALUE ruby_value)
     else if(TYPE(ruby_value) == T_DATA) {
 	smokeruby_object *o = value_obj_info(ruby_value);
 	if(!o) {
-                  r = strdup("a");
+	    r = strdup("a");
         }
 	else
 	    r = strdup(o->smoke->className(o->classId));
@@ -871,33 +871,33 @@ void rb_str_catf(VALUE self, const char *format, ...) __attribute__ ((format (pr
 
 void rb_str_catf(VALUE self, const char *format, ...) 
 {
-	va_list ap;
-	va_start(ap, format);
-	char *p = 0;
-	int len;
-	if (len = vasprintf(&p, format, ap), len != -1) {
-	    rb_str_cat(self, p, len);
-	    free(p);
-	}
-	va_end(ap);
+    va_list ap;
+    va_start(ap, format);
+    char *p = 0;
+    int len;
+    if (len = vasprintf(&p, format, ap), len != -1) {
+	rb_str_cat(self, p, len);
+	free(p);
+    }
+    va_end(ap);
 }
 
 VALUE prettyPrintMethod(Smoke::Index id) 
 {
-	VALUE r = rb_str_new2("");
-	Smoke::Method &meth = qt_Smoke->methods[id];
-	const char *tname = qt_Smoke->types[meth.ret].name;
-	if(meth.flags & Smoke::mf_static) rb_str_catf(r, "static ");
-	rb_str_catf(r, "%s ", (tname ? tname:"void"));
-	rb_str_catf(r, "%s::%s(", qt_Smoke->classes[meth.classId].className, qt_Smoke->methodNames[meth.name]);
-	for(int i = 0; i < meth.numArgs; i++) {
-	    if(i) rb_str_catf(r, ", ");
-	    tname = qt_Smoke->types[qt_Smoke->argumentList[meth.args+i]].name;
-	    rb_str_catf(r, "%s", (tname ? tname:"void"));
-	}
-	rb_str_catf(r, ")");
-	if(meth.flags & Smoke::mf_const) rb_str_catf(r, " const");
-	return r;
+    VALUE r = rb_str_new2("");
+    Smoke::Method &meth = qt_Smoke->methods[id];
+    const char *tname = qt_Smoke->types[meth.ret].name;
+    if(meth.flags & Smoke::mf_static) rb_str_catf(r, "static ");
+    rb_str_catf(r, "%s ", (tname ? tname:"void"));
+    rb_str_catf(r, "%s::%s(", qt_Smoke->classes[meth.classId].className, qt_Smoke->methodNames[meth.name]);
+    for(int i = 0; i < meth.numArgs; i++) {
+	if(i) rb_str_catf(r, ", ");
+	tname = qt_Smoke->types[qt_Smoke->argumentList[meth.args+i]].name;
+	rb_str_catf(r, "%s", (tname ? tname:"void"));
+    }
+    rb_str_catf(r, ")");
+    if(meth.flags & Smoke::mf_const) rb_str_catf(r, " const");
+    return r;
 }
 
 //---------- Ruby methods (for all functions except fully qualified statics & enums) ---------
@@ -905,13 +905,13 @@ VALUE prettyPrintMethod(Smoke::Index id)
 static VALUE
 metaObject(VALUE self)
 {
-	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
-	VALUE name = rb_funcall(klass, rb_intern("name"), 0);
-	(void) name;
+    VALUE klass = rb_funcall(self, rb_intern("class"), 0);
+    VALUE name = rb_funcall(klass, rb_intern("name"), 0);
+    (void) name;
 
-	VALUE metaObject = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 1, self);
+    VALUE metaObject = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 1, self);
 
-	return metaObject;
+    return metaObject;
 }
 
 bool avoid_fetchmethod = false;
@@ -919,100 +919,100 @@ bool avoid_fetchmethod = false;
 static VALUE
 method_missing(int argc, VALUE * argv, VALUE self)
 {
-	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
-	VALUE name = rb_funcall(klass, rb_intern("name"), 0);
-	(void) name;
+    VALUE klass = rb_funcall(self, rb_intern("class"), 0);
+    VALUE name = rb_funcall(klass, rb_intern("name"), 0);
+    (void) name;
 
 #ifdef DEBUG
-	printf("In method_missing(argc: %d, argv[0]: %s TYPE: 0x%2.2x)\n",
-			argc,
-			rb_id2name( SYM2ID(argv[0]) ),
-			TYPE(self) );
+    printf("In method_missing(argc: %d, argv[0]: %s TYPE: 0x%2.2x)\n",
+	    argc,
+	    rb_id2name( SYM2ID(argv[0]) ),
+	    TYPE(self) );
 #endif
 
-	VALUE * savestack = ALLOCA_N(VALUE, argc + 3);
-	savestack[0] = rb_str_new2("Qt");
-	savestack[1] = rb_str_new2(rb_id2name(SYM2ID(argv[0])));
-	savestack[2] = klass;
-	savestack[3] = self;
-	for (int count = 1; count < argc; count++) {
-		savestack[count+3] = argv[count];
-	}
+    VALUE * savestack = ALLOCA_N(VALUE, argc + 3);
+    savestack[0] = rb_str_new2("Qt");
+    savestack[1] = rb_str_new2(rb_id2name(SYM2ID(argv[0])));
+    savestack[2] = klass;
+    savestack[3] = self;
+    for (int count = 1; count < argc; count++) {
+	savestack[count+3] = argv[count];
+    }
 
     _current_method = -1;
-	VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
-	if (retval != Qnil)
-	        return retval;
+    VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
+    if (retval != Qnil)
+       return retval;
 
-	// If the method can't be found allow the default method_missing
-	//	to display an error message, by calling super on the method
-	if (_current_method == -1) {
-		rb_enable_super(rb_cObject, rb_id2name(SYM2ID(argv[0])));
-		return rb_call_super(argc, argv);
+    // If the method can't be found allow the default method_missing
+    //	to display an error message, by calling super on the method
+    if (_current_method == -1) {
+	rb_enable_super(rb_cObject, rb_id2name(SYM2ID(argv[0])));
+	return rb_call_super(argc, argv);
+    }
+
+    // FIXME: I shouldn't have to set the current object
+    {
+	smokeruby_object *o = value_obj_info(self);
+	if(o && o->ptr) {
+	    _current_object = o->ptr;
+	    _current_object_class = o->classId;
+	} else {
+	    _current_object = 0;
 	}
+    }
 
-        // FIXME: I shouldn't have to set the current object
-        {
-                smokeruby_object *o = value_obj_info(self);
-                if(o && o->ptr) {
-                    _current_object = o->ptr;
-                    _current_object_class = o->classId;
-                } else {
-                    _current_object = 0;
-                }
-        }
-
-	MethodCall c(qt_Smoke, _current_method, savestack+4, argc-1);
-	c.next();
-	VALUE result = *(c.var());
-	return result;
+    MethodCall c(qt_Smoke, _current_method, savestack+4, argc-1);
+    c.next();
+    VALUE result = *(c.var());
+    return result;
 }
 
 static VALUE
 class_method_missing(int argc, VALUE * argv, VALUE klass)
 {
 #ifdef DEBUG
-	printf("In class_method_missing(argc: %d, argv[0]: %s)\n",
-			argc,
-			rb_id2name( SYM2ID(argv[0]) ) );
+    printf("In class_method_missing(argc: %d, argv[0]: %s)\n",
+	    argc,
+	    rb_id2name( SYM2ID(argv[0]) ) );
 #endif
 
-	VALUE * savestack = ALLOCA_N(VALUE, argc + 3);
-	savestack[0] = rb_str_new2("Qt");
-	savestack[1] = rb_str_new2(rb_id2name(SYM2ID(argv[0])));
-	savestack[2] = klass;
-	savestack[3] = Qnil;
-	for (int count = 1; count < argc; count++) {
-		savestack[count+3] = argv[count];
-	}
+    VALUE * savestack = ALLOCA_N(VALUE, argc + 3);
+    savestack[0] = rb_str_new2("Qt");
+    savestack[1] = rb_str_new2(rb_id2name(SYM2ID(argv[0])));
+    savestack[2] = klass;
+    savestack[3] = Qnil;
+    for (int count = 1; count < argc; count++) {
+	savestack[count+3] = argv[count];
+    }
 
     _current_method = -1;
-	VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
-	if (retval != Qnil)
-	        return retval;
+    VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
+    if (retval != Qnil)
+	return retval;
 
-	// If the method can't be found allow the default method_missing
-	//	to display an error message, by calling super on the method
-	if (_current_method == -1) {
-		rb_enable_super(rb_cObject, rb_id2name(SYM2ID(argv[0])));
-		return rb_call_super(argc, argv);
-	}
+    // If the method can't be found allow the default method_missing
+    //	to display an error message, by calling super on the method
+    if (_current_method == -1) {
+	rb_enable_super(rb_cObject, rb_id2name(SYM2ID(argv[0])));
+	return rb_call_super(argc, argv);
+    }
 
-	MethodCall c(qt_Smoke, _current_method, savestack+4, argc-1);
-	c.next();
-	VALUE result = *(c.var());
-	return result;
+    MethodCall c(qt_Smoke, _current_method, savestack+4, argc-1);
+    c.next();
+    VALUE result = *(c.var());
+    return result;
 }
 
 static VALUE module_method_missing(int argc, VALUE * argv, VALUE /*klass*/)
 {
 #ifdef DEBUG
-	printf("In module_method_missing(argc: %d, argv[0]: %s)\n",
-			argc,
-			rb_id2name( SYM2ID(argv[0]) ) );
+    printf("In module_method_missing(argc: %d, argv[0]: %s)\n",
+	    argc,
+	    rb_id2name( SYM2ID(argv[0]) ) );
 #endif
 
-	return class_method_missing(argc, argv, qt_module);
+    return class_method_missing(argc, argv, qt_module);
 }
 
 static VALUE setThis(VALUE self, VALUE obj);
@@ -1045,60 +1045,60 @@ so initialize() can be allowed to proceed to the end.
 static VALUE
 initialize_qt(int argc, VALUE * argv, VALUE self)
 {
-	if (TYPE(self) == T_DATA) {
-		return self;
-	}
-		
-	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
-	VALUE constructor_name = rb_str_new2("new");
+    if (TYPE(self) == T_DATA) {
+	return self;
+    }
 
-	VALUE * savestack = ALLOCA_N(VALUE, argc + 4);
-	savestack[0] = rb_str_new2("Qt");
-	savestack[1] = constructor_name;
-	savestack[2] = klass;
-	savestack[3] = self;
-	for (int count = 0; count < argc; count++) {
-		savestack[count+4] = argv[count];
-	}
+    VALUE klass = rb_funcall(self, rb_intern("class"), 0);
+    VALUE constructor_name = rb_str_new2("new");
+
+    VALUE * savestack = ALLOCA_N(VALUE, argc + 4);
+    savestack[0] = rb_str_new2("Qt");
+    savestack[1] = constructor_name;
+    savestack[2] = klass;
+    savestack[3] = self;
+    for (int count = 0; count < argc; count++) {
+	savestack[count+4] = argv[count];
+    }
 
     _current_method = -1;
-	VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+4, savestack);
-	if (retval != Qnil)
-	        return retval;
+    VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+4, savestack);
+    if (retval != Qnil)
+	return retval;
 
-	// If the method can't be found, allow the default method_missing
-	//	to display an error message, by calling super on the method
-	if (_current_method == -1) {
+    // If the method can't be found, allow the default method_missing
+    //	to display an error message, by calling super on the method
+    if (_current_method == -1) {
 	if (argc == 0) {
 	    fprintf(stderr, "sorry, i'm gonna crash now, hope you saved your work!\n");
 	    exit(0);
 	}
-		rb_enable_super(rb_cObject, rb_id2name(SYM2ID(argv[0])));
-		return rb_call_super(argc, argv);
+	rb_enable_super(rb_cObject, rb_id2name(SYM2ID(argv[0])));
+	return rb_call_super(argc, argv);
+    }
+
+    // Success. Cache result.
+    //methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
+
+    // FIXME: I shouldn't have to set the current object
+    {
+	smokeruby_object *o = value_obj_info(ruby_self);
+	if(o && o->ptr) {
+	    _current_object = o->ptr;
+	    _current_object_class = o->classId;
+	} else {
+	    _current_object = 0;
 	}
+    }
 
-	// Success. Cache result.
-	//methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
-
-        // FIXME: I shouldn't have to set the current object
-        {
-                smokeruby_object *o = value_obj_info(ruby_self);
-                if(o && o->ptr) {
-                    _current_object = o->ptr;
-                    _current_object_class = o->classId;
-                } else {
-                    _current_object = 0;
-                }
-        }
-
-	MethodCall c(qt_Smoke, _current_method, savestack+4, argc);
-	c.next();
-	VALUE temp_obj = *(c.var());
-	void * ptr = 0;
-	Data_Get_Struct(temp_obj, smokeruby_object, ptr);
-	VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, ptr);
-	mapObject(result, result);
-	return rb_funcall(qt_internal_module, rb_intern("continue_new_instance"), 1, result);
+    MethodCall c(qt_Smoke, _current_method, savestack+4, argc);
+    c.next();
+    VALUE temp_obj = *(c.var());
+    void * ptr = 0;
+    Data_Get_Struct(temp_obj, smokeruby_object, ptr);
+    VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, ptr);
+    mapObject(result, result);
+    return rb_funcall(qt_internal_module, rb_intern("continue_new_instance"), 1, result);
 }
 
 static VALUE
@@ -1106,24 +1106,24 @@ new_qt(int argc, VALUE * argv, VALUE klass)
 {
 #ifdef DEBUG
     VALUE class_name = rb_funcall(klass, rb_intern("name"), 0);
-	printf("In new_qt, argc: %d, self class_name: %s\n",
-			argc,
-			STR2CSTR(class_name) );
+    printf("In new_qt, argc: %d, self class_name: %s\n",
+	    argc,
+	    STR2CSTR(class_name) );
 #endif
-			
-	VALUE * localstack = ALLOCA_N(VALUE, argc + 1);
-	localstack[0] = rb_obj_alloc(klass);
-	for (int count = 0; count < argc; count++) {
-		localstack[count+1] = argv[count];
-	}
 
-	VALUE result = rb_funcall2(qt_internal_module, rb_intern("try_initialize"), argc+1, localstack);
-
-	if (rb_respond_to(result, rb_intern("initialize")) != 0) {
-    	rb_obj_call_init(result, argc, argv);
+    VALUE * localstack = ALLOCA_N(VALUE, argc + 1);
+    localstack[0] = rb_obj_alloc(klass);
+    for (int count = 0; count < argc; count++) {
+	localstack[count+1] = argv[count];
     }
 
-	return result;
+    VALUE result = rb_funcall2(qt_internal_module, rb_intern("try_initialize"), argc+1, localstack);
+
+    if (rb_respond_to(result, rb_intern("initialize")) != 0) {
+	rb_obj_call_init(result, argc, argv);
+    }
+
+    return result;
 }
 
 static VALUE qt_invoke(VALUE self, VALUE id_value, VALUE quobject);
@@ -1132,39 +1132,39 @@ static VALUE qt_signal(int argc, VALUE * argv, VALUE self);
 static VALUE
 new_qobject(int argc, VALUE * argv, VALUE klass)
 {
-	if (rb_funcall(qt_internal_module, rb_intern("hasMembers"), 1, klass) == Qtrue) {
-        // TODO: Don't do this everytime a new instance is created, just once..
-		rb_define_method(klass, "qt_invoke", (VALUE (*) (...)) qt_invoke, 2);
-		rb_define_method(klass, "qt_emit", (VALUE (*) (...)) qt_invoke, 2);
-		rb_define_method(klass, "metaObject", (VALUE (*) (...)) metaObject, 0);
-		VALUE signalNames = rb_funcall(qt_internal_module, rb_intern("getSignalNames"), 1, klass);
-		for (long index = 0; index < RARRAY(signalNames)->len; index++) {
-			VALUE signal = rb_ary_entry(signalNames, index);
-			rb_define_method(klass, STR2CSTR(signal), (VALUE (*) (...)) qt_signal, -1);
-		}
+    if (rb_funcall(qt_internal_module, rb_intern("hasMembers"), 1, klass) == Qtrue) {
+	// TODO: Don't do this everytime a new instance is created, just once..
+	rb_define_method(klass, "qt_invoke", (VALUE (*) (...)) qt_invoke, 2);
+	rb_define_method(klass, "qt_emit", (VALUE (*) (...)) qt_invoke, 2);
+	rb_define_method(klass, "metaObject", (VALUE (*) (...)) metaObject, 0);
+	VALUE signalNames = rb_funcall(qt_internal_module, rb_intern("getSignalNames"), 1, klass);
+	for (long index = 0; index < RARRAY(signalNames)->len; index++) {
+	    VALUE signal = rb_ary_entry(signalNames, index);
+	    rb_define_method(klass, STR2CSTR(signal), (VALUE (*) (...)) qt_signal, -1);
 	}
+    }
 
-	return new_qt(argc, argv, klass);
+    return new_qt(argc, argv, klass);
 }
 
 static VALUE
 new_qapplication(int argc, VALUE * argv, VALUE klass)
 {
-	VALUE result = Qnil;
-	
-	if (argc == 1 && TYPE(argv[0]) == T_ARRAY) {
-		// Convert '(ARGV)' to '(NUM, [$0]+ARGV)'
-		VALUE * local_argv = ALLOCA_N(VALUE, argc + 1);
-		rb_ary_unshift(argv[0], rb_gv_get("$0"));
-		local_argv[0] = INT2NUM(RARRAY(argv[0])->len);
-		local_argv[1] = argv[0];
-		result = new_qobject(2, local_argv, klass);
-	} else {
-		result = new_qobject(argc, argv, klass);
-	}
-	
-	rb_gv_set("$qApp", result);
-	return result;
+    VALUE result = Qnil;
+
+    if (argc == 1 && TYPE(argv[0]) == T_ARRAY) {
+	// Convert '(ARGV)' to '(NUM, [$0]+ARGV)'
+	VALUE * local_argv = ALLOCA_N(VALUE, argc + 1);
+	rb_ary_unshift(argv[0], rb_gv_get("$0"));
+	local_argv[0] = INT2NUM(RARRAY(argv[0])->len);
+	local_argv[1] = argv[0];
+	result = new_qobject(2, local_argv, klass);
+    } else {
+	result = new_qobject(argc, argv, klass);
+    }
+
+    rb_gv_set("$qApp", result);
+    return result;
 }
 
 //----------------- Sig/Slot ------------------
@@ -1174,7 +1174,7 @@ VALUE
 getmetainfo(VALUE self, int &offset, int &index)
 {
     char * signalname = rb_id2name(rb_frame_last_func());
-	VALUE metaObject_value = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 1, self);
+    VALUE metaObject_value = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 1, self);
 
     smokeruby_object *ometa = value_obj_info(metaObject_value);
     if(!ometa) return 0;
@@ -1182,18 +1182,18 @@ getmetainfo(VALUE self, int &offset, int &index)
 
     offset = metaobject->signalOffset();
 
-	VALUE signalInfo = rb_funcall(qt_internal_module, rb_intern("signalInfo"), 2, self, rb_str_new2(signalname));
-	VALUE member = rb_ary_entry(signalInfo, 0);
-	index = NUM2INT(rb_ary_entry(signalInfo, 1));
-	return rb_funcall(qt_internal_module, rb_intern("getMocArguments"), 1, member);
+    VALUE signalInfo = rb_funcall(qt_internal_module, rb_intern("signalInfo"), 2, self, rb_str_new2(signalname));
+    VALUE member = rb_ary_entry(signalInfo, 0);
+    index = NUM2INT(rb_ary_entry(signalInfo, 1));
+    return rb_funcall(qt_internal_module, rb_intern("getMocArguments"), 1, member);
 }
 
 VALUE
 getslotinfo(VALUE self, int id, char *&slotname, int &index, bool isSignal = false)
 {
-	VALUE member;
+    VALUE member;
 
-	VALUE metaObject_value = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 1, self);
+    VALUE metaObject_value = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 1, self);
     smokeruby_object *ometa = value_obj_info(metaObject_value);
     if(!ometa) return Qnil;
 
@@ -1206,13 +1206,13 @@ getslotinfo(VALUE self, int id, char *&slotname, int &index, bool isSignal = fal
     if(index < 0) return Qnil;
 
     if (isSignal) {
-		member = rb_funcall(qt_internal_module, rb_intern("signalAt"), 2, self, INT2NUM(index));
-	} else {
-		member = rb_funcall(qt_internal_module, rb_intern("slotAt"), 2, self, INT2NUM(index));
-	}
+	member = rb_funcall(qt_internal_module, rb_intern("signalAt"), 2, self, INT2NUM(index));
+    } else {
+	member = rb_funcall(qt_internal_module, rb_intern("slotAt"), 2, self, INT2NUM(index));
+    }
 
-	VALUE mocArgs = rb_funcall(qt_internal_module, rb_intern("getMocArguments"), 1, member);
-	slotname = STR2CSTR(member);
+    VALUE mocArgs = rb_funcall(qt_internal_module, rb_intern("getMocArguments"), 1, member);
+    slotname = STR2CSTR(member);
 
     return mocArgs;
 }
@@ -1233,7 +1233,7 @@ qt_signal(int argc, VALUE * argv, VALUE self)
 
     VALUE args = getmetainfo(self, offset, index);
 #ifdef DEBUG
-	printf("In qt_signal argc: %d index: %d offset: %d\n", argc, index, offset);
+    printf("In qt_signal argc: %d index: %d offset: %d\n", argc, index, offset);
 #endif
 
     if(args == Qnil) return Qfalse;
@@ -1279,8 +1279,8 @@ qt_invoke(VALUE self, VALUE id_value, VALUE quobject)
 	return Qfalse;
     }
 
-	QString name(slotname);
-	name.replace(QRegExp("\\(.*"), "");
+    QString name(slotname);
+    name.replace(QRegExp("\\(.*"), "");
     InvokeSlot slot(self, rb_intern((const char *) name), mocArgs, _o);
     slot.next();
 
@@ -1312,17 +1312,17 @@ getClassStat(VALUE /*self*/)
 static VALUE
 getIsa(VALUE /*self*/, VALUE classId)
 {
-	VALUE parents_list = rb_ary_new();
+    VALUE parents_list = rb_ary_new();
 
     Smoke::Index *parents =
 	qt_Smoke->inheritanceList +
 	qt_Smoke->classes[NUM2INT(classId)].parents;
 
     while(*parents) {
-//	printf("\tparent: %s\n", qt_Smoke->classes[*parents].className);
+	//	printf("\tparent: %s\n", qt_Smoke->classes[*parents].className);
 	rb_ary_push(parents_list, rb_str_new2(qt_Smoke->classes[*parents++].className));
-	}
-	return parents_list;
+    }
+    return parents_list;
 }
 
 
@@ -1432,15 +1432,15 @@ insert_mcid(VALUE self, VALUE mcid_value, VALUE ix_value)
     return self;
 }
 
-static VALUE
+    static VALUE
 find_mcid(VALUE /*self*/, VALUE mcid_value)
 {
     char *mcid = STR2CSTR(mcid_value);
     Smoke::Index *r = methcache.find(mcid);
     if(r)
-        return INT2NUM((int)*r);
+	return INT2NUM((int)*r);
     else
-        return INT2NUM(0);
+	return INT2NUM(0);
 }
 
 static VALUE
@@ -1500,14 +1500,14 @@ make_QUMethod(VALUE /*self*/, VALUE name_value, VALUE params)
     m->count = RARRAY(params)->len;
 
     if (m->count > 0) {
-		m->parameters = new QUParameter[m->count];
-    	for (long i = 0; i < m->count; i++) {
-     		VALUE param = rb_ary_entry(params, i);
-			QUParameter *p = 0;
-      		Data_Get_Struct(param, QUParameter, p);
-     		((QUParameter *) m->parameters)[i] = *p;
-			delete p;
-    	}
+	m->parameters = new QUParameter[m->count];
+	for (long i = 0; i < m->count; i++) {
+	    VALUE param = rb_ary_entry(params, i);
+	    QUParameter *p = 0;
+	    Data_Get_Struct(param, QUParameter, p);
+	    ((QUParameter *) m->parameters)[i] = *p;
+	    delete p;
+	}
     }
 
     return Data_Wrap_Struct(rb_cObject, 0, 0, m);
@@ -1516,16 +1516,16 @@ make_QUMethod(VALUE /*self*/, VALUE name_value, VALUE params)
 static VALUE
 make_QMetaData_tbl(VALUE /*self*/, VALUE list)
 {
-	long count = RARRAY(list)->len;
-	QMetaData *m = new QMetaData[count];
+    long count = RARRAY(list)->len;
+    QMetaData *m = new QMetaData[count];
 
-	for (long i = 0; i < count; i++) {
-		VALUE item = rb_ary_entry(list, i);
+    for (long i = 0; i < count; i++) {
+	VALUE item = rb_ary_entry(list, i);
 
-		QMetaData *old = 0;
-		Data_Get_Struct(item, QMetaData, old);
-		m[i] = *old;
-		delete old;
+	QMetaData *old = 0;
+	Data_Get_Struct(item, QMetaData, old);
+	m[i] = *old;
+	delete old;
     }
 
     return Data_Wrap_Struct(rb_cObject, 0, 0, m);
@@ -1541,20 +1541,20 @@ make_metaObject(VALUE /*self*/, VALUE className_value, VALUE parent, VALUE slot_
     if (slot_tbl_value != Qnil) {
     	Data_Get_Struct(slot_tbl_value, QMetaData, slot_tbl);
     	slot_count = NUM2INT(slot_count_value);
-	}
+    }
 
     QMetaData * signal_tbl = 0;
     int signal_count = 0;
     if (signal_tbl_value != Qnil) {
     	Data_Get_Struct(signal_tbl_value, QMetaData, signal_tbl);
     	signal_count = NUM2INT(signal_count_value);
-	}
+    }
 
 #ifdef DEBUG
-	printf(	"make_metaObject: %s slot_count: %d signal_count: %d\n",
-			className,
-			slot_count,
-			signal_count );
+    printf(	"make_metaObject: %s slot_count: %d signal_count: %d\n",
+	    className,
+	    slot_count,
+	    signal_count );
 #endif
 
     smokeruby_object *po = value_obj_info(parent);
@@ -1611,8 +1611,8 @@ setAllocated(VALUE self, VALUE obj, VALUE b_value)
 static VALUE
 setThis(VALUE self, VALUE obj)
 {
-	ruby_self = obj;
-	return self;
+    ruby_self = obj;
+    return self;
 }
 
 static VALUE
@@ -1643,7 +1643,7 @@ mapObject(VALUE self, VALUE obj)
 static VALUE
 isaQObject(VALUE /*self*/, VALUE classid)
 {
-	int classid_value = NUM2INT(classid);
+    int classid_value = NUM2INT(classid);
     return isQObject(qt_Smoke, classid_value) ? Qtrue : Qfalse;
 }
 
@@ -1652,10 +1652,10 @@ isValidAllocatedPointer(VALUE /*self*/, VALUE obj)
 {
     smokeruby_object *o = value_obj_info(obj);
     if(o && o->ptr && o->allocated) {
-		return INT2NUM(1);
+	return INT2NUM(1);
     } else {
-		return INT2NUM(0);
-	}
+	return INT2NUM(0);
+    }
 }
 
 static VALUE
@@ -1712,9 +1712,9 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
 	} else {		// multiple match
 	    i = -i;		// turn into ambiguousMethodList index
 	    while(qt_Smoke->ambiguousMethodList[i]) {
-			rb_ary_push(result, INT2NUM(qt_Smoke->ambiguousMethodList[i]));
+		rb_ary_push(result, INT2NUM(qt_Smoke->ambiguousMethodList[i]));
 #ifdef DEBUG
-    	printf("Ambiguous Method %s::%s => %d\n", c, name, qt_Smoke->ambiguousMethodList[i]);
+		printf("Ambiguous Method %s::%s => %d\n", c, name, qt_Smoke->ambiguousMethodList[i]);
 #endif
 		i++;
 	    }
@@ -1876,8 +1876,8 @@ rb_catArguments(VALUE self, VALUE r_args)
 static VALUE
 isObject(VALUE /*self*/, VALUE obj)
 {
-	void * ptr = 0;
-	ptr = value_to_ptr(obj);
+    void * ptr = 0;
+    ptr = value_to_ptr(obj);
     return (ptr > 0 ? Qtrue : Qfalse);
 }
 
@@ -1893,7 +1893,7 @@ setCurrentMethod(VALUE self, VALUE meth_value)
 static VALUE
 getClassList(VALUE /*self*/)
 {
-	VALUE class_list = rb_ary_new();
+    VALUE class_list = rb_ary_new();
 
     for(int i = 1; i <= qt_Smoke->numClasses; i++) {
 		rb_ary_push(class_list, rb_str_new2(qt_Smoke->classes[i].className));
@@ -1905,7 +1905,7 @@ getClassList(VALUE /*self*/)
 static VALUE
 create_qobject_class(VALUE /*self*/, VALUE package_value)
 {
-	char *package = STR2CSTR(package_value);
+    char *package = STR2CSTR(package_value);
     VALUE klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
 
     if (strcmp(package, "Qt::Application") == 0) {
@@ -1920,12 +1920,12 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 static VALUE
 create_qt_class(VALUE /*self*/, VALUE package_value)
 {
-	char *package = STR2CSTR(package_value);
+    char *package = STR2CSTR(package_value);
     VALUE klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
 
     if (strcmp(package, "Qt::MetaObject") == 0) {
-    	qt_qmetaobject_class = klass;
-	}
+	qt_qmetaobject_class = klass;
+    }
 
     return klass;
 }
@@ -1966,61 +1966,61 @@ Init_Qt()
     rb_define_singleton_method(qt_module, "const_missing", (VALUE (*) (...)) module_method_missing, -1);
     rb_define_method(qt_base_class, "const_missing", (VALUE (*) (...)) method_missing, -1);
 
-	rb_define_method(qt_internal_module, "getMethStat", (VALUE (*) (...)) getMethStat, 0);
-	rb_define_method(qt_internal_module, "getClassStat", (VALUE (*) (...)) getClassStat, 0);
-	rb_define_method(qt_internal_module, "getIsa", (VALUE (*) (...)) getIsa, 1);
-	rb_define_method(qt_internal_module, "dontRecurse", (VALUE (*) (...)) dontRecurse, 0);
-	rb_define_method(qt_internal_module, "allocateMocArguments", (VALUE (*) (...)) allocateMocArguments, 1);
-	rb_define_method(qt_internal_module, "setMocType", (VALUE (*) (...)) setMocType, 4);
+    rb_define_method(qt_internal_module, "getMethStat", (VALUE (*) (...)) getMethStat, 0);
+    rb_define_method(qt_internal_module, "getClassStat", (VALUE (*) (...)) getClassStat, 0);
+    rb_define_method(qt_internal_module, "getIsa", (VALUE (*) (...)) getIsa, 1);
+    rb_define_method(qt_internal_module, "dontRecurse", (VALUE (*) (...)) dontRecurse, 0);
+    rb_define_method(qt_internal_module, "allocateMocArguments", (VALUE (*) (...)) allocateMocArguments, 1);
+    rb_define_method(qt_internal_module, "setMocType", (VALUE (*) (...)) setMocType, 4);
 #ifdef DEBUG
-	rb_define_method(qt_internal_module, "setDebug", (VALUE (*) (...)) setDebug, 1);
-	rb_define_method(qt_internal_module, "debug", (VALUE (*) (...)) debugging, 0);
+    rb_define_method(qt_internal_module, "setDebug", (VALUE (*) (...)) setDebug, 1);
+    rb_define_method(qt_internal_module, "debug", (VALUE (*) (...)) debugging, 0);
 #endif
-	rb_define_method(qt_internal_module, "getTypeNameOfArg", (VALUE (*) (...)) getTypeNameOfArg, 2);
-	rb_define_method(qt_internal_module, "classIsa", (VALUE (*) (...)) classIsa, 2);
-	rb_define_method(qt_internal_module, "insert_pclassid", (VALUE (*) (...)) insert_pclassid, 2);
-	rb_define_method(qt_internal_module, "find_pclassid", (VALUE (*) (...)) find_pclassid, 1);
-	rb_define_method(qt_internal_module, "insert_mcid", (VALUE (*) (...)) insert_mcid, 2);
-	rb_define_method(qt_internal_module, "find_mcid", (VALUE (*) (...)) find_mcid, 1);
-	rb_define_method(qt_internal_module, "getVALUEtype", (VALUE (*) (...)) getVALUEtype, 1);
-	rb_define_method(qt_internal_module, "make_QUParameter", (VALUE (*) (...)) make_QUParameter, 4);
-	rb_define_method(qt_internal_module, "make_QMetaData", (VALUE (*) (...)) make_QMetaData, 2);
-	rb_define_method(qt_internal_module, "make_QUMethod", (VALUE (*) (...)) make_QUMethod, 2);
-	rb_define_method(qt_internal_module, "make_QMetaData_tbl", (VALUE (*) (...)) make_QMetaData_tbl, 1);
-	rb_define_method(qt_internal_module, "make_metaObject", (VALUE (*) (...)) make_metaObject, 6);
-	rb_define_method(qt_internal_module, "dumpObjects", (VALUE (*) (...)) dumpObjects, 0);
-	rb_define_method(qt_internal_module, "setAllocated", (VALUE (*) (...)) setAllocated, 2);
-	rb_define_method(qt_internal_module, "setThis", (VALUE (*) (...)) setThis, 1);
-	rb_define_method(qt_internal_module, "deleteObject", (VALUE (*) (...)) deleteObject, 1);
-	rb_define_method(qt_internal_module, "mapObject", (VALUE (*) (...)) mapObject, 1);
-	// isQOjbect => isaQObject
-	rb_define_method(qt_internal_module, "isQObject", (VALUE (*) (...)) isaQObject, 1);
-	rb_define_method(qt_internal_module, "isValidAllocatedPointer", (VALUE (*) (...)) isValidAllocatedPointer, 1);
-	rb_define_method(qt_internal_module, "findAllocatedObjectFor", (VALUE (*) (...)) findAllocatedObjectFor, 1);
-	rb_define_method(qt_internal_module, "idClass", (VALUE (*) (...)) idClass, 1);
-	rb_define_method(qt_internal_module, "idMethodName", (VALUE (*) (...)) idMethodName, 1);
-	rb_define_method(qt_internal_module, "idMethod", (VALUE (*) (...)) idMethod, 2);
-	rb_define_method(qt_internal_module, "findMethod", (VALUE (*) (...)) findMethod, 2);
-	rb_define_method(qt_internal_module, "findMethodFromIds", (VALUE (*) (...)) findMethodFromIds, 2);
-	rb_define_method(qt_internal_module, "findAllMethods", (VALUE (*) (...)) findAllMethods, -1);
-	rb_define_method(qt_internal_module, "dumpCandidates", (VALUE (*) (...)) dumpCandidates, 1);
-	rb_define_method(qt_internal_module, "catArguments", (VALUE (*) (...)) catArguments, 1);
-	rb_define_method(qt_internal_module, "isObject", (VALUE (*) (...)) isObject, 1);
-	rb_define_method(qt_internal_module, "setCurrentMethod", (VALUE (*) (...)) setCurrentMethod, 1);
-	rb_define_method(qt_internal_module, "getClassList", (VALUE (*) (...)) getClassList, 0);
-	rb_define_method(qt_internal_module, "create_qt_class", (VALUE (*) (...)) create_qt_class, 1);
-	rb_define_method(qt_internal_module, "create_qobject_class", (VALUE (*) (...)) create_qobject_class, 1);
-	rb_define_method(qt_internal_module, "version", (VALUE (*) (...)) version, 0);
-	rb_define_method(qt_internal_module, "qtruby_version", (VALUE (*) (...)) qtruby_version, 0);
+    rb_define_method(qt_internal_module, "getTypeNameOfArg", (VALUE (*) (...)) getTypeNameOfArg, 2);
+    rb_define_method(qt_internal_module, "classIsa", (VALUE (*) (...)) classIsa, 2);
+    rb_define_method(qt_internal_module, "insert_pclassid", (VALUE (*) (...)) insert_pclassid, 2);
+    rb_define_method(qt_internal_module, "find_pclassid", (VALUE (*) (...)) find_pclassid, 1);
+    rb_define_method(qt_internal_module, "insert_mcid", (VALUE (*) (...)) insert_mcid, 2);
+    rb_define_method(qt_internal_module, "find_mcid", (VALUE (*) (...)) find_mcid, 1);
+    rb_define_method(qt_internal_module, "getVALUEtype", (VALUE (*) (...)) getVALUEtype, 1);
+    rb_define_method(qt_internal_module, "make_QUParameter", (VALUE (*) (...)) make_QUParameter, 4);
+    rb_define_method(qt_internal_module, "make_QMetaData", (VALUE (*) (...)) make_QMetaData, 2);
+    rb_define_method(qt_internal_module, "make_QUMethod", (VALUE (*) (...)) make_QUMethod, 2);
+    rb_define_method(qt_internal_module, "make_QMetaData_tbl", (VALUE (*) (...)) make_QMetaData_tbl, 1);
+    rb_define_method(qt_internal_module, "make_metaObject", (VALUE (*) (...)) make_metaObject, 6);
+    rb_define_method(qt_internal_module, "dumpObjects", (VALUE (*) (...)) dumpObjects, 0);
+    rb_define_method(qt_internal_module, "setAllocated", (VALUE (*) (...)) setAllocated, 2);
+    rb_define_method(qt_internal_module, "setThis", (VALUE (*) (...)) setThis, 1);
+    rb_define_method(qt_internal_module, "deleteObject", (VALUE (*) (...)) deleteObject, 1);
+    rb_define_method(qt_internal_module, "mapObject", (VALUE (*) (...)) mapObject, 1);
+    // isQOjbect => isaQObject
+    rb_define_method(qt_internal_module, "isQObject", (VALUE (*) (...)) isaQObject, 1);
+    rb_define_method(qt_internal_module, "isValidAllocatedPointer", (VALUE (*) (...)) isValidAllocatedPointer, 1);
+    rb_define_method(qt_internal_module, "findAllocatedObjectFor", (VALUE (*) (...)) findAllocatedObjectFor, 1);
+    rb_define_method(qt_internal_module, "idClass", (VALUE (*) (...)) idClass, 1);
+    rb_define_method(qt_internal_module, "idMethodName", (VALUE (*) (...)) idMethodName, 1);
+    rb_define_method(qt_internal_module, "idMethod", (VALUE (*) (...)) idMethod, 2);
+    rb_define_method(qt_internal_module, "findMethod", (VALUE (*) (...)) findMethod, 2);
+    rb_define_method(qt_internal_module, "findMethodFromIds", (VALUE (*) (...)) findMethodFromIds, 2);
+    rb_define_method(qt_internal_module, "findAllMethods", (VALUE (*) (...)) findAllMethods, -1);
+    rb_define_method(qt_internal_module, "dumpCandidates", (VALUE (*) (...)) dumpCandidates, 1);
+    rb_define_method(qt_internal_module, "catArguments", (VALUE (*) (...)) catArguments, 1);
+    rb_define_method(qt_internal_module, "isObject", (VALUE (*) (...)) isObject, 1);
+    rb_define_method(qt_internal_module, "setCurrentMethod", (VALUE (*) (...)) setCurrentMethod, 1);
+    rb_define_method(qt_internal_module, "getClassList", (VALUE (*) (...)) getClassList, 0);
+    rb_define_method(qt_internal_module, "create_qt_class", (VALUE (*) (...)) create_qt_class, 1);
+    rb_define_method(qt_internal_module, "create_qobject_class", (VALUE (*) (...)) create_qobject_class, 1);
+    rb_define_method(qt_internal_module, "version", (VALUE (*) (...)) version, 0);
+    rb_define_method(qt_internal_module, "qtruby_version", (VALUE (*) (...)) qtruby_version, 0);
 
-	pointer_map = rb_hash_new();
-	rb_gc_register_address(&pointer_map);
+    pointer_map = rb_hash_new();
+    rb_gc_register_address(&pointer_map);
 
-	rb_include_module(qt_module, qt_internal_module);
-	rb_require("Qt/Qt.rb");
+    rb_include_module(qt_module, qt_internal_module);
+    rb_require("Qt/Qt.rb");
 
-	// Do package initialization
-	rb_funcall(qt_internal_module, rb_intern("init"), 0);
+    // Do package initialization
+    rb_funcall(qt_internal_module, rb_intern("init"), 0);
 }
 
 };
