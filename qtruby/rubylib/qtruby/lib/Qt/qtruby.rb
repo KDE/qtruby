@@ -369,22 +369,67 @@ module Qt
 	end
 
 	Meta = {}
+	
+	# An entry for each signal or slot
+	# Example 
+	#  foobar(QString,bool)
+	#  :name is 'foobar'
+	#  :full_name is 'foobar(QString,bool)'
+	#  :arg_types is 'QString,bool'
+	QObjectMember = Struct.new :name, :full_name, :arg_types
 
 	class MetaInfo
 		attr_accessor :signals, :slots, :metaobject, :mocargs, :changed
 		def initialize(aClass)
 			Meta[aClass.name] = self
+			@klass = aClass
 			@metaobject = nil
 			@signals = []
 			@slots = []
 			@changed = false
 		end
-	end
-
-	def hasMembers(aClass)
-		classname = aClass.name if aClass.is_a? Module
-		meta = Meta[classname]
-		return !meta.nil? && (meta.signals.length > 0 or meta.slots.length > 0)
+		
+		def add_signals(signal_list)
+			signal_list.each do |signal|
+				if signal =~ /([^\s]*)\((.*)\)/
+					@signals.push QObjectMember.new($1, signal, $2)
+				end
+			end
+		end
+		
+		def get_signals
+			all_signals = []
+			current = @klass
+			while current != Qt::Base
+				meta = Meta[current.name]
+				if !meta.nil?
+					all_signals.concat meta.signals
+				end
+				current = current.superclass
+			end
+			return all_signals
+		end
+		
+		def add_slots(slot_list)
+			slot_list.each do |slot|
+				if slot =~ /([^\s]*)\((.*)\)/
+					@slots.push QObjectMember.new($1, slot, $2)
+				end
+			end
+		end
+		
+		def get_slots
+			all_slots = []
+			current = @klass
+			while current != Qt::Base
+				meta = Meta[current.name]
+				if !meta.nil?
+					all_slots.concat meta.slots
+				end
+				current = current.superclass
+			end
+			return all_slots
+		end
 	end
 
 	def getAllParents(class_id, res)
@@ -396,40 +441,37 @@ module Qt
 		}
 	end
 
-	def getSignalNames(aClass)
-		classname = aClass.name if aClass.is_a? Module
-		signalNames = []
-		signals = Meta[classname].signals
-                return [] if signals.nil?
-                signals.each {
-                        |signal| signalNames << signal.sub(/\(.*/, '')
-                }
-		signalNames
+	def getSignalNames(klass)
+		meta = Meta[klass.name] || MetaInfo.new(klass)
+		signal_names = []
+		meta.get_signals.each do |signal|
+			signal_names.push signal.name
+		end
+		return signal_names 
 	end
 
-	def signalInfo(qobject, signalName)
-		classname = qobject.class.name if qobject.class.is_a? Module
-		signals = Meta[classname].signals
+	def signalInfo(qobject, signal_name)
+		signals = Meta[qobject.class.name].get_signals
                 signals.each_with_index {
-			|signal, i|
-			if signal.sub(/\(.*/, '') == signalName
-				return [signal, i]
-			end
+                        |signal, i|
+                        if signal.name == signal_name
+                        	return [signal.full_name, i]
+                        end
                 }
 	end
 
 	def signalAt(qobject, index)
-		classname = qobject.class.name if qobject.class.is_a? Module
-		Meta[classname].signals[index]
+		classname = qobject.class.name
+		Meta[classname].get_signals[index].full_name
 	end
 
 	def slotAt(qobject, index)
-		classname = qobject.class.name if qobject.class.is_a? Module
-		Meta[classname].slots[index]
+		classname = qobject.class.name
+		Meta[classname].get_slots[index].full_name
 	end
 
 	def getMocArguments(member)
-		argStr = member.sub(/.*\(/, '').sub(/\)$/, '')
+		argStr = member.sub(/.*\(/, '').sub!(/\)$/, '')
 		args = argStr.scan(/[^,]+/)
 		mocargs = allocateMocArguments(args.length)
                 args.each_with_index {
@@ -448,9 +490,8 @@ module Qt
 		tbl = []
 		data.each {
 			|entry|
-			name = entry.sub(/\(.*/, '')
-			argStr = entry.sub(/.*\(/, '')
-			argStr.sub!(/\)$/, '')
+			name = entry.name
+			argStr = entry.arg_types
 			params = []
 			args = argStr.scan(/[^,]+/)
 			args.each {
@@ -460,7 +501,7 @@ module Qt
                                 params << param
 			}
 			method = make_QUMethod(name, params)
-			tbl << make_QMetaData(entry, method)
+			tbl << make_QMetaData(entry.full_name, method)
 		}
 		make_QMetaData_tbl(tbl)
 	end
@@ -470,14 +511,16 @@ module Qt
 		return nil if meta.nil?
 
 		if meta.metaobject.nil? or meta.changed
-			slotTable       = makeMetaData(meta.slots)
-			signalTable     = makeMetaData(meta.signals)
+			slots 			= meta.get_slots
+			slotTable       = makeMetaData(slots)
+			signals 		= meta.get_signals
+			signalTable     = makeMetaData(signals)
 			meta.metaobject = make_metaObject(qobject.class.name, 
 			                                  qobject.staticMetaObject(),
 			                                  slotTable, 
-			                                  meta.slots.length,
+			                                  slots.length,
 			                                  signalTable, 
-			                                  meta.signals.length)
+			                                  signals.length)
 			meta.changed = false
 		end
 		
@@ -527,13 +570,13 @@ class Module
 
 	def signals(*signal_list)
 		meta = Meta[self.name] || MetaInfo.new(self)
-		meta.signals += signal_list
+		meta.add_signals(signal_list)
 		meta.changed = true
 	end
 
 	def slots(*slot_list)
 		meta = Meta[self.name] || MetaInfo.new(self)
-		meta.slots += slot_list
+		meta.add_slots(slot_list)
 		meta.changed = true
 	end
 end

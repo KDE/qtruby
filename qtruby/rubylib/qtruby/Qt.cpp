@@ -1180,7 +1180,6 @@ static VALUE qt_signal(int argc, VALUE * argv, VALUE self);
 VALUE
 new_qobject(int argc, VALUE * argv, VALUE klass)
 {
-    if (rb_funcall(qt_internal_module, rb_intern("hasMembers"), 1, klass) == Qtrue) {
 	// TODO: Don't do this everytime a new instance is created, just once..
 	rb_define_method(klass, "qt_invoke", (VALUE (*) (...)) qt_invoke, -1);
 	rb_define_method(klass, "qt_emit", (VALUE (*) (...)) qt_invoke, -1);
@@ -1190,7 +1189,6 @@ new_qobject(int argc, VALUE * argv, VALUE klass)
 	    VALUE signal = rb_ary_entry(signalNames, index);
 	    rb_define_method(klass, STR2CSTR(signal), (VALUE (*) (...)) qt_signal, -1);
 	}
-    }
 
     return new_qt(argc, argv, klass);
 }
@@ -1241,7 +1239,7 @@ VALUE
 getslotinfo(VALUE self, int id, char *&slotname, int &index, bool isSignal = false)
 {
     VALUE member;
-
+	
     VALUE metaObject_value = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 1, self);
     smokeruby_object *ometa = value_obj_info(metaObject_value);
     if(!ometa) return Qnil;
