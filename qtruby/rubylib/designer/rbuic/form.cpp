@@ -27,17 +27,19 @@
 **
 **********************************************************************/
 
-#include <iostream.h>
 #include "uic.h"
 #include "parser.h"
 #include "widgetdatabase.h"
 #include "domtool.h"
+
 #include <qstringlist.h>
 #include <qregexp.h>
 #include <qfile.h>
 #include <qfileinfo.h>
+
 #define NO_STATIC_COLORS
 #include <globaldefs.h>
+
 #include <zlib.h>
 
 static QByteArray unzipXPM( QString data, ulong& length )
@@ -241,7 +243,7 @@ void Uic::createFormImpl( const QDomElement &e )
 
     // children
     if( !objectNames.isEmpty() )
-    	cerr << "WARNING : objectNames should be empty at form.cpp line" << __LINE__ << endl;
+    	qWarning("WARNING : objectNames should be empty at form.cpp line %d\n", __LINE__);
     nl = e.parentNode().toElement().elementsByTagName( "widget" );
     for ( i = 1; i < (int) nl.length(); i++ )
     { // start at 1, 0 is the toplevel widget
