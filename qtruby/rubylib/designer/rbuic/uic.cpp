@@ -794,7 +794,7 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
 	out << ", " << optcells << margin << ", " << spacing << ", '" << objName << "')" << endl;
     }
     if ( !resizeMode.isEmpty() )
-	out << indent << objName << ".setResizeMode( QLayout::" << resizeMode << " )" << endl;
+	out << indent << objName << ".setResizeMode( Qt::Layout::" << resizeMode << " )" << endl;
 
     if ( !isGrid ) {
 	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {

@@ -1,3 +1,7 @@
+2004-04-17  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Fixed bug in rbuic generated code for setResizeMode()
+
 2004-04-05  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Improved classname resolution for QListViewItem and QTableItem subclasses using rtti() calls
