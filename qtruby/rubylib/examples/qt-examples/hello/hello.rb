@@ -72,19 +72,7 @@ class Hello < Qt::Widget
 		end
 		p.end
 
-		# We do this since bitBlt is not a QPaintDevice member?!?! rather
-		# it's a friend function.. (thanks guys)
-		# so we don't actually have bitBlt support, but here's how it should work
-		# and here's what we do instead
-		begin
-			#4: Copy the pixmap to the Hello widget
-			bitBlt(self, pmx, pmy, pm)
-		rescue
-			p = Qt::Painter.new
-			p.begin(self)
-			p.drawPixmap(pmx,pmy, pm)
-			p.end
-		end
-
+		#4: Copy the pixmap to the Hello widget
+		bitBlt(self, pmx, pmy, pm)
 	end
 end

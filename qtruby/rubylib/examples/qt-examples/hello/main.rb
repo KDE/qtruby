@@ -6,7 +6,7 @@ require 'hello'
 a = Qt::Application.new(ARGV)
 s = ''
 
-s = ARGV[1..ARGV.size-1].join(' ')
+s = ARGV[0..ARGV.size-1].join(' ') if ARGV.length
 
 if (s.empty?)
 	s = 'Hello, World'
