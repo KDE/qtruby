@@ -186,6 +186,9 @@ module KDE
 				if @functions.nil?
 					@functions = {}
 					funcs = call("functions()")
+					if funcs.nil?
+						return nil
+					end
 					funcs.each do |func|
 						if func =~ /^(\w*) (.*)(\(.*\))/
 							return_type = $1
