@@ -12,7 +12,7 @@ class KIconCollection
       }
    end
    def dims
-      "16x16"
+      "32x32"
    end
    def kdedir
       ENV["KDEDIR"]
@@ -34,11 +34,10 @@ class KIconCollection
       act.setMenuText(text_with_accel)
       act
    end
-
 end
 
 module Icons
-   FILE_NEW, FILE_OPEN, FILE_CLOSE, FILE_SAVE, FILE_SAVE_AS, EXIT = 1,2,3,4,5, 6
+   FILE_NEW, FILE_OPEN, FILE_CLOSE, FILE_SAVE, FILE_SAVE_AS, EXIT = 1,2,3,4,5,6
 end
 
 icon_collections = {
