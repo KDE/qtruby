@@ -1,4 +1,4 @@
-/*
+=begin
     This file is part of KDE.
 
     Copyright (c) 2003 Cornelius Schumacher <schumacher@kde.org>
@@ -17,34 +17,24 @@
     along with this library; see the file COPYING.LIB.  If not, write to
     the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
     Boston, MA 02111-1307, USA.
-*/
+=end
 
-#include "exampleprefs_base.h"
+require 'Korundum'
+require 'exampleprefs_base.rb'
 
-#include <kaboutdata.h>
-#include <kapplication.h>
-#include <kdebug.h>
-#include <klocale.h>
-#include <kcmdlineargs.h>
-#include <kglobal.h>
-#include <kconfig.h>
-#include <kstandarddirs.h>
+  aboutData = KDE::AboutData.new( "example", I18N_NOOP("cfgc example"), "0.1" )
+  aboutData.addAuthor( "Cornelius Schumacher", nil, "schumacher@kde.org" )
 
-int main( int argc, char **argv )
-{
-  KAboutData aboutData( "example", I18N_NOOP("cfgc example"), "0.1" );
-  aboutData.addAuthor( "Cornelius Schumacher", 0, "schumacher@kde.org" );
+  KDE::CmdLineArgs.init( ARGV, aboutData )
 
-  KCmdLineArgs::init( argc, argv, &aboutData );
+  app = KDE::Application.new
 
-  KApplication app;
-
-  ExamplePrefsBase *prefs = new ExamplePrefsBase("Trans1", "Folder2");
+  prefs = ExamplePrefsBase.new("Trans1", "Folder2")
   
-  prefs->readConfig();
+  prefs.readConfig()
 
-  prefs->setAnotherOption(17);
+  prefs.setAnotherOption(17)
 
-  qWarning("Another Option = %d", prefs->anotherOption());
-  qWarning("Another Option2 = %d", prefs->anotherOption2());
-}
+
+  qWarning("Another Option = %d" % prefs.anotherOption())
+  qWarning("Another Option2 = %d" % prefs.anotherOption2())

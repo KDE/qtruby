@@ -1,3 +1,8 @@
+2005-01-26  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Translated the rbkconfig_compiler examples from C++ to ruby,
+	  and improved the build rules in the Makefile.ams
+
 2005-01-20  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* The rbkconfig_compiler now uses Qt::Variants to hold the values in KDE::ConfigSkeleton 
