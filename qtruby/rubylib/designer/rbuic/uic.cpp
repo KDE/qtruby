@@ -47,6 +47,7 @@
 #include <stdlib.h>
 #include <zlib.h>
 
+bool Uic::hasKDEwidget = FALSE;
 bool Uic::isMainWindow = FALSE;
 RubyIndent Uic::indent;
 
@@ -140,10 +141,11 @@ bool Uic::isEmptyFunction( const QString& fname )
  */
 Uic::Uic( const QString &fn, QTextStream &outStream, QDomDocument doc,
 	  bool subcl, const QString &trm, const QString& subClass,
-	  bool omitForwardDecls, QString &uicClass )
+	  bool omitForwardDecls, QString &uicClass, bool useKDE )
     : out( outStream ), trout( &languageChangeBody ),
       trmacro( trm ), nofwd( omitForwardDecls )
 {
+	Uic::hasKDEwidget = useKDE;
     fileName = fn;
     writeSlotImpl = TRUE;
     defMargin = BOXLAYOUT_DEFAULT_MARGIN;
@@ -228,13 +230,19 @@ QString Uic::getClassName( const QDomElement& e )
 	s = "Qt::ToolBar";
     else if ( s.isEmpty() && e.tagName() == "menubar" )
 	s = "Qt::MenuBar";
-    else if( WidgetDatabase::idFromClassName( s ) == -1)
-	return s;
+//    else if( WidgetDatabase::idFromClassName( s ) == -1)
+//	  return s;
     else
     {
 	QRegExp r("^([QK])(\\S+)");
-        if( r.search( s ) != -1 )
-	    s = (r.cap(1) == 'K'?"KDE::":"Qt::") + r.cap(2);
+        if( r.search( s ) != -1 ) {
+	    	if (r.cap(1) == "K") {
+				hasKDEwidget = TRUE;
+	    		s = "KDE::" + r.cap(2);
+			} else {
+	    		s = "Qt::" + r.cap(2);
+			}
+		}
     }
     return s;
 }

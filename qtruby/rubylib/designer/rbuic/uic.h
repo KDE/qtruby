@@ -53,7 +53,7 @@ class Uic : public Qt
 public:
     Uic( const QString &fn, QTextStream& out, QDomDocument doc, bool subcl,
 	 const QString &trm, const QString& subclname, bool omitForwardDecls,
-	 QString &uicClass );
+	 QString &uicClass, bool useKDE );
 
     static void setIndent(const RubyIndent &rubyind) {indent = rubyind;}
 
@@ -102,6 +102,7 @@ public:
     static void embed( QTextStream& out, const char* project, const QStringList& images );
 
     friend void getDBConnections(Uic& uic, QString& s);
+    static bool hasKDEwidget;
 
 private:
     void registerLayouts ( const QDomElement& e );

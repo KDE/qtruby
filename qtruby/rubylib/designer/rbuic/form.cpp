@@ -100,7 +100,11 @@ void Uic::createFormImpl( const QDomElement &e )
 	return;
     QString objName = getObjectName( e );
 //    out << indent << "class " << nameOfClass << endl;
-    out << indent << "require 'Qt'" << endl;
+	if (hasKDEwidget) {
+    	out << indent << "require 'Korundum'" << endl;
+	} else {
+    	out << indent << "require 'Qt'" << endl;
+	}
 
     // generate local and local includes required
     QStringList globalIncludes, localIncludes;
@@ -480,7 +484,7 @@ void Uic::createFormImpl( const QDomElement &e )
                     else
                     {
 			images += img;
-                        out << indent << imageDataName(img) << " = pack 'C*'," << endl;
+                        out << indent << imageDataName(img) << " = [ " << endl;
 			++indent;
  			int a ;
 			for ( a = 0; a < (int) (data.length()/2)-1; a++ ) {
@@ -490,7 +494,7 @@ void Uic::createFormImpl( const QDomElement &e )
 			    else
 				out << " ";
 			}
-			out << "0x" << QString(data[2*a]) << QString(data[2*a+1]) << "" << endl;
+			out << "0x" << QString(data[2*a]) << QString(data[2*a+1]) << " ].pack \"C*\"" << endl;
 			--indent;
                         out << endl;
 		    }
@@ -551,7 +555,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	QStringList::Iterator it;
 	for ( it = images.begin(); it != images.end(); ++it ) {
 	    out << indent << (*it) << " = Qt::Pixmap.new()" << endl;
-	    out << indent << (*it) << ".loadFromData(" << imageDataName(*it) << ", length (" << imageDataName(*it) << "), \"PNG\")" << endl;
+	    out << indent << (*it) << ".loadFromData(" << imageDataName(*it) << ", " << imageDataName(*it) << ".length, \"PNG\")" << endl;
 	}
         out << endl;
     }
