@@ -328,7 +328,7 @@ module KDE
 			# If init() is passed an array as the first argument, assume it's ARGV.
 			# Then convert to a pair of args 'ARGV.length+1, [$0]+ARGV'
 			array = k.shift
-			super *([array.length+1] + [[$0] + array] + k)
+			super(*([array.length+1] + [[$0] + array] + k))
 		else
 			super
 		end
