@@ -1,4 +1,4 @@
-INCLUDES = $(all_includes) -I $(RUBY_ARCHDIR)
+INCLUDES = $(all_includes) -I $(RUBY_SITEARCHDIR)
 
 noinst_HEADERS = qtruby.h marshall.h smokeruby.h handlers.cpp Qt.cpp extconf.rb 
 
@@ -12,4 +12,4 @@ libqtruby_la_LIBADD = $(LIB_QT) -lsmokeqt
 SUBDIRS = lib 
 
 install-data-local:
-	cp .libs/libqtruby.so $(RUBY_ARCHDIR)/Qt.so
+	cp .libs/libqtruby.so $(RUBY_SITEARCHDIR)/Qt.so
