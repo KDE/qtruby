@@ -283,6 +283,22 @@ module Qt
 	end
 	
 	class Time < Qt::Base
+		class << Qt::Time
+			# This works round an incompatibility problem between QtRuby
+			# and the 'require time' statement - cause unknown :(
+			def now
+				::Time.now
+			end
+			
+			def local(year, mon, day, hour, min, sec)
+				::Time.local(year, mon, day, hour, min, sec)
+			end
+			
+			def utc(year, mon, day, hour, min, sec)
+				::Time.utc(year, mon, day, hour, min, sec)
+			end
+		end
+		
 		def inspect
 			str = super
 			str.sub(/>$/, " %s>" % toString)
