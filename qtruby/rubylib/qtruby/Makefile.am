@@ -12,4 +12,5 @@ libqtruby_la_LIBADD = $(LIB_QT) $(top_builddir)/smoke/qt/libsmokeqt.la
 SUBDIRS = lib 
 
 install-data-local:
-	cp .libs/libqtruby.so $(RUBY_SITEARCHDIR)/Qt.so
+	$(mkinstalldirs) $(DESTDIR)$(RUBY_SITEARCHDIR)
+	cp .libs/libqtruby.so $(DESTDIR)$(RUBY_SITEARCHDIR)/Qt.so
