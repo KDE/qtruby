@@ -306,6 +306,17 @@ class Object
 	# The Object.display() method conflicts with display() methods in Qt,
 	# so remove it..
 	undef_method :display
+	
+	def SIGNAL(string)
+		return "2" + string
+	end
+	
+	def SLOT(string)
+		return "1" + string
+	end
+	
+	def emit(signal)
+	end
 end
 
 class Module
