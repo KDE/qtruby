@@ -1779,6 +1779,8 @@ TypeHandler Qt_handlers[] = {
     { "long long int&", marshall_longlong },
     { "Q_INT64", marshall_longlong },
     { "Q_INT64&", marshall_longlong },
+    { "KIO::filesize_t", marshall_longlong },
+    { "DOM::DOMTimeStamp", marshall_ulonglong },
     { "unsigned long long int", marshall_ulonglong },
     { "unsigned long long int&", marshall_ulonglong },
     { "Q_UINT64", marshall_ulonglong },
