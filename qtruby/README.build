@@ -74,7 +74,7 @@ $ make
 $ cd qtruby/rubylib/designer/uilib
 $ ruby extconf.rb --with-qtruby-include=../../qtruby --with-qt-dir=/Developer/qt \
        --with-smoke-include=../../../../smoke
-$ make
+$ make LDSHARED="cc -dynamic -bundle -bundle_loader ../../qtruby/qtruby.bundle"
 $ make install
 
 To get Mac menus to appear, when a QtRuby program is run from the command line,
