@@ -411,13 +411,15 @@ marshall_basetype(Marshall *m)
 	  case Marshall::ToVALUE:
 	    {
 		if(m->item().s_voidp == 0) {
-                    *(m->var()) = Qundef;
+				printf("undef var\n");
+                    *(m->var()) = Qnil;
 		    break;
 		}
 
 		void *p = m->item().s_voidp;
 		VALUE obj = getPointerObject(p);
 		if(obj != Qnil) {
+				printf("var already exists\n");
                     *(m->var()) = obj;
 		    break;
 		}
@@ -442,6 +444,7 @@ marshall_basetype(Marshall *m)
 			if (m->type().isStack()) {
 				printf("allocating stack based %s %p -> %p\n", classname, o->ptr, obj);
 			}
+				printf("allocating %s %p -> %p\n", classname, o->ptr, obj);
 		}
 		
 		*(m->var()) = obj;
@@ -468,7 +471,7 @@ static void marshall_charP(Marshall *m) {
       case Marshall::FromVALUE:
 	{
 	    VALUE rv = *(m->var());
-	    if(rv == Qundef) {
+	    if(rv == Qundef || rv == Qnil) {
                 m->item().s_voidp = 0;
                 break;
 	    }
@@ -485,7 +488,7 @@ static void marshall_charP(Marshall *m) {
 	    if(p)
                 *(m->var()) = rb_str_new2(p);
 	    else
-                *(m->var()) = Qundef;
+                *(m->var()) = Qnil;
 	    if(m->cleanup())
 		delete[] p;
 	}
@@ -501,7 +504,7 @@ void marshall_ucharP(Marshall *m) {
       case Marshall::FromVALUE:
 	{
 	    VALUE rv = *(m->var());
-	    if(rv == Qundef) {
+	    if(rv == Qundef || rv == Qnil) {
 		m->item().s_voidp = 0;
 		break;
 	    }
@@ -525,7 +528,7 @@ static void marshall_QString(Marshall *m) {
       case Marshall::FromVALUE:
 	{
 	    QString s;
-	    if(*(m->var()) != Qundef || m->type().isStack()) {
+	    if( (*(m->var()) != Qundef && *(m->var()) != Qnil) || m->type().isStack()) {
 #if 0
                if(SvUTF8(*(m->var())))
                     s = QString::fromUtf8(SvPV_nolen(*(m->var())));
@@ -603,7 +606,7 @@ static void marshall_QByteArray(Marshall *m) {
 			rb_str_resize(rv, 0);
 			rb_str_cat(rv, (const char *)s->data(), s->size());
         } else {
-			rv = Qundef;
+			rv = Qnil;
 		}
 	    if(m->cleanup())
 		delete s;
@@ -635,7 +638,7 @@ static void marshall_QCString(Marshall *m) {
 	{
 	    QCString *s = 0;
 	    VALUE rv = *(m->var());
-	    if (rv != Qundef || m->type().isStack()) {
+	    if ( (rv != Qundef && rv != Qnil) || m->type().isStack()) {
 		s = new QCString(StringValuePtr(*(m->var())));
             }
 	    m->item().s_voidp = s;
@@ -662,7 +665,7 @@ static void marshall_QCString(Marshall *m) {
 //                    SvUTF8_on(*(m->var()));
 //                }
             } else {
-                *(m->var()) = Qundef;
+                *(m->var()) = Qnil;
             }
 	    if(m->cleanup())
 		delete s;
@@ -726,7 +729,7 @@ static void marshall_intR(Marshall *m) {
 	    int *ip = (int*)m->item().s_voidp;
 	    VALUE rv = *(m->var());
 	    if(!ip) {
-	        rv = Qundef;
+	        rv = Qnil;
 		break;
 	    }
 	    *(m->var()) = INT2NUM(*ip);
@@ -768,7 +771,7 @@ static void marshall_boolR(Marshall *m) {
 	{
 	    bool *ip = (bool*)m->item().s_voidp;
 	    if(!ip) {
-	    *(m->var()) = Qundef;
+	    *(m->var()) = Qnil;
 		break;
 	    }
 	    *(m->var()) = (*ip?Qtrue:Qfalse);
@@ -859,7 +862,7 @@ void marshall_QStringList(Marshall *m) {
 	{
 	    QStringList *stringlist = static_cast<QStringList *>(m->item().s_voidp);
 	    if(!stringlist) {
-		*(m->var()) = Qundef;
+		*(m->var()) = Qnil;
 		break;
 	    }
 
@@ -928,7 +931,7 @@ void marshall_ItemList(Marshall *m) {
 	{
 	    ItemList *valuelist = (ItemList*)m->item().s_voidp;
 	    if(!valuelist) {
-		*(m->var()) = Qundef;
+		*(m->var()) = Qnil;
 		break;
 	    }
 
@@ -943,7 +946,7 @@ void marshall_ItemList(Marshall *m) {
 		void *p = *it;
 
 		if(m->item().s_voidp == 0) {
-		    *(m->var()) = Qundef;
+		    *(m->var()) = Qnil;
 		    break;
 		}
 
@@ -1009,7 +1012,7 @@ void marshall_QValueListInt(Marshall *m) {
 	{
 	    QValueList<int> *valuelist = (QValueList<int>*)m->item().s_voidp;
 	    if(!valuelist) {
-		*(m->var()) = Qundef;
+		*(m->var()) = Qnil;
 		break;
 	    }
 
@@ -1042,7 +1045,7 @@ void marshall_voidP(Marshall *m) {
 	{
 	    VALUE rv = *(m->var());
 //	    if(SvROK(sv) && SvRV(sv) && SvOK(SvRV(sv)))
-	    if (rv != Qundef)
+	    if (rv != Qundef && rv != Qnil)
 		m->item().s_voidp = (void*)NUM2INT(*(m->var()));
 //		m->item().s_voidp = (void*)SvIV(SvRV(*(m->var())));
 	    else
