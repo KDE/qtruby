@@ -209,6 +209,18 @@ module Qt
 		def ^(n) 
 			return Enum.new(@value ^ n.to_i, @type)
 		end
+		def <(n) 
+			return @value < n.to_i
+		end
+		def <=(n) 
+			return @value <= n.to_i
+		end
+		def >(n) 
+			return @value > n.to_i
+		end
+		def >=(n) 
+			return @value >= n.to_i
+		end
 		def <<(n) 
 			return Enum.new(@value << n.to_i, @type)
 		end
