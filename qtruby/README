@@ -157,6 +157,34 @@ QtRuby features a very complete coverage of the Qt api:
 			end
 		
 		Use 'nil?' to test the value returned in the Boolean
+
+	- Debugging
+		If a method call can't be matched in the Smoke library giving a 'method_missing' 
+		error, you can turn on debugging to trace the matching process:
+		
+			a = Qt::Application.new(ARGV)
+			Qt.debug_level = Qt::DebugLevel::High
+			a.loadLibrary("foo")  # Non existent method
+
+		Will give the following output:
+		
+			classname    == QApplication
+			:: method == loadLibrary$
+			-> methodIds == []
+			candidate list:
+			Possible prototypes:
+        			static QWidget* QApplication::widgetAt(int, int, bool)
+					...
+		
+		Here, the list of candidate methods 'methodIds' is empty
+		
+		Another debugging mechanism allows various trace 'channels' to be switched on.
+		
+		You can trace virtual method callbacks:
+		    Qt::Internal::setDebug(Qt::QtDebugChannel::QTDB_VIRTUAL)
+			
+		Or trace QtRuby garbage collection:
+		    Qt::Internal::setDebug(Qt::QtDebugChannel::QTDB_GC)
 		
 	- String i18n 
 	
