@@ -1,4 +1,12 @@
+Startup Crashes
+---------------
+
+For some strange reason ruby occasionally needs to be compiled 
+with --enable-pthread. Gentoo at the very least doesn't default
+this to using this unfortunately. 
+
 Possibly of use to people without KDE build process
+---------------------------------------------------
 
 To build the Qt.so extension, provide 'extconf.rb' with the directories where
 the Qt and Smoke libraries are installed:
@@ -8,4 +16,3 @@ $ ruby extconf.rb --with-smoke-dir=/opt/kde3 \
       --with-qt-dir=/home/duke/src/kde/HEAD/qt-copy
 $ make
 $ make install
-
