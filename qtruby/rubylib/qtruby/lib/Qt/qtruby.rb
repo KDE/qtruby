@@ -364,6 +364,10 @@ module Qt
 		def to_f() return @value.to_f end
 		def to_i() return @value.to_i end
 		def to_s() return @value.to_s end
+		
+		def coerce(n)
+			[n, @value]
+		end
 	end
 	
 	# If a C++ enum was converted to an ordinary ruby Integer, the

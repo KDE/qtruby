@@ -1,3 +1,8 @@
+2005-01-16  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added a Qt::Integer.coerce method so that Qt::Integers and Qt::Enums can be
+	  combined in arithmetic expressions with ruby Integers. 
+
 2005-01-04  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Upped the version to 1.0.6 for the KDE 3.4 beta 1 release
