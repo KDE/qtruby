@@ -1,3 +1,7 @@
+2003-08-23  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added rbuic tool for ruby Qt Designer support
+
 2003-08-06  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added some TODO list entries, added Alex to the AUTHORS list
