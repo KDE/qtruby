@@ -7,6 +7,13 @@ KDE Specific Infomation:
 	- The KDE K* classes such as KApplication are renamed as KDE::Application. 
 	  The other KDE classes are in the KParts::, KIO:: or DOM:: namespaces,
 	  with the same names as their C++ counterparts. 
+	
+	- Use the 'rbkdeapi' script to introspect the Korundum api from the command
+	  line. For example:
+	  
+	  	$ rbkdeapi KDE::Action
+	  
+	  Will list all the methods in the KDE::Action class
 
 	- DCOP Support. Here is a minimal ruby dcop slot implementation:
 	
@@ -35,8 +42,8 @@ KDE Specific Infomation:
 	    k_dcop 'QPoint getPoint(QString)'
 
 	    def getPoint(msg)
-		puts "message: #{msg}"
-		return Qt::Point.new(50, 100)
+		    puts "message: #{msg}"
+		    return Qt::Point.new(50, 100)
 	    end
 
 	- Call it from another program and print the reply, like this:
@@ -80,7 +87,6 @@ KDE Specific Infomation:
 	    k_dcop_signals 'void testEmitSignal(QString)'
 		
 	    def doit()
-	        puts "In doit.."
 	        emit testEmitSignal("Hello DCOP Slot")
 	    end
 	  	  
