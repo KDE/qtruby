@@ -47,7 +47,7 @@ require 'Qt'
 			@_buffer.fill( white() )
 			
 			# and copy it over to the window
-			Qt::PaintDevice.bitBlt( self, 0, 0, @_buffer )
+			bitBlt( self, 0, 0, @_buffer )
 		end
 		
 		
@@ -128,7 +128,7 @@ require 'Qt'
 		  # painting, for example when it has been obscured and then revealed again.
 		  #
 		def paintEvent(event)
-			Qt::PaintDevice.bitBlt(self, 0, 0, @_buffer)
+			bitBlt(self, 0, 0, @_buffer)
 		end
 	
 		  #
@@ -139,7 +139,7 @@ require 'Qt'
 			save = Qt::Pixmap.new( @_buffer )
 			@_buffer.resize( event.size() )
 			@_buffer.fill( white() )
-			Qt::PaintDevice.bitBlt( @_buffer, 0, 0, save )
+			bitBlt( @_buffer, 0, 0, save )
 		end
 	end
 

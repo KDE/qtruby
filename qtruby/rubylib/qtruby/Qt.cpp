@@ -1675,6 +1675,10 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
     printf("DAMNIT on %s::%s => %d\n", c, name, meth);
 #endif
     if(!meth) {
+    	meth = qt_Smoke->findMethod("QGlobalSpace", name);
+	}
+	
+    if(!meth) {
     	return result;
 	// empty list
     } else if(meth > 0) {
