@@ -73,7 +73,7 @@ class Viewer < Qt::Widget
 		substitutes.push('crox')
 
 		Qt::Font.insertSubstitutions('Bavaria', substitutes)
-		Qt::Font.insertSubstitutions('Tokyo', 'Lucida')
+		Qt::Font.insertSubstitution('Tokyo', 'Lucida')
 	end
 
 	def layout
