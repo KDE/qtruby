@@ -64,8 +64,6 @@ extern void init_qt_Smoke();
 extern void smokeruby_mark(void * ptr);
 extern void smokeruby_free(void * ptr);
 
-#define logger printf
-
 #ifdef DEBUG
 int do_debug = qtdb_gc;
 #else
@@ -91,6 +89,10 @@ VALUE qt_internal_module = Qnil;
 VALUE qt_base_class = Qnil;
 VALUE qt_qmetaobject_class = Qnil;
 };
+
+#define logger logger_backend
+void logger_backend(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
+void rb_str_catf(VALUE self, const char *format, ...) __attribute__ ((format (printf, 2, 3)));
 
 static VALUE (*_new_kde)(int, VALUE *, VALUE) = 0;
 
@@ -842,7 +844,7 @@ get_VALUEtype(VALUE ruby_value)
     return r;
 }
 
-void rb_str_catf(VALUE self, const char *format, ...) __attribute__ ((format (printf, 2, 3)));
+}
 
 void rb_str_catf(VALUE self, const char *format, ...) 
 {
@@ -856,6 +858,23 @@ void rb_str_catf(VALUE self, const char *format, ...)
     }
     va_end(ap);
 }
+
+void logger_backend(const char *format, ...) 
+{
+    va_list ap;
+    va_start(ap, format);
+    char *p = 0;
+    int len;
+    VALUE val_str = rb_str_new2("");
+    if (len = vasprintf(&p, format, ap), len != -1) {
+	rb_str_cat(val_str, p, len);
+	free(p);
+    }
+    fprintf(stdout, "%s", STR2CSTR(val_str));
+    va_end(ap);
+}
+
+extern "C" {
 
 VALUE prettyPrintMethod(Smoke::Index id) 
 {
