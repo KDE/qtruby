@@ -1921,6 +1921,10 @@ Init_Qt()
     rb_define_singleton_method(qt_module, "method_missing", (VALUE (*) (...)) module_method_missing, -1);
     rb_define_method(qt_base_class, "method_missing", (VALUE (*) (...)) method_missing, -1);
 
+    rb_define_singleton_method(qt_base_class, "const_missing", (VALUE (*) (...)) class_method_missing, -1);
+    rb_define_singleton_method(qt_module, "const_missing", (VALUE (*) (...)) module_method_missing, -1);
+    rb_define_method(qt_base_class, "const_missing", (VALUE (*) (...)) method_missing, -1);
+
 	rb_define_method(qt_internal_module, "getMethStat", (VALUE (*) (...)) getMethStat, 0);
 	rb_define_method(qt_internal_module, "getClassStat", (VALUE (*) (...)) getClassStat, 0);
 	rb_define_method(qt_internal_module, "getIsa", (VALUE (*) (...)) getIsa, 1);

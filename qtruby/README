@@ -31,6 +31,11 @@ def paintEvent( e )
 	super
 end
 
+Also as only ruby 1.8 or higher provides const_missing 
+syntax such as Qt::RichText will not be available to users
+of older versions. To keep your programs running with
+older versions of ruby simply use the old syntax (Qt.RichText)
+
 There are no other known problems with older versions of ruby.
 
 Have Fun!
