@@ -350,7 +350,7 @@ def lookfor( text )
         end
     elsif visible == @iconsPage
         start = @colorIconView.currentItem()
-        item = start.nextItem()
+        item = start.nextItem() unless start.nil?
         while !item.nil?
             if item.text().downcase().include?( ltext ) 
                 @colorIconView.setCurrentItem( item )
@@ -365,7 +365,7 @@ def lookfor( text )
     end
     if ! found
         statusBar().message( "Could not find '#{text}' after here" )
-        findForm.notfound()
+        @findForm.notfound()
     end
 end
 
