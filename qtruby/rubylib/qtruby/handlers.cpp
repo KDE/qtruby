@@ -730,7 +730,6 @@ void marshall_ucharP(Marshall *m) {
 		m->item().s_voidp = 0;
 		break;
 	    }
-		
         m->item().s_voidp = StringValuePtr(rv);
 	}
 	break;
@@ -1638,7 +1637,7 @@ void marshall_QRgb_array(Marshall *m) {
 		    continue;
 		}
 
-		rgb[i] = NUM2INT(item);
+		rgb[i] = NUM2UINT(item);
 	    }
 	    m->item().s_voidp = rgb;
 	    m->next();

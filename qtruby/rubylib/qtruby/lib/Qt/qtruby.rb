@@ -110,13 +110,13 @@ module Qt
 	# If the data arg is nil, the string is returned as the
 	# value instead. 
 	class ByteArray < DelegateClass(String)
+		attr_reader :private_data
 		attr_reader :data
-		attr_reader :string
 		
 		def initialize(string, data=nil)
 			super(string)
-			@data = data
-			@string = string
+			@private_data = data
+			@data = string
 		end
 	end
 	
@@ -126,6 +126,8 @@ module Qt
 	class Application < Qt::Base
 		def exec
 			super
+			widgets = topLevelWidgets
+			widgets.each {|widget| widget.dispose}
 			self.dispose
 		end
 	end
@@ -520,10 +522,10 @@ module Qt
 		end
 		
 		def get_qbytearray(str)
-			if str.data.nil?
-				return str.string
+			if str.private_data.nil?
+				return str.data
 			end
-			return str.data
+			return str.private_data
 		end
 		
 		def get_qinteger(num)
