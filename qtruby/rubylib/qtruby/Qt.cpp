@@ -1121,7 +1121,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
     }
 	
 	smokeruby_object * p = 0;
-    Data_Get_Struct(temp_obj, smokeruby_object, (void *) p);
+    Data_Get_Struct(temp_obj, smokeruby_object, p);
 	smokeruby_object  * o = (smokeruby_object *) malloc(sizeof(smokeruby_object));
 	memcpy(o, p, sizeof(smokeruby_object));
 	p->ptr = 0;
