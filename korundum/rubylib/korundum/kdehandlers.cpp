@@ -417,6 +417,66 @@ void marshall_KServiceTypeList(Marshall *m) {
 	}
 }
 
+void marshall_KServiceGroupList(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE: 
+		{
+		}
+		break;
+	case Marshall::ToVALUE: 
+		{
+	    KServiceGroup::List *offerList = (KServiceGroup::List*)m->item().s_voidp;
+	    if(!offerList) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+
+	    VALUE av = rb_ary_new();
+
+	    for(KServiceGroup::List::ConstIterator it = offerList->begin();
+		it != offerList->end();
+		++it) {
+		KSycocaEntry *p = (*it);
+		VALUE obj = Qnil;
+		if (p->isType(KST_KService)) {
+			KService *s = static_cast<KService *>(p);
+			obj = getPointerObject(s);
+			if(obj == Qnil) {
+		    	smokeruby_object  * o = ALLOC(smokeruby_object);
+		    	o->smoke = m->smoke();
+		    	o->classId = m->smoke()->idClass("KService");
+		    	o->ptr = s;
+		    	o->allocated = true;
+		    	obj = set_obj_info("KDE::Service", o);
+			}
+		} else if (p->isType(KST_KServiceGroup)) {
+			KServiceGroup *g = static_cast<KServiceGroup *>(p);
+			obj = getPointerObject(g);
+			if(obj == Qnil) {
+		    	smokeruby_object  * o = ALLOC(smokeruby_object);
+		    	o->smoke = m->smoke();
+		    	o->classId = m->smoke()->idClass("KServiceGroup");
+		    	o->ptr = g;
+		    	o->allocated = true;
+		    	obj = set_obj_info("KDE::ServiceGroup", o);
+			}
+		}
+		
+		rb_ary_push(av, obj);
+        }
+
+	    *(m->var()) = av;		
+	    
+		if(m->cleanup())
+		delete offerList;
+		}
+		break;
+	default:
+		m->unsupported();
+		break;
+	}
+}
+
 void marshall_KMountPointList(Marshall *m) {
 	switch(m->action()) {
 	case Marshall::FromVALUE: 
@@ -993,6 +1053,7 @@ TypeHandler KDE_handlers[] = {
     { "KMimeType::Ptr", marshall_KMimeTypePtr },
     { "KService::Ptr", marshall_KServicePtr },
     { "KService::List", marshall_KServiceList },
+    { "KServiceGroup::List", marshall_KServiceGroupList },
     { "KServiceGroup::Ptr", marshall_KServiceGroupPtr },
     { "KMountPoint::List", marshall_KMountPointList },
     { "KServiceType::List", marshall_KServiceTypeList },
