@@ -176,7 +176,10 @@ module KDE
 			rescue
 				dcopArgs = k[1, k.length-1]
 				dcopArgs <<  NoEventLoop << -1
-				callExt(k[0].id2name, *dcopArgs)
+				method = k[0].id2name
+				# Make 'parrot.age = 7' a synonym for 'parrot.setAge(7)'
+				method = 'set' + method[0,1].upcase + method[1,method.length].sub("=", "") if method =~ /.*[^-+%\/|]=$/
+				callExt(method, *dcopArgs)
 			end
 		end
 		
