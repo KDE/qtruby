@@ -59,7 +59,7 @@ class CannonField < Qt::Widget
 		r = Qt::Region.new( shotRect() )
 		@timerCount += 1
 
-		shotR = Qt::Rect.new()
+		shotR = shotRect()
 
 		if shotR.x() > width() || shotR.y() > height()
 			@autoShootTimer.stop()
