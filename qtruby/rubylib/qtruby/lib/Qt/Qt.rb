@@ -156,7 +156,10 @@ module Qt
 			@@classes[classname]
 		end
 
-                # 
+		@@current_initializer = nil
+                
+				# Runs the initializer as far as allocating the Qt C++ instance.
+				# Then uses the @@current_initializer continuation to jump back to here
 		def try_initialize(instance, *args)
 			initializer = instance.method(:initialize)
 			return callcc {
@@ -171,13 +174,17 @@ module Qt
 			@@current_initializer.call(instance)
 		end
 		
-                # If a block was passed to the constructor then
-				# run that now in the context of the new instance
+                # If a block was passed to the constructor, then
+				# run that now. Either run the context of the new instance
+				# if no args were passed to the block. Or otherwise,
+				# run the block in the context of the arg.
 		def run_initializer_block(instance, block)
 			if block.arity == -1
 				instance.instance_eval(&block)
-			else
+			elsif block.arity == 1
 				block.call(instance)
+			else
+				raise ArgumentError, "Wrong number of arguments to block(#{block.arity} for 1)"
 			end
 		end
 		
