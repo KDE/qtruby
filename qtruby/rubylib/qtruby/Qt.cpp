@@ -63,8 +63,8 @@ extern void init_qt_Smoke();
 extern void smokeruby_mark(void * ptr);
 extern void smokeruby_free(void * ptr);
 
-// int do_debug = qtdb_none;
-int do_debug = qtdb_gc | qtdb_virtual;
+int do_debug = qtdb_none;
+// int do_debug = qtdb_gc | qtdb_virtual;
 
 QPtrDict<VALUE> pointer_map(2179);
 int object_count = 0;
@@ -695,13 +695,6 @@ public:
 	if(_called) return;
 	_called = true;
 
-#ifdef DEBUG
-        VALUE klass = rb_funcall(_obj, rb_intern("class"), 0);
-        VALUE name = rb_funcall(klass, rb_intern("name"), 0);
-	printf(	"In InvokeSlot::invokeSlot 3 items: %d classname: %s\n",
-		_items,
-		STR2CSTR(name) );
-#endif
         (void) rb_funcall2(_obj, _slotname, _items, _sp);
     }
 
