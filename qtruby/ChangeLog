@@ -1,5 +1,9 @@
 2003-08-06  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* Added some TODO list entries, added Alex to the AUTHORS list
+
+2003-08-06  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Fixed 'int&' marshalling so script name appears in window title
 
 2003-08-05  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>

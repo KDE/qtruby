@@ -1,0 +1,19 @@
+	* Add autoconf test for ruby 1.8 in kdebindings
+	 
+	* Integrate the call to extconf.rb to build the Qt.so extension Makefile with automake
+	
+	* Implement operator overloading in a similar manner to Qt.pm
+	
+	* Implement the various 'special case' methods in Qt.pm such as the Qt::Image constructor
+	
+	* Get freed memory management working by completing the smokeruby_mark() and smokeruby_free() fn's
+	
+	* Convert the Qt example programs such as 'aclock' to ruby
+	
+	* Write a rbuic tool for use with Qt Designer
+	
+	* Complete the method overload resolution reg expr match code in Qt.rb/argmatch() for types 'a' and 's'
+	
+	* Add more marshalling types for the various Qt lists
+	
+	
