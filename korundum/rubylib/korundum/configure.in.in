@@ -1,0 +1,9 @@
+AC_MSG_CHECKING(for ruby dirs)
+RUBY_ARCHDIR=`ruby -r rbconfig -e 'printf("%s",Config::CONFIG@<:@"archdir"@:>@)'`
+RUBY_SITEARCHDIR=`ruby -r rbconfig -e 'printf("%s",Config::CONFIG@<:@"sitearchdir"@:>@)'`
+RUBY_SITEDIR=`ruby -r rbconfig -e 'printf("%s",Config::CONFIG@<:@"sitelibdir"@:>@)'`
+AC_MSG_RESULT([archdir $RUBY_ARCHDIR, sitearchdir $RUBY_SITEARCHDIR, sitedir $RUBY_SITEDIR])
+AC_SUBST(RUBY_ARCHDIR)
+AC_SUBST(RUBY_SITEARCHDIR)
+AC_SUBST(RUBY_SITEDIR)
+
