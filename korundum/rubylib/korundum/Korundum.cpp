@@ -112,6 +112,11 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 				case Smoke::t_class:
 				case Smoke::t_voidp:
 					{
+						if (strcmp(t.name(), "QCString") == 0) {
+							QCString temp((const QCString&) *((QCString *) si->s_voidp));
+							*stream << temp;
+							break;
+						}
 						// Look for methods of the form: QDataStream & operator<<(QDataStream&, const MyClass&)
 						Smoke::Index meth = t.smoke()->findMethod("QGlobalSpace", "operator<<##");
 						Smoke::Index ix;
@@ -223,6 +228,12 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 				case Smoke::t_class:
 				case Smoke::t_voidp:
 					{
+						if (strcmp(t.name(), "QCString") == 0) {
+							QCString temp;
+							*stream >> temp;
+							stack[i].s_voidp = new QCString(temp);
+							break;
+						}
 						// First construct an instance to read the QDataStream into,
 						// so look for a no args constructor
     					Smoke::Index ctorId = t.smoke()->idMethodName(t.name());
