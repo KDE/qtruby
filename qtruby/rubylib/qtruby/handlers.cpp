@@ -1758,19 +1758,9 @@ TypeHandler Qt_handlers[] = {
 };
 
 QAsciiDict<TypeHandler> type_handlers(199);
-extern Smoke *qt_Smoke;
 
 void install_handlers(TypeHandler *h) {
     while(h->name) {
-	Smoke::Index typeId = qt_Smoke->idType(h->name);
-	if (typeId == 0) {
-		QString temp(h->name);
-		temp.prepend("const ");
-		typeId = qt_Smoke->idType(temp.latin1());
-		if (typeId == 0) {
-			printf("No smoke type for: %s\n", h->name);
-		}
-	}
 	type_handlers.insert(h->name, h);
 	h++;
     }
