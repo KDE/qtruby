@@ -323,6 +323,16 @@ module KDE
 		end
 	end
 	
+	# Delete the underlying C++ instance after exec returns
+	# Otherwise, rb_gc_call_finalizer_at_exit() can delete
+	# stuff that KDE::Application still needs for its cleanup.
+	class Application
+		def exec
+			super
+			self.dispose
+		end
+	end
+	
 	def CmdLineArgs::init(*k)
 		if k.length > 0 and k[0].kind_of?(Array)
 			# If init() is passed an array as the first argument, assume it's ARGV.

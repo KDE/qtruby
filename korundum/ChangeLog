@@ -1,3 +1,14 @@
+2004-10-04  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * When a ruby app exits, rb_gc_call_finalizer_at_exit() is called and all the ruby
+   instances are garbage collected. The problem is that this is done in an arbitrary
+   order, and KDE::Application was occasionally crashing in its destructor because 
+   QMetaObject info it still needed was being deleted before then.
+
+ * Fixes problem reported by Thibauld Favre
+
+ CCMAIL: <tfavre@mandrakesoft.com>
+
 2004-10-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * Removed warning about '*' being used as an argument prefix
