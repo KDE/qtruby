@@ -19,6 +19,7 @@
 #include <qmetaobject.h>
 #include <qvaluelist.h>
 #include <qobjectlist.h>
+#include <qtextcodec.h>
 #include <private/qucomextra_p.h>
 
 #include "smoke.h"
@@ -689,18 +690,27 @@ void marshall_ucharP(Marshall *m) {
 
 static void marshall_QString(Marshall *m) {
 static const char * KCODE = 0;
+static QTextCodec *codec = 0;
 	if (KCODE == 0) {
 		VALUE temp = rb_gv_get("$KCODE");
 		KCODE = StringValuePtr(temp);
+		if (strcmp(KCODE, "EUC") == 0) {
+			codec = QTextCodec::codecForName("eucJP");
+		} else if (strcmp(KCODE, "SJIS") == 0) {
+			codec = QTextCodec::codecForName("Shift-JIS");
+		}
 	}
     switch(m->action()) {
       case Marshall::FromVALUE:
 	{
 	    QString* s = 0;
 	    if( *(m->var()) != Qnil) {
-               // TODO: Add support for the all the possible values of KCODE - ie 'EUC' and 'SJIS' too
                if(strcmp(KCODE, "UTF8") == 0)
                     s = new QString(QString::fromUtf8(StringValuePtr(*(m->var())), RSTRING(*(m->var()))->len));
+               else if(strcmp(KCODE, "EUC") == 0)
+                    s = new QString(codec->toUnicode(StringValuePtr(*(m->var()))));
+               else if(strcmp(KCODE, "SJIS") == 0)
+                    s = new QString(codec->toUnicode(StringValuePtr(*(m->var()))));
                else if(strcmp(KCODE, "NONE") == 0)
                     s = new QString(QString::fromLatin1(StringValuePtr(*(m->var()))));
                else
@@ -728,9 +738,12 @@ static const char * KCODE = 0;
 	    	if (s->isNull()) {
                     *(m->var()) = Qnil;
 	     	} else {
-               // TODO: Add support for the all the possible values of KCODE
                if(strcmp(KCODE, "UTF8") == 0)
                     *(m->var()) = rb_str_new2(s->utf8());
+               else if(strcmp(KCODE, "EUC") == 0)
+                    *(m->var()) = rb_str_new2(codec->fromUnicode(*s));
+               else if(strcmp(KCODE, "SJIS") == 0)
+                    *(m->var()) = rb_str_new2(codec->fromUnicode(*s));
                else if(strcmp(KCODE, "NONE") == 0)
                     *(m->var()) = rb_str_new2(s->latin1());
                else

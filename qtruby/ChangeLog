@@ -1,3 +1,8 @@
+2004-07-11  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Qt eucJP and Shift-JIS codecs used to support ruby $KCODE values of 's' 
+	  for SJIS and 'e' for EUC
+
 2004-07-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added support for strings in QtRuby programs being written in UTF-8.
