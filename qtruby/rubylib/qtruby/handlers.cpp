@@ -695,7 +695,7 @@ void marshall_QStringList(Marshall *m) {
 			int count = RARRAY(list)->len;
 			QStringList *stringlist = new QStringList;
 
-			for(long i = 0; i <= count; i++) {
+			for(long i = 0; i < count; i++) {
 				VALUE item = rb_ary_entry(list, i);
 				if(TYPE(item) != T_STRING) {
 					stringlist->append(QString());
@@ -755,7 +755,7 @@ void marshall_ItemList(Marshall *m) {
 	    int count = RARRAY(list)->len;
 	    ItemList *cpplist = new ItemList;
 	    long i;
-	    for(i = 0; i <= count; i++) {
+	    for(i = 0; i < count; i++) {
 		VALUE item = rb_ary_entry(list, i);
                 // TODO do type checking!
 		smokeruby_object *o = value_obj_info(item);
@@ -844,7 +844,7 @@ void marshall_QValueListInt(Marshall *m) {
 	    int count = RARRAY(list)->len;
 	    QValueList<int> *valuelist = new QValueList<int>;
 	    long i;
-	    for(i = 0; i <= count; i++) {
+	    for(i = 0; i < count; i++) {
 	    VALUE item = rb_ary_entry(list, i);
 		if(TYPE(item) != T_FIXNUM && TYPE(item) != T_BIGNUM) {
 		    valuelist->append(0);
@@ -941,7 +941,7 @@ void marshall_QRgb_array(Marshall *m) {
 	    int count = RARRAY(list)->len;
 	    QRgb *rgb = new QRgb[count + 2];
 	    long i;
-	    for(i = 0; i <= count; i++) {
+	    for(i = 0; i < count; i++) {
 		VALUE item = rb_ary_entry(list, i);
 		if(TYPE(item) != T_FIXNUM && TYPE(item) != T_BIGNUM) {
 		    rgb[i] = 0;
