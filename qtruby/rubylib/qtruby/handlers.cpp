@@ -8,6 +8,7 @@
 #include <qlayout.h>
 #include <qmetaobject.h>
 #include <qvaluelist.h>
+#include <qobjectlist.h>
 #include <private/qucomextra_p.h>
 
 #include "smoke.h"
@@ -45,91 +46,24 @@ smokeruby_mark(void * p)
 	VALUE obj;
     smokeruby_object * o = (smokeruby_object *) p;
     const char *className = o->smoke->classes[o->classId].className;
-    
+	
 	if(do_debug & qtdb_gc) printf("Checking for mark (%s*)%p\n", className, o->ptr);
 		
-    if(o->ptr) {
- 		if (	strcmp(className, "QObject") == 0
-				|| strcmp(className, "QListBoxItem") == 0
-				|| strcmp(className, "QStyleSheetItem") == 0
-				|| strcmp(className, "QTableItem") == 0
-				|| strcmp(className, "QSqlCursor") == 0 )
-		{
-			// Don't allow instances of these classes to be garbage collected for now
-			obj = getPointerObject(o->ptr);
-			if (obj != Qnil) {
-				if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
-				rb_gc_mark(obj);
-			}
-		} else if (strcmp(className, "QLayoutItem") == 0) {
-			QLayoutItem * item = (QLayoutItem *) o->ptr;
-			if (item->layout() != 0 || item->widget() != 0 || item->spacerItem() != 0) {
-				obj = getPointerObject(o->ptr);
-				if (obj != Qnil) {
-					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
-					rb_gc_mark(obj);
-				}
-			}
-		} else if (strcmp(className, "QIconViewItem") == 0) {
-			QIconViewItem * item = (QIconViewItem *) o->ptr;
-			if (item->iconView() != 0) {
-				obj = getPointerObject(o->ptr);
-				if (obj != Qnil) {
-					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
-					rb_gc_mark(obj);
-				}
-			}
-		} else if (strcmp(className, "QCheckListItem") == 0) {
-			QCheckListItem * item = (QCheckListItem *) o->ptr;
-			if (item->parent() != 0 || item->listView() != 0) {
-				obj = getPointerObject(o->ptr);
-				if (obj != Qnil) {
-					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
-					rb_gc_mark(obj);
-				}
-			}
-		} else if (strcmp(className, "QListViewItem") == 0) {
-			QListViewItem * item = (QListViewItem *) o->ptr;
-			if (item->parent() != 0 || item->listView() != 0) {
-				obj = getPointerObject(o->ptr);
-				if (obj != Qnil) {
-					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
-					rb_gc_mark(obj);
-				}
-			}
-		} else if (strcmp(className, "QTableItem") == 0) {
-			QTableItem * item = (QTableItem *) o->ptr;
-			if (item->table() != 0) {
-				obj = getPointerObject(o->ptr);
-				if (obj != Qnil) {
-					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
-					rb_gc_mark(obj);
-				}
-			}
-		} else if (strcmp(className, "QPopupMenu") == 0) {
-			QPopupMenu * item = (QPopupMenu *) o->ptr;
-			if (item->parentWidget(FALSE) != 0) {
-				obj = getPointerObject(o->ptr);
-				if (obj != Qnil) {
-					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
-					rb_gc_mark(obj);
-				}
-			}
-		} else if (isDerivedFromByName(o->smoke, className, "QWidget")) {
-			QWidget * qwidget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget"));
-			if (qwidget->parentWidget(TRUE) != 0) {
-				obj = getPointerObject(o->ptr);
-				if (obj != Qnil) {
-					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
-					rb_gc_mark(obj);
-				}
-			}
-		} else if (isDerivedFromByName(o->smoke, className, "QObject")) {
+    if(o->ptr && o->allocated) {
+		if (isDerivedFromByName(o->smoke, className, "QObject")) {
 			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
-			if (qobject->parent() != 0) {
-				obj = getPointerObject(o->ptr);
+			const QObjectList *l = qobject->children();
+			if (l == 0) {
+				return;
+			}
+			QObjectListIt it( *l ); // iterate over the children
+			QObject *child;
+
+			while ( (child = it.current()) != 0 ) {
+				++it;
+				obj = getPointerObject(child);
 				if (obj != Qnil) {
-					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
+					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, child, obj);
 					rb_gc_mark(obj);
 				}
 			}
@@ -145,6 +79,56 @@ smokeruby_free(void * p)
 	
 	if(do_debug & qtdb_gc) printf("Checking for delete (%s*)%p allocated: %s\n", className, o->ptr, o->allocated ? "true" : "false");
     
+	if (	strcmp(className, "QObject") == 0
+			|| strcmp(className, "QListBoxItem") == 0
+			|| strcmp(className, "QStyleSheetItem") == 0
+			|| strcmp(className, "QTableItem") == 0
+			|| strcmp(className, "QSqlCursor") == 0 )
+	{
+		// Don't delete instances of these classes for now
+		return;
+	} else if (strcmp(className, "QLayoutItem") == 0) {
+		QLayoutItem * item = (QLayoutItem *) o->ptr;
+		if (item->layout() != 0 || item->widget() != 0 || item->spacerItem() != 0) {
+			return;
+		}
+	} else if (strcmp(className, "QIconViewItem") == 0) {
+		QIconViewItem * item = (QIconViewItem *) o->ptr;
+		if (item->iconView() != 0) {
+			return;
+		}
+	} else if (strcmp(className, "QCheckListItem") == 0) {
+		QCheckListItem * item = (QCheckListItem *) o->ptr;
+		if (item->parent() != 0 || item->listView() != 0) {
+			return;
+		}
+	} else if (strcmp(className, "QListViewItem") == 0) {
+		QListViewItem * item = (QListViewItem *) o->ptr;
+		if (item->parent() != 0 || item->listView() != 0) {
+			return;
+		}
+	} else if (strcmp(className, "QTableItem") == 0) {
+		QTableItem * item = (QTableItem *) o->ptr;
+		if (item->table() != 0) {
+			return;
+		}
+	} else if (strcmp(className, "QPopupMenu") == 0) {
+		QPopupMenu * item = (QPopupMenu *) o->ptr;
+		if (item->parentWidget(FALSE) != 0) {
+			return;
+		}
+	} else if (isDerivedFromByName(o->smoke, className, "QWidget")) {
+		QWidget * qwidget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget"));
+		if (qwidget->parentWidget(TRUE) != 0) {
+			return;
+		}
+	} else if (isDerivedFromByName(o->smoke, className, "QObject")) {
+		QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+		if (qobject->parent() != 0) {
+			return;
+		}
+	}
+			
 	if(o->allocated && o->ptr) {
         if(do_debug & qtdb_gc) printf("Deleting (%s*)%p\n", className, o->ptr);
         SmokeClass sc(o->smoke, o->classId);
@@ -427,7 +411,7 @@ marshall_basetype(Marshall *m)
 		}
 		// TODO: Generic mapping from C++ classname to Qt classname
 
-		smokeruby_object  * o = ALLOC(smokeruby_object);
+		smokeruby_object  * o = (smokeruby_object *) malloc(sizeof(smokeruby_object));
 		o->smoke = m->smoke();
 		o->classId = m->type().classId();
 		o->ptr = p;

@@ -32,7 +32,8 @@ class CannonField < Qt::Widget
 		p.translate( 0, rect().bottom() )
 		p.drawPie( Qt::Rect.new(-35, -35, 70, 70), 0, 90*16 )
 		p.rotate( - @ang )
-		p.drawRect( Qt::Rect.new(33, -4, 15, 8) )		
+		p.drawRect( Qt::Rect.new(33, -4, 15, 8) )
+		p.end()		
 	end
 
 

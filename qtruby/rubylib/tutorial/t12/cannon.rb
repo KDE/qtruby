@@ -104,6 +104,7 @@ class CannonField < Qt::Widget
 		if updateR.intersects( targetRect() )
 			paintTarget( p )
 		end
+		p.end()
 	end
 
 	def paintShot( p )

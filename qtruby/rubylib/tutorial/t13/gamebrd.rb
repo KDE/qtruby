@@ -104,7 +104,6 @@ class GameBoard < Qt::Widget
 	end
 
 	def newGame()
-	print("shotsLeft: #{@shotsLeft.class.name}\n")
 		@shotsLeft.display( 15.0 )
 		@hits.display( 0 )
 		@cannonField.restartGame()

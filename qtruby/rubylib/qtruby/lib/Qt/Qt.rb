@@ -74,9 +74,11 @@ module Qt
 			def >=(a)
 				return Qt::>=(self, a)
 			end
-			def ==(a)
-				return Qt::==(self, a)
-			end
+#			Remove the equality operator for now, as it gives a wrong number
+#			of arguments error, rather than despatched to method_missing()
+#			def ==(a)
+#				return Qt::==(self, a)
+#			end
 		end
 			
 	require 'delegate.rb'

@@ -8,7 +8,7 @@ class LCDRange < Qt::VBox
 	def initialize(grid)
 		super
 		lcd = Qt::LCDNumber.new(2, self, 'lcd')
-	    @slider = Qt::Slider.new(Qt::VBox.Horizontal, self, 'slider')
+	    @slider = Qt::Slider.new(Qt::VBox::Horizontal, self, 'slider')
 	    @slider.setRange(0, 99)
 	    @slider.setValue(0)
 		connect(@slider, SIGNAL('valueChanged(int)'), lcd, SLOT('display(int)'))

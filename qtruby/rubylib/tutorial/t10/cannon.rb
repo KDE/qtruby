@@ -55,7 +55,8 @@ class CannonField < Qt::Widget
 		p.end()
 		
 		p.begin(self)
-		p.drawPixmap(cr.topLeft(), pix )		
+		p.drawPixmap(cr.topLeft(), pix )
+		p.end()		
 	end
 
 	def cannonRect()

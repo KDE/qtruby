@@ -80,6 +80,7 @@ class CannonField < Qt::Widget
 			updateR.intersects( shotRect() ) 
 			paintShot( p )
 		end
+		p.end()
 	end
 
 	def paintShot( p )

@@ -28,6 +28,7 @@ class CannonField < Qt::Widget
 		s = "Angle = #{@ang}"
 		p = Qt::Painter.new( self )
 		p.drawText( 200, 200, s )
+		p.end()
 	end
 
 

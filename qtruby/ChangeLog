@@ -1,3 +1,15 @@
+2003-10-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* The smokeruby_mark() f'n was completely wrong, as it is only called if 
+	  the current object is already marked. So marking the current object
+	  doesn't make a lot of sense. Instead, if the instance is a kind of
+	  QObject then its childeren are marked.
+	* The smokeruby_delete() object doesn't delete instances which have
+	  parents of one sort or another.
+	* Made some fixes to the tutorial examples
+	* Removed equality '==' operator overloading as it only expects a single
+	  arg in ruby, and not two.
+
 2003-10-22  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Changed some error messages in do_method_missing() to be 'debug only' for now.

@@ -64,7 +64,7 @@ extern void smokeruby_mark(void * ptr);
 extern void smokeruby_free(void * ptr);
 
 #ifdef DEBUG
-int do_debug = qtdb_calls;
+int do_debug = qtdb_gc;
 #else
 int do_debug = qtdb_none;
 #endif
@@ -1113,7 +1113,10 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
     VALUE temp_obj = *(c.var());
     void * ptr = 0;
     Data_Get_Struct(temp_obj, smokeruby_object, ptr);
-    VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, ptr);
+	smokeruby_object  * o = (smokeruby_object *) malloc(sizeof(smokeruby_object));
+	memcpy(o, ptr, sizeof(smokeruby_object));
+	o->allocated = true;
+    VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, o);
     mapObject(result, result);
 	free(temp_stack);
     return rb_funcall(qt_internal_module, rb_intern("continue_new_instance"), 1, result);
@@ -1533,7 +1536,6 @@ make_QUMethod(VALUE /*self*/, VALUE name_value, VALUE params)
 	    delete p;
 	}
     }
-
     return Data_Wrap_Struct(rb_cObject, 0, 0, m);
 }
 
