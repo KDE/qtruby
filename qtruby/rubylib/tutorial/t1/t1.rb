@@ -1,4 +1,5 @@
-#!/usr/bin/env ruby -w
+#!/usr/bin/env ruby
+$VERBOSE = true; $:.unshift File.dirname($0)
 
 require 'Qt'
 

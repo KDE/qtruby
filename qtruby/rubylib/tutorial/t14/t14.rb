@@ -1,7 +1,8 @@
-#!/usr/bin/env ruby -w
+#!/usr/bin/env ruby
+$VERBOSE = true; $:.unshift File.dirname($0)
+
 require 'Qt'
 require 'gamebrd.rb'
-
 
 Qt::Application.setColorSpec( Qt::Application.CustomColor )
 a = Qt::Application.new(ARGV)
