@@ -4,7 +4,9 @@ require 'Korundum'
 
 class MyWidget < KDE::PushButton
 	k_dcop 'void mySlot(QString)', 'QPoint getPoint(QString)',
-			'QMap<QCString,DCOPRef> actionMap()', 'QValueList<DCOPRef> windowList()'
+			'QMap<QCString,DCOPRef> actionMap()', 'QValueList<DCOPRef> windowList()',
+			'QValueList<QCString> propertyNames(bool)'
+			
 	
 	def initialize(parent, name)
 		super
@@ -29,6 +31,10 @@ class MyWidget < KDE::PushButton
 		list = []
 		list[0] = KDE::DCOPRef.new("myapp", "myobj")
 		return list
+	end
+	
+	def propertyNames(b)
+		return ["thisProperty", "thatProperty"]
 	end
 end
 
