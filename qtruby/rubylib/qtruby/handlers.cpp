@@ -54,6 +54,18 @@ extern VALUE qt_internal_module;
 extern bool isDerivedFromByName(Smoke *smoke, const char *className, const char *baseClassName);
 extern void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *lastptr);
 
+static const char * (*_kde_resolve_classname)(Marshall*, void *) = 0;
+
+extern "C" {
+
+void
+set_kde_resolve_classname(const char * (*kde_resolve_classname) (Marshall*, void *))
+{
+	_kde_resolve_classname = kde_resolve_classname;
+}
+
+};
+
 void
 smokeruby_mark(void * p)
 {
@@ -328,6 +340,10 @@ resolve_classname(Marshall* m, void * ptr)
 			return "Qt::TableItem";
 			break;
 		}
+	}
+	
+	if (_kde_resolve_classname != 0) {
+		return (*_kde_resolve_classname)(m, ptr);
 	}
 	
 	return m->smoke()->binding->className(m->type().classId());

@@ -40,16 +40,75 @@
 #include <kparts/plugin.h>
 #include <kuserprofile.h>
 #include <kaboutdata.h>
-#include <kplugininfo.h>
+#include <karchive.h>
 #if KDE_VERSION >= 0x030200
+#include <kplugininfo.h>
 #include <kmountpoint.h>
 #endif
 #include <kio/jobclasses.h>
 #include <dom/dom_node.h>
+#include <dom/dom_element.h>
 #include <dom/dom_string.h>
+#include <dom/html_element.h>
 
 extern "C" {
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
+};
+
+extern bool isDerivedFromByName(Smoke *smoke, const char *className, const char *baseClassName);
+
+extern "C" {
+/*
+ * Given an approximate classname and a kde instance, try to improve the resolution of the name
+ * by using the various KDE rtti mechanisms
+ */
+const char *
+kde_resolve_classname(Marshall* m, void * ptr)
+{
+	if (isDerivedFromByName(m->smoke(), m->smoke()->classes[m->type().classId()].className, "KArchiveEntry")) {
+		KArchiveEntry * entry = (KArchiveEntry *) m->smoke()->cast(ptr, m->type().classId(), m->smoke()->idClass("KArchiveEntry"));
+		if (entry->isDirectory()) {
+			return "KDE::ArchiveDirectory";
+		} else {
+			return "KDE::ArchiveFile";
+		}
+	} else if (strcmp(m->smoke()->classes[m->type().classId()].className, "DOM::Node") == 0) {
+		DOM::Node * node = (DOM::Node *) m->smoke()->cast(ptr, m->type().classId(), m->smoke()->idClass("DOM::Node"));
+		switch (node->nodeType()) {
+		case DOM::Node::ELEMENT_NODE:
+			if (((DOM::Element*)node)->isHTMLElement()) {
+				return "DOM::HTMLElement";
+			} else {
+				return "DOM::Element";
+			}
+		case DOM::Node::ATTRIBUTE_NODE:
+			return "DOM::Attr";
+		case DOM::Node::TEXT_NODE:
+			return "DOM::Text";
+		case DOM::Node::CDATA_SECTION_NODE:
+			return "DOM::CDATASection";
+		case DOM::Node::ENTITY_REFERENCE_NODE:
+			return "DOM::EntityReference";
+		case DOM::Node::ENTITY_NODE:
+			return "DOM::Entity";
+		case DOM::Node::PROCESSING_INSTRUCTION_NODE:
+			return "DOM::ProcessingInstruction";
+		case DOM::Node::COMMENT_NODE:
+			return "DOM::Comment";
+		case DOM::Node::DOCUMENT_NODE:
+			return "DOM::Document";
+		case DOM::Node::DOCUMENT_TYPE_NODE:
+			return "DOM::DocumentType";
+		case DOM::Node::DOCUMENT_FRAGMENT_NODE:
+			return "DOM::DocumentFragment";
+		case DOM::Node::NOTATION_NODE:
+			return "DOM::Notation";
+		}
+	}
+	
+	return m->smoke()->binding->className(m->type().classId());
+}
+
 };
 
 void marshall_QCStringList(Marshall *m) {
@@ -527,6 +586,59 @@ void marshall_KMountPointList(Marshall *m) {
 		break;
 	}
 }
+
+void marshall_KPluginInfoList(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE: 
+		{
+	    }			
+		break;
+	case Marshall::ToVALUE: 
+		{
+	    KPluginInfo::List *valuelist = (KPluginInfo::List*)m->item().s_voidp;
+	    if(!valuelist) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+
+	    VALUE av = rb_ary_new();
+
+	    int ix = m->smoke()->idClass("KPluginInfo");
+	    const char * className = m->smoke()->binding->className(ix);
+
+	    for(KPluginInfo::List::Iterator it = valuelist->begin();
+		it != valuelist->end();
+		++it) {
+		void *p = (*it);
+
+		if(m->item().s_voidp == 0) {
+		    *(m->var()) = Qnil;
+		    break;
+		}
+
+		VALUE obj = getPointerObject(p);
+		if(obj == Qnil) {
+		    smokeruby_object  * o = ALLOC(smokeruby_object);
+		    o->smoke = m->smoke();
+		    o->classId = o->smoke->idClass("KPluginInfo");
+		    o->ptr = p;
+		    o->allocated = false;
+		    obj = set_obj_info(className, o);
+		}
+		rb_ary_push(av, obj);
+            }
+
+	    if(m->cleanup())
+		delete valuelist;
+	    else
+	        *(m->var()) = av;		
+		}
+		break;
+	default:
+		m->unsupported();
+		break;
+	}
+}
 #endif
 
 void marshall_KTraderOfferList(Marshall *m) {
@@ -574,7 +686,6 @@ void marshall_KTraderOfferList(Marshall *m) {
 		break;
 	}
 }
-
 
 void marshall_KURLList(Marshall *m) {
 	switch(m->action()) {
@@ -658,59 +769,6 @@ void marshall_KURLList(Marshall *m) {
 		delete kurllist;
 	    else
 	        *(m->var()) = av;		}
-		break;
-	default:
-		m->unsupported();
-		break;
-	}
-}
-
-void marshall_KPluginInfoList(Marshall *m) {
-	switch(m->action()) {
-	case Marshall::FromVALUE: 
-		{
-	    }			
-		break;
-	case Marshall::ToVALUE: 
-		{
-	    KPluginInfo::List *valuelist = (KPluginInfo::List*)m->item().s_voidp;
-	    if(!valuelist) {
-		*(m->var()) = Qnil;
-		break;
-	    }
-
-	    VALUE av = rb_ary_new();
-
-	    int ix = m->smoke()->idClass("KPluginInfo");
-	    const char * className = m->smoke()->binding->className(ix);
-
-	    for(KPluginInfo::List::Iterator it = valuelist->begin();
-		it != valuelist->end();
-		++it) {
-		void *p = (*it);
-
-		if(m->item().s_voidp == 0) {
-		    *(m->var()) = Qnil;
-		    break;
-		}
-
-		VALUE obj = getPointerObject(p);
-		if(obj == Qnil) {
-		    smokeruby_object  * o = ALLOC(smokeruby_object);
-		    o->smoke = m->smoke();
-		    o->classId = o->smoke->idClass("KPluginInfo");
-		    o->ptr = p;
-		    o->allocated = false;
-		    obj = set_obj_info(className, o);
-		}
-		rb_ary_push(av, obj);
-            }
-
-	    if(m->cleanup())
-		delete valuelist;
-	    else
-	        *(m->var()) = av;		
-		}
 		break;
 	default:
 		m->unsupported();
@@ -1117,6 +1175,7 @@ TypeHandler KDE_handlers[] = {
     { "KServiceGroup::Ptr", marshall_KServiceGroupPtr },
 #if KDE_VERSION >= 0x030200
     { "KMountPoint::List", marshall_KMountPointList },
+    { "KPluginInfo::List", marshall_KPluginInfoList },
 #endif
     { "KServiceType::List", marshall_KServiceTypeList },
     { "KTrader::OfferList", marshall_KTraderOfferList },
@@ -1133,7 +1192,6 @@ TypeHandler KDE_handlers[] = {
     { "QPtrList<KParts::Plugin>", marshall_KPartPluginList },
     { "QPtrList<KParts::ReadOnlyPart>", marshall_KPartReadOnlyPartList },
     { "QPtrList<KServiceTypeProfile>&", marshall_KServiceTypeProfileList },
-    { "KPluginInfo::List>", marshall_KPluginInfoList },
     { "QValueList<KAboutPerson>", marshall_KAboutPersonList },
     { "QValueList<KAboutTranslator>", marshall_KAboutTranslatorList },
     { "QValueList<KIO::CopyInfo>&", marshall_KIOCopyInfoList },
