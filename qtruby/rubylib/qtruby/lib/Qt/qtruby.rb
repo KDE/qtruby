@@ -124,7 +124,7 @@ module Qt
 	# C++ 'int*' or 'int&' arg types
 	class Integer
 		attr_accessor :value
-		def initialize(n) @value = n end
+		def initialize(n=0) @value = n end
 		def +(n) @value + n end
 		def -(n) @value - n end
 		def *(n) @value * n end
