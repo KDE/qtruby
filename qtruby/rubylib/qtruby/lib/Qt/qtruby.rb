@@ -533,7 +533,11 @@ module Qt
 					return 0
 				end
 			elsif argtype == 'U'
-				return 0
+				if typename =~ /QStringList/
+					return 1
+				else
+					return 0
+				end
 			else
 				t = typename.sub(/^const\s+/, '')
 				t.sub!(/[&*]$/, '')

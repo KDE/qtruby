@@ -1,3 +1,8 @@
+2005-01-26  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* If a ruby Array is passed as an argument to an overloaded method, give
+	  priority to QStringList args.
+
 2005-01-21  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* rbuic was giving widgets names containing a '@' to match the ruby instance variable
@@ -341,7 +346,7 @@
 
  * For example:
 
-                    # The next line should be:  lay = Qt::HBoxLayout.new(self)
+                    # The next line should be:  lay = Qt::HBoxLayout.new(self)
                    lay = Qt::HBoxLayout
                    ed = Qt::LineEdit.new('blah',self)
                    lay.addWidget(ed)
