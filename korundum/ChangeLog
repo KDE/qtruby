@@ -1,5 +1,10 @@
 2004-07-02  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* Translated some pykde example programs from python to ruby
+	* Added various marshallers for the KSharedPtr related methods/classes
+
+2004-07-02  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Replaced obsolete STR2CSTR() calls with StringValuePtr()
 
 2004-07-01  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
