@@ -1068,6 +1068,65 @@ void marshall_QStringList(Marshall *m) {
     }
 }
 
+void marshall_QStrList(Marshall *m) {
+    switch(m->action()) {
+      case Marshall::FromVALUE: 
+	{
+	    VALUE list = *(m->var());
+	    if (TYPE(list) != T_ARRAY) {
+		m->item().s_voidp = 0;
+		break;
+	    }
+
+	    int count = RARRAY(list)->len;
+	    QStrList *stringlist = new QStrList;
+
+	    for(long i = 0; i < count; i++) {
+		VALUE item = rb_ary_entry(list, i);
+		if(TYPE(item) != T_STRING) {
+		    stringlist->append(QString());
+		    continue;
+		}
+		stringlist->append(QString::fromUtf8(StringValuePtr(item), RSTRING(item)->len));
+	    }
+
+	    m->item().s_voidp = stringlist;
+	    m->next();
+
+	    if(m->cleanup()) {
+		rb_ary_clear(list);
+		for(QStrList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it)
+		    rb_ary_push(list, rb_str_new2(static_cast<const char *>(*it)));
+		delete stringlist;
+	    }
+	    break;
+      }
+      case Marshall::ToVALUE: 
+	{
+	    QStrList *stringlist = static_cast<QStrList *>(m->item().s_voidp);
+	    if(!stringlist) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+
+	    VALUE av = rb_ary_new();
+	    for(QStrList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it) {
+		VALUE rv = rb_str_new2(static_cast<const char *>(*it));
+		rb_ary_push(av, rv);
+	    }
+
+	    if(m->cleanup())
+		delete stringlist;
+
+	    *(m->var()) = av;
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
+    }
+}
+
 template <class Item, class ItemList, class ItemListIterator, const char *ItemSTR >
 void marshall_ItemList(Marshall *m) {
     switch(m->action()) {
@@ -1336,6 +1395,9 @@ TypeHandler Qt_handlers[] = {
     { "QStringList", marshall_QStringList },
     { "QStringList&", marshall_QStringList },
     { "QStringList*", marshall_QStringList },
+    { "QStrList", marshall_QStrList },
+    { "QStrList&", marshall_QStrList },
+    { "QStrList*", marshall_QStrList },
     { "int&", marshall_intR },
     { "int*", marshall_intR },
     { "bool&", marshall_boolR },
