@@ -56,7 +56,7 @@
 
 // #define DEBUG
 
-#define QTRUBY_VERSION "0.9.0"
+#define QTRUBY_VERSION "0.9.5"
 
 extern Smoke *qt_Smoke;
 extern void init_qt_Smoke();
@@ -64,7 +64,7 @@ extern void smokeruby_mark(void * ptr);
 extern void smokeruby_free(void * ptr);
 
 #ifdef DEBUG
-int do_debug = qtdb_gc;
+int do_debug = qtdb_calls;
 #else
 int do_debug = qtdb_none;
 #endif
@@ -284,11 +284,13 @@ public:
 
     VirtualMethodCall(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack, VALUE obj) :
     _smoke(smoke), _method(meth), _stack(stack), _obj(obj), _cur(-1), _sp(0), _called(false) {
-	_sp = ALLOC_N(VALUE, method().numArgs);
+	_sp = (VALUE *) calloc(method().numArgs, sizeof(VALUE));
+	
 	_args = _smoke->argumentList + method().args;
     }
 
     ~VirtualMethodCall() {
+		free(_sp);
     }
 };
 
@@ -695,13 +697,14 @@ public:
     {
 	_items = NUM2INT(rb_ary_entry(args, 0));
 	Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
-	_sp = ALLOC_N(VALUE, _items);
+	_sp = (VALUE *) calloc(_items, sizeof(VALUE));
 	_stack = new Smoke::StackItem[_items];
 	copyArguments();
     }
 
     ~InvokeSlot() {
 	delete[] _stack;
+	free(_sp);
     }
 };
 
@@ -913,19 +916,22 @@ method_missing(int argc, VALUE * argv, VALUE self)
 {
     VALUE klass = rb_funcall(self, rb_intern("class"), 0);
 	char * methodName = rb_id2name(SYM2ID(argv[0]));
-    VALUE * savestack = ALLOCA_N(VALUE, argc + 3);
-    savestack[0] = rb_str_new2("Qt");
-    savestack[1] = rb_str_new2(methodName);
-    savestack[2] = klass;
-    savestack[3] = self;
+	VALUE * temp_stack = (VALUE *) calloc(argc + 3, sizeof(VALUE));
+    temp_stack[0] = rb_str_new2("Qt");
+    temp_stack[1] = rb_str_new2(methodName);
+    temp_stack[2] = klass;
+    temp_stack[3] = self;
     for (int count = 1; count < argc; count++) {
-	savestack[count+3] = argv[count];
+	temp_stack[count+3] = argv[count];
     }
 
     _current_method = -1;
 	
 	// Get the classid
 	smokeruby_object * o = value_obj_info(self);
+	if (o == 0 || o->ptr == 0) {
+		rb_raise(rb_eArgError, "unresolved method call (internal error)\n");
+	}
     // Look in the cache
 	char *cname = (char*)qt_Smoke->className(o->classId);
 	QCString mcid(cname);
@@ -934,7 +940,7 @@ method_missing(int argc, VALUE * argv, VALUE self)
 	for(int i=1; i<argc ; i++)
 	{
 		mcid += ';';
-		mcid += get_VALUEtype(savestack[i+3]);
+		mcid += get_VALUEtype(temp_stack[i+3]);
 	}
 	
 	Smoke::Index *rcid = methcache.find((const char *)mcid);
@@ -953,11 +959,9 @@ method_missing(int argc, VALUE * argv, VALUE self)
 #endif
 		// Find the C++ method to call. I'll do that from Ruby for now
 
-		VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
-		if (retval != Qnil)
-		return retval;
-	
+		VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, temp_stack);
     	if (_current_method == -1) {
+			free(temp_stack);
 			rb_raise(rb_eArgError, "unresolved method call\n");
     	}
 #ifdef DEBUG
@@ -966,29 +970,29 @@ method_missing(int argc, VALUE * argv, VALUE self)
 		// Success. Cache result.
         methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
 	}
-
-    MethodCall c(qt_Smoke, _current_method, self, savestack+4, argc-1);
+    MethodCall c(qt_Smoke, _current_method, self, temp_stack+4, argc-1);
     c.next();
     VALUE result = *(c.var());
+	free(temp_stack);
+	
     return result;
 }
 
 static VALUE
 class_method_missing(int argc, VALUE * argv, VALUE klass)
 {
-    VALUE * savestack = ALLOCA_N(VALUE, argc + 3);
-    savestack[0] = rb_str_new2("Qt");
-    savestack[1] = rb_str_new2(rb_id2name(SYM2ID(argv[0])));
-    savestack[2] = klass;
-    savestack[3] = Qnil;
+	VALUE result = Qnil;
+	VALUE * temp_stack = (VALUE *) calloc(argc + 3, sizeof(VALUE));
+    temp_stack[0] = rb_str_new2("Qt");
+    temp_stack[1] = rb_str_new2(rb_id2name(SYM2ID(argv[0])));
+    temp_stack[2] = klass;
+    temp_stack[3] = Qnil;
     for (int count = 1; count < argc; count++) {
-	savestack[count+3] = argv[count];
+	temp_stack[count+3] = argv[count];
     }
 
     _current_method = -1;
-    VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
-    if (retval != Qnil)
-	return retval;
+    VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, temp_stack);
 
     // If the method can't be found allow the default method_missing
     //	to display an error message, by calling super on the method
@@ -997,20 +1001,24 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
 		if (rx.search(rb_id2name(SYM2ID(argv[0]))) == -1) {
 			// If an operator method hasn't been found as an instance method,
 			// then look for a class method - after 'op(self,a)' try 'self.op(a)' 
-	    	VALUE * method_stack = ALLOCA_N(VALUE, argc - 1);
+	    	VALUE * method_stack = (VALUE *) calloc(argc - 1, sizeof(VALUE));
 	    	method_stack[0] = argv[0];
 	    	for (int count = 1; count < argc; count++) {
 			method_stack[count] = argv[count+1];
     		}
-			return method_missing(argc-1, method_stack, argv[1]);
+			result = method_missing(argc-1, method_stack, argv[1]);
+			free(method_stack);
+			free(temp_stack);
+			return result;
 		} else {
 			rb_raise(rb_eArgError, "unresolved method call\n");
 		}
     }
 
-    MethodCall c(qt_Smoke, _current_method, Qnil, savestack+4, argc-1);
+    MethodCall c(qt_Smoke, _current_method, Qnil, temp_stack+4, argc-1);
     c.next();
-    VALUE result = *(c.var());
+    result = *(c.var());
+	free(temp_stack);
     return result;
 }
 
@@ -1065,57 +1073,61 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
     VALUE klass = rb_funcall(self, rb_intern("class"), 0);
     VALUE constructor_name = rb_str_new2("new");
 
-    VALUE * savestack = ALLOCA_N(VALUE, argc + 4);
-    savestack[0] = rb_str_new2("Qt");
-    savestack[1] = constructor_name;
-    savestack[2] = klass;
-    savestack[3] = self;
+    VALUE * temp_stack = (VALUE *) calloc(argc + 4, sizeof(VALUE));
+    temp_stack[0] = rb_str_new2("Qt");
+    temp_stack[1] = constructor_name;
+    temp_stack[2] = klass;
+    temp_stack[3] = self;
     for (int count = 0; count < argc; count++) {
-	savestack[count+4] = argv[count];
+	temp_stack[count+4] = argv[count];
     }
 
     _current_method = -1;
-    VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+4, savestack);
-    if (retval != Qnil)
+    VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+4, temp_stack);
+    if (retval != Qnil) {
+	free(temp_stack);
 	return retval;
+	}
 
     if (_current_method == -1) {
+		free(temp_stack);
 		rb_raise(rb_eArgError, "unresolved constructor call\n");
-		return self;
 	}
 
     // Success. Cache result.
     //methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
 
-    MethodCall c(qt_Smoke, _current_method, self, savestack+4, argc);
+    MethodCall c(qt_Smoke, _current_method, self, temp_stack+4, argc);
     c.next();
     VALUE temp_obj = *(c.var());
     void * ptr = 0;
     Data_Get_Struct(temp_obj, smokeruby_object, ptr);
     VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, ptr);
     mapObject(result, result);
+	free(temp_stack);
     return rb_funcall(qt_internal_module, rb_intern("continue_new_instance"), 1, result);
 }
 
 VALUE
 new_qt(int argc, VALUE * argv, VALUE klass)
 {
-    VALUE * localstack = ALLOCA_N(VALUE, argc + 1);
-    localstack[0] = rb_obj_alloc(klass);
+    VALUE * temp_stack = (VALUE *) calloc(argc + 1, sizeof(VALUE));
+    temp_stack[0] = rb_obj_alloc(klass);
     for (int count = 0; count < argc; count++) {
-	localstack[count+1] = argv[count];
+	temp_stack[count+1] = argv[count];
     }
 
-    VALUE result = rb_funcall2(qt_internal_module, rb_intern("try_initialize"), argc+1, localstack);
+    VALUE result = rb_funcall2(qt_internal_module, rb_intern("try_initialize"), argc+1, temp_stack);
 
     if (rb_respond_to(result, rb_intern("initialize")) != 0) {
 	rb_obj_call_init(result, argc, argv);
     }
-
+	
+	free(temp_stack);
     return result;
 }
 
-static VALUE qt_invoke(VALUE self, VALUE id_value, VALUE quobject);
+static VALUE qt_invoke(int argc, VALUE * argv, VALUE self);
 static VALUE qt_signal(int argc, VALUE * argv, VALUE self);
 
 static VALUE
@@ -1123,8 +1135,8 @@ new_qobject(int argc, VALUE * argv, VALUE klass)
 {
     if (rb_funcall(qt_internal_module, rb_intern("hasMembers"), 1, klass) == Qtrue) {
 	// TODO: Don't do this everytime a new instance is created, just once..
-	rb_define_method(klass, "qt_invoke", (VALUE (*) (...)) qt_invoke, 2);
-	rb_define_method(klass, "qt_emit", (VALUE (*) (...)) qt_invoke, 2);
+	rb_define_method(klass, "qt_invoke", (VALUE (*) (...)) qt_invoke, -1);
+	rb_define_method(klass, "qt_emit", (VALUE (*) (...)) qt_invoke, -1);
 	rb_define_method(klass, "metaObject", (VALUE (*) (...)) metaObject, 0);
 	VALUE signalNames = rb_funcall(qt_internal_module, rb_intern("getSignalNames"), 1, klass);
 	for (long index = 0; index < RARRAY(signalNames)->len; index++) {
@@ -1143,11 +1155,12 @@ new_qapplication(int argc, VALUE * argv, VALUE klass)
 
     if (argc == 1 && TYPE(argv[0]) == T_ARRAY) {
 	// Convert '(ARGV)' to '(NUM, [$0]+ARGV)'
-	VALUE * local_argv = ALLOCA_N(VALUE, argc + 1);
+	VALUE * local_argv = (VALUE *) calloc(argc + 1, sizeof(VALUE));
 	rb_ary_unshift(argv[0], rb_gv_get("$0"));
 	local_argv[0] = INT2NUM(RARRAY(argv[0])->len);
 	local_argv[1] = argv[0];
 	result = new_qobject(2, local_argv, klass);
+	free(local_argv);
     } else {
 	result = new_qobject(argc, argv, klass);
     }
@@ -1209,7 +1222,7 @@ getslotinfo(VALUE self, int id, char *&slotname, int &index, bool isSignal = fal
 static VALUE
 qt_signal(int argc, VALUE * argv, VALUE self)
 {
-    smokeruby_object *o = value_obj_info(self);
+	smokeruby_object *o = value_obj_info(self);
     QObject *qobj = (QObject*)o->smoke->cast(
 	o->ptr,
 	o->classId,
@@ -1232,13 +1245,13 @@ qt_signal(int argc, VALUE * argv, VALUE self)
 }
 
 static VALUE
-qt_invoke(VALUE self, VALUE id_value, VALUE quobject)
+qt_invoke(int argc, VALUE * argv, VALUE self)
 {
     // Arguments: int id, QUObject *o
-    int id = NUM2INT(id_value);
+    int id = NUM2INT(argv[0]);
     QUObject *_o = 0;
 
-    Data_Get_Struct(quobject, QUObject, _o);
+    Data_Get_Struct(rb_ary_entry(argv[1], 0), QUObject, _o);
     if(_o == 0) {
     	rb_raise(rb_eRuntimeError, "Cannot create QUObject\n");
     }
@@ -1256,7 +1269,8 @@ qt_invoke(VALUE self, VALUE id_value, VALUE quobject)
     bool isSignal = strcmp(rb_id2name(rb_frame_last_func()), "qt_emit") == 0;
     VALUE mocArgs = getslotinfo(self, id, slotname, index, isSignal);
     if(mocArgs == Qnil) {
-	return Qfalse;
+		// No ruby slot or signal found, assume the target is a C++ one
+		return rb_call_super(argc, argv);
     }
 
     QString name(slotname);
@@ -1305,6 +1319,14 @@ getIsa(VALUE /*self*/, VALUE classId)
     return parents_list;
 }
 
+// Return the class name of a QObject. Note that the name will be in the 
+// form of Qt::Widget rather than QWidget. Is this a bug or a feature?
+static VALUE
+class_name(VALUE self)
+{
+    VALUE klass = rb_funcall(self, rb_intern("class"), 0);
+    return rb_funcall(klass, rb_intern("name"), 0);
+}
 
 static VALUE
 dontRecurse(VALUE self)
@@ -1530,7 +1552,8 @@ make_metaObject(VALUE /*self*/, VALUE className_value, VALUE parent, VALUE slot_
     if(!po || !po->ptr) {
     	rb_raise(rb_eRuntimeError, "Cannot create metaObject\n");
     }
-    QMetaObject *meta = QMetaObject::new_metaobject(
+    
+	QMetaObject *meta = QMetaObject::new_metaobject(
 	className, (QMetaObject*)po->ptr,
 	(const QMetaData*)slot_tbl, slot_count,	// slots
 	(const QMetaData*)signal_tbl, signal_count,	// signals
@@ -1538,7 +1561,7 @@ make_metaObject(VALUE /*self*/, VALUE className_value, VALUE parent, VALUE slot_
 	0, 0,	// enums
 	0, 0);
 
-    smokeruby_object * o = (smokeruby_object *) ALLOC(smokeruby_object);
+    smokeruby_object * o = (smokeruby_object *) malloc(sizeof(smokeruby_object));
     o->smoke = qt_Smoke;
     o->classId = qt_Smoke->idClass("QMetaObject");
     o->ptr = meta;
@@ -1907,7 +1930,9 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 		klass = kde_package_to_class(package);
 	}
 
-    return klass;
+	rb_define_method(klass, "className", (VALUE (*) (...)) class_name, 0);
+    
+	return klass;
 }
 
 static VALUE

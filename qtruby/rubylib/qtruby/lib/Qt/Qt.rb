@@ -234,9 +234,12 @@ module Qt
 
 		def do_method_missing(package, method, klass, this, *args)
 			classname = @@cpp_names[klass.name]
-			if classname.nil? && klass != Object
-				do_method_missing(package, method, klass.superclass, this, *args)
-				return nil
+			if classname.nil?
+				if klass != Object
+					return do_method_missing(package, method, klass.superclass, this, *args)
+				else
+					return nil
+				end
 			end
 			method = classname.dup if method == "new"
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/

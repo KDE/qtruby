@@ -587,13 +587,12 @@ static void marshall_QByteArray(Marshall *m) {
 	    VALUE rv = *(m->var());
 	    QByteArray *s = 0;
 	    if(rv != Qnil) {
-		printf("About to get a Qt::ByteArray 1\n");
 			if (rb_respond_to(rv, rb_intern("data")) != 0) {
+				// Qt::ByteArray - use the contents of the 'data' instance var, a C++ QByteArray
 				VALUE data = rb_funcall(qt_internal_module, rb_intern("get_qbytearray"), 1, rv);
-		printf("Found a Qt::ByteArray as QByteArray\n");
 				 Data_Get_Struct(data, QByteArray, s);
 			} else {
-		printf("Found a Qt::ByteArray as String\n");
+				// Ordinary ruby string - use the contents of the string
             	s = new QByteArray(RSTRING(rv)->len);
 				memcpy((void*)s->data(), StringValuePtr(rv), RSTRING(rv)->len);
 			}
@@ -824,8 +823,6 @@ static void marshall_charP_array(Marshall *m) {
 		rb_ary_clear(arglist);
 		for(i = 0; argv[i]; i++)
 		    rb_ary_push(arglist, rb_str_new2(argv[i]));
-
-		// perhaps we should check current_method?
 	    }
 	}
 	break;
@@ -1064,6 +1061,33 @@ void marshall_voidP(Marshall *m) {
     }
 }
 
+void marshall_QUObject(Marshall *m) {
+    switch(m->action()) {
+      case Marshall::FromVALUE:
+	{
+	    VALUE array = *(m->var());
+	    if (array != Qnil && TYPE(array) == T_ARRAY) {
+		VALUE rv = rb_ary_entry(array, 0);
+		Data_Get_Struct(rv, QUObject, m->item().s_voidp);
+	    } else {
+		m->item().s_voidp = 0;
+		}
+	}
+	break;
+      case Marshall::ToVALUE:
+	{
+	    VALUE rv = Data_Wrap_Struct(rb_cObject, 0, 0, m->item().s_voidp);
+		VALUE array = rb_ary_new2(1);
+		rb_ary_push(array, rv);
+	    *(m->var()) = array;
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
+    }
+}
+
 void marshall_QRgb_array(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE:
@@ -1141,7 +1165,7 @@ TypeHandler Qt_handlers[] = {
     { "char**", marshall_charP_array },
     { "uchar*", marshall_ucharP },
     { "QRgb*", marshall_QRgb_array },
-    { "QUObject*", marshall_voidP },
+    { "QUObject*", marshall_QUObject },
     { "const QCOORD*", marshall_QCOORD_array },
     { "void", marshall_void },
     { "QByteArray", marshall_QByteArray },

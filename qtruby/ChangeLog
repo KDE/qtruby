@@ -1,3 +1,16 @@
+2003-10-14  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Fixed serious random crash problem
+	  - qt_invoke() and qt_emit() were not calling super if a ruby signal or
+	    slot hadn't been found, which stopped C++ signals from working. 
+	  - This prevented destroy() signals from invoking event filter list clean
+	    up when a QObject was deleted, leaving deleted instances in the list.
+	  - 'QUObject*' args are now marshalled as a ruby list with a single
+	    entry of a VALUE wrapping the pointer.
+	* The ruby ALLOCA_N macro is no longer used as it is based on alloca(),
+	  which doesn't seem a good idea. malloc(), calloc() and free() are used
+	  instead
+
 2003-10-11  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added khtml:: namespace, although it isn't in the SmokeKDE runtime yet
