@@ -1,3 +1,7 @@
+2005-01-04  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Upped the version to 1.0.6 for the KDE 3.4 beta 1 release
+
 2005-01-02  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* The Qt::Object pretty_print method now shows the class name of enum properties
