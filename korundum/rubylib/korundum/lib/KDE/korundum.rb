@@ -100,6 +100,17 @@ module KDE
 
 		meta.dcop_object
 	end
+	
+	def CmdLineArgs::init(*k)
+		if k.length > 0 and k[0].kind_of?(Array)
+			# If init() is passed an array as the first element, assume it's ARGV.
+			# Then convert to a pair of args 'ARGV.length+1, [$0]+ARGV'
+			array = k.shift
+			super *([array.length+1] + [[$0] + array] + k)
+		else
+			super
+		end
+	end
 end
 
 class Module
