@@ -1,10 +1,12 @@
 module Qt
 	
 	module Internal
-		Classes	= Hash.new
-		CppName	= Hash.new
-		IdClass	= Array.new
-		Operators = Hash.new { [] }
+
+		DEBUG = false
+
+		Classes	= {}
+		CppName	= {}
+		IdClass	= []
 
 		def normalize_classname(classname)
 			classname.sub(/^Q(?=[A-Z])/,'Qt::')
@@ -16,18 +18,10 @@ module Qt
 			insert_pclassid(classname, classId)
 			IdClass[classId] = classname
 			CppName[classname] = c
-			if isQObject(classId)
-				klass = create_qobject_class(classname)
-			else
-				klass = create_qt_class(classname)
-			end
-			
-			if klass != nil
-				Classes[classname] = klass
-			end
+			klass = isQObject(classId) ? create_qobject_class(classname) \
+                                                   : create_qt_class(classname)
+			Classes[classname] = klass unless klass.nil?
 		end
-
-		DEBUG = false
 
 		def checkarg(argtype, method, i)
 			p "argtype == #{argtype}" if DEBUG
@@ -78,29 +72,32 @@ module Qt
 		end
 
 		def argmatch(methodIds, args, i)
-			match = Hash.new
+			match = {}
 			argtype = getVALUEtype(args[i])
-			for method in methodIds
+                        methodIds.each {
+                                |method|
 				match_value = checkarg(argtype, method, i)
 				match[method] = match_value unless match_value.nil?
-			end
+                        }
 			p match if DEBUG
 			return match.sort {|a,b| a[1] <=> b[1]}
 		end
 
 		def find_class(classname)
-			value = Classes[classname]
-			return Classes[classname]
+			Classes[classname]
 		end
 
+                # 
 		def try_initialize(instance, *args)
 			initializer = instance.method(:initialize)
-			return callcc {|continuation|
+			return callcc {
+                                |continuation|
 				@@current_initializer = continuation
 				initializer.call(*args)
 			}
 		end
 
+                # continues off here after first stage initialize is complete
 		def continue_new_instance(instance)
 			@@current_initializer.call(instance)
 		end
@@ -203,34 +200,34 @@ module Qt
 		end
 
 		def init()
-			classes = getClassList()
-			for c in classes
+			getClassList().each {
+                                |c|
 				if c == "Qt"
 					# Don't change Qt to Qt::t, just leave as is
 					CppName["Qt"] = c
 				elsif c != "QInternal"
 					init_class(c)
 				end
-			end
+                        }
 		end
 	end
 
-	Meta = Hash.new
+	Meta = {}
 
 	class MetaInfo
-		attr_accessor(:signals, :slots, :metaobject, :mocargs)
+		attr_accessor :signals, :slots, :metaobject, :mocargs
 		def initialize(aClass)
 			Meta[aClass.name] = self
 			@metaobject = nil
-			@signals = Array.new
-			@slots = Array.new
+			@signals = []
+			@slots = []
 		end
 	end
 
 	def hasMembers(aClass)
 		classname = aClass.name if aClass.is_a? Module
 		meta = Meta[classname]
-		return meta != nil && (meta.signals.length > 0 or meta.slots.length > 0)
+		return !meta.nil? && (meta.signals.length > 0 or meta.slots.length > 0)
 	end
 
 	def getAllParents(class_id, res)
@@ -244,97 +241,79 @@ module Qt
 
 	def getSignalNames(aClass)
 		classname = aClass.name if aClass.is_a? Module
-		signalNames = Array.new
+		signalNames = []
 		signals = Meta[classname].signals
-		if signals != nil
-			for signal in signals
-				signalNames.push(signal.sub(/\(.*/, ''))
-			end
-		end
-		return signalNames
+                return [] if signals.nil?
+                signals.each {
+                        |signal| signalNames << signal.sub(/\(.*/, '')
+                }
+		signalNames
 	end
 
 	def signalInfo(qobject, signalName)
 		classname = qobject.class.name if qobject.class.is_a? Module
 		signals = Meta[classname].signals
-		i = 0
-		result = Array.new
-		for signal in signals
-			if signal.sub(/\(.*/, '').include? signalName
-				result.push(signal)
-				result.push(i)
-				return result
-			end			
-			i += 1
-		end
+                signals.each_with_index {
+                        |signal|
+                        matches = signal.sub(/\(.*/, '').include? signalName
+			return [signal, i] if matches
+                }
 	end
 
 	def signalAt(qobject, index)
 		classname = qobject.class.name if qobject.class.is_a? Module
-		return Meta[classname].signals[index]
+		Meta[classname].signals[index]
 	end
 
 	def slotAt(qobject, index)
 		classname = qobject.class.name if qobject.class.is_a? Module
-		return Meta[classname].slots[index]
+		Meta[classname].slots[index]
 	end
 
 	def getMocArguments(member)
-		argStr = member.sub(/.*\(/, '')
-		argStr.sub!(/\)$/, '')
+		argStr = member.sub(/.*\(/, '').sub!(/\)$/, '')
 		args = argStr.scan(/[^, ]+/)
 		mocargs = allocateMocArguments(args.length)
-		i = 0
-		for arg in args
+                args.each_with_index {
+                        |arg, i|
 			a = arg.sub(/^const\s+/, '')
-	    	if a =~ /^(bool|int|double|char\*|QString)&?$/
-				a = $1
-			else
-				a = 'ptr'
-			end
+	    	        a = (a =~ /^(bool|int|double|char\*|QString)&?$/) ? $1 : 'ptr'
 			valid = setMocType(mocargs, i, arg, a)
-			i += 1
-		end
-		result = Array.new
-		result.push(args.length)
-		result.push(mocargs)
-		return result
+                }
+		result = []
+		result << args.length << mocargs
+		result
 	end
 
 	def makeMetaData(data)
-		if data.nil?
-			return nil
-		end
-		
-		tbl = Array.new()
-		
-		for entry in data
-			params = Array.new()
+		return nil if data.nil?
+		tbl = []
+		data.each {
+			|entry|
 			name = entry.sub(/\(.*/, '')
 			argStr = entry.sub(/.*\(/, '')
 			argStr.sub!(/\)$/, '')
+			params = []
 			args = argStr.scan(/[^, ]+/)
-			for arg in args
-				name = ''
+			args.each {
+				|arg|
+				name = '' # umm.. is this the aim?, well. it works. soo... ;-)
 				param = make_QUParameter(name, arg, 0, 1)
-				params.push(param)
-			end
+                                params << param
+			}
 			method = make_QUMethod(name, params)
-			tbl.push(make_QMetaData(entry, method))
-		end
-		
-		return make_QMetaData_tbl(tbl)
+			tbl << make_QMetaData(entry, method)
+		}
+		make_QMetaData_tbl(tbl)
 	end
 	
 	def getMetaObject(qobject)
 		meta = Meta[qobject.class.name]
-		if meta.nil?
-			return nil
-		end
+		return nil if meta.nil?
 
 		if meta.metaobject.nil?
-			slotTable = makeMetaData(meta.slots)
-			signalTable = makeMetaData(meta.signals)
+			slotTable       = makeMetaData(meta.slots)
+			signalTable     = makeMetaData(meta.signals)
 			meta.metaobject = make_metaObject(qobject.class.name, 
 							  qobject.staticMetaObject(),
 							  slotTable, 
@@ -343,10 +322,7 @@ module Qt
 							  meta.signals.length)
 		end
 		
-		return meta.metaobject
-	end
-
-	def emit(signal)
+		meta.metaobject
 	end
 
 	IO_Direct     = 0x0100
@@ -380,35 +356,21 @@ class Object
 	# The Object.display() method conflicts with display() methods in Qt,
 	# so remove it..
 	undef_method :display
-
-	def SIGNAL(string)
-		return "2" + string
-	end
-
-	def SLOT(string)
-		return "1" + string
-	end
-
-	def emit(signal)
-	end
+	def SIGNAL(string) ; return "2" + string; end
+	def SLOT(string)   ; return "1" + string; end
+	def emit(signal)   ; end
 end
 
 class Module
 	include Qt
 
 	def signals(*signal_list)
-		meta = Meta[self.name]
-		if meta.nil?
-			meta = MetaInfo.new(self)
-		end
+		meta = Meta[self.name] || MetaInfo.new(self)
 		meta.signals += signal_list
 	end
 
 	def slots(*slot_list)
-		meta = Meta[self.name]
-		if meta.nil?
-			meta = MetaInfo.new(self)
-		end
+		meta = Meta[self.name] || MetaInfo.new(self)
 		meta.slots += slot_list
 	end
 end
