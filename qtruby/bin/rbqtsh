@@ -426,7 +426,7 @@ sub filePrint
 =end
 
     def fileExit
-        emit Qt::app.quit if confirmExit
+        emit $qApp.quit if confirmExit
     end
 
     def closeEvent(e)
