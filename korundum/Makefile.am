@@ -1,1 +1,1 @@
-SUBDIRS = rubylib
+SUBDIRS = rubylib bin

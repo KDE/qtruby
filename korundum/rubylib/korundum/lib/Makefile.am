@@ -1,1 +1,1 @@
-SUBDIRS = KDE Qt 
+SUBDIRS = KDE

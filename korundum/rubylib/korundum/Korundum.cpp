@@ -327,7 +327,7 @@ public:
 };
 
 extern "C" {
-extern void Init_Qt();
+extern void Init_qtruby();
 extern void set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE));
 extern VALUE new_qt(int argc, VALUE * argv, VALUE klass);
 extern VALUE qt_module;
@@ -420,22 +420,22 @@ new_kde(int argc, VALUE * argv, VALUE klass)
 }
 
 void
-Init_Korundum()
+Init_korundum()
 {
 	set_new_kde(new_kde);
 	
 	// The Qt extension is linked against libsmokeqt.so, but Korundum links against
 	// libsmokekde.so only. Specifying both a 'require Qt' and a 'require Korundum',
 	// would give a link error.
-	// So call the Init_Qt() initialization function explicitely, not via 'require Qt'
+	// So call the Init_qtruby() initialization function explicitely, not via 'require Qt'
 	// (Qt.o is linked into libqtruby.so, as well as the Qt.so extension).
-	Init_Qt();
+	Init_qtruby();
     install_handlers(KDE_handlers);
 	
     kde_internal_module = rb_define_module_under(kde_module, "Internal");
 	rb_define_singleton_method(kde_module, "dcop_process", (VALUE (*) (...)) dcop_process, 6);
 	
-	rb_require("KDE/Korundum.rb");
+	rb_require("KDE/korundum.rb");
 }
 
 };
