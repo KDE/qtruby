@@ -338,6 +338,7 @@ module Qt
 							  meta.slots.length,
 							  signalTable, 
 							  meta.signals.length)
+			meta.changed = false
 		end
 		
 		meta.metaobject
