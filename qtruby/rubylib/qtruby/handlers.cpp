@@ -275,6 +275,30 @@ resolve_classname(Marshall* m, void * ptr)
 		default:
 			break;
 		}
+	} else if (isDerivedFromByName(m->smoke(), m->smoke()->classes[m->type().classId()].className, "QListViewItem")) {
+		QListViewItem * item = (QListViewItem *) m->smoke()->cast(ptr, m->type().classId(), m->smoke()->idClass("QListViewItem"));
+		switch (item->rtti()) {
+		case 0:
+			return "Qt::ListViewItem";
+		case 1:
+			return "Qt::CheckListItem";
+		default:
+			return "Qt::ListViewItem";
+			break;
+		}
+	} else if (isDerivedFromByName(m->smoke(), m->smoke()->classes[m->type().classId()].className, "QTableItem")) {
+		QTableItem * item = (QTableItem *) m->smoke()->cast(ptr, m->type().classId(), m->smoke()->idClass("QTableItem"));
+		switch (item->rtti()) {
+		case 0:
+			return "Qt::TableItem";
+		case 1:
+			return "Qt::ComboTableItem";
+		case 2:
+			return "Qt::CheckTableItem";
+		default:
+			return "Qt::TableItem";
+			break;
+		}
 	}
 	
 	return m->smoke()->binding->className(m->type().classId());
