@@ -55,7 +55,7 @@
 
 // #define DEBUG
 
-#define QTRUBY_VERSION "0.8.0"
+#define QTRUBY_VERSION "0.8.5"
 
 extern Smoke *qt_Smoke;
 extern void init_qt_Smoke();
@@ -930,14 +930,7 @@ method_missing(int argc, VALUE * argv, VALUE self)
 	char * methodName = rb_id2name(SYM2ID(argv[0]));
     VALUE * savestack = ALLOCA_N(VALUE, argc + 3);
     savestack[0] = rb_str_new2("Qt");
-	QRegExp rx("[a-zA-Z]+");
-	if (rx.search(methodName) == -1) {
-		// Operator methods which aren't in QGlobalSpace, are called 'operator+' etc,
-		// rather than just '+'.
-    	savestack[1] = rb_str_new2((const char *) (QString("operator") + methodName));
-	} else {
-    	savestack[1] = rb_str_new2(methodName);
-	}
+    savestack[1] = rb_str_new2(methodName);
     savestack[2] = klass;
     savestack[3] = self;
     for (int count = 1; count < argc; count++) {

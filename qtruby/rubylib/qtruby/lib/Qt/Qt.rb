@@ -21,6 +21,9 @@ module Qt
 			def ~(a)
 				return Qt::~(self, a)
 			end
+			def -@()
+				return Qt::-(self)
+			end
 			def -(a)
 				return Qt::-(self, a)
 			end
@@ -185,7 +188,7 @@ module Qt
 				return nil
 			end
 			method = classname.dup if method == "new"
-
+			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/;
 			method_argstr = ""
 			args.each {
 				|arg| method_argstr << type_char(arg)
@@ -394,6 +397,7 @@ module Qt
 	IO_AbortError      = 6
 	IO_TimeOutError    = 7
 	IO_UnspecifiedError= 8
+	
 end
 
 class Object

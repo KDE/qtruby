@@ -1,3 +1,8 @@
+2003-08-30  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Operator methods are now called 'operator..' in QGlobalSpace and not renamed
+	* Added unary minus, and a test in opoverloading.rb
+
 2003-08-29  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Updated TODO list, improved rbuic code generation for images
