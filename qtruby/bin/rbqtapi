@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 # Note: this program is part of qtruby and makes use of its internal functions.
 #       You should not rely on those in your own programs.
