@@ -870,6 +870,7 @@ void logger_backend(const char *format, ...)
 	rb_str_cat(val_str, p, len);
 	free(p);
     }
+    // TODO - allow qtruby programs to override this fprintf with their own logging
     fprintf(stdout, "%s", STR2CSTR(val_str));
     va_end(ap);
 }
