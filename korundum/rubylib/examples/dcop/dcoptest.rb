@@ -117,7 +117,7 @@ o1 = KDE::DCOPRef.new(dcopService, "EditInterface#1")
 puts "--------------------------"
 puts "Insert a line into the kwrite instance we launched"
 
-res = o1.call("insertLine(uint,QString)", 0, 'Now is the time for all good men to come to the aid of their party')
+res = o1.insertLine(0, 'Now is the time for all good men to come to the aid of their party')
 if res.nil?
 	puts "call returns: failed"
 else

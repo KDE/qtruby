@@ -46,7 +46,7 @@ module KDE
 		
 		def add_signals(signal_list)
 			signal_list.each do |signal|
-				signal = KDE::DCOPClient.normalizeFunctionSignature(signal)
+				signal = DCOPClient.normalizeFunctionSignature(signal)
 				if signal =~ /^(.*)\s([^\s]*)\((.*)\)/
 					@k_dcop_signals[$2] = DCOPMember.new($2, $2 + "(" + $3 + ")", $3, $1)
 				end
@@ -55,7 +55,7 @@ module KDE
 		
 		def add_slots(slot_list)
 			slot_list.each do |slot|
-				slot = KDE::DCOPClient.normalizeFunctionSignature(slot)
+				slot = DCOPClient.normalizeFunctionSignature(slot)
 				if slot =~ /^(.*)\s([^\s]*)\((.*)\)/
 					@k_dcop[$2] = DCOPMember.new($2, slot, $3, $1)
 				end
@@ -166,6 +166,7 @@ module KDE
 	end
 	
 	class DCOPRef < Qt::Base
+		
 		def method_missing(*k)
 			# Enables DCOPRef calls to be made like this:
 			#
@@ -179,6 +180,40 @@ module KDE
 				method = k[0].id2name
 				# Make 'parrot.age = 7' a synonym for 'parrot.setAge(7)'
 				method = 'set' + method[0,1].upcase + method[1,method.length].sub("=", "") if method =~ /.*[^-+%\/|]=$/
+				
+				# Get the functions() for this dcop ref and 
+				# cache method_name => full_type_signature in a hash
+				if @functions.nil?
+					@functions = {}
+					funcs = call("functions()")
+					funcs.each do |func|
+						if func =~ /^(\w*) (.*)(\(.*\))/
+							return_type = $1
+							name = $2
+							args = $3
+							if args =~ / /
+								# Remove any arg names
+								args.gsub!(/ \w*/, "")
+							end
+							if @functions[name].nil?
+								@functions[name] = return_type + " " + name + args
+							else
+								# If a function name is overloaded, just keep a single name entry in
+								# the hash, not all the full type signatures. Then leave dcopTypeNames() 
+								# to try and resolve the ambiguous call from the ruby arg types passed.
+								@functions.delete(name)
+								@functions[name] = name
+							end
+						end
+					end
+				end
+				
+				method = @functions[method]
+				if method.nil?
+					puts( "DCOPRef: call #{k[0].id2name}() not found" )
+					return
+				end
+
 				callExt(method, *dcopArgs)
 			end
 		end

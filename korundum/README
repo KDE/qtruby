@@ -46,9 +46,9 @@ KDE Specific Infomation:
 			disconnectDCOPSignal()
 			
 		The name of the object is always the ruby classname, and you can only
-		instantiate one instance for each ruby class with 'k_dcop' declarations.
-		See examples/dcop/dcopslot.rb and dcopsignal.rb for an example of the
-		simplest approach.
+		instantiate one instance for each ruby class that has 'k_dcop' 
+		declarations. See examples/dcop/dcopslot.rb and dcopsignal.rb for an 
+		example of the simplest approach.
 			
 		If you wish to use the full functionality of a DCOPObject, you can
 		subclass it and call all the methods, not just the four above. 
@@ -84,17 +84,7 @@ KDE Specific Infomation:
 		'klipper.setClipboardContents("Hello there klipper")':
 		
 		klipper = DCOPRef.new("klipper", "klipper")
-
 		klipper.clipboardContents = "Hello there klipper"
-
-		Or with error checking:
-			
-		result = klipper.clipboardContents = "Hello there klipper"
-		if result.nil?
-			puts "DCOP call failed"
-		else
-			puts "result #{result}"
-		end
 		
 	- Send to a DCOPRef is similar:
 	    
@@ -105,8 +95,11 @@ KDE Specific Infomation:
 		The result will either be true or false (but not nil for fail like the
 		call() above)
 	
-	- If the type signature of the target dcop slot is ommited it is derived from the 
-	  ruby argument types:
+	- When a call of the form 'dcopRef.getPoint(5, "foobar")' is made, the C++
+	  type signature is obtained from the list of those returned by 
+	  DCOPRef.functions(). However, if a method name is overloaded the ruby 
+	  argument types are used to derive a type signature, in order to resolve 
+	  the call like this:
 	  
 			String => QString
 			Float => double
@@ -114,9 +107,11 @@ KDE Specific Infomation:
 			TrueClass|FalseClass (ie 'true' or 'false') => bool
 			Qt::Widget etc => QWidget
 			KDE::URL etc => KURL
-			[] => QStringList
+			Array => QStringList
 			
-	  Specify the full type signature for more unusual C++ types
+	  Specify the full C++ type signature using the form
+	  'dcopRef.call("getPoint(int,QString)", 5, "foobar")' if these rules fail 
+	  to pick the right method.
 	  
 	- DCOP Signals are defined like this:
 	
