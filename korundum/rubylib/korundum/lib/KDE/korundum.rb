@@ -169,7 +169,7 @@ module KDE
 				elsif arg.kind_of? String
 					typeNames << "QString,"
 				elsif arg.kind_of? Qt::Base
-					typeNames << ruby_type.class.name + ","
+					typeNames << arg.class.name + ","
 				elsif arg.instance_of? FalseClass or arg.instance_of? TrueClass
 					typeNames << "bool,"
 				end
