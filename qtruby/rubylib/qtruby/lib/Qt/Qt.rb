@@ -14,7 +14,7 @@ module Qt
                 Off, Minimal, High = *(0..2).to_a
         end
 
-        @@debug_level = DebugLevel::Off
+        @@debug_level = DebugLevel::High
         def Qt.debug_level=(level)
                 @@debug_level = level
         end
@@ -132,7 +132,9 @@ module Qt
 		def checkarg(argtype, typename)
 			puts "      #{typename} (#{argtype})" if debug_level >= DebugLevel::High
 			if argtype == 'i'
-				if typename =~ /^(?:short|ushort|int|uint|long|ulong|signed|unsigned)$/
+				if typename =~ /^int$/
+					return 1
+				elsif typename =~ /^(?:short|ushort|uint|long|ulong|signed|unsigned)$/
 					return 0
 				end
 			elsif argtype == 'n'
@@ -160,9 +162,7 @@ module Qt
 					return 0
 				end
 			elsif argtype == 'u'
-				if typename =~ /^(?:float|double)$/
-					return 0
-				end
+				return 0
 			elsif argtype == 'U'
 				return 0
 			else
@@ -263,7 +263,7 @@ module Qt
 				methodIds.each do
 					|id|
 					puts "matching => #{id}" if debug_level >= DebugLevel::High
-					current_match = -1
+					current_match = 0
 					(0...args.length).each do
 						|i|
 						current_match += checkarg( getVALUEtype(args[i]), getTypeNameOfArg(id, i) )
