@@ -1,5 +1,5 @@
-=begin
-\page kconfig_compiler The KDE Configuration Compiler for Ruby
+/**
+\page rbkconfig_compiler The KDE Configuration Compiler for Ruby
 
 rbkconfig_compiler generates Ruby source code from an XML file containing 
 information about configuration options (.kcfg) and a file that provides 
@@ -248,5 +248,4 @@ If you have questions or comments please contact Cornelius Schumacher
 
 For Ruby specific questions please contact Richard Dale 
 <Richard_Dale@tipitina.demon.co.uk>
-=end
-
+*/
