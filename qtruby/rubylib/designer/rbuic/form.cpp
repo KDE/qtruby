@@ -499,6 +499,7 @@ void Uic::createFormImpl( const QDomElement &e )
     }
     else if ( externPixmaps )
     {
+	/*
 	out << indent << "def uic_load_pixmap_" << loadFunction << "( data )" << endl;
 	++indent;
 	out << indent << "pix = Qt::Pixmap.new()" << endl;
@@ -516,6 +517,8 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << endl;
 	out << endl;
 	pixmapLoaderFunction = "uic_load_pixmap_" + loadFunction;
+	*/
+	pixmapLoaderFunction = "Qt::Pixmap.fromMimeSource";
     }
 
 
@@ -532,7 +535,6 @@ void Uic::createFormImpl( const QDomElement &e )
     out << indent << "def initialize(*k)" << endl;
     ++indent;
 	out << indent << "super(*k)" << endl;
-	out << indent << "statusBar()" << endl;
 	isMainWindow = TRUE;
     } else {
     out << indent << "def initialize(*k)" << endl;

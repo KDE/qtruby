@@ -234,7 +234,9 @@ int main( int argc, char * argv[] )
     if (execCode) {
 	out << endl;
 	out << endl;
-        out << endl;
+    out << endl;
+	out << indent << "if $0 == __FILE__" << endl;
+	++indent;
 	out << indent << "a = Qt::Application.new(ARGV)" << endl;
         QString s;
         getDBConnections( uic, s);
@@ -243,6 +245,8 @@ int main( int argc, char * argv[] )
 	out << indent << "a.setMainWidget(w)" << endl;
 	out << indent << "w.show" << endl;
 	out << indent << "a.exec" << endl;
+	--indent;
+	out << indent << "end" << endl;
     }
 
     return 0;

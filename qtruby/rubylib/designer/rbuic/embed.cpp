@@ -71,29 +71,38 @@ static QString convertToCIdentifier( const char *s )
 }
 
 
-static void embedData( QTextStream& out, const uchar* input, int nbytes )
+static ulong embedData( QTextStream& out, const uchar* input, int nbytes )
 {
+#ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
+    QByteArray bazip( qCompress( input, nbytes ) );
+    ulong len = bazip.size();
+#else
+    ulong len = nbytes;
+#endif
     static const char hexdigits[] = "0123456789abcdef";
     QString s;
-    for ( int i=0; i<nbytes; i++ )
-    {
-	if ( (i%14) == 0 )
-        {
-            s += "\n    ";
+    for ( int i=0; i<(int)len; i++ ) {
+	if ( (i%14) == 0 ) {
+	    s += "\n    ";
 	    out << (const char*)s;
 	    s.truncate( 0 );
 	}
-	uint v = input[i];
-        	s += "0x";
+	uint v = (uchar)
+#ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
+		 bazip
+#else
+		 input
+#endif
+		 [i];
+	s += "0x";
 	s += hexdigits[(v >> 4) & 15];
 	s += hexdigits[v & 15];
-	if ( i < nbytes-1 )
-	    s += ", ";
-	else
-	    s += "\n";
+	if ( i < (int)len-1 )
+	    s += ',';
     }
     if ( s.length() )
 	out << (const char*)s;
+    return len;
 }
 
 static void embedData( QTextStream& out, const QRgb* input, int n )
@@ -101,14 +110,12 @@ static void embedData( QTextStream& out, const QRgb* input, int n )
     out << hex;
     const QRgb *v = input;
     for ( int i=0; i<n; i++ ) {
-	if ( (i%6) == 0  )
-	    out << endl << "    ";
+	if ( (i%14) == 0  )
+	    out << "\n    ";
 	out << "0x";
 	out << hex << *v++;
 	if ( i < n-1 )
-	    out << ", ";
-	else
-	    out << "" << endl;
+	    out << ',';
     }
     out << dec; // back to decimal mode
 }
@@ -133,7 +140,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
     out << "require Qt" << endl;
     out << endl;
 
-    out << indent << "class DesignerMimeSourceFactory_" << cProject << " < Qt::MimeSourceFactory" << endl;
+    out << indent << "class MimeSourceFactory_" << cProject << " < Qt::MimeSourceFactory" << endl;
     out << endl;
 
     QPtrList<EmbedImage> list_image;
@@ -154,63 +161,75 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	memcpy(e->colorTable, img.colorTable(), e->numColors*sizeof(QRgb));
 	QFileInfo fi( *it );
 	e->name = fi.fileName();
-	e->cname = QString("image_%1").arg( image_count++);
+	e->cname = QString("$image_%1").arg( image_count++);
 	list_image.append( e );
 	out << "# " << *it << endl;
-	QString s;
         QString imgname = (const char *)e->cname;
 
 
 //my $i0 = Qt::Image($image_0_data, 22, 22, 32, undef, &Qt::Image::BigEndian);
 //$i0->setAlphaBuffer(1);
 //my $image0 = Qt::Pixmap($i0);
-
-	if ( e->depth == 32 ) {
-	    out << indent << imgname << "_data = pack 'L*'," << endl;
-	    embedData( out, (QRgb*)img.bits(), e->width*e->height );
-	} else {
-	    if ( e->depth == 1 )
-		img = img.convertBitOrder(QImage::BigEndian);
-	    out << indent << imgname << "_data = pack 'C*'," << endl;
+	QString s;
+	if ( e->depth == 1 )
+	    img = img.convertBitOrder(QImage::BigEndian);
+	    out << indent << imgname << "_data = [";
 	    embedData( out, img.bits(), img.numBytes() );
-	}
-        out << endl;
+	out << "]\n\n";
 	if ( e->numColors ) {
-	    out << indent << imgname << "_ctable = " << endl;
-	    out << indent << "[" << endl;
+	    out << indent << imgname << "_ctable = [";
 	    embedData( out, e->colorTable, e->numColors );
-            out << endl;
-            out << indent << "]" << endl;
+	    out << "]\n\n";
 	}
     }
 
-    if ( !list_image.isEmpty() ) {
-         out << indent << "embed_images = (\n";
+	++indent;
+ 	if ( !list_image.isEmpty() ) {
+         out << indent << "@@embed_images = {\n";
 	++indent;
 	EmbedImage *e = list_image.first();
 	while ( e )
         {
 	    out << indent << "\"" << e->name << "\"" << " => [" << e->cname << "_data, "
                 << e->width << ", " << e->height << ", " << e->depth << ", "
-                << (e->numColors ? e->cname + "_ctable" : QString::fromLatin1("nil") ) << ", "
-                << (e->alpha ? "1" : "0") << "]," << endl;
+                << (e->numColors ? e->cname + "_ctable" : "[]" ) << ", "
+                << (e->alpha ? "true" : "false") << "]," << endl;
 	    e = list_image.next();
 	}
 	--indent;
-	out << indent << ")" << endl;
+	out << indent << "}" << endl;
 
 	out << endl;
-	out << indent << "images = Hash.new" << endl;
-	out << endl;
+	out << indent << "@@images = Hash.new" << endl;
 	out << endl;
 	out << indent << "def uic_findImage( name )" << endl;
 	++indent;
-	out << indent << "return images[name] if exists images[name]" << endl;
-        out << indent << "return Qt::Image.new() unless exists embed_images[name]" << endl;
+	out << indent << "if !@@images[name].nil? return @@images[name]" << endl;
+        out << indent << "if @@embed_images[name].nil? return Qt::Image.new()" << endl;
         out << indent << endl;
-	out << indent << "img = Qt::Image.new(@{embed_images[name]}[0..4], Qt::Image::BigEndian)" << endl;
-        out << indent << "embed_images[name][5] && img.setAlphaBuffer(1)" << endl;
-	out << indent << "images[name] = img" << endl;
+#ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
+	out << indent << "baunzip = qUncompress( @@embed_images[name][0]," << endl;
+	out << indent << "                       @@embed_images[name][0].length )" << endl;
+	out << indent << "img = Qt::Image.new( baunzip.data()," << endl;
+	out << indent << "                     @@embed_images[name][1]," << endl;
+	out << indent << "                     @@embed_images[name][2]," << endl;
+	out << indent << "                     @@embed_images[name][3]," << endl;
+	out << indent << "                     @@embed_images[name][4]," << endl;
+	out << indent << "                     Qt::Image::BigEndian )" << endl;
+#else
+	out << indent << "img = Qt::Image.new( @@embed_images[name][0].pack(\"C*\")," << endl;
+	out << indent << "                     @@embed_images[name][1]," << endl;
+	out << indent << "                     @@embed_images[name][2]," << endl;
+	out << indent << "                     @@embed_images[name][3]," << endl;
+	out << indent << "                     @@embed_images[name][4]," << endl;
+	out << indent << "                     Qt::Image::BigEndian )" << endl;
+#endif
+    out << indent << "if @@embed_images[name][5]" << endl;
+	++indent;
+    out << indent << "img.setAlphaBuffer(true)" << endl;
+	--indent;
+	out << indent << "end" << endl;
+	out << indent << "@@images[name] = img" << endl;
 	out << indent << "return img" << endl;
 	--indent;
 	out << indent << "end" << endl;
@@ -230,28 +249,37 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << indent << "return Qt::MimeSourceFactory.defaultFactory().data(abs_name)" << endl;
 	--indent;
 	out << indent << "end" << endl;
+	--indent;
+    out << indent << "end" << endl;
 
 	out << endl;
 	out << endl;
 
-	out << indent << "module staticImages" << endl;
-        out << indent << "require 'Qt'" << endl;
-        out << indent << "factories = Hash.new" << endl;
-        out << indent << endl;
-        out << indent << "factory = DesignerMimeSourceFactory_" << cProject << ".new()" << endl;
-        out << indent << "Qt::MimeSourceFactory.defaultFactory().addFactory(factory)" << endl;
-        out << indent << "factories['DesignerMimeSourceFactory_" << cProject << "'] = factory" << endl;
-	out << endl;
-	out << indent << "END" << endl;
+    out << indent << "module StaticInitImages_" << cProject << endl;
         ++indent;
-        out << indent << "for values in factories" << endl;
+        out << indent << "@@factories = Hash.new" << endl;
+        out << indent << endl;
+	out << indent << "def StaticInitImages_" << cProject << ".qInitImages" << endl;
+        ++indent;
+        out << indent << "factory = MimeSourceFactory_" << cProject << ".new()" << endl;
+        out << indent << "Qt::MimeSourceFactory.defaultFactory().addFactory(factory)" << endl;
+        out << indent << "@@factories['MimeSourceFactory_" << cProject << "'] = factory" << endl;
+        --indent;
+        out << indent << "end" << endl;
+	out << endl;
+	out << indent << "def StaticInitImages_" << cProject << ".qCleanupImages" << endl;
+        ++indent;
+        out << indent << "for values in @@factories" << endl;
         ++indent;
         out << indent << "Qt::MimeSourceFactory.defaultFactory().removeFactory(values)" << endl;
         --indent;
         out << indent << "end" << endl;
-        out << indent << "factories = ()" << endl;
+        out << indent << "@@factories = nil" << endl;
+        --indent;
+        out << indent << "end" << endl;
         --indent;
         out << indent << "end" << endl;
 	out << endl;
+    out << endl;
     }
 }
