@@ -535,7 +535,7 @@ def evalOneLine(line)
     prot.gsub('<', '&lt;') # /gs ???
     prot.gsub('>', '&gt;') # /gs ???
 
-    logAppend( "#{@prompt}#{prot}<br>" )
+    logAppend( "#{@prompt}#{prot}" )
 
     ostdout, ostderr = $stdout, $stderr
     strio = StringIO.new
