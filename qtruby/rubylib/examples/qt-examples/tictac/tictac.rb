@@ -110,7 +110,7 @@ class TicTacGameBoard < Qt::Widget
 				next
 			end
 			col = 1
-			while ( (col < @nBoard) && (@btArray[row*@nBoard] == t) )
+			while ( (col < @nBoard) && (@btArray[row*@nBoard+col] == t) )
 				col = col + 1
 			end
 			if (col == @nBoard)
@@ -132,6 +132,36 @@ class TicTacGameBoard < Qt::Widget
 				won = true
 			end
 		end
+		if (won == false)	# check diagonal top left
+			t = @btArray[0]	# to bottom right
+			if (t != TicTacButton::Blank)
+				i = 1;
+				while (i<@nBoard && (@btArray[i*@nBoard+i] == t))
+					i = i +1
+				end
+				if (i == @nBoard)
+					won = true
+				end
+			end
+		end
+
+		if (won == false)	# check diagonal bottom left
+			j = @nBoard-1	# to top right
+			i = 0;
+			t = @btArray[i+j*@nBoard];
+			if (t != TicTacButton::Blank)
+				i = i +1
+				j = j - 1
+				while ( (i<@nBoard) && (@btArray[i+j*@nBoard] == t) )
+					i = i + 1
+					j = j -1
+				end
+				if (i == @nBoard)
+					won = true
+				end
+			end
+		end
+		
 		if (won == false)
 			t = 0
 		end
@@ -157,7 +187,7 @@ class TicTacGameBoard < Qt::Widget
 			end
 
 			@btArray[i] = TicTacButton::Circle		# test if human wins
-			if (checkBoard == @btArray[i])			#  oops...
+			if (checkBoard == @btArray[i])			# oops...
 				stopHuman = i				# remember position
 				@btArray[i] = TicTacButton::Blank	# restore button
 				next					# computer still might win
@@ -170,7 +200,7 @@ class TicTacGameBoard < Qt::Widget
 			@btArray[stopHuman] = TicTacButton::Cross
 		elsif (i == numButtons)					# tried all alternatives
 			if (altv.size > 0)				# set random piece
-				@btArray[altv[rand()%(altv.size)]] = TicTacButton::Cross
+				@btArray[altv[rand()%(altv.size+5)]] = TicTacButton::Cross
 			end
 			if ((altv.size-1) == 0)				# no more blanks
 				@state = NobodyWon
