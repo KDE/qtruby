@@ -4,6 +4,7 @@ class DigitalClock < Qt::LCDNumber
 
 	slots 'stopDate()', 'showTime()'
 
+	# Constructs a DigitalClock widget
 	def initialize
 		super
 
@@ -28,7 +29,7 @@ class DigitalClock < Qt::LCDNumber
 		end
 	end
 
-	## Enters date mode when the left mouse button is pressed.
+	# Enters date mode when the left mouse button is pressed.
 	def mousePressEvent (e)
 		if (e.button == Qt::MouseEvent.LeftButton)	# left button pressed
 			showDate
