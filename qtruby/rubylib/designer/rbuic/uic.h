@@ -102,6 +102,7 @@ public:
     static void embed( QTextStream& out, const char* project, const QStringList& images );
 
     friend void getDBConnections(Uic& uic, QString& s);
+    static bool hasKDEwidget;
 
 private:
     void registerLayouts ( const QDomElement& e );

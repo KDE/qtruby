@@ -233,7 +233,13 @@ int main( int argc, char * argv[] )
     out << endl;
 	out << indent << "if $0 == __FILE__" << endl;
 	++indent;
-	out << indent << "a = Qt::Application.new(ARGV)" << endl;
+	if (uic.hasKDEwidget) {
+		out << indent << "about = KDE::AboutData.new(\"" << uicClass << "\", \"" << uicClass << "\", \"0.1\")" << endl;
+		out << indent << "KDE::CmdLineArgs.init(ARGV, about)" << endl;
+		out << indent << "a = KDE::Application.new()" << endl;
+	} else {
+		out << indent << "a = Qt::Application.new(ARGV)" << endl;
+	}
         QString s;
         getDBConnections( uic, s);
         out << s;

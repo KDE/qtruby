@@ -47,6 +47,7 @@
 #include <stdlib.h>
 #include <zlib.h>
 
+bool Uic::hasKDEwidget = FALSE;
 bool Uic::isMainWindow = FALSE;
 RubyIndent Uic::indent;
 
@@ -228,13 +229,19 @@ QString Uic::getClassName( const QDomElement& e )
 	s = "Qt::ToolBar";
     else if ( s.isEmpty() && e.tagName() == "menubar" )
 	s = "Qt::MenuBar";
-    else if( WidgetDatabase::idFromClassName( s ) == -1)
-	return s;
+//    else if( WidgetDatabase::idFromClassName( s ) == -1)
+//	  return s;
     else
     {
 	QRegExp r("^([QK])(\\S+)");
-        if( r.search( s ) != -1 )
-	    s = (r.cap(1) == 'K'?"KDE::":"Qt::") + r.cap(2);
+        if( r.search( s ) != -1 ) {
+	    	if (r.cap(1) == "K") {
+				hasKDEwidget = TRUE;
+	    		s = "KDE::" + r.cap(2);
+			} else {
+	    		s = "Qt::" + r.cap(2);
+			}
+		}
     }
     return s;
 }
