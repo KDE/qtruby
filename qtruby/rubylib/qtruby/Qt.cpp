@@ -1115,15 +1115,19 @@ new_qobject(int argc, VALUE * argv, VALUE klass)
 static VALUE
 new_qapplication(int argc, VALUE * argv, VALUE klass)
 {
-	VALUE * local_argv = ALLOCA_N(VALUE, argc + 1);
-	// Convert '(ARGV)' to '(NUM, ARGV)'
+	VALUE result = Qnil;
+	
 	if (argc == 1 && TYPE(argv[0]) == T_ARRAY) {
+		// Convert '(ARGV)' to '(NUM, [$0]+ARGV)'
+		VALUE * local_argv = ALLOCA_N(VALUE, argc + 1);
+		rb_ary_unshift(argv[0], rb_gv_get("$0"));
 		local_argv[0] = INT2NUM(RARRAY(argv[0])->len);
 		local_argv[1] = argv[0];
-		argc++;
+		result = new_qobject(2, local_argv, klass);
+	} else {
+		result = new_qobject(argc, argv, klass);
 	}
-
-	VALUE result = new_qobject(argc, local_argv, klass);
+	
 	rb_gv_set("$qApp", result);
 	return result;
 }

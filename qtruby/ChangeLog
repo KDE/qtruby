@@ -1,5 +1,9 @@
 2003-08-05  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* Qt::Application constructor safer, but program name still not appearing in the window title
+
+2003-08-05  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Fixed bug in resolution of overloaded Qt::Popup.insertItem() methods
 
 2003-08-05  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>

@@ -637,7 +637,7 @@ static void marshall_boolR(Marshall *m) {
 	    *(m->var()) = Qundef;
 		break;
 	    }
-	    *(m->var()) = INT2NUM(*ip?1:0);
+	    *(m->var()) = (*ip?Qtrue:Qfalse);
 	    m->next();
 //	    if(!m->type().isConst())
 //		*ip = SvTRUE(sv)? true : false;
@@ -662,24 +662,13 @@ static void marshall_charP_array(Marshall *m) {
 			break;
 	    }
 
-//	    AV *arglist = (AV*)SvRV(sv);
-	    int count = RARRAY(arglist)->len;
-	    char **argv = new char *[count + 2];
+	    char **argv = new char *[RARRAY(arglist)->len + 1];
 	    long i;
-	    for(i = 0; i < count; i++) {
-		VALUE item = rb_ary_entry(arglist, i);
-//		if(!item || !SvOK(*item)) {
-//		    argv[i] = new char[1];
-//		    argv[i][0] = 0;	// should undef warn?
-//		    continue;
-//		}
-
-		char *s = STR2CSTR(item);
-		int len = strlen(s);
-//		char *s = SvPV(*item, len);
-		argv[i] = new char[len + 1];
-		strcpy(argv[i], s);
-//		argv[i][len] = 0;	// null terminazi? yes
+	    for(i = 0; i < RARRAY(arglist)->len; i++) {
+			VALUE item = rb_ary_entry(arglist, i);
+			char *s = STR2CSTR(item);
+			argv[i] = new char[strlen(s) + 1];
+			strcpy(argv[i], s);
 	    }
 	    argv[i] = 0;
 	    m->item().s_voidp = argv;
