@@ -612,6 +612,11 @@ marshall_basetype(Marshall *m)
 	switch(m->action()) {
 	  case Marshall::FromVALUE:
 	    {
+		if(TYPE(*(m->var())) != T_DATA) {
+            rb_raise(rb_eArgError, "Invalid type, expecting %s\n", m->type().name());
+		    break;
+		}
+		
 		smokeruby_object *o = value_obj_info(*(m->var()));
 		if(!o || !o->ptr) {
                     if(m->type().isRef()) {

@@ -1,5 +1,26 @@
 2004-10-10  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+ * If a ruby method overriding a virtual method returned a primitive type when an instance of a class
+   was expected, it caused a seg fault. A ruby exception is now thrown instead. Fixes problem reported by
+   Han Holl.
+
+ * For instance,
+                    class ContainerGrid < Qt::Widget
+                        def sizeHint
+                            # next line should return a Qt::Size, not an integer
+                            100
+                        end
+                     end
+ 
+   Now gives the following error:
+
+               qsize.rb:12:in `method_missing': Invalid type, expecting QSize (ArgumentError)
+                   from qsize.rb:12
+
+ CCMAIL: kde-bindings@kde.org
+
+2004-10-10  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
  * The smokeruby_mark() function was only marking the immediate children of a
    Qt::Object for not being garbage collected. It now marks all the Qt::Objects
    in the object tree below it.
