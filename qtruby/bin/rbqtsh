@@ -400,7 +400,7 @@ class QtShellControl < Qt::MainWindow
 			fm = p.fontMetrics
 			metrics = Qt::PaintDeviceMetrics.new( printer )
 			
-			for i in 0..@executedLines.length
+			for i in 0..@executedLines.length-1
             	if  margin + yPos > metrics.height() - margin
                 	msg ="Printing (page "+ ++pageNo + ")..."
                 	statusBar().message( msg )

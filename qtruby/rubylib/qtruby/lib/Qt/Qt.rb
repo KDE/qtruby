@@ -11,6 +11,21 @@ module Qt
                 @@debug_level
         end
 	
+	class Base
+		def +(a)
+			return Qt::+(self, a)
+		end
+		def -(a)
+			return Qt::-(self, a)
+		end
+		def *(a)
+			return Qt::*(self, a)
+		end
+		def /(a)
+			return Qt::/(self, a)
+		end
+	end
+	
 	module Internal
 
 		@@classes   = {}
@@ -170,37 +185,6 @@ module Qt
 				end
 			end
 			chosen = methodIds[0]
-
-			if chosen.nil? and not method =~ /[a-zA-Z]/
-				opMethodStr = method + "#" + method_argstr
-                                p opMethodStr if debug_level >= DebugLevel::High
-				methodIds = findMethod("QFriendOperators", opMethodStr)
-				p methodIds if debug_level >= DebugLevel::High
-				p dumpCandidates(methodIds) if debug_level >= DebugLevel::High
-				methodIds.each {
-					|id|
-					# check the "this" type
-					p "checking id == #{id}" if debug_level >= DebugLevel::High
-					typename = getTypeNameOfArg(id, 0)
-					t = typename.sub(/^const\s+/, '')
-					t.sub!(/[&*]$/, '')
-					puts "checking t against classname" if debug_level >= DebugLevel::High
-					p t if debug_level >= DebugLevel::High
-					p classname if debug_level >= DebugLevel::High
-					puts "sorry, no match" if t != classname && debug_level >= DebugLevel::High
-					next if t != classname
-                                        # check the actual params
-					argtype = getVALUEtype(args[0])
-					p argtype if debug_level >= DebugLevel::High
-					matched = checkarg(argtype, id, 1)
-					chosen = id if matched
-					p matched if debug_level >= DebugLevel::High
-					puts "got a match == #{id}" if debug_level >= DebugLevel::High
-				}
-				unless chosen.nil?
-					return FriendOperators.send(method, this, *args)
-				end
-			end
 
 			if chosen.nil? and method == classname
 				puts "No matching constructor found, possibles:\n"

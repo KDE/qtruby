@@ -1,5 +1,9 @@
 2003-08-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* Changed the operator overloading implementation to be more like PerlQt
+
+2003-08-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Translated the rbqtsh filePrint() method from perl
 
 2003-08-26  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
