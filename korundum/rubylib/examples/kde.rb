@@ -2,16 +2,16 @@
 
 require 'Korundum'
 
-
+# Qt.debug_level = Qt::DebugLevel::High
 
 class MyBase < Qt::HBox
    slots "back()", "forward()"
    attr_accessor :back, :forward, :url
    def initialize *k
       super *k
-      @url  = "http://www.kde.org/"
-      @forward = KDE::PushButton.new(self) { setText "Hello World" }
-      @back    = KDE::PushButton.new(self) { setText "Hello World" }
+      @url  = "http://www.gnome.org/"
+      @forward = KDE::PushButton.new(self) { setText "Back" }
+      @back    = KDE::PushButton.new(self) { setText "Forward" }
       @label   = Qt::Label.new(self)
       Qt::Object.connect( @forward, SIGNAL( "clicked()" ),
                           self,     SLOT(   "back()" ) )
@@ -35,15 +35,10 @@ browser = Qt::VBox.new
 blah = MyBase.new browser
 browser.show
 
-require 'net/http'
-require 'uri'
-
-output = Net::HTTP.get URI.parse(blah.url)
-p output
+url = KDE::URL.new "http://www.gentoo.org"
 w = KDE::HTMLPart.new browser
-w.begin
-w.write output
-w.end
+w.openURL url
+w.view.resize 500, 400
 w.show
 
 a.setMainWidget(browser)
@@ -51,16 +46,6 @@ a.exec()
 
 
 __END__
-
-b0rked due to KDE::URL non existance...
-
-url = KDE::URL.new "http://www.kde.org"
-p url.site
-w = KDE::HTMLPart.new
-w.openURL url
-w.view.resize 500, 400
-w.show
-=end
 
 TESTCASE - 
 w = KDE::HTMLPart  # notice the missing .new
