@@ -20,9 +20,9 @@
 require 'pp'
 
 module Qt
-        module DebugLevel
-                Off, Minimal, High, Extensive = 0, 1, 2, 3
-        end
+	module DebugLevel
+		Off, Minimal, High, Extensive = 0, 1, 2, 3
+	end
 
 	module QtDebugChannel 
 		QTDB_NONE = 0x00
@@ -32,17 +32,18 @@ module Qt
 		QTDB_GC = 0x08
 		QTDB_VIRTUAL = 0x10
 		QTDB_VERBOSE = 0x20
-                QTDB_ALL = QTDB_VERBOSE | QTDB_VIRTUAL | QTDB_GC | QTDB_CALLS | QTDB_METHOD_MISSING | QTDB_AMBIGUOUS
+		QTDB_ALL = QTDB_VERBOSE | QTDB_VIRTUAL | QTDB_GC | QTDB_CALLS | QTDB_METHOD_MISSING | QTDB_AMBIGUOUS
 	end
 
-        @@debug_level = DebugLevel::Off
-        def Qt.debug_level=(level)
-                @@debug_level = level
-                Internal::setDebug Qt::QtDebugChannel::QTDB_ALL if level >= DebugLevel::Extensive
-        end
-        def Qt.debug_level
-                @@debug_level
-        end
+	@@debug_level = DebugLevel::Off
+	def Qt.debug_level=(level)
+		@@debug_level = level
+		Internal::setDebug Qt::QtDebugChannel::QTDB_ALL if level >= DebugLevel::Extensive
+	end
+
+	def Qt.debug_level
+		@@debug_level
+	end
 		
 	class Base
 		def **(a)
@@ -101,7 +102,7 @@ module Qt
 #		def ==(a)
 #			return Qt::==(self, a)
 #		end
-	end
+	end # Qt::Base
 			
 	require 'delegate.rb'
 	
@@ -283,22 +284,6 @@ module Qt
 	end
 	
 	class Time < Qt::Base
-		class << Qt::Time
-			# This works round an incompatibility problem between QtRuby
-			# and the 'require time' statement - cause unknown :(
-			def now
-				::Time.now
-			end
-			
-			def local(year, mon, day, hour, min, sec)
-				::Time.local(year, mon, day, hour, min, sec)
-			end
-			
-			def utc(year, mon, day, hour, min, sec)
-				::Time.utc(year, mon, day, hour, min, sec)
-			end
-		end
-		
 		def inspect
 			str = super
 			str.sub(/>$/, " %s>" % toString)
@@ -424,12 +409,11 @@ module Qt
 	end
 	
 	module Internal
-
 		@@classes   = {}
 		@@cpp_names = {}
 		@@idclass   = []
 
-		def normalize_classname(classname)
+		def Internal.normalize_classname(classname)
 			if classname =~ /^Q/
 				now = classname.sub(/^Q(?=[A-Z])/,'Qt::')
 			elsif classname =~ /^(KConfigSkeleton|KWin)::/
@@ -443,9 +427,9 @@ module Qt
 			now
 		end
 
-		def init_class(c)
-			classname = normalize_classname(c)
-			classId = idClass(c)
+		def Internal.init_class(c)
+			classname = Qt::Internal::normalize_classname(c)
+			classId = Qt::Internal.idClass(c)
 			insert_pclassid(classname, classId)
 			@@idclass[classId] = classname
 			@@cpp_names[classname] = c
@@ -454,11 +438,11 @@ module Qt
 			@@classes[classname] = klass unless klass.nil?
 		end
 
-                def debug_level
-                        Qt.debug_level
-                end
+		def Internal.debug_level
+			Qt.debug_level
+		end
 
-		def checkarg(argtype, typename)
+		def Internal.checkarg(argtype, typename)
 			puts "      #{typename} (#{argtype})" if debug_level >= DebugLevel::High
 			if argtype == 'i'
 				if typename =~ /^int&?$|^signed$/
@@ -555,7 +539,7 @@ module Qt
 			return -99
 		end
 
-		def find_class(classname)
+		def Internal.find_class(classname)
 			# puts @@classes.keys.sort.join "\n"
 			@@classes[classname]
 		end
@@ -563,7 +547,7 @@ module Qt
 		# Runs the initializer as far as allocating the Qt C++ instance.
 		# Then use a throw to jump back to here with the C++ instance 
 		# wrapped in a new ruby variable of type T_DATA
-		def try_initialize(instance, *args)
+		def Internal.try_initialize(instance, *args)
 			# If a debugger calls an inspect method with the half 
 			# constructed instance, it will fail. So prevent that by
 			# defining a dummy 'do nothing' inspect method here
@@ -586,7 +570,7 @@ module Qt
 		# run that now. Either run the context of the new instance
 		# if no args were passed to the block. Or otherwise,
 		# run the block in the context of the arg.
-		def run_initializer_block(instance, block)
+		def Internal.run_initializer_block(instance, block)
 			if block.arity == -1
 				instance.instance_eval(&block)
 			elsif block.arity == 1
@@ -596,7 +580,7 @@ module Qt
 			end
 		end
 
-		def do_method_missing(package, method, klass, this, *args)
+		def Internal.do_method_missing(package, method, klass, this, *args)
 			if klass.class == Module
 				classname = klass.name
 			else
@@ -712,16 +696,15 @@ module Qt
 			return nil
 		end
 
-		def init_all_classes()
-			getClassList().each {
-                                |c|
+		def Internal.init_all_classes()
+			Qt::Internal::getClassList().each do |c|
 				if c == "Qt"
 					# Don't change Qt to Qt::t, just leave as is
 					@@cpp_names["Qt"] = c
 				elsif c != "QInternal"
-					init_class(c)
+					Qt::Internal::init_class(c)
 				end
-                        }
+			end
 			# Special case QByteArray, as it's disguised as a ruby String
 			# and not in the public api.
 			@@classes['Qt::ByteArray'] = Qt::ByteArray
@@ -730,41 +713,132 @@ module Qt
 			@@classes['Qt::Enum'] = Qt::Enum
 		end
 		
-		def create_qbytearray(string, data)
+		def Internal.create_qbytearray(string, data)
 			return Qt::ByteArray.new(string, data)
 		end
 		
-		def get_qbytearray(str)
+		def Internal.get_qbytearray(str)
 			if str.private_data.nil?
 				return str.data
 			end
 			return str.private_data
 		end
 		
-		def get_qinteger(num)
+		def Internal.get_qinteger(num)
 			return num.value
 		end
 		
-		def set_qinteger(num, val)
+		def Internal.set_qinteger(num, val)
 			return num.value = val
 		end
 		
-		def create_qenum(num, type)
+		def Internal.create_qenum(num, type)
 			return Qt::Enum.new(num, type)
 		end
 		
-		def get_qenum_type(e)
+		def Internal.get_qenum_type(e)
 			return e.type
 		end
 		
-		def get_qboolean(b)
+		def Internal.get_qboolean(b)
 			return b.value
 		end
 		
-		def set_qboolean(b, val)
+		def Internal.set_qboolean(b, val)
 			return b.value = val
 		end
-	end
+
+		def Internal.getAllParents(class_id, res)
+			getIsa(class_id).each do |s|
+				c = idClass(s)
+				res << c
+				getAllParents(c, res)
+			end
+		end
+	
+		def Internal.getSignalNames(klass)
+			meta = Meta[klass.name] || MetaInfo.new(klass)
+			signal_names = []
+			meta.get_signals.each do |signal|
+				signal_names.push signal.name
+			end
+			return signal_names 
+		end
+	
+		def Internal.signalInfo(qobject, signal_name)
+			signals = Meta[qobject.class.name].get_signals
+			signals.each_with_index do |signal, i|
+				if signal.name == signal_name
+					return [signal.full_name, i]
+				end
+			end
+		end
+	
+		def Internal.signalAt(qobject, index)
+			classname = qobject.class.name
+			Meta[classname].get_signals[index].full_name
+		end
+	
+		def Internal.slotAt(qobject, index)
+			classname = qobject.class.name
+			Meta[classname].get_slots[index].full_name
+		end
+	
+		def Internal.getMocArguments(member)
+			argStr = member.sub(/.*\(/, '').sub(/\)$/, '')
+			args = argStr.scan(/([^,]*<[^>]+>)|([^,]+)/)
+			mocargs = allocateMocArguments(args.length)
+			args.each_with_index do |arg, i|
+				arg = arg.to_s
+				a = arg.sub(/^const\s+/, '')
+				a = (a =~ /^(bool|int|double|char\*|QString)&?$/) ? $1 : 'ptr'
+				valid = setMocType(mocargs, i, arg, a)
+			end
+			result = []
+			result << args.length << mocargs
+			result
+		end
+	
+		def Internal.makeMetaData(data)
+			return nil if data.nil?
+			tbl = []
+			data.each do |entry|
+				name = entry.name
+				argStr = entry.arg_types
+				params = []
+				args = argStr.scan(/[^,]+/)
+				args.each do |arg|
+					name = '' # umm.. is this the aim?, well. it works. soo... ;-)
+					param = make_QUParameter(name, arg, 0, 1)
+									params << param
+				end
+				method = make_QUMethod(name, params)
+				tbl << make_QMetaData(entry.full_name, method)
+			end
+			make_QMetaData_tbl(tbl)
+		end
+		
+		def Internal.getMetaObject(qobject)
+			meta = Meta[qobject.class.name]
+			return nil if meta.nil?
+	
+			if meta.metaobject.nil? or meta.changed
+				slots 			= meta.get_slots
+				slotTable       = makeMetaData(slots)
+				signals 		= meta.get_signals
+				signalTable     = makeMetaData(signals)
+				meta.metaobject = make_metaObject(qobject.class.name, 
+												qobject.staticMetaObject(),
+												slotTable, 
+												slots.length,
+												signalTable, 
+												signals.length)
+				meta.changed = false
+			end
+			
+			meta.metaobject
+		end
+	end # Qt::Internal
 
 	Meta = {}
 	
@@ -836,103 +910,7 @@ module Qt
 			end
 			return all_slots
 		end
-	end
-
-	def getAllParents(class_id, res)
-		getIsa(class_id).each {
-			|s|
-			c = idClass(s)
-			res << c
-			getAllParents(c, res)
-		}
-	end
-
-	def getSignalNames(klass)
-		meta = Meta[klass.name] || MetaInfo.new(klass)
-		signal_names = []
-		meta.get_signals.each do |signal|
-			signal_names.push signal.name
-		end
-		return signal_names 
-	end
-
-	def signalInfo(qobject, signal_name)
-		signals = Meta[qobject.class.name].get_signals
-                signals.each_with_index {
-                        |signal, i|
-                        if signal.name == signal_name
-                        	return [signal.full_name, i]
-                        end
-                }
-	end
-
-	def signalAt(qobject, index)
-		classname = qobject.class.name
-		Meta[classname].get_signals[index].full_name
-	end
-
-	def slotAt(qobject, index)
-		classname = qobject.class.name
-		Meta[classname].get_slots[index].full_name
-	end
-
-	def getMocArguments(member)
-		argStr = member.sub(/.*\(/, '').sub(/\)$/, '')
-		args = argStr.scan(/([^,]*<[^>]+>)|([^,]+)/)
-		mocargs = allocateMocArguments(args.length)
-                args.each_with_index {
-                        |arg, i|
-			arg = arg.to_s
-			a = arg.sub(/^const\s+/, '')
-			a = (a =~ /^(bool|int|double|char\*|QString)&?$/) ? $1 : 'ptr'
-			valid = setMocType(mocargs, i, arg, a)
-                }
-		result = []
-		result << args.length << mocargs
-		result
-	end
-
-	def makeMetaData(data)
-		return nil if data.nil?
-		tbl = []
-		data.each {
-			|entry|
-			name = entry.name
-			argStr = entry.arg_types
-			params = []
-			args = argStr.scan(/[^,]+/)
-			args.each {
-				|arg|
-				name = '' # umm.. is this the aim?, well. it works. soo... ;-)
-				param = make_QUParameter(name, arg, 0, 1)
-                                params << param
-			}
-			method = make_QUMethod(name, params)
-			tbl << make_QMetaData(entry.full_name, method)
-		}
-		make_QMetaData_tbl(tbl)
-	end
-	
-	def getMetaObject(qobject)
-		meta = Meta[qobject.class.name]
-		return nil if meta.nil?
-
-		if meta.metaobject.nil? or meta.changed
-			slots 			= meta.get_slots
-			slotTable       = makeMetaData(slots)
-			signals 		= meta.get_signals
-			signalTable     = makeMetaData(signals)
-			meta.metaobject = make_metaObject(qobject.class.name, 
-			                                  qobject.staticMetaObject(),
-			                                  slotTable, 
-			                                  slots.length,
-			                                  signalTable, 
-			                                  signals.length)
-			meta.changed = false
-		end
-		
-		meta.metaobject
-	end
+	end # Qt::MetaInfo
 
 	IO_Direct     = 0x0100
 	IO_Sequential = 0x0200
@@ -960,7 +938,7 @@ module Qt
 	IO_TimeOutError    = 7
 	IO_UnspecifiedError= 8
 		
-end
+end # Qt
 
 class Object
 	# The Object.display() method conflicts with display() methods in Qt,
@@ -998,16 +976,14 @@ module Kernel
 end
 
 class Module
-	include Qt
-
 	def signals(*signal_list)
-		meta = Meta[self.name] || MetaInfo.new(self)
+		meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
 		meta.add_signals(signal_list)
 		meta.changed = true
 	end
 
 	def slots(*slot_list)
-		meta = Meta[self.name] || MetaInfo.new(self)
+		meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
 		meta.add_slots(slot_list)
 		meta.changed = true
 	end
