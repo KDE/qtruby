@@ -3,11 +3,12 @@
 require 'Korundum'
 
 class MyWidget < KDE::PushButton
-	k_dcop 'void mySlot(QString)', 'QPoint getPoint(QString)',
-			'QMap<QCString,DCOPRef> actionMap()', 'QValueList<DCOPRef> windowList()',
+
+	k_dcop	'void mySlot(QString)', 'QPoint getPoint(QString)',
+			'QMap<QCString,DCOPRef> actionMap()', 
+			'QValueList<DCOPRef> windowList()',
 			'QValueList<QCString> propertyNames(bool)'
-			
-	
+				
 	def initialize(parent, name)
 		super
 	end
