@@ -22,9 +22,13 @@ module Qt
 				Classes[classname] = klass
 			end
 		end
+
+		DEBUG = false
 		
 		def checkarg(argtype, method, i)
+			p "argtype == #{argtype}" if DEBUG
 			typename = getTypeNameOfArg(method, i)
+			p "typename == #{typename}" if DEBUG
 			if argtype == 'i'
 				if typename =~ /^(?:short|ushort|int|uint|long|ulong|signed|unsigned)$/
 					return true
@@ -72,8 +76,10 @@ module Qt
 			match = Hash.new
 			argtype = getVALUEtype(args[i])
 			for method in methodIds
-				match[method] = 0 if checkarg(argtype, method, i)
+                                matched = checkarg(argtype, method, i)
+				match[method] = 0 if matched
 			end
+			p match if DEBUG
 			return match.sort {|a,b| a[1] <=> b[1]}
 		end
 		
@@ -95,7 +101,6 @@ module Qt
 		end
 
 		def do_method_missing(package, method, klass, this, *args)
-
 			classname = CppName[klass.name]
 			if classname.nil? and klass != Object
 				do_method_missing(package, method, klass.superclass, this, *args)
@@ -117,35 +122,66 @@ module Qt
 				end
 			end
 
+			chosen = nil
+
 			methodStr = method + method_argstr
 			methodIds = findMethod(classname, methodStr)
+			p methodIds if DEBUG
 			if methodIds.length > 1
+#			unless methodIds.empty?
+				puts "resolving method" if DEBUG
 				for i in 0..(args.length - 1)
 					matching = argmatch(methodIds, args, i)
+					print "matching list" if DEBUG
+					p matching if DEBUG
 					# Match if there is either just a single result returned, or if there are
 					# multiple matches and the first match is a better match than subequent ones
-					if matching != nil and (matching.length == 1 or matching[0][1] != matching[1][1])
-						methodIds[0] = matching[0][0]
-#						print("Resolved Method #{classname}::#{method_str} => " + methodIds[0].to_s + "\n")
-						break
-					end
+					next if matching.empty?
+					puts "possible match" if DEBUG
+					puts "matching == #{matching}" if DEBUG
+#					chosen = matching[0][0]
+					methodIds[0] = matching[0][0]
+					puts "chosen == #{methodIds[0]}" if DEBUG
+					p dumpCandidates([methodIds[0]]) if DEBUG
+#					print("Resolved Method #{classname}::#{method_str} => " + methodIds[0].to_s + "\n")
+					break
 				end
 			end
-
 			chosen = methodIds[0]
-			if chosen.nil?
-				methodStr = method + "#" + method_argstr
-				methodIds = findMethod("QFriendOperators", methodStr)
+			print "chosen ==== #{chosen}" if DEBUG
+
+			if chosen.nil? and not method =~ /[a-zA-Z]/
+				opMethodStr = method + "#" + method_argstr
+                                p opMethodStr if DEBUG
+				methodIds = findMethod("QFriendOperators", opMethodStr)
+                                p methodIds if DEBUG
+                                p dumpCandidates(methodIds) if DEBUG
 				methodIds.each {
 					|id|
+					# check the "this" type
+					p "checking id == #{id}" if DEBUG
+					typename = getTypeNameOfArg(id, 0)
+					t = typename.sub(/^const\s+/, '')
+					t.sub!(/[&*]$/, '')
+					puts "checking t against classname" if DEBUG
+					p t if DEBUG
+					p classname if DEBUG
+					puts "sorry, no match" if t != classname && DEBUG
+					next if t != classname
+                                        # check the actual params
 					argtype = getVALUEtype(args[0])
-					chosen = id if checkarg(argtype, id, 0)
+					p argtype if DEBUG
+					matched = checkarg(argtype, id, 1)
+					chosen = id if matched
+					p matched if DEBUG
+					puts "got a match == #{id}" if DEBUG
 				}
 				unless chosen.nil?
 					return FriendOperators.send(method, this, *args)
 				end
 			end
                         
+			p chosen if DEBUG
 			setCurrentMethod(chosen || -1)
 			return nil
 		end
