@@ -802,6 +802,17 @@ set_obj_info(const char * className, smokeruby_object * o)
     return obj;
 }
 
+VALUE
+cast_object_to(VALUE /*self*/, VALUE object, VALUE new_klassname)
+{
+    smokeruby_object *o = value_obj_info(object);
+    VALUE klass = rb_funcall(qt_internal_module, rb_intern("find_class"), 1, new_klassname );
+    if (klass == Qnil)
+	rb_raise(rb_eArgError, "unable to find class to cast to\n");
+    VALUE obj = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, (void *) o);
+    return obj;
+}
+
 const char *
 get_VALUEtype(VALUE ruby_value)
 {
@@ -936,6 +947,7 @@ method_missing(int argc, VALUE * argv, VALUE self)
 
 				if (_current_method == -1) {
 					free(temp_stack);
+					// AK - umm.. this is *REALLY* wrong... need to call super.method_missing...
 					rb_raise(rb_eArgError, "unresolved method call\n");
 					return Qnil;
 				}
@@ -2088,6 +2100,7 @@ Init_qtruby()
     rb_define_method(qt_internal_module, "create_qobject_class", (VALUE (*) (...)) create_qobject_class, 1);
     rb_define_method(qt_internal_module, "version", (VALUE (*) (...)) version, 0);
     rb_define_method(qt_internal_module, "qtruby_version", (VALUE (*) (...)) qtruby_version, 0);
+    rb_define_method(qt_internal_module, "cast_object_to", (VALUE (*) (...)) cast_object_to, 2);
 
 	rb_include_module(qt_module, qt_internal_module);
 	rb_require("Qt/qtruby.rb");
