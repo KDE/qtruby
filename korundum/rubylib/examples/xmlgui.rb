@@ -14,7 +14,7 @@ class Receiver < Qt::Object
       @main = main
    end
    def quit
-      puts "would quit if i knew how :)"
+      @main.close
    end
 end
 
