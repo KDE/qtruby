@@ -1,7 +1,3 @@
-	* Add autoconf test for ruby 1.8 in kdebindings
-	 
-	* Integrate the call to extconf.rb to build the Qt.so extension Makefile with automake
-	
 	* Implement the special case method in Qt::Image constructor
 	
 	* Add more marshalling types for the various Qt lists
