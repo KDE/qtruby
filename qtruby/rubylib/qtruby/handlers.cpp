@@ -541,18 +541,14 @@ static void marshall_QCOORD_array(Marshall *m) {
 	{
 	    VALUE av = *(m->var());
 	    if (TYPE(av) != T_ARRAY) {
-//	    if(!SvROK(sv) || SvTYPE(SvRV(sv)) != SVt_PVAV ||
-//		av_len((AV*)SvRV(sv)) < 0) {
 		m->item().s_voidp = 0;
 		break;
 	    }
-//	    AV *av = (AV*)SvRV(sv);
 	    int count = RARRAY(av)->len;
 	    QCOORD *coord = new QCOORD[count + 2];
-	    for(long i = 0; i <= count; i++) {
+	    for(long i = 0; i < count; i++) {
 		VALUE svp = rb_ary_entry(av, i);
 		coord[i] = NUM2INT(svp);
-//		coord[i] = svp ? SvIV(*svp) : 0;
 	    }
 	    m->item().s_voidp = coord;
 	    m->next();
