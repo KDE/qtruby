@@ -63,8 +63,8 @@ extern void init_qt_Smoke();
 extern void smokeruby_mark(void * ptr);
 extern void smokeruby_free(void * ptr);
 
-// int do_debug = qtdb_none;
-int do_debug = qtdb_gc;
+int do_debug = qtdb_none;
+//int do_debug = qtdb_gc;
 
 QPtrDict<VALUE> pointer_map(2179);
 int object_count = 0;
