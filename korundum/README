@@ -13,7 +13,9 @@ KDE Specific Infomation:
 	  
 	  	$ rbkdeapi KDE::Action
 	  
-	  Will list all the methods in the KDE::Action class
+	  Will list all the methods in the KDE::Action class. There are currently
+	  977 classes/30841 methods in the Smoke library runtime - so the coverage
+	  of the Qt/KDE api is pretty complete.
 
 	- DCOP Support. Here is a minimal ruby dcop slot implementation:
 	
@@ -34,8 +36,26 @@ KDE Specific Infomation:
 		This slot is passed an integer and a string, and returns a Qt::Point.
 		
 		Note that the class doesn't have to inherit from DCOPObject. If you
-		  include a 'k_dcop' slots declaration a 'listener' dcop object 
-		  instance is created automatically.
+		include a 'k_dcop' slots declaration a 'listener' dcop object 
+		instance is created automatically, and these four methods are added
+		to your class:
+		  
+		  	interfaces()
+			functions()
+			connectDCOPSignal()
+			disconnectDCOPSignal()
+			
+		The name of the object is always the ruby classname, and you can only
+		instantiate one instance for each ruby class with 'k_dcop' declarations.
+		See examples/dcop/dcopslot.rb and dcopsignal.rb for an example of the
+		simplest approach.
+			
+		If you wish to use the full functionality of a DCOPObject, you can
+		subclass it and call all the methods, not just the four above. 
+		Additionally, you can instantiate more than one instance per class and 
+		rename the dcop object with the setObjId() method or by passing the name 
+		to the constructor. See the examples/dcop/petshop.rb code for an 
+		example of a more complex dcop object.
 	
 	- Define a dcop slot like this in one ruby program:
 
