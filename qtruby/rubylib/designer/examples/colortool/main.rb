@@ -7,9 +7,9 @@ require 'colornameform.rb'
 require 'colornameform.ui.rb'
 
 require 'optionsform.rb'
-require 'optionsform.ui.rb'
 
 require 'findform.rb'
+require 'findform.ui.rb'
 
 require 'qmake_image_collection.rb'
     

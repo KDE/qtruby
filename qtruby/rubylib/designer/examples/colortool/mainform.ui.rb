@@ -331,7 +331,7 @@ def lookfor( text )
     if text.empty?
         return
     end
-    ltext = text.lower()
+    ltext = text.downcase()
     visible = colorWidgetStack.visibleWidget()
     found = false
 
