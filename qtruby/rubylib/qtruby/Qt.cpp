@@ -763,6 +763,35 @@ public:
     }
 };
 
+void rb_str_catf(VALUE self, const char *format, ...) 
+{
+    va_list ap;
+    va_start(ap, format);
+    char *p = 0;
+    int len;
+    if (len = vasprintf(&p, format, ap), len != -1) {
+	rb_str_cat(self, p, len);
+	free(p);
+    }
+    va_end(ap);
+}
+
+void logger_backend(const char *format, ...) 
+{
+    va_list ap;
+    va_start(ap, format);
+    char *p = 0;
+    int len;
+    VALUE val_str = rb_str_new2("");
+    if (len = vasprintf(&p, format, ap), len != -1) {
+	rb_str_cat(val_str, p, len);
+	free(p);
+    }
+    // TODO - allow qtruby programs to override this fprintf with their own logging
+    fprintf(stdout, "%s", STR2CSTR(val_str));
+    va_end(ap);
+}
+
 extern "C" {
 
 // ----------------   Helpers -------------------
@@ -806,6 +835,8 @@ set_obj_info(const char * className, smokeruby_object * o)
     return obj;
 }
 
+static VALUE mapObject(VALUE self, VALUE obj);
+
 VALUE
 cast_object_to(VALUE /*self*/, VALUE object, VALUE new_klassname)
 {
@@ -813,7 +844,20 @@ cast_object_to(VALUE /*self*/, VALUE object, VALUE new_klassname)
     VALUE klass = rb_funcall(qt_internal_module, rb_intern("find_class"), 1, new_klassname );
     if (klass == Qnil)
 	rb_raise(rb_eArgError, "unable to find class to cast to\n");
-    VALUE obj = Data_Wrap_Struct(klass, 0, 0, (void *) o);
+
+    char *casted_klassname = rb_class2name(klass);
+    char *blah = (char*) malloc((strlen(casted_klassname) - strlen("DE::")) * sizeof(char));
+    strcpy(blah, ""); // strcat(blah, "K");
+    strcat(blah, casted_klassname + strlen("KDE::"));
+
+    smokeruby_object *o_cast = (smokeruby_object *) malloc(sizeof(smokeruby_object));
+    memcpy(o_cast, o, sizeof(smokeruby_object));
+    // o->ptr = 0;
+    o_cast->allocated = true;
+    o_cast->classId = o->smoke->idClass(blah);
+
+    VALUE obj = Data_Wrap_Struct(klass, 0, 0, (void *) o_cast);
+    mapPointer(obj, o_cast, o_cast->classId, 0);
     return obj;
 }
 
@@ -843,39 +887,6 @@ get_VALUEtype(VALUE ruby_value)
 
     return r;
 }
-
-}
-
-void rb_str_catf(VALUE self, const char *format, ...) 
-{
-    va_list ap;
-    va_start(ap, format);
-    char *p = 0;
-    int len;
-    if (len = vasprintf(&p, format, ap), len != -1) {
-	rb_str_cat(self, p, len);
-	free(p);
-    }
-    va_end(ap);
-}
-
-void logger_backend(const char *format, ...) 
-{
-    va_list ap;
-    va_start(ap, format);
-    char *p = 0;
-    int len;
-    VALUE val_str = rb_str_new2("");
-    if (len = vasprintf(&p, format, ap), len != -1) {
-	rb_str_cat(val_str, p, len);
-	free(p);
-    }
-    // TODO - allow qtruby programs to override this fprintf with their own logging
-    fprintf(stdout, "%s", STR2CSTR(val_str));
-    va_end(ap);
-}
-
-extern "C" {
 
 VALUE prettyPrintMethod(Smoke::Index id) 
 {
@@ -1049,8 +1060,6 @@ static VALUE kde_module_method_missing(int argc, VALUE * argv, VALUE /*klass*/)
 {
     return class_method_missing(argc, argv, kde_module);
 }
-
-static VALUE mapObject(VALUE self, VALUE obj);
 
 /*
 
