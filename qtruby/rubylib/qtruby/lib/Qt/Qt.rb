@@ -291,11 +291,17 @@ module Qt
 				end
 			end
 
-			if chosen.nil? and method == classname
-				puts "No matching constructor found, possibles:\n"
+			if chosen.nil?
 				id = find_pclassid(normalize_classname(klass.name))
 				hash = findAllMethods(id)
-				constructor_names = hash.keys.grep(/^#{classname}/)
+				constructor_names = nil
+				if method == classname
+				    puts "No matching constructor found, possibles:\n"
+				    constructor_names = hash.keys.grep(/^#{classname}/)
+				else
+				    puts "Possible prototypes:"
+				    constructor_names = hash.keys
+				end
 				method_ids = hash.values_at(*constructor_names).flatten
 				puts dumpCandidates(method_ids)
 			end
