@@ -1,0 +1,26 @@
+<!DOCTYPE kpartgui SYSTEM "kpartgui.dtd">
+<kpartgui name="xmlgui" version="1">
+
+<MenuBar>
+   <Menu name="file" noMerge="1"><text>&amp;File</text>
+   <Action name="index_all"/>
+   <Separator/>
+   <Action name="file_quit"/>
+   </Menu>
+</MenuBar>
+
+<ToolBar name="mainToolBar" noMerge="1" fullWidth="true" iconText="icontextright"><text>Main Toolbar</text>
+   <Action name="back"/>
+   <Action name="forward"/>
+   <Action name="home"/>
+   <Action name="next_match"/>
+</ToolBar>
+
+<ToolBar fullWidth="true" name="locationToolBar" newline="true"><text>Location Toolbar</text>
+   <Action name="clear_location" />
+   <Action name="location_label" />
+   <Action name="toolbar_url_combo" />
+   <Action name="go_url" />
+</ToolBar>
+
+</kpartgui>
