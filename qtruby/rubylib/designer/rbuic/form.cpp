@@ -354,7 +354,6 @@ void Uic::createFormImpl( const QDomElement &e )
                        s3 += s + "\n";
                     }
 					s3 += "}";
-					fprintf(stderr, "%s\n", s2.latin1());
                     functionImpls.insert( s2, s3 );
                     if( t.eof() ) break;
                 }
