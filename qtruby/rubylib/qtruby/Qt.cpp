@@ -357,10 +357,6 @@ public:
 	_cur(-1), _smoke(smoke), _method(method), _target(target), _current_object(0), _sp(sp), _items(items), _called(false)
     {
 	
-	if (TYPE(_target) != T_DATA && _target != Qnil) {
-		rb_raise(rb_eArgError, "Instance not initialized");
-	}
-	
 	if (_target != Qnil) {
 	    smokeruby_object *o = value_obj_info(_target);
 		if (o && o->ptr) {
@@ -419,6 +415,15 @@ public:
     inline void callMethod() {
 	if(_called) return;
 	_called = true;
+		
+	if (	_smoke->methodNames[method().name]  != _smoke->className(method().classId)
+			&& TYPE(_target) != T_DATA 
+			&& _target != Qnil ) 
+	{
+//	printf("TYPE(_target): %d\n", TYPE(_target));
+		rb_raise(rb_eArgError, "Instance is not initialized, cannot call %s", 
+					_smoke->methodNames[method().name]);
+	}
 	
 	if (_target == Qnil && !(method().flags & Smoke::mf_static)) {
 		rb_raise(rb_eArgError, "%s is not a class method\n", _smoke->methodNames[method().name]);
