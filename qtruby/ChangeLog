@@ -1,5 +1,10 @@
 2003-09-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* From below 'watch out for extra crashes!' - indeed! Have now disabled
+	  smokeruby_free() and smokeruby_mark() until garbage collection works.
+
+2003-09-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* The pointer_map is now a QPtrDict rather than a ruby Hash, and
 	  the entries are weak references. An implementation was tried 
 	  using the ruby WeakRef class, but it didn't work because rb_gc_mark()

@@ -64,7 +64,7 @@ extern void smokeruby_mark(void * ptr);
 extern void smokeruby_free(void * ptr);
 
 int do_debug = qtdb_none;
-//int do_debug = qtdb_gc;
+//int do_debug = qtdb_gc | qtdb_virtual;
 
 QPtrDict<VALUE> pointer_map(2179);
 int object_count = 0;
@@ -183,7 +183,9 @@ void unmapPointer(smokeruby_object *o, Smoke::Index classId, void *lastptr) {
     if(ptr != lastptr) {
 	lastptr = ptr;
 	if (pointer_map[ptr] != 0) {
+		VALUE * obj_ptr = pointer_map[ptr];
 	    pointer_map.remove(ptr);
+		free((void*) obj_ptr);
 	}
     }
     for(Smoke::Index *i = o->smoke->inheritanceList + o->smoke->classes[classId].parents;
@@ -200,7 +202,12 @@ void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *last
     void *ptr = o->smoke->cast(o->ptr, o->classId, classId);
     if(ptr != lastptr) {
 	lastptr = ptr;
-	pointer_map.insert(ptr, &obj);
+	VALUE * obj_ptr = (VALUE *) malloc(sizeof(VALUE));
+	memcpy(obj_ptr, &obj, sizeof(VALUE));
+	if (do_debug & qtdb_gc) {
+		printf("mapPointer %p -> %p\n", ptr, obj_ptr);
+	}
+	pointer_map.insert(ptr, obj_ptr);
     }
     for(Smoke::Index *i = o->smoke->inheritanceList + o->smoke->classes[classId].parents;
 	*i;
@@ -759,8 +766,8 @@ public:
 //		);
 
 	if(!o) {
-//	    if(!PL_dirty && (do_debug & qtdb_virtual) )   // if not in global destruction
-//		fprintf(stderr, "Cannot find object for virtual method\n");
+	    if( do_debug & qtdb_virtual )   // if not in global destruction
+		fprintf(stderr, "Cannot find object for virtual method %p -> %p\n", ptr, &obj);
 	    return false;
 	}
 

@@ -38,6 +38,10 @@ smokeruby_mark(void * p)
     smokeruby_object * o = (smokeruby_object *) p;
 	VALUE obj;
     const char *className = o->smoke->classes[o->classId].className;
+    printf("Marking (%s*)%p\n", className, o->ptr);
+	
+	// Don't mark anything for now..
+	return;
 	
     if(o->ptr) {
         if(do_debug & qtdb_gc) printf("Marking (%s*)%p\n", className, o->ptr);
@@ -75,7 +79,12 @@ smokeruby_free(void * p)
     smokeruby_object *o = (smokeruby_object*)p;
 
     const char *className = o->smoke->classes[o->classId].className;
-    if(o->allocated && o->ptr) {
+    printf("Deleting (%s*)%p\n", className, o->ptr);
+	
+	// Don't delete anything for now..
+	return;
+    
+	if(o->allocated && o->ptr) {
         if(do_debug & qtdb_gc) printf("Deleting (%s*)%p\n", className, o->ptr);
         SmokeClass sc(o->smoke, o->classId);
         if(sc.hasVirtual())
