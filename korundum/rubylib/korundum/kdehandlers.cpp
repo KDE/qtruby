@@ -90,6 +90,12 @@ void marshall_QCStringList(Marshall *m) {
     }
 }
 
+#if defined (__i386__) && defined (__GNUC__) && __GNUC__ >= 2
+#  define BREAKPOINT { __asm__ __volatile__ ("int $03"); }
+#else
+#  define BREAKPOINT { fprintf(stderr, "hit ctrl-c\n"); int b = 0; while (b == 0) { ; } }
+#endif
+
 void marshall_KCmdLineOptions(Marshall *m) {
 	switch(m->action()) {
 	case Marshall::FromVALUE: 
@@ -118,9 +124,11 @@ void marshall_KCmdLineOptions(Marshall *m) {
 			cmdLineOptions[i].name = 0;
 			cmdLineOptions[i].description = 0;
 			cmdLineOptions[i].def = 0;
+
 			
 			m->item().s_voidp = cmdLineOptions;
 			m->next();
+         /*
 			if(m->cleanup()) {
 			rb_ary_clear(optionslist);
 			for(i = 0; cmdLineOptions[i].name; i++)
@@ -130,6 +138,7 @@ void marshall_KCmdLineOptions(Marshall *m) {
 				rb_ary_push(options, rb_str_new2(cmdLineOptions[i].def));
 				rb_ary_push(optionslist, options);
 			}		
+         */
 		}
 		break;
 	case Marshall::ToVALUE: 
