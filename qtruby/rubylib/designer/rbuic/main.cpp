@@ -240,7 +240,7 @@ int main( int argc, char * argv[] )
 	if (uic.hasKDEwidget) {
 		out << indent << "about = KDE::AboutData.new(\"" << uicClass.lower() << "\", \"" << uicClass << "\", \"0.1\")" << endl;
 		out << indent << "KDE::CmdLineArgs.init(ARGV, about)" << endl;
-		out << indent << "a = KDE::Application.new()" << endl;
+		out << indent << "a = KDE::Application.new" << endl;
 	} else {
 		out << indent << "a = Qt::Application.new(ARGV)" << endl;
 	}
@@ -248,7 +248,7 @@ int main( int argc, char * argv[] )
         getDBConnections( uic, s);
         out << s;
 	out << indent << "w = " << (subcl? QString::fromLatin1(className) : uicClass) << ".new" << endl;
-	out << indent << "a.setMainWidget(w)" << endl;
+	out << indent << "a.mainWidget = w" << endl;
 	out << indent << "w.show" << endl;
 	out << indent << "a.exec" << endl;
 	--indent;
