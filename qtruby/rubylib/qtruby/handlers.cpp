@@ -79,6 +79,22 @@ smokeruby_mark(void * p)
 			}
 		}
 		
+		if (isDerivedFromByName(o->smoke, className, "QTable")) {
+			QTable * table = (QTable *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTable"));
+			QTableItem *item;
+
+			for ( int row = 0; row < table->numRows(); row++ ) {
+				for ( int col = 0; col < table->numCols(); col++ ) {
+					item = table->item(row, col);
+					obj = getPointerObject(item);
+					if (obj != Qnil) {
+						if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, item, (void*)obj);
+						rb_gc_mark(obj);
+					}
+				}
+			}		
+		}
+		
 		if (isDerivedFromByName(o->smoke, className, "QObject")) {
 			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
 			const QObjectList *l = qobject->children();
