@@ -29,6 +29,7 @@
 #include <qapplication.h>
 #include <qmetaobject.h>
 #include <private/qucomextra_p.h>
+#include <qvariant.h>
 
 #undef DEBUG
 #ifndef __USE_POSIX
@@ -939,6 +940,102 @@ VALUE prettyPrintMethod(Smoke::Index id)
 
 //---------- Ruby methods (for all functions except fully qualified statics & enums) ---------
 
+// Retrieves the properties for a QObject and returns them as 'name=value' pairs
+// in a ruby inspect string. For example:
+//
+//		#<Qt::HBoxLayout:0x30139030 name=unnamed, margin=0, spacing=0, resizeMode=3>
+//
+static VALUE
+inspect_qobject(VALUE self)
+{
+	if (TYPE(self) != T_DATA) {
+		return Qnil;
+	}
+	
+	// Start with #<Qt::HBoxLayout:0x30139030> from the original inspect() call
+	VALUE inspect_str = rb_call_super(0, 0);
+	
+	// Drop the closing '>'
+	rb_str_resize(inspect_str, RSTRING(inspect_str)->len - 1);
+	QCString value_list;
+	smokeruby_object * o = 0;
+    Data_Get_Struct(self, smokeruby_object, o);	
+	QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+	QStrList names = qobject->metaObject()->propertyNames(true);
+	
+	QVariant value;
+	
+	const char * name = names.first();
+	if (name != 0) {
+		value = qobject->property(name);
+		value_list.append(	QCString().sprintf(	" %s=%s", 
+												name, 
+												(value.isNull() || value.toString().isNull()) ? "nil" : value.toString().latin1() ) );
+	
+		for (name = names.next(); name != 0; name = names.next()) {
+			value = qobject->property(name);
+			value_list.append(	QCString().sprintf(	", %s=%s", 
+													name, 
+													(value.isNull() || value.toString().isNull()) ? "nil" : value.toString().latin1() ) );
+		}
+	}
+	
+	value_list.append(">");
+	rb_str_cat(inspect_str, value_list.data(), strlen(value_list.data()));
+	
+	return inspect_str;
+}
+
+// Retrieves the properties for a QObject and pretty_prints them as 'name=value' pairs
+// For example:
+//
+//		#<Qt::HBoxLayout:0x30139030
+//		 name=unnamed,
+//		 margin=0,
+//		 spacing=0,
+//		 resizeMode=3>
+//
+static VALUE
+pretty_print_qobject(VALUE self, VALUE pp)
+{
+	if (TYPE(self) != T_DATA) {
+		return Qnil;
+	}
+	
+	// Start with #<Qt::HBoxLayout:0x30139030>
+	VALUE inspect_str = rb_funcall(self, rb_intern("to_s"), 0, 0);
+	
+	// Drop the closing '>'
+	rb_str_resize(inspect_str, RSTRING(inspect_str)->len - 1);
+	rb_funcall(pp, rb_intern("text"), 1, inspect_str);
+	rb_funcall(pp, rb_intern("breakable"), 0);
+	
+	smokeruby_object * o = 0;
+    Data_Get_Struct(self, smokeruby_object, o);	
+	QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+	QStrList names = qobject->metaObject()->propertyNames(true);
+	
+	QCString temp;
+	const char * name = names.first();
+	if (name != 0) {
+		QVariant value = qobject->property(name);
+		temp.sprintf(" %s=%s", name, (value.isNull() || value.toString().isNull()) ? "nil" : value.toString().latin1());
+		rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(temp.data()));
+	
+		for (name = names.next(); name != 0; name = names.next()) {
+			rb_funcall(pp, rb_intern("comma_breakable"), 0);
+						
+			value = qobject->property(name);
+			temp.sprintf(" %s=%s", name, (value.isNull() || value.toString().isNull()) ? "nil" : value.toString().latin1());
+			rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(temp.data()));
+		}
+	}
+	
+	rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(">"));
+	
+	return self;
+}
+
 static VALUE
 metaObject(VALUE self)
 {
@@ -1282,6 +1379,7 @@ qapplication_argv(VALUE /*self*/)
 	
 	return result;
 }
+
 //----------------- Sig/Slot ------------------
 
 
@@ -2023,6 +2121,9 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 		klass = kde_package_to_class(package);
 	}
 
+//	rb_define_method(klass, "to_s", (VALUE (*) (...)) to_s_qobject, 0);
+	rb_define_method(klass, "inspect", (VALUE (*) (...)) inspect_qobject, 0);
+	rb_define_method(klass, "pretty_print", (VALUE (*) (...)) pretty_print_qobject, 1);
 	rb_define_method(klass, "className", (VALUE (*) (...)) class_name, 0);
     
 	return klass;
