@@ -110,7 +110,7 @@ class TicTacGameBoard < Qt::Widget
 			end
 			col = 1
 			while ( (col < @nBoard) && (@btArray[row*@nBoard+col] == t) )
-				col = col + 1
+				col += 1
 			end
 			if (col == @nBoard)
 				won = true
@@ -128,7 +128,7 @@ class TicTacGameBoard < Qt::Widget
 			end
 			row = 1
 			while ( (row < @nBoard) && (@btArray[row*@nBoard+col] == t) )
-				row = row + 1
+				row += 1
 			end
 			if (row == @nBoard)
 				won = true
@@ -141,7 +141,7 @@ class TicTacGameBoard < Qt::Widget
 			if (t != TicTacButton::Blank)
 				i = 1;
 				while (i<@nBoard && (@btArray[i*@nBoard+i] == t))
-					i = i +1
+					i += 1
 				end
 				if (i == @nBoard)
 					won = true
@@ -155,11 +155,11 @@ class TicTacGameBoard < Qt::Widget
 			i = 0;
 			t = @btArray[i+j*@nBoard];
 			if (t != TicTacButton::Blank)
-				i = i +1
-				j = j - 1
+				i += 1
+				j -= 1
 				while ( (i<@nBoard) && (@btArray[i+j*@nBoard] == t) )
-					i = i + 1
-					j = j -1
+					i += 1
+					j -= 1
 				end
 				if (i == @nBoard)
 					won = true
@@ -224,7 +224,7 @@ class TicTacGameBoard < Qt::Widget
 
 		at = nil
 		for i in 0..@buttons.size
-			if @buttons[i].id == sender.id
+			if @buttons[i].object_id == sender.object_id
 				at = i
 				break
 			end
@@ -267,7 +267,7 @@ class TicTacToe < Qt::Widget
 		
 		# Create a message label
 		@message = Qt::Label.new(self)
-		@message.setFrameStyle (Qt::Frame.WinPanel | Qt::Frame.Sunken)
+		@message.setFrameStyle((Qt::Frame.WinPanel|Qt::Frame.Sunken))
 		@message.setAlignment(Qt::AlignCenter)
 		l.addWidget(@message)
 
