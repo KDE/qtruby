@@ -1,0 +1,95 @@
+#!/usr/bin/ruby
+
+# Note: this program is part of qtruby and makes use of its internal functions.
+#       You should not rely on those in your own programs.
+
+require 'getopts'
+getopts('r:hvimp')
+
+require 'Qt'
+
+if $OPT_v
+    # TODO add and use version number #{Qt::VERSION}
+    print "qtruby using Qt-#{Qt::version}\n"
+    exit 0 
+elsif $OPT_h
+    print $h
+    exit 0
+end
+
+=begin
+exists $o{'m'} and do{      # interactive mode for driving the Qt Designer Plugin
+    select(STDOUT); $| = 1; # unbuffered
+    while(<STDIN>)
+    {
+        chomp;
+        s/^Q(?=[A-Z])/Qt::/;
+        my $i = find_pclassid( $_ );
+        print "__START__\n";
+        if ($i)
+        {
+            my $a = findAllMethods( $i );
+            my $t = dumpCandidates( [map {@{ $$a{$_} }} sort keys %$a] );
+            getAllParents($i, \my @sup);
+            for my $s(@sup)
+            {
+                $a = findAllMethods( $s );
+                $t.= dumpCandidates( [map {@{ $$a{$_} }} sort keys %$a] );
+            }
+            $t =~ s/\t//gs;
+            print $t;
+        }
+        print "__END__\n";
+    }
+};
+=end
+
+search_string = ARGV[0]
+search_string.gsub!(/^Q(?=[A-Z])/,'Qt::') if search_string
+classid = search_string ? Qt::find_pclassid(search_string) : 1
+regexp = nil
+regexp = ( $OPT_i ? Regexp.new($OPT_r, Regexp::IGNORECASE) : Regexp.new($OPT_r) ) if $OPT_r
+candidates = ""
+i = 0
+while true
+    a = Qt::findAllMethods(i, "QPainter")
+    p a
+    break if a.empty?
+    ids = (a.keys.sort.map{|k|a[k]}).flatten
+    candidates = Qt::dumpCandidates(ids)
+    if $OPT_p and !search_string.empty? and classid
+	sup = []
+        Qt::getAllParents(classid, sup)
+	sup.each {
+	    |sup_item|
+            a = Qt::findAllMethods(sup_item)
+            ids = (a.keys.sort.map{|k|a[k]}).flatten
+            candidates << Qt::dumpCandidates(ids)
+        }
+    end
+    if regexp
+	candidates.split("\n").each {
+	    |candidate|
+	    print "#{candidate}" if candidate =~ regexp
+	}
+    else
+	print candidates
+    end
+    last if !search_string.empty?
+    i += 1
+end
+
+BEGIN {
+$usage = <<USAGE
+rbqtapi - a qtruby introspection tool\t(c) Germain Garand 2003 <germain\@ebooksfrance.org>
+
+usage: rbqtapi [-r <re>] [<class>]
+
+options:
+\t-r <re> : find all functions matching regular expression/keyword <re>
+\t-i : together with -r, performs a case insensitive search
+\t-p : display also inherited methods for <class>.
+\t-v : print qtruby and Qt versions
+\t-h : print this help message
+USAGE
+}
