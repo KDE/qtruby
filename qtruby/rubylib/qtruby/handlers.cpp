@@ -61,7 +61,7 @@ smokeruby_mark(void * p)
 				++it;
 				obj = getPointerObject(item);
 				if (obj != Qnil) {
-					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, item, obj);
+					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, item, (void*)obj);
 					rb_gc_mark(obj);
 				}
 			}
@@ -80,7 +80,7 @@ smokeruby_mark(void * p)
 				++it;
 				obj = getPointerObject(child);
 				if (obj != Qnil) {
-					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, child, obj);
+					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, child, (void*)obj);
 					rb_gc_mark(obj);
 				}
 			}
@@ -102,6 +102,7 @@ smokeruby_free(void * p)
 	}
 	
 	SmokeClass sc(o->smoke, o->classId);
+   Q_UNUSED(sc);
 	unmapPointer(o, o->classId, 0);
 	object_count --;
 	
@@ -560,7 +561,7 @@ marshall_basetype(Marshall *m)
 		
 		obj = set_obj_info(classname, o);
 		if (do_debug & qtdb_calls) {
-			printf("allocating %s %p -> %p\n", classname, o->ptr, obj);
+			printf("allocating %s %p -> %p\n", classname, o->ptr, (void*)obj);
 		}
 
 		if(m->type().isStack()) {
