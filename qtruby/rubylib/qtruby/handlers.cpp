@@ -688,33 +688,65 @@ void marshall_ucharP(Marshall *m) {
     }
 }
 
-static void marshall_QString(Marshall *m) {
 static const char * KCODE = 0;
 static QTextCodec *codec = 0;
-	if (KCODE == 0) {
-		VALUE temp = rb_gv_get("$KCODE");
-		KCODE = StringValuePtr(temp);
-		if (strcmp(KCODE, "EUC") == 0) {
-			codec = QTextCodec::codecForName("eucJP");
-		} else if (strcmp(KCODE, "SJIS") == 0) {
-			codec = QTextCodec::codecForName("Shift-JIS");
-		}
+
+static void 
+init_codec() {
+	VALUE temp = rb_gv_get("$KCODE");
+	KCODE = StringValuePtr(temp);
+	if (strcmp(KCODE, "EUC") == 0) {
+		codec = QTextCodec::codecForName("eucJP");
+	} else if (strcmp(KCODE, "SJIS") == 0) {
+		codec = QTextCodec::codecForName("Shift-JIS");
 	}
+}
+
+static QString* 
+qstringFromRString(VALUE rstring) {
+	if (KCODE == 0) {
+		init_codec();
+	}
+	
+	QString *	s;
+	if (strcmp(KCODE, "UTF8") == 0)
+		s = new QString(QString::fromUtf8(StringValuePtr(rstring), RSTRING(rstring)->len));
+	else if (strcmp(KCODE, "EUC") == 0)
+		s = new QString(codec->toUnicode(StringValuePtr(rstring)));
+	else if (strcmp(KCODE, "SJIS") == 0)
+		s = new QString(codec->toUnicode(StringValuePtr(rstring)));
+	else if(strcmp(KCODE, "NONE") == 0)
+		s = new QString(QString::fromLatin1(StringValuePtr(rstring)));
+	else
+		s = new QString(QString::fromLocal8Bit(StringValuePtr(rstring), RSTRING(rstring)->len));
+	return s;
+}
+
+static VALUE 
+rstringFromQString(QString * s) {
+	if (KCODE == 0) {
+		init_codec();
+	}
+	
+	if (strcmp(KCODE, "UTF8") == 0)
+		return rb_str_new2(s->utf8());
+	else if (strcmp(KCODE, "EUC") == 0)
+		return rb_str_new2(codec->fromUnicode(*s));
+	else if (strcmp(KCODE, "SJIS") == 0)
+		return rb_str_new2(codec->fromUnicode(*s));
+	else if (strcmp(KCODE, "NONE") == 0)
+		return rb_str_new2(s->latin1());
+	else
+		return rb_str_new2(s->local8Bit());
+}
+
+static void marshall_QString(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE:
 	{
 	    QString* s = 0;
 	    if( *(m->var()) != Qnil) {
-               if(strcmp(KCODE, "UTF8") == 0)
-                    s = new QString(QString::fromUtf8(StringValuePtr(*(m->var())), RSTRING(*(m->var()))->len));
-               else if(strcmp(KCODE, "EUC") == 0)
-                    s = new QString(codec->toUnicode(StringValuePtr(*(m->var()))));
-               else if(strcmp(KCODE, "SJIS") == 0)
-                    s = new QString(codec->toUnicode(StringValuePtr(*(m->var()))));
-               else if(strcmp(KCODE, "NONE") == 0)
-                    s = new QString(QString::fromLatin1(StringValuePtr(*(m->var()))));
-               else
-                    s = new QString(QString::fromLocal8Bit(StringValuePtr(*(m->var())), RSTRING(*(m->var()))->len));
+               s = qstringFromRString(*(m->var()));
             } else {
                 s = new QString(QString::null);
             }
@@ -724,7 +756,8 @@ static QTextCodec *codec = 0;
 		
 		if (!m->type().isConst() && *(m->var()) != Qnil && s != 0 && !s->isNull()) {
 			rb_str_resize(*(m->var()), 0);
-			rb_str_cat2(*(m->var()), (const char *)*s);
+			VALUE temp = rstringFromQString(s);
+			rb_str_cat2(*(m->var()), StringValuePtr(temp));
 		}
 	    
 		if(s && m->cleanup())
@@ -738,16 +771,7 @@ static QTextCodec *codec = 0;
 	    	if (s->isNull()) {
                     *(m->var()) = Qnil;
 	     	} else {
-               if(strcmp(KCODE, "UTF8") == 0)
-                    *(m->var()) = rb_str_new2(s->utf8());
-               else if(strcmp(KCODE, "EUC") == 0)
-                    *(m->var()) = rb_str_new2(codec->fromUnicode(*s));
-               else if(strcmp(KCODE, "SJIS") == 0)
-                    *(m->var()) = rb_str_new2(codec->fromUnicode(*s));
-               else if(strcmp(KCODE, "NONE") == 0)
-                    *(m->var()) = rb_str_new2(s->latin1());
-               else
-                     *(m->var()) = rb_str_new2(s->local8Bit());
+               *(m->var()) = rstringFromQString(s);
 	     	}
 	     	if(m->cleanup())
 	     	delete s;
@@ -1062,7 +1086,7 @@ void marshall_QStringList(Marshall *m) {
 		    stringlist->append(QString());
 		    continue;
 		}
-		stringlist->append(QString::fromUtf8(StringValuePtr(item), RSTRING(item)->len));
+		stringlist->append(*(qstringFromRString(item)));
 	    }
 
 	    m->item().s_voidp = stringlist;
@@ -1071,7 +1095,7 @@ void marshall_QStringList(Marshall *m) {
 	    if(m->cleanup()) {
 		rb_ary_clear(list);
 		for(QStringList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it)
-		    rb_ary_push(list, rb_str_new2(static_cast<const char *>(*it)));
+		    rb_ary_push(list, rstringFromQString(&(*it)));
 		delete stringlist;
 	    }
 	    break;
@@ -1086,7 +1110,7 @@ void marshall_QStringList(Marshall *m) {
 
 	    VALUE av = rb_ary_new();
 	    for(QStringList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it) {
-		VALUE rv = rb_str_new2(static_cast<const char *>((*it).latin1()));
+		VALUE rv = rstringFromQString(&(*it));
 		rb_ary_push(av, rv);
 	    }
 

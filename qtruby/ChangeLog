@@ -1,3 +1,10 @@
+2004-07-17  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* After a non-const string arg was passed to a method, the value of the QString
+	  is copied into the ruby value. But it wasn't being correctly converted to the
+	  correct string format according to $KCODE.
+	* QString to ruby string conversions in QStringLists were not localised either.
+
 2004-07-14  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Removed superfluous '(void *)' cast which was causing compilation

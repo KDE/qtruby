@@ -1093,7 +1093,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
     }
 
 	{ 
-		// Put this in a C block so that the mcid will be de-allocated at the end of the C block,
+		// Put this in a C block so that the mcid will be de-allocated at the end of the block,
 		// rather than on f'n exit, to avoid the longjmp problem described below
 		QCString mcid = find_cached_selector(argc+4, temp_stack, klass, rb_class2name(klass));
 
