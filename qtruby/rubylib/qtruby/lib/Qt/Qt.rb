@@ -189,8 +189,12 @@ module Qt
 			end
 			method = classname.dup if method == "new"
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
+#			Change foobar= to setFoobar()					
 			method = 'set' + method[0,1].upcase + method[1,method.length].sub("=", "") if method =~ /.*=$/
-			method = 'is' + method[0,1].upcase + method[1,method.length].sub("?", "") if method =~ /.*\?$/
+#			Don't convert boolean property foobar? to isFoobar() for now as they can also		
+#			be hasFoobar() or just foobar()	in Qt
+#			method = 'is' + method[0,1].upcase + method[1,method.length].sub("?", "") if method =~ /.*\?$/
+
 			method_argstr = ""
 			args.each {
 				|arg| method_argstr << type_char(arg)
@@ -211,10 +215,13 @@ module Qt
 				|prototype,id| puts "#{prototype.ljust line_len}  (#{id})" 
 			    }
 			end
-			if methodIds.length > 1
+			if methodIds.length == 1
+				chosen = methodIds[0]
+			elsif methodIds.length > 1
 				puts "attempting to resolve:" if debug_level >= DebugLevel::High
 				remainingIds = methodIds.dup
-				matching = (0...args.length).each {
+				matching = nil
+				(0...args.length).each {
 					|i|
 					puts "arg #{i}:" if debug_level >= DebugLevel::High
 					matching = arg_matches?(remainingIds, args, i)
@@ -223,14 +230,11 @@ module Qt
 					puts "arg_matches => #{matching.inspect}" if debug_level >= DebugLevel::High
 					break matching if remainingIds.length <= 1
 				}
-				if matching.nil? or matching[0].nil?
-					methodIds[0] = nil
-				else
-					methodIds[0] = matching[0][0]
+				if ! matching.nil? and matching.length == 1
+					chosen = matching[0][0]
 					puts "Resolved to id: #{methodIds[0]}" if debug_level >= DebugLevel::High
 				end
 			end
-			chosen = methodIds[0]
 
 			if chosen.nil? and method == classname
 				puts "No matching constructor found, possibles:\n"

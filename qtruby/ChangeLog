@@ -1,3 +1,9 @@
+2003-09-07  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Improved error message handling, changed rb_error() calls to rb_raise()
+	* Decided changing method calls like foobar? to isFoobar() not a good idea,
+	  as the Qt property could just as also be hasFoobar() or foobar() 
+
 2003-09-06  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Set methods such as autoMask= are converted to setAutoMask()

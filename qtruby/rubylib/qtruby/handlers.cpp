@@ -288,7 +288,7 @@ marshall_basetype(Marshall *m)
 		smokeruby_object *o = value_obj_info(*(m->var()));
 		if(!o || !o->ptr) {
                     if(m->type().isRef()) {
-                        rb_warning("References can't be null or undef\n");
+                        rb_warning("References can't be nil\n");
                         m->unsupported();
                     }
 		    m->item().s_class = 0;

@@ -224,7 +224,7 @@ public:
     VALUE * var() { return &_retval; }
 
     void unsupported() {
-	rb_bug("Cannot handle '%s' as return-type of virtual method %s::%s",
+	rb_raise(rb_eArgError, "Cannot handle '%s' as return-type of virtual method %s::%s",
 		type().name(),
 		_smoke->className(method().classId),
 		_smoke->methodNames[method().name]);
@@ -260,7 +260,7 @@ public:
     VALUE * var() { return _sp + _cur; }
     const Smoke::Method &method() { return _smoke->methods[_method]; }
     void unsupported() {
-	rb_bug("Cannot handle '%s' as argument of virtual method %s::%s",
+	rb_raise(rb_eArgError, "Cannot handle '%s' as argument of virtual method %s::%s",
 		type().name(),
 		_smoke->className(method().classId),
 		_smoke->methodNames[method().name]);
@@ -323,9 +323,9 @@ public:
     	return _retval;
     }
     void unsupported() {
-	rb_bug("Cannot handle '%s' as return-type of %s::%s",
+	rb_raise(rb_eArgError, "Cannot handle '%s' as return-type of %s::%s",
 		type().name(),
-		_smoke->className(method().classId),
+		strcmp(_smoke->className(method().classId), "QGlobalSpace") == 0 ? "" : _smoke->className(method().classId),
 		_smoke->methodNames[method().name]);
     }
     Smoke *smoke() { return _smoke; }
@@ -389,10 +389,16 @@ public:
     }
 
     void unsupported() {
-	rb_bug("Cannot handle '%s' as argument to %s::%s",
-		type().name(),
-		_smoke->className(method().classId),
-		_smoke->methodNames[method().name]);
+    	if (strcmp(_smoke->className(method().classId), "QGlobalSpace") == 0) {
+			rb_raise(rb_eArgError, "Cannot handle '%s' as argument to %s",
+				type().name(),
+				_smoke->methodNames[method().name]);
+		} else {
+			rb_raise(rb_eArgError, "Cannot handle '%s' as argument to %s::%s",
+				type().name(),
+				_smoke->className(method().classId),
+				_smoke->methodNames[method().name]);
+		}
     }
 
     Smoke *smoke() {
@@ -460,7 +466,7 @@ public:
     Smoke::StackItem &item() { return _stack[_cur]; }
     VALUE * var() { return _sp + _cur; }
     void unsupported() {
-	rb_bug("Cannot handle '%s' as signal argument", type().name());
+	rb_raise(rb_eArgError, "Cannot handle '%s' as signal argument", type().name());
     }
     Smoke *smoke() { return type().smoke(); }
     void emitSignal() {
@@ -594,7 +600,7 @@ public:
     Smoke *smoke() { return type().smoke(); }
     bool cleanup() { return false; }
     void unsupported() {
-	rb_bug("Cannot handle '%s' as slot argument\n", type().name());
+	rb_raise(rb_eArgError, "Cannot handle '%s' as slot argument\n", type().name());
     }
     void copyArguments() {
 	for(int i = 0; i < _items; i++) {
@@ -862,12 +868,13 @@ char *get_VALUEtype(VALUE ruby_value)
 	smokeruby_object *o = value_obj_info(ruby_value);
 	if(!o) {
 	    r = strdup("a");
-        }
-	else
+	} else {
 	    r = strdup(o->smoke->className(o->classId));
     }
-    else
+	}
+    else {
 	r = strdup("U");
+	}
 
     return r;
 }
@@ -1226,7 +1233,7 @@ qt_signal(int argc, VALUE * argv, VALUE self)
 
     // Okay, we have the signal info. *whew*
 //    if(items < argc)
-//	rb_bug("Insufficient arguments to emit signal");
+//	rb_raise(rb_eArgError, "Insufficient arguments to emit signal");
 
     EmitSignal signal(qobj, offset + index, argc, args, argv);
     signal.next();
@@ -1243,7 +1250,7 @@ qt_invoke(VALUE self, VALUE id_value, VALUE quobject)
 
     Data_Get_Struct(quobject, QUObject, _o);
     if(_o == 0) {
-    	rb_bug("Cannot create QUObject\n");
+    	rb_raise(rb_eRuntimeError, "Cannot create QUObject\n");
     }
 
     smokeruby_object *o = value_obj_info(self);
@@ -1544,7 +1551,7 @@ make_metaObject(VALUE /*self*/, VALUE className_value, VALUE parent, VALUE slot_
 
     smokeruby_object *po = value_obj_info(parent);
     if(!po || !po->ptr) {
-    	rb_bug("Cannot create metaObject\n");
+    	rb_raise(rb_eRuntimeError, "Cannot create metaObject\n");
     }
     QMetaObject *meta = QMetaObject::new_metaobject(
 	className, (QMetaObject*)po->ptr,
@@ -1698,7 +1705,7 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
     } else if(meth > 0) {
 	Smoke::Index i = qt_Smoke->methodMaps[meth].method;
 	if(!i) {		// shouldn't happen
-	    rb_bug("Corrupt method %s::%s", c, name);
+	    rb_raise(rb_eArgError, "Corrupt method %s::%s", c, name);
 	} else if(i > 0) {	// single match
 		rb_ary_push(result, INT2NUM(qt_Smoke->methodMaps[meth].method));
 	} else {		// multiple match
