@@ -683,7 +683,7 @@ QString newItem( const QString &type, const QString &name, const QString &key,
                  const QString &defaultValue, const QString &param = QString::null)
 {
   QString t = "Item" + itemType( type ) +
-              ".new( currentGroup(), " + key + ", " + varName( name ) + param + ".to";
+              ".new( currentGroup(), " + key + ", " + varName( name ) + param;
   if ( type == "Enum" ) {
     t += ".toInt";  
     t += ", values" + name;
