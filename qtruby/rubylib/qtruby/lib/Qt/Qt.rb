@@ -75,10 +75,18 @@ module Qt
 		@@idclass   = []
 
 		def normalize_classname(classname)
-			classname.sub(/^Q(?=[A-Z])/,'Qt::')
+			if classname =~ /^Q/
+				classname.sub(/^Q(?=[A-Z])/,'Qt::')
+			else
+				classname.sub(/^/,'KDE::')
+			end
 		end
 
 		def init_class(c)
+			# Exclude these classes for now as they cause a crash
+			if c =~ /KMimeType|KURLBar|KURLComboBox|KURL__List|KWin__Info/
+				return
+			end
 			classname = normalize_classname(c)
 			classId = idClass(c)
 			insert_pclassid(classname, classId)
@@ -155,11 +163,9 @@ module Qt
 		def find_class(classname)
 			@@classes[classname]
 		end
-
-		@@current_initializer = nil
                 
 				# Runs the initializer as far as allocating the Qt C++ instance.
-				# Then uses the @@current_initializer continuation to jump back to here
+				# Then use the @@current_initializer continuation to jump back to here
 		def try_initialize(instance, *args)
 			initializer = instance.method(:initialize)
 			return callcc {
@@ -204,6 +210,7 @@ module Qt
 				do_method_missing(package, method, klass.superclass, this, *args)
 				return nil
 			end
+			method.sub!("foobar", "init")
 			method = classname.dup if method == "new"
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
 #			Change foobar= to setFoobar()					
@@ -268,7 +275,7 @@ module Qt
 			return nil
 		end
 
-		def init()
+		def init_all_classes()
 			getClassList().each {
                                 |c|
 				if c == "Qt"

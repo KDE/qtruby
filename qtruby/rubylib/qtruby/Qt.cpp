@@ -79,6 +79,7 @@ QAsciiDict<Smoke::Index> classcache(2179);
 
 VALUE ruby_self = Qundef;
 VALUE qt_module = Qundef;
+VALUE kde_module = Qundef;
 VALUE qt_internal_module = Qundef;
 VALUE qt_base_class = Qundef;
 VALUE qt_qmetaobject_class = Qundef;
@@ -784,9 +785,16 @@ public:
 
     char *className(Smoke::Index classId) {
 	const char *className = smoke->className(classId);
-	char *buf = new char[strlen(className) + strlen("Qt::") + 1];
-	strcpy(buf, "Qt::");
-	strcat(buf, className + 1);
+	char *buf;
+	if (QString(className).startsWith("Q")) {
+		buf = new char[strlen(className) + strlen("Qt::") + 1];
+		strcpy(buf, "Qt::");
+		strcat(buf, className + 1);
+	} else {
+		buf = new char[strlen(className) + strlen("KDE::") + 1];
+		strcpy(buf, "KDE::");
+		strcat(buf, className);
+	}
 	return buf;
     }
 };
@@ -960,14 +968,16 @@ method_missing(int argc, VALUE * argv, VALUE self)
 #ifdef DEBUG
 	if (do_debug & qtdb_calls) printf("method_missing mcid: %s\n", (const char *) mcid);
 #endif
-
+	
 	if (rcid) {
 		// Got a hit
+		_current_method = *rcid;
 #ifdef DEBUG
 		if (do_debug & qtdb_calls) printf("method_missing cache hit, mcid: %s\n", (const char *) mcid);
-#endif
-		_current_method = *rcid;
+	} {
+#else
 	} else {
+#endif
 		// Find the C++ method to call. I'll do that from Ruby for now
 
 		VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
@@ -979,7 +989,9 @@ method_missing(int argc, VALUE * argv, VALUE self)
     	if (_current_method == -1) {
 			return rb_call_super(argc, argv);
     	}
-        
+#ifdef DEBUG
+		if ((do_debug & qtdb_calls) && rcid && *rcid != _current_method) printf("method_missing cache ERROR: %s\n", (const char *) mcid);
+#endif        
 		// Success. Cache result.
         methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
 	}
@@ -1034,6 +1046,11 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
 static VALUE module_method_missing(int argc, VALUE * argv, VALUE /*klass*/)
 {
     return class_method_missing(argc, argv, qt_module);
+}
+
+static VALUE kde_module_method_missing(int argc, VALUE * argv, VALUE /*klass*/)
+{
+    return class_method_missing(argc, argv, kde_module);
 }
 
 static VALUE setThis(VALUE self, VALUE obj);
@@ -1900,8 +1917,16 @@ getClassList(VALUE /*self*/)
 static VALUE
 create_qobject_class(VALUE /*self*/, VALUE package_value)
 {
-    char *package = STR2CSTR(package_value);
-    VALUE klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
+    const char *package = STR2CSTR(package_value);
+	VALUE klass;
+	
+	if (QString(package).startsWith("Qt::")) {
+    	klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
+	} else {
+		if (QString(package).startsWith("KDE::")) {
+    		klass = rb_define_class_under(kde_module, package+strlen("KDE::"), qt_base_class);
+		}
+	}
 
     if (strcmp(package, "Qt::Application") == 0) {
 	rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qapplication, -1);
@@ -1915,8 +1940,16 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 static VALUE
 create_qt_class(VALUE /*self*/, VALUE package_value)
 {
-    char *package = STR2CSTR(package_value);
-    VALUE klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
+    const char *package = STR2CSTR(package_value);
+	VALUE klass;
+	
+	if (QString(package).startsWith("Qt::")) {
+    	klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
+	} else {
+		if (QString(package).startsWith("KDE::")) {
+    		klass = rb_define_class_under(kde_module, package+strlen("KDE::"), qt_base_class);
+		}
+	}
 
     if (strcmp(package, "Qt::MetaObject") == 0) {
 	qt_qmetaobject_class = klass;
@@ -1960,6 +1993,10 @@ Init_Qt()
     rb_define_singleton_method(qt_base_class, "const_missing", (VALUE (*) (...)) class_method_missing, -1);
     rb_define_singleton_method(qt_module, "const_missing", (VALUE (*) (...)) module_method_missing, -1);
     rb_define_method(qt_base_class, "const_missing", (VALUE (*) (...)) method_missing, -1);
+
+	kde_module = rb_define_module("KDE");
+    rb_define_singleton_method(kde_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+    rb_define_singleton_method(kde_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 
     rb_define_method(qt_internal_module, "getMethStat", (VALUE (*) (...)) getMethStat, 0);
     rb_define_method(qt_internal_module, "getClassStat", (VALUE (*) (...)) getClassStat, 0);
@@ -2012,7 +2049,7 @@ Init_Qt()
 	rb_require("Qt/Qt.rb");
 
     // Do package initialization
-    rb_funcall(qt_internal_module, rb_intern("init"), 0);
+    rb_funcall(qt_internal_module, rb_intern("init_all_classes"), 0);
 }
 
 };
