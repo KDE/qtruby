@@ -337,7 +337,7 @@ def lookfor( text )
 
     if visible == @tablePage && @colorTable.numRows() > 0
         row = @colorTable.currentRow()
-        (row+1...@colorTable.nunRows).each do |i|
+        (row+1...@colorTable.numRows).each do |i|
             if @colorTable.text( i, 0 ).downcase().include?( ltext )
                 @colorTable.setCurrentCell( i, 0 )
                 @colorTable.clearSelection()
