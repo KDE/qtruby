@@ -381,7 +381,13 @@ marshall_basetype(Marshall *m)
       case Smoke::t_bool:
 	switch(m->action()) {
 	  case Marshall::FromVALUE:
-	    m->item().s_bool = *(m->var()) == Qtrue ? true : false;
+		if (TYPE(*(m->var())) == T_OBJECT) {
+			// A Qt::Boolean has been passed as a value
+			VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qboolean"), 1, *(m->var()));
+	    	m->item().s_bool = (temp == Qtrue ? true : false);
+		} else {
+	    	m->item().s_bool = (*(m->var()) == Qtrue ? true : false);
+		}
 	    break;
 	  case Marshall::ToVALUE:
 	    *(m->var()) = m->item().s_bool ? Qtrue : Qfalse;
@@ -754,11 +760,18 @@ static void marshall_QByteArray(Marshall *m) {
 		VALUE data = Qnil;
 	    if(rv != Qnil) {
 			if (rb_respond_to(rv, rb_intern("data")) != 0) {
-				// Qt::ByteArray - use the contents of the 'data' instance var, a C++ QByteArray
+				// Qt::ByteArray - use the contents of the 'data' instance var
 				data = rb_funcall(qt_internal_module, rb_intern("get_qbytearray"), 1, rv);
-				Data_Get_Struct(data, QByteArray, s);
+				if (TYPE(data) == T_DATA) {
+					// A C++ QByteArray inside the Qt::ByteArray
+					Data_Get_Struct(data, QByteArray, s);
+				} else {
+					// Or a ruby String inside
+            		s = new QByteArray(RSTRING(data)->len);
+					memcpy((void*)s->data(), StringValuePtr(data), RSTRING(data)->len);
+				}
 			} else {
-				// Ordinary ruby string - use the contents of the string
+				// Ordinary ruby String - use the contents of the string
             	s = new QByteArray(RSTRING(rv)->len);
 				memcpy((void*)s->data(), StringValuePtr(rv), RSTRING(rv)->len);
 			}
@@ -948,19 +961,19 @@ static void marshall_boolR(Marshall *m) {
       case Marshall::FromVALUE:
 	{
 	    VALUE rv = *(m->var());
-	    if(m->type().isPtr()		// is pointer
-	    && TYPE(rv) != T_BIGNUM) {          // and real undef
-		m->item().s_voidp = 0;		// pass null pointer
-		break;
-	    }
-	    if(m->cleanup()) {
-		bool i = rv == Qtrue ? true : false;
-		m->item().s_voidp = &i;
-		m->next();
-	    *(m->var()) = (i?Qtrue:Qfalse);
-	    } else {
-		m->item().s_voidp = new bool(rv == Qtrue?true:false);
-	    }
+		bool b;
+		if (TYPE(rv) == T_OBJECT) {
+			// A Qt::Boolean has been passed as a value
+			VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qboolean"), 1, rv);
+			b = (temp == Qtrue ? true : false);
+			m->item().s_voidp = &b;
+			m->next();
+			rb_funcall(qt_internal_module, rb_intern("set_qboolean"), 2, rv, (b ? Qtrue : Qfalse));
+		} else {
+			b = (rv == Qtrue ? true : false);
+			m->item().s_voidp = &b;
+			m->next();
+		}
 	}
 	break;
       case Marshall::ToVALUE:

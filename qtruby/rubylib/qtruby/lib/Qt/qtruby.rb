@@ -107,12 +107,16 @@ module Qt
 	# behaves just like a normal ruby String. TODO: override
 	# methods which alter the underlying string, in order to
 	# sync the QByteArray with the changed string.
+	# If the data arg is nil, the string is returned as the
+	# value instead. 
 	class ByteArray < DelegateClass(String)
 		attr_reader :data
+		attr_reader :string
 		
-		def initialize(string, data)
+		def initialize(string, data=nil)
 			super(string)
 			@data = data
+			@string = string
 		end
 	end
 	
@@ -130,6 +134,16 @@ module Qt
 		def to_f() return @value.to_f end
 		def to_i() return @value.to_i end
 		def to_s() return @value.to_s end
+	end
+	
+	# Provides a mutable boolean class for passing to methods with
+	# C++ 'bool*' or 'bool&' arg types
+	class Boolean
+		attr_accessor :value
+		def initialize(b=false) @value = b end
+		def nil? 
+			return !@value 
+		end
 	end
 	
 	module Internal
@@ -177,10 +191,24 @@ module Qt
 				if typename =~ /^(?:float|double)$/
 					return 0
 				end
+			elsif argtype == 'B'
+				if typename =~ /^(?:bool)[*&]?$/
+					return 0
+				end
+			elsif argtype == 'b'
+				# An argtype 'b' means a Qt::ByteArray has been passed to a C++ method expecting a QByteArray arg.
+				# In that case a Qt::ByteArray must take precedence over any String, and scores 3. Note that a
+				# ruby String would only score 1 when passed to the same QByteArray method - an alternative 
+				# method expecting a QString arg would take precedence over it with a score of 2.
+				if typename =~ /^(const )?(QByteArray[*&]?)$/
+					return 3
+				end
 			elsif argtype == 's'
-				if typename =~ /^(?:u?char\*|const u?char\*|(?:const )?((Q(C?)String)|QByteArray)[*&]?)$/
+				if typename =~ /^(const )?(QByteArray[*&]?)$/
+					return 1
+				elsif typename =~ /^(?:u?char\*|const u?char\*|(?:const )?(Q(C?)String)[*&]?)$/
 					qstring = !$1.nil?
-					c = ("C" == $3)
+					c = ("C" == $2)
 					return c ? 1 : (qstring ? 2 : 0)
 				end
 			elsif argtype == 'a'
@@ -374,14 +402,18 @@ module Qt
 			# and not in the public api.
 			@@classes['Qt::ByteArray'] = Qt::ByteArray.class
 			@@classes['Qt::Integer'] = Qt::Integer.class
+			@@classes['Qt::Boolean'] = Qt::Boolean.class
 		end
 		
 		def create_qbytearray(string, data)
 			return Qt::ByteArray.new(string, data)
 		end
 		
-		def get_qbytearray(string)
-			return string.data
+		def get_qbytearray(str)
+			if str.data.nil?
+				return str.string
+			end
+			return str.data
 		end
 		
 		def get_qinteger(num)
@@ -390,6 +422,14 @@ module Qt
 		
 		def set_qinteger(num, val)
 			return num.value = val
+		end
+		
+		def get_qboolean(b)
+			return b.value
+		end
+		
+		def set_qboolean(b, val)
+			return b.value = val
 		end
 	end
 
@@ -416,6 +456,7 @@ module Qt
 		
 		def add_signals(signal_list)
 			signal_list.each do |signal|
+				signal = Qt::Object.normalizeSignalSlot(signal)
 				if signal =~ /([^\s]*)\((.*)\)/
 					@signals.push QObjectMember.new($1, signal, $2)
 				end
@@ -438,6 +479,7 @@ module Qt
 		
 		def add_slots(slot_list)
 			slot_list.each do |slot|
+				slot = Qt::Object.normalizeSignalSlot(slot)
 				if slot =~ /([^\s]*)\((.*)\)/
 					@slots.push QObjectMember.new($1, slot, $2)
 				end

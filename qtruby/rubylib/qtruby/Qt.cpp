@@ -849,6 +849,10 @@ get_VALUEtype(VALUE ruby_value)
 	r = "n";
     else if(TYPE(ruby_value) == T_STRING)
 	r = "s";
+    else if(strcmp(classname, "Qt::ByteArray") == 0)
+	r = "b";
+    else if(strcmp(classname, "Qt::Boolean") == 0)
+	r = "B";
     else if(TYPE(ruby_value) == T_DATA) {
 	smokeruby_object *o = value_obj_info(ruby_value);
 	if(!o) {

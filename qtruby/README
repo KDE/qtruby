@@ -58,7 +58,7 @@ QtRuby features a very complete coverage of the Qt api:
 		All virtual methods can be overriden, not just event handlers
 		
 	- Properties 
-		'foobar = 5' is a synonym for 'setFooBar(5)'
+		'fooBar = 5' is a synonym for 'setFooBar(5)'
 		
 	- Operator overloading
 		The full range of Qt operator methods is available, for example:
@@ -133,6 +133,22 @@ QtRuby features a very complete coverage of the Qt api:
 		
 		It supports the arithmetic operators, and so expressions such as 'acc + 3' will work.
 	
+	- C++ 'bool*' and 'bool&' argument types
+		There is a similar problem for bool arg types, and the mutable Qt::Boolean class can be
+		used like this:
+		
+			# QFont getFont(bool * ok, const QFont&initial, QWidget* parent = 0, const char *name = 0);		
+		
+			ok = Qt::Boolean.new
+			font = Qt::FontDialog.getFont(ok, Qt::Font.new("Helvetica [Cronyx]", 10), self)
+			if !ok.nil? 
+        		# font is set to the font the user selected
+			else 
+        		# the user canceled the dialog
+			end
+		
+		Use 'nil?' to test the value returned in the Boolean
+ 	
 	- Use Qt Designer
 		A 'rbuic' tool is included in qtruby/rubylib/designer/rbuic to compile
 			.ui files into ruby code.

@@ -1,3 +1,24 @@
+2004-07-06  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Fix for passing C++ 'bool*' and 'bool&' argument types
+	  There is a similar problem for bool arg types as with ints, and the mutable
+	  Qt::Boolean class can be used like this:
+		
+	    # QFont getFont(bool * ok, const QFont&initial, QWidget* parent = 0);		
+		
+	    ok = Qt::Boolean.new
+	    font = Qt::FontDialog.getFont(ok, Qt::Font.new("Helvetica [Cronyx]", 10), self)
+	    if !ok.nil? 
+                # font is set to the font the user selected
+	    else 
+                # the user canceled the dialog
+	    end
+		
+	  Use 'nil?' to test the value returned in the Boolean
+	* Signal and slot type signatures are 'normalized' and any unwanted white space
+	  removed
+	* Fixed problem with QByteArray arg type matching in overloaded method resolution
+
 2004-07-04  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Fix for passing C++ 'int*' and 'int&' argument types
