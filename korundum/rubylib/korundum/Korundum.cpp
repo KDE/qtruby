@@ -24,6 +24,7 @@
 #include <dcopobject.h>
 #include <dcopref.h>
 #include <kapplication.h>
+#include <kurl.h>
 
 #include <ruby.h>
 
@@ -125,6 +126,10 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 							break;
 						} else if (strcmp(t.name(), "QStringList") == 0) {
 							QStringList temp((const QStringList&) *((QStringList *) stack[i].s_voidp));
+							*stream << temp;
+							break;
+						} else if (strcmp(t.name(), "KURL::List") == 0) {
+							KURL::List temp((const KURL::List&) *((KURL::List *) stack[i].s_voidp));
 							*stream << temp;
 							break;
 						}
@@ -296,6 +301,11 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 							QStringList temp;
 							*stream >> temp;
 							stack[i].s_voidp = new QStringList(temp);
+							break;
+						} else if (strcmp(t.name(), "KURL::List") == 0) {
+							KURL::List temp;
+							*stream >> temp;
+							stack[i].s_voidp = new KURL::List(temp);
 							break;
 						}
 						// First construct an instance to read the QDataStream into,

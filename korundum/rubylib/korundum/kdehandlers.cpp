@@ -421,6 +421,7 @@ void marshall_KTraderOfferList(Marshall *m) {
 	}
 }
 
+
 void marshall_KURLList(Marshall *m) {
 	switch(m->action()) {
 	case Marshall::FromVALUE: 
@@ -460,19 +461,56 @@ void marshall_KURLList(Marshall *m) {
 					VALUE obj = getPointerObject((void*)&(*it));
 					rb_ary_push(list, obj);
 				}
+				delete kurllist;
 			}
-			delete kurllist;
 	    }			
 		break;
 	case Marshall::ToVALUE: 
 		{
+	    KURL::List *kurllist = (KURL::List*)m->item().s_voidp;
+	    if(!kurllist) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+
+	    VALUE av = rb_ary_new();
+
+	    int ix = m->smoke()->idClass("KURL");
+	    const char * className = m->smoke()->binding->className(ix);
+
+	    for(KURL::List::Iterator it = kurllist->begin();
+		it != kurllist->end();
+		++it) {
+		void *p = &(*it);
+
+		if(m->item().s_voidp == 0) {
+		    *(m->var()) = Qnil;
+		    break;
 		}
+
+		VALUE obj = getPointerObject(p);
+		if(obj == Qnil) {
+		    smokeruby_object  * o = ALLOC(smokeruby_object);
+		    o->smoke = m->smoke();
+		    o->classId = ix;
+		    o->ptr = p;
+		    o->allocated = false;
+		    obj = set_obj_info(className, o);
+		}
+		rb_ary_push(av, obj);
+            }
+
+	    if(m->cleanup())
+		delete kurllist;
+	    else
+	        *(m->var()) = av;		}
 		break;
 	default:
 		m->unsupported();
 		break;
 	}
 }
+
 
 // Some time saving magic from Alex Kellett here..
 template <class Item, class ItemList, class ItemListIterator, const char *ItemSTR >

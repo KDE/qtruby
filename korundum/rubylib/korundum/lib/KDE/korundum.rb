@@ -47,7 +47,7 @@ module KDE
 		def add_signals(signal_list)
 			signal_list.each do |signal|
 				signal = DCOPClient.normalizeFunctionSignature(signal)
-				if signal =~ /^(.*)\s([^\s]*)\((.*)\)/
+				if signal =~ /^([\w,<>:]*)\s+([^\s]*)\((.*)\)/
 					args = DCOPClient.normalizeFunctionSignature($3)
 					@k_dcop_signals[$2] = DCOPMember.new($2, $2 + "(" + args + ")", args, $1)
 				end
@@ -56,7 +56,7 @@ module KDE
 		
 		def add_slots(slot_list)
 			slot_list.each do |slot|
-				if slot =~ /^([\w,<>]*)\s([^\s]*)\((.*)\)/
+				if slot =~ /^([\w,<>:]*)\s+([^\s]*)\((.*)\)/
 					args = DCOPClient.normalizeFunctionSignature($3)
 					@k_dcop[$2] = DCOPMember.new($2, $1 + ' ' + $2 + "(" + args + ")", args, $1)
 				end
@@ -193,7 +193,7 @@ module KDE
 						return nil
 					end
 					funcs.each do |func|
-						if func =~ /^([\w,<>]*) (.*)(\(.*\))/
+						if func =~ /^([\w,<>:]*)\s+(.*)(\(.*\))/
 							return_type = $1
 							name = $2
 							args = $3

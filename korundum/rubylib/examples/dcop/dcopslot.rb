@@ -24,7 +24,8 @@ class MyWidget < KDE::PushButton
 	k_dcop	'void mySlot(QString)', 'QPoint getPoint(QString)',
 			'QMap<QCString,DCOPRef> actionMap()', 
 			'QValueList<DCOPRef> windowList()',
-			'QValueList<QCString> propertyNames(bool)'
+			'QValueList<QCString> propertyNames(bool)',
+			'KURL::List urlList()'
 				
 	def initialize(parent, name)
 		super
@@ -53,6 +54,12 @@ class MyWidget < KDE::PushButton
 	
 	def propertyNames(b)
 		return ["thisProperty", "thatProperty"]
+	end
+	
+	def urlList()
+		list = []
+		list << KDE::URL.new("http://www.kde.org/") << KDE::URL.new("http://dot.kde.org/")
+		return list
 	end
 end
 
