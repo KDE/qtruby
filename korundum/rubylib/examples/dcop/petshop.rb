@@ -13,11 +13,13 @@ require 'Korundum'
 class DeadParrotObject < KDE::DCOPObject
 
 	k_dcop	'QString getParrotType()', 'void setParrotType(QString)', 
-			'QString squawk()', 'QStringList adjectives()'
+			'QString squawk()', 'QStringList adjectives()',
+			'int age()', 'void setAge(int)'
 	
 	def initialize(id = 'dead parrot')
 		super(id)
 		@parrot_type = "Norwegian Blue"
+		@age = 7
 	end
 	
 	def getParrotType()
@@ -28,8 +30,20 @@ class DeadParrotObject < KDE::DCOPObject
 		@parrot_type = parrot_type
 	end
 	
+	def age()
+		@age
+	end
+	
+	def setAge(a)
+		@age = a
+	end
+			
 	def squawk
-		"This parrot, a #{@parrot_type}, is pining for the fjords"
+		if rand(2) == 0
+			"This parrot, a #{@parrot_type}, is pining for the fjords"
+		else
+			"This parrot, #{age} months old, is a #{@parrot_type}"
+		end
 	end
 	
 	def adjectives
@@ -58,7 +72,7 @@ dcop  = app.dcopClient
 puts "DCOP Application: #{dcop.appId} starting"
 
 parrot         = DeadParrotObject.new
-# another_parrot = DeadParrotObject.new('polly')
+another_parrot = DeadParrotObject.new('polly')
 
 message = <<EOS
 Run kdcop and look for the 'petshop' application instance.
