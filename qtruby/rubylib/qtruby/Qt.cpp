@@ -997,10 +997,15 @@ receivers_qobject(VALUE self)
 // Takes a variable name and a QProperty with QVariant value, and returns a '
 // variable=value' pair with the value in ruby inspect style
 static QCString
-inspectProperty(const QMetaProperty * property, const char * name, QVariant & value)
+inspectProperty(Smoke * smoke, const QMetaProperty * property, const char * name, QVariant & value)
 {
 	if (property->isEnumType()) {
-		return QCString().sprintf(" %s=%s", name, property->valueToKey(value.toInt()));
+		QMetaObject * metaObject = *(property->meta);
+		QString className(metaObject->className());
+		return QCString().sprintf(	" %s=%s::%s",
+									name,
+									smoke->binding->className(smoke->idClass(className.latin1())), 
+									property->valueToKey(value.toInt()) );
 	}
 	
 	switch (value.type()) {
@@ -1246,7 +1251,7 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	if (name != 0) {
 		QVariant value = qobject->property(name);
 		const QMetaProperty * property = qobject->metaObject()->property(index, true);
-		value_list = " " + inspectProperty(property, name, value);
+		value_list = " " + inspectProperty(o->smoke, property, name, value);
 		rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.data()));
 		index++;
 	
@@ -1258,7 +1263,7 @@ pretty_print_qobject(VALUE self, VALUE pp)
 						
 			value = qobject->property(name);
 			property = qobject->metaObject()->property(index, true);
-			value_list = " " + inspectProperty(property, name, value);
+			value_list = " " + inspectProperty(o->smoke, property, name, value);
 			rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.data()));
 		}
 	}
