@@ -2,6 +2,26 @@
 
 	* Added rbuic tool for ruby Qt Designer support
 
+2003-08-12  Alexander Kellett   <lypanov@kde.org>
+
+	* Add debug level setting via Qt::debug_level
+	* When calling .new on a Qt object with a incorrect prototype
+	  the list of appropriate constructors is printed
+	* Fix a number of cases in which imperfect code would cause a crash
+
+2003-08-11  Alex Zepeda   <zipzippy@sonic.net>
+
+	* Various fixes to get QStringList marshalling working
+	* Treat Ruby strings as UTF-8 strings in order to fix the QFont examples
+
+2003-08-09  Alexander Kellett   <lypanov@kde.org>
+
+	* Added support for operator overloading
+
+2003-08-07  Alexander Kellett   <lypanov@kde.org>
+
+	* Added rbqtapi and rbqt tools (port of the PerlQt tools of the same name)
+
 2003-08-06  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added some TODO list entries, added Alex to the AUTHORS list
@@ -9,6 +29,12 @@
 2003-08-06  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Fixed 'int&' marshalling so script name appears in window title
+
+2003-08-12  Alexander Kellett   <lypanov@kde.org>
+
+	* Add several new marshalling types - QCanvasItemList for example,
+	  unfortuantely due to several improvements in Qt 3.2 these 
+	  improvements will not be seen when compiling against Qt 3.1.2
 
 2003-08-05  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
