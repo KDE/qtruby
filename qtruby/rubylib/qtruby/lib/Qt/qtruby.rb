@@ -484,6 +484,18 @@ module Qt
 		# Runs the initializer as far as allocating the Qt C++ instance.
 		# Then use the @@current_initializer continuation to jump back to here
 		def try_initialize(instance, *args)
+			# If a debugger calls an inspect method with the half 
+			# constructed instance, it will fail. So prevent that by
+			# defining a dummy 'do nothing' inspect method here
+			class <<instance
+				def inspect
+					return nil
+				end
+				def pretty_print(pp)
+					return nil
+				end
+			end
+			
 			initializer = instance.method(:initialize)
 			return callcc {
                                 |continuation|

@@ -950,7 +950,7 @@ inspectVariant(const char * name, QVariant & value)
 	case QVariant::CString:
 	{
 		if (value.toString().isNull()) {
-			return QCString().sprintf(	" %s=nil", name); 
+			return QCString().sprintf(" %s=nil", name); 
 		} else {
 			return QCString().sprintf(	" %s=\"%s\"", 
 										name, 

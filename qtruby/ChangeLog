@@ -1,3 +1,8 @@
+2004-12-12  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * Fixed a bug where the debugger was calling an inspect method on an instance
+   which wasn't fully initialized yet, and not of type T_DATA.
+
 2004-12-10  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * Added inspect() and pretty_print() methods for Qt::SizePolicy
