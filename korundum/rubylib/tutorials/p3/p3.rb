@@ -8,9 +8,9 @@ class MainWindow < KDE::MainWindow
         setCaption("KDE Tutorial - p3")
 
         filemenu = Qt::PopupMenu.new
-        filemenu.insertItem( i18n( "&amp;Open" ), self, SLOT('fileOpen()') )
-        filemenu.insertItem( i18n( "&amp;Save" ), self, SLOT('fileSave()') )
-        filemenu.insertItem( i18n( "&amp;Quit" ), $kapp, SLOT('quit()') )
+        filemenu.insertItem( i18n( "&Open" ), self, SLOT('fileOpen()') )
+        filemenu.insertItem( i18n( "&Save" ), self, SLOT('fileSave()') )
+        filemenu.insertItem( i18n( "&Quit" ), $kapp, SLOT('quit()') )
 		
         about =
             i18n("p3 1.0\n\n" +
@@ -24,9 +24,9 @@ class MainWindow < KDE::MainWindow
         helpmenu = helpMenu( about )
 		
         menu = menuBar()
-        menu.insertItem( i18n( "&amp;File" ), filemenu )
+        menu.insertItem( i18n( "&File" ), filemenu )
         menu.insertSeparator()
-        menu.insertItem( i18n( "&amp;Help" ), helpmenu )
+        menu.insertItem( i18n( "&Help" ), helpmenu )
  
         hello = Qt::TextView.new(
         i18n("<H2>Hello World !</H2><BR>This is a simple" +
