@@ -670,16 +670,13 @@ public:
 	if(_called) return;
 	_called = true;
 
+#ifdef DEBUG
         VALUE klass = rb_funcall(_obj, rb_intern("class"), 0);
         VALUE name = rb_funcall(klass, rb_intern("name"), 0);
-#ifdef DEBUG
 	printf(	"In InvokeSlot::invokeSlot 3 items: %d classname: %s\n",
 		_items,
 		STR2CSTR(name) );
-#else
-	(void) name;
 #endif
-			
         (void) rb_funcall2(_obj, _slotname, _items, _sp);
     }
 
@@ -905,12 +902,7 @@ VALUE prettyPrintMethod(Smoke::Index id)
 static VALUE
 metaObject(VALUE self)
 {
-    VALUE klass = rb_funcall(self, rb_intern("class"), 0);
-    VALUE name = rb_funcall(klass, rb_intern("name"), 0);
-    (void) name;
-
     VALUE metaObject = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 1, self);
-
     return metaObject;
 }
 
@@ -920,10 +912,8 @@ static VALUE
 method_missing(int argc, VALUE * argv, VALUE self)
 {
     VALUE klass = rb_funcall(self, rb_intern("class"), 0);
-    VALUE name = rb_funcall(klass, rb_intern("name"), 0);
-    (void) name;
-
 #ifdef DEBUG
+    VALUE name = rb_funcall(klass, rb_intern("name"), 0);
     printf("In method_missing(argc: %d, argv[0]: %s TYPE: 0x%2.2x)\n",
 	    argc,
 	    rb_id2name( SYM2ID(argv[0]) ),
@@ -1261,12 +1251,11 @@ qt_invoke(VALUE self, VALUE id_value, VALUE quobject)
     }
 
     smokeruby_object *o = value_obj_info(self);
-    QObject *qobj = (QObject*)o->smoke->cast(
+    (void) (QObject*)o->smoke->cast(
 	o->ptr,
 	o->classId,
 	o->smoke->idClass("QObject")
     );
-    (void) qobj;
 
     // Now, I need to find out if this means me
     int index;
@@ -1896,7 +1885,7 @@ getClassList(VALUE /*self*/)
     VALUE class_list = rb_ary_new();
 
     for(int i = 1; i <= qt_Smoke->numClasses; i++) {
-		rb_ary_push(class_list, rb_str_new2(qt_Smoke->classes[i].className));
+	rb_ary_push(class_list, rb_str_new2(qt_Smoke->classes[i].className));
     }
 
     return class_list;
@@ -1909,9 +1898,9 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
     VALUE klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
 
     if (strcmp(package, "Qt::Application") == 0) {
-	    rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qapplication, -1);
+	rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qapplication, -1);
     } else {
-	    rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
+	rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
     }
 
     return klass;
