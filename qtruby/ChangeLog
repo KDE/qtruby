@@ -1,3 +1,8 @@
+2004-10-05  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * Fixed a couple of errors in the rbuic generated code found as a result of
+   the recently improved stricter arg type matching.
+
 2004-10-04  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * When a ruby app exits, rb_gc_call_finalizer_at_exit() is called and all the ruby

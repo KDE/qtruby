@@ -376,7 +376,7 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 		QString prop = n2.attribute("name");
 		if ( prop == "name" )
 		    continue;
-		QString value = setObjectProperty( "Qt::Action.new", objName, prop, n2.firstChild().toElement(), stdset );
+		QString value = setObjectProperty( "Qt::Action", objName, prop, n2.firstChild().toElement(), stdset );
 		if ( value.isEmpty() )
 		    continue;
 			

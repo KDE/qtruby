@@ -343,7 +343,7 @@ module Qt
 					return 0
 				elsif isEnum(argtype) and 
 						(t =~ /int|uint|long|ulong|WFlags|WState|ProcessEventsFlags|ComparisonFlags/ or
-						t =~ /SFlags|SCFlags|WId|difference_type/ or
+						t =~ /SFlags|SCFlags|WId|difference_type|ToolBarDock/ or
 						t =~ /KStyleFlags|KonqPopupFlags/)
 					return 0
 				end
