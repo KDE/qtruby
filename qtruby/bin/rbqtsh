@@ -590,7 +590,7 @@ def evalFile(fname)
 end
 
 def evalSelection(selection)
-	evalOneLine(selection.sub(/.*span>/, ""))
+	evalOneLine(selection.sub(/.*span>/, "")) unless selection.nil?
 end
 
 end
