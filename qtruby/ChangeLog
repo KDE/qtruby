@@ -1,5 +1,9 @@
 2003-08-05  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* Removed redundant 'rb_eval_string("include Qt")' call from extension initialization.
+
+2003-08-05  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Qt::Application constructor safer, but program name still not appearing in the window title
 
 2003-08-05  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>

@@ -1981,9 +1981,6 @@ Init_Qt()
 	rb_include_module(qt_module, qt_internal_module);
 	rb_require("Qt/Qt.rb");
 
-	// TODO: Is there a ruby function to replace this rb_eval_string() call?
-	rb_eval_string("include Qt");
-
 	// Do package initialization
 	rb_funcall(qt_internal_module, rb_intern("init"), 0);
 }
