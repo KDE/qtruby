@@ -13,7 +13,7 @@ if $OPT_v
     print "qtruby using Qt-#{Qt::version}\n"
     exit 0 
 elsif $OPT_h
-    print $h
+    print $usage
     exit 0
 end
 
@@ -42,15 +42,18 @@ if $OPT_m
     end
 end
 
-search_string = ARGV[0]
+search_string = ARGV[0] ? ARGV[0].dup : nil
 search_string.gsub!(/^Q(?=[A-Z])/,'Qt::') if search_string
 classid = search_string ? Qt::find_pclassid(search_string) : 1
+if classid == 0
+    puts "Class #{search_string} not found"
+    exit 1
+end
 regexp = nil
 regexp = ( $OPT_i ? Regexp.new($OPT_r, Regexp::IGNORECASE) : Regexp.new($OPT_r) ) if $OPT_r
 candidates = ""
-i = 0
 while true
-    a = Qt::findAllMethods(i)
+    a = Qt::findAllMethods(classid)
     break if a.empty?
     ids = (a.keys.sort.map{|k|a[k]}).flatten
     candidates = Qt::dumpCandidates(ids)
@@ -67,13 +70,13 @@ while true
     if regexp
 	candidates.split("\n").each {
 	    |candidate|
-	    print "#{candidate}" if candidate =~ regexp
+	    puts candidate if candidate =~ regexp
 	}
     else
 	print candidates
     end
-    last if !search_string.empty?
-    i += 1
+    break unless search_string.nil?
+    classid += 1
 end
 
 BEGIN {

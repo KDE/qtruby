@@ -161,6 +161,15 @@ module Qt
 		return meta != nil && (meta.signals.length > 0 or meta.slots.length > 0)
 	end
 
+	def getAllParents(class_id, res)
+		getIsa(class_id).each {
+			|s|
+			c = idClass(s)
+			res << c
+			getAllParents(c, res)
+		}
+	end
+
 	def getSignalNames(aClass)
 		classname = aClass.name if aClass.is_a? Module
 		signalNames = Array.new
