@@ -8,18 +8,6 @@ require '../base/rui.rb'
 
 RectRTTI = 5 # Qt::CanvasRectangle::RTTI is b0rked
 
-class Qt::Point
-   def to_s
-      "(#{x}, #{y})"
-   end
-end
-
-p1 = Qt::Point.new(5,5)
-p2 = Qt::Point.new(20,20)
-puts "#{p1} + #{p2} == #{p1 + p2}"
-
-exit
-
 class MyCanvasView < Qt::CanvasView
    def initialize(canvas, parent)
       @canvas = canvas
