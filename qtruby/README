@@ -121,7 +121,7 @@ QtRuby features a very complete coverage of the Qt api:
 				puts "item2 is disposed"
 			end
 			
-	- C++ 'int*' and 'int&' types
+	- C++ 'int*' and 'int&' argument types
 		Ruby passes numeric values by value, and so they can't be changed when passed to a
 		method. The Qt::Integer class provides a mutable numeric type which does get updated
 		when passed as an argument. For example, this C++ method 'findByFileContent()':
