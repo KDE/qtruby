@@ -28,7 +28,7 @@ class MainWindow < KDE::MainWindow
         menu.insertSeparator()
         menu.insertItem( i18n( "&Help" ), helpmenu )
  
-        hello = Qt::TextView.new(
+        hello = Qt::TextEdit.new(
         i18n("<H2>Hello World !</H2><BR>This is a simple" +
             " window with <I><font size=5><B>R<font color=red" +
             " size=5>ich </font><font color=blue size=5>Text" +
