@@ -1,3 +1,12 @@
+2005-03-24  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* When a subclass of QObject is instantiated in the C++ world, and the exact class doesn't
+	  exist in ruby, then scan up the inheritance heirarchy via QObject::metaObject() until a
+	  class is found which does have a ruby equivalent. Fixes problem reported by Dmitry Morozhnikor
+	  where a KViewPart was being returned as a Qt::Object, rather than a KParts::ReadOnlyPart.
+	* The internal method 'cast_object_to()' now takes a class literal as a second parameter,
+	  rather than the class name as a string
+
 2005-03-21  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Moved Qt.rb from qtruby/lib/Qt to qtruby/lib. Fixes problem building qtruby on Mac OS X

@@ -877,26 +877,27 @@ set_obj_info(const char * className, smokeruby_object * o)
 static VALUE mapObject(VALUE self, VALUE obj);
 
 VALUE
-cast_object_to(VALUE /*self*/, VALUE object, VALUE new_klassname)
+cast_object_to(VALUE /*self*/, VALUE object, VALUE new_klass)
 {
     smokeruby_object *o = value_obj_info(object);
-    VALUE klass = rb_funcall(qt_internal_module, rb_intern("find_class"), 1, new_klassname );
-    if (klass == Qnil)
-	rb_raise(rb_eArgError, "unable to find class to cast to\n");
 
-    char *casted_klassname = rb_class2name(klass);
-    char *blah = (char*) malloc((strlen(casted_klassname) - strlen("DE::")) * sizeof(char));
-    strcpy(blah, ""); // strcat(blah, "K");
-    strcat(blah, casted_klassname + strlen("KDE::"));
+	VALUE new_klassname = rb_funcall(new_klass, rb_intern("name"), 0);
+
+    Smoke::Index * cast_to_id = classcache.find(StringValuePtr(new_klassname));
+	if (cast_to_id == 0) {
+		rb_raise(rb_eArgError, "unable to find class \"%s\" to cast to\n", StringValuePtr(new_klassname));
+	}
 
     smokeruby_object *o_cast = (smokeruby_object *) malloc(sizeof(smokeruby_object));
     memcpy(o_cast, o, sizeof(smokeruby_object));
-    o_cast->allocated = false;
-    int cast_to_id = o->smoke->idClass(blah);
-    o_cast->ptr = o->smoke->cast(o_cast->ptr, o_cast->classId, cast_to_id);
-    o_cast->classId = cast_to_id;
 
-    VALUE obj = Data_Wrap_Struct(klass, 0, free, (void *) o_cast);
+    o_cast->allocated = o->allocated;
+    o->allocated = false;
+
+    o_cast->classId = (int) *cast_to_id;
+    o_cast->ptr = o->smoke->cast(o->ptr, o->classId, o_cast->classId);
+
+    VALUE obj = Data_Wrap_Struct(new_klass, smokeruby_mark, smokeruby_free, (void *) o_cast);
     mapPointer(obj, o_cast, o_cast->classId, 0);
     return obj;
 }
