@@ -1650,8 +1650,6 @@ void marshall_QRgb_array(Marshall *m) {
 	    }
 	    m->item().s_voidp = rgb;
 	    m->next();
-	    if(m->cleanup())
-		delete[] rgb;
 	}
 	break;
       case Marshall::ToVALUE:

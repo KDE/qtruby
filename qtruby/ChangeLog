@@ -1,5 +1,9 @@
 2004-10-10  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+ * A QRgb[] color table was being wrongly deleted after marshalling
+
+2004-10-10  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
  * If a ruby method overriding a virtual method returned a primitive type when an instance of a class
    was expected, it caused a seg fault. A ruby exception is now thrown instead. Fixes problem reported by
    Han Holl.
