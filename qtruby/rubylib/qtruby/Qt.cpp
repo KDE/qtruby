@@ -1114,10 +1114,6 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 static VALUE
 new_qt(int argc, VALUE * argv, VALUE klass)
 {
-	if (rb_block_given_p()) {
-		printf("new_qt: passed a block\n");
-	}
-	
     VALUE * localstack = ALLOCA_N(VALUE, argc + 1);
     localstack[0] = rb_obj_alloc(klass);
     for (int count = 0; count < argc; count++) {
