@@ -1,3 +1,8 @@
+2004-12-29  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added inspect() and pretty_print() methods for KDE::AboutPerson and KDE::AboutTranslator,
+	  along with some more fields in the KDE::AboutData inspector
+
 2004-12-15  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * The DCOPObject inspect method was crashing if the instance hadn't been fully

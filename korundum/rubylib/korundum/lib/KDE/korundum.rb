@@ -405,14 +405,70 @@ module KDE
 	class AboutData
 		def inspect
 			str = super
-			str.sub(/>$/, " appName=%s, programName=%s, version=%s, shortDescription=%s, homepage=%s, bugAddress=%s>" %
-						[appName.inspect, programName.inspect, version.inspect, shortDescription.inspect, homepage.inspect, bugAddress.inspect])
+			str.sub!(/>$/, " appName=%s, copyrightStatement=%s, programName=%s, version=%s, shortDescription=%s, homepage=%s, bugAddress=%s>" %
+							[appName.inspect, copyrightStatement.inspect, programName.inspect, version.inspect,
+							shortDescription.inspect, homepage.inspect, bugAddress.inspect] )
+			length = authors.length
+			if length > 0
+				str.sub!(/>$/, ", authors=Array (%d element(s))>" % length)
+			end
+			length = credits.length
+			if length > 0
+				str.sub!(/>$/, ", credits=Array (%d element(s))>" % length)
+			end
+			length = translators.length
+			if length > 0
+				str.sub!(/>$/, ", translators=Array (%d element(s))>" % length)
+			end
+			return str
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, "\n appName=%s,\n programName=%s,\n version=%s,\n shortDescription=%s,\n homepage=%s,\n bugAddress=%s>" % 
-						[appName.inspect, programName.inspect, version.inspect, shortDescription.inspect, homepage.inspect, bugAddress.inspect])
+			str.sub!(/>$/, "\n appName=%s,\n copyrightStatement=%s,\n programName=%s,\n version=%s,\n shortDescription=%s,\n homepage=%s,\n bugAddress=%s>" % 
+							[appName.inspect, copyrightStatement.inspect, programName.inspect, version.inspect,
+							shortDescription.inspect, homepage.inspect, bugAddress.inspect] )
+			length = authors.length
+			if length > 0
+				str.sub!(/>$/, ",\n authors=Array (%d element(s))>" % length)
+			end
+			length = credits.length
+			if length > 0
+				str.sub!(/>$/, ",\n credits=Array (%d element(s))>" % length)
+			end
+			length = translators.length
+			if length > 0
+				str.sub!(/>$/, ",\n translators=Array (%d element(s))>" % length)
+			end
+			pp.text str
+		end
+	end
+	
+	class AboutPerson
+		def inspect
+			str = super
+			str.sub(/>$/, " emailAddress=%s, name=%s, task=%s, webAddress=%s>" % 
+						[emailAddress.inspect, name.inspect, task.inspect, webAddress.inspect] )
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n emailAddress=%s,\n name=%s,\n task=%s,\n webAddress=%s>" % 
+						[emailAddress.inspect, name.inspect, task.inspect, webAddress.inspect] )
+		end
+	end
+	
+	class AboutTranslator
+		def inspect
+			str = super
+			str.sub(/>$/, " emailAddress=%s, name=%s>" % 
+						[emailAddress.inspect, name.inspect] )
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n emailAddress=%s,\n name=%s>" % 
+						[emailAddress.inspect, name.inspect] )
 		end
 	end
 	
