@@ -19,7 +19,7 @@ class GameBoard < Qt::Widget
 		@force.setRange( 10, 50 )
 		
 		@box = Qt::VBox.new( self, 'cannonFrame' )
-        @box.setFrameStyle( Qt::Frame.WinPanel | Qt::Frame.Sunken )
+        @box.setFrameStyle( Qt::Frame::WinPanel | Qt::Frame::Sunken )
 		@cannonField = CannonField.new( @box, 'cannonField' )
 
 		connect( @angle, SIGNAL('valueChanged(int)'),
@@ -45,7 +45,7 @@ class GameBoard < Qt::Widget
 					@shoot, SLOT('setEnabled(bool)') )
 								
 		@restart = Qt::PushButton.new( '&New Game', self, 'newgame' )
-		@restart.setFont( Qt::Font.new( 'Times', 18, Qt::Font.Bold ) )
+		@restart.setFont( Qt::Font.new( 'Times', 18, Qt::Font::Bold ) )
 
 		connect( @restart, SIGNAL('clicked()'), self, SLOT('newGame()') )
 
@@ -55,11 +55,11 @@ class GameBoard < Qt::Widget
 		@shotsLeftL = Qt::Label.new( 'SHOTS LEFT', self, 'shotsleftLabel' )
 				
 		@accel = Qt::Accel.new( self )
-        @accel.connectItem( @accel.insertItem( Qt::KeySequence.new(Qt.Key_Enter) ),
+        @accel.connectItem( @accel.insertItem( Qt::KeySequence.new(Qt::Key_Enter) ),
                             self, SLOT('fire()') )
-        @accel.connectItem( @accel.insertItem( Qt::KeySequence.new(Qt.Key_Return) ),
+        @accel.connectItem( @accel.insertItem( Qt::KeySequence.new(Qt::Key_Return) ),
                             self, SLOT('fire()') )
-		@accel.connectItem( @accel.insertItem( Qt::KeySequence.new('Qt.CTRL+Key_Q') ),
+		@accel.connectItem( @accel.insertItem( Qt::KeySequence.new(Qt::CTRL+Qt::Key_Q) ),
 							$qApp, SLOT('quit()') )
 							 		
 		@grid = Qt::GridLayout.new( self, 2, 2, 10 )

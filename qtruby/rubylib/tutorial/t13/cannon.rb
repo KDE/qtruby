@@ -110,7 +110,7 @@ class CannonField < Qt::Widget
 		r = Qt::Region.new( shotRect() )
 		@timerCount += 1
 
-		shotR = Qt::Rect.new( shotRect() )
+		shotR = Qt::Rect.new()
 
 		if shotR.intersects( targetRect() ) 
 			@autoShootTimer.stop()
