@@ -26,6 +26,7 @@
 #include <dcopref.h>
 #include <kapplication.h>
 #include <kurl.h>
+#include <kconfigskeleton.h>
 
 #include <ruby.h>
 
@@ -36,6 +37,8 @@
 
 extern "C" {
 extern VALUE qt_internal_module;
+extern VALUE kconfigskeleton_class;
+extern VALUE kconfigskeleton_itemenum_choice_class;
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
 extern void set_kde_resolve_classname(const char * (*kde_resolve_classname) (Smoke*, int, void *));
 extern const char * kde_resolve_classname(Smoke* smoke, int classId, void * ptr);
@@ -1016,6 +1019,79 @@ new_kde(int argc, VALUE * argv, VALUE klass)
 	return instance;
 }
 
+static VALUE
+config_additem(int argc, VALUE * argv, VALUE self)
+{
+	smokeruby_object *o = value_obj_info(self);
+	KConfigSkeleton * config = (KConfigSkeleton *) o->ptr;
+	
+	if (argc < 1 || argc > 2 || TYPE(argv[0]) != T_DATA) {
+		rb_raise(rb_eArgError, "wrong number of arguments(%d for 2)\n", argc);
+	}
+	
+	smokeruby_object *c = value_obj_info(argv[0]);
+	KConfigSkeletonItem * item = (KConfigSkeletonItem *) c->ptr;
+	
+	if (argc == 1) {
+		config->addItem(item);
+	} else {
+		config->addItem(item, QString(StringValuePtr(argv[1])));
+	}
+	
+	return self;
+}
+
+static VALUE
+choice_name(VALUE self)
+{
+	smokeruby_object *o = value_obj_info(self);
+	KConfigSkeleton::ItemEnum::Choice * choice = (KConfigSkeleton::ItemEnum::Choice *) o->ptr;
+	return rb_str_new2(choice->name.latin1());
+}
+
+static VALUE
+set_choice_name(VALUE self, VALUE name)
+{
+	smokeruby_object *o = value_obj_info(self);
+	KConfigSkeleton::ItemEnum::Choice * choice = (KConfigSkeleton::ItemEnum::Choice *) o->ptr;
+	choice->name = StringValuePtr(name);
+	return self;
+}
+
+static VALUE
+choice_label(VALUE self)
+{
+	smokeruby_object *o = value_obj_info(self);
+	KConfigSkeleton::ItemEnum::Choice * choice = (KConfigSkeleton::ItemEnum::Choice *) o->ptr;
+	return rb_str_new2(choice->label.latin1());
+}
+
+static VALUE
+set_choice_label(VALUE self, VALUE label)
+{
+	smokeruby_object *o = value_obj_info(self);
+	KConfigSkeleton::ItemEnum::Choice * choice = (KConfigSkeleton::ItemEnum::Choice *) o->ptr;
+	choice->label = StringValuePtr(label);
+	return self;
+}
+
+static VALUE
+choice_whatsthis(VALUE self)
+{
+	smokeruby_object *o = value_obj_info(self);
+	KConfigSkeleton::ItemEnum::Choice * choice = (KConfigSkeleton::ItemEnum::Choice *) o->ptr;
+	return rb_str_new2(choice->whatsThis.latin1());
+}
+
+static VALUE
+set_choice_whatsthis(VALUE self, VALUE whatsthis)
+{
+	smokeruby_object *o = value_obj_info(self);
+	KConfigSkeleton::ItemEnum::Choice * choice = (KConfigSkeleton::ItemEnum::Choice *) o->ptr;
+	choice->whatsThis = StringValuePtr(whatsthis);
+	return self;
+}
+
 void
 Init_korundum()
 {
@@ -1034,6 +1110,15 @@ Init_korundum()
 	rb_define_singleton_method(kde_module, "dcop_process", (VALUE (*) (...)) dcop_process, 7);
 	rb_define_singleton_method(kde_module, "dcop_call", (VALUE (*) (...)) dcop_call, -1);
 	rb_define_singleton_method(kde_module, "dcop_send", (VALUE (*) (...)) dcop_send, -1);
+	
+	rb_define_method(kconfigskeleton_class, "addItem", (VALUE (*) (...)) config_additem, -1);
+	
+	rb_define_method(kconfigskeleton_itemenum_choice_class, "name", (VALUE (*) (...)) choice_name, 0);
+	rb_define_method(kconfigskeleton_itemenum_choice_class, "label", (VALUE (*) (...)) choice_label, 0);
+	rb_define_method(kconfigskeleton_itemenum_choice_class, "whatsThis", (VALUE (*) (...)) choice_whatsthis, 0);
+	rb_define_method(kconfigskeleton_itemenum_choice_class, "name=", (VALUE (*) (...)) set_choice_name, 1);
+	rb_define_method(kconfigskeleton_itemenum_choice_class, "label=", (VALUE (*) (...)) set_choice_label, 1);
+	rb_define_method(kconfigskeleton_itemenum_choice_class, "whatsThis=", (VALUE (*) (...)) set_choice_whatsthis, 1);
 	
 	rb_require("KDE/korundum.rb");
 }

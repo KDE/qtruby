@@ -42,6 +42,7 @@
 #include <kaboutdata.h>
 #include <karchive.h>
 #if KDE_VERSION >= 0x030200
+#include <kconfigskeleton.h>
 #include <kplugininfo.h>
 #include <kmountpoint.h>
 #endif
@@ -984,6 +985,9 @@ void marshall_ValueItemList(Marshall *m) {
 #define DEF_VALUELIST_MARSHALLER(ListIdent,ItemList,Item,Itr) namespace { char ListIdent##STR[] = #Item; };  \
         Marshall::HandlerFn marshall_##ListIdent = marshall_ValueItemList<Item,ItemList,Itr,ListIdent##STR>;
 
+#if KDE_VERSION >= 0x030200
+DEF_VALUELIST_MARSHALLER( ChoicesList, QValueList<KConfigSkeleton::ItemEnum::Choice>, KConfigSkeleton::ItemEnum::Choice, QValueList<KConfigSkeleton::ItemEnum::Choice>::Iterator )
+#endif
 DEF_VALUELIST_MARSHALLER( KAboutPersonList, QValueList<KAboutPerson>, KAboutPerson, QValueList<KAboutPerson>::Iterator )
 DEF_VALUELIST_MARSHALLER( KAboutTranslatorList, QValueList<KAboutTranslator>, KAboutTranslator, QValueList<KAboutTranslator>::Iterator )
 DEF_VALUELIST_MARSHALLER( KIOCopyInfoList, QValueList<KIO::CopyInfo>, KIO::CopyInfo, QValueList<KIO::CopyInfo>::Iterator )
@@ -1185,6 +1189,8 @@ TypeHandler KDE_handlers[] = {
 #if KDE_VERSION >= 0x030200
     { "KMountPoint::List", marshall_KMountPointList },
     { "KPluginInfo::List", marshall_KPluginInfoList },
+    { "QValueList<KConfigSkeleton::ItemEnum::Choice>", marshall_ChoicesList },
+    { "QValueList<KConfigSkeleton::ItemEnum::Choice>&", marshall_ChoicesList },
 #endif
     { "KServiceType::List", marshall_KServiceTypeList },
     { "KTrader::OfferList", marshall_KTraderOfferList },
