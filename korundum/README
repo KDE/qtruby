@@ -62,8 +62,9 @@ KDE Specific Infomation:
 			String => QString
 			Float => double
 			Integer => int
-			Qt::Widget => QWidget
-			KDE::URL => KURL
+			TrueClass|FalseClass => bool
+			Qt::Widget etc => QWidget
+			KDE::URL etc => KURL
 			[] => QStringList
 			
 	  Specify the full type signature for more unusual C++ types
