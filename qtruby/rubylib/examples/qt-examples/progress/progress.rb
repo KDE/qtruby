@@ -184,7 +184,7 @@ class CPUWaster < Qt::Widget
 	    painter.fillRect(x, y, w, h, Qt::Brush.new(c))
 	end
 
-        if @rects < 0 || @got_stop
+        if @rects == 0 || @got_stop
             @pb.setProgress(@pb.totalSteps)
             painter = Qt::Painter.new(self)
             painter.fillRect(0, 0, width(), height(), Qt::Brush.new(backgroundColor))
@@ -210,7 +210,7 @@ class CPUWaster < Qt::Widget
 
     def draw(n)
         if timer_driven
-            if @pb.nil?
+            unless @pb.nil?
                 warn("This cannot happen!")
                 return
             end
