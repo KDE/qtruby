@@ -14,13 +14,23 @@ class TicTacButton < Qt::PushButton
 	def drawButtonLabel(p)
 		r = rect()
 		p.setPen( Qt::Pen.new( Qt::white,2 ) ) #set fat pen
-		if ( @type == Circle )
+		if (@type == Circle)
 			p.drawEllipse( r.left()+4, r.top()+4, r.width()-8, r.height()-8 )
 		elsif (@type == Cross)
 			#draw cross
-			p.drawLine( r.topLeft()   +Qt::Point.new(4,4), r.bottomRight()-Qt::Point.new(4,4));
-			p.drawLine( r.bottomLeft()+Qt::Point.new(4,-4),r.topRight()   -Qt::Point.new(4,-4));
+			x1 = r.topLeft.x+4
+			x2 = r.bottomRight.x-4
+			y1 = r.topLeft.y+4
+			y2 = r.bottomRight.y-4
+			p.drawLine( x1, y1, x2, y2)
+
+			x1 = r.bottomLeft.x+4
+			x2 = r.topRight.x+4
+			y1 = r.bottomLeft.y-4
+			y2 = r.topRight.y-4
+			p.drawLine( x1, y1, x2, y2)
 		end
+		super(p)
 	   end
 		   
 
@@ -100,7 +110,7 @@ class TicTacGameBoard < Qt::Widget
 				next
 			end
 			col = 1
-			while ( (col < @nBoard) && (@buttons[row*@nBoard].type == t) )
+			while ( (col < @nBoard) && (@btArray[row*@nBoard] == t) )
 				col = col + 1
 			end
 			if (col == @nBoard)
@@ -130,7 +140,43 @@ class TicTacGameBoard < Qt::Widget
 
 	def computerMove
 		numButtons = @nBoard*@nBoard
-		
+		altv = Array.new
+		stopHuman = -1
+
+		for i in 0..numButtons-1
+			if @btArray[i] != TicTacButton::Blank
+				next
+			end
+
+			@btArray[i] = TicTacButton::Cross
+			if (checkBoard == @btArray[i])
+				@state = ComputerWon
+				stopHuman = -1
+				break
+			end
+
+			@btArray[i] = TicTacButton::Circle
+			if (checkBoard == @btArray[i])
+				stopHuman = i
+				@btArray[i] = TicTacButton::Blank
+				next
+			end
+			@btArray[i] = TicTacButton::Blank;
+			altv.push[i]
+		end
+
+		if stopHuman >= 0
+			@btArray[stopHuman] = TicTacButton::Cross
+		elsif i == numButtons
+			if altv.size > 0
+				@btArray[altv[rand()%(altv.size)]] = TicTacButton::Cross
+			end
+			if (altv.size-1) == 0
+				@state = NobodyWon
+				emit finished()
+			end
+		end
+		updateButtons
 	end
 
 	def buttonClicked
