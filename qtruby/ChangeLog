@@ -1,3 +1,7 @@
+2003-08-06  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Fixed 'int&' marshalling so script name appears in window title
+
 2003-08-05  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Moved SLOT(), SIGNAL() and emit() to global scope

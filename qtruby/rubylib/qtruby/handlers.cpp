@@ -574,8 +574,7 @@ static void marshall_intR(Marshall *m) {
 		break;
 	    }
 	    if(m->cleanup()) {
-		int i = 0;
-//		int i = NUM2INT(rv);
+		int i = NUM2INT(rv);
 		m->item().s_voidp = &i;
 		m->next();
 		// How to do this in Ruby?
