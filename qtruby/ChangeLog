@@ -1,3 +1,20 @@
+2004-07-26  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* The error messages for missing methods or missing constants now give the
+	  name of the missing item.
+	* For example, this incorrect line:
+
+	    color_group.setColor( ColorGroup::MyMissingConst, blue )
+	  
+	  Gives this error:
+
+	    splitter.rb:16:in `const_missing': unresolved constant 
+	        reference MyMissingConst (ArgumentError)
+
+	* Implements suggestion from Jeff on the kdebindings list
+
+	CCMAIL: kde-bindings@kde.org
+
 2004-07-19  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added Qt::Enum type. Before a C++ enum was being marshalled to a ruby
