@@ -9,7 +9,7 @@
     <entry name="Color$(Number)" type="Color" key="color #$(Number)">
       <parameter name="Number" type="Int" max="3"/>
       <label>Block colors.</label>
-      <code>QColor defaultColor[4] = { Qt::red, Qt::blue, Qt::green, Qt::black };</code>
+      <code>defaultColor = [ Qt::red, Qt::blue, Qt::green, Qt::black ]</code>
       <default code="true">defaultColor[$(Number)]</default>
     </entry>
     <entry name="MouseAction$(Button)" type="Enum" key="$(Button)_mouse_action">

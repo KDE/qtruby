@@ -179,6 +179,7 @@ class CfgEntry
 static QString varName(const QString &n)
 {
   QString result = "@"+n;
+  result[1] = result[1].lower();
   return result;
 }
 
@@ -681,9 +682,14 @@ static QString itemVar(const CfgEntry *e)
 QString newItem( const QString &type, const QString &name, const QString &key,
                  const QString &defaultValue, const QString &param = QString::null)
 {
-  QString t = "KDE::ConfigSkeleton::Item" + itemType( type ) +
-              ".new( currentGroup(), " + key + ", " + varName( name ) + param;
-  if ( type == "Enum" ) t += ", values" + name;
+  QString t = "Item" + itemType( type ) +
+              ".new( currentGroup(), " + key + ", " + varName( name ) + param + ".to";
+  if ( type == "Enum" ) {
+    t += ".toInt";  
+    t += ", values" + name;
+  } else {
+    t += ".to" + itemType( type );
+  }
   if ( !defaultValue.isEmpty() ) {
     t += ", ";
     if ( type == "String" ) t += defaultValue;
@@ -1075,7 +1081,7 @@ int main( int argc, char **argv )
       if (!e->param().isEmpty())
         rb  << " i, ";
       rb << " v )" << endl;
-      rb << "        if !" << "immutable? \"";
+      rb << "        item = findItem( \"";
       if (!e->param().isEmpty()) {
         rb << e->paramName().replace("$("+e->param()+")", "%s") << "\" % ";
         if ( e->paramType() == "Enum" ) {
@@ -1084,17 +1090,18 @@ int main( int argc, char **argv )
             rb << enumName(e->param()) << "ToString(i)";
           else 
             rb << enumName(e->param()) << "ToString(i)";
-          rb << " ";
         } else {
           rb << "i";
         }
-      } else
+      } else {
         rb << n << "\"";
-      rb << endl;
-      rb << "            " << varName(n);
+	  }
+      rb << " )" << endl;
+      rb << "        if !item.immutable? " << endl;
+      rb << "            item.property = " << varName(n);
       if (!e->param().isEmpty())
         rb << "[i]";
-      rb << " = v" << endl;
+      rb << " = Qt::Variant.new( v )" << endl;
       rb << "        end" << endl;
       rb << "    end" << endl << endl;
     }
@@ -1110,7 +1117,12 @@ int main( int argc, char **argv )
 //    rb << "    {" << endl;
     rb << "        return " << varName(n);
     if (!e->param().isEmpty()) rb << "[i]";
-    rb << endl << "    end" << endl;
+    if ( e->paramType() == "Enum" ) {
+	  rb << ".toInt" << endl;
+	} else {
+	  rb << ".to" << itemType( e->type() ) << endl;
+	}
+    rb << "    end" << endl;
 
     // Item accessor
     if ( itemAccessors ) {
@@ -1163,7 +1175,7 @@ int main( int argc, char **argv )
   for (QStringList::ConstIterator it = parameters.begin();
        it != parameters.end(); ++it)
   {
-     rb << "        @param" << *it << " = " << *it  << endl;
+     rb << "        @param" << *it << " = Qt::Variant.new( " << *it << " )" << endl;
   }
 
   QString group;
@@ -1174,9 +1186,16 @@ int main( int argc, char **argv )
       rb << "        # " << group << endl;
     }
     if (e->param().isEmpty()) {
-      rb << "        " << varName(e->name()) << " = " << rbType(e->type());
+      rb << "        " << varName(e->name()) << " = Qt::Variant.new( " << rbType(e->type()) << " )";
     } else {
-      rb << "        " << varName(e->name()) << QString(" = Array.new(%1, %2)").arg(e->paramMax()+1).arg(rbType(e->type()));
+      rb << "        " << varName(e->name()) << " = [ ";
+	  for (int i = 0; i < e->paramMax()+1; i++) {
+		if (i > 0) {
+		  rb << ", ";
+		}
+	  	rb << "Qt::Variant.new( " << rbType(e->type()) << " )";
+	  }
+	  rb << " ]";
     }
     rb << endl;
   }
@@ -1221,6 +1240,8 @@ int main( int argc, char **argv )
       rb << "        " << itemVar(e) << " = "
           << newItem( e->type(), e->name(), key, e->defaultValue() ) << endl;
       
+	  rb << "        " << itemVar(e) << ".property = " << varName(e->name()) << endl;
+      
       if ( !e->minValue().isEmpty() )
         rb << "        " << itemVar(e) << ".setMinValue(" << e->minValue() << ")" << endl;
       if ( !e->maxValue().isEmpty() )
@@ -1254,6 +1275,8 @@ int main( int argc, char **argv )
 		rb << "        " << itemVarStr << " = "
             << newItem( e->type(), e->name(), paramString(key, e, i), defaultStr, QString("[%1]").arg(i) )
             << endl;
+			
+	    rb << "        " << itemVarStr << ".property = " << varName(e->name())+QString("[%1]").arg(i) << endl;
 
         if ( setUserTexts )
           rb << userTextsFunctions( e, itemVarStr, e->paramName() );

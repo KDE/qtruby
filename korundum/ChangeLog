@@ -1,5 +1,14 @@
 2005-01-20  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* The rbkconfig_compiler now uses Qt::Variants to hold the values in KDE::ConfigSkeleton 
+	   instance variables. 
+	* The values of the KDE::ConfigSkeletonItems are then set as properties with the Qt::Variants. 
+	  It wasn't possible to handle references to primitive types such as 'int&' via ruby, so properties are 
+	  a more 'scripting language' oriented approach. 
+	* The embedded code in the .kcfg examples was converted from C++ to ruby 
+
+2005-01-20  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Tidied up the rbkconfig_compiler code
 	* Added marshaller for KConfigSkeleton::ItemEnum::Choice lists to and from ruby Arrays,
 	  and accessor methods for the Item::Enum::Choice struct.
