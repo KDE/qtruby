@@ -18,6 +18,7 @@
 #include <qtruby.h>
 #include <smokeruby.h>
 
+#include <kdeversion.h>
 #include <dcopclient.h>
 #include <dcopobject.h>
 #include <dcopref.h>
@@ -38,7 +39,9 @@
 #include <khtml_part.h>
 #include <kuserprofile.h>
 #include <kaboutdata.h>
+#if KDE_VERSION >= 0x030200
 #include <kmountpoint.h>
+#endif
 #include <kio/jobclasses.h>
 #include <dom/dom_node.h>
 #include <dom/dom_string.h>
@@ -477,6 +480,7 @@ void marshall_KServiceGroupList(Marshall *m) {
 	}
 }
 
+#if KDE_VERSION >= 0x030200
 void marshall_KMountPointList(Marshall *m) {
 	switch(m->action()) {
 	case Marshall::FromVALUE: 
@@ -521,6 +525,7 @@ void marshall_KMountPointList(Marshall *m) {
 		break;
 	}
 }
+#endif
 
 void marshall_KTraderOfferList(Marshall *m) {
 	switch(m->action()) {
@@ -660,7 +665,7 @@ void marshall_KURLList(Marshall *m) {
 
 
 // Some time saving magic from Alex Kellett here..
-template <class Item, class ItemList, class ItemListIterator, const char *ItemSTR >
+template <class Item, class ItemList, const char *ItemSTR >
 void marshall_ItemList(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE:
@@ -693,10 +698,10 @@ void marshall_ItemList(Marshall *m) {
 
 	    if(m->cleanup()) {
 		rb_ary_clear(list);
-		for(ItemListIterator it = cpplist->begin();
-		    it != cpplist->end();
-		    ++it) {
-		    VALUE obj = getPointerObject((void*)(*it));
+		for( Item * it = cpplist->first();
+		    it != 0;
+		    it = cpplist->next()) {
+		    VALUE obj = getPointerObject((void*)it);
 		    rb_ary_push(list, obj);
 		}
 		delete cpplist;
@@ -716,10 +721,10 @@ void marshall_ItemList(Marshall *m) {
 	    int ix = m->smoke()->idClass(ItemSTR);
 	    const char * className = m->smoke()->binding->className(ix);
 
-	    for(ItemListIterator it = valuelist->begin();
-		it != valuelist->end();
-		++it) {
-		void *p = *it;
+	    for(Item * it = valuelist->first();
+		it != 0;
+		it = valuelist->next()) {
+		void *p = it;
 
 		if(m->item().s_voidp == 0) {
 		    *(m->var()) = Qnil;
@@ -750,19 +755,19 @@ void marshall_ItemList(Marshall *m) {
     }
 }
 
-#define DEF_LIST_MARSHALLER(ListIdent,ItemList,Item,Itr) namespace { char ListIdent##STR[] = #Item; };  \
-        Marshall::HandlerFn marshall_##ListIdent = marshall_ItemList<Item,ItemList,Itr,ListIdent##STR>;
+#define DEF_LIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; };  \
+        Marshall::HandlerFn marshall_##ListIdent = marshall_ItemList<Item,ItemList,ListIdent##STR>;
 
-DEF_LIST_MARSHALLER( KFileItemList, KFileItemList, KFileItem, KFileItemList::Iterator )
-DEF_LIST_MARSHALLER( KMainWindowList, QPtrList<KMainWindow>, KMainWindow, QPtrList<KMainWindow>::Iterator )
-DEF_LIST_MARSHALLER( KActionList, QPtrList<KAction>, KAction, QPtrList<KAction>::Iterator )
-DEF_LIST_MARSHALLER( DCOPObjectList, QPtrList<DCOPObject>, DCOPObject, QPtrList<DCOPObject>::Iterator )
-DEF_LIST_MARSHALLER( KDockWidgetList, QPtrList<KDockWidget>, KDockWidget, QPtrList<KDockWidget>::Iterator )
-DEF_LIST_MARSHALLER( KFileTreeBranch, QPtrList<KFileTreeBranch>, KFileTreeBranch, QPtrList<KFileTreeBranch>::Iterator )
-DEF_LIST_MARSHALLER( KFileTreeViewItem, QPtrList<KFileTreeViewItem>, KFileTreeViewItem, QPtrList<KFileTreeViewItem>::Iterator )
-DEF_LIST_MARSHALLER( KPartList, QPtrList<KParts::Part>, KParts::Part, QPtrList<KParts::Part>::Iterator )
-DEF_LIST_MARSHALLER( KPartReadOnlyPartList, QPtrList<KParts::ReadOnlyPart>, KParts::ReadOnlyPart, QPtrList<KParts::ReadOnlyPart>::Iterator )
-DEF_LIST_MARSHALLER( KServiceTypeProfileList, QPtrList<KServiceTypeProfile>, KServiceTypeProfile, QPtrList<KServiceTypeProfile>::Iterator )
+DEF_LIST_MARSHALLER( KFileItemList, QPtrList<KFileItem>, KFileItem )
+DEF_LIST_MARSHALLER( KMainWindowList, QPtrList<KMainWindow>, KMainWindow )
+DEF_LIST_MARSHALLER( KActionList, QPtrList<KAction>, KAction )
+DEF_LIST_MARSHALLER( DCOPObjectList, QPtrList<DCOPObject>, DCOPObject )
+DEF_LIST_MARSHALLER( KDockWidgetList, QPtrList<KDockWidget>, KDockWidget )
+DEF_LIST_MARSHALLER( KFileTreeBranch, QPtrList<KFileTreeBranch>, KFileTreeBranch )
+DEF_LIST_MARSHALLER( KFileTreeViewItem, QPtrList<KFileTreeViewItem>, KFileTreeViewItem )
+DEF_LIST_MARSHALLER( KPartList, QPtrList<KParts::Part>, KParts::Part )
+DEF_LIST_MARSHALLER( KPartReadOnlyPartList, QPtrList<KParts::ReadOnlyPart>, KParts::ReadOnlyPart )
+DEF_LIST_MARSHALLER( KServiceTypeProfileList, QPtrList<KServiceTypeProfile>, KServiceTypeProfile )
 
 template <class Item, class ItemList, class ItemListIterator, const char *ItemSTR >
 void marshall_ValueItemList(Marshall *m) {
@@ -1055,7 +1060,9 @@ TypeHandler KDE_handlers[] = {
     { "KService::List", marshall_KServiceList },
     { "KServiceGroup::List", marshall_KServiceGroupList },
     { "KServiceGroup::Ptr", marshall_KServiceGroupPtr },
+#if KDE_VERSION >= 0x030200
     { "KMountPoint::List", marshall_KMountPointList },
+#endif
     { "KServiceType::List", marshall_KServiceTypeList },
     { "KTrader::OfferList", marshall_KTraderOfferList },
     { "KURL::List", marshall_KURLList },
