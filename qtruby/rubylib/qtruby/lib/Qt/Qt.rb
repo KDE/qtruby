@@ -102,10 +102,8 @@ module Qt
 				return nil
 			end
 
-			method_original = method.clone
-			
 			if method == "new"
-				method = classname * 1
+				method = classname.dup
 			end
 						
 			method_argstr = ""
@@ -133,12 +131,12 @@ module Qt
 					end
 				end
 			end
-			chosen = methodIds[0]
 
+			chosen = methodIds[0]
 			if chosen.nil?
 				methodStr = method + "#" + method_argstr
-			        methodIds = Operators[ClassAndMethod.new(classname, methodStr)]
-				methodIds.flatten.each {
+				methodIds = findMethod("QFriendOperators", methodStr)
+				methodIds.each {
 					|id|
 					argtype = getVALUEtype(args[0])
 					chosen = id if checkarg(argtype, id, 0)
@@ -152,8 +150,6 @@ module Qt
 			return nil
 		end
 
-		ClassAndMethod = Struct.new(:class, :method)
-		
 		def init()
 			classes = getClassList()
 			for c in classes
@@ -164,18 +160,6 @@ module Qt
 					init_class(c)
 				end
 			end
-			classid = find_pclassid("Qt::FriendOperators")
-			findAllMethods(classid).each_pair {
-			    |name, ids|
-			    ids.each {
-				|id| 
-				typename = getTypeNameOfArg(id, 0)
-				t = typename.sub(/^const\s+/, '')
-				t.sub!(/[&*]$/, '')
-				# maybe we can do left side primitive types but only when right side is non primitive?
-				Operators[ClassAndMethod.new(t, name)] += [ids]
-			    }
-			}
 		end
 	end
 
