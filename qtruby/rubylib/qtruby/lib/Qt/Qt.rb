@@ -319,7 +319,7 @@ class Module
 		if meta.nil?
 			meta = MetaInfo.new(self)
 		end
-		meta.signals=(signal_list)
+		meta.signals += signal_list
 	end
 	
 	def slots(*slot_list)
@@ -327,7 +327,7 @@ class Module
 		if meta.nil?
 			meta = MetaInfo.new(self)
 		end
-		meta.slots=(slot_list)
+		meta.slots += slot_list
 	end
 end
 

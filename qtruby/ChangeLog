@@ -1,3 +1,8 @@
+2003-08-04  Alexander Kellett   <lypanov@kde.org>
+
+	* Allow for accumulative slots/signals declarations in a class
+	* Minor build fixes
+
 2003-08-02  Alexander Kellett   <lypanov@kde.org>
 
 	* Fix several deprecation warnings when running under 1.8.x
