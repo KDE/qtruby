@@ -123,7 +123,8 @@ bool Uic::isEmptyFunction( const QString& fname )
 	QString body = (*fit).mid( begin + 1, (*fit).findRev( "}" ) - begin - 1 );
 	return body.simplifyWhiteSpace().isEmpty();
     }
-    return FALSE;
+	// For now ruby functions are always empty, until a rubyeditor Qt Designer plugin exists..
+    return TRUE;
 }
 
 

@@ -49,30 +49,27 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
     QString objClass = getClassName( e );
     if ( objClass.isEmpty() )
 	return;
-    out << indent << "package " << subClass << ";" << endl;
-    out << indent << "use Qt;" << endl;
-    out << indent << "use " << nameOfClass << ";" << endl;
-    out << indent << "use Qt::isa qw("<< nameOfClass << ");" << endl;
+    out << indent << "require 'Qt'" << endl;
+    out << indent << subClass << " < " << nameOfClass << endl;
 
     out << endl;
 
     // constructor
-    out << indent << "sub NEW" << endl;
-    out << indent << "{" << endl;
+    out << indent << "def initialize(*k)" << endl;
     ++indent;
     if ( objClass == "Qt::Dialog" || objClass == "Qt::Wizard" ) {
-	out << indent << "shift->SUPER::NEW(@_[0..3]);" << endl;
+	out << indent << "super(*k)" << endl;
     } else if ( objClass == "Qt::Widget")  {
-	out << indent << "shift->SUPER::NEW(@_[0..2]);" << endl;
+	out << indent << "super(*k)" << endl;
     } else if ( objClass == "Qt::MainWindow" ) {
-	out << indent << "shift->SUPER::NEW(@_[0..2]);" << endl;
-	out << indent << "statusBar();" << endl;
+	out << indent << "super(*k)" << endl;
+	out << indent << "statusBar()" << endl;
 	isMainWindow = TRUE;
     } else {
-	out << indent << "shift->SUPER::NEW(@_[0,1]);" << endl;
+	out << indent << "super(*k)" << endl;
     }
     --indent;
-    out << indent << "}" << endl;
+    out << indent << "end" << endl;
     out << endl;
 
     // find additional slots
@@ -117,9 +114,6 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	fname = Parser::cleanArgs( fname );
 	functionImpls.insert( fname, n.firstChild().toText().data() );
     }
-    // FIXME PerlQt: distinguishing public/protected/private slots does not make any sense in the forseable future
-    //        but nevermind, never forget somewhere far beyond the sky, Ashley Winters is furbishing *Plan 42* ! :)
-
     // create stubs for public additional slots
     if ( !publicSlots.isEmpty() ) {
 	for ( it = publicSlots.begin(), it2 = publicSlotTypes.begin(), it3 = publicSlotSpecifier.begin();
@@ -133,9 +127,9 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	    if ( isEmptyFunction( *it ) ) {
 	        out << endl;
 	        int astart = (*it).find('(');
-	        out << indent << "def " << (*it).left(astart)<< endl;
+	        out << indent << "def " << (*it).left(astart)<< "()" << endl;
 		++indent;
-		out << indent << "print \"" << subClass << "." << (*it) << ": Not implemented yet.\\n\";" << endl;
+		out << indent << "print(\"" << subClass << "." << (*it) << ": Not implemented yet.\\n\")" << endl;
 		--indent;
                 out << indent << "end" << endl;
 	    }
@@ -155,9 +149,10 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	    if ( isEmptyFunction( *it ) ) {
 	        out << endl;
 	        int astart = (*it).find('(');
-	        out << indent << "def " << (*it).left(astart)<< endl;
+	        out << indent << "protected :" << (*it).left(astart)<< endl;
+	        out << indent << "def " << (*it).left(astart)<< "()" << endl;
 		++indent;
-		out << indent << "print \"" << subClass << "." << (*it) << ": (Protected) Not implemented yet.\\n\";" << endl;
+		out << indent << "print(\"" << subClass << "." << (*it) << ": (Protected) Not implemented yet.\\n\")" << endl;
 		--indent;
                 out << indent << "end" << endl;
 	    }
@@ -178,9 +173,10 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	    if ( isEmptyFunction( *it ) ) {
 	        out << endl;
 	        int astart = (*it).find('(');
-	        out << indent << "def " << (*it).left(astart)<< endl;
+	        out << indent << "private :" << (*it).left(astart)<< endl;
+	        out << indent << "def " << (*it).left(astart)<< "()" << endl;
 		++indent;
-		out << indent << "print \"" << subClass << "." << (*it) << ": (Private) Not implemented yet.\\n\";" << endl;
+		out << indent << "print(\"" << subClass << "." << (*it) << ": (Private) Not implemented yet.\\n\")" << endl;
 		--indent;
                 out << indent << "end" << endl;
 	    }
