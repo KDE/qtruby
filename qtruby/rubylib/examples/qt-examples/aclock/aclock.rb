@@ -1,115 +1,123 @@
-#!/usr/bin/ruby -w
+#!/usr/bin/env ruby -w
 
 require 'Qt'
 
 # an analog clock widget using an internal QTimer
-#
 class AnalogClock < Qt::Widget
-    slots 'setTime(const QTime&)', 'drawClock(QPainter*)', 'timeout()'
-    attr_accessor :clickPos, :_time
+	slots 'setTime(const QTime&)', 'drawClock(QPainter*)', 'timeout()'
 
-    def initialize(*k)
-	super(*k)
-	@_time = Qt::Time::currentTime
-	@internalTimer = Qt::Timer.new(self)
-	connect(@internalTimer, SIGNAL('timeout()'), self, SLOT('timeout()'))
-	@internalTimer.start(5000)
-    end
+	def initialize
+		super
 
-    def mousePressEvent(e)
-	return unless isTopLevel
-	topLeft = geometry.topLeft - frameGeometry.topLeft
-	@clickPos = e.pos + topLeft
-    end
+		@time = Qt::Time::currentTime
+		@internalTimer = Qt::Timer.new(self)
+		connect(@internalTimer, SIGNAL('timeout()'), self, SLOT('timeout()'))
+		@internalTimer.start(5000)
+	end
 
-    def mouseMoveEvent(e)
-	return unless isTopLevel
-	move(e.globalPos - @clickPos) unless @clickPos.nil?
-    end
+	def mousePressEvent(e)
+		if isTopLevel
+			topLeft = geometry.topLeft - frameGeometry.topLeft
+			@clickPos = e.pos + topLeft
+		end
+	end
 
-    def setTime(t)
-	# erm. huh?
-	timeout()
-    end
+	def mouseMoveEvent(e)
+		if isTopLevel
+			move(e.globalPos - @clickPos) unless @clickPos.nil?
+		end
+	end
 
-    # The QTimer::timeout() signal is received by this slot.
-    def timeout
-	new_time = Qt::Time::currentTime
-	@_time = @_time.addSecs 5
-	return if new_time.minute == @_time.minute
-        if autoMask then updateMask else update end
-    end
+	def setTime(t)
+		# erm. huh?
+		timeout()
+	end
 
-    def paintEvent(blah)
-	return if autoMask
-	paint = Qt::Painter.new(self)
-	paint.setBrush(colorGroup.foreground)
-	drawClock(paint)
-    end
+	# The QTimer::timeout() signal is received by this slot.
+	def timeout
+		new_time = Qt::Time::currentTime
+		@time = @time.addSecs 5
+		unless new_time.minute == @time.minute
+			if autoMask
+				updateMask
+			else
+				update
+			end
+		end
+	end
 
-    # If clock is transparent, we use updateMask() instead of paintEvent()
-    def updateMask
-	bm = Qt::Bitmap.new(size)
-	bm.fill(color0)			# transparent
+	def paintEvent(blah)
+		unless autoMask
+			paint = Qt::Painter.new(self)
+			paint.setBrush(colorGroup.foreground)
+			drawClock(paint)
+		end
+	end
 
-	paint = Qt::Painter.new
-	paint.begin(bm, self)
-	paint.setBrush(color1)		# use non-transparent color
-	paint.setPen(color1)
+	# If clock is transparent, we use updateMask() instead of paintEvent()
+	def updateMask
+		bm = Qt::Bitmap.new(size)
+		bm.fill(color0)			# transparent
 
-	drawClock(paint)
+		paint = Qt::Painter.new
+		paint.begin(bm, self)
+		paint.setBrush(color1)		# use non-transparent color
+		paint.setPen(color1)
 
-	paint.end
-	setMask(bm)
-    end
+		drawClock(paint)
 
-    # The clock is painted using a 1000x1000 square coordinate system, in
-    # the centered square, as big as possible.  The painter's pen and
-    # brush colors are used.
-    def drawClock(paint)
-	paint.save
+		paint.end
+		setMask(bm)
+	end
 
-	paint.setWindow(-500,-500, 1000,1000)
+	# The clock is painted using a 1000x1000 square coordinate system, in
+	# the centered square, as big as possible.  The painter's pen and
+	# brush colors are used.
+	def drawClock(paint)
+		paint.save
 
-	v = paint.viewport
-	d = [v.width, v.height].min
-	vpx = (v.left + (v.width-d)) / 2
-	vpy = (v.top  - (v.height-d)) / 2
-	paint.setViewport(vpx, vpy, d, d) 
-	# @_time = Qt::Time::currentTime(); huh ?
+		paint.setWindow(-500,-500, 1000,1000)
 
-	paint.save
-	paint.rotate(30*(@_time.hour%12-3) + @_time.minute/2)
-	pts = Qt::PointArray.new(4, [-20,0, 0,-20, 300,0, 0,20])
-	paint.drawConvexPolygon(pts)
-	paint.restore
+		v = paint.viewport
+		d = [v.width, v.height].min
+		vpx = (v.left + (v.width-d)) / 2
+		vpy = (v.top  - (v.height-d)) / 2
+		paint.setViewport(vpx, vpy, d, d) 
 
-	paint.save
-	paint.rotate((@_time.minute-15)*6)
-	pts = Qt::PointArray.new(4, [-10,0, 0,-10, 400,0, 0,10])
-	paint.drawConvexPolygon(pts)
-	paint.restore;
+		paint.save
+		paint.rotate(30*(@time.hour%12-3) + @time.minute/2)
+		pts = Qt::PointArray.new(4, [-20,0, 0,-20, 300,0, 0,20])
+		paint.drawConvexPolygon(pts)
+		paint.restore
 
-	12.times {
-	    paint.drawLine(440,0, 460,0)
-	    paint.rotate(30)
-	}
+		paint.save
+		paint.rotate((@time.minute-15)*6)
+		pts = Qt::PointArray.new(4, [-10,0, 0,-10, 400,0, 0,10])
+		paint.drawConvexPolygon(pts)
+		paint.restore;
 
-	paint.restore
-    end
+		12.times {
+			paint.drawLine(440,0, 460,0)
+			paint.rotate(30)
+		}
 
-    def setAutoMask(background)
-	setBackgroundMode(background ? PaletteForeground : PaletteBackground)
-	Qt::Widget::setAutoMask(background)
-    end
+		paint.restore
+	end
+
+	def setAutoMask(background)
+		setBackgroundMode(background ? PaletteForeground : PaletteBackground)
+		Qt::Widget::setAutoMask(background)
+	end
 
 end
 
 a = Qt::Application.new(ARGV)
 clock = AnalogClock.new
-clock.setAutoMask(true) if ARGV[0] == '-transparent'
+ARGV.each {|arg|
+	clock.setAutoMask(true) if arg == '-transparent'
+}
 clock.resize(100, 100)
 a.setMainWidget(clock)
-clock.setCaption("PerlQt example - Analog Clock")
+clock.setCaption('QtRuby example - Analog Clock')
 clock.show
 a.exec
