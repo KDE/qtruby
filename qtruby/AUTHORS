@@ -1,5 +1,5 @@
 /***************************************************************************
- * 	(C) 2003 Richard Dale All rights reserved.                             *
+ * 	(C) 2003-2004 Richard Dale All rights reserved.                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -15,12 +15,12 @@ Bug fixes, enhancements, sample code
 	Alex Kellett
 	
 Other contributions (from the ChangeLog), bug reports, fixes etc:
-Alex Zepeda
-Mikhail Yakshin
-Imobach Sosa
-Marek Janukowicz
-Jochen Immendörfer
-Dominique Devriese
+	Alex Zepeda
+	Mikhail Yakshin
+	Imobach Sosa
+	Marek Janukowicz
+	Jochen Immendörfer
+	Dominique Devriese
 
 QtRuby is a ruby version of the PerlQt/Smoke project, written by:
 	Ashley Winters
