@@ -38,7 +38,7 @@ module Qt
 
 		def checkarg(argtype, method, i)
 			typename = getTypeNameOfArg(method, i)
-			puts "   arg #{i}: #{typename} (#{argtype})" if debug_level >= DebugLevel::High
+			puts "      #{typename} (#{argtype})" if debug_level >= DebugLevel::High
 			if argtype == 'i'
 				if typename =~ /^(?:short|ushort|int|uint|long|ulong|signed|unsigned)$/
 					return 0
@@ -88,7 +88,7 @@ module Qt
 			argtype = getVALUEtype(args[i])
                         methodIds.each {
                                 |id|
-				puts methodj if debug_level >= DebugLevel::High
+				puts "   #{id}:" if debug_level >= DebugLevel::High
 				match_value = checkarg(argtype, id, i)
 				match[id] = match_value unless match_value.nil?
                         }
@@ -142,10 +142,10 @@ module Qt
 			methodStr = method + method_argstr
 			methodIds = findMethod(classname, methodStr)
 			if debug_level >= DebugLevel::High
-			    puts "classname == #{classname}"
-			    puts "methodStr == #{methodStr}"
-			    puts "methodIds == #{methodIds.inspect}"
-			    puts "-> candidate list:"
+			    puts "classname    == #{classname}"
+			    puts ":: methodStr == #{methodStr}"
+			    puts "-> methodIds == #{methodIds.inspect}"
+			    puts "candidate list:"
 			    prototypes = dumpCandidates(methodIds).split("\n")
 			    line_len = (prototypes.collect { |p| p.length }).max
 			    prototypes.zip(methodIds) { 
@@ -156,21 +156,16 @@ module Qt
 				puts "attempting to resolve:" if debug_level >= DebugLevel::High
 				(0...args.length).each {
 					|i|
+					puts "arg #{i}:"
 					matching = arg_matches?(methodIds, args, i)
-					print "matching list" if debug_level >= DebugLevel::High
-					p matching if debug_level >= DebugLevel::High
+					puts "arg_matches => #{matching.inspect}" if debug_level >= DebugLevel::High
 					next if matching.empty?
-					puts "possible match" if debug_level >= DebugLevel::High
-					puts "matching == #{matching}" if debug_level >= DebugLevel::High
 					methodIds[0] = matching[0][0]
-					puts "chosen == #{methodIds[0]}" if debug_level >= DebugLevel::High
-					p dumpCandidates([methodIds[0]]) if debug_level >= DebugLevel::High
-					print("Resolved Method #{classname}::#{method_str} => " + methodIds[0].to_s + "\n") if debug_level >= DebugLevel::High
+					puts "Resolved to id: #{methodIds[0]}" if debug_level >= DebugLevel::High
 					break
 				}
 			end
 			chosen = methodIds[0]
-			print "chosen ==== #{chosen}" if debug_level >= DebugLevel::High
 
 			if chosen.nil? and not method =~ /[a-zA-Z]/
 				opMethodStr = method + "#" + method_argstr
@@ -212,7 +207,7 @@ module Qt
 				puts dumpCandidates(method_ids)
 			end
 
-			p chosen if debug_level >= DebugLevel::High
+			puts "setCurrentMethod(#{chosen})" if debug_level >= DebugLevel::High
 			setCurrentMethod(chosen) if chosen
 			return nil
 		end
