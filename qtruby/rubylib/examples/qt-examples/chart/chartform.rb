@@ -33,6 +33,7 @@ class ChartForm < Qt::MainWindow
 
     def initialize( filename )
         super( nil, nil, WDestructiveClose )
+        @filename = filename
         setIcon( Qt::Pixmap.new( "images/options_piechart.xpm" ) )
     
         fileNewAction = Qt::Action.new(
@@ -131,18 +132,18 @@ class ChartForm < Qt::MainWindow
         optionsTools.addSeparator()
         optionsSetOptionsAction.addTo( optionsTools )
     
-        fileMenu = Qt::PopupMenu.new( self )
-        menuBar().insertItem( "&File", fileMenu )
-        fileNewAction.addTo( fileMenu )
-        fileOpenAction.addTo( fileMenu )
-        fileSaveAction.addTo( fileMenu )
-        fileSaveAsAction.addTo( fileMenu )
-        fileMenu.insertSeparator()
-        fileSaveAsPixmapAction.addTo( fileMenu )
-        fileMenu.insertSeparator()
-        filePrintAction.addTo( fileMenu )
-        fileMenu.insertSeparator()
-        fileQuitAction.addTo( fileMenu )
+        @fileMenu = Qt::PopupMenu.new( self )
+        menuBar().insertItem( "&File", @fileMenu )
+        fileNewAction.addTo( @fileMenu )
+        fileOpenAction.addTo( @fileMenu )
+        fileSaveAction.addTo( @fileMenu )
+        fileSaveAsAction.addTo( @fileMenu )
+        @fileMenu.insertSeparator()
+        fileSaveAsPixmapAction.addTo( @fileMenu )
+        @fileMenu.insertSeparator()
+        filePrintAction.addTo( @fileMenu )
+        @fileMenu.insertSeparator()
+        fileQuitAction.addTo( @fileMenu )
     
         optionsMenu = Qt::PopupMenu.new( self )
         menuBar().insertItem( "&Options", optionsMenu )
@@ -208,8 +209,8 @@ class ChartForm < Qt::MainWindow
         setCentralWidget( @canvasView )
         @canvasView.show()
     
-        if !filename.nil?
-            load( filename )
+        if ! @filename.nil?
+            load( @filename )
         else
             init()
             @elements[0].set( 20, red,    14, "Red" )
@@ -286,7 +287,7 @@ class ChartForm < Qt::MainWindow
         if !filename.nil?
             answer = 0
             if Qt::File.exists( filename )
-                answer = QMessageBox::warning(
+                answer = Qt::MessageBox.warning(
                         self, "Chart -- Overwrite File",
                         "Overwrite\n\'#{filename}\'?", 
                         "&Yes", "&No", nil, 1, 1 )
@@ -327,13 +328,13 @@ class ChartForm < Qt::MainWindow
     
     def updateRecentFilesMenu()
         (0...MAX_RECENTFILES).each do |i|
-            if fileMenu.findItem( i )
-                fileMenu.removeItem( i )
+            if @fileMenu.findItem( i )
+                @fileMenu.removeItem( i )
             end
             if i < @recentFiles.length()
-                fileMenu.insertItem( "&%d %s" % [i + 1, @recentFiles[i]],
+                @fileMenu.insertItem( "&%d %s" % [i + 1, @recentFiles[i]],
                     self, SLOT( 'fileOpenRecent(int)' ),
-                    0, i )
+                    Qt::KeySequence.new(0), i )
             end
         end
     end

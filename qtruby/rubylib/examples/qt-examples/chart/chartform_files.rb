@@ -10,10 +10,10 @@ class ChartForm
         init() # Make sure we have colours
         @filename = filename
         ts = Qt::TextStream.new( file )
-        element = Element.new
         errors = 0
         i = 0
         while !ts.eof() 
+            element = Element.new
             ts >> element
             if  element.isValid()
                 @elements[i] = element
@@ -47,7 +47,7 @@ class ChartForm
     
     
     def fileSave()
-        if  @filename.isEmpty() 
+        if  @filename.nil? 
             fileSaveAs()
             return
         end

@@ -278,9 +278,9 @@ module Qt
 		def checkarg(argtype, typename)
 			puts "      #{typename} (#{argtype})" if debug_level >= DebugLevel::High
 			if argtype == 'i'
-				if typename =~ /^int&?$/
+				if typename =~ /^int&?$|^signed$/
 					return 1
-				elsif typename =~ /^(?:short|ushort|uint|long|ulong|signed|unsigned|float|double)$/
+				elsif typename =~ /^(?:short|ushort|uint|long|ulong|unsigned|float|double)$/
 					return 0
 				else 
 					t = typename.sub(/^const\s+/, '')
@@ -290,7 +290,9 @@ module Qt
 					end
 				end
 			elsif argtype == 'n'
-				if typename =~ /^(?:float|double)$/
+				if typename =~ /^double$/
+					return 2
+				elsif typename =~ /^float$/
 					return 1
 				elsif typename =~ /^int&?$/
 					return 0
