@@ -1,5 +1,11 @@
 2004-07-13  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* A DCOP send() now correctly returns true or false according to success
+	* DCOP call()s with void or ASYNC return types return true on success,
+	  or nil on failure
+
+2004-07-13  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Improved the KSharePtr item marshalling so that a copy of the item
 	  is constructed with no accompanying smart pointer. The new item
 	  can be owned by ruby without needing to special case deref'ing

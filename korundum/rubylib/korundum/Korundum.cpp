@@ -272,7 +272,7 @@ class DCOPCall : public Marshall {
 	int _timeout;
     int _cur;
     Smoke::Stack _stack;
-    VALUE result;
+    VALUE _result;
     bool _called;
 public:
     DCOPCall(VALUE obj, QCString & remFun, int items, VALUE *sp, VALUE args, bool useEventLoop, int timeout) :
@@ -284,7 +284,7 @@ public:
 		_stream = new QDataStream(*_data, IO_WriteOnly);
 		Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
 		_stack = new Smoke::StackItem[_items];
-		result = Qnil;
+		_result = Qnil;
     }
 	
 	~DCOPCall() 
@@ -296,7 +296,7 @@ public:
     Marshall::Action action() { return Marshall::FromVALUE; }
     Smoke::StackItem &item() { return _stack[_cur]; }
     VALUE * var() {
-	if(_cur < 0) return &result;
+	if(_cur < 0) return &_result;
 	return _sp + _cur;
     }
 	
@@ -317,10 +317,17 @@ public:
 		DCOPRef * dcopRef = (DCOPRef *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("DCOPRef"));
 		DCOPClient* dc = dcopRef->dcopClient();
 		QCString replyType;
-		dc->call(dcopRef->app(), dcopRef->obj(), _remFun, *_data, replyType, *_retval, _useEventLoop, _timeout);
+		bool ok = dc->call(dcopRef->app(), dcopRef->obj(), _remFun, *_data, replyType, *_retval, _useEventLoop, _timeout);
 		
-		if (replyType != "void") {
-			DCOPReturn dcopReturn(*_retval, &result, rb_str_new2((const char *)replyType));
+		if (replyType == "void" || replyType == "ASYNC") {
+			// Note that a failed dcop call returns 'nil', not 'false'
+			_result = (ok ? Qtrue : Qnil);
+		} else {
+			if (ok) {
+				DCOPReturn dcopReturn(*_retval, &_result, rb_str_new2((const char *)replyType));
+			} else {
+				_result = Qnil;
+			}
 		}
     }
 	
@@ -352,11 +359,12 @@ class DCOPSend : public Marshall {
     int _items;
     VALUE *_sp;
     int _cur;
+	VALUE * _result;
     Smoke::Stack _stack;
     bool _called;
 public:
-    DCOPSend(VALUE obj, QCString & remFun, int items, VALUE *sp, VALUE args) :
-		_obj(obj), _remFun(remFun), _items(items), _sp(sp), _cur(-1), _called(false)
+    DCOPSend(VALUE obj, QCString & remFun, int items, VALUE *sp, VALUE args, VALUE * result) :
+		_obj(obj), _remFun(remFun), _items(items), _sp(sp), _cur(-1), _result(result), _called(false)
     {
 		_data = new QByteArray();
 		_stream = new QDataStream(*_data, IO_WriteOnly);
@@ -390,7 +398,8 @@ public:
 		smokeruby_object *o = value_obj_info(_obj);
 		DCOPRef * dcopRef = (DCOPRef *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("DCOPRef"));
 		DCOPClient* dc = dcopRef->dcopClient();
-		dc->send(dcopRef->app(), dcopRef->obj(), _remFun, *_data);
+		bool ok = dc->send(dcopRef->app(), dcopRef->obj(), _remFun, *_data);
+		*_result = (ok ? Qtrue : Qfalse);
     }
 	
     void next() 
@@ -704,11 +713,12 @@ dcop_send(int argc, VALUE * argv, VALUE /*self*/)
 {
 	QCString fun(StringValuePtr(argv[1]));
 	VALUE args = argv[2];
+	VALUE result = Qnil;
 	
-	DCOPSend dcopSend(argv[0], fun, argc-3, argv+3, args);
+	DCOPSend dcopSend(argv[0], fun, argc-3, argv+3, args, &result);
 	dcopSend.next();
 	
-	return Qtrue;
+	return result;
 }
 
 static VALUE

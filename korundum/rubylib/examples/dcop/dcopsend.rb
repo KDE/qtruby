@@ -17,7 +17,12 @@ class SenderWidget < KDE::PushButton
 		# 	2) dcopRef.send("mySlot", "Hello from dcopsend")
 		#
 		dcopRef = KDE::DCOPRef.new("dcopslot", "MyWidget")
-		dcopRef.send("mySlot", "Hello from dcopsend")
+		res = dcopRef.send("mySlot", "Hello from dcopsend")
+		if res
+			puts "Sent dcop message"
+		else
+			puts "DCOP send failed"
+		end
 	end
 end
 

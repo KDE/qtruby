@@ -13,7 +13,6 @@ class SenderWidget < KDE::PushButton
 	slots 'doit()'
 	
 	def doit()
-		puts "In doit.."
 		emit testEmitSignal("Hello DCOP Slot")
 	end
 end

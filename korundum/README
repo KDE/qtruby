@@ -49,12 +49,18 @@ KDE Specific Infomation:
 		3) res = dcopRef.getPoint("Hello from dcopsend")
 		
 	    puts "result class: #{res.class.name} x: #{res.x} y: #{res.y}"
+		
+		If the dcop slot has a 'void' or 'ASYNC' type, the result will be true
+		if the call succeeds or nil if it fails
 
 	- Send to a DCOPRef is similar:
 	    
 		There are two different ways to specify a DCOP send:
-		1) dcopRef.send("mySlot(QString)", "Hello from dcopsend")
-	    2) dcopRef.send("mySlot", "Hello from dcopsend")
+		1) res = dcopRef.send("mySlot(QString)", "Hello from dcopsend")
+	    2) res = dcopRef.send("mySlot", "Hello from dcopsend")
+		
+		The result will either be true or false (but not nil for fail like the
+		call() above)
 	
 	- If the type signature of the target dcop slot is ommited it is derived from the 
 	  ruby argument types:
@@ -62,7 +68,7 @@ KDE Specific Infomation:
 			String => QString
 			Float => double
 			Integer => int
-			TrueClass|FalseClass => bool
+			TrueClass|FalseClass (ie 'true' or 'false') => bool
 			Qt::Widget etc => QWidget
 			KDE::URL etc => KURL
 			[] => QStringList
