@@ -2,6 +2,7 @@ require 'Qt'
 
 
 #### FIXED ###
+# no such constructor for PushButton
 class Bug2 < Qt::PushButton
    def initialize
       super
@@ -18,8 +19,8 @@ end
 #Bug2.test
 
 
-#### TODO ###
-# crash on invalid syntax bug
+#### FIXED ###
+# no *class* variable/method resize in PushButton
 class Bug3 < Qt::PushButton
    def initialize
       super
@@ -29,4 +30,4 @@ class Bug3 < Qt::PushButton
       hello.resize(100, 30)
    end
 end
-Bug3.test
+#Bug3.test

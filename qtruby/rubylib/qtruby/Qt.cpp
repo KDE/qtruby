@@ -983,7 +983,7 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
 
     // If the method can't be found allow the default method_missing
     //	to display an error message, by calling super on the method
-    if (_current_method == -1) {
+    if (_current_method == -1 || !_current_object) {
 	rb_enable_super(rb_cObject, rb_id2name(SYM2ID(argv[0])));
 	return rb_call_super(argc, argv);
     }
