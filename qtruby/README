@@ -101,9 +101,15 @@ QtRuby features a very complete coverage of the Qt api:
 		
 		    quit = Qt::PushButton.new("Quit", self, "quit")
 			
-		Or you can pass a block (if there is a constructor that needs no args):
+		Or you can pass a block if you prefer:
 		
 			w = MyWidget.new { setCaption("foobar") }
+			
+		The block will be called in the context of the newly created instance.
+		
+		Ordinary arguments can be provided as well as a block at the end:
+			
+			w = MyWidget.new(nil) { setCaption("foobar") }
 			
 	- Use Qt Designer
 		A 'rbuic' tool is included in qtruby/rubylib/designer/rbuic to compile
