@@ -363,6 +363,13 @@ module KDE
 			$kapp = self
 		end
 	end
+	
+	class UniqueApplication
+		def initialize(*k)
+			super
+			$kapp = self
+		end
+	end
 end
 
 class Module

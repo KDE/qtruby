@@ -1,5 +1,9 @@
 2004-09-16  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+ * The KDE::UniqueApplication constructor now sets up the $kapp global variable
+
+2004-09-16  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
  * Added $kapp global variable, example usage:
 
      config = $kapp.config()
