@@ -11,7 +11,7 @@ class Hello < Qt::Widget
 
 		@b = 0
 		@text = text
-		@sin_tbl = [0, 38, 71, 92, 100, 92, 71, 38,	0, -38, -71, -92, -100, -92, -71, -38]
+		@sin_tbl = [0, 38, 71, 92, 100, 92, 71, 38, 0, -38, -71, -92, -100, -92, -71, -38]
 		timer = Qt::Timer.new(self);
 		connect(timer, SIGNAL('timeout()'), SLOT('animate()'))
 		timer.start(40);
@@ -62,8 +62,6 @@ class Hello < Qt::Widget
 		y = h/2 + fm.descent
 		i = 0
 		p.begin(pm)
-		#p.begin(self)
-		#p.eraseRect(0,0, width, height)
 		p.setFont(font)
 
 		for i in 0..@text.size-1
