@@ -321,6 +321,16 @@ module KDE
 									Qt::getMocArguments(sig),
 									*k )
 		end
+		
+		def inspect
+			str = super
+			str.sub(/>$/, " app=%s, obj=%s>" % [app, obj])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n app=%s,\n obj=%s>" % [app, obj])
+		end
 	end
 	
 	def CmdLineArgs::init(*k)
@@ -375,6 +385,44 @@ module KDE
 			super
 			self.dispose
 			Qt::Internal.application_terminated = true
+		end
+	end
+	
+	class AboutData
+		def inspect
+			str = super
+			str.sub(/>$/, " appName=%s, programName=%s, version=%s, shortDescription=%s, homepage=%s, bugAddress=%s>" %
+						[appName, programName, version, shortDescription, homepage, bugAddress])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n appName=%s,\n programName=%s,\n version=%s,\n shortDescription=%s,\n homepage=%s,\n bugAddress=%s>" % 
+						[appName, programName, version, shortDescription, homepage, bugAddress])
+		end
+	end
+	
+	class Service
+		def inspect
+			str = super
+			str.sub(/>$/, " library=%s, type=%s, name=%s>" % [library, type, name])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n library=%s,\n type=%s,\n name=%s>" % [library, type, name])
+		end
+	end
+	
+	class URL
+		def inspect
+			str = super
+			str.sub(/>$/, " url=%s, protocol=%s, host=%s, port=%d>" % [url, protocol, host, port])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n url=%s,\n protocol=%s,\n host=%s,\n port=%d>" % [url, protocol, host, port])
 		end
 	end
 end

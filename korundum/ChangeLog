@@ -1,3 +1,8 @@
+2004-12-09  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * More inspect() and pretty_print() methods for common classes to improve debugging -
+   KDE::DCOPRef, KDE::Service, KDE::URL, KDE::AboutData.
+
 2004-10-30  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * References to Qt.qWarning() changed to qWarning()
