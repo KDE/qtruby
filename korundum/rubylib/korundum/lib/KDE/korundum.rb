@@ -368,8 +368,6 @@ module KDE
 		# stuff that KDE::Application still needs for its cleanup.
 		def exec
 			super
-			widgets = topLevelWidgets
-			widgets.each {|widget| widget.dispose}
 			self.dispose
 		end
 	end
@@ -382,8 +380,6 @@ module KDE
 		
 		def exec
 			super
-			widgets = topLevelWidgets
-			widgets.each {|widget| widget.dispose}
 			self.dispose
 		end
 	end

@@ -1,3 +1,11 @@
+2004-10-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * Reverted recent fix for crash on exit, as it only occured with a Qt::Application and
+   seems to introduce a crash in KDE apps where none existed before.
+
+ CCMAIL: kde-bindings@kde.org
+ CCMAIL: thibauld.favre@laposte.net
+
 2004-10-06  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * When a Korundum application exits, the top level widgets are now destroyed
