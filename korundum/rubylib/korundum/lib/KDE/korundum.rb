@@ -90,13 +90,7 @@ module KDE
 
 	class KDE::DCOPObject
 		def initialize(*k)
-			if k.length == 2
-				super(k[0].class.name)
-				@instance = k[0]
-				@functions = k[1]
-			else
-				super
-			end
+			super
 		end
 
 		def process(fun, data, replyType, replyData)
@@ -104,7 +98,7 @@ module KDE
 				return super
 			end
 			
-			slots = DCOPMeta[@instance.class.name].k_dcop
+			slots = DCOPMeta[@client.class.name].k_dcop
 			dcop_slot = slots[fun.sub(/\(.*/, '')]
 			if dcop_slot.nil?
 				# Can't find an entry for the slot being called? This shouldn't happen..
@@ -112,7 +106,7 @@ module KDE
 			end
 			
 			replyType << dcop_slot.reply_type
-			KDE::dcop_process(	@instance, 
+			KDE::dcop_process(	@client, 
 								dcop_slot.name, 
 								Qt::getMocArguments(fun), 
 								data,
@@ -123,7 +117,7 @@ module KDE
 
 		def interfaces()
 			ifaces = super()
-			return ifaces << @instance.class.name
+			return ifaces << @client.class.name
 		end
 
 		def functions()
@@ -131,11 +125,14 @@ module KDE
 			return funcs + @functions
 		end
 		
-		# This is for a ruby class which actually is a subclass of DCOPObject
-		def set_functions(funcs)
+		def functions=(funcs)
 			@functions = funcs
-			@instance = self
-			return self
+		end
+		
+		# If a ruby class has 'k_dcop' slots declarations, but isn't a 
+		# subclass of DCOPObject, then keep an instance of it
+		def client=(obj)
+			@client = obj
 		end
 	end
 
@@ -153,20 +150,21 @@ module KDE
 			end
 			meta.changed = false
 			if instance.kind_of? DCOPObject
-				meta.dcop_object = nil
-				instance.set_functions(funcs)
-			elsif meta.dcop_object.nil?
-				# Only ever allocate a single instance of a DCOPObject if the
-				# class isn't a subclass of DCOPObject
-				meta.dcop_object = DCOPObject.new(instance, funcs)
+				instance.functions = funcs
+				instance.client = instance
+				return nil
+			else
+				if meta.dcop_object.nil?
+					# Only ever allocate a single instance of a DCOPObject if the
+					# class isn't a subclass of DCOPObject
+					meta.dcop_object = DCOPObject.new(instance.class.name)
+					meta.dcop_object.client = instance
+				end
+				meta.dcop_object.functions = funcs
 			end
 		end
 
-		if instance.kind_of? DCOPObject
-			return nil
-		else
-			meta.dcop_object
-		end
+		return meta.dcop_object
 	end
 	
 	class DCOPRef < Qt::Base
