@@ -53,24 +53,22 @@ static void
 smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int items, MocArgument* args)
 {
 	for(int i = 0; i < items; i++) {
-		Smoke::StackItem *si = stack + i;
-			
 		switch(args[i].argType) {
 		case xmoc_bool:
-			*stream << (Q_INT8) si->s_bool;
+			*stream << (Q_INT8) stack[i].s_bool;
 			break;
 		case xmoc_int:
-			*stream << (Q_INT32) si->s_int;
+			*stream << (Q_INT32) stack[i].s_int;
 			break;
 		case xmoc_double:
-			*stream << si->s_double;
+			*stream << stack[i].s_double;
 			break;
 		case xmoc_charstar:
-			*stream << (char *) si->s_voidp;
+			*stream << (char *) stack[i].s_voidp;
 			break;
 		case xmoc_QString:
 			{
-				QString temp((const QString&) *((QString *) si->s_voidp));
+				QString temp((const QString&) *((QString *) stack[i].s_voidp));
 				*stream << temp;
 			}
 			break;
@@ -79,37 +77,37 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 				const SmokeType &t = args[i].st;
 				switch(t.elem()) {
 				case Smoke::t_bool:
-					*stream << (Q_INT8) si->s_bool;
+					*stream << (Q_INT8) stack[i].s_bool;
 					break;
 				case Smoke::t_char:
-					*stream << (Q_INT8) si->s_char;
+					*stream << (Q_INT8) stack[i].s_char;
 					break;
 				case Smoke::t_uchar:
-					*stream << (Q_UINT8) si->s_uchar;
+					*stream << (Q_UINT8) stack[i].s_uchar;
 					break;
 				case Smoke::t_short:
-					*stream << (Q_INT16) si->s_short;
+					*stream << (Q_INT16) stack[i].s_short;
 					break;
 				case Smoke::t_ushort:
-					*stream << (Q_UINT16) si->s_ushort;
+					*stream << (Q_UINT16) stack[i].s_ushort;
 					break;
 				case Smoke::t_int:
-					*stream << (Q_INT32) si->s_int;
+					*stream << (Q_INT32) stack[i].s_int;
 					break;
 				case Smoke::t_uint:
-					*stream << (Q_UINT32) si->s_uint;
+					*stream << (Q_UINT32) stack[i].s_uint;
 					break;
 				case Smoke::t_long:
-					*stream << (Q_LONG) si->s_long;
+					*stream << (Q_LONG) stack[i].s_long;
 					break;
 				case Smoke::t_ulong:
-					*stream << (Q_ULONG) si->s_ulong;
+					*stream << (Q_ULONG) stack[i].s_ulong;
 					break;
 				case Smoke::t_float:
-					*stream << si->s_float;
+					*stream << stack[i].s_float;
 					break;
 				case Smoke::t_double:
-					*stream << si->s_double;
+					*stream << stack[i].s_double;
 					break;
 				case Smoke::t_enum:
 					m->unsupported();
@@ -118,15 +116,15 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 				case Smoke::t_voidp:
 					{
 						if (strcmp(t.name(), "QCString") == 0) {
-							QCString temp((const QCString&) *((QCString *) si->s_voidp));
+							QCString temp((const QCString&) *((QCString *) stack[i].s_voidp));
 							*stream << temp;
 							break;
 						} else if (strcmp(t.name(), "QCStringList") == 0) {
-							QCStringList temp((const QCStringList&) *((QCStringList *) si->s_voidp));
+							QCStringList temp((const QCStringList&) *((QCStringList *) stack[i].s_voidp));
 							*stream << temp;
 							break;
 						} else if (strcmp(t.name(), "QStringList") == 0) {
-							QStringList temp((const QStringList&) *((QStringList *) si->s_voidp));
+							QStringList temp((const QStringList&) *((QStringList *) stack[i].s_voidp));
 							*stream << temp;
 							break;
 						}
@@ -149,7 +147,7 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 									Smoke::ClassFn fn = t.smoke()->classes[method.classId].classFn;
 									Smoke::StackItem local_stack[3];
 									local_stack[1].s_voidp = stream;
-									local_stack[2].s_voidp = si->s_voidp;
+									local_stack[2].s_voidp = stack[i].s_voidp;
 									// Call the QDataStream marshaller write method
 									// with the instance to be marshalled
 									(*fn)(method.method, 0, local_stack);
