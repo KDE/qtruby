@@ -1,3 +1,9 @@
+2004-10-24  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * Fixed crashes in the KURL::List marshalling. A copy is now made of each KURL item
+   in the list when being marshalled to a ruby Array. When a KURL::List is deleted the
+   contents are all deleted too as it's a QValueList. Hence, the need to make copies.
+
 2004-10-20  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * The RESTORE() method is no longer an KDE::Mainwindow method, but a globally available

@@ -717,15 +717,27 @@ void marshall_KURLList(Marshall *m) {
 			m->item().s_voidp = kurllist;
 			m->next();
 
-			if(m->cleanup()) {
-				rb_ary_clear(list);
-				for (	KURL::List::Iterator it = kurllist->begin();
-						it != kurllist->end();
-						++it ) 
-				{
-					VALUE obj = getPointerObject((void*)&(*it));
-					rb_ary_push(list, obj);
+			rb_ary_clear(list);
+	    	int ix = m->smoke()->idClass("KURL");
+	    	const char * className = m->smoke()->binding->className(ix);
+			for (	KURL::List::Iterator it = kurllist->begin();
+					it != kurllist->end();
+					++it ) 
+			{
+				void *p = new KURL(*it);
+				VALUE obj = getPointerObject(p);
+				if(obj == Qnil) {
+					smokeruby_object  * o = ALLOC(smokeruby_object);
+					o->smoke = m->smoke();
+					o->classId = ix;
+					o->ptr = p;
+					o->allocated = true;
+					obj = set_obj_info(className, o);
 				}
+				rb_ary_push(list, obj);
+			}
+			
+			if(m->cleanup()) {
 				delete kurllist;
 			}
 	    }			
@@ -746,12 +758,7 @@ void marshall_KURLList(Marshall *m) {
 	    for(KURL::List::Iterator it = kurllist->begin();
 		it != kurllist->end();
 		++it) {
-		void *p = &(*it);
-
-		if(m->item().s_voidp == 0) {
-		    *(m->var()) = Qnil;
-		    break;
-		}
+		void *p = new KURL(*it);
 
 		VALUE obj = getPointerObject(p);
 		if(obj == Qnil) {
@@ -759,16 +766,18 @@ void marshall_KURLList(Marshall *m) {
 		    o->smoke = m->smoke();
 		    o->classId = ix;
 		    o->ptr = p;
-		    o->allocated = false;
+		    o->allocated = true;
 		    obj = set_obj_info(className, o);
 		}
 		rb_ary_push(av, obj);
             }
 
-	    if(m->cleanup())
-		delete kurllist;
-	    else
-	        *(m->var()) = av;		}
+	    *(m->var()) = av;
+				
+	    if(m->cleanup()) {
+			delete kurllist;
+		}
+		}
 		break;
 	default:
 		m->unsupported();
