@@ -191,7 +191,8 @@ module Qt
 			str << " signalNames=Array (%d element(s))," % numSignals unless numSignals == 0
 			str << " slotNames=Array (%d element(s))," % numSlots unless numSlots == 0
 			str << " superClass=%s," % superClass.inspect unless superClass == nil
-			str.sub!(/,?$/, ">")
+			str.chop!
+			str << ">"
 		end
 		
 		def pretty_print(pp)
@@ -201,7 +202,8 @@ module Qt
 			str << "\n signalNames=Array (%d element(s))," % numSignals unless numSignals == 0
 			str << "\n slotNames=Array (%d element(s))," % numSlots unless numSlots == 0
 			str << "\n superClass=%s," % superClass.inspect unless superClass == nil
-			str.sub!(/,?$/, ">")
+			str.chop!
+			str << ">"
 			pp.text str
 		end
 	end

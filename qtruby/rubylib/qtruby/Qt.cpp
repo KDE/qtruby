@@ -1087,7 +1087,7 @@ inspect_qobject(VALUE self)
 	value_list.append(QCString().sprintf(" className=%s", qobject->metaObject()->className())); 
 	
 	if (qobject->metaObject()->superClass() != 0) {
-		value_list.append(QCString().sprintf(", superClass=%s", qobject->metaObject()->superClass()));
+		value_list.append(QCString().sprintf(", superClass=#<Qt::MetaObject:0x0>"));
 	}		
 	
 	if (qobject->metaObject()->numSignals() > 0) {
@@ -1163,10 +1163,10 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	}
 	
 	value_list = QCString("  metaObject=#<Qt::MetaObject:0x0");
-	value_list.append(QCString().sprintf("className=%s", qobject->metaObject()->className()));
+	value_list.append(QCString().sprintf(" className=%s", qobject->metaObject()->className()));
 		
 	if (qobject->metaObject()->superClass() != 0) {
-		value_list.append(QCString().sprintf(", superClass=%s", qobject->metaObject()->superClass()));
+		value_list.append(QCString().sprintf(", superClass=#<Qt::MetaObject:0x0>", qobject->metaObject()->superClass()));
 	}		
 	
 	if (qobject->metaObject()->numSignals() > 0) {
