@@ -103,6 +103,10 @@ module Qt
 		def normalize_classname(classname)
 			if classname =~ /^Q/
 				classname.sub(/^Q(?=[A-Z])/,'Qt::')
+			elsif classname =~ /^KParts__/
+				classname.sub(/^KParts__/,'KParts::')
+			elsif classname =~ /^KIO__/
+				classname.sub(/^KIO__/,'KIO::')
 			else
 				classname.sub(/^K?(?=[A-Z])/,'KDE::')
 			end

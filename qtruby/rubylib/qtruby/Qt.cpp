@@ -78,6 +78,8 @@ QAsciiDict<Smoke::Index> classcache(2179);
 extern "C" {
 VALUE qt_module = Qnil;
 VALUE kde_module = Qnil;
+VALUE kparts_module = Qnil;
+VALUE kio_module = Qnil;
 VALUE qt_internal_module = Qnil;
 VALUE qt_base_class = Qnil;
 VALUE qt_qmetaobject_class = Qnil;
@@ -762,14 +764,26 @@ public:
 		strcpy(buf, "Qt::");
 		strcat(buf, className + 1);
 	} else {
-		if (QString(className).startsWith("K")) {
-			buf = new char[strlen(className) + strlen("KDE::") + 1];
-			strcpy(buf, "KDE::");
-			strcat(buf, className + 1);
+		if (QString(className).startsWith("KParts__")) {
+			buf = new char[strlen(className) + strlen("KParts::") + 1];
+			strcpy(buf, "KParts::");
+			strcat(buf, className);
 		} else {
-				buf = new char[strlen(className) + strlen("KDE::") + 1];
-				strcpy(buf, "KDE::");
+			if (QString(className).startsWith("KIO__")) {
+				buf = new char[strlen(className) + strlen("KIO::") + 1];
+				strcpy(buf, "KIO::");
 				strcat(buf, className);
+			} else {
+				if (QString(className).startsWith("K")) {
+					buf = new char[strlen(className) + strlen("KDE::") + 1];
+					strcpy(buf, "KDE::");
+					strcat(buf, className + 1);
+				} else {
+					buf = new char[strlen(className) + strlen("KDE::") + 1];
+					strcpy(buf, "KDE::");
+					strcat(buf, className);
+				}
+			}
 		}
 	}
 	return buf;
@@ -1941,6 +1955,14 @@ Init_Qt()
 	kde_module = rb_define_module("KDE");
     rb_define_singleton_method(kde_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
     rb_define_singleton_method(kde_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	kparts_module = rb_define_module("KParts");
+    rb_define_singleton_method(kparts_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+    rb_define_singleton_method(kparts_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	kio_module = rb_define_module("KIO");
+    rb_define_singleton_method(kio_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+    rb_define_singleton_method(kio_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 
     rb_define_method(qt_internal_module, "getMethStat", (VALUE (*) (...)) getMethStat, 0);
     rb_define_method(qt_internal_module, "getClassStat", (VALUE (*) (...)) getClassStat, 0);
