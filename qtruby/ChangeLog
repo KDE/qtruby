@@ -1,5 +1,9 @@
 2004-09-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+ * Some newer changes from the uic were added to the rbuic tool.
+
+2004-09-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
  * Brought the rbuic code to uncompress zip files in line with the current uic code
  * Added a qmake project file for building the rbuic tool on Mac OS X, and some
    notes on how to build QtRuby on a Mac.

@@ -327,10 +327,14 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	}
     } else if ( objClass == "Qt::ToolBox" ) {
 	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	    if ( tags.contains( n.tagName()  ) ) {
+		if ( tags.contains( n.tagName()  ) ) {
 		QString page = createObjectImpl( n, objClass, objName );
-		QString label = DomTool::readAttribute( n, "label", "" ).toString();
-		out << indent << fullObjName << ".addItem( " << page << ", \"" << label << "\" )" << endl;
+		QString comment;
+		QString label = DomTool::readAttribute( n, "label", comment ).toString();
+		out << indent << fullObjName << ".addItem( " << page << ", \"\" )" << endl;
+		trout << indent << fullObjName << ".setItemLabel( " << fullObjName 
+		      << ".indexOf(" << page << "), " << trcall( label, comment ) 
+		      << " )" << endl;
 	    }
 	}
      } else if ( objClass != "Qt::ToolBar" && objClass != "Qt::MenuBar" ) { // standard widgets
