@@ -143,6 +143,44 @@ module KDE
 	end
 	
 	class DCOPRef < Qt::Base
+		def method_missing(*k)
+			# Enables DCOPRef calls to be made like this:
+			#
+			# dcopRef = DCOPRef.new("dcopslot", "MyWidget")
+			# result = dcopRef.getPoint("Hello from dcopcall")
+			begin
+				super(*k)
+			rescue
+				dcopArgs = k[1, k.length-1]
+				dcopArgs <<  NoEventLoop << -1
+				callExt(k[0].id2name, *dcopArgs)
+			end
+		end
+		
+		def dcopTypeNames(*k)
+			typeNames = "("
+			k.each do |arg|
+				if arg.kind_of? Integer
+					typeNames << "int,"
+				elsif arg.kind_of? Float
+					typeNames << "double,"
+				elsif arg.kind_of? Array
+					typeNames << "QStringList,"
+				elsif arg.kind_of? String
+					typeNames << "QString,"
+				elsif arg.kind_of? Qt::Base
+					typeNames << ruby_type.class.name + ","
+				elsif arg.instance_of? FalseClass or arg.instance_of? TrueClass
+					typeNames << "bool,"
+				end
+			end
+			typeNames.sub!(/,$/, '')
+			typeNames.gsub!(/Qt::/, 'Q')
+			typeNames.gsub!(/KDE::/, 'K')
+			typeNames << ")"
+			return typeNames
+		end
+		
 		def call(fun, *k)
 			k << NoEventLoop << -1
 			callExt(fun, *k)
@@ -151,22 +189,26 @@ module KDE
 		def callExt(fun, *k)
 			if isNull
 				puts( "DCOPRef: call #{fun} on null reference error" )
+				return
+			end
+			sig = fun
+			if fun.index('(') == nil
+				sig << dcopTypeNames(*k[0, k.length - 2])
 			end
 			dc = dcopClient()
 			if !dc || !dc.isAttached
 				puts( "DCOPRef::call():  no DCOP client or client not attached error" )
+				return
 			end
-			if fun =~ /^(.*)\s([^\s]*)(\(.*\))/
-				reply_type = $1
-				full_name = $2+$3
+			if sig =~ /([^\s]*)(\(.*\))/
+				full_name = $1+$2
 			else
-				puts( "DCOPRef: call #{fun} invalid format, expecting '<reply_type> <function_name>(<args>)'" )
+				puts( "DCOPRef: call #{fun} invalid format, expecting '<function_name>(<args>)'" )
+				return
 			end
 			return KDE::dcop_call(	self, 
 									full_name, 
 									Qt::getMocArguments(full_name),
-									reply_type, 
-									(reply_type == 'void' or reply_type == 'ASYNC') ? nil : Qt::getMocArguments(reply_type), 
 									*k )
 		end
 
@@ -174,16 +216,22 @@ module KDE
 			if isNull
 				puts( "DCOPRef: send #{fun} on null reference error" )
 			end
+			sig = fun
+			if fun.index('(') == nil
+				sig << dcopTypeNames(*k)
+			end
 			dc = dcopClient()
 			if !dc || !dc.isAttached
 				puts( "DCOPRef::send():  no DCOP client or client not attached error" )
+				return
 			end
-			if !fun =~ /^([^\s]*)(\(.*\))/
-				puts( "DCOPRef: send #{fun} invalid format, expecting '<function_name>(<args>)'" )
+			if !sig =~ /^([^\s]*)(\(.*\))/
+				puts( "DCOPRef: send #{sig} invalid format, expecting '<function_name>(<args>)'" )
+				return
 			end
 			return KDE::dcop_send(	self, 
 									fun, 
-									Qt::getMocArguments(fun),
+									Qt::getMocArguments(sig),
 									*k )
 		end
 	end
@@ -208,7 +256,7 @@ module KDE
 	end
 	
 	# A sane alternative to the strange looking C++ template version,
-	# this takes a variable of ruby classes to restore
+	# this takes a list of ruby classes to restore
 	def MainWindow::kRestoreMainWindows(*k)
 		n = 1
 		while MainWindow.canBeRestored(n)

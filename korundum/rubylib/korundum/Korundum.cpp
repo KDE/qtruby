@@ -30,6 +30,10 @@
 #include <smokeruby.h>
 #include <smoke.h>
 
+extern "C" {
+extern VALUE qt_internal_module;
+};
+
 extern TypeHandler KDE_handlers[];
 extern void install_handlers(TypeHandler *);
 
@@ -226,7 +230,8 @@ public:
 	{
 		_retval = new QDataStream(retval, IO_ReadOnly);
 		_result = result;
-		Data_Get_Struct(rb_ary_entry(replyType, 1), MocArgument, _replyType);
+		VALUE temp = rb_funcall(qt_internal_module, rb_intern("getMocArguments"), 1, replyType);
+		Data_Get_Struct(rb_ary_entry(temp, 1), MocArgument, _replyType);
 		_stack = new Smoke::StackItem[1];
 		Marshall::HandlerFn fn = getMarshallFn(type());
 		(*fn)(this);
@@ -262,7 +267,6 @@ class DCOPCall : public Marshall {
 	QDataStream *_stream;
     int _id;
     MocArgument *_args;
-	VALUE _replyType;
 	QByteArray *	_retval;
 	bool _useEventLoop;
 	int _timeout;
@@ -271,8 +275,8 @@ class DCOPCall : public Marshall {
     VALUE result;
     bool _called;
 public:
-    DCOPCall(VALUE obj, QCString & remFun, int items, VALUE *sp, VALUE args, VALUE replyType, bool useEventLoop, int timeout) :
-		_obj(obj), _remFun(remFun), _items(items), _sp(sp), _replyType(replyType), 
+    DCOPCall(VALUE obj, QCString & remFun, int items, VALUE *sp, VALUE args, bool useEventLoop, int timeout) :
+		_obj(obj), _remFun(remFun), _items(items), _sp(sp),
 		_useEventLoop(useEventLoop), _timeout(timeout), _cur(-1), _called(false)
     {
 		_data = new QByteArray();
@@ -315,8 +319,8 @@ public:
 		QCString replyType;
 		dc->call(dcopRef->app(), dcopRef->obj(), _remFun, *_data, replyType, *_retval, _useEventLoop, _timeout);
 		
-		if (_replyType != Qnil) {
-			DCOPReturn dcopReturn(*_retval, &result, _replyType);
+		if (replyType != "void") {
+			DCOPReturn dcopReturn(*_retval, &result, rb_str_new2((const char *)replyType));
 		}
     }
 	
@@ -686,11 +690,10 @@ dcop_call(int argc, VALUE * argv, VALUE /*self*/)
 {
 	QCString fun(StringValuePtr(argv[1]));
 	VALUE args = argv[2];
-	VALUE replyType = argv[4];
 	bool useEventLoop = (argv[argc-2] == Qtrue ? true : false);
 	int timeout = NUM2INT(argv[argc-1]);
 	
-	DCOPCall dcopCall(argv[0], fun, argc-7, argv+5, args, replyType, useEventLoop, timeout);
+	DCOPCall dcopCall(argv[0], fun, argc-5, argv+3, args, useEventLoop, timeout);
 	dcopCall.next();
 	
 	return *(dcopCall.var());

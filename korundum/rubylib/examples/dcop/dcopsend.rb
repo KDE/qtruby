@@ -11,8 +11,13 @@ class SenderWidget < KDE::PushButton
 	slots 'doit()'
 	
 	def doit()
+		#
+		# Note that there are three different ways to make a DCOP send():
+		# 	1) dcopRef.send("mySlot(QString)", "Hello from dcopsend")
+		# 	2) dcopRef.send("mySlot", "Hello from dcopsend")
+		#
 		dcopRef = KDE::DCOPRef.new("dcopslot", "MyWidget")
-		dcopRef.send("mySlot(QString)", "Hello from dcopsend")
+		dcopRef.send("mySlot", "Hello from dcopsend")
 	end
 end
 

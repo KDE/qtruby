@@ -14,7 +14,13 @@ class SenderWidget < PushButton
 	def doit()
 		puts "In doit.."
 		dcopRef = DCOPRef.new("dcopslot", "MyWidget")
-		result = dcopRef.call("QPoint getPoint(QString)", "Hello from dcopcall")
+		#
+		# Note that there are three different ways to make a DCOP call():
+		# 	1) result = dcopRef.call("QPoint getPoint(QString)", "Hello from dcopcall")
+		# 	2) result = dcopRef.call("getPoint", "Hello from dcopcall")
+		#	3) result = dcopRef.getPoint("Hello from dcopcall")
+		#
+		result = dcopRef.getPoint("Hello from dcopcall")
 		puts "result class: #{result.class.name} x: #{result.x} y: #{result.y}"
 	end
 end

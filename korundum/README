@@ -42,16 +42,31 @@ KDE Specific Infomation:
 	- Call it from another program and print the reply, like this:
 
 	    dcopRef = KDE::DCOPRef.new("dcopslot", "MyWidget")
-	    res = dcopRef.call("QPoint getPoint(QString)", "Hello from dcopsend")
+		
+		There are three different ways to specify a DCOP call:
+	    1) res = dcopRef.call("getPoint(QString)", "Hello from dcopsend")
+	    2) res = dcopRef.call("getPoint", "Hello from dcopsend")
+		3) res = dcopRef.getPoint("Hello from dcopsend")
+		
 	    puts "result class: #{res.class.name} x: #{res.x} y: #{res.y}"
 
 	- Send to a DCOPRef is similar:
 	    
-	    dcopRef = KDE::DCOPRef.new("dcopslot", "MyWidget")
-	    dcopRef.send("mySlot(QString)", "Hello from dcopsend")
+		There are two different ways to specify a DCOP send:
+		1) dcopRef.send("mySlot(QString)", "Hello from dcopsend")
+	    2) dcopRef.send("mySlot", "Hello from dcopsend")
 	
-	-  Note that the full type signature of the target dcop slot must be
-	   specified at present.	
+	- If the type signature of the target dcop slot is ommited it is derived from the 
+	  ruby argument types:
+	  
+			String => QString
+			Float => double
+			Integer => int
+			Qt::Widget => QWidget
+			KDE::URL => KURL
+			[] => QStringList
+			
+	  Specify the full type signature for more unusual C++ types
 	  
 	- DCOP Signals are defined like this:
 	

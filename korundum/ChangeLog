@@ -1,3 +1,30 @@
+2004-07-12  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* The full C++ type signature is no longer needed in DCOP calls:
+
+	    dcopRef = KDE::DCOPRef.new("dcopslot", "MyWidget")
+		
+	  There are three different ways to specify the call:
+	    1) res = dcopRef.call("getPoint(QString)", "Hello from dcopsend")
+	    2) res = dcopRef.call("getPoint", "Hello from dcopsend")
+	    3) res = dcopRef.getPoint("Hello from dcopsend")
+		
+	    puts "result class: #{res.class.name} x: #{res.x} y: #{res.y}"
+
+	* Send to a DCOPRef is similar:
+	    1) dcopRef.send("mySlot(QString)", "Hello from dcopsend")
+	    2) dcopRef.send("mySlot", "Hello from dcopsend")
+
+	* If the type signature of the target dcop slot is ommited it is derived
+	  from the ruby argument types:
+	  
+	    String => QString
+	    Float => double
+	    Integer => int
+	    Qt::Widget etc => QWidget
+	    KDE::URL etc => KURL
+	    [] => QStringList
+
 2004-07-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Reverted fix for QChar args being passed as ruby strings after
