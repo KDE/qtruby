@@ -397,6 +397,7 @@ module Qt
 			end
 		end
 		
+		# Return a list of signals, including inherited ones
 		def get_signals
 			all_signals = []
 			current = @klass
@@ -418,6 +419,7 @@ module Qt
 			end
 		end
 		
+		# Return a list of slots, including inherited ones
 		def get_slots
 			all_slots = []
 			current = @klass
@@ -471,7 +473,7 @@ module Qt
 	end
 
 	def getMocArguments(member)
-		argStr = member.sub(/.*\(/, '').sub!(/\)$/, '')
+		argStr = member.sub(/.*\(/, '').sub(/\)$/, '')
 		args = argStr.scan(/[^,]+/)
 		mocargs = allocateMocArguments(args.length)
                 args.each_with_index {
