@@ -1,3 +1,14 @@
+2004-08-25  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * Underscore naming for can be used for DCOP method names instead of camel case if
+   preferred. Any underscores in method names are removed, and the following
+   character is capitalised. For example, either of these two forms can be used
+   to call the same dcop function:
+  
+     process_can_be_reused(1234)
+  
+     processCanBeReused(1234)
+
 2004-08-24  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * The form 'foo?' can be used as a synonym for isFoo() or hasFoo() dcop methods. 

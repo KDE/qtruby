@@ -190,6 +190,11 @@ module KDE
 				# Make 'parrot.age = 7' a synonym for 'parrot.setAge(7)'
 				method = 'set' + method[0,1].upcase + method[1,method.length].sub("=", "") if method =~ /.*[^-+%\/|]=$/
 				
+				# If the method name contains underscores, convert to camel case
+				while method =~ /([^_]*)_(.)(.*)/ 
+					method = $1 + $2.upcase + $3
+				end
+				
 				# Get the functions() for this dcop ref and 
 				# cache method_name => full_type_signature in a hash
 				if @functions.nil?
@@ -208,6 +213,7 @@ module KDE
 								args.gsub!(/ \w*/, "")
 							end
 							
+							# Make thing? a synonym for isThing() or hasThing()
 							if name =~ /^(is|has)(.)(.*)/
 								predicate = $2.downcase + $3 + '?'
 								if @functions[predicate].nil?
