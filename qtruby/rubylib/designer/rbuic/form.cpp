@@ -241,7 +241,7 @@ void Uic::createFormImpl( const QDomElement &e )
 
     // children
     if( !objectNames.isEmpty() )
-    	qWarning("WARNING : objectNames should be empty at form.cpp line %d\n", __LINE__);
+    	qWarning("WARNING : objectNames should be empty at "__FILE__" line %d\n", __LINE__);
     nl = e.parentNode().toElement().elementsByTagName( "widget" );
     for ( i = 1; i < (int) nl.length(); i++ )
     { // start at 1, 0 is the toplevel widget
