@@ -1,3 +1,7 @@
+2005-02-07  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added a KNS:: namespace for the KNewStuff library
+
 2005-02-06  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* The KDE::Win::WindowInfo nested class is included in the Korundum runtime

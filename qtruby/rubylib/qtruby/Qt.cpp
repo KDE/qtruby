@@ -87,6 +87,7 @@ VALUE qt_module = Qnil;
 VALUE kde_module = Qnil;
 VALUE kparts_module = Qnil;
 VALUE kio_module = Qnil;
+VALUE kns_module = Qnil;
 VALUE khtml_module = Qnil;
 VALUE dom_module = Qnil;
 VALUE kontact_module = Qnil;
@@ -2337,6 +2338,9 @@ kde_package_to_class(const char * package)
 	} else if (packageName.startsWith("KParts::")) {
 		klass = rb_define_class_under(kparts_module, package+strlen("KParts::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (packageName.startsWith("KNS::")) {
+		klass = rb_define_class_under(kns_module, package+strlen("KNS::"), qt_base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (packageName.startsWith("KIO::")) {
 		klass = rb_define_class_under(kio_module, package+strlen("KIO::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
@@ -2479,9 +2483,13 @@ Init_qtruby()
     rb_define_singleton_method(kparts_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
     rb_define_singleton_method(kparts_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 
+	kns_module = rb_define_module("KNS");
+	rb_define_singleton_method(kns_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(kns_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	
 	kio_module = rb_define_module("KIO");
-    rb_define_singleton_method(kio_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
-    rb_define_singleton_method(kio_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(kio_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(kio_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 
 	khtml_module = rb_define_module("khtml");
     rb_define_singleton_method(khtml_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
