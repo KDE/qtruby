@@ -219,10 +219,11 @@ module Qt
 					break matching if remainingIds.length <= 1
 				}
 				if matching.nil? or matching[0].nil?
-					return nil
+					methodIds[0] = nil
+				else
+					methodIds[0] = matching[0][0]
+					puts "Resolved to id: #{methodIds[0]}" if debug_level >= DebugLevel::High
 				end
-				methodIds[0] = matching[0][0]
-				puts "Resolved to id: #{methodIds[0]}" if debug_level >= DebugLevel::High
 			end
 			chosen = methodIds[0]
 
