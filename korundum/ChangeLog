@@ -1,5 +1,10 @@
 2004-07-21  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* Added casts to the various macros like 'Q_INT32' when writing a Smoke
+	  stack to a QDataStream
+
+2004-07-21  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Added QValueList<QCString> marshalling ruby <--> dcop
 
 2004-07-21  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>

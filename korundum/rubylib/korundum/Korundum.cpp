@@ -18,6 +18,7 @@
 #include <qobject.h>
 #include <qstringlist.h>
 #include <qmap.h>
+#include <qdatastream.h>
 
 #include <dcopclient.h>
 #include <dcopobject.h>
@@ -56,10 +57,10 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 			
 		switch(args[i].argType) {
 		case xmoc_bool:
-			*stream << si->s_bool;
+			*stream << (Q_INT8) si->s_bool;
 			break;
 		case xmoc_int:
-			*stream << si->s_int;
+			*stream << (Q_INT32) si->s_int;
 			break;
 		case xmoc_double:
 			*stream << si->s_double;
@@ -78,31 +79,31 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 				const SmokeType &t = args[i].st;
 				switch(t.elem()) {
 				case Smoke::t_bool:
-					*stream << si->s_bool;
+					*stream << (Q_INT8) si->s_bool;
 					break;
 				case Smoke::t_char:
-					*stream << si->s_char;
+					*stream << (Q_INT8) si->s_char;
 					break;
 				case Smoke::t_uchar:
-					*stream << si->s_uchar;
+					*stream << (Q_UINT8) si->s_uchar;
 					break;
 				case Smoke::t_short:
-					*stream << si->s_short;
+					*stream << (Q_INT16) si->s_short;
 					break;
 				case Smoke::t_ushort:
-					*stream << si->s_short;
+					*stream << (Q_UINT16) si->s_ushort;
 					break;
 				case Smoke::t_int:
-					*stream << si->s_int;
+					*stream << (Q_INT32) si->s_int;
 					break;
 				case Smoke::t_uint:
-					*stream << si->s_uint;
+					*stream << (Q_UINT32) si->s_uint;
 					break;
 				case Smoke::t_long:
-					*stream << si->s_long;
+					*stream << (Q_LONG) si->s_long;
 					break;
 				case Smoke::t_ulong:
-					*stream << si->s_ulong;
+					*stream << (Q_ULONG) si->s_ulong;
 					break;
 				case Smoke::t_float:
 					*stream << si->s_float;
@@ -179,7 +180,7 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 	for(int i = 0; i < items; i++) {
 		switch(args[i].argType) {
 		case xmoc_bool:
-			*stream >> stack[i].s_bool;
+			*stream >> (Q_INT8) stack[i].s_bool;
 			break;
 		case xmoc_int:
 			*stream >> stack[i].s_int;
@@ -202,7 +203,7 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 				const SmokeType &t = args[i].st;
 				switch(t.elem()) {
 				case Smoke::t_bool:
-					*stream >> stack[i].s_bool;
+					*stream >> (Q_INT8) stack[i].s_bool;
 					break;
 //				case Smoke::t_char:
 //					*stream >> (Q_INT8) stack[i].s_char;
