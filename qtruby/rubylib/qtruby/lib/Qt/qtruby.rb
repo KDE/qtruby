@@ -412,7 +412,7 @@ module Qt
 
 	def getMocArguments(member)
 		argStr = member.sub(/.*\(/, '').sub!(/\)$/, '')
-		args = argStr.scan(/[^, ]+/)
+		args = argStr.scan(/[^,]+/)
 		mocargs = allocateMocArguments(args.length)
                 args.each_with_index {
                         |arg, i|
