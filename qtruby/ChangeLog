@@ -1,3 +1,14 @@
+2004-10-07  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * Added Qt Designer Tutorial 'Creating Dialogs' translated into QtRuby. It
+   shows how you can combine ruby code generated from .ui files with the rbuic
+   tool, with your own code.
+
+ * The .ui files and images are identical to the original C++ versions.
+
+ * It features a simple Makefile to run rbuic when you change the .ui files, and
+   regenerate the ruby sources.
+
 2004-10-06  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * Fixed rbuic '-embed' option which had been broken after adding DCOP suppot
