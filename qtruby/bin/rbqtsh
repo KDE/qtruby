@@ -382,48 +382,43 @@ class QtShellControl < Qt::MainWindow
         save(fname)
     end
 
-=begin
-
-sub filePrint
-{
-    my $Margin = 10;
-    my $pageNo = 1;
-    emptySession() and return; 
-    printer = Qt::Printer unless printer;
-    if ( printer->setup(this) ) {  
-        statusBar()->message( "Printing..." );
-        my $p = Qt::Painter;
-        if( !$p->begin( printer ) )  
-        { 
-            statusBar()->message( "An error occured..." );
-            return               
-        }
-
-        $p->setFont( sessionLog->font() );
-        my $yPos = 0; 
-        my $fm = $p->fontMetrics;
-        my $metrics = Qt::PaintDeviceMetrics( printer );
-  
-        for( my $i = 0 ; $i < @{ &executedLines } ; $i++ ) {
-            if ( $Margin + $yPos > $metrics->height() - $Margin ) {
-                my $msg ="Printing (page ". ++$pageNo . ")...";
-                statusBar()->message( $msg );
-                printer->newPage();             
-                $yPos = 0;                      
-            }
-            $p->drawText( $Margin, $Margin + $yPos,
-                        $metrics->width(), $fm->lineSpacing(),
-                        &ExpandTabs | &DontClip,
-                        ${ &executedLines }[ $i ] );
-            $yPos = $yPos + $fm->lineSpacing();
-        }
-        $p->end();       
-        statusBar()->message( "Printing completed", 3000 );
-    } else {
-        statusBar()->message( "Printing aborted", 3000 );
-    }  
-}
-=end
+	def filePrint()
+		margin = 10
+		pageNo = 1
+		emptySession() and return
+		printer = Qt::Printer.new()
+		if printer.setup(self)
+			statusBar().message( "Printing..." )
+			p = Qt::Painter.new()
+			if ! p.begin( printer )
+				statusBar().message( "An error occured..." )
+				return
+			end
+			
+			p.setFont( sessionLog.font() )
+			yPos = 0
+			fm = p.fontMetrics
+			metrics = Qt::PaintDeviceMetrics.new( printer )
+			
+			for i in 0..@executedLines.length
+            	if  margin + yPos > metrics.height() - margin
+                	msg ="Printing (page "+ ++pageNo + ")..."
+                	statusBar().message( msg )
+                	printer.newPage()             
+                	yPos = 0                      
+            	end
+            	p.drawText( margin, margin + yPos,
+                        	metrics.width(), fm.lineSpacing(),
+                        	ExpandTabs | DontClip,
+                        	"#{@executedLines[ i ]}" )
+            	yPos = yPos + fm.lineSpacing()
+        	end
+        	p.end()       
+        	statusBar().message( "Printing completed", 3000 )
+    	else
+        	statusBar().message( "Printing aborted", 3000 )
+    	end
+	end
 
     def fileExit
         emit $qApp.quit if confirmExit
