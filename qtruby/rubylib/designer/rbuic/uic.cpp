@@ -577,6 +577,12 @@ QString Uic::createListViewItemImpl( const QDomElement &e, const QString &parent
 	item = registerObject( "item" );
 	s = indent + item + " = ";
     } else {
+		if (! item_used) {
+			// This is here to make the ruby generated names for 'item', 
+			// the same as the original C++
+			item = registerObject( "item" );
+			item_used = TRUE;
+		}
 	item = "item";
 	s = indent + item + " = ";
     }

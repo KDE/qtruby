@@ -149,12 +149,12 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	    if ( isEmptyFunction( *it ) ) {
 	        out << endl;
 	        int astart = (*it).find('(');
-	        out << indent << "protected :" << (*it).left(astart)<< endl;
 	        out << indent << "def " << (*it).left(astart)<< "()" << endl;
 		++indent;
 		out << indent << "print(\"" << subClass << "." << (*it) << ": (Protected) Not implemented yet.\\n\")" << endl;
 		--indent;
                 out << indent << "end" << endl;
+	        out << indent << "protected :" << (*it).left(astart)<< endl;
 	    }
 	}
     }
@@ -173,12 +173,12 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	    if ( isEmptyFunction( *it ) ) {
 	        out << endl;
 	        int astart = (*it).find('(');
-	        out << indent << "private :" << (*it).left(astart)<< endl;
 	        out << indent << "def " << (*it).left(astart)<< "()" << endl;
 		++indent;
 		out << indent << "print(\"" << subClass << "." << (*it) << ": (Private) Not implemented yet.\\n\")" << endl;
 		--indent;
                 out << indent << "end" << endl;
+	        out << indent << "private :" << (*it).left(astart)<< endl;
 	    }
 	}
     }

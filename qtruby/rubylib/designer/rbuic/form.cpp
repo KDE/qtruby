@@ -206,14 +206,17 @@ void Uic::createFormImpl( const QDomElement &e )
 	}
     }
 
-    out << "class " << nameOfClass << " < " << objClass << endl;
+    out << "class " << nameOfClass << " < " << objClass << endl << endl;
 
     // QtRuby sig/slot declaration
-    if ( !extraSlots.isEmpty() ) {
+	
+	out << indent << "slots 'languageChange()'" << endl;
+    
+	if ( !extraSlots.isEmpty() ) {
 	out << indent << "slots ";
         ++indent;
-        for ( it = extraSlots.begin(); it != extraSlots.end(); ++it )
-        {
+    for ( it = extraSlots.begin(); it != extraSlots.end(); ++it ) 
+		{
 	    rubySlot( it );
 	    out << ( ((*it) == extraSlots.last()) ? "":",") << endl;
 	}
@@ -529,6 +532,7 @@ void Uic::createFormImpl( const QDomElement &e )
     out << indent << "def initialize(*k)" << endl;
     ++indent;
 	out << indent << "super(*k)" << endl;
+	out << indent << "statusBar()" << endl;
 	isMainWindow = TRUE;
     } else {
     out << indent << "def initialize(*k)" << endl;
@@ -923,6 +927,7 @@ void Uic::createFormImpl( const QDomElement &e )
     out << "def " << "languageChange()" << endl;
     out << languageChangeBody;
     out << "end" << endl;
+	out << "protected :languageChange" << endl;
     out << endl;
     
 	if ( !extraSlots.isEmpty() && writeSlotImpl ) {
@@ -1002,5 +1007,5 @@ void Uic::createFormImpl( const QDomElement& e, const QString& form, const QStri
 
 void Uic::rubySlot(QStringList::Iterator &it)
 {
-    out << "\"" << (*it) << "\"";
+    out << "'" << (*it) << "'";
 }
