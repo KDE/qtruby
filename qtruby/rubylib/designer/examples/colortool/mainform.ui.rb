@@ -1,11 +1,3 @@
-# Form implementation generated from reading ui file 'mainform.ui'
-#
-# Created: Tue Oct 5 15:35:14 2004
-#      by: The QtRuby User Interface Compiler (rbuic)
-#
-# WARNING! All changes made in this file will be lost!
-
-
 class MainForm
 
     CLIP_AS_HEX = 0
