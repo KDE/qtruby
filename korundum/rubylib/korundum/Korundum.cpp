@@ -147,13 +147,12 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 													t.smoke()->types[t.smoke()->argumentList[method.args+1]].name ) == 0 ) 
 								{
 									Smoke::ClassFn fn = t.smoke()->classes[method.classId].classFn;
-									Smoke::Stack local_stack = new Smoke::StackItem[3];
+									Smoke::StackItem local_stack[3];
 									local_stack[1].s_voidp = stream;
 									local_stack[2].s_voidp = si->s_voidp;
 									// Call the QDataStream marshaller write method
 									// with the instance to be marshalled
 									(*fn)(method.method, 0, local_stack);
-									delete local_stack;
 									break;
 								}
 								ix++;
@@ -858,6 +857,7 @@ public:
 
 	~InvokeDCOPSlot() {
 		delete[] _stack;
+		delete _stream;
 	}
 };
 
