@@ -232,12 +232,13 @@ module Qt
 	Meta = {}
 
 	class MetaInfo
-		attr_accessor :signals, :slots, :metaobject, :mocargs
+		attr_accessor :signals, :slots, :metaobject, :mocargs, :changed
 		def initialize(aClass)
 			Meta[aClass.name] = self
 			@metaobject = nil
 			@signals = []
 			@slots = []
+			@changed = false
 		end
 	end
 
@@ -328,7 +329,7 @@ module Qt
 		meta = Meta[qobject.class.name]
 		return nil if meta.nil?
 
-		if meta.metaobject.nil?
+		if meta.metaobject.nil? or meta.changed
 			slotTable       = makeMetaData(meta.slots)
 			signalTable     = makeMetaData(meta.signals)
 			meta.metaobject = make_metaObject(qobject.class.name, 
@@ -384,10 +385,12 @@ class Module
 	def signals(*signal_list)
 		meta = Meta[self.name] || MetaInfo.new(self)
 		meta.signals += signal_list
+		meta.changed = true
 	end
 
 	def slots(*slot_list)
 		meta = Meta[self.name] || MetaInfo.new(self)
 		meta.slots += slot_list
+		meta.changed = true
 	end
 end

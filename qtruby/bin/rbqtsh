@@ -241,7 +241,7 @@ class QtShellControl < Qt::MainWindow
         self.setCentralWidget(box)
         @comboBox.setFocus
         self.resize(500,300)
-        self.setCaption("PerlQt Shell")
+        self.setCaption("QtRuby Shell")
         def trUtf8(k)
             return k
         end
@@ -312,7 +312,7 @@ class QtShellControl < Qt::MainWindow
     def fileOpen
         fname = Qt::FileDialog::getOpenFileName(
                                     ".",
-                                    "Pqtsh Session (*.pqts)",
+                                    "Rbqtsh Session (*.rbqts)",
                                     self,
                                     "open session",
                                     "Choose a file to open")
@@ -323,12 +323,12 @@ class QtShellControl < Qt::MainWindow
     def getFileName
         @fileName = Qt::FileDialog::getSaveFileName(
                                         ".",
-                                        "Pqtsh Session (*.pqts)",
+                                        "Rbqtsh Session (*.rbqts)",
                                         self,
                                         "save session",
                                         "Choose a filename" )
-        unless @fileName =~ /\.pqts$/
-            @fileName << ".pqts"
+        unless @fileName =~ /\.rbqts$/
+            @fileName << ".rbqts"
         end
         @fileName
     end
