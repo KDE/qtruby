@@ -78,7 +78,7 @@ module Qt
 			if classname =~ /^Q/
 				classname.sub(/^Q(?=[A-Z])/,'Qt::')
 			else
-				classname.sub(/^/,'KDE::')
+				classname.sub(/^K?(?=[A-Z])/,'KDE::')
 			end
 		end
 

@@ -791,9 +791,15 @@ public:
 		strcpy(buf, "Qt::");
 		strcat(buf, className + 1);
 	} else {
-		buf = new char[strlen(className) + strlen("KDE::") + 1];
-		strcpy(buf, "KDE::");
-		strcat(buf, className);
+		if (QString(className).startsWith("K")) {
+			buf = new char[strlen(className) + strlen("KDE::") + 1];
+			strcpy(buf, "KDE::");
+			strcat(buf, className + 1);
+		} else {
+				buf = new char[strlen(className) + strlen("KDE::") + 1];
+				strcpy(buf, "KDE::");
+				strcat(buf, className);
+		}
 	}
 	return buf;
     }
