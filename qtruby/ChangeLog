@@ -1,3 +1,13 @@
+2003-11-13  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added the KillerFilter event filtering example from chapter 16
+	  of 'Programming with Qt'
+	* Improved classname resolution via the Qt rtti mechanisms in
+	  QObject, QEvent and QCanvasItem. This fixed a problem in the
+	  KillerFilter example when a QMouseEvent was passed to the ruby 
+	  event handler, it was being instantiated as a ruby Qt::Event, 
+	  rather than a Qt::MouseEvent.
+
 2003-11-11  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Improved nil argument matching, and nil can match any type now

@@ -1,6 +1,7 @@
 #include <qstring.h>
 #include <qregexp.h>
 #include <qapplication.h>
+#include <qcanvas.h>
 #include <qlistview.h>
 #include <qiconview.h>
 #include <qtable.h>
@@ -179,6 +180,103 @@ smokeruby_free(void * p)
 	free(o);
 	
     return;
+}
+
+/*
+ * Given an approximate classname and a qt instance, try to improve the resolution of the name
+ * by using the various Qt rtti mechanisms for QObjects, QEvents and QCanvasItems
+ */
+static const char *
+resolve_classname(Marshall* m, void * ptr)
+{
+	if (isDerivedFromByName(m->smoke(), m->smoke()->classes[m->type().classId()].className, "QEvent")) {
+		QEvent * qevent = (QEvent *) m->smoke()->cast(ptr, m->type().classId(), m->smoke()->idClass("QEvent"));
+		switch (qevent->type()) {
+		case QEvent::ChildInserted:
+		case QEvent::ChildRemoved:
+			return "Qt::ChildEvent";
+		case QEvent::Close:
+			return "Qt::CloseEvent";
+		case QEvent::ContextMenu:
+			return "Qt::ContextMenuEvent";
+//		case QEvent::User:
+//			return "Qt::CustomEvent";
+		case QEvent::DragEnter:
+			return "Qt::DragEnterEvent";
+		case QEvent::DragLeave:
+			return "Qt::DragLeaveEvent";
+		case QEvent::DragMove:
+			return "Qt::DragMoveEvent";
+		case QEvent::DragResponse:
+			return "Qt::DragResponseEvent";
+		case QEvent::Drop:
+			return "Qt::DropEvent";
+		case QEvent::FocusIn:
+		case QEvent::FocusOut:
+			return "Qt::FocusEvent";
+		case QEvent::Hide:
+			return "Qt::HideEvent";
+		case QEvent::KeyPress:
+		case QEvent::KeyRelease:
+			return "Qt::KeyEvent";
+		case QEvent::IMStart:
+		case QEvent::IMCompose:
+		case QEvent::IMEnd:
+			return "Qt::IMEvent";
+		case QEvent::MouseButtonPress:
+		case QEvent::MouseButtonRelease:
+		case QEvent::MouseButtonDblClick:
+		case QEvent::MouseMove:
+			return "Qt::MouseEvent";
+		case QEvent::Move:
+			return "Qt::MoveEvent";
+		case QEvent::Paint:
+			return "Qt::PaintEvent";
+		case QEvent::Resize:
+			return "Qt::ResizeEvent";
+		case QEvent::Show:
+			return "Qt::ShowEvent";
+	//	case QEvent::Tablet:
+	//		 return "Qt::TabletEvent";
+		case QEvent::Timer:
+			return "Qt::TimerEvent";
+		case QEvent::Wheel:
+			return "Qt::WheelEvent";
+		default:
+			break;
+		}
+	} else if (isDerivedFromByName(m->smoke(), m->smoke()->classes[m->type().classId()].className, "QObject")) {
+		QObject * qobject = (QObject *) m->smoke()->cast(ptr, m->type().classId(), m->smoke()->idClass("QObject"));
+		const char * classname = qobject->className();
+		Smoke::Index classId = m->smoke()->idClass(classname);
+		if (classId != 0) {
+			return m->smoke()->binding->className(classId);
+		}
+	} else if (isDerivedFromByName(m->smoke(), m->smoke()->classes[m->type().classId()].className, "QCanvasItem")) {
+		QCanvasItem * qcanvasitem = (QCanvasItem *) m->smoke()->cast(ptr, m->type().classId(), m->smoke()->idClass("QCanvasItem"));
+		switch (qcanvasitem->rtti()) {
+		case QCanvasItem::Rtti_Sprite:
+			return "Qt::CanvasSprite";
+		case QCanvasItem::Rtti_PolygonalItem:
+			return "Qt::CanvasPolygonalItem";
+		case QCanvasItem::Rtti_Text:
+			return "Qt::CanvasText";
+		case QCanvasItem::Rtti_Polygon:
+			return "Qt::CanvasPolygon";
+		case QCanvasItem::Rtti_Rectangle:
+			return "Qt::CanvasRectangle";
+		case QCanvasItem::Rtti_Ellipse:
+			return "Qt::CanvasEllipse";
+		case QCanvasItem::Rtti_Line:
+			return "Qt::CanvasLine";
+		case QCanvasItem::Rtti_Spline:
+			return "Qt::CanvasSpline";
+		default:
+			break;
+		}
+	}
+	
+	return m->smoke()->binding->className(m->type().classId());
 }
 
 bool
@@ -450,7 +548,7 @@ marshall_basetype(Marshall *m)
 		o->ptr = p;
 		o->allocated = false;
 
-		const char * classname = m->smoke()->binding->className(m->type().classId());
+		const char * classname = resolve_classname(m, o->ptr);
 		
 		if(m->type().isConst() && m->type().isRef()) {
 		    p = construct_copy( o );
@@ -551,7 +649,7 @@ static void marshall_QString(Marshall *m) {
       case Marshall::FromVALUE:
 	{
 	    QString s;
-	    if( *(m->var()) != Qnil || m->type().isStack()) {
+	    if( *(m->var()) != Qnil) {
 #if 0
                if(SvUTF8(*(m->var())))
                     s = QString::fromUtf8(SvPV_nolen(*(m->var())));
@@ -563,7 +661,7 @@ static void marshall_QString(Marshall *m) {
             // Treat everything as UTF-8..for now
             s = QString::fromUtf8(StringValuePtr(*(m->var())), RSTRING(*(m->var()))->len);
 #endif
-            } else if(m->type().isRef()) {
+            } else {
                 s = QString::null;
             }
 		
