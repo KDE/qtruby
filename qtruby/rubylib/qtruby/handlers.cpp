@@ -779,17 +779,7 @@ void marshall_QStringList(Marshall *m) {
     }
 }
 
-
-template <class Item, class ItemList, class ItemListIterator, int type_handler_map_idx> void marshall_ItemList(Marshall *m);
-
-Marshall::HandlerFn marshall_QCanvasItemList = marshall_ItemList<QCanvasItem, QCanvasItemList, QValueListIterator<QCanvasItem*>, 0 >;
-
-// NB - This array is used to work around the inability to template a method with a string literal as a template param
-const char * handler_type_mapping[] = {
-    "QCanvasItem", // index 0
-};
-
-template <class Item, class ItemList, class ItemListIterator, int type_handler_map_idx>
+template <class Item, class ItemList, class ItemListIterator, const char *ItemSTR >
 void marshall_ItemList(Marshall *m) {
     switch(m->action()) {
       case Marshall::ToVALUE:
@@ -802,7 +792,7 @@ void marshall_ItemList(Marshall *m) {
 
 	    VALUE av = rb_ary_new();
 
-	    int ix = m->smoke()->idClass( handler_type_mapping[type_handler_map_idx] );
+	    int ix = m->smoke()->idClass(ItemSTR);
 	    const char * className = m->smoke()->binding->className(ix);
 
 	    for(ItemListIterator it = valuelist->begin();
@@ -971,6 +961,9 @@ void marshall_QRgb_array(Marshall *m) {
 	break;
     }
 }
+
+namespace { char QCanvasItemSTR[] = "QCanvasItem"; }; 
+Marshall::HandlerFn marshall_QCanvasItemList = marshall_ItemList<QCanvasItem, QCanvasItemList, QValueListIterator<QCanvasItem*>, QCanvasItemSTR >;
 
 TypeHandler Qt_handlers[] = {
     { "QString", marshall_QString },
