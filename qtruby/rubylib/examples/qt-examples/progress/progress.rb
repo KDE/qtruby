@@ -74,6 +74,7 @@ class AnimatedThingy < Qt::Label
 	painter.drawLine(@ox0[@step], @oy0[@step], @ox1[@step], @oy1[@step])
 	painter.setPen(white)
 	painter.drawText(rect(), AlignCenter, @label)
+	painter.end()
     end
 end
 
@@ -116,15 +117,14 @@ class CPUWaster < Qt::Widget
 	defaultLabel
 
         setFixedSize(400, 300)
-        setBackgroundColor(white)
+        setBackgroundColor(black)
     end
 
     def drawItemRects(id)
         n = id - FIRST_DRAW_ITEM
         r = 100
-	n.downto(0) {
-	    everythree = (n % 3) != 0
-	    r *= everythree ? 5 : 4
+	n.downto(0) { |n|
+	    r *= (n%3 != 0) ? 5 : 4
 	}
         r
     end
@@ -188,6 +188,7 @@ class CPUWaster < Qt::Widget
             @pb.setProgress(@pb.totalSteps)
             painter = Qt::Painter.new(self)
             painter.fillRect(0, 0, width(), height(), Qt::Brush.new(backgroundColor))
+			painter.end()
             enableDrawingItems(true)
             killTimers()
             @pb = nil
