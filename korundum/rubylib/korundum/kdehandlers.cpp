@@ -26,6 +26,8 @@
 #include <kfileview.h>
 #include <kurl.h>
 #include <kcmdlineargs.h>
+#include <dom/dom_node.h>
+#include <dom/dom_string.h>
 
 extern "C" {
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
@@ -50,7 +52,7 @@ void marshall_QCStringList(Marshall *m) {
 		    stringlist->append(QCString());
 		    continue;
 		}
-		stringlist->append(StringValuePtr(item));
+		stringlist->append(QCString(StringValuePtr(item), RSTRING(item)->len + 1));
 	    }
 
 	    m->item().s_voidp = stringlist;
@@ -159,6 +161,40 @@ void marshall_KTraderOfferList(Marshall *m) {
 		break;
 	case Marshall::ToVALUE: 
 		{
+	    KTrader::OfferList *offerList = (KTrader::OfferList*)m->item().s_voidp;
+	    if(!offerList) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+
+	    VALUE av = rb_ary_new();
+
+	    for(KTrader::OfferList::Iterator it = offerList->begin();
+		it != offerList->end();
+		++it) {
+		KService::Ptr ptr = *it;
+		// Increment the reference count to prevent C++ garbage collection.
+		// The contents of the offerList ruby Array should really be deref'd 
+		// when it's gc'd.
+		ptr->_KShared_ref();
+		KService * currentOffer = ptr;
+
+		VALUE obj = getPointerObject(ptr);
+		if(obj == Qnil) {
+		    smokeruby_object  * o = ALLOC(smokeruby_object);
+		    o->smoke = m->smoke();
+		    o->classId = m->smoke()->idClass("KService");
+		    o->ptr = currentOffer;
+		    o->allocated = false;
+		    obj = set_obj_info("KDE::Service", o);
+		}
+		rb_ary_push(av, obj);
+            }
+
+	    *(m->var()) = av;		
+	    
+		if(m->cleanup())
+		delete offerList;
 		}
 		break;
 	default:

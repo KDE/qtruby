@@ -20,14 +20,41 @@
 module KDE
 	DCOPMeta = {}
 
+	# An entry for each dcop signal or slot
+	# Example 
+	#  int foobar(QString,bool)
+	#  :name is 'foobar'
+	#  :full_name is 'int foobar(QString,bool)'
+	#  :arg_types is 'QString,bool'
+	#  :reply_type is 'int'
+	DCOPMember = Struct.new :name, :full_name, :arg_types, :reply_type
+	
 	class DCOPMetaInfo
-		attr_accessor :dcop_object, :k_dcop_signals, :k_dcop, :changed
+		attr_accessor :dcop_object, :changed
+		attr_reader :k_dcop_signals, :k_dcop
+		
 		def initialize(aClass)
 			DCOPMeta[aClass.name] = self
 			@dcop_object = nil
-			@k_dcop_signals = []
-			@k_dcop = []
+			@k_dcop_signals = {}
+			@k_dcop = {}
 			@changed = false
+		end
+		
+		def add_signals(signal_list)
+			signal_list.each do |signal|
+				if signal =~ /^(.*)\s([^\s]*)\((.*)\)/
+					@k_dcop_signals[$2] = DCOPMember.new($2, signal, $3, $1)
+				end
+			end
+		end
+		
+		def add_slots(slot_list)
+			slot_list.each do |slot|
+				if slot =~ /^(.*)\s([^\s]*)\((.*)\)/
+					@k_dcop[$2] = DCOPMember.new($2, slot, $3, $1)
+				end
+			end
 		end
 	end
 
@@ -45,24 +72,14 @@ module KDE
 
 	def getDCOPSignalNames(aClass)
 		classname = aClass.name if aClass.is_a? Module
-		signalNames = []
 		signals = DCOPMeta[classname].k_dcop_signals
-				return [] if signals.nil?
-				signals.each {
-						|signal| signalNames << signal.sub(/\(.*/, '')
-				}
-		signalNames
+		return signals.keys
 	end
 
 	def fullSignalName(instance, signalName)
 		classname = instance.class.name if instance.class.is_a? Module
 		signals = DCOPMeta[classname].k_dcop_signals
-				signals.each {
-						|signal|
-						if signal.sub(/\(.*/, '') == signalName
-							return signal
-						end
-				}
+		return signals[signalName].full_name
 	end
 
 	class RubyDCOPObject < KDE::DCOPObject
@@ -73,7 +90,24 @@ module KDE
 		end
 
 		def process(fun, data, replyType, replyData)
-			return KDE::dcop_process(@instance, fun.sub(/\(.*/, ''), Qt::getMocArguments(fun), data, replyType, replyData)
+			if fun == 'functions()' or fun == 'interfaces()'
+				return super
+			end
+			
+			slots = DCOPMeta[@instance.class.name].k_dcop
+			dcop_slot = slots[fun.sub(/\(.*/, '')]
+			if dcop_slot.nil?
+				# Can't find an entry for the slot being called? This shouldn't happen..
+				return false
+			end
+			
+			replyType << dcop_slot.reply_type
+			KDE::dcop_process(	@instance, 
+								dcop_slot.name, 
+								Qt::getMocArguments(fun), 
+								data, 
+								(replyType == 'void' or replyType == 'ASYNC') ? nil : Qt::getMocArguments(replyType), 
+								replyData )
 		end
 
 		def interfaces()
@@ -83,7 +117,7 @@ module KDE
 
 		def functions()
 			functions = super()
-			return functions << @functions
+			return functions + @functions
 		end
 	end
 
@@ -94,11 +128,27 @@ module KDE
 		return nil if meta.nil?
 
 		if meta.dcop_object.nil? or meta.changed
-			meta.dcop_object = RubyDCOPObject.new(instance, meta.k_dcop)
+			funcs = []
+			meta.k_dcop.each_value do |value| 
+				func_name = value.name + '(' + value.arg_types + ')'
+				funcs << func_name 
+			end
+			meta.dcop_object = RubyDCOPObject.new(instance, funcs)
 			meta.changed = false
 		end
 
 		meta.dcop_object
+	end
+	
+	def CmdLineArgs::init(*k)
+		if k.length > 0 and k[0].kind_of?(Array)
+			# If init() is passed an array as the first argument, assume it's ARGV.
+			# Then convert to a pair of args 'ARGV.length+1, [$0]+ARGV'
+			array = k.shift
+			super *([array.length+1] + [[$0] + array] + k)
+		else
+			super
+		end
 	end
 end
 
@@ -107,13 +157,13 @@ class Module
 
 	def k_dcop_signals(*signal_list)
 		meta = DCOPMeta[self.name] || DCOPMetaInfo.new(self)
-		meta.k_dcop_signals += signal_list
+		meta.add_signals(signal_list)
 		meta.changed = true
 	end
 
 	def k_dcop(*slot_list)
 		meta = DCOPMeta[self.name] || DCOPMetaInfo.new(self)
-		meta.k_dcop += slot_list
+		meta.add_slots(slot_list)
 		meta.changed = true
 	end
 end

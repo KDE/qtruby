@@ -1,3 +1,45 @@
+2004-03-10  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added marshaller for KTrader::OfferList to ruby array
+	* Used DOM::Node rtti to instantiate a ruby value with the correct subclass
+
+2004-03-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* If the DCOP reply type is 'void' or 'ASYNC', it isn't marshalled into the
+	  QByteArray 'replyData' arg of DCOPObject::process().
+
+2004-03-02  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Slots and signals couldn't be added to KDE classes, such as KDE::PushButton
+
+2004-03-02  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* A DCOPClient instance is now created for classes with a 'k_dcop_signals'
+	  declaration, and emitDCOPSignal() is called on that.
+
+2004-03-01  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Ruby DCOP support now working - here is some example code:
+
+		require 'Korundum'
+		class MyWidget < KDE::PushButton
+			k_dcop 'QPoint mySlot(int,QString)'
+	
+			def initialize(parent, name)
+				super
+			end
+			
+			def mySlot(counter,greeting)
+				return Qt::Point.new(50, 100)
+			end
+		end
+
+	  - This slot is passed an integer and a string, and returns a Qt::Point.
+	  - Note that the class doesn't have to inherit from DCOPObject. If you
+	    include a 'k_dcop' slots declaration a 'listener' dcop object instance
+	    is created automatically.
+
+
 2004-01-08  Alexander Kellett  <lypanov@kde.org>
 	* Imported krubyinit sources, thus at last fixing the startup segv's with gentoo/x86/qt 3.2.
 
