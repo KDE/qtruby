@@ -161,7 +161,6 @@ module KDE
 			else
 				puts( "DCOPRef: call #{fun} invalid format, expecting '<reply_type> <function_name>(<args>)'" )
 			end
-			puts "reply_type: #{reply_type} full_name: #{full_name}"
 			return KDE::dcop_call(	self, 
 									full_name, 
 									Qt::getMocArguments(full_name),
