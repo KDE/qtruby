@@ -6,10 +6,15 @@ class Viewer < Qt::Widget
 
 		setFontSubstitutions
 
-		greeting_en = "Hello"
+		greeting_heb = 'Hello in Hebrew'
+		greeting_ru = 'Hello in Russian'
+		greeting_en = 'Hello'
 
 		@greetings = Qt::TextView.new(self, 'textview')
-		@greetings.setText(greeting_en)
+		@greetings.setText(
+				   greeting_en + "\n" +
+				   greeting_ru + "\n" +
+				   greeting_heb)
 
 		@fontInfo = Qt::TextView.new(self, 'fontinfo')
 
