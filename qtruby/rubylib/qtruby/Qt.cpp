@@ -274,6 +274,7 @@ public:
     void callMethod() {
 	if(_called) return;
 	_called = true;
+	
 	VALUE _retval = rb_funcall2(_obj,
 				    rb_intern(_smoke->methodNames[method().name]),
 				    method().numArgs,
@@ -412,6 +413,11 @@ public:
     inline void callMethod() {
 	if(_called) return;
 	_called = true;
+	
+	if (_target == Qnil && !(method().flags & Smoke::mf_static)) {
+		rb_raise(rb_eArgError, "%s is not a class method\n", _smoke->methodNames[method().name]);
+	}
+	
 	Smoke::ClassFn fn = _smoke->classes[method().classId].classFn;
 	void *ptr = _smoke->cast(_current_object, _current_object_class, method().classId);
 	_items = -1;
@@ -794,6 +800,7 @@ void logger_backend(const char *format, ...)
     }
     // TODO - allow qtruby programs to override this fprintf with their own logging
     fprintf(stdout, "%s\n", StringValuePtr(val_str));
+	fflush(stdout);
     va_end(ap);
 }
 
