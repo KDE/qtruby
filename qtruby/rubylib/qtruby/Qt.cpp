@@ -91,6 +91,7 @@ VALUE ktexteditor_module = Qnil;
 VALUE qt_internal_module = Qnil;
 VALUE qt_base_class = Qnil;
 VALUE qt_qmetaobject_class = Qnil;
+bool application_terminated = FALSE;
 };
 
 #define logger logger_backend
@@ -838,6 +839,10 @@ set_obj_info(const char * className, smokeruby_object * o)
 			     rb_intern("find_class"),
 			     1,
 			     rb_str_new2(className) );
+	Smoke::Index *r = classcache.find(className);
+	if (r != 0) {
+		o->classId = (int)*r;
+	}
     VALUE obj = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, (void *) o);
     return obj;
 }
@@ -884,7 +889,7 @@ get_VALUEtype(VALUE ruby_value)
 	r = "s";
     else if(strcmp(classname, "Qt::ByteArray") == 0)
 	r = "b";
-    else if(strcmp(classname, "Qt::Boolean") == 0)
+    else if(ruby_value == Qtrue || ruby_value == Qfalse || strcmp(classname, "Qt::Boolean") == 0)
 	r = "B";
     else if(strcmp(classname, "Qt::Enum") == 0) {
 	VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qenum_type"), 1, ruby_value);
@@ -1255,6 +1260,18 @@ new_qapplication(int argc, VALUE * argv, VALUE klass)
     return result;
 }
 
+// Returns $qApp.ARGV() - the original ARGV array with Qt command line options removed
+static VALUE
+qapplication_argv(VALUE /*self*/)
+{
+	VALUE result = rb_ary_new();
+	// Drop argv[0], as it isn't included in the ruby global ARGV
+	for (int index = 1; index < qApp->argc(); index++) {
+		rb_ary_push(result, rb_str_new2(qApp->argv()[index]));
+	}
+	
+	return result;
+}
 //----------------- Sig/Slot ------------------
 
 
@@ -1988,6 +2005,7 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
     	klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
 		if (strcmp(package, "Qt::Application") == 0) {
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qapplication, -1);
+		rb_define_method(klass, "ARGV", (VALUE (*) (...)) qapplication_argv, 0);
 		} else {
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
 		}
@@ -2035,6 +2053,13 @@ void
 set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE))
 {
 	_new_kde = new_kde;
+}
+
+static VALUE
+set_application_terminated(VALUE /*self*/, VALUE yn)
+{
+    application_terminated = (yn == Qtrue ? true : false);
+	return Qnil;
 }
 
 void
@@ -2141,6 +2166,7 @@ Init_qtruby()
     rb_define_method(qt_internal_module, "version", (VALUE (*) (...)) version, 0);
     rb_define_method(qt_internal_module, "qtruby_version", (VALUE (*) (...)) qtruby_version, 0);
     rb_define_method(qt_internal_module, "cast_object_to", (VALUE (*) (...)) cast_object_to, 2);
+    rb_define_method(qt_internal_module, "application_terminated=", (VALUE (*) (...)) set_application_terminated, 1);
 
 	rb_include_module(qt_module, qt_internal_module);
 	rb_require("Qt/qtruby.rb");

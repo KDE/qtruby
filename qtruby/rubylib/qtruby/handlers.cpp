@@ -50,6 +50,7 @@
 extern "C" {
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
 extern VALUE qt_internal_module;
+extern bool application_terminated;
 };
 
 extern bool isDerivedFromByName(Smoke *smoke, const char *className, const char *baseClassName);
@@ -66,6 +67,30 @@ set_kde_resolve_classname(const char * (*kde_resolve_classname) (Marshall*, void
 }
 
 };
+
+void
+mark_qobject_children(QObject * qobject)
+{
+	VALUE obj;
+	
+	const QObjectList *l = qobject->children();
+	if (l == 0) {
+		return;
+	}
+	QObjectListIt it( *l ); // iterate over the children
+	QObject *child;
+
+	while ( (child = it.current()) != 0 ) {
+		++it;
+		obj = getPointerObject(child);
+		if (obj != Qnil) {
+			if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", child->className(), child, (void*)obj);
+			rb_gc_mark(obj);
+		}
+		
+		mark_qobject_children(child);
+	}
+}
 
 void
 smokeruby_mark(void * p)
@@ -110,23 +135,22 @@ smokeruby_mark(void * p)
 			return;		
 		}
 		
-		if (isDerivedFromByName(o->smoke, className, "QObject")) {
-			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
-			const QObjectList *l = qobject->children();
-			if (l == 0) {
-				return;
-			}
-			QObjectListIt it( *l ); // iterate over the children
-			QObject *child;
-
-			while ( (child = it.current()) != 0 ) {
-				++it;
-				obj = getPointerObject(child);
+		if (isDerivedFromByName(o->smoke, className, "QCanvas")) {
+			QCanvas * canvas = (QCanvas *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QCanvas"));
+    		QCanvasItemList list = canvas->allItems();
+    		for ( QCanvasItemList::iterator it = list.begin(); it != list.end(); ++it ) {
+				obj = getPointerObject(*it);
 				if (obj != Qnil) {
-					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, child, (void*)obj);
+					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, *it, (void*)obj);
 					rb_gc_mark(obj);
 				}
 			}
+			return;
+		}
+		
+		if (isDerivedFromByName(o->smoke, className, "QObject")) {
+			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+			mark_qobject_children(qobject);
 			return;
 		}
 	}
@@ -140,7 +164,7 @@ smokeruby_free(void * p)
 	
 	if(do_debug & qtdb_gc) printf("Checking for delete (%s*)%p allocated: %s\n", className, o->ptr, o->allocated ? "true" : "false");
     
-	if(!o->allocated || o->ptr == 0) {
+	if(application_terminated || !o->allocated || o->ptr == 0) {
 		free(o);
 		return;
 	}
@@ -151,9 +175,7 @@ smokeruby_free(void * p)
 	if (	strcmp(className, "QObject") == 0
 			|| strcmp(className, "QListBoxItem") == 0
 			|| strcmp(className, "QStyleSheetItem") == 0
-			|| strcmp(className, "QSqlCursor") == 0
-			|| strcmp(className, "QApplication") == 0
-			|| strcmp(className, "KApplication") == 0 )
+			|| strcmp(className, "QSqlCursor") == 0 )
 	{
 		// Don't delete instances of these classes for now
 		free(o);
@@ -610,6 +632,15 @@ marshall_basetype(Marshall *m)
 	switch(m->action()) {
 	  case Marshall::FromVALUE:
 	    {
+		if(*(m->var()) == Qnil) {
+            m->item().s_class = 0;
+		    break;
+		}
+		if(TYPE(*(m->var())) != T_DATA) {
+            rb_raise(rb_eArgError, "Invalid type, expecting %s\n", m->type().name());
+		    break;
+		}
+		
 		smokeruby_object *o = value_obj_info(*(m->var()));
 		if(!o || !o->ptr) {
                     if(m->type().isRef()) {
@@ -732,7 +763,6 @@ void marshall_ucharP(Marshall *m) {
 		m->item().s_voidp = 0;
 		break;
 	    }
-		
         m->item().s_voidp = StringValuePtr(rv);
 	}
 	break;
@@ -1640,12 +1670,10 @@ void marshall_QRgb_array(Marshall *m) {
 		    continue;
 		}
 
-		rgb[i] = NUM2INT(item);
+		rgb[i] = NUM2UINT(item);
 	    }
 	    m->item().s_voidp = rgb;
 	    m->next();
-	    if(m->cleanup())
-		delete[] rgb;
 	}
 	break;
       case Marshall::ToVALUE:

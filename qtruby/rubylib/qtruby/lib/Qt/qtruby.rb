@@ -110,13 +110,13 @@ module Qt
 	# If the data arg is nil, the string is returned as the
 	# value instead. 
 	class ByteArray < DelegateClass(String)
+		attr_reader :private_data
 		attr_reader :data
-		attr_reader :string
 		
 		def initialize(string, data=nil)
 			super(string)
-			@data = data
-			@string = string
+			@private_data = data
+			@data = string
 		end
 	end
 	
@@ -127,6 +127,7 @@ module Qt
 		def exec
 			super
 			self.dispose
+			Qt::Internal.application_terminated = true
 		end
 	end
 	
@@ -206,6 +207,18 @@ module Qt
 		def ^(n) 
 			return Enum.new(@value ^ n.to_i, @type)
 		end
+		def <(n) 
+			return @value < n.to_i
+		end
+		def <=(n) 
+			return @value <= n.to_i
+		end
+		def >(n) 
+			return @value > n.to_i
+		end
+		def >=(n) 
+			return @value >= n.to_i
+		end
 		def <<(n) 
 			return Enum.new(@value << n.to_i, @type)
 		end
@@ -263,9 +276,9 @@ module Qt
 		def checkarg(argtype, typename)
 			puts "      #{typename} (#{argtype})" if debug_level >= DebugLevel::High
 			if argtype == 'i'
-				if typename =~ /^int&?$/
+				if typename =~ /^int&?$|^signed$/
 					return 1
-				elsif typename =~ /^(?:short|ushort|uint|long|ulong|signed|unsigned|float|double)$/
+				elsif typename =~ /^(?:short|ushort|uint|long|ulong|unsigned|float|double)$/
 					return 0
 				else 
 					t = typename.sub(/^const\s+/, '')
@@ -275,7 +288,9 @@ module Qt
 					end
 				end
 			elsif argtype == 'n'
-				if typename =~ /^(?:float|double)$/
+				if typename =~ /^double$/
+					return 2
+				elsif typename =~ /^float$/
 					return 1
 				elsif typename =~ /^int&?$/
 					return 0
@@ -520,10 +535,10 @@ module Qt
 		end
 		
 		def get_qbytearray(str)
-			if str.data.nil?
-				return str.string
+			if str.private_data.nil?
+				return str.data
 			end
-			return str.data
+			return str.private_data
 		end
 		
 		def get_qinteger(num)

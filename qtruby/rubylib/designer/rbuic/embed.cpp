@@ -219,12 +219,12 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 #ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
 	out << indent << "baunzip = qUncompress( @@embed_images[name][0].pack(\"C*\")," << endl;
 	out << indent << "                       @@embed_images[name][0].length )" << endl;
-	out << indent << "img = Qt::Image.new( baunzip," << endl;
+	out << indent << "img = Qt::Image.new( baunzip.data," << endl;
 	out << indent << "                     @@embed_images[name][1]," << endl;
 	out << indent << "                     @@embed_images[name][2]," << endl;
 	out << indent << "                     @@embed_images[name][3]," << endl;
 	out << indent << "                     @@embed_images[name][4]," << endl;
-	out << indent << "                     0," << endl;
+	out << indent << "                     @@embed_images[name][4].length," << endl;
 	out << indent << "                     Qt::Image::BigEndian )" << endl;
 #else
 	out << indent << "img = Qt::Image.new( @@embed_images[name][0].pack(\"C*\")," << endl;
@@ -232,7 +232,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << indent << "                     @@embed_images[name][2]," << endl;
 	out << indent << "                     @@embed_images[name][3]," << endl;
 	out << indent << "                     @@embed_images[name][4]," << endl;
-	out << indent << "                     0," << endl;
+	out << indent << "                     @@embed_images[name][4].length," << endl;
 	out << indent << "                     Qt::Image::BigEndian )" << endl;
 #endif
     out << indent << "if @@embed_images[name][5]" << endl;

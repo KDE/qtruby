@@ -63,7 +63,7 @@ void Uic::createObjectDecl( const QDomElement& e )
 }
 
 /*!
-  Creates a PerlQt attribute declaration for the object given in \a e.
+  Creates a QtRuby attribute declaration for the object given in \a e.
 
   Children are not traversed recursively.
 
@@ -71,7 +71,7 @@ void Uic::createObjectDecl( const QDomElement& e )
 void Uic::createAttrDecl( const QDomElement& e )
 {
     if ( e.tagName() == "vbox" || e.tagName() == "hbox" || e.tagName() == "grid" ) {
-	out << indent << registerObject(getLayoutName(e) ) << endl;
+//	out << indent << registerObject(getLayoutName(e) ) << endl;
     } else {
 	QString objClass = getClassName( e );
 	if ( objClass.isEmpty() )
@@ -84,10 +84,13 @@ void Uic::createAttrDecl( const QDomElement& e )
 	    return;
         // register the object and unify its name
 	objName = registerObject( objName );
-	out << indent << objName << endl;
+	QString attr(objName);
+	attr.replace(QChar('@'), "attr_reader :");
+	
+	out << indent << attr << endl;
         QDomElement n = getObjectProperty( e, "font");
-	if ( !n.isNull() )
-            out << indent << objName + "_font" << endl;
+//	if ( !n.isNull() )
+//            out << indent << objName + "_font" << endl;
     }
 }
 

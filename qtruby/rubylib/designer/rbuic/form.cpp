@@ -93,11 +93,11 @@ void Uic::createFormImpl( const QDomElement &e )
     if ( objClass.isEmpty() )
 	return;
     QString objName = getObjectName( e );
-//    out << indent << "class " << nameOfClass << endl;
+	
 	if (hasKDEwidget) {
-    	out << indent << "require 'Korundum'" << endl;
+    	out << indent << "require 'Korundum'" << endl << endl;
 	} else {
-    	out << indent << "require 'Qt'" << endl;
+    	out << indent << "require 'Qt'" << endl << endl;
 	}
 
     // generate local and local includes required
@@ -210,34 +210,34 @@ void Uic::createFormImpl( const QDomElement &e )
 
     // QtRuby sig/slot declaration
 	
-	out << indent << "slots 'languageChange()'" << endl;
+    ++indent;
     
 	if ( !extraSlots.isEmpty() ) {
-	out << indent << "slots ";
-        ++indent;
-    for ( it = extraSlots.begin(); it != extraSlots.end(); ++it ) 
-		{
-	    rubySlot( it );
-	    out << ( ((*it) == extraSlots.last()) ? "":",") << endl;
-	}
-	out << endl;
-        --indent;
-    }
+		out << indent << "slots 'languageChange()'";
+    	for ( it = extraSlots.begin(); it != extraSlots.end(); ++it ) {
+			if (it == extraSlots.begin()) {
+				out << "," << endl;
+			}
+	    	rubySlot( it );
+	    	out << ( ((*it) == extraSlots.last()) ? "":",") << endl;
+		}
+		out << endl;
+     }
 
     // create signals
     if ( !extraSignals.isEmpty() ) {
-	out << indent << "signals ";
-        ++indent;
-	for ( it = extraSignals.begin(); it != extraSignals.end(); ++it )
-        {
-	    rubySlot( it );
-	    out << ( ((*it) == extraSignals.last()) ? "":",") << endl;
-	}
-	out << endl;
-        --indent;
+		out << indent << "signals ";
+		--indent;
+		for ( it = extraSignals.begin(); it != extraSignals.end(); ++it ) {
+	    	rubySlot( it );
+			if (it == extraSignals.begin()) {
+				++indent;
+			}
+	    	out << ( ((*it) == extraSignals.last()) ? "":",") << endl;
+		}
+		out << endl;
     }
 
-    ++indent;
 
     // children
     if( !objectNames.isEmpty() )
@@ -246,9 +246,11 @@ void Uic::createFormImpl( const QDomElement &e )
     for ( i = 1; i < (int) nl.length(); i++ )
     { // start at 1, 0 is the toplevel widget
 	n = nl.item(i).toElement();
-//	createAttrDecl( n );
+	createAttrDecl( n );
     }
     objectNames.clear();
+	
+    ++indent;
 
     // additional attributes (from Designer)
     QStringList publicVars, protectedVars, privateVars;
@@ -282,8 +284,6 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     --indent;
-    out << endl;
-
 
     // additional includes (local or global ) and forward declaractions
     nl = e.parentNode().toElement().elementsByTagName( "include" );
@@ -332,8 +332,8 @@ void Uic::createFormImpl( const QDomElement &e )
             QFile f((*it));
             if( f.open( IO_ReadOnly ) )
             {
-                QRegExp re("^.*([a-zA-Z0-9_]+\\s*\\(.*\\))\\s*$");
-                QRegExp re2("^\\}.*");
+                QRegExp re("^def\\s+([a-zA-Z0-9_]+)\\s.*$");
+                QRegExp re2("^end\\s*$");
                 QTextStream t( &f );
                 QString s, s2, s3;
                 while ( !t.eof() )
@@ -343,15 +343,17 @@ void Uic::createFormImpl( const QDomElement &e )
                     if(pos == -1)
                         continue;
                     s2 = re.cap(1);
-                    s2 = Parser::cleanArgs(s2);
-                    s3 = QString::null;
+					s2 += "()";
+//                    s2 = Parser::cleanArgs(s2);
+                    s3 = "{";
                     while( !t.eof() )
                     {
                         s = t.readLine();
-                        s3 += s + "\n";
-                        if(re2.search(s) != -1)
+                         if(re2.search(s) != -1)
                             break;
+                       s3 += s + "\n";
                     }
+					s3 += "}";
                     functionImpls.insert( s2, s3 );
                     if( t.eof() ) break;
                 }
@@ -922,21 +924,21 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << indent << "end" << endl;
     }
 	
-    out << "#" << endl;
-    out << "#  Sets the strings of the subwidgets using the current" << endl;
-    out << "#  language." << endl;
-    out << "#" << endl;
-    out << "def " << "languageChange()" << endl;
+    out << indent << "#" << endl;
+    out << indent << "#  Sets the strings of the subwidgets using the current" << endl;
+    out << indent << "#  language." << endl;
+    out << indent << "#" << endl;
+    out << indent << "def " << "languageChange()" << endl;
     out << languageChangeBody;
-    out << "end" << endl;
-	out << "protected :languageChange" << endl;
+    out << indent << "end" << endl;
+	out << indent << "protected :languageChange" << endl;
     out << endl;
     
 	if ( !extraSlots.isEmpty() && writeSlotImpl ) {
 	for ( it = extraSlots.begin(); it != extraSlots.end(); ++it ) {
 	    out << endl;
 	    int astart = (*it).find('(');
-	    out << indent << "def " << (*it).left(astart) << "()" << endl;
+	    out << indent << "def " << (*it).left(astart) << "(*k)" << endl;
 	    bool createWarning = TRUE;
 	    QString fname = Parser::cleanArgs( *it );
 	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
@@ -962,7 +964,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	for ( it = extraFunctions.begin(); it != extraFunctions.end(); ++it ) {
 	    out << endl;
 	    int astart = (*it).find('(');
-	    out << indent << "def " << (*it).left(astart) << "()" << endl;
+	    out << indent << "def " << (*it).left(astart) << "(*k)" << endl;
 	    QString fname = Parser::cleanArgs( *it );
 	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
 	    if ( fit != functionImpls.end() ) {
@@ -1009,5 +1011,5 @@ void Uic::createFormImpl( const QDomElement& e, const QString& form, const QStri
 
 void Uic::rubySlot(QStringList::Iterator &it)
 {
-    out << "'" << (*it) << "'";
+    out << indent << "'" << (*it) << "'";
 }
