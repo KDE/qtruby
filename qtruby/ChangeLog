@@ -1,3 +1,10 @@
+2004-06-26  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* The marshalling TypeHandler function pointers are now looked up in a
+	  QAsciiDict, rather than a ruby Hash.
+	* Some unused functions removed
+	* QtRuby version upped to 0.9.8
+
 2004-06-09  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* New flags were added for Smoke methods - mf_internal and mf_copyctor.

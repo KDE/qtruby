@@ -2,7 +2,7 @@
                           Qt.cpp  -  description
                              -------------------
     begin                : Fri Jul 4 2003
-    copyright            : (C) 2003 by Richard Dale
+    copyright            : (C) 2003-2004 by Richard Dale
     email                : Richard_Dale@tipitina.demon.co.uk
  ***************************************************************************/
 
@@ -57,7 +57,7 @@
 
 // #define DEBUG
 
-#define QTRUBY_VERSION "0.9.7"
+#define QTRUBY_VERSION "0.9.8"
 
 extern Smoke *qt_Smoke;
 extern void init_qt_Smoke();
@@ -796,33 +796,7 @@ extern "C" {
 
 // ----------------   Helpers -------------------
 
-//---------- XS Autoload (for all functions except fully qualified statics & enums) ---------
-
-VALUE catArguments(VALUE * /*sp*/, int /*n*/)
-{
-    VALUE r=rb_str_new2("");
-//    for(int i = 0; i < n; i++) {
-//        if(i) sv_catpv(r, ", ");
-//        if(!SvOK(sp[i])) {
-//            sv_catpv(r, "undef");
-//        } else if(SvROK(sp[i])) {
-//            smokeruby_object *o = value_obj_info(sp[i]);
-//            if(o)
-//                sv_catpv(r, o->smoke->className(o->classId));
-//            else
-//                sv_catsv(r, sp[i]);
-//        } else {
-//            bool isString = SvPOK(sp[i]);
-//            STRLEN len;
-//            char *s = SvPV(sp[i], len);
-//            if(isString) sv_catpv(r, "'");
-//            sv_catpvn(r, s, len > 10 ? 10 : len);
-//            if(len > 10) sv_catpv(r, "...");
-//            if(isString) sv_catpv(r, "'");
-//        }
-//    }
-    return r;
-}
+//---------- All functions except fully qualified statics & enums ---------
 
 VALUE
 set_obj_info(const char * className, smokeruby_object * o)
@@ -1632,25 +1606,6 @@ make_metaObject(VALUE /*self*/, VALUE className_value, VALUE parent, VALUE slot_
 }
 
 static VALUE
-dumpObjects(VALUE self)
-{
-/*
-    hv_iterinit(pointer_map);
-    HE *e;
-    while(e = hv_iternext(pointer_map)) {
-	STRLEN len;
-	VALUE sv = HeVAL(e);
-	logger("key = %s, refcnt = %d, weak = %d, ref? %d", HePV(e, len), SvREFCNT(sv), SvWEAKREF(sv), SvROK(sv)?1:0);
-	if(SvRV(sv))
-	    logger("REFCNT = %d", SvREFCNT(SvRV(sv)));
-	//SvREFCNT_dec(HeVAL(e));
-	//HeVAL(e) = &PL_sv_undef;
-    }
- */
-	return self;
-}
-
-static VALUE
 setAllocated(VALUE self, VALUE obj, VALUE b_value)
 {
     bool b = b_value != Qfalse && b_value != Qnil;
@@ -2054,7 +2009,6 @@ Init_qtruby()
     rb_define_method(qt_internal_module, "make_QUMethod", (VALUE (*) (...)) make_QUMethod, 2);
     rb_define_method(qt_internal_module, "make_QMetaData_tbl", (VALUE (*) (...)) make_QMetaData_tbl, 1);
     rb_define_method(qt_internal_module, "make_metaObject", (VALUE (*) (...)) make_metaObject, 6);
-    rb_define_method(qt_internal_module, "dumpObjects", (VALUE (*) (...)) dumpObjects, 0);
     rb_define_method(qt_internal_module, "setAllocated", (VALUE (*) (...)) setAllocated, 2);
     rb_define_method(qt_internal_module, "deleteObject", (VALUE (*) (...)) deleteObject, 1);
     rb_define_method(qt_internal_module, "mapObject", (VALUE (*) (...)) mapObject, 1);
@@ -2068,7 +2022,6 @@ Init_qtruby()
     rb_define_method(qt_internal_module, "findMethod", (VALUE (*) (...)) findMethod, 2);
     rb_define_method(qt_internal_module, "findAllMethods", (VALUE (*) (...)) findAllMethods, -1);
     rb_define_method(qt_internal_module, "dumpCandidates", (VALUE (*) (...)) dumpCandidates, 1);
-    rb_define_method(qt_internal_module, "catArguments", (VALUE (*) (...)) catArguments, 1);
     rb_define_method(qt_internal_module, "isObject", (VALUE (*) (...)) isObject, 1);
     rb_define_method(qt_internal_module, "setCurrentMethod", (VALUE (*) (...)) setCurrentMethod, 1);
     rb_define_method(qt_internal_module, "getClassList", (VALUE (*) (...)) getClassList, 0);

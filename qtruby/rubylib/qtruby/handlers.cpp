@@ -1,3 +1,12 @@
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
 #include <qstring.h>
 #include <qregexp.h>
 #include <qapplication.h>
@@ -565,7 +574,6 @@ marshall_basetype(Marshall *m)
                     *(m->var()) = obj;
 		    break;
 		}
-		// TODO: Generic mapping from C++ classname to Qt classname
 
 		smokeruby_object  * o = (smokeruby_object *) malloc(sizeof(smokeruby_object));
 		o->smoke = m->smoke();
@@ -1374,16 +1382,11 @@ TypeHandler Qt_handlers[] = {
     { 0, 0 }
 };
 
-static VALUE type_handlers = 0;
+QAsciiDict<TypeHandler> type_handlers(199);
 
 void install_handlers(TypeHandler *h) {
-    if(type_handlers == 0) {
-    	type_handlers = rb_hash_new();
-	rb_gc_register_address(&type_handlers);     
-    }
-    
     while(h->name) {
-	rb_hash_aset(type_handlers, rb_str_new2(h->name), INT2NUM((int)h));
+	type_handlers.insert(h->name, h);
 	h++;
     }
 }
@@ -1393,18 +1396,13 @@ Marshall::HandlerFn getMarshallFn(const SmokeType &type) {
 	return marshall_basetype;
     if(!type.name())
 	return marshall_void;
-    if(!type_handlers) {
-	return marshall_unknown;
-    }
-    unsigned int len = strlen(type.name());
-    VALUE name = rb_str_new2(type.name());
-    VALUE svp = rb_hash_aref(type_handlers, name);
-    if(svp == Qnil && type.isConst() && len > strlen("const ")) {
-    	svp = rb_hash_aref(type_handlers, rb_str_new2(type.name() + strlen("const ")));
+    
+	TypeHandler *h = type_handlers[type.name()];
+    if(h == 0 && type.isConst() && strlen(type.name()) > strlen("const ")) {
+    	h = type_handlers[type.name() + strlen("const ")];
     }
 	
-    if(svp != Qnil) {
-	TypeHandler *h = (TypeHandler*)NUM2INT(svp);
+    if(h != 0) {
 	return h->fn;
     }
 
