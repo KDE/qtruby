@@ -1,11 +1,10 @@
-? qtruby/bin/qrubyinit
 Index: Makefile.am.in
 ===================================================================
 RCS file: /home/kde/kdebindings/Makefile.am.in,v
-retrieving revision 1.6
-diff -u -p -B -w -r1.6 Makefile.am.in
---- Makefile.am.in	2 Dec 2003 03:01:04 -0000	1.6
-+++ Makefile.am.in	1 Aug 2004 17:20:02 -0000
+retrieving revision 1.7
+diff -u -p -B -w -r1.7 Makefile.am.in
+--- Makefile.am.in	20 Jul 2004 21:40:12 -0000	1.7
++++ Makefile.am.in	3 Sep 2004 12:48:55 -0000
 @@ -1,21 +1,9 @@
  ## kdebindings/Makefile.am
  ## (C) 1997 Stephan Kulow
@@ -15,13 +14,12 @@ diff -u -p -B -w -r1.6 Makefile.am.in
 -COMPILE_BEFORE_xparts = dcopc
 -
 -# below if for proper korundum / qtruby build order
--# COMPILE_BEFORE_qtruby = smoke
--# COMPILE_BEFORE_korundum = qtruby
+ COMPILE_BEFORE_qtruby = smoke
+-COMPILE_BEFORE_korundum = qtruby
 -
 -# the below is for proper referencing of dcopperl into SUBDIRS
 -COMPILE_BEFORE_dcopc = dcopperl
 -
-+COMPILE_BEFORE_qtruby = smoke
  AUTOMAKE_OPTIONS = foreign 1.5
  
 -$(top_srcdir)/acinclude.m4: $(top_srcdir)/dcopc/glib.m4 $(top_srcdir)/dcopc/gtk.m4
@@ -32,11 +30,11 @@ diff -u -p -B -w -r1.6 Makefile.am.in
 Index: configure.in.bot
 ===================================================================
 RCS file: /home/kde/kdebindings/configure.in.bot,v
-retrieving revision 1.5
-diff -u -p -B -w -r1.5 configure.in.bot
---- configure.in.bot	20 Nov 2002 18:50:26 -0000	1.5
-+++ configure.in.bot	1 Aug 2004 17:20:02 -0000
-@@ -1,36 +1,5 @@
+retrieving revision 1.6
+diff -u -p -B -w -r1.6 configure.in.bot
+--- configure.in.bot	19 Jun 2004 20:33:11 -0000	1.6
++++ configure.in.bot	3 Sep 2004 12:48:55 -0000
+@@ -1,43 +1,5 @@
  dnl put here things which have to be done as very last part of configure
   
 -all_tests=fine
@@ -68,6 +66,13 @@ diff -u -p -B -w -r1.5 configure.in.bot
 -  all_tests=bad
 -fi
 -
+-if test -z "$LIBPYTHON" || test -z "$PYTHONINC"; then
+-  echo ""
+-  echo "Python or it's development files were not found. Qt and KDE bindings for Python will not be built."
+-  echo ""
+-  all_tests=bad
+-fi
+-
 -if test "$all_tests" = "fine"; then
    echo ""
    echo "Good - your configure finished. Start make now"
@@ -76,10 +81,10 @@ diff -u -p -B -w -r1.5 configure.in.bot
 Index: configure.in.in
 ===================================================================
 RCS file: /home/kde/kdebindings/configure.in.in,v
-retrieving revision 1.40
-diff -u -p -B -w -r1.40 configure.in.in
---- configure.in.in	29 Mar 2004 23:27:46 -0000	1.40
-+++ configure.in.in	1 Aug 2004 17:20:02 -0000
+retrieving revision 1.41
+diff -u -p -B -w -r1.41 configure.in.in
+--- configure.in.in	27 Jun 2004 09:22:39 -0000	1.41
++++ configure.in.in	3 Sep 2004 12:48:55 -0000
 @@ -1,272 +1,31 @@
 -#MIN_CONFIG
 +AC_INIT(acinclude.m4) dnl a source file from your sub dir
@@ -374,14 +379,14 @@ diff -u -p -B -w -r1.40 configure.in.in
 -])
 -
 -dnl remove when fixed
--DO_NOT_COMPILE="$DO_NOT_COMPILE dcopjava qtsharp qtruby korundum"
+-DO_NOT_COMPILE="$DO_NOT_COMPILE dcopjava qtsharp"
 Index: admin/configure.in.min
 ===================================================================
 RCS file: /home/kde/kde-common/admin/configure.in.min,v
 retrieving revision 1.11
 diff -u -p -B -w -r1.11 configure.in.min
 --- admin/configure.in.min	7 Nov 2001 11:17:28 -0000	1.11
-+++ admin/configure.in.min	1 Aug 2004 17:20:03 -0000
++++ admin/configure.in.min	3 Sep 2004 12:48:55 -0000
 @@ -38,7 +38,7 @@ AC_ARG_PROGRAM
  dnl Automake doc recommends to do this only here. (Janos)
  AM_INIT_AUTOMAKE(@MODULENAME@, @VERSION@) dnl searches for some needed programs
@@ -407,7 +412,7 @@ RCS file: /home/kde/kdebindings/qtruby/rubylib/designer/rbuic/Makefile.am,v
 retrieving revision 1.2
 diff -u -p -B -w -r1.2 Makefile.am
 --- qtruby/rubylib/designer/rbuic/Makefile.am	17 Nov 2003 10:29:18 -0000	1.2
-+++ qtruby/rubylib/designer/rbuic/Makefile.am	1 Aug 2004 17:20:03 -0000
++++ qtruby/rubylib/designer/rbuic/Makefile.am	3 Sep 2004 12:48:55 -0000
 @@ -13,7 +13,6 @@ librbuic_la_LIBADD  = $(LIB_QT) $(LIBZ)
  
  rbuic_SOURCES = main.cpp
@@ -416,19 +421,37 @@ diff -u -p -B -w -r1.2 Makefile.am
  
  EXTRA_DIST = domtool.cpp domtool.h embed.cpp form.cpp globaldefs.h main.cpp object.cpp parser.cpp parser.h subclassing.cpp uic.cpp uic.h widgetdatabase.cpp widgetdatabase.h widgetinterface.h
  
+Index: smoke/configure.in.in
+===================================================================
+RCS file: /home/kde/kdebindings/smoke/configure.in.in,v
+retrieving revision 1.2
+diff -u -p -B -w -r1.2 configure.in.in
+--- smoke/configure.in.in	27 Jun 2004 09:22:40 -0000	1.2
++++ smoke/configure.in.in	3 Sep 2004 12:48:55 -0000
+@@ -1,8 +1,8 @@
+ AC_ARG_WITH(
+    smoke,
+-   [  --with-smoke@<:@=qt|kde@:>@   Smoke: build Smoke for qt+kde or qt only @<:@default:qt kde@:>@],
++   [  --with-smoke@<:@=qt|kde@:>@   Smoke: build Smoke for qt+kde or qt only @<:@default:qt@:>@],
+    [ kde_build_libsmoke="$withval" ],
+-   [ kde_build_libsmoke="qt kde" ]
++   [ kde_build_libsmoke="qt" ]
+ )
+ AC_SUBST(kde_build_libsmoke)
+ 
 Index: smoke/qt/Makefile.am
 ===================================================================
 RCS file: /home/kde/kdebindings/smoke/qt/Makefile.am,v
-retrieving revision 1.17
-diff -u -p -B -w -r1.17 Makefile.am
---- smoke/qt/Makefile.am	28 Apr 2004 09:55:15 -0000	1.17
-+++ smoke/qt/Makefile.am	1 Aug 2004 17:20:03 -0000
+retrieving revision 1.19
+diff -u -p -B -w -r1.19 Makefile.am
+--- smoke/qt/Makefile.am	23 Aug 2004 10:11:28 -0000	1.19
++++ smoke/qt/Makefile.am	3 Sep 2004 12:48:55 -0000
 @@ -6,7 +6,7 @@ INCLUDES         = -I$(srcdir)/.. $(all_
  EXTRA_DIST=generate.pl.in qtguess.pl.in qt_smoke.h Makefile.am
  
  # the library search path. 
--libsmokeqt_la_LDFLAGS = -version-info 3:1:2 -no-undefined $(all_libraries) $(GLINC) $(KDE_RPATH)
-+libsmokeqt_la_LDFLAGS = -version-info 3:1:2 -no-undefined $(all_libraries) $(GLINC)
+-libsmokeqt_la_LDFLAGS = -version-info 3:2:2 -no-undefined $(all_libraries) $(GLINC) $(KDE_RPATH)
++libsmokeqt_la_LDFLAGS = -version-info 3:2:2 -no-undefined $(all_libraries) $(GLINC)
  
  # the libraries to link against.
  libsmokeqt_la_LIBADD   = $(LIB_QT) $(GLLIB)

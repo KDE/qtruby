@@ -27,7 +27,7 @@ exconf.rb must be used instead.
 $ ./configure '--with-qt-dir=/Developer/qt'  '--enable-mac'
 $ cd smoke/qt
 # Generate the Smoke library sources:
-$ make
+$ perl generate.pl
 # Overwrite the automake generated Makefile:
 $ qmake -makefile
 # Build the Smoke library
