@@ -69,6 +69,30 @@ set_kde_resolve_classname(const char * (*kde_resolve_classname) (Marshall*, void
 };
 
 void
+mark_qobject_children(QObject * qobject)
+{
+	VALUE obj;
+	
+	const QObjectList *l = qobject->children();
+	if (l == 0) {
+		return;
+	}
+	QObjectListIt it( *l ); // iterate over the children
+	QObject *child;
+
+	while ( (child = it.current()) != 0 ) {
+		++it;
+		obj = getPointerObject(child);
+		if (obj != Qnil) {
+			if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", child->className(), child, (void*)obj);
+			rb_gc_mark(obj);
+		}
+		
+		mark_qobject_children(child);
+	}
+}
+
+void
 smokeruby_mark(void * p)
 {
 	VALUE obj;
@@ -126,25 +150,7 @@ smokeruby_mark(void * p)
 		
 		if (isDerivedFromByName(o->smoke, className, "QObject")) {
 			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
-			const QObjectList *l = qobject->children();
-			if (l == 0) {
-				return;
-			}
-			QObjectListIt it( *l ); // iterate over the children
-			QObject *child;
-
-			while ( (child = it.current()) != 0 ) {
-				++it;
-				obj = getPointerObject(child);
-				if (obj != Qnil) {
-					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", child->className(), child, (void*)obj);
-					rb_gc_mark(obj);
-					if (child->children()) {
-						smokeruby_object * c = value_obj_info(obj);
-						smokeruby_mark(c);
-					}
-				}
-			}
+			mark_qobject_children(qobject);
 			return;
 		}
 	}

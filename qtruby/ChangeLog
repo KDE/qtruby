@@ -1,3 +1,14 @@
+2004-10-14  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * If the smokeruby_mark() function was called for an instance of a QObject, it should
+   mark all the instances below it in the QObject tree, as not needing garbage collection. 
+   However, if a node in the tree didn't have a mapping onto a ruby instance the marking 
+   process stopped there, even though the grandchildren and their descendants might 
+   have a valid mapping onto ruby instances.
+ * The solution is to always traverse the entire tree. Fixes problem reported by Han Holl.
+
+ CCMAIL: kde-bindings@kde.org
+
 2004-10-13  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * All the Qt::CanvasItems owned by a Qt::Canvas are marked with rb_gc_mark() to
