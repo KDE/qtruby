@@ -619,7 +619,7 @@ QString rbType( const QString &type )
     else if ( type == "Point" )       return "Qt::Point.new";
     else if ( type == "Int" )         return "0";
     else if ( type == "UInt" )        return "0";
-    else if ( type == "Bool" )        return "false";
+    else if ( type == "Bool" )        return "false, 42";
     else if ( type == "Double" )      return "0.0";
     else if ( type == "DateTime" )    return "Qt::DateTime.new";
     else if ( type == "Int64" )       return "0";
