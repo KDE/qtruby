@@ -1,3 +1,7 @@
+2003-08-05  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* QString::null now maps onto Qnil, rather than a zero length ruby string
+
 2003-08-04  Alexander Kellett   <lypanov@kde.org>
 
 	* Allow for accumulative slots/signals declarations in a class
