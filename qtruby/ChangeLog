@@ -1,3 +1,11 @@
+2004-03-10  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* When a mutable, non-const QString, int*, int&, bool* or bool& is passed
+	  to a method, the corresponding ruby value is now updated after the 
+	  method call.
+	* Some f'ns are no longer static, so that the korundum extension can link
+	  against them.
+
 2004-03-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* The f'n new_qobject is no longer static, and can be called from korundum

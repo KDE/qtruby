@@ -341,7 +341,7 @@ construct_copy(smokeruby_object *o)
     return args[0].s_voidp;
 }
 
-static void
+void
 marshall_basetype(Marshall *m)
 {
     switch(m->type().elem()) {
@@ -668,7 +668,13 @@ static void marshall_QString(Marshall *m) {
 		
 	    m->item().s_voidp = s;
 	    m->next();
-	    if(s && m->cleanup())
+		
+		if (!m->type().isConst() && *(m->var()) != Qnil && s != 0) {
+			rb_str_resize(*(m->var()), 0);
+			rb_str_cat2(*(m->var()), (const char *)*s);
+		}
+	    
+		if(s && m->cleanup())
 		delete s;
 	}
 	break;
@@ -869,12 +875,9 @@ static void marshall_intR(Marshall *m) {
 		int i = NUM2INT(rv);
 		m->item().s_voidp = &i;
 		m->next();
-		// How to do this in Ruby?
-//		sv_setiv_mg(sv, (IV)i);
+		*(m->var()) = INT2NUM(i);
 	    } else {
 		m->item().s_voidp = new int((int)NUM2INT(rv));
-//		if(PL_dowarn)
-//		    rb_warning("Leaking memory from int& handler");
 	    }
 	}
 	break;
@@ -888,9 +891,8 @@ static void marshall_intR(Marshall *m) {
 	    }
 	    *(m->var()) = INT2NUM(*ip);
 	    m->next();
-// FIXME How to do this in Ruby?
-//	    if(!m->type().isConst())
-//		*ip = (int)SvIV(sv);
+	    if(!m->type().isConst())
+		*ip = NUM2INT(*(m->var()));
 	}
 	break;
       default:
@@ -913,11 +915,9 @@ static void marshall_boolR(Marshall *m) {
 		bool i = rv == Qtrue ? true : false;
 		m->item().s_voidp = &i;
 		m->next();
-//		sv_setsv_mg(sv, boolSV(i));
+	    *(m->var()) = (i?Qtrue:Qfalse);
 	    } else {
 		m->item().s_voidp = new bool(rv == Qtrue?true:false);
-//		if(PL_dowarn)
-//		    rb_warning("Leaking memory from bool& handler");
 	    }
 	}
 	break;
@@ -930,8 +930,8 @@ static void marshall_boolR(Marshall *m) {
 	    }
 	    *(m->var()) = (*ip?Qtrue:Qfalse);
 	    m->next();
-//	    if(!m->type().isConst())
-//		*ip = SvTRUE(sv)? true : false;
+	    if(!m->type().isConst())
+		*ip = *(m->var()) == Qtrue ? true : false;
 	}
 	break;
       default:
