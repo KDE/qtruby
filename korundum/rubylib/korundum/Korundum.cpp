@@ -614,7 +614,7 @@ getdcopinfo(VALUE self, QString & signalname)
     VALUE member = rb_funcall(	kde_internal_module, 
 								rb_intern("fullSignalName"), 
 								2, self, rb_str_new2(signalname) );
-	signalname = (const char *) STR2CSTR(member);
+	signalname = (const char *) StringValuePtr(member);
     return rb_funcall(	qt_internal_module, 
 						rb_intern("getMocArguments"), 
 						1, member );
@@ -675,7 +675,7 @@ dcop_process(VALUE /*self*/, VALUE target, VALUE slotname, VALUE args, VALUE dat
 	QByteArray * replyArray = 0;
 	Data_Get_Struct(_replyData, QByteArray, replyArray);
 
-	InvokeDCOPSlot dcopSlot(target, rb_intern(STR2CSTR(slotname)), args, *dataArray, replyType, *replyArray);
+	InvokeDCOPSlot dcopSlot(target, rb_intern(StringValuePtr(slotname)), args, *dataArray, replyType, *replyArray);
 	dcopSlot.next();
 	
 	return Qtrue;
@@ -684,7 +684,7 @@ dcop_process(VALUE /*self*/, VALUE target, VALUE slotname, VALUE args, VALUE dat
 static VALUE
 dcop_call(int argc, VALUE * argv, VALUE /*self*/)
 {
-	QCString fun(STR2CSTR(argv[1]));
+	QCString fun(StringValuePtr(argv[1]));
 	VALUE args = argv[2];
 	VALUE replyType = argv[4];
 	bool useEventLoop = (argv[argc-2] == Qtrue ? true : false);
@@ -699,7 +699,7 @@ dcop_call(int argc, VALUE * argv, VALUE /*self*/)
 static VALUE
 dcop_send(int argc, VALUE * argv, VALUE /*self*/)
 {
-	QCString fun(STR2CSTR(argv[1]));
+	QCString fun(StringValuePtr(argv[1]));
 	VALUE args = argv[2];
 	
 	DCOPSend dcopSend(argv[0], fun, argc-3, argv+3, args);
@@ -719,7 +719,7 @@ new_kde(int argc, VALUE * argv, VALUE klass)
 		VALUE signalNames = rb_funcall(kde_module, rb_intern("getDCOPSignalNames"), 1, klass);
 		for (long index = 0; index < RARRAY(signalNames)->len; index++) {
 			VALUE signal = rb_ary_entry(signalNames, index);
-			rb_define_method(klass, STR2CSTR(signal), (VALUE (*) (...)) k_dcop_signal, -1);
+			rb_define_method(klass, StringValuePtr(signal), (VALUE (*) (...)) k_dcop_signal, -1);
 		}
 	}
 	

@@ -788,7 +788,7 @@ void logger_backend(const char *format, ...)
 	free(p);
     }
     // TODO - allow qtruby programs to override this fprintf with their own logging
-    fprintf(stdout, "%s\n", STR2CSTR(val_str));
+    fprintf(stdout, "%s\n", StringValuePtr(val_str));
     va_end(ap);
 }
 
@@ -1161,7 +1161,7 @@ new_qobject(int argc, VALUE * argv, VALUE klass)
 	VALUE signalNames = rb_funcall(qt_internal_module, rb_intern("getSignalNames"), 1, klass);
 	for (long index = 0; index < RARRAY(signalNames)->len; index++) {
 	    VALUE signal = rb_ary_entry(signalNames, index);
-	    rb_define_method(klass, STR2CSTR(signal), (VALUE (*) (...)) qt_signal, -1);
+	    rb_define_method(klass, StringValuePtr(signal), (VALUE (*) (...)) qt_signal, -1);
 	}
 
     return new_qt(argc, argv, klass);
@@ -1233,7 +1233,7 @@ getslotinfo(VALUE self, int id, char *&slotname, int &index, bool isSignal = fal
     }
 
     VALUE mocArgs = rb_funcall(qt_internal_module, rb_intern("getMocArguments"), 1, member);
-    slotname = STR2CSTR(member);
+    slotname = StringValuePtr(member);
 
     return mocArgs;
 }
@@ -1367,8 +1367,8 @@ static VALUE
 setMocType(VALUE /*self*/, VALUE ptr, VALUE idx_value, VALUE name_value, VALUE static_type_value)
 {
     int idx = NUM2INT(idx_value);
-    char *name = STR2CSTR(name_value);
-    char *static_type = STR2CSTR(static_type_value);
+    char *name = StringValuePtr(name_value);
+    char *static_type = StringValuePtr(static_type_value);
     Smoke::Index typeId = qt_Smoke->idType(name);
     if(!typeId) return Qfalse;
     MocArgument *arg = 0;
@@ -1421,16 +1421,16 @@ getTypeNameOfArg(VALUE /*self*/, VALUE method_value, VALUE idx_value)
 static VALUE
 classIsa(VALUE /*self*/, VALUE className_value, VALUE base_value)
 {
-    char *className = STR2CSTR(className_value);
-    char *base = STR2CSTR(base_value);
+    char *className = StringValuePtr(className_value);
+    char *base = StringValuePtr(base_value);
     return isDerivedFromByName(qt_Smoke, className, base) ? Qtrue : Qfalse;
 }
 
 static VALUE
 classEquals(VALUE /*self*/, VALUE className_value, VALUE otherClassName_value)
 {
-    char *className = STR2CSTR(className_value);
-    char *otherClassName = STR2CSTR(otherClassName_value);
+    char *className = StringValuePtr(className_value);
+    char *otherClassName = StringValuePtr(otherClassName_value);
     Smoke::Index idClass = qt_Smoke->idClass(className);
     Smoke::Index idOtherClass = qt_Smoke->idClass(otherClassName);
     return idClass != 0 && idClass == idOtherClass ? Qtrue : Qfalse;
@@ -1439,7 +1439,7 @@ classEquals(VALUE /*self*/, VALUE className_value, VALUE otherClassName_value)
 static VALUE
 insert_pclassid(VALUE self, VALUE p_value, VALUE ix_value)
 {
-    char *p = STR2CSTR(p_value);
+    char *p = StringValuePtr(p_value);
     int ix = NUM2INT(ix_value);
     classcache.insert(p, new Smoke::Index((Smoke::Index)ix));
     classname.insert(ix, strdup(p));
@@ -1449,7 +1449,7 @@ insert_pclassid(VALUE self, VALUE p_value, VALUE ix_value)
 static VALUE
 find_pclassid(VALUE /*self*/, VALUE p_value)
 {
-    char *p = STR2CSTR(p_value);
+    char *p = StringValuePtr(p_value);
     Smoke::Index *r = classcache.find(p);
     if(r)
         return INT2NUM((int)*r);
@@ -1460,7 +1460,7 @@ find_pclassid(VALUE /*self*/, VALUE p_value)
 static VALUE
 insert_mcid(VALUE self, VALUE mcid_value, VALUE ix_value)
 {
-    char *mcid = STR2CSTR(mcid_value);
+    char *mcid = StringValuePtr(mcid_value);
     int ix = NUM2INT(ix_value);
     methcache.insert(mcid, new Smoke::Index((Smoke::Index)ix));
     return self;
@@ -1469,7 +1469,7 @@ insert_mcid(VALUE self, VALUE mcid_value, VALUE ix_value)
 static VALUE
 find_mcid(VALUE /*self*/, VALUE mcid_value)
 {
-    char *mcid = STR2CSTR(mcid_value);
+    char *mcid = StringValuePtr(mcid_value);
     Smoke::Index *r = methcache.find(mcid);
     if(r)
 	return INT2NUM((int)*r);
@@ -1486,8 +1486,8 @@ getVALUEtype(VALUE /*self*/, VALUE ruby_value)
 static VALUE
 make_QUParameter(VALUE /*self*/, VALUE name_value, VALUE type_value, VALUE /*extra*/, VALUE inout_value)
 {
-    char *name = STR2CSTR(name_value);
-    char *type = STR2CSTR(type_value);
+    char *name = StringValuePtr(name_value);
+    char *type = StringValuePtr(type_value);
     int inout = NUM2INT(inout_value);
     QUParameter *p = new QUParameter;
     p->name = new char[strlen(name) + 1];
@@ -1514,7 +1514,7 @@ make_QUParameter(VALUE /*self*/, VALUE name_value, VALUE type_value, VALUE /*ext
 static VALUE
 make_QMetaData(VALUE /*self*/, VALUE name_value, VALUE method)
 {
-    char *name = STR2CSTR(name_value);
+    char *name = StringValuePtr(name_value);
     QMetaData *m = new QMetaData;		// will be deleted
     m->name = new char[strlen(name) + 1];
     strcpy((char*)m->name, name);
@@ -1526,7 +1526,7 @@ make_QMetaData(VALUE /*self*/, VALUE name_value, VALUE method)
 static VALUE
 make_QUMethod(VALUE /*self*/, VALUE name_value, VALUE params)
 {
-    char *name = STR2CSTR(name_value);
+    char *name = StringValuePtr(name_value);
     QUMethod *m = new QUMethod;			// permanent memory allocation
     m->name = new char[strlen(name) + 1];	// this too
     strcpy((char*)m->name, name);
@@ -1567,7 +1567,7 @@ make_QMetaData_tbl(VALUE /*self*/, VALUE list)
 static VALUE
 make_metaObject(VALUE /*self*/, VALUE className_value, VALUE parent, VALUE slot_tbl_value, VALUE slot_count_value, VALUE signal_tbl_value, VALUE signal_count_value)
 {
-    char *className = STR2CSTR(className_value);
+    char *className = StringValuePtr(className_value);
 
     QMetaData * slot_tbl = 0;
     int slot_count = 0;
@@ -1694,14 +1694,14 @@ findAllocatedObjectFor(VALUE /*self*/, VALUE obj)
 static VALUE
 idClass(VALUE /*self*/, VALUE name_value)
 {
-    char *name = STR2CSTR(name_value);
+    char *name = StringValuePtr(name_value);
     return INT2NUM(qt_Smoke->idClass(name));
 }
 
 static VALUE
 idMethodName(VALUE /*self*/, VALUE name_value)
 {
-    char *name = STR2CSTR(name_value);
+    char *name = StringValuePtr(name_value);
     return INT2NUM(qt_Smoke->idMethodName(name));
 }
 
@@ -1716,8 +1716,8 @@ idMethod(VALUE /*self*/, VALUE idclass_value, VALUE idmethodname_value)
 static VALUE
 findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
 {
-    char *c = STR2CSTR(c_value);
-    char *name = STR2CSTR(name_value);
+    char *c = StringValuePtr(c_value);
+    char *name = StringValuePtr(name_value);
     VALUE result = rb_ary_new();
     Smoke::Index meth = qt_Smoke->findMethod(c, name);
 #ifdef DEBUG
@@ -1774,7 +1774,7 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
 		}
         char * pat = 0L;
         if(argc > 1 && TYPE(argv[1]) == T_STRING)
-            pat = STR2CSTR(argv[1]);
+            pat = StringValuePtr(argv[1]);
 #ifdef DEBUG
 	if (do_debug & qtdb_calls) logger("findAllMethods called with classid = %d, pat == %s", c, pat);
 #endif
@@ -1914,7 +1914,7 @@ kde_package_to_class(const char * package)
 static VALUE
 create_qobject_class(VALUE /*self*/, VALUE package_value)
 {
-    const char *package = STR2CSTR(package_value);
+    const char *package = StringValuePtr(package_value);
 	VALUE klass;
 	
 	if (QString(package).startsWith("Qt::")) {
@@ -1936,7 +1936,7 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 static VALUE
 create_qt_class(VALUE /*self*/, VALUE package_value)
 {
-    const char *package = STR2CSTR(package_value);
+    const char *package = StringValuePtr(package_value);
 	VALUE klass;
 	
 	if (QString(package).startsWith("Qt::")) {

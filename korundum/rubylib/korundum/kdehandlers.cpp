@@ -119,9 +119,12 @@ void marshall_KCmdLineOptions(Marshall *m) {
 			long i;
 			for(i = 0; i < RARRAY(optionslist)->len; i++) {
 				options = rb_ary_entry(optionslist, i);
-				cmdLineOptions[i].name = STR2CSTR(rb_ary_entry(options, 0));
-				cmdLineOptions[i].description = STR2CSTR(rb_ary_entry(options, 1));
-				cmdLineOptions[i].def = STR2CSTR(rb_ary_entry(options, 2));
+				VALUE temp = rb_ary_entry(options, 0);
+				cmdLineOptions[i].name = StringValuePtr(temp);
+				temp = rb_ary_entry(options, 1);
+				cmdLineOptions[i].description = StringValuePtr(temp);
+				temp = rb_ary_entry(options, 2);
+				cmdLineOptions[i].def = StringValuePtr(temp);
 			}
 			cmdLineOptions[i].name = 0;
 			cmdLineOptions[i].description = 0;

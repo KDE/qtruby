@@ -1,3 +1,7 @@
+2004-07-02  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Replaced obsolete STR2CSTR() calls with StringValuePtr()
+
 2004-07-01  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* DCOP Signals now work, they are defined like this:
