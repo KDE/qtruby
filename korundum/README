@@ -2,9 +2,16 @@ Please see kdebindings/qtruby/README
 
 KDE Specific Infomation:
 
+	- Instead of require 'Qt', use require 'Korundum' for KDE programs. 
+	
+	- The KDE K* classes such as KApplication are renamed as KDE::Application. 
+	  The other KDE classes are in the KParts::, KIO:: or DOM:: namespaces,
+	  with the same names as their C++ counterparts. 
+
 	- DCOP Support. Here is a minimal ruby dcop slot implementation:
 	
 			require 'Korundum'
+			
 			class MyWidget < KDE::PushButton
 				k_dcop 'QPoint mySlot(int,QString)'
 	
@@ -22,3 +29,21 @@ KDE Specific Infomation:
 		Note that the class doesn't have to inherit from DCOPObject. If you
 		  include a 'k_dcop' slots declaration a 'listener' dcop object 
 		  instance is created automatically.
+		  
+	- Use the '-kde' option with the rbuic tool to require the 'Korundum' 
+		extension rather than the 'Qt' one. If the '-x' option is used in 
+		conjunction, it generates a KDE top level. For example:
+		
+		$ rbuic -x -kde knotifywidgetbase.ui -o knotifywidgetbase.rb
+
+		Will generate this top level code:
+
+			if $0 == __FILE__
+    			about = KDE::AboutData.new("knotifywidgetbase", "KNotifyWidgetBase", "0.1")
+    			KDE::CmdLineArgs.init(ARGV, about)
+    			a = KDE::Application.new()
+    			w = KNotifyWidgetBase.new
+    			a.setMainWidget(w)
+    			w.show
+    			a.exec
+			end
