@@ -16,21 +16,9 @@ class TicTacButton < Qt::PushButton
 		p.setPen( Qt::Pen.new( Qt::white,2 ) ) # set fat pen
 		if (@btype == Circle)
 			p.drawEllipse( r.left()+4, r.top()+4, r.width()-8, r.height()-8 )
-		elsif (@btype == Cross)
-			# draw cross
-			# Unfortunately we don't have the overloaded + operator for the QPoints so
-			# this gets to be done the long way
-			x1 = r.topLeft.x+4
-			x2 = r.bottomRight.x-4
-			y1 = r.topLeft.y+4
-			y2 = r.bottomRight.y-4
-			p.drawLine( x1, y1, x2, y2)
-
-			x1 = r.bottomLeft.x+4
-			x2 = r.topRight.x+4
-			y1 = r.bottomLeft.y-4
-			y2 = r.topRight.y-4
-			p.drawLine( x1, y1, x2, y2)
+		elsif (@btype == Cross)			# draw cross
+			p.drawLine( r.topLeft()   +Qt::Point.new(4,4), r.bottomRight()-Qt::Point.new(4,4))
+			p.drawLine( r.bottomLeft()+Qt::Point.new(4,-4),r.topRight()   -Qt::Point.new(4,-4))
 		end
 		super(p)
 	   end
