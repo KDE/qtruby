@@ -26,7 +26,7 @@ class SmokeType {
     Smoke *_smoke;
     Smoke::Index _id;
 public:
-    SmokeType() : _smoke(0), _id(0), _t(0) {}
+    SmokeType() : _t(0), _smoke(0), _id(0) {}
     SmokeType(Smoke *s, Smoke::Index i) : _smoke(s), _id(i) {
 	if(_id < 0 || _id > _smoke->numTypes) _id = 0;
 	_t = _smoke->types + _id;

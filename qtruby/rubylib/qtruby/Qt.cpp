@@ -289,7 +289,7 @@ public:
     bool cleanup() { return false; }   // is this right?
 
     VirtualMethodCall(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack, VALUE obj) :
-	_smoke(smoke), _method(meth), _stack(stack), _cur(-1), _obj(obj), _sp(0), _called(false) {
+	_smoke(smoke), _method(meth), _stack(stack), _obj(obj), _cur(-1), _sp(0), _called(false) {
 		_savethis = ruby_self;
 		ruby_self = obj;
 		_sp = ALLOC_N(VALUE, method().numArgs);
@@ -343,7 +343,7 @@ class MethodCall : public Marshall {
     bool _called;
 public:
     MethodCall(Smoke *smoke, Smoke::Index method, VALUE *sp, int items) :
-	_smoke(smoke), _method(method), _sp(sp), _items(items), _cur(-1), _called(false)
+	_cur(-1), _smoke(smoke), _method(method), _sp(sp), _items(items), _called(false)
 	{
 		_args = _smoke->argumentList + _smoke->methods[_method].args;
 		_items = _smoke->methods[_method].numArgs;
@@ -431,8 +431,8 @@ class EmitSignal : public Marshall {
     bool _called;
 public:
     EmitSignal(QObject *qobj, int id, int items, VALUE args, VALUE *sp) :
-	_qobj((UnencapsulatedQObject*)qobj), _id(id), _items(items),
-	_sp(sp), _cur(-1), _called(false)
+	_qobj((UnencapsulatedQObject*)qobj), _id(id), _sp(sp), _items(items),
+	_cur(-1), _called(false)
 	{
 		_items = NUM2INT(rb_ary_entry(args, 0));
 		Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
@@ -671,9 +671,11 @@ public:
 	printf(	"In InvokeSlot::invokeSlot 3 items: %d classname: %s\n",
 			_items,
 			STR2CSTR(name) );
+#else
+    (void) name;
 #endif
 			
-		VALUE _retval = rb_funcall2(_obj, _slotname, _items, _sp);
+		(void) rb_funcall2(_obj, _slotname, _items, _sp);
     }
 
     void next() {
@@ -725,7 +727,7 @@ public:
 		o->ptr = 0;
     }
 
-    bool callMethod(Smoke::Index method, void *ptr, Smoke::Stack args, bool isAbstract) {
+    bool callMethod(Smoke::Index method, void *ptr, Smoke::Stack args, bool /*isAbstract*/) {
 		VALUE obj = getPointerObject(ptr);
 		smokeruby_object *o = value_obj_info(obj);
 		if(do_debug & qtdb_virtual) fprintf(stderr, "virtual %p->%s::%s() called\n", ptr,
@@ -774,7 +776,7 @@ extern "C" {
 
 //---------- XS Autoload (for all functions except fully qualified statics & enums) ---------
 
-VALUE catArguments(VALUE * sp, int n)
+VALUE catArguments(VALUE * /*sp*/, int /*n*/)
 {
     VALUE r=rb_str_new2("");
 //    for(int i = 0; i < n; i++) {
@@ -836,25 +838,25 @@ set_obj_info(const char * className, smokeruby_object * o)
 
 char *get_VALUEtype(VALUE ruby_value)
 {
-    char *r = "";
+    char *r = strdup("");
     if(ruby_value == Qundef)
-	r = "u";
+	r = strdup("u");
     else if(TYPE(ruby_value) == T_FIXNUM || TYPE(ruby_value) == T_BIGNUM)
-	r = "i";
+	r = strdup("i");
     else if(TYPE(ruby_value) == T_FLOAT)
-	r = "n";
+	r = strdup("n");
     else if(TYPE(ruby_value) == T_STRING)
-	r = "s";
+	r = strdup("s");
     else if(TYPE(ruby_value) == T_DATA) {
 	smokeruby_object *o = value_obj_info(ruby_value);
 	if(!o) {
-                  r = "a";
+                  r = strdup("a");
         }
 	else
-	    r = (char*)o->smoke->className(o->classId);
+	    r = strdup(o->smoke->className(o->classId));
     }
     else
-	r = "U";
+	r = strdup("U");
 
     return r;
 }
@@ -863,6 +865,7 @@ VALUE prettyPrintMethod(Smoke::Index id) {
     VALUE r = rb_str_new2("");
     Smoke::Method &meth = qt_Smoke->methods[id];
     const char *tname = qt_Smoke->types[meth.ret].name;
+    (void) tname;
 //    if(meth.flags & Smoke::mf_static) sv_catpv(r, "static ");
 //    sv_catpvf(r, "%s ", (tname ? tname:"void"));
 //    sv_catpvf(r, "%s::%s(", qt_Smoke->classes[meth.classId].className, qt_Smoke->methodNames[meth.name]);
@@ -883,6 +886,7 @@ metaObject(VALUE self)
 {
 	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
 	VALUE name = rb_funcall(klass, rb_intern("name"), 0);
+    (void) name;
 
 	VALUE metaObject = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 1, self);
 
@@ -896,6 +900,7 @@ method_missing(int argc, VALUE * argv, VALUE self)
 {
 	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
 	VALUE name = rb_funcall(klass, rb_intern("name"), 0);
+    (void) name;
 
 #ifdef DEBUG
 	printf("In method_missing(argc: %d, argv[0]: %s TYPE: 0x%2.2x)\n",
@@ -970,8 +975,7 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
 	return result;
 }
 
-static VALUE
-module_method_missing(int argc, VALUE * argv, VALUE klass)
+static VALUE module_method_missing(int argc, VALUE * argv, VALUE /*klass*/)
 {
 #ifdef DEBUG
 	printf("In module_method_missing(argc: %d, argv[0]: %s)\n",
@@ -1068,6 +1072,8 @@ new_qt(int argc, VALUE * argv, VALUE klass)
 	printf("In new_qt, argc: %d, self class_name: %s\n",
 			argc,
 			STR2CSTR(class_name) );
+#else
+    (void) class_name;
 #endif
 			
 	VALUE * localstack = ALLOCA_N(VALUE, argc + 1);
@@ -1221,6 +1227,7 @@ qt_invoke(VALUE self, VALUE id_value, VALUE quobject)
 	o->classId,
 	o->smoke->idClass("QObject")
     );
+    (void) qobj;
 
     // Now, I need to find out if this means me
     int index;
@@ -1246,7 +1253,7 @@ qt_invoke(VALUE self, VALUE id_value, VALUE quobject)
 
 
 static VALUE
-getMethStat(VALUE self)
+getMethStat(VALUE /*self*/)
 {
     VALUE result_list = rb_ary_new();
     rb_ary_push(result_list, INT2NUM((int)methcache.size()));
@@ -1255,7 +1262,7 @@ getMethStat(VALUE self)
 }
 
 static VALUE
-getClassStat(VALUE self)
+getClassStat(VALUE /*self*/)
 {
     VALUE result_list = rb_ary_new();
     rb_ary_push(result_list, INT2NUM((int)classcache.size()));
@@ -1264,7 +1271,7 @@ getClassStat(VALUE self)
 }
 
 static VALUE
-getIsa(VALUE self, VALUE classId)
+getIsa(VALUE /*self*/, VALUE classId)
 {
 	VALUE parents_list = rb_ary_new();
 
@@ -1288,7 +1295,7 @@ dontRecurse(VALUE self)
 }
 
 static VALUE
-allocateMocArguments(VALUE self, VALUE count_value)
+allocateMocArguments(VALUE /*self*/, VALUE count_value)
 {
     int count = NUM2INT(count_value);
     MocArgument * ptr = new MocArgument[count + 1];
@@ -1296,7 +1303,7 @@ allocateMocArguments(VALUE self, VALUE count_value)
 }
 
 static VALUE
-setMocType(VALUE self, VALUE ptr, VALUE idx_value, VALUE name_value, VALUE static_type_value)
+setMocType(VALUE /*self*/, VALUE ptr, VALUE idx_value, VALUE name_value, VALUE static_type_value)
 {
     int idx = NUM2INT(idx_value);
     char *name = STR2CSTR(name_value);
@@ -1321,6 +1328,7 @@ setMocType(VALUE self, VALUE ptr, VALUE idx_value, VALUE name_value, VALUE stati
     return Qtrue;
 }
 
+#ifdef DEBUG
 static VALUE
 setDebug(VALUE self, VALUE on_value)
 {
@@ -1328,17 +1336,18 @@ setDebug(VALUE self, VALUE on_value)
     do_debug = on;
     return self;
 }
+#endif
 
 #ifdef DEBUG
 static VALUE
-debug(VALUE self)
+debug(VALUE /*self*/)
 {
     return INT2NUM(do_debug);
 }
 #endif
 
 static VALUE
-getTypeNameOfArg(VALUE self, VALUE method_value, VALUE idx_value)
+getTypeNameOfArg(VALUE /*self*/, VALUE method_value, VALUE idx_value)
 {
     int method = NUM2INT(method_value);
     int idx = NUM2INT(idx_value);
@@ -1348,7 +1357,7 @@ getTypeNameOfArg(VALUE self, VALUE method_value, VALUE idx_value)
 }
 
 static VALUE
-classIsa(VALUE self, VALUE className_value, VALUE base_value)
+classIsa(VALUE /*self*/, VALUE className_value, VALUE base_value)
 {
     char *className = STR2CSTR(className_value);
     char *base = STR2CSTR(base_value);
@@ -1365,7 +1374,7 @@ insert_pclassid(VALUE self, VALUE p_value, VALUE ix_value)
 }
 
 static VALUE
-find_pclassid(VALUE self, VALUE p_value)
+find_pclassid(VALUE /*self*/, VALUE p_value)
 {
     char *p = STR2CSTR(p_value);
     Smoke::Index *r = classcache.find(p);
@@ -1385,7 +1394,7 @@ insert_mcid(VALUE self, VALUE mcid_value, VALUE ix_value)
 }
 
 static VALUE
-find_mcid(VALUE self, VALUE mcid_value)
+find_mcid(VALUE /*self*/, VALUE mcid_value)
 {
     char *mcid = STR2CSTR(mcid_value);
     Smoke::Index *r = methcache.find(mcid);
@@ -1396,13 +1405,13 @@ find_mcid(VALUE self, VALUE mcid_value)
 }
 
 static VALUE
-getVALUEtype(VALUE self, VALUE ruby_value)
+getVALUEtype(VALUE /*self*/, VALUE ruby_value)
 {
     return rb_str_new2(get_VALUEtype(ruby_value));
 }
 
 static VALUE
-make_QUParameter(VALUE self, VALUE name_value, VALUE type_value, VALUE extra, VALUE inout_value)
+make_QUParameter(VALUE /*self*/, VALUE name_value, VALUE type_value, VALUE /*extra*/, VALUE inout_value)
 {
     char *name = STR2CSTR(name_value);
     char *type = STR2CSTR(type_value);
@@ -1430,7 +1439,7 @@ make_QUParameter(VALUE self, VALUE name_value, VALUE type_value, VALUE extra, VA
 }
 
 static VALUE
-make_QMetaData(VALUE self, VALUE name_value, VALUE method)
+make_QMetaData(VALUE /*self*/, VALUE name_value, VALUE method)
 {
     char *name = STR2CSTR(name_value);
     QMetaData *m = new QMetaData;		// will be deleted
@@ -1442,7 +1451,7 @@ make_QMetaData(VALUE self, VALUE name_value, VALUE method)
 }
 
 static VALUE
-make_QUMethod(VALUE self, VALUE name_value, VALUE params)
+make_QUMethod(VALUE /*self*/, VALUE name_value, VALUE params)
 {
     char *name = STR2CSTR(name_value);
     QUMethod *m = new QUMethod;			// permanent memory allocation
@@ -1466,7 +1475,7 @@ make_QUMethod(VALUE self, VALUE name_value, VALUE params)
 }
 
 static VALUE
-make_QMetaData_tbl(VALUE self, VALUE list)
+make_QMetaData_tbl(VALUE /*self*/, VALUE list)
 {
 	long count = RARRAY(list)->len;
 	QMetaData *m = new QMetaData[count];
@@ -1484,7 +1493,7 @@ make_QMetaData_tbl(VALUE self, VALUE list)
 }
 
 static VALUE
-make_metaObject(VALUE self, VALUE className_value, VALUE parent, VALUE slot_tbl_value, VALUE slot_count_value, VALUE signal_tbl_value, VALUE signal_count_value)
+make_metaObject(VALUE /*self*/, VALUE className_value, VALUE parent, VALUE slot_tbl_value, VALUE slot_count_value, VALUE signal_tbl_value, VALUE signal_count_value)
 {
     char *className = STR2CSTR(className_value);
 
@@ -1594,14 +1603,14 @@ mapObject(VALUE self, VALUE obj)
 }
 
 static VALUE
-isaQObject(VALUE self, VALUE classid)
+isaQObject(VALUE /*self*/, VALUE classid)
 {
 	int classid_value = NUM2INT(classid);
     return isQObject(qt_Smoke, classid_value) ? Qtrue : Qfalse;
 }
 
 static VALUE
-isValidAllocatedPointer(VALUE self, VALUE obj)
+isValidAllocatedPointer(VALUE /*self*/, VALUE obj)
 {
     smokeruby_object *o = value_obj_info(obj);
     if(o && o->ptr && o->allocated) {
@@ -1612,7 +1621,7 @@ isValidAllocatedPointer(VALUE self, VALUE obj)
 }
 
 static VALUE
-findAllocatedObjectFor(VALUE self, VALUE obj)
+findAllocatedObjectFor(VALUE /*self*/, VALUE obj)
 {
     smokeruby_object *o = value_obj_info(obj);
     VALUE ret;
@@ -1622,21 +1631,21 @@ findAllocatedObjectFor(VALUE self, VALUE obj)
 }
 
 static VALUE
-idClass(VALUE self, VALUE name_value)
+idClass(VALUE /*self*/, VALUE name_value)
 {
     char *name = STR2CSTR(name_value);
     return INT2NUM(qt_Smoke->idClass(name));
 }
 
 static VALUE
-idMethodName(VALUE self, VALUE name_value)
+idMethodName(VALUE /*self*/, VALUE name_value)
 {
     char *name = STR2CSTR(name_value);
     return INT2NUM(qt_Smoke->idMethodName(name));
 }
 
 static VALUE
-idMethod(VALUE self, VALUE idclass_value, VALUE idmethodname_value)
+idMethod(VALUE /*self*/, VALUE idclass_value, VALUE idmethodname_value)
 {
     int idclass = NUM2INT(idclass_value);
     int idmethodname = NUM2INT(idmethodname_value);
@@ -1644,7 +1653,7 @@ idMethod(VALUE self, VALUE idclass_value, VALUE idmethodname_value)
 }
 
 static VALUE
-findMethod(VALUE self, VALUE c_value, VALUE name_value)
+findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
 {
     char *c = STR2CSTR(c_value);
     char *name = STR2CSTR(name_value);
@@ -1677,7 +1686,7 @@ findMethod(VALUE self, VALUE c_value, VALUE name_value)
 }
 
 static VALUE
-findMethodFromIds(VALUE self, VALUE idclass_value, VALUE idmethodname_value)
+findMethodFromIds(VALUE /*self*/, VALUE idclass_value, VALUE idmethodname_value)
 {
     int idclass = NUM2INT(idclass_value);
     int idmethodname = NUM2INT(idmethodname_value);
@@ -1707,9 +1716,10 @@ findMethodFromIds(VALUE self, VALUE idclass_value, VALUE idmethodname_value)
 // findAllMethods(classid [, startingWith]) : returns { "mungedName" => [index in methods, ...], ... }
 
 static VALUE
-findAllMethods(int argc, VALUE * argv, VALUE self)
+findAllMethods(int /*argc*/, VALUE * argv, VALUE self)
 {
     VALUE classid = argv[0];
+    (void) classid;
 /*
     if(SvIOK(classid)) {
         Smoke::Index c = (Smoke::Index) SvIV(classid);
@@ -1763,7 +1773,7 @@ findAllMethods(int argc, VALUE * argv, VALUE self)
 }
 
 static VALUE
-dumpCandidates(VALUE self, VALUE rmeths)
+dumpCandidates(VALUE self, VALUE /*rmeths*/)
 {
 /*
     if(SvROK(rmeths) && SvTYPE(SvRV(rmeths)) == SVt_PVAV) {
@@ -1794,6 +1804,7 @@ dumpCandidates(VALUE self, VALUE rmeths)
     return self;
 }
 
+#if 0
 static VALUE
 rb_catArguments(VALUE self, VALUE r_args)
 {
@@ -1825,9 +1836,10 @@ rb_catArguments(VALUE self, VALUE r_args)
   */
     return self;
 }
+#endif
 
 static VALUE
-isObject(VALUE self, VALUE obj)
+isObject(VALUE /*self*/, VALUE obj)
 {
 	void * ptr = 0;
 	ptr = value_to_ptr(obj);
@@ -1844,7 +1856,7 @@ setCurrentMethod(VALUE self, VALUE meth_value)
 }
 
 static VALUE
-getClassList(VALUE self)
+getClassList(VALUE /*self*/)
 {
 	VALUE class_list = rb_ary_new();
 
@@ -1856,7 +1868,7 @@ getClassList(VALUE self)
 }
 
 static VALUE
-create_qobject_class(VALUE self, VALUE package_value)
+create_qobject_class(VALUE /*self*/, VALUE package_value)
 {
 	char *package = STR2CSTR(package_value);
     VALUE klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
@@ -1871,7 +1883,7 @@ create_qobject_class(VALUE self, VALUE package_value)
 }
 
 static VALUE
-create_qt_class(VALUE self, VALUE package_value)
+create_qt_class(VALUE /*self*/, VALUE package_value)
 {
 	char *package = STR2CSTR(package_value);
     VALUE klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
@@ -1884,7 +1896,7 @@ create_qt_class(VALUE self, VALUE package_value)
 }
 
 static VALUE
-version(VALUE self)
+version(VALUE /*self*/)
 {
     return rb_str_new2(QT_VERSION_STR);
 }

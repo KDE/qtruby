@@ -144,7 +144,7 @@ module Qt
 			end
 		end
 	end
-	
+
 	Meta = Hash.new
 
 	class MetaInfo
