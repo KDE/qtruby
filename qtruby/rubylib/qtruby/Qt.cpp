@@ -1120,67 +1120,20 @@ inspect_qobject(VALUE self)
 	
 	smokeruby_object * o = 0;
     Data_Get_Struct(self, smokeruby_object, o);	
-	UnencapsulatedQObject * qobject = (UnencapsulatedQObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
-	QStrList names = qobject->metaObject()->propertyNames(true);
+	QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
 	
 	QCString value_list;
+	value_list.append(QCString().sprintf(" name=\"%s\"", qobject->name()));
 	
-	if (qobject->children() != 0) {
-		value_list.append(QCString().sprintf(" children=Array (%d element(s)), ", qobject->children()->count())); 
+	if (qobject->isWidgetType()) {
+		QWidget * w = (QWidget *) qobject;
+		value_list.append(QCString().sprintf(	", x=%d, y=%d, width=%d, height=%d", 
+												w->x(),
+												w->y(),
+												w->width(),
+												w->height() ) ); 
 	}
 		
-	value_list.append(" metaObject=#<Qt::MetaObject:0x0");
-	
-	value_list.append(QCString().sprintf(" className=%s", qobject->metaObject()->className())); 
-	
-	if (qobject->metaObject()->superClass() != 0) {
-		value_list.append(QCString().sprintf(", superClass=#<Qt::MetaObject:0x0>"));
-	}		
-	
-	if (qobject->metaObject()->numSignals() > 0) {
-		value_list.append(QCString().sprintf(", signalNames=Array (%d element(s))", qobject->metaObject()->numSignals()));
-	}		
-	
-	if (qobject->metaObject()->numSlots() > 0) {
-		value_list.append(QCString().sprintf(", slotNames=Array (%d element(s))", qobject->metaObject()->numSlots()));
-	}
-					
-	value_list.append(">, ");
-		
-	
-	int signalCount = 0;
-	for (int sig = 0; sig < qobject->metaObject()->numSignals(true); sig++) {
-		QConnectionList * clist = qobject->public_receivers(sig);
-		if (clist != 0) {
-			signalCount++;
-		}
-	}
-	
-	if (signalCount > 0) {
-		value_list.append(QCString().sprintf(" receivers=Hash (%d element(s)),", signalCount));
-	}		
-	
-	int index = 0;
-	const char * name = names.first();
-	
-	if (name != 0) {
-		QVariant value = qobject->property(name);
-		const QMetaProperty * property = qobject->metaObject()->property(index, true);
-		value_list.append(" "); 
-		value_list.append(inspectProperty(property, name, value));
-		index++; 
-	
-		for (	name = names.next(); 
-				name != 0; 
-				name = names.next(), index++ ) 
-		{
-			value = qobject->property(name);
-			property = qobject->metaObject()->property(index, true);
-			value_list.append(", "); 
-			value_list.append(inspectProperty(property, name, value)); 
-		}
-	}
-	
 	value_list.append(">");
 	rb_str_cat(inspect_str, value_list.data(), strlen(value_list.data()));
 	
@@ -1216,6 +1169,35 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	QStrList names = qobject->metaObject()->propertyNames(true);
 	
 	QCString value_list;		
+	
+	if (qobject->parent() != 0) {
+		QCString parentInspectString;
+		VALUE obj = getPointerObject(qobject->parent());
+		if (obj != Qnil) {
+			VALUE parent_inspect_str = rb_funcall(obj, rb_intern("to_s"), 0, 0);	
+			rb_str_resize(parent_inspect_str, RSTRING(parent_inspect_str)->len - 1);
+			parentInspectString = StringValuePtr(parent_inspect_str);
+		} else {
+			parentInspectString.sprintf("#<%s:0x0", qobject->parent()->className());
+		}
+		
+		if (qobject->parent()->isWidgetType()) {
+			QWidget * w = (QWidget *) qobject->parent();
+			value_list = QCString().sprintf(	"  parent=%s name=\"%s\", x=%d, y=%d, width=%d, height=%d>,\n", 
+												parentInspectString.data(),
+												w->name(),
+												w->x(),
+												w->y(),
+												w->width(),
+												w->height() );
+		} else {
+			value_list = QCString().sprintf(	"  parent=%s name=\"%s\">,\n", 
+												parentInspectString.data(),
+												qobject->parent()->name() );
+		}
+		
+		rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.data()));
+	}
 	
 	if (qobject->children() != 0) {
 		value_list = QCString().sprintf("  children=Array (%d element(s)),\n", qobject->children()->count());
