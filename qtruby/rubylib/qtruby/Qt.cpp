@@ -85,6 +85,7 @@ VALUE kparts_module = Qnil;
 VALUE kio_module = Qnil;
 VALUE khtml_module = Qnil;
 VALUE dom_module = Qnil;
+VALUE kontact_module = Qnil;
 VALUE qt_internal_module = Qnil;
 VALUE qt_base_class = Qnil;
 VALUE qt_qmetaobject_class = Qnil;
@@ -1954,6 +1955,9 @@ kde_package_to_class(const char * package)
 	} else if (QString(package).startsWith("DOM::")) {
 		klass = rb_define_class_under(dom_module, package+strlen("DOM::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (QString(package).startsWith("Kontact::")) {
+		klass = rb_define_class_under(kontact_module, package+strlen("Kontact::"), qt_base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	}
 	
 	return klass;
@@ -2068,6 +2072,10 @@ Init_qtruby()
 	dom_module = rb_define_module("DOM");
     rb_define_singleton_method(dom_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
     rb_define_singleton_method(dom_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	kontact_module = rb_define_module("Kontact");
+    rb_define_singleton_method(kontact_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+    rb_define_singleton_method(kontact_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 
     rb_define_method(qt_internal_module, "getMethStat", (VALUE (*) (...)) getMethStat, 0);
     rb_define_method(qt_internal_module, "getClassStat", (VALUE (*) (...)) getClassStat, 0);
