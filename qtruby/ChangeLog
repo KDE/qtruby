@@ -1,3 +1,10 @@
+2004-06-09  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* New flags were added for Smoke methods - mf_internal and mf_copyctor.
+	  This allows copy constructors which are only used internally by the ruby
+	  runtime, to be excluded from the standard api.
+
+
 2004-05-12  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* When ARGV was passed to the Qt::Application constructor, it was being

@@ -1761,38 +1761,21 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
 	if(!i) {		// shouldn't happen
 	    rb_raise(rb_eArgError, "Corrupt method %s::%s", c, name);
 	} else if(i > 0) {	// single match
-		rb_ary_push(result, INT2NUM(qt_Smoke->methodMaps[meth].method));
+	    Smoke::Method &methodRef = qt_Smoke->methods[i];
+		if ((methodRef.flags & Smoke::mf_internal) == 0) {
+			rb_ary_push(result, INT2NUM(i));
+		}
 	} else {		// multiple match
 	    i = -i;		// turn into ambiguousMethodList index
 	    while(qt_Smoke->ambiguousMethodList[i]) {
-		rb_ary_push(result, INT2NUM(qt_Smoke->ambiguousMethodList[i]));
+	    	Smoke::Method &methodRef = qt_Smoke->methods[qt_Smoke->ambiguousMethodList[i]];
+			if ((methodRef.flags & Smoke::mf_internal) == 0) {
+				rb_ary_push(result, INT2NUM(qt_Smoke->ambiguousMethodList[i]));
 #ifdef DEBUG
-		if (do_debug & qtdb_calls) logger("Ambiguous Method %s::%s => %d", c, name, qt_Smoke->ambiguousMethodList[i]);
+				if (do_debug & qtdb_calls) logger("Ambiguous Method %s::%s => %d", c, name, qt_Smoke->ambiguousMethodList[i]);
 #endif
-		i++;
-	    }
-	}
-    }
-    return result;
-}
 
-static VALUE
-findMethodFromIds(VALUE /*self*/, VALUE idclass_value, VALUE idmethodname_value)
-{
-    int idclass = NUM2INT(idclass_value);
-    int idmethodname = NUM2INT(idmethodname_value);
-    VALUE result = Qnil;
-    Smoke::Index meth = qt_Smoke->findMethod(idclass, idmethodname);
-    if(!meth) {
-	// empty list
-    } else if(meth > 0) {
-	Smoke::Index i = qt_Smoke->methodMaps[meth].method;
-	if(i >= 0) {	// single match
-		result = INT2NUM((int) i);
-	} else {		// multiple match
-	    i = -i;		// turn into ambiguousMethodList index
-	    while(qt_Smoke->ambiguousMethodList[i]) {
-		result = INT2NUM((int) qt_Smoke->ambiguousMethodList[i]);
+			}
 		i++;
 	    }
 	}
@@ -1845,11 +1828,17 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
                     Smoke::Index ix= qt_Smoke->methodMaps[i].method;
 		    VALUE meths = rb_ary_new();
                     if(ix >= 0) {	// single match
-			rb_ary_push(meths, INT2NUM((int)ix));
+	    				Smoke::Method &methodRef = qt_Smoke->methods[ix];
+						if ((methodRef.flags & Smoke::mf_internal) == 0) {
+							rb_ary_push(meths, INT2NUM((int)ix));
+						}
                     } else {		// multiple match
                         ix = -ix;		// turn into ambiguousMethodList index
                         while(qt_Smoke->ambiguousMethodList[ix]) {
-                          rb_ary_push(meths, INT2NUM((int)qt_Smoke->ambiguousMethodList[ix]));
+	    					Smoke::Method &methodRef = qt_Smoke->methods[qt_Smoke->ambiguousMethodList[ix]];
+							if ((methodRef.flags & Smoke::mf_internal) == 0) {
+                          		rb_ary_push(meths, INT2NUM((int)qt_Smoke->ambiguousMethodList[ix]));
+							}
                           ix++;
                         }
                     }
@@ -1887,40 +1876,6 @@ dumpCandidates(VALUE /*self*/, VALUE rmeths)
     }
     return errmsg;
 }
-
-#if 0
-static VALUE
-rb_catArguments(VALUE self, VALUE r_args)
-{
-/*
-    if(SvROK(r_args) && SvTYPE(SvRV(r_args)) == SVt_PVAV) {
-        AV* args=(AV*)SvRV(r_args);
-        for(int i = 0; i <= av_len(args); i++) {
-            VALUE *arg=av_fetch(args, i, 0);
-	    if(i) sv_catpv(return self;, ", ");
-	    if(!arg || !SvOK(*arg)) {
-		sv_catpv(return self;, "undef");
-	    } else if(SvROK(*arg)) {
-		smokeruby_object *o = value_obj_info(*arg);
-		if(o)
-		    sv_catpv(return self;, o->smoke->className(o->classId));
-		else
-		    sv_catsv(return self;, *arg);
-	    } else {
-		bool isString = SvPOK(*arg);
-		STRLEN len;
-		char *s = SvPV(*arg, len);
-		if(isString) sv_catpv(return self;, "'");
-		sv_catpvn(return self;, s, len > 10 ? 10 : len);
-		if(len > 10) sv_catpv(return self;, "...");
-		if(isString) sv_catpv(return self;, "'");
-	    }
-	}
-    }
-  */
-    return self;
-}
-#endif
 
 static VALUE
 isObject(VALUE /*self*/, VALUE obj)
@@ -2111,7 +2066,6 @@ Init_qtruby()
     rb_define_method(qt_internal_module, "idMethodName", (VALUE (*) (...)) idMethodName, 1);
     rb_define_method(qt_internal_module, "idMethod", (VALUE (*) (...)) idMethod, 2);
     rb_define_method(qt_internal_module, "findMethod", (VALUE (*) (...)) findMethod, 2);
-    rb_define_method(qt_internal_module, "findMethodFromIds", (VALUE (*) (...)) findMethodFromIds, 2);
     rb_define_method(qt_internal_module, "findAllMethods", (VALUE (*) (...)) findAllMethods, -1);
     rb_define_method(qt_internal_module, "dumpCandidates", (VALUE (*) (...)) dumpCandidates, 1);
     rb_define_method(qt_internal_module, "catArguments", (VALUE (*) (...)) catArguments, 1);
