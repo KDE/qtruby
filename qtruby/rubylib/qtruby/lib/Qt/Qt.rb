@@ -14,7 +14,7 @@ module Qt
                 Off, Minimal, High = *(0..2).to_a
         end
 
-        @@debug_level = DebugLevel::High
+        @@debug_level = DebugLevel::Off
         def Qt.debug_level=(level)
                 @@debug_level = level
         end
