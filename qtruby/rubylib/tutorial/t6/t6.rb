@@ -4,6 +4,7 @@ require 'Qt'
 class LCDRange < Qt::VBox
 
 def initialize(grid)
+   super
 	lcd = Qt::LCDNumber.new(2, self, "lcd")
 
     slider = Qt::Slider.new(VBox.Horizontal, self, "slider")
@@ -18,6 +19,7 @@ end
 class MyWidget < Qt::VBox
 
 def initialize()
+   super
     quit = Qt::PushButton.new("Quit", self, "quit")
     quit.setFont(Qt::Font.new("Times", 18, Qt::Font.Bold))
     
