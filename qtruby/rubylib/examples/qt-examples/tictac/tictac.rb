@@ -2,22 +2,24 @@ require 'Qt'
 
 class TicTacButton < Qt::PushButton
 
-	attr_accessor :type
+	attr_accessor :btype
 
 	Blank, Circle, Cross = 0, 1, 2
-	
+
 	def initialize(p)
 		super(p)
-		@type = Blank
+		@btype = Blank
 	end
 
 	def drawButtonLabel(p)
 		r = rect()
-		p.setPen( Qt::Pen.new( Qt::white,2 ) ) #set fat pen
-		if (@type == Circle)
+		p.setPen( Qt::Pen.new( Qt::white,2 ) ) # set fat pen
+		if (@btype == Circle)
 			p.drawEllipse( r.left()+4, r.top()+4, r.width()-8, r.height()-8 )
-		elsif (@type == Cross)
-			#draw cross
+		elsif (@btype == Cross)
+			# draw cross
+			# Unfortunately we don't have the overloaded + operator for the QPoints so
+			# this gets to be done the long way
 			x1 = r.topLeft.x+4
 			x2 = r.bottomRight.x-4
 			y1 = r.topLeft.y+4
@@ -32,8 +34,6 @@ class TicTacButton < Qt::PushButton
 		end
 		super(p)
 	   end
-		   
-
 end
 
 class TicTacGameBoard < Qt::Widget
@@ -41,9 +41,9 @@ class TicTacGameBoard < Qt::Widget
 	slots 'buttonClicked()'
 
 	Init, HumansTurn, HumanWon, ComputerWon, NobodyWon = 0, 1, 2, 3, 4
-	
+
 	attr_accessor :state, :computer_starts
-	
+
 	def initialize (n, parent)
 		super(parent)
 		@state = Init
@@ -52,9 +52,6 @@ class TicTacGameBoard < Qt::Widget
 		@computer_starts = false
 		@buttons = Array.new(n)
 		@btArray = Array.new(n)
-		@btArray.each{|bt|
-			bt = TicTacButton::Blank
-		}
 
 		grid = Qt::GridLayout.new(self, n, n, 4)
 		p = Qt::Palette.new(Qt::blue)
@@ -84,14 +81,15 @@ class TicTacGameBoard < Qt::Widget
 
 	def updateButtons
 		for i in 0..(@nBoard*@nBoard)-1
-			if @buttons[i].type != @btArray[i]
-				@buttons[i].type = @btArray[i]
+			if @buttons[i].btype != @btArray[i]
+				@buttons[i].btype = @btArray[i]
 			end
-			if @buttons[i].type == TicTacButton::Blank
+			if @buttons[i].btype == TicTacButton::Blank
 				@buttons[i].setEnabled(true)
 			else
 				@buttons[i].setEnabled(false)
 			end
+			@buttons[i].repaint
 		end
 	end
 
@@ -101,6 +99,7 @@ class TicTacGameBoard < Qt::Widget
 		col = 0
 		won = false
 
+		# check horizontal
 		for row in 0..@nBoard-1
 			if won == true
 				break
@@ -117,6 +116,8 @@ class TicTacGameBoard < Qt::Widget
 				won = true
 			end
 		end
+
+		# check vertical
 		for col in 0..@nBoard-1
 			if won == true
 				break
@@ -125,15 +126,18 @@ class TicTacGameBoard < Qt::Widget
 			if (t == TicTacButton::Blank)
 				next
 			end
+			row = 1
 			while ( (row < @nBoard) && (@btArray[row*@nBoard+col] == t) )
-				row = row +1
+				row = row + 1
 			end
 			if (row == @nBoard)
 				won = true
 			end
 		end
-		if (won == false)	# check diagonal top left
-			t = @btArray[0]	# to bottom right
+
+		# check diagonal top left to bottom right
+		if (won == false)
+			t = @btArray[0]
 			if (t != TicTacButton::Blank)
 				i = 1;
 				while (i<@nBoard && (@btArray[i*@nBoard+i] == t))
@@ -145,8 +149,9 @@ class TicTacGameBoard < Qt::Widget
 			end
 		end
 
-		if (won == false)	# check diagonal bottom left
-			j = @nBoard-1	# to top right
+		# check diagonal bottom left to top right
+		if (won == false)
+			j = @nBoard-1
 			i = 0;
 			t = @btArray[i+j*@nBoard];
 			if (t != TicTacButton::Blank)
@@ -161,17 +166,20 @@ class TicTacGameBoard < Qt::Widget
 				end
 			end
 		end
-		
+
 		if (won == false)
+			# no winner
 			t = 0
 		end
-		return t
+
+		t
 	end
 
 	def computerMove
 		numButtons = @nBoard*@nBoard
 		altv = Array.new
 		stopHuman = -1
+		i = 0
 
 		for i in 0..numButtons-1				# try all positions
 			if @btArray[i] != TicTacButton::Blank		# already a piece there
@@ -179,8 +187,7 @@ class TicTacGameBoard < Qt::Widget
 			end
 
 			@btArray[i] = TicTacButton::Cross		# test if computer wins
-			s = checkBoard
-			if (s == @btArray[i])				# computer will win
+			if (checkBoard == @btArray[i])			# computer will win
 				@state = ComputerWon
 				stopHuman = -1
 				break
@@ -193,14 +200,14 @@ class TicTacGameBoard < Qt::Widget
 				next					# computer still might win
 			end
 			@btArray[i] = TicTacButton::Blank;		# restore button
-			altv.push[i]					# remember alternative
+			altv.push(i)					# remember alternative
 		end
 
 		if (stopHuman >= 0)					# must stop human from winning
 			@btArray[stopHuman] = TicTacButton::Cross
-		elsif (i == numButtons)					# tried all alternatives
+		elsif (i == numButtons-1)				# tried all alternatives
 			if (altv.size > 0)				# set random piece
-				@btArray[altv[rand()%(altv.size+5)]] = TicTacButton::Cross
+				@btArray[altv[rand(altv.size)]] = TicTacButton::Cross
 			end
 			if ((altv.size-1) == 0)				# no more blanks
 				@state = NobodyWon
@@ -215,11 +222,9 @@ class TicTacGameBoard < Qt::Widget
 			return
 		end
 
-		b = nil
 		at = nil
 		for i in 0..@buttons.size
 			if @buttons[i].id == sender.id
-				b = @buttons[i]
 				at = i
 				break
 			end
@@ -227,18 +232,19 @@ class TicTacGameBoard < Qt::Widget
 		if @btArray[at] == TicTacButton::Blank
 			@btArray[at] = TicTacButton::Circle
 			updateButtons
-		end
-
-		s = checkBoard
-		case s
-		when TicTacButton::Blank
-			computerMove
-		when TicTacButton::Circle
-			@state = HumanWon
-			emit finished()
-		when TicTacButton::Cross
-			@state = ComputerWon
-			emit finished()
+			
+			if (checkBoard == 0)
+				computerMove
+			end
+			s = checkBoard
+			if (s != 0)
+				if (s == TicTacButton::Circle)
+					@state = HumanWon
+				else
+					@state = ComputerWon
+				end
+				emit finished()
+			end
 		end
 	end
 
