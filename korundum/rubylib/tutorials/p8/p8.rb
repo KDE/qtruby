@@ -20,7 +20,7 @@ class BookMarkList < KDE::ListView
         if item.nil? then return end
         dcopRef = KDE::DCOPRef.new("p7", "Browser")
         if ! dcopRef.setURL(item.text(0))
-            Qt.qWarning("Error with DCOP\n")
+            qWarning("Error with DCOP\n")
         end
     end
 end

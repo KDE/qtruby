@@ -64,7 +64,7 @@ class MainWindow < KDE::MainWindow
     def bookLocation()
         dcopRef = KDE::DCOPRef.new("p6", "BookMarkList")
         if ! dcopRef.add(@location.text())
-            Qt.qWarning("Error with DCOP\n")
+            qWarning("Error with DCOP\n")
         end
     end
 end

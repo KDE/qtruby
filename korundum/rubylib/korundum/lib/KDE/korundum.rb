@@ -53,7 +53,7 @@ module KDE
 					args = DCOPClient.normalizeFunctionSignature($3)
 					@k_dcop_signals[$2] = DCOPMember.new($2, $2 + "(" + args + ")", args, $1)
 				else
-					Qt.qWarning( "Invalid DCOP signal format: '#{signal}'" )
+					qWarning( "Invalid DCOP signal format: '#{signal}'" )
 				end
 			end
 		end
@@ -64,7 +64,7 @@ module KDE
 					args = DCOPClient.normalizeFunctionSignature($3)
 					@k_dcop[$2] = DCOPMember.new($2, $1 + ' ' + $2 + "(" + args + ")", args, $1)
 				else
-					Qt.qWarning( "Invalid DCOP slot format: '#{slot}'" )
+					qWarning( "Invalid DCOP slot format: '#{slot}'" )
 				end
 			end
 		end
@@ -236,7 +236,7 @@ module KDE
 				
 				method = @functions[method]
 				if method.nil?
-					Qt.qWarning( "DCOPRef: call #{k[0].id2name}() not found" )
+					qWarning( "DCOPRef: call #{k[0].id2name}() not found" )
 					return
 				end
 
@@ -275,7 +275,7 @@ module KDE
 
 		def callExt(fun, *k)
 			if isNull
-				Qt.qWarning( "DCOPRef: call #{fun} on null reference error" )
+				qWarning( "DCOPRef: call #{fun} on null reference error" )
 				return
 			end
 			sig = fun
@@ -284,13 +284,13 @@ module KDE
 			end
 			dc = dcopClient()
 			if !dc || !dc.isAttached
-				Qt.qWarning( "DCOPRef::call():  no DCOP client or client not attached error" )
+				qWarning( "DCOPRef::call():  no DCOP client or client not attached error" )
 				return
 			end
 			if sig =~ /([^\s]*)(\(.*\))/
 				full_name = $1+$2
 			else
-				Qt.qWarning( "DCOPRef: call #{fun} invalid format, expecting '<function_name>(<args>)'" )
+				qWarning( "DCOPRef: call #{fun} invalid format, expecting '<function_name>(<args>)'" )
 				return
 			end
 			return KDE::dcop_call(	self, 
@@ -301,7 +301,7 @@ module KDE
 
 		def send(fun, *k)
 			if isNull
-				Qt.qWarning( "DCOPRef: send #{fun} on null reference error" )
+				qWarning( "DCOPRef: send #{fun} on null reference error" )
 			end
 			sig = fun
 			if fun.index('(') == nil
@@ -309,11 +309,11 @@ module KDE
 			end
 			dc = dcopClient()
 			if !dc || !dc.isAttached
-				Qt.qWarning( "DCOPRef::send():  no DCOP client or client not attached error" )
+				qWarning( "DCOPRef::send():  no DCOP client or client not attached error" )
 				return
 			end
 			if !sig =~ /^([^\s]*)(\(.*\))/
-				Qt.qWarning( "DCOPRef: send #{sig} invalid format, expecting '<function_name>(<args>)'" )
+				qWarning( "DCOPRef: send #{sig} invalid format, expecting '<function_name>(<args>)'" )
 				return
 			end
 			return KDE::dcop_send(	self, 
