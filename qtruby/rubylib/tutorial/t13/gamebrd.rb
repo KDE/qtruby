@@ -9,7 +9,7 @@ class GameBoard < Qt::Widget
     def initialize()
         super
         quit = Qt::PushButton.new('&Quit', self, 'quit')
-        quit.setFont(Qt::Font.new('Times', 18, Qt::Font.Bold))
+        quit.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
     
         connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
     
@@ -37,14 +37,14 @@ class GameBoard < Qt::Widget
                     self, SLOT('missed()') )
                 
         shoot = Qt::PushButton.new( '&Shoot', self, 'shoot' )
-        shoot.setFont( Qt::Font.new( 'Times', 18, Qt::Font.Bold ) )
+        shoot.setFont( Qt::Font.new( 'Times', 18, Qt::Font::Bold ) )
 
         connect( shoot, SIGNAL('clicked()'), SLOT('fire()') )
         connect( @cannonField, SIGNAL('canShoot(bool)'),
                     shoot, SLOT('setEnabled(bool)') )
                                 
         restart = Qt::PushButton.new( '&New Game', self, 'newgame' )
-        restart.setFont( Qt::Font.new( 'Times', 18, Qt::Font.Bold ) )
+        restart.setFont( Qt::Font.new( 'Times', 18, Qt::Font::Bold ) )
 
         connect( restart, SIGNAL('clicked()'), self, SLOT('newGame()') )
 

@@ -12,7 +12,7 @@ def initialize(parent = nil, name = nil)
 
     quit = Qt::PushButton.new('Quit', self, 'quit')
     quit.setGeometry(62, 40, 75, 30)
-    quit.setFont(Qt::Font.new('Times', 18, Qt::Font.Bold))
+    quit.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
     connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
 end
 

@@ -28,7 +28,7 @@ class CannonField < Qt::Widget
 		p = Qt::Painter.new( self )
 
 		p.setBrush( blue )
-		p.setPen( Qt.NoPen )
+		p.setPen( Qt::NoPen )
 		p.translate( 0, rect().bottom() )
 		p.drawPie( Qt::Rect.new(-35, -35, 70, 70), 0, 90*16 )
 		p.rotate( - @ang )
@@ -38,6 +38,6 @@ class CannonField < Qt::Widget
 
 
 	def sizePolicy()
-    	return Qt::SizePolicy.new( Qt::SizePolicy.Expanding, Qt::SizePolicy.Expanding )
+    	return Qt::SizePolicy.new( Qt::SizePolicy::Expanding, Qt::SizePolicy::Expanding )
 	end
 end

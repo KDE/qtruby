@@ -4,7 +4,7 @@ $VERBOSE = true; $:.unshift File.dirname($0)
 require 'Qt'
 require 'gamebrd.rb'
 
-Qt::Application.setColorSpec( Qt::Application.CustomColor )
+Qt::Application.setColorSpec( Qt::Application::CustomColor )
 a = Qt::Application.new(ARGV)
 
 gb = GameBoard.new

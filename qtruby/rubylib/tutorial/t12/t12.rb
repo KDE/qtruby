@@ -10,7 +10,7 @@ class MyWidget < Qt::Widget
     def initialize()
         super
         quit = Qt::PushButton.new('&Quit', self, 'quit')
-        quit.setFont(Qt::Font.new('Times', 18, Qt::Font.Bold))
+        quit.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
     
         connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
     
@@ -33,7 +33,7 @@ class MyWidget < Qt::Widget
                 force, SLOT('setValue(int)') )
         
         shoot = Qt::PushButton.new( '&Shoot', self, 'shoot' )
-        shoot.setFont( Qt::Font.new( 'Times', 18, Qt::Font.Bold ) )
+        shoot.setFont( Qt::Font.new( 'Times', 18, Qt::Font::Bold ) )
 
         connect( shoot, SIGNAL('clicked()'), cannonField, SLOT('shoot()') )
             
@@ -58,7 +58,7 @@ class MyWidget < Qt::Widget
     end
 end    
 
-Qt::Application.setColorSpec( Qt::Application.CustomColor )
+Qt::Application.setColorSpec( Qt::Application::CustomColor )
 a = Qt::Application.new(ARGV)
 
 w = MyWidget.new

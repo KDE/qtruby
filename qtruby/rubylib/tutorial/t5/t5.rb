@@ -8,7 +8,7 @@ class MyWidget < Qt::VBox
 def initialize()
    super
     quit = Qt::PushButton.new('Quit', self, 'quit')
-    quit.setFont(Qt::Font.new('Times', 18, Qt::Font.Bold))
+    quit.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
     
 	connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
     

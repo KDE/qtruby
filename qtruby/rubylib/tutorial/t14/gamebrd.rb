@@ -38,7 +38,7 @@ class GameBoard < Qt::Widget
                     self, SLOT('missed()') )
                 
         shoot = Qt::PushButton.new( '&Shoot', self, 'shoot' )
-        shoot.setFont( Qt::Font.new( 'Times', 18, Qt::Font.Bold ) )
+        shoot.setFont( Qt::Font.new( 'Times', 18, Qt::Font::Bold ) )
 
         connect( shoot, SIGNAL('clicked()'), SLOT('fire()') )
         connect( @cannonField, SIGNAL('canShoot(bool)'),
