@@ -724,10 +724,10 @@ module Qt
                         }
 			# Special case QByteArray, as it's disguised as a ruby String
 			# and not in the public api.
-			@@classes['Qt::ByteArray'] = Qt::ByteArray.class
-			@@classes['Qt::Integer'] = Qt::Integer.class
-			@@classes['Qt::Boolean'] = Qt::Boolean.class
-			@@classes['Qt::Enum'] = Qt::Enum.class
+			@@classes['Qt::ByteArray'] = Qt::ByteArray
+			@@classes['Qt::Integer'] = Qt::Integer
+			@@classes['Qt::Boolean'] = Qt::Boolean
+			@@classes['Qt::Enum'] = Qt::Enum
 		end
 		
 		def create_qbytearray(string, data)

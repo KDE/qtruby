@@ -314,10 +314,15 @@ resolve_classname(Smoke* smoke, int classId, void * ptr)
 		}
 	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QObject")) {
 		QObject * qobject = (QObject *) smoke->cast(ptr, classId, smoke->idClass("QObject"));
-		const char * classname = qobject->className();
-		Smoke::Index classId = smoke->idClass(classname);
-		if (classId != 0) {
-			return smoke->binding->className(classId);
+		QMetaObject * meta = qobject->metaObject();
+
+		while (meta != 0) {
+			Smoke::Index classId = smoke->idClass(meta->className());
+			if (classId != 0) {
+				return smoke->binding->className(classId);
+			}
+
+			meta = meta->superClass();
 		}
 	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QCanvasItem")) {
 		QCanvasItem * qcanvasitem = (QCanvasItem *) smoke->cast(ptr, classId, smoke->idClass("QCanvasItem"));
