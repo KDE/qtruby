@@ -629,8 +629,7 @@ class CSDlg < KDE::Dialog
         csLbl   = Qt::Label.new("KCharSelect", self)
         csLbl.setGeometry(x, y, 95, 20)
         csLbl.show()
-
-        cs = KDE::CharSelect.new(self, "chselect", nil, ' ', 0)
+        cs = KDE::CharSelect.new(self, "chselect", nil, Qt::Char.new(0), 0)
         cs.setGeometry(x, y + 20, 680, 250)
         cs.show()
 
