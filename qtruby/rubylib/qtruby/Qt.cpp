@@ -927,10 +927,17 @@ method_missing(int argc, VALUE * argv, VALUE self)
 	    rb_id2name( SYM2ID(argv[0]) ),
 	    TYPE(self) );
 #endif
-
+	char * methodName = rb_id2name(SYM2ID(argv[0]));
     VALUE * savestack = ALLOCA_N(VALUE, argc + 3);
     savestack[0] = rb_str_new2("Qt");
-    savestack[1] = rb_str_new2(rb_id2name(SYM2ID(argv[0])));
+	QRegExp rx("[a-zA-Z]+");
+	if (rx.search(methodName) == -1) {
+		// Operator methods which aren't in QGlobalSpace, are called 'operator+' etc,
+		// rather than just '+'.
+    	savestack[1] = rb_str_new2((const char *) (QString("operator") + methodName));
+	} else {
+    	savestack[1] = rb_str_new2(methodName);
+	}
     savestack[2] = klass;
     savestack[3] = self;
     for (int count = 1; count < argc; count++) {
@@ -945,9 +952,8 @@ method_missing(int argc, VALUE * argv, VALUE self)
     // If the method can't be found allow the default method_missing
     //	to display an error message, by calling super on the method
     if (_current_method == -1) {
-	return rb_call_super(argc, argv);
+		return rb_call_super(argc, argv);
     }
-
 
     MethodCall c(qt_Smoke, _current_method, self, savestack+4, argc-1);
     c.next();
@@ -981,7 +987,19 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
     // If the method can't be found allow the default method_missing
     //	to display an error message, by calling super on the method
     if (_current_method == -1) {
-	return rb_call_super(argc, argv);
+		QRegExp rx("[a-zA-Z]+");
+		if (rx.search(rb_id2name(SYM2ID(argv[0]))) == -1) {
+			// If an operator method hasn't been found as an instance method,
+			// then look for a class method - after 'op(self,a)' try 'self.op(a)' 
+	    	VALUE * method_stack = ALLOCA_N(VALUE, argc - 1);
+	    	method_stack[0] = argv[0];
+	    	for (int count = 1; count < argc; count++) {
+			method_stack[count] = argv[count+1];
+    		}
+			return method_missing(argc-1, method_stack, argv[1]);
+		} else {
+			return rb_call_super(argc, argv);
+		}
     }
 
     MethodCall c(qt_Smoke, _current_method, Qnil, savestack+4, argc-1);
@@ -1676,6 +1694,9 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
 #endif
     if(!meth) {
     	meth = qt_Smoke->findMethod("QGlobalSpace", name);
+#ifdef DEBUG
+    printf("DAMNIT on QGlobalSpace::%s => %d\n", name, meth);
+#endif
 	}
 	
     if(!meth) {

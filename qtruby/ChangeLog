@@ -1,3 +1,7 @@
+2003-08-28  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Improved operator overloading to work with operators not in QGlobalSpace
+
 2003-08-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Changed the operator overloading implementation to be more like PerlQt

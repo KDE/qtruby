@@ -10,22 +10,61 @@ module Qt
         def Qt.debug_level
                 @@debug_level
         end
-	
-	class Base
-		def +(a)
-			return Qt::+(self, a)
+		
+		class Base
+			def **(a)
+				return Qt::**(self, a)
+			end
+			def +(a)
+				return Qt::+(self, a)
+			end
+			def ~(a)
+				return Qt::~(self, a)
+			end
+			def -(a)
+				return Qt::-(self, a)
+			end
+			def *(a)
+				return Qt::*(self, a)
+			end
+			def /(a)
+				return Qt::/(self, a)
+			end
+			def %(a)
+				return Qt::%(self, a)
+			end
+			def >>(a)
+				return Qt::>>(self, a)
+			end
+			def <<(a)
+				return Qt::<<(self, a)
+			end
+			def &(a)
+				return Qt::&(self, a)
+			end
+			def ^(a)
+				return Qt::^(self, a)
+			end
+			def |(a)
+				return Qt::|(self, a)
+			end
+			def <(a)
+				return Qt::<(self, a)
+			end
+			def <=(a)
+				return Qt::<=(self, a)
+			end
+			def >(a)
+				return Qt::>(self, a)
+			end
+			def >=(a)
+				return Qt::>=(self, a)
+			end
+			def ==(a)
+				return Qt::==(self, a)
+			end
 		end
-		def -(a)
-			return Qt::-(self, a)
-		end
-		def *(a)
-			return Qt::*(self, a)
-		end
-		def /(a)
-			return Qt::/(self, a)
-		end
-	end
-	
+		
 	module Internal
 
 		@@classes   = {}
@@ -179,10 +218,11 @@ module Qt
 					puts "arg_matches => #{matching.inspect}" if debug_level >= DebugLevel::High
 					break matching if remainingIds.length <= 1
 				}
-				unless matching.nil?
-				    methodIds[0] = matching[0][0]
-				    puts "Resolved to id: #{methodIds[0]}" if debug_level >= DebugLevel::High
+				if matching.nil? or matching[0].nil?
+					return nil
 				end
+				methodIds[0] = matching[0][0]
+				puts "Resolved to id: #{methodIds[0]}" if debug_level >= DebugLevel::High
 			end
 			chosen = methodIds[0]
 
