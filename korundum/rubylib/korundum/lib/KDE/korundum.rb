@@ -170,11 +170,7 @@ module KDE
 	# Flattens a hash of '<action name>,<DCOPRef>' pairs into an array
 	def action_map_to_list(map)
 		result = []
-#		map.each { |key, value| result << key << value }
-		map.each { |key, value| 
-		result << key << value 
-		puts "key: #{key} value: #{value}"
-		}
+		map.each { |key, value| result << key << value }
 		return result
 	end
 	
