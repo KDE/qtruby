@@ -63,17 +63,17 @@ extern "C" {
  * by using the various KDE rtti mechanisms
  */
 const char *
-kde_resolve_classname(Marshall* m, void * ptr)
+kde_resolve_classname(Smoke * smoke, int classId, void * ptr)
 {
-	if (isDerivedFromByName(m->smoke(), m->smoke()->classes[m->type().classId()].className, "KArchiveEntry")) {
-		KArchiveEntry * entry = (KArchiveEntry *) m->smoke()->cast(ptr, m->type().classId(), m->smoke()->idClass("KArchiveEntry"));
+	if (isDerivedFromByName(smoke, smoke->classes[classId].className, "KArchiveEntry")) {
+		KArchiveEntry * entry = (KArchiveEntry *) smoke->cast(ptr, classId, smoke->idClass("KArchiveEntry"));
 		if (entry->isDirectory()) {
 			return "KDE::ArchiveDirectory";
 		} else {
 			return "KDE::ArchiveFile";
 		}
-	} else if (strcmp(m->smoke()->classes[m->type().classId()].className, "DOM::Node") == 0) {
-		DOM::Node * node = (DOM::Node *) m->smoke()->cast(ptr, m->type().classId(), m->smoke()->idClass("DOM::Node"));
+	} else if (strcmp(smoke->classes[classId].className, "DOM::Node") == 0) {
+		DOM::Node * node = (DOM::Node *) smoke->cast(ptr, classId, smoke->idClass("DOM::Node"));
 		switch (node->nodeType()) {
 		case DOM::Node::ELEMENT_NODE:
 			if (((DOM::Element*)node)->isHTMLElement()) {
@@ -106,7 +106,7 @@ kde_resolve_classname(Marshall* m, void * ptr)
 		}
 	}
 	
-	return m->smoke()->binding->className(m->type().classId());
+	return smoke->binding->className(classId);
 }
 
 };

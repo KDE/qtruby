@@ -1,3 +1,10 @@
+2004-12-15  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * The DCOPObject inspect method was crashing if the instance hadn't been fully
+   constructed
+ * The kde_resolve_classname function's arg types were changed to match the new
+   ones in the resolve_classname() function of QtRuby/handlers.cpp.
+
 2004-12-11  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * DCOPObject inspect() and pretty_print() methods added
