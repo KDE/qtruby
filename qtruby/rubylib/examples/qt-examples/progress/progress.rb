@@ -70,7 +70,6 @@ class AnimatedThingy < Qt::Label
 	c = Qt::Color.new
 	c.setHsv( (@step*255)/NQIX, 255, 255 ) # rainbow effect
 	pn.setColor(c)
-        puts "red == #{pn.color.red}"
 	painter.setPen(pn)
 	painter.drawLine(@ox0[@step], @oy0[@step], @ox1[@step], @oy1[@step])
 	painter.setPen(white)
@@ -174,7 +173,6 @@ class CPUWaster < Qt::Widget
 	painter = Qt::Painter.new(self)
 
 	ww = width
-	puts  "ww = =" ,ww
 	wh = height
 
 	if ww > 8 and wh > 8
@@ -183,7 +181,6 @@ class CPUWaster < Qt::Widget
 	    y = rand(wh - 8)
 	    w = rand(ww - x)
 	    h = rand(wh - y)
-            puts "my red = ", c.red
 	    painter.fillRect(x, y, w, h, Qt::Brush.new(c))
 	end
 
@@ -219,7 +216,6 @@ class CPUWaster < Qt::Widget
             end
             @rects = n
             @pb = newProgressDialog("Drawing rectangles.\nUsing timer event.", n, false)
-	    puts "WERAGGGH"
             @pb.setCaption("Please Wait")
             connect(@pb, SIGNAL('cancelled()'), self, SLOT('stopDrawing()'))
             enableDrawingItems(0)
@@ -227,7 +223,6 @@ class CPUWaster < Qt::Widget
             @got_stop = 0
         else
             lpb = newProgressDialog("Drawing rectangles.\nUsing loop.", n, true)
-	    puts "WERAGGGH1"
             lpb.setCaption("Please Wait")
 
             painter = Qt::Painter.new(self)
@@ -243,7 +238,6 @@ class CPUWaster < Qt::Widget
                 w = rand(cw - x)
                 h = rand(cw - y)
                 painter.fillRect(x, y, w, h, Qt::Brush.new(c))
-		p "drawRect"
             }
             lpb.cancel
             painter.fillRect(0, 0, width, height, Qt::Brush.new(backgroundColor))
