@@ -6,8 +6,6 @@ require 'rexml/document'
 require '../base/kicons.rb'
 require '../base/rui.rb'
 
-RectRTTI = 5 # Qt::CanvasRectangle::RTTI is b0rked
-
 class MyCanvasView < Qt::CanvasView
    def initialize(canvas, parent)
       @canvas = canvas
@@ -18,7 +16,7 @@ class MyCanvasView < Qt::CanvasView
       list = canvas.collisions(e.pos)
       return if list.empty?
       c = list.first
-      return if c.rtti != RectRTTI 
+      return if c.rtti != Qt::CanvasRectangle.rtti() 
       c.hide
       @canvas.update
    end
