@@ -1,0 +1,47 @@
+/***************************************************************************
+ * 	(C) 2003 Richard Dale All rights reserved.                             *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as               *
+ *   published by the Free Software Foundation; either version 2 of the    *
+ *   License, or (at your option) any later version.                       *
+ *                                                                         *
+ ***************************************************************************/
+
+Here is a Ruby SMOKE adaptor for Qt
+
+To build the Qt.so extension, provide 'extconf.rb' with the directories where
+the Qt and Smoke libraries are installed:
+
+$ cd qtruby/rubylib/qtruby
+$ ruby extconf.rb --with-smoke-dir=/opt/kde3 \
+      --with-qt-dir=/home/duke/src/kde/HEAD/qt-copy
+$ make
+$ make install
+
+Here is 'Hello World' in QtRuby:
+
+#!/usr/bin/ruby -w
+
+require 'Qt'
+
+a = Qt::Application.new(ARGV)
+hello = Qt::PushButton.new("Hello World!", nil)
+hello.resize(100, 30)
+a.setMainWidget(hello)
+hello.show()
+a.exec()
+
+To call super in an overriden virtual method, you will need
+to use ruby 1.8 or higher:
+
+def paintEvent( e )
+	print("hello there")
+	super
+end
+
+There are no other known problems with older versions of ruby.
+
+Have Fun!
+
+-- Richard
