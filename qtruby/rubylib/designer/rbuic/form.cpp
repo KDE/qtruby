@@ -270,50 +270,6 @@ void Uic::createFormImpl( const QDomElement &e )
             protectedVars += var;
     }
 
-    // for now, all member variables are public.
-
-    if ( !publicVars.isEmpty() ) {
-        for ( it = publicVars.begin(); it != publicVars.end(); ++it )
-            out << indent << *it << endl;
-    }
-    if ( !protectedVars.isEmpty() ) {
-        for ( it = protectedVars.begin(); it != protectedVars.end(); ++it )
-            out << indent << *it << endl;
-    }
-    if ( !privateVars.isEmpty() ) {
-        for ( it = privateVars.begin(); it != privateVars.end(); ++it )
-            out << indent << *it << endl;
-    }
-
-
-    // actions, toolbars, menus
-    for ( n = e; !n.isNull(); n = n.nextSibling().toElement() )
-    {
-	if ( n.tagName()  == "actions" )
-        {
-	    for ( QDomElement a = n.firstChild().toElement(); !a.isNull(); a = a.nextSibling().toElement() )
-		createActionDecl( a );
-	}
-        else if ( n.tagName() == "toolbars" )
-        {
-	    for ( QDomElement a = n.firstChild().toElement(); !a.isNull(); a = a.nextSibling().toElement() )
-            {
-                if ( a.tagName() == "toolbar" )
-	        out << indent << getObjectName( a ) << endl;
-            }
-
-	}
-        else if ( n.tagName() == "menubar" )
-        {
-	    out << indent << getObjectName( n ) << endl;
-	    for ( QDomElement a = n.firstChild().toElement(); !a.isNull(); a = a.nextSibling().toElement() )
-	    {
-		if ( a.tagName() == "item" )
-		out << indent << a.attribute( "name" ) << endl;
-	    }
-	}
-    }
-
     // Databases Connection holders
 
     registerDatabases( e );
@@ -469,6 +425,7 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     // register the object and unify its name
+	QString loadFunction(objName);
     objName = registerObject( objName );
 
     QStringList images;
@@ -541,7 +498,7 @@ void Uic::createFormImpl( const QDomElement &e )
     }
     else if ( externPixmaps )
     {
-	out << indent << "def uic_load_pixmap_" << objName<< "( data )" << endl;
+	out << indent << "def uic_load_pixmap_" << loadFunction << "( data )" << endl;
 	++indent;
 	out << indent << "pix = Qt::Pixmap.new()" << endl;
 	out << indent << "m = Qt::MimeSourceFactory.defaultFactory().data(data)" << endl;
@@ -557,29 +514,29 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << indent << "end" << endl;
 	out << endl;
 	out << endl;
-	pixmapLoaderFunction = "uic_load_pixmap_" + objName;
+	pixmapLoaderFunction = "uic_load_pixmap_" + loadFunction;
     }
 
 
     // constructor(s)
     if ( objClass == "Qt::Dialog" || objClass == "Qt::Wizard" ) {
-    out << indent << "def initialize(arg1, arg2, arg3, arg4)" << endl;
+    out << indent << "def initialize(*k)" << endl;
     ++indent;
-	out << indent << "super(arg1, arg2, arg3, arg4)" << endl;
+	out << indent << "super(*k)" << endl;
     } else if ( objClass == "Qt::Widget")  {
-    out << indent << "def initialize(arg1, arg2, arg3)" << endl;
+    out << indent << "def initialize(*k)" << endl;
     ++indent;
-	out << indent << "super(arg1, arg2, arg3)" << endl;
+	out << indent << "super(*k)" << endl;
     } else if ( objClass == "Qt::MainWindow" ) {
-    out << indent << "def initialize(arg1, arg2, arg3)" << endl;
+    out << indent << "def initialize(*k)" << endl;
     ++indent;
-	out << indent << "super(arg1, arg2, arg3)" << endl;
+	out << indent << "super(*k)" << endl;
 	out << indent << "statusBar()" << endl;
 	isMainWindow = TRUE;
     } else {
-    out << indent << "def initialize(arg1, arg2)" << endl;
+    out << indent << "def initialize(*k)" << endl;
     ++indent;
-	out << indent << "super(arg1, arg2)" << endl;
+	out << indent << "super(*k)" << endl;
     }
 
     out << endl;
@@ -804,7 +761,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	    if ( firstBuddy ) {
 		out << endl;
 	    }
-	    out << indent << (*buddy).key << ".setBuddy(self." << registeredName( (*buddy).buddy ) << ")" << endl;
+	    out << indent << (*buddy).key << ".setBuddy(" << registeredName( (*buddy).buddy ) << ")" << endl;
 	    firstBuddy = FALSE;
 	}
 
