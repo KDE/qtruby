@@ -39,6 +39,7 @@ extern VALUE qt_internal_module;
 };
 
 extern bool isDerivedFromByName(Smoke *smoke, const char *className, const char *baseClassName);
+extern void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *lastptr);
 
 void
 smokeruby_mark(void * p)
@@ -94,75 +95,89 @@ smokeruby_free(void * p)
 	
 	if(do_debug & qtdb_gc) printf("Checking for delete (%s*)%p allocated: %s\n", className, o->ptr, o->allocated ? "true" : "false");
     
+	if(!o->allocated || o->ptr == 0) {
+		free(o);
+		return;
+	}
+	
+	SmokeClass sc(o->smoke, o->classId);
+	unmapPointer(o, o->classId, 0);
+	object_count --;
+	
 	if (	strcmp(className, "QObject") == 0
 			|| strcmp(className, "QListBoxItem") == 0
 			|| strcmp(className, "QStyleSheetItem") == 0
 			|| strcmp(className, "QSqlCursor") == 0 )
 	{
 		// Don't delete instances of these classes for now
+		free(o);
 		return;
 	} else if (isDerivedFromByName(o->smoke, className, "QLayoutItem")) {
 		QLayoutItem * item = (QLayoutItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayoutItem"));
 		if (item->layout() != 0 || item->widget() != 0 || item->spacerItem() != 0) {
+			free(o);
 			return;
 		}
 	} else if (strcmp(className, "QIconViewItem") == 0) {
 		QIconViewItem * item = (QIconViewItem *) o->ptr;
 		if (item->iconView() != 0) {
+			free(o);
 			return;
 		}
 	} else if (strcmp(className, "QCheckListItem") == 0) {
 		QCheckListItem * item = (QCheckListItem *) o->ptr;
 		if (item->parent() != 0 || item->listView() != 0) {
+			free(o);
 			return;
 		}
 	} else if (strcmp(className, "QListViewItem") == 0) {
 		QListViewItem * item = (QListViewItem *) o->ptr;
 		if (item->parent() != 0 || item->listView() != 0) {
+			free(o);
 			return;
 		}
 	} else if (isDerivedFromByName(o->smoke, className, "QTableItem")) {
 		QTableItem * item = (QTableItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTableItem"));
 		if (item->table() != 0) {
+			free(o);
 			return;
 		}
 	} else if (strcmp(className, "QPopupMenu") == 0) {
 		QPopupMenu * item = (QPopupMenu *) o->ptr;
 		if (item->parentWidget(FALSE) != 0) {
+			free(o);
 			return;
 		}
 	} else if (isDerivedFromByName(o->smoke, className, "QWidget")) {
 		QWidget * qwidget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget"));
 		if (qwidget->parentWidget(TRUE) != 0) {
+			free(o);
 			return;
 		}
 	} else if (isDerivedFromByName(o->smoke, className, "QObject")) {
 		QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
 		if (qobject->parent() != 0) {
+			free(o);
 			return;
 		}
 	}
 			
-	if(o->allocated && o->ptr) {
-        if(do_debug & qtdb_gc) printf("Deleting (%s*)%p\n", className, o->ptr);
-        SmokeClass sc(o->smoke, o->classId);
-        if(sc.hasVirtual())
-            unmapPointer(o, o->classId, 0);
-        object_count --;
-        char *methodName = new char[strlen(className) + 2];
-        methodName[0] = '~';
-        strcpy(methodName + 1, className);
-        Smoke::Index nameId = o->smoke->idMethodName(methodName);
-        Smoke::Index meth = o->smoke->findMethod(o->classId, nameId);
-        if(meth > 0) {
-            Smoke::Method &m = o->smoke->methods[o->smoke->methodMaps[meth].method];
-            Smoke::ClassFn fn = o->smoke->classes[m.classId].classFn;
-            Smoke::StackItem i[1];
-            (*fn)(m.method, o->ptr, i);
-        }
-        delete[] methodName;
-		o->ptr = 0;
-    }
+	if(do_debug & qtdb_gc) printf("Deleting (%s*)%p\n", className, o->ptr);
+	
+	char *methodName = new char[strlen(className) + 2];
+	methodName[0] = '~';
+	strcpy(methodName + 1, className);
+	Smoke::Index nameId = o->smoke->idMethodName(methodName);
+	Smoke::Index meth = o->smoke->findMethod(o->classId, nameId);
+	if(meth > 0) {
+		Smoke::Method &m = o->smoke->methods[o->smoke->methodMaps[meth].method];
+		Smoke::ClassFn fn = o->smoke->classes[m.classId].classFn;
+		Smoke::StackItem i[1];
+		(*fn)(m.method, o->ptr, i);
+	}
+	delete[] methodName;
+	free(o);
+	
     return;
 }
 
@@ -435,13 +450,6 @@ marshall_basetype(Marshall *m)
 		o->ptr = p;
 		o->allocated = false;
 
-//		TODO: Is this correct?
-//    		In qtnamespace.h, 'QT_STATIC_CONST QColor & blue;' is an isStack() item.
-//			But the QColor shouldn't be deleted, and so allocated should be 'false'.
-//			Hence, this code is commented out for now. 
-//		if(m->type().isStack())
-//		    o->allocated = true;
-
 		const char * classname = m->smoke()->binding->className(m->type().classId());
 		
 		if(m->type().isConst() && m->type().isRef()) {
@@ -455,6 +463,12 @@ marshall_basetype(Marshall *m)
 		obj = set_obj_info(classname, o);
 		if (do_debug & qtdb_calls) {
 			printf("allocating %s %p -> %p\n", classname, o->ptr, obj);
+		}
+
+		if(m->type().isStack()) {
+		    o->allocated = true;
+			// Keep a mapping of the pointer so that it is only wrapped once as a ruby VALUE
+		    mapPointer(obj, o, o->classId, 0);
 		}
 		
 		*(m->var()) = obj;

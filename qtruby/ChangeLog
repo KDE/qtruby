@@ -1,3 +1,11 @@
+2003-11-07  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Fixed some memory leaks
+	* Ensured that any instance 'owned' by ruby, ie with the the allocated
+	  flag set to true, is always added to the pointer_map.
+	  Otherwise, the same C++ instance can be wrapped twice and will be deleted
+	  twice.
+
 2003-11-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* When marshalling a const ref type to a ruby VALUE, it is now copied

@@ -64,7 +64,7 @@ extern void smokeruby_mark(void * ptr);
 extern void smokeruby_free(void * ptr);
 
 #ifdef DEBUG
-int do_debug = qtdb_virtual;
+int do_debug = qtdb_gc;
 #else
 int do_debug = qtdb_none;
 #endif
@@ -717,9 +717,6 @@ public:
 	smokeruby_object *o = value_obj_info(obj);
 	if(do_debug & qtdb_gc) {
 	    printf("%p->~%s()\n", ptr, smoke->className(classId));
-	    if(o && o->ptr)
-		object_count --;
-	    //printf("Remaining objects: %d\n", object_count);
 	}
 	if(!o || !o->ptr) {
 	    return;
@@ -1352,12 +1349,20 @@ dontRecurse(VALUE self)
     return self;
 }
 
+static void
+mocargs_free(void * ptr)
+{
+    MocArgument * mocArgs = (MocArgument *) ptr;
+	delete[] mocArgs;
+	return;
+}
+
 static VALUE
 allocateMocArguments(VALUE /*self*/, VALUE count_value)
 {
     int count = NUM2INT(count_value);
     MocArgument * ptr = new MocArgument[count + 1];
-    return Data_Wrap_Struct(rb_cObject, 0, 0, ptr);
+    return Data_Wrap_Struct(rb_cObject, 0, mocargs_free, ptr);
 }
 
 static VALUE
@@ -1649,7 +1654,6 @@ mapObject(VALUE self, VALUE obj)
     if(!o)
         return Qnil;
     SmokeClass c( o->smoke, o->classId );
-    object_count ++;
     if(!c.hasVirtual() ) {
 	return Qnil;
     }
