@@ -666,17 +666,17 @@ public:
 		if(_called) return;
 		_called = true;
 
-	VALUE klass = rb_funcall(_obj, rb_intern("class"), 0);
-	VALUE name = rb_funcall(klass, rb_intern("name"), 0);
+        VALUE klass = rb_funcall(_obj, rb_intern("class"), 0);
+        VALUE name = rb_funcall(klass, rb_intern("name"), 0);
 #ifdef DEBUG
-	printf(	"In InvokeSlot::invokeSlot 3 items: %d classname: %s\n",
-			_items,
-			STR2CSTR(name) );
+        printf(	"In InvokeSlot::invokeSlot 3 items: %d classname: %s\n",
+                        _items,
+                        STR2CSTR(name) );
 #else
-    (void) name;
+        (void) name;
 #endif
 			
-		(void) rb_funcall2(_obj, _slotname, _items, _sp);
+        (void) rb_funcall2(_obj, _slotname, _items, _sp);
     }
 
     void next() {
@@ -695,7 +695,7 @@ public:
 
     InvokeSlot(VALUE obj, ID slotname, VALUE args, QUObject *o) :
 	_obj(obj), _slotname(slotname), _o(o), _cur(-1), _called(false)
-	{
+    {
 		_items = NUM2INT(rb_ary_entry(args, 0));
 		Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
 		_sp = ALLOC_N(VALUE, _items);
@@ -864,34 +864,35 @@ char *get_VALUEtype(VALUE ruby_value)
 
 void rb_str_catf(VALUE self, const char *format, ...) __attribute__ ((format (printf, 2, 3)));
 
-void rb_str_catf(VALUE self, const char *format, ...)
+void rb_str_catf(VALUE self, const char *format, ...) 
 {
-    va_list ap;
-    va_start(ap, format);
-    char *p = 0;
-    int len;
-    if (len = vasprintf(&p, format, ap), len != -1) {
-	rb_str_cat(self, p, len);
-	free(p);
-    }
-    va_end(ap);
+	va_list ap;
+	va_start(ap, format);
+	char *p = 0;
+	int len;
+	if (len = vasprintf(&p, format, ap), len != -1) {
+	    rb_str_cat(self, p, len);
+	    free(p);
+	}
+	va_end(ap);
 }
 
-VALUE prettyPrintMethod(Smoke::Index id) {
-    VALUE r = rb_str_new2("");
-    Smoke::Method &meth = qt_Smoke->methods[id];
-    const char *tname = qt_Smoke->types[meth.ret].name;
-    if(meth.flags & Smoke::mf_static) rb_str_catf(r, "static ");
-    rb_str_catf(r, "%s ", (tname ? tname:"void"));
-    rb_str_catf(r, "%s::%s(", qt_Smoke->classes[meth.classId].className, qt_Smoke->methodNames[meth.name]);
-    for(int i = 0; i < meth.numArgs; i++) {
-        if(i) rb_str_catf(r, ", ");
-        tname = qt_Smoke->types[qt_Smoke->argumentList[meth.args+i]].name;
-        rb_str_catf(r, "%s", (tname ? tname:"void"));
-    }
-    rb_str_catf(r, ")");
-    if(meth.flags & Smoke::mf_const) rb_str_catf(r, " const");
-    return r;
+VALUE prettyPrintMethod(Smoke::Index id) 
+{
+	VALUE r = rb_str_new2("");
+	Smoke::Method &meth = qt_Smoke->methods[id];
+	const char *tname = qt_Smoke->types[meth.ret].name;
+	if(meth.flags & Smoke::mf_static) rb_str_catf(r, "static ");
+	rb_str_catf(r, "%s ", (tname ? tname:"void"));
+	rb_str_catf(r, "%s::%s(", qt_Smoke->classes[meth.classId].className, qt_Smoke->methodNames[meth.name]);
+	for(int i = 0; i < meth.numArgs; i++) {
+	    if(i) rb_str_catf(r, ", ");
+	    tname = qt_Smoke->types[qt_Smoke->argumentList[meth.args+i]].name;
+	    rb_str_catf(r, "%s", (tname ? tname:"void"));
+	}
+	rb_str_catf(r, ")");
+	if(meth.flags & Smoke::mf_const) rb_str_catf(r, " const");
+	return r;
 }
 
 //---------- Ruby methods (for all functions except fully qualified statics & enums) ---------
@@ -901,7 +902,7 @@ metaObject(VALUE self)
 {
 	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
 	VALUE name = rb_funcall(klass, rb_intern("name"), 0);
-    (void) name;
+	(void) name;
 
 	VALUE metaObject = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 1, self);
 
@@ -915,7 +916,7 @@ method_missing(int argc, VALUE * argv, VALUE self)
 {
 	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
 	VALUE name = rb_funcall(klass, rb_intern("name"), 0);
-    (void) name;
+	(void) name;
 
 #ifdef DEBUG
 	printf("In method_missing(argc: %d, argv[0]: %s TYPE: 0x%2.2x)\n",
@@ -1088,7 +1089,7 @@ new_qt(int argc, VALUE * argv, VALUE klass)
 			argc,
 			STR2CSTR(class_name) );
 #else
-    (void) class_name;
+	(void) class_name;
 #endif
 			
 	VALUE * localstack = ALLOCA_N(VALUE, argc + 1);
