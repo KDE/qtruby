@@ -207,6 +207,14 @@ module KDE
 								# Remove any arg names
 								args.gsub!(/ \w*/, "")
 							end
+							
+							if name =~ /^(is|has)(.)(.*)/
+								predicate = $2.downcase + $3 + '?'
+								if @functions[predicate].nil?
+									@functions[predicate] = return_type + " " + name + args
+								end
+							end
+							
 							if @functions[name].nil?
 								@functions[name] = return_type + " " + name + args
 							else
