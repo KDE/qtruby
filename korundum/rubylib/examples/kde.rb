@@ -10,7 +10,8 @@ about = KDE::AboutData.new("one", "two", "three")
 KDE::CmdLineArgs.init(1, ["four"], about)
 a = KDE::Application.new()
 
-# Qt.debug_level = Qt::DebugLevel::High
+Qt::Internal::setDebug Qt::QtDebugChannel::QTDB_ALL
+Qt.debug_level = Qt::DebugLevel::High
 
 class MyBase < Qt::VBox
    HOME = KDE::URL.new ENV["BASEDOCURL"]
@@ -47,7 +48,11 @@ class MyBase < Qt::VBox
       node = @w.document
       indent = 0
       until node.isNull
-         puts node.nodeName.string
+         puts "NODE NAME :: #{node.inspect}"
+         if node.nodeType == 9 # DOM::Node::TEXT_NODE
+            blah = Qt::Internal::cast_object_to(node, "KDE::DOM::Text")
+            str = puts '"' + blah.data.string + '"'
+         end
          if not node.firstChild.isNull
             node = node.firstChild
             indent += 1
@@ -108,12 +113,10 @@ Thread.new {
    puts "indexing"
 }
 
-Thread.new {
-   browser = MyBase.new
-   browser.show
-   a.setMainWidget(browser)
-   a.exec()
-}.join
+browser = MyBase.new
+browser.show
+a.setMainWidget(browser)
+a.exec()
 
 __END__
 
