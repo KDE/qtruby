@@ -230,9 +230,13 @@ module Qt
 					puts "arg_matches => #{matching.inspect}" if debug_level >= DebugLevel::High
 					break matching if remainingIds.length <= 1
 				}
-				if ! matching.nil? and matching.length == 1
-					chosen = matching[0][0]
-					puts "Resolved to id: #{methodIds[0]}" if debug_level >= DebugLevel::High
+				if ! matching.nil?
+					if matching.length == 1
+						chosen = matching[0][0]
+						puts "Resolved to id: #{methodIds[0]}" if debug_level >= DebugLevel::High
+					else
+						raise ArgumentError, "Ambiguous method call '#{methodStr}'"
+					end
 				end
 			end
 
