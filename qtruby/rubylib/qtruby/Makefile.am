@@ -1,4 +1,4 @@
-INCLUDES = $(all_includes) -I $(RUBY_ARCHDIR) -I$(top_srcdir)/smoke
+INCLUDES = -I$(top_srcdir)/smoke $(all_includes) -I$(RUBY_ARCHDIR)
 
 noinst_HEADERS = qtruby.h marshall.h smokeruby.h handlers.cpp Qt.cpp extconf.rb 
 
