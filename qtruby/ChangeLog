@@ -1,3 +1,10 @@
+2003-08-25  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Removed obsolete rb_enable_super() calls
+	* Removed test for _current_object in class_method_missing()
+	* Fixed missing index in signalInfo() method
+	* Added Qt scribble example - TODO add Qt::PaintDevice.bitBlt() calls to SMOKE runtime
+
 2003-08-23  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added rbuic tool for ruby Qt Designer support

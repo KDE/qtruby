@@ -271,7 +271,7 @@ module Qt
 		classname = qobject.class.name if qobject.class.is_a? Module
 		signals = Meta[classname].signals
                 signals.each_with_index {
-                        |signal|
+                        |signal, i|
                         matches = signal.sub(/\(.*/, '').include? signalName
 			return [signal, i] if matches
                 }

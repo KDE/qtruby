@@ -937,7 +937,6 @@ method_missing(int argc, VALUE * argv, VALUE self)
     // If the method can't be found allow the default method_missing
     //	to display an error message, by calling super on the method
     if (_current_method == -1) {
-	rb_enable_super(rb_cObject, rb_id2name(SYM2ID(argv[0])));
 	return rb_call_super(argc, argv);
     }
 
@@ -983,8 +982,7 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
 
     // If the method can't be found allow the default method_missing
     //	to display an error message, by calling super on the method
-    if (_current_method == -1 || !_current_object) {
-	rb_enable_super(rb_cObject, rb_id2name(SYM2ID(argv[0])));
+    if (_current_method == -1) {
 	return rb_call_super(argc, argv);
     }
 
@@ -1063,7 +1061,6 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	    fprintf(stderr, "FATAL ERROR: unresolved constructor call\n");
             exit(0);
 	} else {
-            rb_enable_super(rb_cObject, rb_id2name(SYM2ID(argv[0])));
             return rb_call_super(argc, argv);
         }
     }
@@ -2006,8 +2003,8 @@ Init_Qt()
     pointer_map = rb_hash_new();
     rb_gc_register_address(&pointer_map);
 
-    rb_include_module(qt_module, qt_internal_module);
-    rb_require("Qt/Qt.rb");
+	rb_include_module(qt_module, qt_internal_module);
+	rb_require("Qt/Qt.rb");
 
     // Do package initialization
     rb_funcall(qt_internal_module, rb_intern("init"), 0);
