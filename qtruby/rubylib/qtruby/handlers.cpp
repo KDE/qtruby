@@ -3,6 +3,7 @@
 #include <qapplication.h>
 #include <qmetaobject.h>
 #include <qvaluelist.h>
+#include <qcanvas.h>
 #include <private/qucomextra_p.h>
 
 #include "smoke.h"
@@ -778,6 +779,59 @@ void marshall_QStringList(Marshall *m) {
     }
 }
 
+void marshall_QCanvasItemList(Marshall *m) {
+    switch(m->action()) {
+      case Marshall::ToVALUE:
+	{
+	    QCanvasItemList *valuelist = (QCanvasItemList*)m->item().s_voidp;
+	    if(!valuelist) {
+		*(m->var()) = Qundef;
+		break;
+	    }
+
+	    VALUE av = rb_ary_new();
+
+	    int ix = m->smoke()->idClass( "QCanvasItem" );
+	    const char * className = m->smoke()->binding->className(ix);
+
+	    for(QValueListIterator<QCanvasItem*> it = valuelist->begin();
+		it != valuelist->end();
+		++it) {
+		QCanvasItem* t = *it;
+		void *p = *it;
+
+		if(m->item().s_voidp == 0) {
+		    *(m->var()) = Qundef;
+		    break;
+		}
+
+		VALUE obj = getPointerObject(p);
+		if(obj == Qnil) {
+		    smokeruby_object  * o = ALLOC(smokeruby_object);
+		    o->smoke = m->smoke();
+		    o->classId = m->type().classId();
+		    o->ptr = p;
+		    o->allocated = false;
+
+		    const char * classname = m->smoke()->binding->className(m->type().classId());
+		    obj = set_obj_info(classname, o);
+		}
+
+		rb_ary_push(av, obj);
+	    }
+
+	    if(m->cleanup())
+		delete valuelist;
+	    else
+	        *(m->var()) = av;
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
+    }
+}
+
 void marshall_QValueListInt(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE:
@@ -934,6 +988,9 @@ TypeHandler Qt_handlers[] = {
     { "QValueList<int>", marshall_QValueListInt },
     { "QValueList<int>*", marshall_QValueListInt },
     { "QValueList<int>&", marshall_QValueListInt },
+    { "QCanvasItemList", marshall_QCanvasItemList },
+    { "QCanvasItemList*", marshall_QCanvasItemList },
+    { "QCanvasItemList&", marshall_QCanvasItemList },
     { 0, 0 }
 };
 
