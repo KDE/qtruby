@@ -1114,10 +1114,27 @@ int main( int argc, char **argv )
     if (!e->param().isEmpty())
       rb << " "  <<" i ";
     rb << ")" << endl;
-//    rb << "    {" << endl;
+    rb << "        " << varName(n); 
+    if (!e->param().isEmpty()) rb << "[i]";
+    rb << " = findItem( \"";
+    if (!e->param().isEmpty()) {
+      rb << e->paramName().replace("$("+e->param()+")", "%s") << "\" % ";
+      if ( e->paramType() == "Enum" ) {
+        rb << " ";
+        if (globalEnums) 
+          rb << enumName(e->param()) << "ToString(i)";
+        else 
+          rb << enumName(e->param()) << "ToString(i)";
+      } else {
+        rb << "i";
+      }
+    } else {
+      rb << n << "\"";
+    }
+    rb << " ).property" << endl;
     rb << "        return " << varName(n);
     if (!e->param().isEmpty()) rb << "[i]";
-    if ( e->paramType() == "Enum" ) {
+    if ( e->type() == "Enum" ) {
 	  rb << ".toInt" << endl;
 	} else {
 	  rb << ".to" << itemType( e->type() ) << endl;
