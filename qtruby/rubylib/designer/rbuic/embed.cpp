@@ -161,7 +161,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	memcpy(e->colorTable, img.colorTable(), e->numColors*sizeof(QRgb));
 	QFileInfo fi( *it );
 	e->name = fi.fileName();
-	e->cname = QString("$image_%1").arg( image_count++);
+	e->cname = QString("@@image_%1").arg( image_count++);
 	list_image.append( e );
 	out << "# " << *it << endl;
         QString imgname = (const char *)e->cname;

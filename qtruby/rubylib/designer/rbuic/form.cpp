@@ -79,7 +79,7 @@ static QByteArray unzipXPM( QString data, ulong& length )
 
 static QString imageDataName(QString name) {
 	QString result = name + "_data";
-	result.replace("@", "$");
+	result.replace("@", "@@");
 	return result;
 }
 
