@@ -222,6 +222,7 @@ class QtShellControl < Qt::MainWindow
    attr_accessor :helpExampleAction, :comboBox, :sessionLog, :executedLines, :printer
    slots 'fileOpen()', 'fileOpen()', 'fileSave()', 'fileSaveAs()'
    slots 'filePrint()', 'fileExit()', 'helpExample()'
+   signals 'fileNeedsEval(QString)'
 
     def initialize(*k)
         super(*k)
@@ -229,15 +230,15 @@ class QtShellControl < Qt::MainWindow
         image1 = Qt::Pixmap.new($image1_data)
         image2 = Qt::Pixmap.new($image2_data)
         image3 = Qt::Pixmap.new($image3_data)
-        box = VBox.new(self);
+        box = VBox.new(self)
         @sessionLog = TextEdit.new(box, "sessionLog")
         @sessionLog.setTextFormat(Qt::RichText)
-        @sessionLog.setReadOnly(1)
+        @sessionLog.setReadOnly(true)
         @comboBox = ComboBox.new(box, "comboBox")
-        @comboBox.setEditable(1)
-        @comboBox.setAutoCompletion(1)
+        @comboBox.setEditable(true)
+        @comboBox.setAutoCompletion(true)
         self.setCentralWidget(box)
-        comboBox.setFocus
+        @comboBox.setFocus
         self.resize(500,300)
         self.setCaption("PerlQt Shell")
         def trUtf8(k)
@@ -421,7 +422,6 @@ sub filePrint
         statusBar()->message( "Printing aborted", 3000 );
     }  
 }
-
 =end
 
     def fileExit
@@ -460,106 +460,92 @@ sub filePrint
 
 end
 
-=begin
+class QtShell < Qt::MainWindow
+    slots 'evalInput()', 'evalFile(String)'
+    attr_accessor :shellWindow
 
-package QtShell;
+def initialize(*k)
+    super(*k)
 
-use Qt;
-use Qt::isa qw(Qt::MainWindow);
-use Qt::slots
-    evalInput=>[],
-    evalFile=>[QString];
-use Qt::attributes qw(
-    shellWindow
-);
-use QtShellControl;   
+    @shellWindow = QtShellControl.new(nil, "shellWindow")
+    self.resize(350,350)
+    self.move(Point.new(10,10))
+    @shellWindow.move(Point.new(300,200))
+    self.show
+    @shellWindow.show
 
-sub NEW
-{
-    shift->SUPER::NEW(@_);
+    connect(@shellWindow.comboBox.lineEdit, SIGNAL('returnPressed()'), self, SLOT('evalInput()'))
 
-    shellWindow = QtShellControl(undef, "shellWindow");
-    this->resize(350,350);
-    this->move(Point(10,10));
-    shellWindow->move(Point(300,200));
-    this->show;
-    shellWindow->show;
+    @prompt = '<b><font color="blue">$&gt;</font></b>'
+    self.setCaption("MainWindow - this")
+    @shellWindow.sessionLog.setText("Ready.<br>")
+    connect(@shellWindow, SIGNAL('fileNeedsEval(QString)'), self, SLOT('evalFile(QString)'))
+end
 
+def logAppend(str)
+    tmp = @shellWindow.sessionLog.text << str
+    @shellWindow.sessionLog.setText str
+end
 
-    this->connect(shellWindow->comboBox->lineEdit, SIGNAL 'returnPressed()', SLOT 'evalInput()');
-    this->{'prompt'} = '<b><font color="blue">$&gt;</font></b>';
-    setCaption("MainWindow - this");
-    shellWindow->sessionLog->setText("Ready.<br>");
-    Qt::Object::connect(shellWindow, SIGNAL 'fileNeedsEval(QString)', this, SLOT 'evalFile(QString)');
-}
+def evalInput
+    evalOneLine @shellWindow.comboBox.currentText
+end
 
-sub logAppend
-{
-    shellWindow->sessionLog->setText( shellWindow->sessionLog->text . shift )
-}
+def evalOneLine(line)
+    prot = ln = line
+    prot.gsub('<', '&lt;') # /gs ???
+    prot.gsub('>', '&gt;') # /gs ???
 
-sub evalInput
-{
-    evalOneLine( shellWindow->comboBox->currentText );
-}
+    logAppend( "${@prompt}#{prot}<br>" )
 
-sub evalOneLine
-{
-    my $prot = my $ln = shift;
-    $prot =~ s/</&lt;/gs;
-    $prot =~ s/>/&gt;/gs;    
-    logAppend( this->{'prompt'}. "$prot<br>" );
-    {
-      no strict;
-      eval $ln;
-    }
-    if($@)
-    {
-        my $prot = $@ ;
-        $prot =~ s/</&lt;/gs;
-        $prot =~ s/>/&gt;/gs;    
-        my $c = shellWindow->sessionLog->color;
-        $prot =~ s/\n/<br>/gs;
-        logAppend('<font color="red">'.$prot.'</font><br>');
-        shellWindow->sessionLog->setColor( $c );
-    }
+    stdout_was = $stdout
+    begin
+        eval line
+    rescue NameError, NoMethodError
+        prot = $@ # HUH?
+        prot.gsub('<', '&lt;') # /gs ???
+        prot.gsub('>', '&gt;') # /gs ???
+        c = @shellWindow.sessionLog.color
+        prot.grub('\n', '<br>') # /gs ???
+        logAppend '<font color="red">' << prot << '</font><br>'
+        shellWindow.sessionLog.setColor c
     else
-    {        
-        push @{ shellWindow()->{'executedLines'} }, $ln;
-        shellWindow->comboBox->clearEdit;
-        shellWindow->comboBox->setFocus;
-    }   
-    shellWindow->sessionLog->scrollToBottom
-}
+        @shellWindow.executedLines << line
+        @shellWindow.comboBox.clearEdit
+        @shellWindow.comboBox.setFocus
+    end
+    $stdout = stdout_was
 
-sub evalFile
-{
-    my $fn = shift;
-    my $fh;
-    if($fn eq "__DATA__")
-    {
-        $fh = \*::DATA
-    }
+    @shellWindow.sessionLog.scrollToBottom
+end
+
+def evalFile(fname)
+    if fname == "__DATA__"
+        indata = $example
     else
-    {
-        open($fh, $fn) or do {
-            Qt::MessageBox::warning ( 
-                this, 
+        file = File.open(fname, "r")
+        if file.nil?
+            # TODO use $! -> error message!
+            Qt::MessageBox::warning(
+                self, 
                 "Error" , 
-                "Couldn't open $fn: $!", 
-                &Qt::MessageBox::Ok, 
-                &Qt::MessageBox::NoButton );
+                "Couldn't open @{$fn}: $!", 
+                Qt::MessageBox::Ok, 
+                Qt::MessageBox::NoButton)
             return
-        };
+        end
+        indata = file
+    end
+    file.each_line {
+        |line| 
+        evalOneLine(line)    
     }
-    while(<$fh>)
-    {
-        evalOneLine($_)    
-    }
-    close $fh
-}
+    file.close
+end
 
-1;
+end
+
+=begin
 
 package Qt::TextHandle;
 
@@ -587,10 +573,8 @@ sub UNTIE  { }
 =end
 
 app = Qt::Application.new(ARGV)
-#w = QtShell(nil, "mainWindow")
-shellWindow = QtShellControl.new(nil, "shellWindow")
-shellWindow.show
-app.setMainWidget(shellWindow)
+w = QtShell.new(nil, "mainWindow")
+app.setMainWidget(w.shellWindow)
 app.exec
 
 #tie *STDOUT, 'Qt::TextHandle', $shw->sessionLog, 'black';
@@ -598,19 +582,19 @@ app.exec
 
 BEGIN {
 $example = <<EXAMPLE
-statusBar()->message("Hello World !");
-use Qt::attributes qw|datetime button textedit sample vbox| ;
-vbox = VBox(this);
-datetime = DateTimeEdit(vbox);
-textedit = Qt::TextEdit(vbox);
-button = PushButton("Hello World!", vbox) ;
-this->setCentralWidget(vbox);
-resize(220,240);
-vbox->show;
-sample = Qt::PopupMenu( this );
-use Qt::slots 'there' => [];
-sample->insertItem("&There", this, SLOT 'there()');
-menuBar()->insertItem("&Here", sample);
-sub there { statusBar()->message("There...", 2000) };
+attr_accessor :datetime, :button, :textedit, :sample, :vbox
+statusBar.message("Hello World !")
+@vbox = VBox.new(self)
+@datetime = DateTimeEdit.new(vbox)
+@textedit = TextEdit.new(vbox)
+@button = PushButton.new("Hello World!", vbox)
+self.setCentralWidget(vbox)
+self.resize(220,240)
+@vbox->show
+sample = Qt::PopupMenu.new(self)
+slots 'there()'
+@sample.insertItem("&There", this, SLOT('there()'))
+@menuBar.insertItem("&Here", sample)
+def there; statusBar.message("There...", 2000); end
 EXAMPLE
 }
