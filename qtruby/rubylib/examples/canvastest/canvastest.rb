@@ -16,7 +16,7 @@ end
 
 p1 = Qt::Point.new(5,5)
 p2 = Qt::Point.new(20,20)
-puts "#{p1} + #{p2} == #{Qt::FriendOperators.+(p1, p2)}"
+puts "#{p1} + #{p2} == #{p1 + p2}"
 
 exit
 

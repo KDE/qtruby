@@ -4,6 +4,7 @@ module Qt
 		Classes	= Hash.new
 		CppName	= Hash.new
 		IdClass	= Array.new
+		Operators = Hash.new { [] }
 		
 		def init_class(c)
 			classname = c.sub(/^Q/, 'Qt::')			
@@ -94,7 +95,7 @@ module Qt
 		end
 
 		def do_method_missing(package, method, klass, this, *args)
-    
+
 			classname = CppName[klass.name]
 			if classname.nil? and klass != Object
 				do_method_missing(package, method, klass.superclass, this, *args)
@@ -118,7 +119,7 @@ module Qt
 				end
 			end
 
-                        methodStr = method + method_argstr
+			methodStr = method + method_argstr
 			methodIds = findMethod(classname, methodStr)
 			if methodIds.length > 1
 				for i in 0..(args.length - 1)
@@ -132,10 +133,26 @@ module Qt
 					end
 				end
 			end
+			chosen = methodIds[0]
 
-			setCurrentMethod(methodIds[0] || -1)
+			if chosen.nil?
+				methodStr = method + "#" + method_argstr
+			        methodIds = Operators[ClassAndMethod.new(classname, methodStr)]
+				methodIds.flatten.each {
+				    |id|
+				    argtype = getVALUEtype(args[0])
+				    chosen = id if checkarg(argtype, id, 0)
+				}
+				unless chosen.nil?
+				    return FriendOperators.send(method, this, *args)
+				end
+			end
+                        
+                        setCurrentMethod(chosen || -1)
 			return nil
 		end
+
+		ClassAndMethod = Struct.new(:class, :method)
 		
 		def init()
 			classes = getClassList()
@@ -147,6 +164,18 @@ module Qt
 					init_class(c)
 				end
 			end
+			classid = find_pclassid("Qt::FriendOperators")
+			findAllMethods(classid).each_pair {
+			    |name, ids|
+			    ids.each {
+				|id| 
+				typename = getTypeNameOfArg(id, 0)
+				t = typename.sub(/^const\s+/, '')
+				t.sub!(/[&*]$/, '')
+				# maybe we can do left side primitive types but only when right side is non primitive?
+				Operators[ClassAndMethod.new(t, name)] += [ids]
+			    }
+			}
 		end
 	end
 
