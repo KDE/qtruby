@@ -79,6 +79,21 @@ KDE Specific Infomation:
 		
 		If the dcop slot has a 'void' or 'ASYNC' type, the result will be true
 		if the call succeeds or nil if it fails
+		
+		You can set a dcop attribute like this, instead of calling 
+		'parrot.setAge(9)':
+		
+		parrot.age = 9
+		
+		Or with error checking:
+		
+		result = parrot.age = 9
+		if result.nil?
+			puts "DCOP call failed"
+		else
+			puts "DCOP call succeeded"
+			puts "age: #{age}"
+		end
 
 	- Send to a DCOPRef is similar:
 	    
