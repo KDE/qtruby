@@ -698,8 +698,8 @@ void marshall_QStringList(Marshall *m) {
 
 			int count = RARRAY(list)->len;
 			QStringList *stringlist = new QStringList;
-			long i;
-			for(i = 0; i <= count; i++) {
+
+			for(long i = 0; i <= count; i++) {
 				VALUE item = rb_ary_entry(list, i);
 				if(TYPE(item) != T_STRING) {
 					stringlist->append(QString());
@@ -731,8 +731,10 @@ void marshall_QStringList(Marshall *m) {
 				VALUE rv = rb_str_new2((const char *)(*it).latin1());
 				rb_ary_push(av, rv);
 			}
+
 			if(m->cleanup())
 				delete stringlist;
+
 			break;
 		}
 		default: {
