@@ -713,7 +713,7 @@ init_codec() {
 	}
 }
 
-static QString* 
+QString* 
 qstringFromRString(VALUE rstring) {
 	if (KCODE == 0) {
 		init_codec();
@@ -733,7 +733,7 @@ qstringFromRString(VALUE rstring) {
 	return s;
 }
 
-static VALUE 
+VALUE 
 rstringFromQString(QString * s) {
 	if (KCODE == 0) {
 		init_codec();
@@ -1620,7 +1620,9 @@ TypeHandler Qt_handlers[] = {
     { "QCanvasItemList*", marshall_QCanvasItemList },
     { "QCanvasItemList&", marshall_QCanvasItemList },
     { "QMap<QString,QString>", marshall_QMapQStringQString },
+    { "QMap<QString,QString>&", marshall_QMapQStringQString },
     { "QMap<QString,QVariant>", marshall_QMapQStringQVariant },
+    { "QMap<QString,QVariant&>", marshall_QMapQStringQVariant },
 #if QT_VERSION >= 0x030200
     { "QWidgetList", marshall_QWidgetList },
     { "QWidgetList*", marshall_QWidgetList },

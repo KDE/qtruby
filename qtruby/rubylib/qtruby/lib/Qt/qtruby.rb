@@ -566,12 +566,13 @@ module Qt
 
 	def getMocArguments(member)
 		argStr = member.sub(/.*\(/, '').sub(/\)$/, '')
-		args = argStr.scan(/[^,]+/)
+		args = argStr.scan(/([^,]*<[^>]+>)|([^,]+)/)
 		mocargs = allocateMocArguments(args.length)
                 args.each_with_index {
                         |arg, i|
+			arg = arg.to_s
 			a = arg.sub(/^const\s+/, '')
-	    	        a = (a =~ /^(bool|int|double|char\*|QString)&?$/) ? $1 : 'ptr'
+			a = (a =~ /^(bool|int|double|char\*|QString)&?$/) ? $1 : 'ptr'
 			valid = setMocType(mocargs, i, arg, a)
                 }
 		result = []
