@@ -356,6 +356,13 @@ module KDE
 			n += 1
 		end
 	end
+	
+	class Application
+		def initialize(*k)
+			super
+			$kapp = self
+		end
+	end
 end
 
 class Module
