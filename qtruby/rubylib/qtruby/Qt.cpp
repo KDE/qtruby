@@ -852,11 +852,12 @@ cast_object_to(VALUE /*self*/, VALUE object, VALUE new_klassname)
 
     smokeruby_object *o_cast = (smokeruby_object *) malloc(sizeof(smokeruby_object));
     memcpy(o_cast, o, sizeof(smokeruby_object));
-    // o->ptr = 0;
     o_cast->allocated = false;
-    o_cast->classId = o->smoke->idClass(blah);
+    int cast_to_id = o->smoke->idClass(blah);
+    o_cast->ptr = o->smoke->cast(o_cast->ptr, o_cast->classId, cast_to_id);
+    o_cast->classId = cast_to_id;
 
-    VALUE obj = Data_Wrap_Struct(klass, 0, 0, (void *) o_cast);
+    VALUE obj = Data_Wrap_Struct(klass, 0, free, (void *) o_cast);
     mapPointer(obj, o_cast, o_cast->classId, 0);
     return obj;
 }
