@@ -98,6 +98,7 @@ VALUE qt_qmetaobject_class = Qnil;
 VALUE kconfigskeleton_class = Qnil;
 VALUE kconfigskeleton_itemenum_class = Qnil;
 VALUE kconfigskeleton_itemenum_choice_class = Qnil;
+VALUE kio_udsatom_class = Qnil;
 bool application_terminated = FALSE;
 };
 
@@ -2315,38 +2316,42 @@ static VALUE
 kde_package_to_class(const char * package)
 {
 	VALUE klass = Qnil;
+	QString packageName(package);
 	
-	if (QString(package).startsWith("KDE::ConfigSkeleton::ItemEnum::")) {
+	if (packageName.startsWith("KDE::ConfigSkeleton::ItemEnum::")) {
 		klass = rb_define_class_under(kconfigskeleton_itemenum_class, package+strlen("KDE::ConfigSkeleton::EnumItem::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 		kconfigskeleton_itemenum_choice_class = klass;
-	} else if (QString(package).startsWith("KDE::ConfigSkeleton::")) {
+	} else if (packageName.startsWith("KDE::ConfigSkeleton::")) {
 		klass = rb_define_class_under(kconfigskeleton_class, package+strlen("KDE::ConfigSkeleton::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 		rb_define_method(klass, "immutable?", (VALUE (*) (...)) _kconfigskeletonitem_immutable, 0);
 		rb_define_method(klass, "isImmutable", (VALUE (*) (...)) _kconfigskeletonitem_immutable, 0);
-	} else if (QString(package).startsWith("KDE::")) {
+	} else if (packageName.startsWith("KDE::")) {
 		klass = rb_define_class_under(kde_module, package+strlen("KDE::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
-	} else if (QString(package).startsWith("KParts::")) {
+	} else if (packageName.startsWith("KParts::")) {
 		klass = rb_define_class_under(kparts_module, package+strlen("KParts::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
-	} else if (QString(package).startsWith("KIO::")) {
+	} else if (packageName.startsWith("KIO::")) {
 		klass = rb_define_class_under(kio_module, package+strlen("KIO::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
-	} else if (QString(package).startsWith("khtml::")) {
+		if (packageName == "KIO::UDSAtom") {
+			kio_udsatom_class = klass;
+		}
+	} else if (packageName.startsWith("khtml::")) {
 		klass = rb_define_class_under(khtml_module, package+strlen("khtml::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
-	} else if (QString(package).startsWith("DOM::")) {
+	} else if (packageName.startsWith("DOM::")) {
 		klass = rb_define_class_under(dom_module, package+strlen("DOM::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
-	} else if (QString(package).startsWith("Kontact::")) {
+	} else if (packageName.startsWith("Kontact::")) {
 		klass = rb_define_class_under(kontact_module, package+strlen("Kontact::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
-	} else if (QString(package).startsWith("Kate::")) {
+	} else if (packageName.startsWith("Kate::")) {
 		klass = rb_define_class_under(kate_module, package+strlen("Kate::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
-	} else if (QString(package).startsWith("KTextEditor::")) {
+	} else if (packageName.startsWith("KTextEditor::")) {
 		klass = rb_define_class_under(ktexteditor_module, package+strlen("KTextEditor::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	}
