@@ -683,11 +683,8 @@ static void marshall_charP(Marshall *m) {
                 m->item().s_voidp = 0;
                 break;
 	    }
-	    if(m->cleanup()) {
-                m->item().s_voidp = StringValuePtr(rv);
-	    } else {
-                m->item().s_voidp = StringValuePtr(rv);
-	    }
+		
+        m->item().s_voidp = StringValuePtr(rv);
 	}
 	break;
       case Marshall::ToVALUE:
@@ -716,11 +713,8 @@ void marshall_ucharP(Marshall *m) {
 		m->item().s_voidp = 0;
 		break;
 	    }
-	    if(m->cleanup()) {
-                m->item().s_voidp = StringValuePtr(rv);
-	    } else {
-                m->item().s_voidp = StringValuePtr(rv);
-	    }
+		
+        m->item().s_voidp = StringValuePtr(rv);
 	}
 	break;
       case Marshall::ToVALUE:
@@ -984,6 +978,56 @@ static void marshall_QCOORD_array(Marshall *m) {
 	break;
       default:
 	m->unsupported();
+    }
+}
+
+static void marshall_longlong(Marshall *m) {
+    switch(m->action()) {
+      case Marshall::FromVALUE:
+	{
+	    m->item().s_voidp = new long long;
+	    *(long long *)m->item().s_voidp = rb_num2ll(*(m->var()));
+		
+	    m->next();
+		
+	    if(m->cleanup()) {
+			delete (long long *) m->item().s_voidp;
+		}
+	}
+	break;
+      case Marshall::ToVALUE:
+	{
+	    *(m->var()) = rb_ll2inum(*(long long *) m->item().s_voidp);
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
+    }
+}
+
+static void marshall_ulonglong(Marshall *m) {
+    switch(m->action()) {
+      case Marshall::FromVALUE:
+	{
+	    m->item().s_voidp = new unsigned long long;
+	    *(long long *)m->item().s_voidp = rb_num2ull(*(m->var()));
+		
+	    m->next();
+		
+	    if(m->cleanup()) {
+			delete (unsigned long long *) m->item().s_voidp;
+		}
+	}
+	break;
+      case Marshall::ToVALUE:
+	{
+	    *(m->var()) = rb_ull2inum(*(unsigned long long *) m->item().s_voidp);
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
     }
 }
 
@@ -1731,6 +1775,12 @@ TypeHandler Qt_handlers[] = {
     { "QStrList", marshall_QStrList },
     { "QStrList&", marshall_QStrList },
     { "QStrList*", marshall_QStrList },
+    { "long long int", marshall_longlong },
+    { "long long int&", marshall_longlong },
+    { "Q_INT64", marshall_longlong },
+    { "unsigned long long int", marshall_ulonglong },
+    { "unsigned long long int&", marshall_ulonglong },
+    { "Q_UINT64", marshall_ulonglong },
     { "int&", marshall_intR },
     { "int*", marshall_intR },
     { "bool&", marshall_boolR },
