@@ -1,1 +1,1 @@
-SUBDIRS = korundum
+SUBDIRS = korundum rbkconfig_compiler
