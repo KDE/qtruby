@@ -63,8 +63,8 @@ extern void init_qt_Smoke();
 extern void smokeruby_mark(void * ptr);
 extern void smokeruby_free(void * ptr);
 
-int do_debug = qtdb_none;
-//int do_debug = qtdb_gc | qtdb_virtual;
+// int do_debug = qtdb_none;
+int do_debug = qtdb_gc | qtdb_virtual;
 
 QPtrDict<VALUE> pointer_map(2179);
 int object_count = 0;
@@ -207,6 +207,9 @@ void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *last
 	if (do_debug & qtdb_gc) {
 		printf("mapPointer %p -> %p\n", ptr, obj_ptr);
 	}
+	// TODO: fix this should be a weak ref, but make a strong ref to the object for now
+	rb_gc_register_address(&obj);
+	
 	pointer_map.insert(ptr, obj_ptr);
     }
     for(Smoke::Index *i = o->smoke->inheritanceList + o->smoke->classes[classId].parents;
