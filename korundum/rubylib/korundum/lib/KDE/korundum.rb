@@ -323,16 +323,6 @@ module KDE
 		end
 	end
 	
-	# Delete the underlying C++ instance after exec returns
-	# Otherwise, rb_gc_call_finalizer_at_exit() can delete
-	# stuff that KDE::Application still needs for its cleanup.
-	class Application
-		def exec
-			super
-			self.dispose
-		end
-	end
-	
 	def CmdLineArgs::init(*k)
 		if k.length > 0 and k[0].kind_of?(Array)
 			# If init() is passed an array as the first argument, assume it's ARGV.
@@ -372,12 +362,29 @@ module KDE
 			super
 			$kapp = self
 		end
+		
+		# Delete the underlying C++ instance after exec returns
+		# Otherwise, rb_gc_call_finalizer_at_exit() can delete
+		# stuff that KDE::Application still needs for its cleanup.
+		def exec
+			super
+			widgets = topLevelWidgets
+			widgets.each {|widget| widget.dispose}
+			self.dispose
+		end
 	end
 	
 	class UniqueApplication
 		def initialize(*k)
 			super
 			$kapp = self
+		end
+		
+		def exec
+			super
+			widgets = topLevelWidgets
+			widgets.each {|widget| widget.dispose}
+			self.dispose
 		end
 	end
 end

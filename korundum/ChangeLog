@@ -1,3 +1,10 @@
+2004-10-06  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * When a Korundum application exits, the top level widgets are now destroyed
+   as well as the KDE::Application itself. This fixes a problem where the ruby garbage
+   collection frees instances in an arbitrary order afer the program has exited, and
+   destroys a Hash containing QMetaData info needed for tidying up.
+
 2004-10-04  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * When a ruby app exits, rb_gc_call_finalizer_at_exit() is called and all the ruby
