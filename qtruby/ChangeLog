@@ -1,3 +1,10 @@
+2004-12-10  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * Added inspect() and pretty_print() methods for Qt::SizePolicy
+ * Greatly improved the Qt::Object Qt property based inspect() and pretty_print()
+   methods. Property types such as Qt::Point, Qt::Font and Qt::Rect can be 
+   viewed as expandable items in the KDevelop debugger variable tree.
+
 2004-12-09  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * More inspect() and pretty_print() methods for common classes to improve debugging -

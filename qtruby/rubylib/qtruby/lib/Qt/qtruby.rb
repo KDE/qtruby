@@ -148,12 +148,12 @@ module Qt
 	class Font < Qt::Base
 		def inspect
 			str = super
-			str.sub(/>$/, " family=%s, pointSize=%d, weight=%d, italic=%s, bold=%s>" % [family, pointSize, weight, italic, bold])
+			str.sub(/>$/, " family=%s, pointSize=%d, weight=%d, italic=%s, bold=%s>" % [family.inspect, pointSize, weight, italic, bold])
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, "\n family=%s,\n pointSize=%d,\n weight=%d,\n italic=%s,\n bold=%s>" % [family, pointSize, weight, italic, bold])
+			pp.text str.sub(/>$/, "\n family=%s,\n pointSize=%d,\n weight=%d,\n italic=%s,\n bold=%s>" % [family.inspect, pointSize, weight, italic, bold])
 		end
 	end
 	
@@ -190,6 +190,18 @@ module Qt
 		def pretty_print(pp)
 			str = to_s
 			pp.text str.sub(/>$/, "\n width=%d,\n height=%d>" % [width, height])
+		end
+	end
+	
+	class SizePolicy < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " horData=%d, verData=%d>" % [horData, verData])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n horData=%d,\n verData=%d>" % [horData, verData])
 		end
 	end
 	

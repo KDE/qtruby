@@ -940,6 +940,102 @@ VALUE prettyPrintMethod(Smoke::Index id)
 
 //---------- Ruby methods (for all functions except fully qualified statics & enums) ---------
 
+// Takes a variable name and a QVariant, and returns a 'variable=value' pair with the
+// value in ruby inspect style
+static QCString
+inspectVariant(const char * name, QVariant value)
+{
+	switch (value.type()) {
+	case QVariant::String:
+	case QVariant::CString:
+	{
+		if (value.toString().isNull()) {
+			return QCString().sprintf(	" %s=nil", name); 
+		} else {
+			return QCString().sprintf(	" %s=\"%s\"", 
+										name, 
+										value.toString().latin1() );
+		}
+	}
+		
+	case QVariant::Bool:
+	{
+		QString rubyName;
+		QRegExp name_re("^(is|has)(.)(.*)");
+		
+		if (name_re.search(name) != -1) {
+			rubyName = name_re.cap(2).lower() + name_re.cap(3) + "?";
+		} else {
+			rubyName = name;
+		}
+		
+		return QCString().sprintf(" %s=%s", rubyName.latin1(), value.toString().latin1());
+	}
+		
+	case QVariant::Double:
+	{
+		return QCString().sprintf(" %s=%.4f", name, value.toDouble());
+	}
+	
+	case QVariant::Font:
+	{
+		QFont f = value.toFont();
+		return QCString().sprintf(	" %s=#<Qt::Font:0x0 family=%s, pointSize=%d, weight=%d, italic=%s, bold=%s>", 
+									name, 
+									f.family().latin1(), f.pointSize(), f.weight(), 
+									f.italic() ? "true" : "false", f.bold() ? "true" : "false" );
+	}
+	
+	case QVariant::Point:
+	{
+		QPoint p = value.toPoint();
+		return QCString().sprintf(	" %s=#<Qt::Point:0x0 x=%d, y=%d>", 
+									name, 
+									p.x(), p.y() );
+	}
+	
+	case QVariant::Rect:
+	{
+		QRect r = value.toRect();
+		return QCString().sprintf(	" %s=#<Qt::Rect:0x0 left=%d, right=%d, top=%d, bottom=%d>", 
+									name, 
+									r.left(), r.right(), r.top(), r.bottom() );
+	}
+	
+	case QVariant::Size:
+	{
+		QSize s = value.toSize();
+		return QCString().sprintf(	" %s=#<Qt::Size:0x0 width=%d, height=%d>", 
+									name, 
+									s.width(), s.height() );
+	}
+	
+	case QVariant::SizePolicy:
+	{
+		QSizePolicy s = value.toSizePolicy();
+		return QCString().sprintf(	" %s=#<Qt::SizePolicy:0x0 horData=%d, verData=%d>", 
+									name, 
+									s.horData(), s.verData() );
+	}
+	
+	case QVariant::Brush:
+	case QVariant::ColorGroup:
+	case QVariant::Cursor:
+	case QVariant::Image:
+	case QVariant::Palette:
+	case QVariant::Pixmap:
+	case QVariant::Region:
+	{
+		return QCString().sprintf(" %s=#<Qt::%s:0x>", name, value.typeName() + 1);
+	}
+	
+	default:
+		return QCString().sprintf(	" %s=%s", 
+									name, 
+									(value.isNull() || value.toString().isNull()) ? "nil" : value.toString().latin1() );
+	}
+}
+
 // Retrieves the properties for a QObject and returns them as 'name=value' pairs
 // in a ruby inspect string. For example:
 //
@@ -968,15 +1064,13 @@ inspect_qobject(VALUE self)
 	const char * name = names.first();
 	if (name != 0) {
 		value = qobject->property(name);
-		value_list.append(	QCString().sprintf(	" %s=%s", 
-												name, 
-												(value.isNull() || value.toString().isNull()) ? "nil" : value.toString().latin1() ) );
+		value_list.append(" "); 
+		value_list.append(inspectVariant(name, value)); 
 	
 		for (name = names.next(); name != 0; name = names.next()) {
 			value = qobject->property(name);
-			value_list.append(	QCString().sprintf(	", %s=%s", 
-													name, 
-													(value.isNull() || value.toString().isNull()) ? "nil" : value.toString().latin1() ) );
+			value_list.append(", "); 
+			value_list.append(inspectVariant(name, value)); 
 		}
 	}
 	
@@ -1019,14 +1113,14 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	const char * name = names.first();
 	if (name != 0) {
 		QVariant value = qobject->property(name);
-		temp.sprintf(" %s=%s", name, (value.isNull() || value.toString().isNull()) ? "nil" : value.toString().latin1());
+		temp = " " + inspectVariant(name, value);
 		rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(temp.data()));
 	
 		for (name = names.next(); name != 0; name = names.next()) {
 			rb_funcall(pp, rb_intern("comma_breakable"), 0);
 						
 			value = qobject->property(name);
-			temp.sprintf(" %s=%s", name, (value.isNull() || value.toString().isNull()) ? "nil" : value.toString().latin1());
+			temp = " " + inspectVariant(name, value);
 			rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(temp.data()));
 		}
 	}
