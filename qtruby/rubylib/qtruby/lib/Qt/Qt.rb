@@ -235,7 +235,7 @@ module Qt
 						chosen = matching[0][0]
 						puts "Resolved to id: #{methodIds[0]}" if debug_level >= DebugLevel::High
 					else
-						raise ArgumentError, "Ambiguous method call '#{methodStr}'"
+						raise ArgumentError, "Ambiguous method call '#{method}'"
 					end
 				end
 			end
