@@ -115,12 +115,14 @@ module Qt
 
 		def normalize_classname(classname)
 			if classname =~ /^Q/
-				classname.sub(/^Q(?=[A-Z])/,'Qt::')
+				now = classname.sub(/^Q(?=[A-Z])/,'Qt::')
 			elsif classname !~ /::/
-				classname.sub(/^K?(?=[A-Z])/,'KDE::')
+				now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
 			else
-				classname
+				now = classname
 			end
+			# puts "normalize_classname = was::#{classname}, now::#{now}"
+			now
 		end
 
 		def init_class(c)
@@ -238,7 +240,10 @@ module Qt
 					return nil
 				end
 			end
-			method = classname.dup if method == "new"
+			if method == "new"
+			    method = classname.dup 
+			    method.gsub!(/^(KParts|KIO|khtml|DOM)::/,"")
+			end
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
 			# Change foobar= to setFoobar()					
 			method = 'set' + method[0,1].upcase + method[1,method.length].sub("=", "") if method =~ /.*[^-+%\/|]=$/
