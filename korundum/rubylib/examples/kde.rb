@@ -12,20 +12,22 @@ a = KDE::Application.new()
 
 # Qt.debug_level = Qt::DebugLevel::High
 
-class MyBase < Qt::HBox
+class MyBase < Qt::VBox
    HOME = KDE::URL.new "http://www.gentoo.org/"
    slots "go_back()", "go_forward()", "goto_url()", "go_home()"
    attr_accessor :back, :forward, :url
    def initialize *k
       super *k
+      buttons = Qt::HBox.new self
+      @w = KDE::HTMLPart.new self
       @history = []
       @popped_history = []
       @url     = KDE::URL.new "http://www.gentoo.org/"
-      @forward = KDE::PushButton.new(self) { setText "Forward" }
-      @back    = KDE::PushButton.new(self) { setText "Back" }
-      @home    = KDE::PushButton.new(self) { setText "Home" }
-      @label   = Qt::Label.new(self)
-      @location = Qt::LineEdit.new(self)
+      @forward = KDE::PushButton.new(buttons) { setText "Forward" }
+      @back    = KDE::PushButton.new(buttons) { setText "Back" }
+      @home    = KDE::PushButton.new(buttons) { setText "Home" }
+      @label   = Qt::Label.new(buttons)
+      @location = Qt::LineEdit.new(buttons)
       Qt::Object.connect( @back,    SIGNAL( "clicked()" ),
                           self,     SLOT(   "go_back()" ) )
       Qt::Object.connect( @forward, SIGNAL( "clicked()" ),
@@ -34,24 +36,27 @@ class MyBase < Qt::HBox
                           self,     SLOT(   "go_home()" ) )
       Qt::Object.connect( @location,SIGNAL( "returnPressed()" ),
                           self,     SLOT(   "goto_url()" ) )
-      update_history
+      load_page
+      update_ui_elements
    end
-   def update_history
+   def load_page
+      @w.openURL @url
+      self.resize 500,400
+      @w.show
+   end
+   def update_ui_elements
       @forward.setDisabled @popped_history.empty?
       @back.setDisabled    @history.empty?
    end
    def go_back
       fail "ummm... already at the start, gui bug" if @history.empty?
-      @url = @history.pop; update_history
+      goto_url @history.pop, false
       @popped_history << @url
-      @label.setText " < going somewhere - #{@url.prettyURL}"
       update_loc
    end
    def go_forward
       fail "ummm... already at the end, gui bug" if @popped_history.empty?
-      @url = @popped_history.pop
-      @history << @url; update_history
-      @label.setText " > going somewhere - #{@url.prettyURL}"
+      goto_url @popped_history.pop
       update_loc
    end
    def update_loc
@@ -60,26 +65,21 @@ class MyBase < Qt::HBox
    def go_home
       goto_url HOME
    end
-   def goto_url url = nil
+   def goto_url url = nil, history_store = true
       @popped_history = []
       @url = KDE::URL.new (url.nil? ? @location.text : url)
       @label.setText "going somewhere - #{@url.prettyURL}"
-      @history << @url; update_history
+      if history_store
+         @history << @url
+         update_ui_elements
+      end
+      load_page
       update_loc unless url.nil?
    end
 end
 
-browser = Qt::VBox.new
-
-blah = MyBase.new browser
+browser = MyBase.new
 browser.show
-
-url = KDE::URL.new "http://www.gentoo.org"
-w = KDE::HTMLPart.new browser
-w.openURL url
-w.view.resize 500, 400
-w.show
-
 a.setMainWidget(browser)
 a.exec()
 
