@@ -1067,10 +1067,10 @@ inspect_qobject(VALUE self)
 	}
 	
 	// Start with #<Qt::HBoxLayout:0x30139030> from the original inspect() call
-	VALUE inspect_str = rb_call_super(0, 0);
-	
 	// Drop the closing '>'
+	VALUE inspect_str = rb_call_super(0, 0);	
 	rb_str_resize(inspect_str, RSTRING(inspect_str)->len - 1);
+	
 	smokeruby_object * o = 0;
     Data_Get_Struct(self, smokeruby_object, o);	
 	QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
@@ -1081,6 +1081,24 @@ inspect_qobject(VALUE self)
 	if (qobject->children() != 0) {
 		value_list.append(QCString().sprintf(" children=Array (%d element(s)), ", qobject->children()->count())); 
 	}
+		
+	value_list.append(" metaObject=#<Qt::MetaObject:0x0");
+	
+	value_list.append(QCString().sprintf(" className=%s", qobject->metaObject()->className())); 
+	
+	if (qobject->metaObject()->superClass() != 0) {
+		value_list.append(QCString().sprintf(", superClass=%s", qobject->metaObject()->superClass()));
+	}		
+	
+	if (qobject->metaObject()->numSignals() > 0) {
+		value_list.append(QCString().sprintf(", signalNames=Array (%d element(s))", qobject->metaObject()->numSignals()));
+	}		
+	
+	if (qobject->metaObject()->numSlots() > 0) {
+		value_list.append(QCString().sprintf(", slotNames=Array (%d element(s))", qobject->metaObject()->numSlots()));
+	}
+					
+	value_list.append(">, ");
 		
 	int index = 0;
 	const char * name = names.first();
@@ -1126,9 +1144,8 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	}
 	
 	// Start with #<Qt::HBoxLayout:0x30139030>
-	VALUE inspect_str = rb_funcall(self, rb_intern("to_s"), 0, 0);
-	
 	// Drop the closing '>'
+	VALUE inspect_str = rb_funcall(self, rb_intern("to_s"), 0, 0);	
 	rb_str_resize(inspect_str, RSTRING(inspect_str)->len - 1);
 	rb_funcall(pp, rb_intern("text"), 1, inspect_str);
 	rb_funcall(pp, rb_intern("breakable"), 0);
@@ -1138,12 +1155,30 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
 	QStrList names = qobject->metaObject()->propertyNames(true);
 	
-	QCString temp;		
+	QCString value_list;		
 	
 	if (qobject->children() != 0) {
-		temp = QCString().sprintf("  children=Array (%d element(s)),\n", qobject->children()->count());
-		rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(temp.data()));
+		value_list = QCString().sprintf("  children=Array (%d element(s)),\n", qobject->children()->count());
+		rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.data()));
 	}
+	
+	value_list = QCString("  metaObject=#<Qt::MetaObject:0x0");
+	value_list.append(QCString().sprintf("className=%s", qobject->metaObject()->className()));
+		
+	if (qobject->metaObject()->superClass() != 0) {
+		value_list.append(QCString().sprintf(", superClass=%s", qobject->metaObject()->superClass()));
+	}		
+	
+	if (qobject->metaObject()->numSignals() > 0) {
+		value_list.append(QCString().sprintf(", signalNames=Array (%d element(s))", qobject->metaObject()->numSignals()));
+	}		
+	
+	if (qobject->metaObject()->numSlots() > 0) {
+		value_list.append(QCString().sprintf(", slotNames=Array (%d element(s))", qobject->metaObject()->numSlots()));
+	}
+	
+	value_list.append(">,\n");
+	rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.data()));
 		
 	int	index = 0;
 	const char * name = names.first();
@@ -1151,8 +1186,8 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	if (name != 0) {
 		QVariant value = qobject->property(name);
 		const QMetaProperty * property = qobject->metaObject()->property(index, true);
-		temp = " " + inspectProperty(property, name, value);
-		rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(temp.data()));
+		value_list = " " + inspectProperty(property, name, value);
+		rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.data()));
 		index++;
 	
 		for (	name = names.next(); 
@@ -1163,8 +1198,8 @@ pretty_print_qobject(VALUE self, VALUE pp)
 						
 			value = qobject->property(name);
 			property = qobject->metaObject()->property(index, true);
-			temp = " " + inspectProperty(property, name, value);
-			rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(temp.data()));
+			value_list = " " + inspectProperty(property, name, value);
+			rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.data()));
 		}
 	}
 	
