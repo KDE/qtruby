@@ -2,6 +2,23 @@
 
 require 'Korundum'
 
+# This is an example of a KDE class that has 'k_dcop' slots declarations, but
+# isn't a subclass of DCOPObject. The following four methods are added to your
+# class:
+#
+#		  	interfaces()
+#			functions()
+#			connectDCOPSignal()
+#			disconnectDCOPSignal()
+#
+# See the call to connectDCOPSignal() towards the end of the code as
+# an example. The name of the dcop object is always the name of the
+# ruby class, and they are Singletons - you can only instantiate one
+# of them.
+#
+# The petshop.rb example in this directory demonstrates more complex
+# use of korundum dcop by subclassing a DCOPObject.
+#
 class MyWidget < KDE::PushButton
 
 	k_dcop	'void mySlot(QString)', 'QPoint getPoint(QString)',
