@@ -688,22 +688,23 @@ void marshall_ucharP(Marshall *m) {
 }
 
 static void marshall_QString(Marshall *m) {
+static const char * KCODE = 0;
+	if (KCODE == 0) {
+		VALUE temp = rb_gv_get("$KCODE");
+		KCODE = StringValuePtr(temp);
+	}
     switch(m->action()) {
       case Marshall::FromVALUE:
 	{
 	    QString* s = 0;
 	    if( *(m->var()) != Qnil) {
-#if 0
-               if(SvUTF8(*(m->var())))
-                    s = QString::fromUtf8(SvPV_nolen(*(m->var())));
-               else if(PL_hints & HINT_LOCALE)
-                    s = QString::fromLocal8Bit(SvPV_nolen(*(m->var())));
+               // TODO: Add support for the all the possible values of KCODE - ie 'EUC' and 'SJIS' too
+               if(strcmp(KCODE, "UTF8") == 0)
+                    s = new QString(QString::fromUtf8(StringValuePtr(*(m->var())), RSTRING(*(m->var()))->len));
+               else if(strcmp(KCODE, "NONE") == 0)
+                    s = new QString(QString::fromLatin1(StringValuePtr(*(m->var()))));
                else
-                    s = QString::fromLatin1(SvPV_nolen(*(m->var())));
-#else
-            // Treat everything as UTF-8..for now
-            s = new QString(QString::fromUtf8(StringValuePtr(*(m->var())), RSTRING(*(m->var()))->len));
-#endif
+                    s = new QString(QString::fromLocal8Bit(StringValuePtr(*(m->var())), RSTRING(*(m->var()))->len));
             } else {
                 s = new QString(QString::null);
             }
@@ -727,68 +728,16 @@ static void marshall_QString(Marshall *m) {
 	    	if (s->isNull()) {
                     *(m->var()) = Qnil;
 	     	} else {
+               // TODO: Add support for the all the possible values of KCODE
+               if(strcmp(KCODE, "UTF8") == 0)
+                    *(m->var()) = rb_str_new2(s->utf8());
+               else if(strcmp(KCODE, "NONE") == 0)
                     *(m->var()) = rb_str_new2(s->latin1());
+               else
+                     *(m->var()) = rb_str_new2(s->local8Bit());
 	     	}
-//                if(!(PL_hints & HINT_BYTES))
-//                {
-//		    sv_setpv_mg(m->var(), (const char *)s->utf8());
-//                    SvUTF8_on(*(m->var()));
-//                }
-//                else if(PL_hints & HINT_LOCALE)
-//                    sv_setpv_mg(m->var(), (const char *)s->local8Bit());
-//                else
-//                    sv_setpv_mg(m->var(), (const char *)s->latin1());
 	     	if(m->cleanup())
 	     	delete s;
-            } else {
-                *(m->var()) = Qnil;
-            }
-	}
-	break;
-      default:
-	m->unsupported();
-	break;
-    }
-}
-
-static void marshall_QChar(Marshall *m) {
-    switch(m->action()) {
-      case Marshall::FromVALUE:
-	{
-	    QChar* c = 0;
-	    if( *(m->var()) != Qnil) {
-            c = new QChar(StringValuePtr(*(m->var()))[0]);
-            } else {
-                c = 0;
-            }
-		
-	    m->item().s_voidp = c;
-	    m->next();
-		
-		if (!m->type().isConst() && *(m->var()) != Qnil && c != 0) {
-			rb_str_resize(*(m->var()), 0);
-			char temp[2];
-			sprintf(temp, "%c", (char)*c);
-			rb_str_cat2(*(m->var()), temp);
-		}
-	    
-		if(c && m->cleanup())
-		delete c;
-	}
-	break;
-      case Marshall::ToVALUE:
-	{
-	    QChar *c = (QChar*)m->item().s_voidp;
-	    if(c) {
-	    	if (c->isNull()) {
-                    *(m->var()) = Qnil;
-	     	} else {
-					char temp[2];
-					sprintf(temp, "%c", c->latin1());
-                    *(m->var()) = rb_str_new2(temp);
-	     	}
-//	     	if(m->cleanup())
-//	     	delete c;
             } else {
                 *(m->var()) = Qnil;
             }
@@ -1458,9 +1407,6 @@ DEF_LIST_MARSHALLER( QWidgetList, QWidgetList, QWidget, QPtrListStdIterator<QWid
 DEF_LIST_MARSHALLER( QCanvasItemList, QCanvasItemList, QCanvasItem, QValueListIterator<QCanvasItem*> )
 
 TypeHandler Qt_handlers[] = {
-    { "QChar", marshall_QChar },
-    { "QChar&", marshall_QChar },
-    { "QChar*", marshall_QChar },
     { "QString", marshall_QString },
     { "QString&", marshall_QString },
     { "QString*", marshall_QString },
