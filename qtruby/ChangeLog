@@ -1,5 +1,10 @@
 2004-07-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* Qt::Integer arithmetic and bit operations return Qt::Integers, rather
+	  than ruby Integers so that ops can be nested as for Qt::Enums.
+
+2004-07-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* The recently added Qt::Integer bit operators were returning a ruby Integer
 	  type. When they were nested, the Integer didn't know how to convert the
 	  Enum it was being or'd with to an Integer.

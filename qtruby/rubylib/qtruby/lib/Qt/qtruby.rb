@@ -125,18 +125,41 @@ module Qt
 	class Integer
 		attr_accessor :value
 		def initialize(n=0) @value = n end
-		def +(n) @value + n.to_i end
-		def -(n) @value - n.to_i end
-		def *(n) @value * n.to_i end
-		def /(n) @value / n.to_i end
-		def %(n) @value % n.to_i end
-		def **(n) @value ** n.to_i end
 		
-		def |(n) @value | n.to_i end
-		def &(n) @value & n.to_i end
-		def ^(n) @value ^ n.to_i end
-		def <<(n) @value << n.to_i end
-		def >>(n) @value >> n.to_i end
+		def +(n) 
+			return Integer.new(@value + n.to_i) 
+		end
+		def -(n) 
+			return Integer.new(@value - n.to_i)
+		end
+		def *(n) 
+			return Integer.new(@value * n.to_i)
+		end
+		def /(n) 
+			return Integer.new(@value / n.to_i)
+		end
+		def %(n) 
+			return Integer.new(@value % n.to_i)
+		end
+		def **(n) 
+			return Integer.new(@value ** n.to_i)
+		end
+		
+		def |(n) 
+			return Integer.new(@value | n.to_i)
+		end
+		def &(n) 
+			return Integer.new(@value & n.to_i)
+		end
+		def ^(n) 
+			return Integer.new(@value ^ n.to_i)
+		end
+		def <<(n) 
+			return Integer.new(@value << n.to_i)
+		end
+		def >>(n) 
+			return Integer.new(@value >> n.to_i)
+		end
 		
 		def to_f() return @value.to_f end
 		def to_i() return @value.to_i end
