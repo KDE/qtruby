@@ -1,3 +1,8 @@
+2004-10-04  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * When a QMetaData object was contructed the class name was a pointer from a ruby
+   string, and was being corrupted when the string was freed. The string is now copied.
+
 2004-10-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * Han Holl's report about a when you pass an incorrect arg type to a QtRuby

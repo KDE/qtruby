@@ -1629,7 +1629,7 @@ make_QMetaData_tbl(VALUE /*self*/, VALUE list)
 static VALUE
 make_metaObject(VALUE /*self*/, VALUE className_value, VALUE parent, VALUE slot_tbl_value, VALUE slot_count_value, VALUE signal_tbl_value, VALUE signal_count_value)
 {
-    char *className = StringValuePtr(className_value);
+    char *className = strdup(StringValuePtr(className_value));
 
     QMetaData * slot_tbl = 0;
     int slot_count = 0;
