@@ -31,60 +31,61 @@ module Qt
 			p "typename == #{typename}" if DEBUG
 			if argtype == 'i'
 				if typename =~ /^(?:short|ushort|int|uint|long|ulong|signed|unsigned)$/
-					return true
+					return 0
 				end
 			elsif argtype == 'n'
 				if typename =~ /^(?:float|double)$/
-					return true
+					return 0
 				end
 			elsif argtype == 's'
 				if typename =~ /^(?:char\*|const char\*|(?:const )?(Q(C?)String)[*&]?)$/
-#		$match{$method} = defined $2 ? 1 : ( defined $1 ? 2 : 0 );
-					return true
+					qstring = !$1.nil?
+					c = !$2.nil?
+					return c ? 1 : (qstring ? 2 : 0)
 				end
 			elsif argtype == 'a'
-# FIXME: shouldn't be hardcoded. Installed handlers should tell what perl type they expect.
-#					if typename =~ /^(?:
-#                                const\ QCOORD\*|
-#                                (?:const\ )?
-#                                (?:
-#                                  QStringList[\*&]?|
-#                                  QValueList<int>[\*&]?|
-#                                  QRgb\*|
-#                                  char\*\*
-#                                )
-#                              )$/x)
-#						return true
-#					end
+				# FIXME: shouldn't be hardcoded. Installed handlers should tell what perl type they expect.
+				if typename =~ /^(?:
+						const\ QCOORD\*|
+						(?:const\ )?
+						(?:
+						    QStringList[\*&]?|
+						    QValueList<int>[\*&]?|
+						    QRgb\*|
+						    char\*\*
+						)
+					        )$/x
+					return 0
+				end
 			elsif argtype == 'u'
 				if typename =~ /^(?:float|double)$/
-					return true
+					return 0
 				end
 			elsif argtype == 'U'
-				return true
+				return 0
 			else
 				t = typename.sub(/^const\s+/, '')
 				t.sub!(/[&*]$/, '')
 				if classIsa(argtype, t)
-					return true
+					return 0
 				end
 			end
-			return false
+			return nil
 		end
 		
 		def argmatch(methodIds, args, i)
 			match = Hash.new
 			argtype = getVALUEtype(args[i])
 			for method in methodIds
-                                matched = checkarg(argtype, method, i)
-				match[method] = 0 if matched
+				match_value = checkarg(argtype, method, i)
+				match[method] = match_value unless match_value.nil?
 			end
 			p match if DEBUG
 			return match.sort {|a,b| a[1] <=> b[1]}
 		end
 		
 		def find_class(classname)
-			value = Classes[classname];
+			value = Classes[classname]
 			return Classes[classname]
 		end
 		
@@ -126,6 +127,8 @@ module Qt
 
 			methodStr = method + method_argstr
 			methodIds = findMethod(classname, methodStr)
+			p classname if DEBUG
+			p methodStr if DEBUG
 			p methodIds if DEBUG
 			if methodIds.length > 1
 #			unless methodIds.empty?
@@ -154,8 +157,8 @@ module Qt
 				opMethodStr = method + "#" + method_argstr
                                 p opMethodStr if DEBUG
 				methodIds = findMethod("QFriendOperators", opMethodStr)
-                                p methodIds if DEBUG
-                                p dumpCandidates(methodIds) if DEBUG
+				p methodIds if DEBUG
+				p dumpCandidates(methodIds) if DEBUG
 				methodIds.each {
 					|id|
 					# check the "this" type
@@ -180,9 +183,17 @@ module Qt
 					return FriendOperators.send(method, this, *args)
 				end
 			end
+
+			if chosen.nil?
+				id = find_pclassid(classname)
+				p id if DEBUG
+				method_ids = findAllMethods(id).values.flatten
+				p method_ids if DEBUG
+				p dumpCandidates(method_ids) if DEBUG
+			end
                         
 			p chosen if DEBUG
-			setCurrentMethod(chosen || -1)
+			setCurrentMethod(chosen) if chosen
 			return nil
 		end
 
@@ -319,12 +330,12 @@ module Qt
 		if meta.metaobject.nil?
 			slotTable = makeMetaData(meta.slots)
 			signalTable = makeMetaData(meta.signals)
-			meta.metaobject=(	make_metaObject(	qobject.class.name, 
-													qobject.staticMetaObject(),
-													slotTable, 
-													meta.slots.length,
-													signalTable, 
-													meta.signals.length ) )
+			meta.metaobject = make_metaObject(qobject.class.name, 
+							  qobject.staticMetaObject(),
+							  slotTable, 
+							  meta.slots.length,
+							  signalTable, 
+							  meta.signals.length)
 		end
 		
 		return meta.metaobject
