@@ -19,7 +19,7 @@ class PageLaunch
 
         page.show()
 
-        KDE::Application.kApplication().processEvents()
+        $kapp.processEvents()
 	end
 end
 

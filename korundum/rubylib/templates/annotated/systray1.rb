@@ -74,7 +74,7 @@ class MainWin < KDE::MainWindow
     # system tray icon's menu
     def slotQuitSelected()
         @exitFlag = true
-        KDE::Application.kApplication().quit()
+        $kapp.quit()
 	end
 end
 

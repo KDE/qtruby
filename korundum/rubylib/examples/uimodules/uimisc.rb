@@ -12,7 +12,6 @@ class Page3 < Qt::Object
     def initialize(parent)
 		super
         page = parent.addPage()
-
         x = 10
         y = 15
 

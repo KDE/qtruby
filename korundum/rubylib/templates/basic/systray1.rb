@@ -56,7 +56,7 @@ class MainWin < KDE::MainWindow
 
     def slotQuitSelected()
         @exitFlag = true
-        KDE::Application.kApplication().quit()
+        $kapp.quit()
 	end
 end
 
