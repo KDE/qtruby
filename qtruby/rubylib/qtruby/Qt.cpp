@@ -95,6 +95,9 @@ VALUE ktexteditor_module = Qnil;
 VALUE qt_internal_module = Qnil;
 VALUE qt_base_class = Qnil;
 VALUE qt_qmetaobject_class = Qnil;
+VALUE kconfigskeleton_class = Qnil;
+VALUE kconfigskeleton_itemenum_class = Qnil;
+VALUE kconfigskeleton_itemenum_choice_class = Qnil;
 bool application_terminated = FALSE;
 };
 
@@ -420,7 +423,9 @@ public:
 	if(_called) return;
 	_called = true;
 		
-	if (	_smoke->methodNames[method().name] != _smoke->className(method().classId)
+	QString className(_smoke->className(method().classId));
+	
+	if (	! className.endsWith(_smoke->methodNames[method().name])
 			&& TYPE(_target) != T_DATA 
 			&& _target != Qnil
 			&& !(method().flags & Smoke::mf_static) ) 
@@ -1315,7 +1320,7 @@ method_missing(int argc, VALUE * argv, VALUE self)
 {
 	char * methodName = rb_id2name(SYM2ID(argv[0]));
     VALUE klass = rb_funcall(self, rb_intern("class"), 0);
-	
+
 	// Look for 'thing?' methods, and try to match isThing() or hasThing() in the Smoke runtime
 	QRegExp px("^.*[?]$");
 	QString pred(rb_id2name(SYM2ID(argv[0])));
@@ -1443,9 +1448,9 @@ static VALUE module_method_missing(int argc, VALUE * argv, VALUE /*klass*/)
     return class_method_missing(argc, argv, qt_module);
 }
 
-static VALUE kde_module_method_missing(int argc, VALUE * argv, VALUE /*klass*/)
+static VALUE kde_module_method_missing(int argc, VALUE * argv, VALUE klass)
 {
-    return class_method_missing(argc, argv, kde_module);
+    return class_method_missing(argc, argv, klass);
 }
 
 /*
@@ -1518,7 +1523,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 		// Another longjmp here..
 		rb_raise(rb_eArgError, "unresolved constructor call %s\n", rb_class2name(klass));
 	}
-
+	
 	{
 		// Allocate the MethodCall within a C block. Otherwise, because the continue_new_instance()
 		// call below will longjmp out, it wouldn't give C++ an opportunity to clean up
@@ -2310,7 +2315,14 @@ kde_package_to_class(const char * package)
 {
 	VALUE klass = Qnil;
 	
-	if (QString(package).startsWith("KDE::")) {
+	if (QString(package).startsWith("KDE::ConfigSkeleton::ItemEnum::")) {
+		klass = rb_define_class_under(kconfigskeleton_itemenum_class, package+strlen("KDE::ConfigSkeleton::EnumItem::"), qt_base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+		kconfigskeleton_itemenum_choice_class = klass;
+	} else if (QString(package).startsWith("KDE::ConfigSkeleton::")) {
+		klass = rb_define_class_under(kconfigskeleton_class, package+strlen("KDE::ConfigSkeleton::"), qt_base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (QString(package).startsWith("KDE::")) {
 		klass = rb_define_class_under(kde_module, package+strlen("KDE::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (QString(package).startsWith("KParts::")) {
@@ -2468,6 +2480,9 @@ Init_qtruby()
 	ktexteditor_module = rb_define_module("KTextEditor");
     rb_define_singleton_method(ktexteditor_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
     rb_define_singleton_method(ktexteditor_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	kconfigskeleton_class = rb_define_class_under(kde_module, "ConfigSkeleton", qt_base_class);
+	kconfigskeleton_itemenum_class = rb_define_class_under(kconfigskeleton_class, "ItemEnum", qt_base_class);
 
 	kate_module = rb_define_module("Kate");
     rb_define_singleton_method(kate_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);

@@ -432,6 +432,8 @@ module Qt
 		def normalize_classname(classname)
 			if classname =~ /^Q/
 				now = classname.sub(/^Q(?=[A-Z])/,'Qt::')
+			elsif classname =~ /^KConfigSkeleton::/
+				now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
 			elsif classname !~ /::/
 				now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
 			else
@@ -591,17 +593,22 @@ module Qt
 		end
 
 		def do_method_missing(package, method, klass, this, *args)
-			classname = @@cpp_names[klass.name]
-			if classname.nil?
-				if klass != Object and klass != KDE and klass != Qt
-					return do_method_missing(package, method, klass.superclass, this, *args)
-				else
-					return nil
+			if klass.class == Module
+				classname = klass.name
+			else
+				classname = @@cpp_names[klass.name]
+				if classname.nil?
+					if klass != Object and klass != KDE and klass != Qt
+						return do_method_missing(package, method, klass.superclass, this, *args)
+					else
+						return nil
+					end
 				end
 			end
+			
 			if method == "new"
 				method = classname.dup 
-				method.gsub!(/^(KParts|KIO|khtml|DOM|Kontact|Kate|KTextEditor)::/,"")
+				method.gsub!(/^(KParts|KIO|khtml|DOM|Kontact|Kate|KTextEditor|KConfigSkeleton::ItemEnum|KConfigSkeleton)::/,"")
 			end
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
 			# Change foobar= to setFoobar()					

@@ -1,3 +1,13 @@
+2005-01-20  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Fixed bug reported by Ian Monroe where the KIO.copy() method wasn't being found in
+	  the Smoke runtime. Modules methods are now trapped with method_missing and
+	  despatched to call Smoke methods correctly
+	* Added support for the KDE::ConfigSkeleton and subclasses. Constructors for nested
+	  classes can now be called correctly
+
+	CCMAIL: ian.monroe@gmail.com
+
 2005-01-16  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added a Qt::Integer.coerce method so that Qt::Integers and Qt::Enums can be
