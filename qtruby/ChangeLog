@@ -1,3 +1,7 @@
+2005-04-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Upped the version to 1.0.8 for the RubyForge release
+
 2005-03-30  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* An 'include Qt' statement in qtruby.rb where a couple of methods were being added to
