@@ -123,15 +123,10 @@ module Qt
 #						print("Resolved Method #{classname}::#{method} => " + methodIds[0].to_s + "\n")
 						break
 					end
-					puts matching[0][0]
 				end
 			end
-			if !methodIds[0].nil?
-				setCurrentMethod(methodIds[0]) 
-			else
-				fail "\n\t\tcouldn't resolve call to #{klass}.#{method_original}(#{args.join ","}) (resolving to the c++ equivalent of #{classname}::#{method_original})\n" +
-				       "\t\tis it possible that you simply mispelled a local variable access?\n"
-			end
+
+			setCurrentMethod(methodIds[0] || -1)
 		end
 		
 		def init()
