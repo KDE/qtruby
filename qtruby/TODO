@@ -2,18 +2,24 @@
 	 
 	* Integrate the call to extconf.rb to build the Qt.so extension Makefile with automake
 	
-	* Implement operator overloading in a similar manner to Qt.pm
-	
-	* Implement the various 'special case' methods in Qt.pm such as the Qt::Image constructor
+	* Implement the special case method in Qt::Image constructor
 	
 	* Get freed memory management working by completing the smokeruby_mark() and smokeruby_free() fn's
 	
-	* Convert the Qt example programs such as 'aclock' to ruby
-	
-	* Write a rbuic tool for use with Qt Designer
-	
-	* Complete the method overload resolution reg expr match code in Qt.rb/argmatch() for types 'a' and 's'
-	
 	* Add more marshalling types for the various Qt lists
 	
+	* Implement method selector caching
 	
+	* Allow 'String' type to be used in connect statements
+	
+	* More documentation or example code welcome
+	
+	* See the separate TODO list for the rbuic tool
+	
+	* Change the pointer_map hash 'Qt C++ instance -> Ruby instance' to have weak reference values
+	
+	* Add a QtRuby project template to KDevelop
+	
+	* Write a rubyeditor plugin for Qt Designer
+	
+	* Add an option to rbqtapi to show the api in ruby format, rather than C++

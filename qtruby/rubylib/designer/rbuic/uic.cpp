@@ -214,7 +214,7 @@ QString Uic::getFormClassName( const QDomElement& e )
     return cn;
 }
 
-/*! Extracts a Perl class name from \a e.
+/*! Extracts a Ruby class name from \a e.
  */
 QString Uic::getClassName( const QDomElement& e )
 {
@@ -463,6 +463,9 @@ QString Uic::createListBoxItemImpl( const QDomElement &e, const QString &parent 
 		com = getComment( n );
 	    } else if ( attrib == "pixmap" ) {
 		pix = v.toString();
+		if (!pix.isEmpty()) {
+			pix.prepend("@");
+		}
 		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
 		    pix.prepend( pixmapLoaderFunction + "(" + QString( externPixmaps ? "\"" : "" ) );
 		    pix.append(  QString( externPixmaps ? "\"" : "" ) + ")" );
@@ -497,6 +500,9 @@ QString Uic::createIconViewItemImpl( const QDomElement &e, const QString &parent
 		com = getComment( n );
 	    } else if ( attrib == "pixmap" ) {
 		pix = v.toString();
+		if (!pix.isEmpty()) {
+			pix.prepend("@");
+		}
 		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
 		    pix.prepend( pixmapLoaderFunction + "(" + QString( externPixmaps ? "\"" : "" ) );
 		    pix.append( QString( externPixmaps ? "\"" : "" ) + ")" );
@@ -549,6 +555,9 @@ QString Uic::createListViewItemImpl( const QDomElement &e, const QString &parent
 		textes << v.toString();
 	    else if ( attrib == "pixmap" ) {
 		QString pix = v.toString();
+		if (!pix.isEmpty()) {
+			pix.prepend("@");
+		}
 		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
 		    pix.prepend( pixmapLoaderFunction + "(" + QString( externPixmaps ? "\"" : "" ) );
 		    pix.append( QString( externPixmaps ? "\"" : "" ) + ")" );
@@ -593,6 +602,9 @@ QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &pare
 		com = getComment( n );
 	    } else if ( attrib == "pixmap" ) {
 		pix = v.toString();
+		if (!pix.isEmpty()) {
+			pix.prepend("@");
+		}
 		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
 		    pix.prepend( pixmapLoaderFunction + "(" + QString( externPixmaps ? "\"" : "" ) );
 		    pix.append( QString( externPixmaps ? "\"" : "" ) + ")" );
@@ -656,23 +668,23 @@ QString Uic::createTableRowColumnImpl( const QDomElement &e, const QString &pare
 	    s += indent + parent + ".verticalHeader().setLabel(" + parent + ".numRows() - 1, "
 		 + trcall( txt, com ) + ")\n";
 	else
-	    s += indent + parent + ".verticalHeader().setLabel(" + parent + ".numRows() - 1, Qt::IconSet.new("
+	    s += indent + parent + ".verticalHeader().setLabel(" + parent + ".numRows() - 1, Qt::IconSet.new(@"
 		 + pix + " ), " + trcall( txt, com ) + ")\n";
     } else {
 	if ( objClass == "Qt::Table" ) {
 	    s = indent + parent + ".setNumCols(" + parent + ".numCols() + 1)\n";
 	    if ( pix.isEmpty() )
 		s += indent + parent + ".horizontalHeader().setLabel(" + parent + ".numCols() - 1, "
-		     + trcall( txt, com ) + ");\n";
+		     + trcall( txt, com ) + ")\n";
 	    else
-		s += indent + parent + ".horizontalHeader().setLabel(" + parent + ".numCols() - 1, Qt::IconSet.new("
-		     + pix + " ), " + trcall( txt, com ) + ");\n";
+		s += indent + parent + ".horizontalHeader().setLabel(" + parent + ".numCols() - 1, Qt::IconSet.new(@"
+		     + pix + " ), " + trcall( txt, com ) + ")\n";
 	} else if ( objClass == "Qt::DataTable" ) {
 	    if ( !txt.isEmpty() && !field.isEmpty() ) {
 		if ( pix.isEmpty() )
 		    out << indent << parent << ".addColumn(" << fixString( field ) << ", " << trcall( txt, com ) << ")" << endl;
 		else
-		    out << indent << parent << ".addColumn(" << fixString( field ) << ", " << trcall( txt, com ) << ", Qt::IconSet.new(" << pix << "))" << endl;
+		    out << indent << parent << ".addColumn(" << fixString( field ) << ", " << trcall( txt, com ) << ", Qt::IconSet.new(@" << pix << "))" << endl;
 	    }
 	}
     }
@@ -760,7 +772,7 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
 		    o = "Layout";
 		if ( rowspan * colspan != 1 )
 		    out << indent << objName << ".addMultiCell" << o << "(" << child << ", "
-			<< row << ", " << row + rowspan - 1 << ", " << col << ", " << col  + colspan - 1 << ");" << endl;
+			<< row << ", " << row + rowspan - 1 << ", " << col << ", " << col  + colspan - 1 << ")" << endl;
 		else
 		    out << indent << objName << ".add" << o << "(" << child << ", "
 			<< row << ", " << col << ")" << endl;
@@ -833,6 +845,7 @@ void Uic::createColorGroupImpl( const QString& name, const QDomElement& e )
 	    }
 	} else if ( n.tagName() == "pixmap" ) {
 	    QString pixmap = n.firstChild().toText().data();
+		pixmap.prepend("@");
 	    if ( !pixmapLoaderFunction.isEmpty() ) {
 		pixmap.prepend( pixmapLoaderFunction + "(" + QString( externPixmaps ? "\"" : "" ) );
 		pixmap.append( QString( externPixmaps ? "\"" : "" ) + ")" );
@@ -920,8 +933,7 @@ QString Uic::registerObject( const QString& name )
 	objectNames += "cg";
 	objectNames += "pal";
     }
-
-    QString result = "@";
+    QString result("@");
     result += name;
     int i;
     while ( ( i = result.find(' ' )) != -1  ) {

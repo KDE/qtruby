@@ -440,7 +440,7 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
     } else if ( e.tagName() == "pixmap" ) {
 	v = e.firstChild().toText().data();
         if( !externPixmaps )
-        	v.prepend( '$' );
+        	v.prepend( '@' );
 	if ( !pixmapLoaderFunction.isEmpty() ) {
 	    v.prepend( pixmapLoaderFunction + "(" + QString( externPixmaps ? "\"" : "" ) );
 	    v.append( QString( externPixmaps ? "\"" : "" ) + ")" );
@@ -467,7 +467,7 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
     } else if ( e.tagName() == "set" ) {
 	QString keys( e.firstChild().toText().data() );
 	QStringList lst = QStringList::split( '|', keys );
-	v = "int(";
+	v = "";
 #if defined(Q_CC_EDG)
 	// workaround for EDG bug reproduced with MIPSpro C++ 7.3.?
 	// and KAI C++ 4.0e that will be fixed in KAI C++ 4.0f
@@ -480,7 +480,7 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	    if ( it != lst.fromLast() )
 		v += " | ";
 	}
-        v += ")";
+        v += "";
     } else if ( e.tagName() == "sizepolicy" ) {
 	QDomElement n3 = e.firstChild().toElement();
 	QSizePolicy sp;

@@ -77,7 +77,11 @@ static QByteArray unzipXPM( QString data, ulong& length )
     return baunzip;
 }
 
-
+static QString imageDataName(QString name) {
+	QString result = name + "_data";
+	result.replace("@", "$");
+	return result;
+}
 
 /*!
   Creates an implementation ( cpp-file ) for the form given in \a e
@@ -458,8 +462,10 @@ void Uic::createFormImpl( const QDomElement &e )
     static const char *imgTags[] = { "pixmap", "iconset", 0 };
     for ( i = 0; imgTags[i] != 0; i++ ) {
        nl = e.parentNode().toElement().elementsByTagName( imgTags[i] );
-       for ( int j = 0; j < (int) nl.length(); j++ )
-           requiredImages += nl.item(j).firstChild().toText().data();
+       for ( int j = 0; j < (int) nl.length(); j++ ) {
+           QString img = "@";
+           requiredImages += (img + nl.item(j).firstChild().toText().data());
+		}
     }
 
     // register the object and unify its name
@@ -493,8 +499,8 @@ void Uic::createFormImpl( const QDomElement &e )
 			// shouldn't we test the initial `length' against the
 			// resulting `length' to catch corrupt UIC files?
 			int a = 0;
-                        out << indent << img << "_data =\n[";
-
+            out << indent << imageDataName(img) << " =\n[";
+ 
 			while ( baunzip[a] != '\"' )
 			    a++;
 			for ( ; a < (int) length; a++ )
@@ -514,7 +520,7 @@ void Uic::createFormImpl( const QDomElement &e )
                     else
                     {
 			images += img;
-                        out << indent << img << "_data = pack 'C*'," << endl;
+                        out << indent << imageDataName(img) << " = pack 'C*'," << endl;
 			++indent;
  			int a ;
 			for ( a = 0; a < (int) (data.length()/2)-1; a++ ) {
@@ -524,7 +530,7 @@ void Uic::createFormImpl( const QDomElement &e )
 			    else
 				out << " ";
 			}
-			out << "0x" << QString(data[2*a]) << QString(data[2*a+1]) << ";" << endl;
+			out << "0x" << QString(data[2*a]) << QString(data[2*a+1]) << "" << endl;
 			--indent;
                         out << endl;
 		    }
@@ -583,14 +589,14 @@ void Uic::createFormImpl( const QDomElement &e )
 	QStringList::Iterator it;
 	for ( it = images.begin(); it != images.end(); ++it ) {
 	    out << indent << (*it) << " = Qt::Pixmap.new()" << endl;
-	    out << indent << (*it) << ".loadFromData(" << (*it) << "_data, length (" << (*it) << "_data), \"PNG\")" << endl;
+	    out << indent << (*it) << ".loadFromData(" << imageDataName(*it) << ", length (" << imageDataName(*it) << "), \"PNG\")" << endl;
 	}
         out << endl;
     }
     // create pixmaps for all images
     if ( !xpmImages.isEmpty() ) {
 	for ( it = xpmImages.begin(); it != xpmImages.end(); ++it ) {
-	    out << indent << (*it) << " = Qt::Pixmap.new(" << (*it) << "_data)" << endl;
+	    out << indent << (*it) << " = Qt::Pixmap.new(" << imageDataName(*it) << ")" << endl;
 	}
 	out << endl;
     }
@@ -629,7 +635,7 @@ void Uic::createFormImpl( const QDomElement &e )
 		if ( stdset )
 		    out << mkStdSet( prop ) << "(" << value << ")" << endl;
 		else
-		    out << "setProperty(\"" << prop << "\", Qt::Variant.new(" << value << "));" << endl;
+		    out << "setProperty(\"" << prop << "\", Qt::Variant.new(" << value << "))" << endl;
 	    }
 
 	    if ( prop == "name" )
@@ -694,7 +700,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	    QString objName = getObjectName( n );
 	    QString tab = getDatabaseInfo( n, "table" );
 	    QString con = getDatabaseInfo( n, "connection" );
-	    out << indent << objName << "Form = Qt::SqlForm.new(self, \"" << objName << "Form\");" << endl;
+	    out << indent << objName << "Form = Qt::SqlForm.new(self, \"" << objName << "Form\")" << endl;
 	    QDomElement n2;
 	    for ( n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() )
 		createFormImpl( n2, objName, con, tab );
@@ -1002,7 +1008,7 @@ void Uic::createFormImpl( const QDomElement& e, const QString& form, const QStri
 	QString field = getDatabaseInfo( e, "field" );
 	if ( !field.isEmpty() ) {
 	    if ( isWidgetInTable( e, connection, table ) )
-		out << indent << form << "Form.insert(" << getObjectName( e ) << ", " << fixString( field ) << ");" << endl;
+		out << indent << form << "Form.insert(" << getObjectName( e ) << ", " << fixString( field ) << ")" << endl;
 	}
     }
     QDomElement n;

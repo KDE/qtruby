@@ -90,7 +90,7 @@ static void embedData( QTextStream& out, const uchar* input, int nbytes )
 	if ( i < nbytes-1 )
 	    s += ", ";
 	else
-	    s += ";\n";
+	    s += "\n";
     }
     if ( s.length() )
 	out << (const char*)s;
@@ -108,7 +108,7 @@ static void embedData( QTextStream& out, const QRgb* input, int n )
 	if ( i < n-1 )
 	    out << ", ";
 	else
-	    out << ";" << endl;
+	    out << "" << endl;
     }
     out << dec; // back to decimal mode
 }
@@ -192,7 +192,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
         {
 	    out << indent << "\"" << e->name << "\"" << " => [" << e->cname << "_data, "
                 << e->width << ", " << e->height << ", " << e->depth << ", "
-                << (e->numColors ? e->cname + "_ctable" : QString::fromLatin1("undef") ) << ", "
+                << (e->numColors ? e->cname + "_ctable" : QString::fromLatin1("nil") ) << ", "
                 << (e->alpha ? "1" : "0") << "]," << endl;
 	    e = list_image.next();
 	}
@@ -234,21 +234,19 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << endl;
 	out << endl;
 
-	out << indent << "package staticImages;" << endl;
-        out << indent << "require Qt" << endl;
-	out << indent << "use DesignerMimeSourceFactory_" << cProject << ";" << endl;
+	out << indent << "module staticImages" << endl;
+        out << indent << "require 'Qt'" << endl;
         out << indent << "factories = Hash.new" << endl;
         out << indent << endl;
-        out << indent << "factory = DesignerMimeSourceFactory_" << cProject << ".new" << endl;
+        out << indent << "factory = DesignerMimeSourceFactory_" << cProject << ".new()" << endl;
         out << indent << "Qt::MimeSourceFactory.defaultFactory().addFactory(factory)" << endl;
         out << indent << "factories['DesignerMimeSourceFactory_" << cProject << "'] = factory" << endl;
 	out << endl;
 	out << indent << "END" << endl;
-        out << indent << "{" << endl;
         ++indent;
         out << indent << "for values in factories" << endl;
         ++indent;
-        out << indent << "Qt::MimeSourceFactory.defaultFactory().removeFactory($_)" << endl;
+        out << indent << "Qt::MimeSourceFactory.defaultFactory().removeFactory(values)" << endl;
         --indent;
         out << indent << "end" << endl;
         out << indent << "factories = ()" << endl;
