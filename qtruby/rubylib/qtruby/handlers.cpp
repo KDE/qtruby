@@ -781,6 +781,46 @@ void marshall_QStringList(Marshall *m) {
 template <class Item, class ItemList, class ItemListIterator, const char *ItemSTR >
 void marshall_ItemList(Marshall *m) {
     switch(m->action()) {
+      case Marshall::FromVALUE:
+	{
+	    VALUE list = *(m->var());
+	    if (TYPE(list) != T_ARRAY) {
+		m->item().s_voidp = 0;
+		break;
+	    }
+	    int count = RARRAY(list)->len;
+	    ItemList *cpplist = new ItemList;
+	    long i;
+	    for(i = 0; i <= count; i++) {
+		VALUE item = rb_ary_entry(list, i);
+                // TODO do type checking!
+		smokeruby_object *o = value_obj_info(item);
+		if(!o || !o->ptr)
+                    continue;
+		void *ptr = o->ptr;
+		ptr = o->smoke->cast(
+		    ptr,				// pointer
+		    o->classId,				// from
+		    o->smoke->idClass(ItemSTR)	        // to
+		);
+		cpplist->append((Item*)ptr);
+	    }
+
+	    m->item().s_voidp = cpplist;
+	    m->next();
+
+	    if(m->cleanup()) {
+		rb_ary_clear(list);
+		for(ItemListIterator it = cpplist->begin();
+		    it != cpplist->end();
+		    ++it) {
+		    VALUE obj = getPointerObject((void*)(*it));
+		    rb_ary_push(list, obj);
+		}
+		delete cpplist;
+	    }
+	}
+	break;
       case Marshall::ToVALUE:
 	{
 	    ItemList *valuelist = (ItemList*)m->item().s_voidp;
@@ -813,9 +853,8 @@ void marshall_ItemList(Marshall *m) {
 		    o->allocated = false;
 		    obj = set_obj_info(className, o);
 		}
-
 		rb_ary_push(av, obj);
-	    }
+            }
 
 	    if(m->cleanup())
 		delete valuelist;
@@ -974,8 +1013,8 @@ void marshall_QRgb_array(Marshall *m) {
 #include <qtabbar.h>
 
 DEF_LIST_MARSHALLER( QPtrListQNetworkOperation, QPtrList<QNetworkOperation>, QNetworkOperation, QPtrListStdIterator<QNetworkOperation> )
-DEF_LIST_MARSHALLER( QPtrListQToolBar, QPtrList<QToolBar>, QDockWindow, QPtrListStdIterator<QToolBar> )
-DEF_LIST_MARSHALLER( QPtrListQTab, QPtrList<QTab>, QDockWindow, QPtrListStdIterator<QTab> )
+DEF_LIST_MARSHALLER( QPtrListQToolBar, QPtrList<QToolBar>, QToolBar, QPtrListStdIterator<QToolBar> )
+DEF_LIST_MARSHALLER( QPtrListQTab, QPtrList<QTab>, QTab, QPtrListStdIterator<QTab> )
 DEF_LIST_MARSHALLER( QPtrListQDockWindow, QPtrList<QDockWindow>, QDockWindow, QPtrListStdIterator<QDockWindow> )
 DEF_LIST_MARSHALLER( QFileInfoList, QFileInfoList, QFileInfo, QFileInfoList::Iterator )
 DEF_LIST_MARSHALLER( QObjectList, QObjectList, QObject, QPtrListStdIterator<QObject> )
