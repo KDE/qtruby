@@ -120,6 +120,16 @@ module Qt
 		end
 	end
 	
+	# Delete the underlying C++ instance after exec returns
+	# Otherwise, rb_gc_call_finalizer_at_exit() can delete
+	# stuff that Qt::Application still needs for its cleanup.
+	class Application < Qt::Base
+		def exec
+			super
+			self.dispose
+		end
+	end
+	
 	# Provides a mutable numeric class for passing to methods with
 	# C++ 'int*' or 'int&' arg types
 	class Integer
@@ -742,6 +752,7 @@ class Object
 	# so remove it..
 	undef_method :display
 	undef_method :type
+	undef_method :exec
 	def SIGNAL(string) ; return "2" + string; end
 	def SLOT(string)   ; return "1" + string; end
 	def emit(signal)   ; end
