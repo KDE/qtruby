@@ -432,7 +432,7 @@ module Qt
 		def normalize_classname(classname)
 			if classname =~ /^Q/
 				now = classname.sub(/^Q(?=[A-Z])/,'Qt::')
-			elsif classname =~ /^KConfigSkeleton::/
+			elsif classname =~ /^(KConfigSkeleton|KWin)::/
 				now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
 			elsif classname !~ /::/
 				now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
@@ -612,7 +612,7 @@ module Qt
 			
 			if method == "new"
 				method = classname.dup 
-				method.gsub!(/^(KParts|KIO|khtml|DOM|Kontact|Kate|KTextEditor|KConfigSkeleton::ItemEnum|KConfigSkeleton)::/,"")
+				method.gsub!(/^(KParts|KIO|khtml|DOM|Kontact|Kate|KTextEditor|KConfigSkeleton::ItemEnum|KConfigSkeleton|KWin)::/,"")
 			end
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
 			# Change foobar= to setFoobar()					

@@ -99,6 +99,7 @@ VALUE kconfigskeleton_class = Qnil;
 VALUE kconfigskeleton_itemenum_class = Qnil;
 VALUE kconfigskeleton_itemenum_choice_class = Qnil;
 VALUE kio_udsatom_class = Qnil;
+VALUE kwin_class = Qnil;
 bool application_terminated = FALSE;
 };
 
@@ -2327,6 +2328,9 @@ kde_package_to_class(const char * package)
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 		rb_define_method(klass, "immutable?", (VALUE (*) (...)) _kconfigskeletonitem_immutable, 0);
 		rb_define_method(klass, "isImmutable", (VALUE (*) (...)) _kconfigskeletonitem_immutable, 0);
+	} else if (packageName.startsWith("KDE::Win::")) {
+		klass = rb_define_class_under(kwin_class, package+strlen("KDE::Win::"), qt_base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (packageName.startsWith("KDE::")) {
 		klass = rb_define_class_under(kde_module, package+strlen("KDE::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
@@ -2497,6 +2501,8 @@ Init_qtruby()
 
 	kconfigskeleton_class = rb_define_class_under(kde_module, "ConfigSkeleton", qt_base_class);
 	kconfigskeleton_itemenum_class = rb_define_class_under(kconfigskeleton_class, "ItemEnum", qt_base_class);
+
+	kwin_class = rb_define_class_under(kde_module, "Win", qt_base_class);
 
 	kate_module = rb_define_module("Kate");
     rb_define_singleton_method(kate_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
