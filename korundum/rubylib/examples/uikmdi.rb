@@ -125,7 +125,7 @@ class KmdiExample < KDE::MdiMainFrm
 
         lbl = Qt::Label.new(i18n("Label for a view with an icon named #{text}"), view)
         pxm = Qt::Label.new('', view)
-        pxm.setPixmap(getIcon(icon, KDE::Icon::SizeLarge))
+        pxm.setPixmap(getIcon(icon, Icon::NoGroup, KDE::Icon::SizeLarge))
         addWindow(view)
         @mainToolWidget.insertItem(label)
         connect(view, SIGNAL('childWindowCloseRequest(KMdiChildView*)'), self, SLOT('closeChild(KMdiChildView*)'))
