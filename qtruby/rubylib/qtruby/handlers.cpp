@@ -1,6 +1,11 @@
 #include <qstring.h>
 #include <qregexp.h>
 #include <qapplication.h>
+#include <qlistview.h>
+#include <qiconview.h>
+#include <qtable.h>
+#include <qpopupmenu.h>
+#include <qlayout.h>
 #include <qmetaobject.h>
 #include <qvaluelist.h>
 #include <private/qucomextra_p.h>
@@ -42,9 +47,6 @@ smokeruby_mark(void * p)
 		
     if(o->ptr) {
  		if (	strcmp(className, "QObject") == 0
-				|| strcmp(className, "QLayoutItem") == 0
-				|| strcmp(className, "QListViewItem") == 0
-				|| strcmp(className, "QIconViewItem") == 0
 				|| strcmp(className, "QListBoxItem") == 0
 				|| strcmp(className, "QStyleSheetItem") == 0
 				|| strcmp(className, "QTableItem") == 0
@@ -55,6 +57,60 @@ smokeruby_mark(void * p)
 			if (obj != Qnil) {
 				if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
 				rb_gc_mark(obj);
+			}
+		} else if (strcmp(className, "QLayoutItem") == 0) {
+			QLayoutItem * item = (QLayoutItem *) o->ptr;
+			if (item->layout() != 0 && item->widget() != 0 && item->spacerItem() != 0) {
+				obj = getPointerObject(o->ptr);
+				if (obj != Qnil) {
+					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
+					rb_gc_mark(obj);
+				}
+			}
+		} else if (strcmp(className, "QIconViewItem") == 0) {
+			QIconViewItem * item = (QIconViewItem *) o->ptr;
+			if (item->iconView() != 0) {
+				obj = getPointerObject(o->ptr);
+				if (obj != Qnil) {
+					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
+					rb_gc_mark(obj);
+				}
+			}
+		} else if (strcmp(className, "QCheckListItem") == 0) {
+			QCheckListItem * item = (QCheckListItem *) o->ptr;
+			if (item->parent() != 0 && item->listView() != 0) {
+				obj = getPointerObject(o->ptr);
+				if (obj != Qnil) {
+					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
+					rb_gc_mark(obj);
+				}
+			}
+		} else if (strcmp(className, "QListViewItem") == 0) {
+			QListViewItem * item = (QListViewItem *) o->ptr;
+			if (item->parent() != 0 && item->listView() != 0) {
+				obj = getPointerObject(o->ptr);
+				if (obj != Qnil) {
+					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
+					rb_gc_mark(obj);
+				}
+			}
+		} else if (strcmp(className, "QTableItem") == 0) {
+			QTableItem * item = (QTableItem *) o->ptr;
+			if (item->table() != 0) {
+				obj = getPointerObject(o->ptr);
+				if (obj != Qnil) {
+					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
+					rb_gc_mark(obj);
+				}
+			}
+		} else if (strcmp(className, "QPopupMenu") == 0) {
+			QPopupMenu * item = (QPopupMenu *) o->ptr;
+			if (item->parentWidget(FALSE) != 0) {
+				obj = getPointerObject(o->ptr);
+				if (obj != Qnil) {
+					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
+					rb_gc_mark(obj);
+				}
 			}
 		} else if (isDerivedFromByName(o->smoke, className, "QWidget")) {
 			QWidget * qwidget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget"));

@@ -1,5 +1,11 @@
 2003-09-10  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* Improved garbage collection with various 'ad hoc' rules from the
+	  QtJava bindings about when it's ok/not ok to destruct an instance.
+	  Not always just a 'parent() != 0' check in Qt.
+
+2003-09-10  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Added QByteArray <-> Ruby string marshaller
 
 2003-09-09  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
