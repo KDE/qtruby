@@ -1001,10 +1001,9 @@ inspectProperty(Smoke * smoke, const QMetaProperty * property, const char * name
 {
 	if (property->isEnumType()) {
 		QMetaObject * metaObject = *(property->meta);
-		QString className(metaObject->className());
 		return QCString().sprintf(	" %s=%s::%s",
 									name,
-									smoke->binding->className(smoke->idClass(className.latin1())), 
+									smoke->binding->className(smoke->idClass(metaObject->className())), 
 									property->valueToKey(value.toInt()) );
 	}
 	
