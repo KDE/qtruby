@@ -95,6 +95,8 @@ module Qt
 			if classname.nil? and klass != Object
 				return do_method_missing(package, method, klass.superclass, *args)
 			end
+
+			method_original = method.clone
 			
 			if method == "new"
 				method = classname * 1
@@ -122,7 +124,12 @@ module Qt
 					puts matching[0][0]
 				end
 			end
-			setCurrentMethod(methodIds[0])
+			if !methodIds[0].nil?
+				setCurrentMethod(methodIds[0]) 
+			else
+				fail "\n\t\tcouldn't resolve call to #{klass}.#{method_original}(#{args.join ","}) (resolving to the c++ equivalent of #{classname}::#{method_original})\n" +
+				       "\t\tis it possible that you simply mispelled a local variable access?\n"
+			end
 		end
 		
 		def init()
