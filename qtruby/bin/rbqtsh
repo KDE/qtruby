@@ -303,94 +303,83 @@ $image3_data =
       connect(@fileExitAction, SIGNAL('activated()'), self, SLOT('fileExit()'))
       connect(@helpExampleAction, SIGNAL('activated()'), self, SLOT('helpExample()'))
 
-      executedLines = []
+      @executedLines = []
    end
 
+def fileOpen
+    fname = Qt::FileDialog::getOpenFileName(
+                                ".",
+                                "Pqtsh Session (*.pqts)",
+                                self,
+                                "open session",
+                                "Choose a file to open")
+    return if fname.nil?
+    emit fileNeedsEval(fname)
+end
+
+def getFileName
+    @fileName = Qt::FileDialog::getSaveFileName(
+                                    ".",
+                                    "Pqtsh Session (*.pqts)",
+                                    self,
+                                    "save session",
+                                    "Choose a filename" )
+    unless @fileName =~ /\.pqts$/
+        @fileName << ".pqts"
+    end
+    @fileName
+end
+
+def save(fname)
+    file = File.new(fname, "w")
+    if file.nil
+        # TODO fix ": unknown" to give a reason
+        Qt::MessageBox::critical( 
+                             self, 
+                             "Error" , 
+                             "Couldn't open #{fname} for writing: unknown",  
+                             Qt::MessageBox::Ok, 
+                             Qt::MessageBox::NoButton )
+        return
+    end
+    @executedLines.each {
+        |line|
+        next if line =~ /^\s*$/
+        line.chomp!
+        line << ";" unless line =~ /;\s*$/
+        file.puts(line)
+    }
+    file.close
+end
+
+def fileSave
+    return if emptySession
+    fname = @fileName || getFileName
+    return if fname.nil?
+    save fname
+end
+
+def fileSaveAs(cond = 0)
+    return if emptySession
+    fname = getFileName
+    return if fname.nil?
+    ret = nil
+    if File.exists(fname)
+        cond += 1
+        ret = Qt::MessageBox::warning(
+                                 self,
+                                 "Warning" ,
+                                 "File exists, overwrite ?",
+                                 Qt::MessageBox::Yes,
+                                 Qt::MessageBox::No )
+    else
+        cond = 0
+    end
+    fileSaveAs(cond) if (cond == 0) and ret == Qt::MessageBox::No
+    save(fname)
 end
 
 =begin
-
-sub fileOpen
-{
-    my $fn = Qt::FileDialog::getOpenFileName(
-                    ".",
-                    "Pqtsh Session (*.pqts)",
-                    this,
-                    "open session",
-                    "Choose a file to open" );
-    $fn or return;
-    emit fileNeedsEval($fn);
-
-}
-
-sub getFileName
-{
-    fileName = Qt::FileDialog::getSaveFileName(
-               ".",
-               "Pqtsh Session (*.pqts)",
-               this,
-               "save session",
-               "Choose a filename" );
-    fileName !~ /\.pqts$/ and fileName = fileName . ".pqts";
-    return fileName;
-}
-
-
-sub save
-{
-    my $fn = shift;
-    open( OUT, ">$fn") or do {
-        Qt::MessageBox::critical( 
-                     this, 
-                     "Error" , 
-                     "Couldn't open $fn for writing: $!", 
-                     &Qt::MessageBox::Ok, 
-                     &Qt::MessageBox::NoButton );
-        return
-    };
-    for (@{ &executedLines })
-    {
-        next if /^\s*$/;
-        chomp;
-        $_ .= ";" unless /;\s*$/;
-        print OUT $_, "\n"
-    }
-    close OUT
-}
-
-sub fileSave
-{
-    emptySession() and return;     
-    my $fn = fileName || getFileName();
-    $fn or return;
-    save($fn)
-}
-
-sub fileSaveAs
-{
-    emptySession() and return; 
-    my $fn;
-    my ($cond, $doit);
-    AGAIN:
-    {
-        $fn  = getFileName();
-        $fn or return;
-        if( -e $fn )
-        {
-            $cond++;
-            $doit = Qt::MessageBox::warning(
-                        this,
-                        "Warning" ,
-                        "File exists, overwrite ?",
-                        &Qt::MessageBox::Yes,
-                        &Qt::MessageBox::No );
-        }
-        else
-        {  $cond = 0  }
-    }
-    goto AGAIN if $cond and $doit == &Qt::MessageBox::No;
-    save($fn)       
-}
 
 sub filePrint
 {
@@ -432,58 +421,45 @@ sub filePrint
     }  
 }
 
-sub fileExit
-{
-    emit Qt::app()->quit() if confirmExit();
-}
+=end
 
-sub closeEvent
-{
-   my $e = shift;
-   if(confirmExit())
-   {
-       $e->accept
-   }
+def fileExit
+    emit Qt::app.quit if confirmExit
+end
+
+def closeEvent(e)
+   if confirmExit
+       e.accept
    else
-   {
-       $e->ignore
-   }
-}
+       e.ignore
+    end
+end
 
-sub confirmExit
-{
-    my $doit;
-    if(@{ &executedLines })
-    {
-        $doit = Qt::MessageBox::warning(
-                    this,
-                    "Warning" ,
-                    "A session is opened, quit anyway ?",
-                     &Qt::MessageBox::Yes,
-                     &Qt::MessageBox::No );
-    }
-    else
-    {  return 1  }
- 
-    return (($doit == &Qt::MessageBox::No) ? 0 : 1);
-}
+def confirmExit
+    ret = 0
+    return true if @executedLines.empty?
+    ret = Qt::MessageBox::warning(
+                            self,
+                            "Warning" ,
+                            "A session is opened, quit anyway ?",
+                             Qt::MessageBox::Yes,
+                             Qt::MessageBox::No)
+    return ret != Qt::MessageBox::No
+end
 
-sub emptySession
-{
-    unless (@{ &executedLines })
-    {
-        statusBar()->message("Session is empty...", 3000);
-        return 1;
-    }
-    0
-}
+def emptySession
+    empty = @executedLines.empty?
+    statusBar.message("Session is empty...", 3000) if empty
+    empty
+end
 
-sub helpExample
-{
-    emit fileNeedsEval("__DATA__")
-}
+def helpExample
+    emit fileNeedsEval($example)
+end
 
-1;
+end
+
+=begin
 
 package QtShell;
 
