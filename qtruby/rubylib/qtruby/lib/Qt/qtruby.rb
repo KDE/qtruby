@@ -224,7 +224,7 @@ module Qt
 		def do_method_missing(package, method, klass, this, *args)
 			classname = @@cpp_names[klass.name]
 			if classname.nil?
-				if klass != Object
+				if klass != Object and klass != KDE and klass != Qt
 					return do_method_missing(package, method, klass.superclass, this, *args)
 				else
 					return nil
