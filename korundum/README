@@ -2,9 +2,12 @@ Please see kdebindings/qtruby/README
 
 KDE Specific Infomation:
 
+	- Instead of require 'Qt', use require 'Korundum' for KDE programs
+
 	- DCOP Support. Here is a minimal ruby dcop slot implementation:
 	
 			require 'Korundum'
+			
 			class MyWidget < KDE::PushButton
 				k_dcop 'QPoint mySlot(int,QString)'
 	
@@ -22,3 +25,9 @@ KDE Specific Infomation:
 		Note that the class doesn't have to inherit from DCOPObject. If you
 		  include a 'k_dcop' slots declaration a 'listener' dcop object 
 		  instance is created automatically.
+		  
+	- Use the '-kde' option with the rbuic tool to require the 'Korundum' 
+		extension rather than the 'Qt' one. If the '-x' option is used in 
+		conjunction, it generates a KDE top level. For example:
+		
+		$ rbuic -x -kde knotifywidgetbase.ui -o knotifywidgetbase.rb
