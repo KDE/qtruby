@@ -1960,6 +1960,12 @@ kde_package_to_class(const char * package)
 	} else if (QString(package).startsWith("Kontact::")) {
 		klass = rb_define_class_under(kontact_module, package+strlen("Kontact::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (QString(package).startsWith("Kate::")) {
+		klass = rb_define_class_under(kate_module, package+strlen("Kate::"), qt_base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (QString(package).startsWith("KTextEditor::")) {
+		klass = rb_define_class_under(ktexteditor_module, package+strlen("KTextEditor::"), qt_base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	}
 	
 	return klass;
