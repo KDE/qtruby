@@ -135,7 +135,7 @@ class TicTacGameBoard < Qt::Widget
 		if (won == false)
 			t = 0
 		end
-		t
+		return t
 	end
 
 	def computerMove
@@ -143,40 +143,41 @@ class TicTacGameBoard < Qt::Widget
 		altv = Array.new
 		stopHuman = -1
 
-		for i in 0..numButtons-1
-			if @btArray[i] != TicTacButton::Blank
+		for i in 0..numButtons-1				# try all positions
+			if @btArray[i] != TicTacButton::Blank		# already a piece there
 				next
 			end
 
-			@btArray[i] = TicTacButton::Cross
-			if (checkBoard == @btArray[i])
+			@btArray[i] = TicTacButton::Cross		# test if computer wins
+			s = checkBoard
+			if (s == @btArray[i])				# computer will win
 				@state = ComputerWon
 				stopHuman = -1
 				break
 			end
 
-			@btArray[i] = TicTacButton::Circle
-			if (checkBoard == @btArray[i])
-				stopHuman = i
-				@btArray[i] = TicTacButton::Blank
-				next
+			@btArray[i] = TicTacButton::Circle		# test if human wins
+			if (checkBoard == @btArray[i])			#  oops...
+				stopHuman = i				# remember position
+				@btArray[i] = TicTacButton::Blank	# restore button
+				next					# computer still might win
 			end
-			@btArray[i] = TicTacButton::Blank;
-			altv.push[i]
+			@btArray[i] = TicTacButton::Blank;		# restore button
+			altv.push[i]					# remember alternative
 		end
 
-		if stopHuman >= 0
+		if (stopHuman >= 0)					# must stop human from winning
 			@btArray[stopHuman] = TicTacButton::Cross
-		elsif i == numButtons
-			if altv.size > 0
+		elsif (i == numButtons)					# tried all alternatives
+			if (altv.size > 0)				# set random piece
 				@btArray[altv[rand()%(altv.size)]] = TicTacButton::Cross
 			end
-			if (altv.size-1) == 0
+			if ((altv.size-1) == 0)				# no more blanks
 				@state = NobodyWon
 				emit finished()
 			end
 		end
-		updateButtons
+		updateButtons						# update buttons
 	end
 
 	def buttonClicked
@@ -198,7 +199,8 @@ class TicTacGameBoard < Qt::Widget
 			updateButtons
 		end
 
-		case checkBoard
+		s = checkBoard
+		case s
 		when TicTacButton::Blank
 			computerMove
 		when TicTacButton::Circle
