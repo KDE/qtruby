@@ -30,6 +30,7 @@
 #include <qmetaobject.h>
 #include <private/qucomextra_p.h>
 #include <qvariant.h>
+#include <qcursor.h>
 
 #undef DEBUG
 #ifndef __USE_POSIX
@@ -971,7 +972,19 @@ inspectVariant(const char * name, QVariant & value)
 		
 		return QCString().sprintf(" %s=%s", rubyName.latin1(), value.toString().latin1());
 	}
-		
+			
+	case QVariant::Color:
+	{
+		QColor c = value.toColor();
+		return QCString().sprintf(" %s=#<Qt::Color:0x0 %s>", name, c.name().latin1());
+	}
+			
+	case QVariant::Cursor:
+	{
+		QCursor c = value.toCursor();
+		return QCString().sprintf(" %s=#<Qt::Cursor:0x0 shape=%d>", name, c.shape());
+	}
+	
 	case QVariant::Double:
 	{
 		return QCString().sprintf(" %s=%.4f", name, value.toDouble());
@@ -980,10 +993,11 @@ inspectVariant(const char * name, QVariant & value)
 	case QVariant::Font:
 	{
 		QFont f = value.toFont();
-		return QCString().sprintf(	" %s=#<Qt::Font:0x0 family=%s, pointSize=%d, weight=%d, italic=%s, bold=%s>", 
+		return QCString().sprintf(	" %s=#<Qt::Font:0x0 family=%s, pointSize=%d, weight=%d, italic=%s, bold=%s, underline=%s, strikeOut=%s>", 
 									name, 
 									f.family().latin1(), f.pointSize(), f.weight(), 
-									f.italic() ? "true" : "false", f.bold() ? "true" : "false" );
+									f.italic() ? "true" : "false", f.bold() ? "true" : "false",
+									f.underline() ? "true" : "false", f.strikeOut() ? "true" : "false" );
 	}
 	
 	case QVariant::Point:
@@ -1020,7 +1034,6 @@ inspectVariant(const char * name, QVariant & value)
 	
 	case QVariant::Brush:
 	case QVariant::ColorGroup:
-	case QVariant::Cursor:
 	case QVariant::Image:
 	case QVariant::Palette:
 	case QVariant::Pixmap:

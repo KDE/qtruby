@@ -136,24 +136,38 @@ module Qt
 	class Color < Qt::Base
 		def inspect
 			str = super
-			str.sub(/>$/, " red=%d, green=%d, blue=%d>" % [red, green, blue])
+			str.sub(/>$/, " %s>" % name)
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, "\n red=%d,\n green=%d,\n blue=%d>" % [red, green, blue])
+			pp.text str.sub(/>$/, " %s>" % name)
+		end
+	end
+	
+	class Cursor < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " shape=%d>" % shape)
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, " shape=%d>" % shape)
 		end
 	end
 	
 	class Font < Qt::Base
 		def inspect
 			str = super
-			str.sub(/>$/, " family=%s, pointSize=%d, weight=%d, italic=%s, bold=%s>" % [family.inspect, pointSize, weight, italic, bold])
+			str.sub(/>$/, " family=%s, pointSize=%d, weight=%d, italic=%s, bold=%s, underline=%s, strikeOut=%s>" % 
+			[family.inspect, pointSize, weight, italic, bold, underline, strikeOut])
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, "\n family=%s,\n pointSize=%d,\n weight=%d,\n italic=%s,\n bold=%s>" % [family.inspect, pointSize, weight, italic, bold])
+			pp.text str.sub(/>$/, "\n family=%s,\n pointSize=%d,\n weight=%d,\n italic=%s,\n bold=%s,\n underline=%s,\n strikeOut=%s>" % 
+			[family.inspect, pointSize, weight, italic, bold, underline, strikeOut])
 		end
 	end
 	
