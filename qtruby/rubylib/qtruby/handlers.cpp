@@ -104,7 +104,7 @@ construct_copy(smokeruby_object *o)
 	Smoke::Index i = -ccMeth;
 	while(o->smoke->ambiguousMethodList[i]) {
 	    if(matches_arg(o->smoke, o->smoke->ambiguousMethodList[i], 0, ccArg))
-		break;
+	        break;
 	}
         delete[] ccArg;
 	ccMeth = o->smoke->ambiguousMethodList[i];
@@ -311,14 +311,14 @@ marshall_basetype(Marshall *m)
 	  case Marshall::ToVALUE:
 	    {
 		if(m->item().s_voidp == 0) {
-			*(m->var()) = Qundef;
+                    *(m->var()) = Qundef;
 		    break;
 		}
 
 		void *p = m->item().s_voidp;
 		VALUE obj = getPointerObject(p);
 		if(obj != Qnil) {
-			*(m->var()) = obj;
+                    *(m->var()) = obj;
 		    break;
 		}
 //		HV *hv = newHV();
@@ -369,13 +369,13 @@ static void marshall_charP(Marshall *m) {
 	{
 	    VALUE rv = *(m->var());
 	    if(rv == Qundef) {
-			m->item().s_voidp = 0;
-			break;
+                m->item().s_voidp = 0;
+                break;
 	    }
 	    if(m->cleanup()) {
-			m->item().s_voidp = STR2CSTR(rv);
+                m->item().s_voidp = STR2CSTR(rv);
 	    } else {
-			m->item().s_voidp = STR2CSTR(rv);
+                m->item().s_voidp = STR2CSTR(rv);
 	    }
 	}
 	break;
@@ -383,9 +383,9 @@ static void marshall_charP(Marshall *m) {
 	{
 	    char *p = (char*)m->item().s_voidp;
 	    if(p)
-	    *(m->var()) = rb_str_new2(p);
+                *(m->var()) = rb_str_new2(p);
 	    else
-	    *(m->var()) = Qundef;
+                *(m->var()) = Qundef;
 	    if(m->cleanup())
 		delete[] p;
 	}
@@ -406,9 +406,9 @@ void marshall_ucharP(Marshall *m) {
 		break;
 	    }
 	    if(m->cleanup()) {
-			m->item().s_voidp = (void *) rb_str_new2("");
+                m->item().s_voidp = (void *) rb_str_new2("");
 	    } else {
-			m->item().s_voidp = STR2CSTR(rv);
+                m->item().s_voidp = STR2CSTR(rv);
 	    }
 	}
 	break;
@@ -433,10 +433,9 @@ static void marshall_QString(Marshall *m) {
 //                    s = new QString(QString::fromLocal8Bit(SvPV_nolen(*(m->var()))));
 //                else
 //                    s = new QString(QString::fromLatin1(SvPV_nolen(*(m->var()))));
-//            }
-		} else if(m->type().isRef()) {
-			s = new QString;
-		}
+            } else if(m->type().isRef()) {
+                s = new QString;
+            }
 		
 	    m->item().s_voidp = s;
 	    m->next();
@@ -449,10 +448,10 @@ static void marshall_QString(Marshall *m) {
 	    QString *s = (QString*)m->item().s_voidp;
 	    if(s) {
 	    	if (s->isNull()) {
-				*(m->var()) = Qnil;
+                    *(m->var()) = Qnil;
 	     	} else {
-				*(m->var()) = rb_str_new2(s->latin1());
-			}
+                    *(m->var()) = rb_str_new2(s->latin1());
+                }
 //                if(!(PL_hints & HINT_BYTES))
 //                {
 //		    sv_setpv_mg(m->var(), (const char *)s->utf8());
@@ -462,9 +461,9 @@ static void marshall_QString(Marshall *m) {
 //                    sv_setpv_mg(m->var(), (const char *)s->local8Bit());
 //                else
 //                    sv_setpv_mg(m->var(), (const char *)s->latin1());
-        } else {
-			*(m->var()) = Qnil;
-		}
+            } else {
+                *(m->var()) = Qnil;
+            }
 		
 	    if(m->cleanup())
 		delete s;
@@ -498,7 +497,7 @@ static void marshall_QCString(Marshall *m) {
 	    VALUE rv = *(m->var());
 	    if (rv != Qundef || m->type().isStack()) {
 		s = new QCString(STR2CSTR(*(m->var())));
-		}
+            }
 	    m->item().s_voidp = s;
 	    m->next();
 	    if(s && m->cleanup())
@@ -522,9 +521,9 @@ static void marshall_QCString(Marshall *m) {
 //                  #endif
 //                    SvUTF8_on(*(m->var()));
 //                }
-		} else {
-			*(m->var()) = Qundef;
-		}
+            } else {
+                *(m->var()) = Qundef;
+            }
 	    if(m->cleanup())
 		delete s;
 	}
@@ -587,12 +586,12 @@ static void marshall_intR(Marshall *m) {
 	    int *ip = (int*)m->item().s_voidp;
 	    VALUE rv = *(m->var());
 	    if(!ip) {
-	    rv = Qundef;
+	        rv = Qundef;
 		break;
 	    }
-		*(m->var()) = INT2NUM(*ip);
+	    *(m->var()) = INT2NUM(*ip);
 	    m->next();
-		// How to do this in Ruby?
+// FIXME How to do this in Ruby?
 //	    if(!m->type().isConst())
 //		*ip = (int)SvIV(sv);
 	}
@@ -608,8 +607,8 @@ static void marshall_boolR(Marshall *m) {
       case Marshall::FromVALUE:
 	{
 	    VALUE rv = *(m->var());
-	    if(m->type().isPtr() &&		// is pointer
-	       TYPE(rv) != T_BIGNUM) {   // and real undef
+	    if(m->type().isPtr()		// is pointer
+	    && TYPE(rv) != T_BIGNUM) {          // and real undef
 		m->item().s_voidp = 0;		// pass null pointer
 		break;
 	    }
@@ -649,21 +648,21 @@ static void marshall_charP_array(Marshall *m) {
       case Marshall::FromVALUE:
 	{
 	    VALUE arglist = *(m->var());
-	    if (	arglist == Qnil
-	    		|| TYPE(arglist) != T_ARRAY
-	      		|| RARRAY(arglist)->len == 0 )
-		{
-			m->item().s_voidp = 0;
-			break;
+	    if (arglist == Qnil
+	    || TYPE(arglist) != T_ARRAY
+	    || RARRAY(arglist)->len == 0 )
+	    {
+                m->item().s_voidp = 0;
+                break;
 	    }
 
 	    char **argv = new char *[RARRAY(arglist)->len + 1];
 	    long i;
 	    for(i = 0; i < RARRAY(arglist)->len; i++) {
-			VALUE item = rb_ary_entry(arglist, i);
-			char *s = STR2CSTR(item);
-			argv[i] = new char[strlen(s) + 1];
-			strcpy(argv[i], s);
+                VALUE item = rb_ary_entry(arglist, i);
+                char *s = STR2CSTR(item);
+                argv[i] = new char[strlen(s) + 1];
+                strcpy(argv[i], s);
 	    }
 	    argv[i] = 0;
 	    m->item().s_voidp = argv;
@@ -685,60 +684,60 @@ static void marshall_charP_array(Marshall *m) {
 
 void marshall_QStringList(Marshall *m) {
     switch(m->action()) {
-		case Marshall::FromVALUE: {
-			VALUE list = *(m->var());
-			if (TYPE(list) != T_ARRAY) {
-				m->item().s_voidp = 0;
-				break;
-			}
+      case Marshall::FromVALUE: 
+	{
+	    VALUE list = *(m->var());
+	    if (TYPE(list) != T_ARRAY) {
+		m->item().s_voidp = 0;
+		break;
+	    }
 
-			int count = RARRAY(list)->len;
-			QStringList *stringlist = new QStringList;
+	    int count = RARRAY(list)->len;
+	    QStringList *stringlist = new QStringList;
 
-			for(long i = 0; i < count; i++) {
-				VALUE item = rb_ary_entry(list, i);
-				if(TYPE(item) != T_STRING) {
-					stringlist->append(QString());
-					continue;
-				}
-				stringlist->append(QString::fromUtf8(STR2CSTR(item)));
-			}
-
-			m->item().s_voidp = stringlist;
-			m->next();
-
-			if(m->cleanup()) {
-				rb_ary_clear(list);
-				for(QStringList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it)
-					rb_ary_push(list, rb_str_new2(static_cast<const char *>(*it)));
-				delete stringlist;
-			}
-			break;
+	    for(long i = 0; i < count; i++) {
+		VALUE item = rb_ary_entry(list, i);
+		if(TYPE(item) != T_STRING) {
+		    stringlist->append(QString());
+		    continue;
 		}
-		case Marshall::ToVALUE: {
-			QStringList *stringlist = static_cast<QStringList *>(m->item().s_voidp);
-			if(!stringlist) {
-				*(m->var()) = Qundef;
-				break;
-			}
+		stringlist->append(QString::fromUtf8(STR2CSTR(item)));
+	    }
 
-			VALUE av = rb_ary_new();
-	        for(QStringList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it) {
-				VALUE rv = rb_str_new2(static_cast<const char *>((*it).latin1()));
-				rb_ary_push(av, rv);
-			}
+	    m->item().s_voidp = stringlist;
+	    m->next();
 
-			if(m->cleanup())
-				delete stringlist;
+	    if(m->cleanup()) {
+		rb_ary_clear(list);
+		for(QStringList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it)
+		    rb_ary_push(list, rb_str_new2(static_cast<const char *>(*it)));
+		delete stringlist;
+	    }
+	    break;
+      }
+      case Marshall::ToVALUE: 
+	{
+	    QStringList *stringlist = static_cast<QStringList *>(m->item().s_voidp);
+	    if(!stringlist) {
+		*(m->var()) = Qundef;
+		break;
+	    }
 
-			*(m->var()) = av;
+	    VALUE av = rb_ary_new();
+	    for(QStringList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it) {
+		VALUE rv = rb_str_new2(static_cast<const char *>((*it).latin1()));
+		rb_ary_push(av, rv);
+	    }
 
-			break;
-		}
-		default: {
-			m->unsupported();
-			break;
-		}
+	    if(m->cleanup())
+		delete stringlist;
+
+	    *(m->var()) = av;
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
     }
 }
 
@@ -850,8 +849,7 @@ void marshall_QValueListInt(Marshall *m) {
 		    valuelist->append(0);
 		    continue;
 		}
-
-	    valuelist->append(NUM2INT(item));
+		valuelist->append(NUM2INT(item));
 	    }
 
 	    m->item().s_voidp = valuelist;
@@ -917,7 +915,7 @@ void marshall_voidP(Marshall *m) {
 //	    VALUE rv = newRV_noinc(sv);
 //	    sv_setsv_mg(m->var(), rv);
 //	    SvREFCNT_dec(rv);
-		*(m->var()) = Data_Wrap_Struct(rb_cObject, 0, 0, m->item().s_voidp);
+	    *(m->var()) = Data_Wrap_Struct(rb_cObject, 0, 0, m->item().s_voidp);
 	}
 	break;
       default:
