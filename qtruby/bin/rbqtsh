@@ -7,6 +7,7 @@
 # license: GNU Public License v2
 #
 
+require 'stringio'
 require 'Qt'
 include Qt
 
@@ -248,30 +249,30 @@ class QtShellControl < Qt::MainWindow
         @fileOpenAction.setIconSet(Qt::IconSet.new(image1))
         @fileOpenAction.setText(trUtf8("Open"))
         @fileOpenAction.setMenuText(trUtf8("&Open..."))
-#       @fileOpenAction.setAccel(KeySequence(trUtf8("Ctrl+O")))
+        @fileOpenAction.setAccel(KeySequence.new(trUtf8("Ctrl+O")))
         @fileSaveAction = Qt::Action.new(self, "fileSaveAction")
         @fileSaveAction.setIconSet(Qt::IconSet.new(image2))
         @fileSaveAction.setText(trUtf8("Save"))
         @fileSaveAction.setMenuText(trUtf8("&Save"))
-#       @fileSaveAction.setAccel(KeySequence(trUtf8("Ctrl+S")))
+        @fileSaveAction.setAccel(KeySequence.new(trUtf8("Ctrl+S")))
         @fileSaveAsAction = Qt::Action.new(self, "fileSaveAsAction")
         @fileSaveAsAction.setText(trUtf8("Save As"))
         @fileSaveAsAction.setMenuText(trUtf8("Save &As..."))
-#       @fileSaveAsAction.setAccel(KeySequence(trUtf8("Ctrl+A")))
+        @fileSaveAsAction.setAccel(KeySequence.new(trUtf8("Ctrl+A")))
         @filePrintAction = Qt::Action.new(self, "filePrintAction")
         @filePrintAction.setIconSet(Qt::IconSet.new(image3))
         @filePrintAction.setText(trUtf8("Print"))
         @filePrintAction.setMenuText(trUtf8("&Print..."))
-#       @filePrintAction.setAccel(KeySequence(trUtf8("Ctrl+P")))
+        @filePrintAction.setAccel(KeySequence.new(trUtf8("Ctrl+P")))
         @fileExitAction = Qt::Action.new(self, "fileExitAction")
         @fileExitAction.setText(trUtf8("Exit"))
         @fileExitAction.setMenuText(trUtf8("E&xit"))
-#       @fileExitAction.setAccel(KeySequence(trUtf8("Ctrl+E")))
+        @fileExitAction.setAccel(KeySequence.new(trUtf8("Ctrl+E")))
 
-        @helpExampleAction= Qt::Action.new(self, "helpExampleAction");
+        @helpExampleAction = Qt::Action.new(self, "helpExampleAction");
         @helpExampleAction.setText(trUtf8("Example"));
         @helpExampleAction.setMenuText(trUtf8("Examp&le"));
-#       @helpExampleAction.setAccel(KeySequence(trUtf8("Ctrl+L")));
+        @helpExampleAction.setAccel(KeySequence.new(trUtf8("Ctrl+L")));
        
         @toolBar = Qt::ToolBar.new("", self, DockTop)
         @toolBar.setLabel(trUtf8("Tools"))
@@ -455,14 +456,18 @@ sub filePrint
     end
 
     def helpExample
-        emit fileNeedsEval($example)
+        emit fileNeedsEval("__DATA__")
     end
 
 end
 
 class QtShell < Qt::MainWindow
-    slots 'evalInput()', 'evalFile(String)'
+    slots 'evalInput()', 'evalFile(QString)'
     attr_accessor :shellWindow
+    @@binding = binding
+def bind
+@@binding
+end
 
 def initialize(*k)
     super(*k)
@@ -484,44 +489,73 @@ end
 
 def logAppend(str)
     tmp = @shellWindow.sessionLog.text << str
-    @shellWindow.sessionLog.setText str
+    @shellWindow.sessionLog.setText tmp
 end
 
 def evalInput
     evalOneLine @shellWindow.comboBox.currentText
 end
 
+=begin
+
+sub TIEHANDLE { my ( $classnm, $widg, $color) = @_;
+  my $h = { widg => $widg, color => $color};
+  bless  $h, $classnm;
+}
+
+sub PRINT {
+  my $me = shift;
+  my $color = $me->{color};
+  my $printed = join $/,  @_;
+  $printed =~ s/</&lt;/gs;
+  $printed =~ s/>/&gt;/gs;
+  $printed =~ s/\n/<br>/gs;
+  $me->{widg}->setText( $me->{widg}->text . "<font color=\"$color\">$printed</font>" );
+}
+
+#tie *STDOUT, 'Qt::TextHandle', $shw->sessionLog, 'black';
+#tie *STDERR, 'Qt::TextHandle', $shw->sessionLog, 'red';
+
+=end
+
 def evalOneLine(line)
     prot = ln = line
     prot.gsub('<', '&lt;') # /gs ???
     prot.gsub('>', '&gt;') # /gs ???
 
-    logAppend( "${@prompt}#{prot}<br>" )
+    logAppend( "#{@prompt}#{prot}<br>" )
 
-    stdout_was = $stdout
+    ostdout, ostderr = $stdout, $stderr
+    strio = StringIO.new
+    $stdout, $stderr = strio, strio
     begin
-        eval line
-    rescue NameError, NoMethodError
-        prot = $@ # HUH?
-        prot.gsub('<', '&lt;') # /gs ???
-        prot.gsub('>', '&gt;') # /gs ???
+        if line =~ /^\$(.*)$/
+            eval $1, bind 
+        else
+            eval line
+        end
+    rescue StandardError, ScriptError => e
+        prot = e.to_str
+        prot.gsub(/</, '&lt;') # /gs ???
+        prot.gsub(/>/, '&gt;') # /gs ???
         c = @shellWindow.sessionLog.color
-        prot.grub('\n', '<br>') # /gs ???
+        prot.gsub(/\n/, '<br>') # /gs ???
         logAppend '<font color="red">' << prot << '</font><br>'
         shellWindow.sessionLog.setColor c
-    else
-        @shellWindow.executedLines << line
-        @shellWindow.comboBox.clearEdit
-        @shellWindow.comboBox.setFocus
     end
-    $stdout = stdout_was
+    logAppend '<font color="blue">' << strio.string << '</font><br>'
+    @shellWindow.executedLines << line
+    @shellWindow.comboBox.clearEdit
+    @shellWindow.comboBox.setFocus
+    $stdout, $stderr = ostdout, ostderr
 
     @shellWindow.sessionLog.scrollToBottom
 end
 
 def evalFile(fname)
     if fname == "__DATA__"
-        indata = $example
+        file = StringIO.new
+        file.string = $example
     else
         file = File.open(fname, "r")
         if file.nil?
@@ -545,44 +579,14 @@ end
 
 end
 
-=begin
-
-package Qt::TextHandle;
-
-sub TIEHANDLE { my ( $classnm, $widg, $color) = @_;
-  my $h = { widg => $widg, color => $color};
-  bless  $h, $classnm;
-
-}
-
-sub PRINT {
-  my $me = shift;
-  my $color = $me->{color};
-  my $printed = join $/,  @_;
-  $printed =~ s/</&lt;/gs;
-  $printed =~ s/>/&gt;/gs;
-  $printed =~ s/\n/<br>/gs;
-  $me->{widg}->setText( $me->{widg}->text . "<font color=\"$color\">$printed</font>" );
-
-}
-
-sub PRINTF { shift->PRINT(sprintf shift, @_); }
-sub CLOSE  { shift->UNTIE; }
-sub UNTIE  { }
-
-=end
-
 app = Qt::Application.new(ARGV)
 w = QtShell.new(nil, "mainWindow")
 app.setMainWidget(w.shellWindow)
 app.exec
 
-#tie *STDOUT, 'Qt::TextHandle', $shw->sessionLog, 'black';
-#tie *STDERR, 'Qt::TextHandle', $shw->sessionLog, 'red';
-
 BEGIN {
 $example = <<EXAMPLE
-attr_accessor :datetime, :button, :textedit, :sample, :vbox
+$ attr_accessor :datetime, :button, :textedit, :sample, :vbox
 statusBar.message("Hello World !")
 @vbox = VBox.new(self)
 @datetime = DateTimeEdit.new(vbox)
@@ -590,11 +594,11 @@ statusBar.message("Hello World !")
 @button = PushButton.new("Hello World!", vbox)
 self.setCentralWidget(vbox)
 self.resize(220,240)
-@vbox->show
-sample = Qt::PopupMenu.new(self)
-slots 'there()'
-@sample.insertItem("&There", this, SLOT('there()'))
-@menuBar.insertItem("&Here", sample)
-def there; statusBar.message("There...", 2000); end
+@vbox.show
+@sample = Qt::PopupMenu.new(self)
+$ slots 'there()'
+@sample.insertItem("&There", self, SLOT('there()'))
+self.menuBar.insertItem("&Here", sample)
+$ def there; statusBar.message("There...", 2000); end
 EXAMPLE
 }
