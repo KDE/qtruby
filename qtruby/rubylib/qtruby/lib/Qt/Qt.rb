@@ -94,7 +94,7 @@ module Qt
 			classname = CppName[klass.name]
 			if classname.nil? and klass != Object
 				do_method_missing(package, method, klass.superclass, *args)
-				return 
+				return nil
 			end
 
 			method_original = method.clone
@@ -103,16 +103,18 @@ module Qt
 				method = classname * 1
 			end
 						
+                        method_argstr = ""
 			for arg in args
 				if arg.nil? or isObject(arg)
-					method << "#"
+					method_argstr << "#"
 				elsif arg.kind_of? Array or arg.kind_of? Hash
-					method << "?"
+					method_argstr << "?"
 				else
-					method << "$"
+					method_argstr << "$"
 				end
 			end
 			
+			method << method_argstr 
 			methodIds = findMethod(classname, method)
 			if methodIds.length > 1
 				for i in 0..(args.length - 1)
@@ -128,6 +130,7 @@ module Qt
 			end
 
 			setCurrentMethod(methodIds[0] || -1)
+			return nil
 		end
 		
 		def init()

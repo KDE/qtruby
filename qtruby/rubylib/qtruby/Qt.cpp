@@ -55,6 +55,8 @@
 
 // #define DEBUG
 
+#define QTRUBY_VERSION "0.8.0"
+
 extern Smoke *qt_Smoke;
 extern void init_qt_Smoke();
 extern void smokeruby_mark(void * ptr);
@@ -935,7 +937,9 @@ method_missing(int argc, VALUE * argv, VALUE self)
 		savestack[count+2] = argv[count];
 	}
 
-	rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+2, savestack);
+	VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+2, savestack);
+	if (retval != Qnil)
+	        return retval;
 
 	// If the method can't be found allow the default method_missing
 	//	to display an error message, by calling super on the method
@@ -978,7 +982,9 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
 		savestack[count+2] = argv[count];
 	}
 
-	rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+2, savestack);
+	VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+2, savestack);
+	if (retval != Qnil)
+	        return retval;
 
 	// If the method can't be found allow the default method_missing
 	//	to display an error message, by calling super on the method
@@ -1049,7 +1055,9 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 		savestack[count+3] = argv[count];
 	}
 
-	rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
+	VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
+	if (retval != Qnil)
+	        return retval;
 
 	// If the method can't be found, allow the default method_missing
 	//	to display an error message, by calling super on the method
@@ -1920,6 +1928,12 @@ version(VALUE /*self*/)
     return rb_str_new2(QT_VERSION_STR);
 }
 
+static VALUE
+qtruby_version(VALUE /*self*/)
+{
+    return rb_str_new2(QTRUBY_VERSION);
+}
+
 void
 Init_Qt()
 {
@@ -1989,6 +2003,7 @@ Init_Qt()
 	rb_define_method(qt_internal_module, "create_qt_class", (VALUE (*) (...)) create_qt_class, 1);
 	rb_define_method(qt_internal_module, "create_qobject_class", (VALUE (*) (...)) create_qobject_class, 1);
 	rb_define_method(qt_internal_module, "version", (VALUE (*) (...)) version, 0);
+	rb_define_method(qt_internal_module, "qtruby_version", (VALUE (*) (...)) qtruby_version, 0);
 
 	pointer_map = rb_hash_new();
 	rb_gc_register_address(&pointer_map);
