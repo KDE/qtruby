@@ -714,13 +714,13 @@ void marshall_QStringList(Marshall *m) {
 			if(m->cleanup()) {
 				rb_ary_clear(list);
 				for(QStringList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it)
-					rb_ary_push(list, rb_str_new2((const char *)*it));
+					rb_ary_push(list, rb_str_new2(static_cast<const char *>(*it)));
 				delete stringlist;
 			}
 			break;
 		}
 		case Marshall::ToVALUE: {
-			QStringList *stringlist = (QStringList*)m->item().s_voidp;
+			QStringList *stringlist = static_cast<QStringList *>(m->item().s_voidp);
 			if(!stringlist) {
 				*(m->var()) = Qundef;
 				break;
@@ -728,7 +728,7 @@ void marshall_QStringList(Marshall *m) {
 
 			VALUE av = rb_ary_new();
 	        for(QStringList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it) {
-				VALUE rv = rb_str_new2((const char *)(*it).latin1());
+				VALUE rv = rb_str_new2(static_cast<const char *>((*it).latin1()));
 				rb_ary_push(av, rv);
 			}
 
