@@ -22,17 +22,6 @@ def time_me str
    log "#{str}: #{"%.02f" % (t2 - t1).to_f}s"
 end
 
-class String
-   def trigrams
-      list = []
-      0.upto(self.length-3) {
-         |pos|
-         list << self.slice(pos, 3)
-      }
-      list
-   end
-end
-
 module DOMUtils
 
    def DOMUtils.each_child node
@@ -95,6 +84,17 @@ module DOMUtils
       path_a 
    end
 
+end
+
+class String
+   def trigrams
+      list = []
+      0.upto(self.length-3) {
+         |pos|
+         list << self.slice(pos, 3)
+      }
+      list
+   end
 end
 
 class GenericTriGramIndex
@@ -160,14 +160,14 @@ module MyGui
       @panes.setOrientation Qt::Splitter::Horizontal
       setStretchFactor @panes, 10
 
-      @pane_blah = Qt::VBox.new @panes
+      @results_pane = Qt::VBox.new @panes
 
       @rightpane = Qt::Splitter.new @panes
       @rightpane.setOrientation Qt::Splitter::Vertical
       @viewed = KDE::HTMLPart.new @rightpane
       init_logger @rightpane
 
-      @listview = Qt::ListView.new @pane_blah
+      @listview = Qt::ListView.new @results_pane
       @listview.addColumn "IDXs"
       @listview.hideColumn 1 unless DEBUG_IDX
       @listview.addColumn "URIs"
@@ -187,7 +187,7 @@ module MyGui
 
       Qt::Object::connect @viewed.browserExtension, 
                                     SIGNAL("openURLRequest(const KURL&, const KParts::URLArgs&)"),
-                          self,     SLOT("openURL(const KURL&)")
+                          self,     SLOT("open_url(const KURL&)")
 
       KDE::Action.new "&Quit",        "quit",    KDE::Shortcut.new(), 
                       self, SLOT("quit()"),                     @main.actionCollection, "file_quit"
@@ -248,7 +248,6 @@ module MyGui
       focus_search
    end
 
-
    def clear_location
       @searchcombo.clearEdit
    end
@@ -258,7 +257,7 @@ module MyGui
       return $1, $3
    end
 
-   def openURL kurl
+   def open_url kurl
       url, anchor = uri_anchor_split kurl.url
       id = @id2uri.invert[url]
       if id.nil?
@@ -283,26 +282,26 @@ module MyGui
       @rightpane.setSizes [sy-logsize, logsize]
       @panes.setSizes     [resultssize, sx-resultssize]
 
-      @rightpane.setResizeMode @logger, Qt::Splitter::KeepSize
+      @rightpane.setResizeMode @logger,   Qt::Splitter::KeepSize
 
-      @panes.setResizeMode @pane_blah,  Qt::Splitter::KeepSize
-      @panes.setResizeMode @rightpane,  Qt::Splitter::KeepSize
+      @panes.setResizeMode @results_pane, Qt::Splitter::KeepSize
+      @panes.setResizeMode @rightpane,    Qt::Splitter::KeepSize
    end
 
 end
 
 module IndexStorage
 
+   INDEX_VERSION = 2
+
    IndexStore = Struct.new :index, :nodeindex, :id2title, :id2uri, :id2depth, :version
 
    def index_fname
       basedir = ENV["HOME"] + "/.rubberdocs"
-      prefix = basedir + "/." + ENV["BASEDOCURL"].gsub(/\//,",") + ".idx"
+      prefix = basedir + "/." + @pref.gsub(/\//,",") + ".idx"
       Dir.mkdir basedir unless File.exists? basedir
       "#{prefix}.doc"
    end
-
-   INDEX_VERSION = 2
 
    def load_indexes
       return false unless File.exists? index_fname
@@ -320,6 +319,7 @@ module IndexStorage
    end
 
    def save_indexes
+      return unless @indexed_more
       File.open(index_fname, "w") {
          |file| 
          w = IndexStore.new
@@ -336,6 +336,13 @@ module IndexStorage
 end
 
 module HTMLIndexer
+
+   DocNodeRef = Struct.new :doc_idx, :node_path
+
+   module IndexDepths
+      # TitleIndexed implies "LinkTitlesIndexed"
+      Allocated, TitleIndexed, LinksFollowed, Partial, Node = 0, 1, 2, 3, 4
+   end
 
    def index_documents
       # fix this to use kde's actual dir
@@ -403,13 +410,6 @@ module HTMLIndexer
       end
       @id2depth[@shown_doc_id] = IndexDepths::LinksFollowed
       return todo_links
-   end
-
-   DocNodeRef = Struct.new :doc_idx, :node_path
-
-   module IndexDepths
-      # TitleIndexed implies "LinkTitlesIndexed"
-      Allocated, TitleIndexed, LinksFollowed, Partial, Node = 0, 1, 2, 3, 4
    end
 
    def find_allocated_uri uri
@@ -485,12 +485,24 @@ module HTMLIndexer
 
 end
 
+# TODO - this sucks, use khtml to get the values
+module IDS
+   A     = 1
+   META  = 62
+   STYLE = 85
+   TITLE = 95
+end
+
 module TermHighlighter
+
+   include IDS
+
+   FORBIDDEN_TAGS = [IDS::TITLE, IDS::META, IDS::STYLE]
 
    def update_highlight
       return if @search_text.nil? || @search_text.empty?
-      return if $doingit
-      $doingit = true
+      return if @in_update_highlight
+      @in_update_highlight = true
       preload_text
       highlighted_nodes = []
       @nodeindex.search(@search_text).each {
@@ -499,16 +511,8 @@ module TermHighlighter
          highlighted_nodes << ref.node_path
       }
       highlight_node_list highlighted_nodes
-      $doingit = false
+      @in_update_highlight = false
    end
-
-   # TODO - this sucks, use khtml to get the values
-   ID_A     = 1
-   ID_META  = 62
-   ID_STYLE = 85
-   ID_TITLE = 95
-
-   FORBIDDEN_TAGS = [ID_TITLE, ID_META, ID_STYLE]
 
    def highlight_node_list highlighted_nodes
       doc = @viewed.document
@@ -527,16 +531,16 @@ module TermHighlighter
       @viewed.setCaretPosition caretnode, 0
       caret_path = DOMUtils.get_node_path(caretnode)
       count = 0
-      $blab_recall = []
-      @current_matched_href = nil
+      @skipped_highlight_requests = []
+      @current_matched_href       = nil
       highlighted_nodes.each {
          |path|
          node      = DOMUtils.find_node doc, path
          match_idx = node.nodeValue.string.downcase.index @search_text.downcase
          if match_idx.nil?
-            $screwups = 0 if $screwups.nil?
-            warn "if you see this, then alex screwed up!.... #{$screwups} times!"
-            $screwups += 1
+            @screwups = 0 if @screwups.nil?
+            warn "if you see this, then alex screwed up!.... #{@screwups} times!"
+            @screwups += 1
             next
          end
          parent_info = DOMUtils.list_parent_node_types node
@@ -545,7 +549,7 @@ module TermHighlighter
          if path == caret_path
             DOMUtils.each_parent(node) {
                |n| 
-               next unless n.elementId == ID_A
+               next unless n.elementId == IDS::A
                # link = DOM::HTMLLinkElement.new n # WTF? why doesn't this work???
                link = Qt::Internal::cast_object_to n, "DOM::HTMLLinkElement"
                @current_matched_href = link.href.string
@@ -571,16 +575,16 @@ module TermHighlighter
          if allow_user_input
             Qt::Application::restoreOverrideCursor if cursor_override
             cursor_override = false
-            $blab = true
+            @in_node_highlight = true
             Qt::Application::eventLoop.processEvents Qt::EventLoop::AllEvents, 10 
-            $blab = false
-            if !$blab_recall.empty?
+            @in_node_highlight = false
+            if !@skipped_highlight_requests.empty?
                return false 
             end
             @viewed.view.layout
          end
       }
-      if !$blab_recall.empty?
+      if !@skipped_highlight_requests.empty?
          @timer.start 50, true
       end
       Qt::Application::restoreOverrideCursor if cursor_override
@@ -615,77 +619,227 @@ class SmallIconSet
    end
 end
 
-class BlahBlb2 < Qt::Object
-   slots "file_getter()"
-   def initialize parent=nil,name=nil,caption=nil
+class ProjectEditDialog < Qt::Object
+
+   slots "select_file()", "slot_ok()"
+
+   def initialize project_name, parent=nil,name=nil,caption=nil
+
       super(parent, name)
       @parent = parent
-      @blah = KDE::DialogBase.new(parent,name, true, caption,
-                                  KDE::DialogBase::Ok|KDE::DialogBase::Cancel, KDE::DialogBase::Ok, false)
 
-      vbox = Qt::VBox.new @blah
+      @dialog = KDE::DialogBase.new(parent,name, true, caption,
+                                    KDE::DialogBase::Ok|KDE::DialogBase::Cancel, KDE::DialogBase::Ok, false)
+
+      vbox = Qt::VBox.new @dialog
 
       grid = Qt::Grid.new 2, Qt::Horizontal, vbox
 
       titlelabel = Qt::Label.new "Name:", grid
-      title = KDE::LineEdit.new grid
-      titlelabel.setBuddy title
+      @title      = KDE::LineEdit.new grid
+      titlelabel.setBuddy @title
 
       urllabel   = Qt::Label.new "Location:", grid
-      lochbox = Qt::HBox.new grid
-      url   = KDE::LineEdit.new lochbox
-      urllabel.setBuddy url
-      locselc = Qt::PushButton.new lochbox
+      lochbox    = Qt::HBox.new grid
+      @url        = KDE::LineEdit.new lochbox
+      urllabel.setBuddy @url
+      locselc    = Qt::PushButton.new lochbox
       locselc.setIconSet SmallIconSet["up"]
 
-      Qt::Object.connect locselc, SIGNAL("clicked()"), 
-                         self,    SLOT("file_getter()")
+      blub = Qt::HBox.new vbox
+      Qt::Label.new "Is main one?:", blub 
+      @cb = Qt::CheckBox.new blub 
+
+      enabled = @parent.projects_data.project_list.empty?
+
+      unless project_name.nil? 
+         project_url = @parent.projects_data.project_list[project_name]
+         @title.setText project_name
+         @url.setText   project_url
+         enabled = true if (project_name == @parent.projects_data.enabled_name)
+      end
+
+      @cb.setChecked true if enabled
+
+      Qt::Object.connect @dialog, SIGNAL("okClicked()"), 
+                         self,    SLOT("slot_ok()")
  
-      title.setFocus
+      Qt::Object.connect locselc, SIGNAL("clicked()"), 
+                         self,    SLOT("select_file()")
+ 
+      @title.setFocus
 
-      hbox = Qt::HBox.new vbox
-      Qt::PushButton.new "Delete", hbox
+      @dialog.setMainWidget vbox
 
-      @blah.setMainWidget vbox
+      @modified = false
    end
-   def file_getter
-      s = Qt::FileDialog::getOpenFileName "/home", "Images (*.png *.xpm *.jpg)",
+
+   def select_file
+      s = Qt::FileDialog::getOpenFileName ENV["HOME"], "HTML Files (*.html)",
                                           @parent, "open file dialog", "Choose a file"
+      @url.setText s unless s.nil?
    end
-   def exec
-      @blah.exec
+
+   def edit
+      @dialog.exec
+      return @modified
    end
+
+   def new_name
+      @title.text
+   end
+
+   def new_url
+      @url.text
+   end
+
+   def new_enabled
+      @cb.isChecked
+   end
+
+   def slot_ok
+      @parent.projects_data.project_list[new_name] = new_url
+      @parent.projects_data.enabled_name = new_name if new_enabled
+      @modified = true
+   end
+
 end
 
-class BlahBlb
+class ProjectSelectDialog < Qt::Object
+
+   slots "edit_selected_project()", "delete_selected_project()", "project_create_button()", "project_selected()"
+
    def initialize parent=nil,name=nil,caption=nil
-      @blah = KDE::DialogBase.new(parent,name, true, caption,
-                                 KDE::DialogBase::Ok|KDE::DialogBase::Cancel|KDE::DialogBase::User1, KDE::DialogBase::Ok, 
-                                 false, KDE::GuiItem.new("&New..."))
-      listbox = Qt::ListBox.new @blah
-      listbox.insertItem "item 1"
-      listbox.insertItem "item 2"
-      Qt::Object.connect @blah,  SIGNAL("user1Clicked()"), 
-                         parent, SLOT("project_create()")
-      @blah.setMainWidget listbox
+      super(parent, name)
+      @parent = parent
+
+      @dialog = KDE::DialogBase.new parent,name, true, caption,
+                                    KDE::DialogBase::Ok|KDE::DialogBase::Cancel, KDE::DialogBase::Ok, false
+
+      vbox = Qt::VBox.new @dialog
+
+      @listbox = Qt::ListBox.new vbox
+
+      fill_listbox
+
+      hbox = Qt::HBox.new vbox
+      button_new  = Qt::PushButton.new "New...", hbox
+      button_del  = Qt::PushButton.new "Delete", hbox
+      button_edit = Qt::PushButton.new "Edit...", hbox
+
+      Qt::Object.connect button_new,  SIGNAL("clicked()"), 
+                         self,        SLOT("project_create_button()")
+
+      Qt::Object.connect button_del,  SIGNAL("clicked()"), 
+                         self,        SLOT("delete_selected_project()")
+
+      Qt::Object.connect button_edit, SIGNAL("clicked()"), 
+                         self,        SLOT("edit_selected_project()")
+
+      Qt::Object.connect @listbox,    SIGNAL("doubleClicked(QListBoxItem *)"), 
+                         self,        SLOT("project_selected()")
+
+      @dialog.setMainWidget vbox
    end
-   def exec
-      @blah.exec
+
+   def project_selected
+      return if @listbox.selectedItem.nil?
+      @parent.current_project_name = @listbox.selectedItem.text
+      @parent.blah_blah
+      @dialog.reject
    end
+
+   def fill_listbox
+      @listbox.clear
+      @parent.projects_data.project_list.keys.each {
+         |name| 
+         enabled = (name == @parent.projects_data.enabled_name)
+         icon = enabled ? "forward" : "down"
+         pm = SmallIconSet[icon].pixmap(Qt::IconSet::Automatic, Qt::IconSet::Normal)
+         it = Qt::ListBoxPixmap.new pm, name
+         @listbox.insertItem it
+      }
+   end
+
+   def edit_selected_project
+      return if @listbox.selectedItem.nil?
+      oldname = @listbox.selectedItem.text
+      dialog = ProjectEditDialog.new oldname, @parent
+      mod = dialog.edit
+      if mod and oldname != dialog.new_name
+         @parent.projects_data.project_list.delete oldname
+      end
+      fill_listbox if mod
+   end
+
+   def project_create_button
+      mod = @parent.project_create
+      fill_listbox if mod
+   end
+
+   def delete_selected_project
+      return if @listbox.selectedItem.nil?
+      # TODO - confirmation dialog
+      @parent.projects_data.project_list.delete @listbox.selectedItem.text
+      fill_listbox
+   end
+
+   def select
+      @dialog.exec
+   end
+
 end
 
 module ProjectManager
 
    def project_create
-      puts "project_create"
-      test = BlahBlb2.new self
-      test.exec
+      dialog = ProjectEditDialog.new nil, self
+      dialog.edit
+      while @projects_data.project_list.empty?
+         dialog.edit
+      end
    end
 
    def project_goto
-      puts "project_goto"
-      test = BlahBlb.new self
-      test.exec
+      dialog = ProjectSelectDialog.new self
+      dialog.select
+      if @projects_data.project_list.empty?
+         project_create
+      end
+   end
+
+   require 'yaml'
+
+   def yamlfname 
+      ENV["HOME"] + "/.rubberdocs/projects.yaml"
+   end
+
+   PROJECT_STORE_VERSION = 0
+
+   Projects = Struct.new :project_list, :enabled_name, :version
+
+   def load_projects
+      okay = false
+      if File.exists? yamlfname
+         @projects_data = YAML::load File.open(yamlfname)
+         if (@projects_data.version rescue -1) >= PROJECT_STORE_VERSION
+            okay = true
+         end
+      end
+      if not okay or @projects_data.project_list.empty?
+         @projects_data = Projects.new({}, nil, PROJECT_STORE_VERSION)
+         project_create
+      end
+      if @projects_data.enabled_name.nil?
+         @projects_data.enabled_name = @projects_data.project_list.keys.first
+      end
+   end
+
+   def save_projects
+      File.open(yamlfname, "w+") {
+         |file|
+         file.puts @projects_data.to_yaml
+      }
    end
 
 end
@@ -696,16 +850,12 @@ class RubberDoc < Qt::VBox
          "go_back()", "go_forward()", "go_home()", "goto_url()", 
          "goto_search()", "clicked_result(QListViewItem*)",
          "search(const QString&)", "update_highlight()",
-         "quit()", "openURL(const KURL&)", "index_all()",
+         "quit()", "open_url(const KURL&)", "index_all()",
          "goto_prev_match()", "goto_next_match()", "clear_location()", "activated()",
          "goto_current_match_link()", "focus_search()", "focus_and_clear_search()",
          "project_create()", "project_goto()"
 
-   def quit
-      $main.close
-   end
-
-   attr_accessor :back, :forward, :url
+   attr_accessor :back, :forward, :url, :projects_data
 
    include LoggedDebug
    include MyGui
@@ -714,9 +864,7 @@ class RubberDoc < Qt::VBox
    include TermHighlighter
    include ProjectManager
 
-   def initialize parent
-      super parent
-      @main = parent
+   def init_blah
       @index     = GenericTriGramIndex.new
       @nodeindex = GenericTriGramIndex.new
       @id2uri, @id2title, @id2depth = {}, {}, {}
@@ -728,22 +876,48 @@ class RubberDoc < Qt::VBox
       @search_text = nil
       @current_matched_href = nil
 
+      @in_update_highlight = false
+      @in_node_highlight   = false
+   end
+
+   def initialize parent
+      super parent
+      @main = parent
+
+      load_projects
+      @current_project_name = @projects_data.project_list.keys.first
+
+      init_blah
+
       init_gui
       gui_init_proportions
 
       @timer = Qt::Timer.new self
       Qt::Object.connect @timer,    SIGNAL("timeout()"), 
                          self,      SLOT("update_highlight()")
+
       @viewed.openURL KDE::URL.new("about:blank")
+
+      @init_connected = true
+   end
+
+   def blah_blah
+      save_indexes
+      init_blah
+      khtml_part_init_complete
+   end
+
+   def quit
+      @main.close
    end
 
    def khtml_part_init_complete
       Qt::Object.disconnect @viewed,   SIGNAL("completed()"),
-                            self,      SLOT("khtml_part_init_complete()")
+                            self,      SLOT("khtml_part_init_complete()") if @init_connected
 
       @pref = File.dirname first_url.url.gsub("file:","")
 
-      init_khtml_part_settings @viewed
+      init_khtml_part_settings @viewed if @init_connected
       index_documents
 
       # maybe make a better choice as to the start page???
@@ -754,10 +928,13 @@ class RubberDoc < Qt::VBox
 
       search "chomp" if DEBUG_SEARCH || DEBUG_GOTO
       goto_search    if DEBUG_GOTO
+
+      @init_connected = false
    end
 
    def finish
-      save_indexes if @indexed_more
+      save_projects
+      save_indexes
    end
 
    def init_khtml_part_settings khtmlpart
@@ -778,13 +955,15 @@ class RubberDoc < Qt::VBox
       index_current_document unless @id2depth[@shown_doc_id] >= HTMLIndexer::IndexDepths::Partial
    end
 
+   attr_accessor :current_project_name
+
    def first_url
-      KDE::URL.new ENV["BASEDOCURL"]
+      return KDE::URL.new @projects_data.project_list[@current_project_name]
    end
 
    def search s
-      if $blab
-         $blab_recall << s
+      if @in_node_highlight
+         @skipped_highlight_requests << s
          return
       end
       @search_text = s
@@ -856,17 +1035,20 @@ class RubberDoc < Qt::VBox
    end
 
    def goto_current_match_link
-      openURL KDE::URL.new(@current_matched_href) unless @current_matched_href.nil?
+      open_url KDE::URL.new(@current_matched_href) unless @current_matched_href.nil?
+   end
+
+   def skip_matches n
+      @current_matching_node_index += n # autowraps
+      update_highlight
    end
 
    def goto_prev_match
-      @current_matching_node_index -= 1 # autowraps
-      update_highlight
+      skip_matches -1
    end
 
    def goto_next_match
-      @current_matching_node_index += 1 # autowraps
-      update_highlight
+      skip_matches +1
    end
 
    def more_to_do
@@ -930,8 +1112,8 @@ time_me("loading") {
       @viewed.show
    end
 
-   def goto_url url = nil, history_store = true, blah = true
-      @popped_history = [] if blah
+   def goto_url url = nil, history_store = true, clear_forward = true
+      @popped_history = [] if clear_forward
       if history_store
          @history << @url
       end
@@ -955,15 +1137,11 @@ time_me("loading") {
 
 end
 
-$doingit = false
-$blab = false
-
 m = KDE::MainWindow.new
 browser = RubberDoc.new m
 browser.update_ui_elements
 m.createGUI Dir.pwd + "/RubberDoc.rc"
 m.setCentralWidget browser
-$main = m
 app.setMainWidget(m)
 m.show
 app.exec()
@@ -1005,7 +1183,7 @@ wierd khtml bug
 in order to use KURL's as constants one must place this KApplication init 
 at the top of the file otherwise KInstance isn't init'ed before KURL usage
 
-class BlahBlb < KDE::DialogBase
+class ProjectSelectDialog < KDE::DialogBase
    def initialize parent=nil,name=nil,caption=nil
       super(parent,name, true, caption,
             KDE::DialogBase::Ok|KDE::DialogBase::Cancel, KDE::DialogBase::Ok, false, KDE::GuiItem.new)
