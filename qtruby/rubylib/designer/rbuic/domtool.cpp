@@ -8,10 +8,16 @@
 ** Foundation and appearing in the file LICENSE.GPL included in the
 ** packaging of this file.
 **
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.
+**
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/gpl/ for GPL licensing information.
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -38,25 +44,34 @@
 
 */
 
-
 /*!
   Returns the contents of property \a name of object \a e as
   variant or the variant passed as \a defValue if the property does
   not exist.
 
   \sa hasProperty()
- */
-QVariant DomTool::readProperty( const QDomElement& e, const QString& name, const QVariant& defValue )
+*/
+QVariant DomTool::readProperty( const QDomElement& e, const QString& name, const QVariant& defValue, QString& comment )
 {
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "property" ) {
 	    if ( n.attribute( "name" ) != name )
 		continue;
-	    return elementToVariant( n.firstChild().toElement(), defValue );
+	    return elementToVariant( n.firstChild().toElement(), defValue, comment );
 	}
     }
     return defValue;
+}
+
+
+/*!
+  \overload
+ */
+QVariant DomTool::readProperty( const QDomElement& e, const QString& name, const QVariant& defValue )
+{
+    QString comment;
+    return readProperty( e, name, defValue, comment );
 }
 
 /*!
@@ -173,7 +188,7 @@ QVariant DomTool::elementToVariant( const QDomElement& e, const QVariant& defVal
     } else if ( e.tagName() == "number" ) {
 	bool ok = TRUE;
 	v = QVariant( e.firstChild().toText().data().toInt( &ok ) );
-	if ( !ok ) 
+	if ( !ok )
 	    v = QVariant( e.firstChild().toText().data().toDouble() );
     } else if ( e.tagName() == "bool" ) {
 	QString t = e.firstChild().toText().data();
@@ -291,17 +306,26 @@ QColor DomTool::readColor( const QDomElement &e )
 
   \sa hasAttribute()
  */
-QVariant DomTool::readAttribute( const QDomElement& e, const QString& name, const QVariant& defValue )
+QVariant DomTool::readAttribute( const QDomElement& e, const QString& name, const QVariant& defValue, QString& comment )
 {
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "attribute" ) {
 	    if ( n.attribute( "name" ) != name )
 		continue;
-	    return elementToVariant( n.firstChild().toElement(), defValue );
+	    return elementToVariant( n.firstChild().toElement(), defValue, comment );
 	}
     }
     return defValue;
+}
+
+/*!
+  \overload
+*/
+QVariant DomTool::readAttribute( const QDomElement& e, const QString& name, const QVariant& defValue )
+{
+    QString comment;
+    return readAttribute( e, name, defValue, comment );
 }
 
 /*!
@@ -340,20 +364,41 @@ void DomTool::fixDocument( QDomDocument& doc )
     e = doc.firstChild().toElement();
     if ( e.tagName() != "UI" )
 	return;
-    if ( e.hasAttribute("version") && e.attribute("version").toDouble() >= 3.0 )
+
+    // latest version, don't do anything
+    if ( e.hasAttribute("version") && e.attribute("version").toDouble() > 3.0 )
 	return;
 
+    nl = doc.elementsByTagName( "property" );
+
+    // in 3.0, we need to fix a spelling error
+    if ( e.hasAttribute("version") && e.attribute("version").toDouble() == 3.0 ) {
+	for ( i = 0; i <  (int) nl.length(); i++ ) {
+	    QDomElement el = nl.item(i).toElement();
+	    QString s = el.attribute( "name" );
+	    if ( s == "resizeable" ) {
+		el.removeAttribute( "name" );
+		el.setAttribute( "name", "resizable" );
+	    }
+	}
+	return;
+    }
+
+
+    // in versions smaller than 3.0 we need to change more
     e.setAttribute( "version", 3.0 );
 
     e.setAttribute("stdsetdef", 1 );
-    nl = doc.elementsByTagName( "property" );
     for ( i = 0; i <  (int) nl.length(); i++ ) {
 	e = nl.item(i).toElement();
 	QString name;
 	QDomElement n2 = e.firstChild().toElement();
 	if ( n2.tagName() == "name" ) {
 	    name = n2.firstChild().toText().data();
-	    e.setAttribute( "name", name );
+	    if ( name == "resizeable" )
+		e.setAttribute( "name", "resizable" );
+	    else
+		e.setAttribute( "name", name );
 	    e.removeChild( n2 );
 	}
 	bool stdset = toBool( e.attribute( "stdset" ) );

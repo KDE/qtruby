@@ -79,7 +79,7 @@ QString Uic::getComment( const QDomNode& n )
 
 QString Uic::mkBool( bool b )
 {
-    return b? "1" : "0";
+    return b? "true" : "false";
 }
 
 QString Uic::mkBool( const QString& s )
@@ -138,7 +138,8 @@ bool Uic::isEmptyFunction( const QString& fname )
 Uic::Uic( const QString &fn, QTextStream &outStream, QDomDocument doc,
 	  bool subcl, const QString &trm, const QString& subClass,
 	  bool omitForwardDecls, QString &uicClass )
-    : out( outStream ), trmacro( trm ), nofwd( omitForwardDecls )
+    : out( outStream ), trout( &languageChangeBody ),
+      trmacro( trm ), nofwd( omitForwardDecls )
 {
     fileName = fn;
     writeSlotImpl = TRUE;
@@ -364,10 +365,20 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 		QString value = setObjectProperty( "Qt::Action.new", objName, prop, n2.firstChild().toElement(), stdset );
 		if ( value.isEmpty() )
 		    continue;
-		if ( stdset )
-		    out << indent << objName << "." << mkStdSet( prop ) << "(" << value << ")" << endl;
-		else
-		    out << indent << objName << ".setProperty(\"" << prop << "\", Qt::Variant.new(" << value << "))" << endl;
+			
+		QString call = objName + ".";
+		if ( stdset ) {
+		    call += mkStdSet( prop ) + "( ";
+		} else {
+		    call += "setProperty( \"" + prop + "\", ";
+		}
+		call += "Qt::Variant.new(" + value + "))";
+		
+		if ( n2.firstChild().toElement().tagName() == "string" ) {
+		    trout << indent << call << endl;
+		} else {
+		    out << indent << call << endl;
+		}
 	    } else if ( !subActionsDone && ( n2.tagName() == "actiongroup" || n2.tagName() == "action" ) ) {
 		createActionImpl( n2, objName );
 		subActionsDone = TRUE;
@@ -426,22 +437,47 @@ void Uic::createToolbarImpl( const QDomElement &n, const QString &parentClass, c
 void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, const QString &parent )
 {
     QString objName = getObjectName( n );
-    out << indent << objName << "= Qt::MenuBar.new( self, \"" << objName << "\")" << endl;
+    out << indent << objName << " = Qt::MenuBar.new( self, \"" << objName << "\" )" << endl;
     createObjectImpl( n, parentClass, parent );
-
-    QDomNodeList nl = n.elementsByTagName( "item" );
-    for ( int i = 0; i < (int) nl.length(); i++ ) {
-	QDomElement ae = nl.item( i ).toElement();
-	QString itemName = ae.attribute( "name" );
-	out << indent << itemName << "= Qt::PopupMenu.new(self)" << endl;
-	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
-	    if ( n2.tagName() == "action" )
-		out << indent << n2.attribute( "name" ) << ".addTo(" << itemName << ")" << endl;
-	    else if ( n2.tagName() == "separator" )
-		out << indent << itemName << ".insertSeparator" << endl;
+    int i = 0;
+    QDomElement c = n.firstChild().toElement();
+    while ( !c.isNull() ) {
+	if ( c.tagName() == "item" ) {
+	    QString itemName = c.attribute( "name" );
+	    out << endl;
+	    out << indent << itemName << " = Qt::PopupMenu.new( self )" << endl;
+	    createPopupMenuImpl( c, parentClass, itemName );
+	    out << indent << objName << ".insertItem( \"\", " << itemName << ", " << i << " )" << endl;
+	    trout << indent << objName << ".findItem( " << i << " ).setText( " << trcall( c.attribute( "text" ) ) << " )" << endl;
+	} else if ( c.tagName() == "separator" ) {
+	    out << endl;
+	    out << indent << objName << ".insertSeparator( " << i << " )" << endl;
 	}
-	out << indent << objName << ".insertItem(" << trcall( ae.attribute( "text" ) ) << ", " << itemName << ")" << endl;
-	out << endl;
+	c = c.nextSibling().toElement();
+	i++;
+    }
+}
+
+void Uic::createPopupMenuImpl( const QDomElement &e, const QString &parentClass, const QString &parent )
+{
+    for ( QDomElement n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+	if ( n.tagName() == "action" ) {
+	    QDomElement n2 = n.nextSibling().toElement();
+	    if ( n2.tagName() == "item" ) { // the action has a sub menu
+		QString itemName = n2.attribute( "name" );
+		QString itemText = n2.attribute( "text" );
+		out << indent << itemName << " = Qt::PopupMenu.new( self )" << endl;
+		out << indent << parent << ".setAccel( tr( \"" << n2.attribute( "accel" ) << "\" ), " << endl;
+		out << indent << indent << parent << ".insertItem( " << n.attribute( "name" ) << ".iconSet(),";
+		out << trcall( itemText ) << ", " << itemName << " ) )" << endl;
+		createPopupMenuImpl( n2, parentClass, itemName );
+		n = n2;
+	    } else {
+		out << indent << n.attribute( "name" ) << ".addTo( " << parent << " )" << endl;
+	    }
+	} else if ( n.tagName() == "separator" ) {
+	    out << indent << parent << "insertSeparator()" << endl;
+	}
     }
 }
 
@@ -449,7 +485,8 @@ void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, c
   Creates implementation of an listbox item tag.
 */
 
-QString Uic::createListBoxItemImpl( const QDomElement &e, const QString &parent )
+QString Uic::createListBoxItemImpl( const QDomElement &e, const QString &parent,
+				    QString *value )
 {
     QDomElement n = e.firstChild().toElement();
     QString txt;
@@ -476,7 +513,10 @@ QString Uic::createListBoxItemImpl( const QDomElement &e, const QString &parent 
 	n = n.nextSibling().toElement();
     }
 
-    if ( pix.isEmpty() )
+    if ( value )
+	*value = trcall( txt, com );
+    
+	if ( pix.isEmpty() )
 	return parent + ".insertItem(" + trcall( txt, com ) + ")";
 
     return parent + ".insertItem(" + pix + ", " + trcall( txt, com ) + ")";
@@ -535,11 +575,11 @@ QString Uic::createListViewItemImpl( const QDomElement &e, const QString &parent
 
     if ( hasChildren ) {
 	item = registerObject( "item" );
+	s = indent + item + " = ";
     } else {
 	item = "item";
-	item_used = TRUE;
+	s = indent + item + " = ";
     }
-    s = indent + item + " = ";
 
     if ( !parentItem.isEmpty() )
 	s += "Qt::ListViewItem.new(" + parentItem + ", " + lastItem + ")\n";
@@ -566,7 +606,7 @@ QString Uic::createListViewItemImpl( const QDomElement &e, const QString &parent
 		pixmaps << pix;
 	    }
 	} else if ( n.tagName() == "item" ) {
-	    s += indent + item + ".setOpen(1)\n";
+	    s += indent + item + ".setOpen(true)\n";
 	    s += createListViewItemImpl( n, parent, item );
 	}
 	n = n.nextSibling().toElement();
@@ -587,7 +627,8 @@ QString Uic::createListViewItemImpl( const QDomElement &e, const QString &parent
   Creates implementation of an listview column tag.
 */
 
-QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &parent )
+QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &parent,
+				       QString *value )
 {
     QDomElement n = e.firstChild().toElement();
     QString txt;
@@ -618,7 +659,10 @@ QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &pare
 	n = n.nextSibling().toElement();
     }
 
-    QString s;
+    if ( value )
+	*value = trcall( txt, com );
+    
+	QString s;
     s = indent + parent + ".addColumn(" + trcall( txt, com ) + ")\n";
     if ( !pix.isEmpty() )
 	s += indent + parent + ".header().setLabel(" + parent + ".header().count() - 1," + pix + ", " + trcall( txt, com ) + ")\n";
@@ -630,7 +674,8 @@ QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &pare
     return s;
 }
 
-QString Uic::createTableRowColumnImpl( const QDomElement &e, const QString &parent )
+QString Uic::createTableRowColumnImpl( const QDomElement &e, const QString &parent,
+				       QString *value )
 {
     QString objClass = getClassName( e.parentNode().toElement() );
     QDomElement n = e.firstChild().toElement();
@@ -658,7 +703,10 @@ QString Uic::createTableRowColumnImpl( const QDomElement &e, const QString &pare
 	n = n.nextSibling().toElement();
     }
 
-    // ### This generated code sucks! We have to set the number of
+    if ( value )
+	*value = trcall( txt, com );
+    
+	// ### This generated code sucks! We have to set the number of
     // rows/cols before and then only do setLabel/()
     // ### careful, though, since QDataTable has an API which makes this code pretty good
 
@@ -710,15 +758,17 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
     bool isGrid = e.tagName() == "grid" ;
     objName = registerObject( getLayoutName( e ) );
     layoutObjects += objName;
-    int margin = DomTool::readProperty( e, "margin", defMargin ).toInt();
-    int spacing = DomTool::readProperty( e, "spacing", defSpacing ).toInt();
+	
+    QString margin = DomTool::readProperty( e, "margin", defMargin ).toString();
+    QString spacing = DomTool::readProperty( e, "spacing", defSpacing ).toString();
+    QString resizeMode = DomTool::readProperty( e, "resizeMode", QString::null ).toString();
 
     QString optcells;
     if ( isGrid )
 	optcells = "1, 1, ";
     if ( (parentClass == "Qt::GroupBox" || parentClass == "Qt::ButtonGroup") && layout.isEmpty() ) {
 	// special case for group box
-	out << indent << parent << ".setColumnLayout( 0, Vertical )" << endl;
+	out << indent << parent << ".setColumnLayout( 0, Qt::Vertical )" << endl;
 	out << indent << parent << ".layout().setSpacing(" << spacing << ")" << endl;
 	out << indent << parent << ".layout().setMargin(" << margin << ")" << endl;
 	out << indent << objName << " = " << qlayout << "(" << parent << ".layout() )" << endl;
@@ -727,11 +777,15 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
 	out << indent << objName << " = " << qlayout << "(";
 	if ( layout.isEmpty() )
 	    out << parent;
-	else
+	else {
 	    out << "nil";
+	    if ( !DomTool::hasProperty( e, "margin" ) )
+		margin = "0";
+	}
 	out << ", " << optcells << margin << ", " << spacing << ", '" << objName << "')" << endl;
     }
-
+    if ( !resizeMode.isEmpty() )
+	out << indent << objName << ".setResizeMode( QLayout::" << resizeMode << " )" << endl;
 
     if ( !isGrid ) {
 	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
@@ -1002,7 +1056,7 @@ QString Uic::createObjectInstance( const QString& objClass, const QString& paren
 {
 
     if ( objClass.mid( 4 ) == "ComboBox" ) {
-	return objClass + ".new(0, " + parent + ", \"" + objName + "\")";
+	return objClass + ".new(false, " + parent + ", \"" + objName + "\")";
     }
     return objClass + ".new(" + parent + ", \"" + objName + "\")";
 }

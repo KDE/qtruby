@@ -234,8 +234,6 @@ void Uic::createFormImpl( const QDomElement &e )
         --indent;
     }
 
-    // PerlQt attributes
-//    out << indent << "use Qt::attributes qw("<< endl;
     ++indent;
 
     // children
@@ -558,9 +556,13 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << endl;
     }
 
+    if ( isMainWindow )
+	out << indent << "statusBar()" << endl;
 
     // set the properties
-    for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+   QSize geometry( 0, 0 );
+    
+	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "property" ) {
 	    bool stdset = stdsetdef;
 	    if ( n.hasAttribute( "stdset" ) )
@@ -570,35 +572,33 @@ void Uic::createFormImpl( const QDomElement &e )
 	    QString value = setObjectProperty( objClass, QString::null, prop, n2, stdset );
 	    if ( value.isEmpty() )
 		continue;
-	    if ( prop == "name" ) {
-		out << indent << "if name() == \"unnamed\" " << endl;
-		++indent;
-	    }
-
-	    out << indent;
-
+		
 	    if ( prop == "geometry" && n2.tagName() == "rect") {
 		QDomElement n3 = n2.firstChild().toElement();
-		int w = 0, h = 0;
 		while ( !n3.isNull() ) {
 		    if ( n3.tagName() == "width" )
-			w = n3.firstChild().toText().data().toInt();
+			geometry.setWidth( n3.firstChild().toText().data().toInt() );
 		    else if ( n3.tagName() == "height" )
-			h = n3.firstChild().toText().data().toInt();
+			geometry.setHeight( n3.firstChild().toText().data().toInt() );
 		    n3 = n3.nextSibling().toElement();
 		}
-		out << "resize(" << w << "," << h << ")" << endl;
 	    } else {
-		if ( stdset )
-		    out << mkStdSet( prop ) << "(" << value << ")" << endl;
-		else
-		    out << "setProperty(\"" << prop << "\", Qt::Variant.new(" << value << "))" << endl;
+		QString call;
+		if ( stdset ) {
+		    call = mkStdSet( prop ) + "(" + value + ")";
+		} else {
+		    call = "setProperty(\"" + prop + "\", Qt::Variant.new(" + value + "))";
 	    }
 
-	    if ( prop == "name" )
-	    {
-		--indent;
-		out << indent << "end" << endl;
+		if ( n2.tagName() == "string" ) {
+		    trout << indent << call << endl;
+		} else if ( prop == "name" ) {
+		    out << indent << "if name.nil?" << endl;
+		    out << indent << "\t" << call << endl;
+		    out << indent << "end";
+		} else {
+		    out << indent << call << endl;
+		}
 	    }
 	}
     }
@@ -614,8 +614,10 @@ void Uic::createFormImpl( const QDomElement &e )
 	    if ( tags.contains( n.tagName()  ) )
             {
 		QString page = createObjectImpl( n, objClass, "self" );
-		QString label = DomTool::readAttribute( n, "title", "" ).toString();
+		QString comment;
+		QString label = DomTool::readAttribute( n, "title", "", comment ).toString();
 		out << indent << "addPage(" << page << ", "<< trcall( label ) << ")" << endl;
+		trout << indent << "setTitle( " << page << ", " << trcall( label, comment ) << " )" << endl;
 		QVariant def( FALSE, 0 );
 		if ( DomTool::hasAttribute( n, "backEnabled" ) )
 		    out << indent << "setBackEnabled(" << page << "," << mkBool( DomTool::readAttribute( n, "backEnabled", def).toBool() ) << ");" << endl;
@@ -700,7 +702,16 @@ void Uic::createFormImpl( const QDomElement &e )
     if ( needEndl )
 	out << endl;
 
-    for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
+    out << indent << "languageChange()" << endl;
+    
+    // take minimumSizeHint() into account, for height-for-width widgets
+    if ( !geometry.isNull() ) {
+	out << indent << "resize( Qt::Size.new(" << geometry.width() << ", "
+	    << geometry.height() << ").expandedTo(minimumSizeHint()) )" << endl;
+	out << indent << "clearWState( WState_Polished )" << endl;
+    }
+	
+	for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "connections" ) {
 	    // setup signals and slots connections
 	    out << endl;
@@ -850,10 +861,13 @@ void Uic::createFormImpl( const QDomElement &e )
 			out << indent << "if ! cursor.nil?" << endl;
 			++indent;
 			if ( conn == "(default)" )
-			    out << indent << "cursor = Qt::SqlCursor.new(\"" << tab << "\");" << endl;
+			    out << indent << "cursor = Qt::SqlCursor.new(\"" << tab << "\")" << endl;
 			else
-			    out << indent << "cursor = Qt::SqlCursor.new(\"" << tab << "\", 1, " << conn << "Connection);" << endl;
-			out << indent << c << ".setSqlCursor(cursor, 0, 1)" << endl;
+			    out << indent << "cursor = Qt::SqlCursor.new(\"" << tab << "\", true, " << conn << "Connection)" << endl;
+			out << indent << indent << indent << "if " << c << ".isReadOnly() " << endl;
+			out << indent << indent << indent << indent << "cursor.setMode( Qt::SqlCursor::ReadOnly )" << endl;
+			out << indent << indent << indent << "end " << endl;
+			out << indent << c << ".setSqlCursor(cursor, false, true)" << endl;
 			--indent;
 			out << endl;
 			out << indent << "end" << endl;
@@ -886,8 +900,8 @@ void Uic::createFormImpl( const QDomElement &e )
 			if ( conn == "(default)" )
 			    out << indent << "cursor = Qt::SqlCursor.new(\"" << tab << "\");" << endl;
 			else
-			    out << indent << "cursor = Qt::SqlCursor.new(\"" << tab << "\", 1, " << conn << "Connection);" << endl;
-			out << indent << obj << ".setSqlCursor(cursor, 1)" << endl;
+			    out << indent << "cursor = Qt::SqlCursor.new(\"" << tab << "\", true, " << conn << "Connection)" << endl;
+			out << indent << obj << ".setSqlCursor(cursor, true)" << endl;
 			out << indent << obj << ".refresh()" << endl;
 			out << indent << obj << ".first()" << endl;
 			--indent;
@@ -898,11 +912,21 @@ void Uic::createFormImpl( const QDomElement &e )
 		}
 	    }
 	}
-	out << indent << "super.polish()" << endl;
+	out << indent << "super()" << endl;
 	--indent;
 	out << indent << "end" << endl;
     }
-    if ( !extraSlots.isEmpty() && writeSlotImpl ) {
+	
+    out << "#" << endl;
+    out << "#  Sets the strings of the subwidgets using the current" << endl;
+    out << "#  language." << endl;
+    out << "#" << endl;
+    out << "def " << "languageChange()" << endl;
+    out << languageChangeBody;
+    out << "end" << endl;
+    out << endl;
+    
+	if ( !extraSlots.isEmpty() && writeSlotImpl ) {
 	for ( it = extraSlots.begin(); it != extraSlots.end(); ++it ) {
 	    out << endl;
 	    int astart = (*it).find('(');

@@ -115,6 +115,9 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
     }
     QDomElement n;
     QString objClass, objName, fullObjName;
+    int numItems = 0;
+    int numColumns = 0;
+    int numRows = 0;
 
     if ( layouts.contains( e.tagName() ) )
 	return createLayoutImpl( e, parentClass, parent, layout );
@@ -168,7 +171,18 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
     else
 	fullObjName = objName;
 
-    lastItem = "nil";
+    if ( objClass == "Qt::AxWidget" ) {
+	QString controlId;
+	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+	    if ( n.tagName() == "property" && n.attribute( "name" ) == "control" ) {
+		controlId = n.firstChild().toElement().text();
+	    }
+	}
+	out << "    ";
+	out << fullObjName << ".setControl(\"" << controlId << "\")" << endl;
+    }
+	    
+	lastItem = "nil";
     // set the properties and insert items
     bool hadFrameShadow = FALSE;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
@@ -209,41 +223,85 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    if ( objClass == "Qt::MultiLineEdit" &&
 		 QRegExp("echoMode|hMargin|maxLength|maxLines|undoEnabled").exactMatch(prop) )
 		continue;
-	    if ( prop == "geometry" ) {
-		out << indent << fullObjName << ".setGeometry(" << value << ")" << endl;
+		
+	    QString call = objName + ".";
+	    if ( stdset ) {
+			call += mkStdSet( prop ) + "( ";
+	    	if ( prop == "accel" )
+				call += "Qt::KeySequence.new( " + value + " ) )";
+	    	else
+				call += value + " )";
 	    } else {
-		if ( stdset )
-		    out << indent << fullObjName << "." << mkStdSet( prop ) << "(" << value << ")" << endl;
-		else
-		    out << indent << fullObjName << ".setProperty(\"" << prop << "\", Qt::Variant.new(" << value << "))" << endl;
+			call += "setProperty( \"" + prop + "\", Qt::Variant.new(" ;
+	    	if ( prop == "accel" )
+				call += "Qt::KeySequence.new( " + value + " ) ) )";
+	    	else
+				call += value + " ) )";
+	    }
+
+	    if ( n.firstChild().toElement().tagName() == "string" ||
+		 prop == "currentItem" ) {
+		trout << indent << call << endl;
+	    } else {
+		out << indent << call << endl;
 	    }
 	} else if ( n.tagName() == "item" ) {
+	    QString call;
+	    QString value;
+
 	    if ( objClass.mid( 4 ) == "ListBox" ) {
-		QString s = createListBoxItemImpl( n, fullObjName );
-		if ( !s.isEmpty() )
-		    out << indent << s  << endl;
+		call = createListBoxItemImpl( n, fullObjName, &value );
+		if ( !call.isEmpty() ) {
+		    if ( numItems == 0 )
+			trout << indent << fullObjName << ".clear()" << endl;
+		    trout << indent << call << endl;
+		}
 	    } else if ( objClass.mid( 4 ) == "ComboBox" ) {
-		QString s = createListBoxItemImpl( n, fullObjName );
-		if ( !s.isEmpty() )
-		    out << indent << s  << endl;
+		call = createListBoxItemImpl( n, fullObjName, &value );
+		if ( !call.isEmpty() ) {
+		    if ( numItems == 0 )
+			trout << indent << fullObjName << ".clear()" << endl;
+		    trout << indent << call << endl;
+		}
 	    } else if ( objClass.mid( 4 ) == "IconView" ) {
-		QString s = createIconViewItemImpl( n, fullObjName );
-		if ( !s.isEmpty() )
-		    out << indent << s  << endl;
+		call = createIconViewItemImpl( n, fullObjName );
+		if ( !call.isEmpty() ) {
+		    if ( numItems == 0 )
+			trout << indent << fullObjName << ".clear()" << endl;
+		    trout << indent << call << endl;
+		}
 	    } else if ( objClass.mid( 4 ) == "ListView" ) {
-		QString s = createListViewItemImpl( n, fullObjName, QString::null );
-		if ( !s.isEmpty() )
-		    out << s << endl;
-	    }
+		call = createListViewItemImpl( n, fullObjName, QString::null );
+		if ( !call.isEmpty() ) {
+		    if ( numItems == 0 )
+			trout << indent << fullObjName << ".clear()" << endl;
+		    trout << call << endl;
+		}
+		}
+	    if ( !call.isEmpty() )
+		numItems++;
 	} else if ( n.tagName() == "column" || n.tagName() == "row" ) {
+	    QString call;
+	    QString value;
+
 	    if ( objClass.mid( 4 ) == "ListView" ) {
-		QString s = createListViewColumnImpl( n, fullObjName );
-		if ( !s.isEmpty() )
-		    out << s;
+		call = createListViewColumnImpl( n, fullObjName, &value );
+		if ( !call.isEmpty() ) {
+		    out << call;
+		    trout << indent << fullObjName << ".header().setLabel( "
+			  << numColumns++ << ", " << value << " )\n";
+		}
 	    } else if ( objClass ==  "Qt::Table" || objClass == "Qt::DataTable" ) {
-		QString s = createTableRowColumnImpl( n, fullObjName );
-		if ( !s.isEmpty() )
-		    out << s;
+		bool isCols = ( n.tagName() == "column" );
+		call = createTableRowColumnImpl( n, fullObjName, &value );
+		if ( !call.isEmpty() ) {
+		    out << call;
+		    trout << indent << fullObjName << "."
+			  << ( isCols ? "horizontalHeader" : "verticalHeader" )
+			  << "().setLabel( "
+			  << ( isCols ? numColumns++ : numRows++ )
+			  << ", " << value << " )\n";
+		}
 	    }
 	}
     }
@@ -254,8 +312,27 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	    if ( tags.contains( n.tagName()  ) ) {
 		QString page = createObjectImpl( n, objClass, fullObjName );
-		QString label = DomTool::readAttribute( n, "title", "" ).toString();
+		QString comment;
+		QString label = DomTool::readAttribute( n, "title", "", comment ).toString();
 		out << indent << fullObjName << ".insertTab(" << page << ", " << trcall( label ) << ")" << endl;
+		trout << indent << fullObjName << ".changeTab( " << page << ", "
+		      << trcall( label, comment ) << " )" << endl;
+	    }
+	}
+    } else if ( objClass == "Qt::WidgetStack" ) {
+	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+	    if ( tags.contains( n.tagName()  ) ) {
+		QString page = createObjectImpl( n, objClass, objName );
+		int id = DomTool::readAttribute( n, "id", "" ).toInt();
+		out << indent << fullObjName << ".addWidget( " << page << ", " << id << " )" << endl;
+	    }
+	}
+    } else if ( objClass == "Qt::ToolBox" ) {
+	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+	    if ( tags.contains( n.tagName()  ) ) {
+		QString page = createObjectImpl( n, objClass, objName );
+		QString label = DomTool::readAttribute( n, "label", "" ).toString();
+		out << indent << fullObjName << ".addItem( " << page << ", \"" << label << "\" )" << endl;
 	    }
 	}
      } else if ( objClass != "Qt::ToolBar" && objClass != "Qt::MenuBar" ) { // standard widgets
@@ -408,14 +485,16 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 
 	if ( prop == "toolTip" && objClass != "Qt::Action" && objClass != "Qt::ActionGroup" ) {
 	    if ( !obj.isEmpty() )
-		out << indent << "Qt::ToolTip.add(" << obj << ", " + trcall( txt, com ) << ")" << endl;
+		trout << indent << "Qt::ToolTip.add( " << obj << ", "
+		      << trcall( txt, com ) << " )" << endl;
 	    else
-		out << indent << "Qt::ToolTip.add(self, " << trcall( txt, com ) << ")" << endl;
+		trout << indent << "Qt::ToolTip.add( self, "
+		      << trcall( txt, com ) << " )" << endl;
 	} else if ( prop == "whatsThis" && objClass != "Qt::Action" && objClass != "Qt::ActionGroup" ) {
 	    if ( !obj.isEmpty() )
-		out << indent << "Qt::WhatsThis.add(" << obj << ", " << trcall( txt, com ) << ")" << endl;
+		trout << indent << "Qt::WhatsThis.add(" << obj << ", " << trcall( txt, com ) << ")" << endl;
 	    else
-		out << indent << "Qt::WhatsThis.add(self," << trcall( txt, com ) << ")" << endl;
+		trout << indent << "Qt::WhatsThis.add(self," << trcall( txt, com ) << ")" << endl;
 	} else if (e.parentNode().toElement().attribute("name") == "accel") {
             v = "Qt::KeySequence.new(" + trcall( txt, com ) + ")";
         } else {
@@ -425,7 +504,7 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	    v = "\"%1\"";
 	    v = v.arg( e.firstChild().toText().data() );
     } else if ( e.tagName() == "number" ) {
-        // FIXME: hack. PerlQt needs a QKeySequence to build an accel
+        // FIXME: hack. QtRuby needs a QKeySequence to build an accel
 	if( e.parentNode().toElement().attribute("name") == "accel" )
             v = "Qt::KeySequence.new(%1)";
 	else
@@ -448,8 +527,6 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
     } else if ( e.tagName() == "iconset" ) {
 	v = "Qt::IconSet.new(%1)";
 	QString s = e.firstChild().toText().data();
-//        if( !externPixmaps )
-//        	s.prepend( '$' );
 	if ( !pixmapLoaderFunction.isEmpty() ) {
 	    s.prepend( pixmapLoaderFunction + "(" + QString( externPixmaps ? "\"" : "" ) );
 	    s.append( QString( externPixmaps ? "\"" : "" ) + ")" );

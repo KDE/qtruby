@@ -265,10 +265,10 @@ void getDBConnections( Uic& uic, QString& s)
             if (inc)
                 s+= ", '" + (*it) + "'";
             s += " )\n";
-            s += "   db" + inc + ".setDatabaseName( DATABASE" + inc + " );\n";
-            s += "   db" + inc + ".setUserName( USER" + inc + " );\n";
-            s += "   db" + inc + ".setPassword( PASSWORD" + inc + " );\n";
-            s += "   db" + inc + ".setHostName( HOST" + inc + " );\n";
+            s += "   db" + inc + ".setDatabaseName( DATABASE" + inc + " )\n";
+            s += "   db" + inc + ".setUserName( USER" + inc + " )\n";
+            s += "   db" + inc + ".setPassword( PASSWORD" + inc + " )\n";
+            s += "   db" + inc + ".setHostName( HOST" + inc + " )\n";
             s += "\n";
             s += "if!db" + inc + ".open() \n";
              s += "        Qt::MessageBox.information( undef, 'Unable to open database',\n";

@@ -8,10 +8,16 @@
 ** Foundation and appearing in the file LICENSE.GPL included in the
 ** packaging of this file.
 **
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.
+**
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/gpl/ for GPL licensing information.
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -31,11 +37,13 @@ class DomTool : public Qt
 {
 public:
     static QVariant readProperty( const QDomElement& e, const QString& name, const QVariant& defValue );
+    static QVariant readProperty( const QDomElement& e, const QString& name, const QVariant& defValue, QString& comment );
     static bool hasProperty( const QDomElement& e, const QString& name );
     static QStringList propertiesOfType( const QDomElement& e, const QString& type );
     static QVariant elementToVariant( const QDomElement& e, const QVariant& defValue );
     static QVariant elementToVariant( const QDomElement& e, const QVariant& defValue, QString &comment );
     static QVariant readAttribute( const QDomElement& e, const QString& name, const QVariant& defValue );
+    static QVariant readAttribute( const QDomElement& e, const QString& name, const QVariant& defValue, QString& comment );
     static bool hasAttribute( const QDomElement& e, const QString& name );
     static QColor readColor( const QDomElement &e );
     static void fixDocument( QDomDocument& );
