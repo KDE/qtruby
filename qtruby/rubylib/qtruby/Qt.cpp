@@ -21,6 +21,7 @@
 #include <qglobal.h>
 #include <qregexp.h>
 #include <qstring.h>
+#include <qptrdict.h>
 #include <qapplication.h>
 #include <qmetaobject.h>
 #include <private/qucomextra_p.h>
@@ -62,9 +63,10 @@ extern void init_qt_Smoke();
 extern void smokeruby_mark(void * ptr);
 extern void smokeruby_free(void * ptr);
 
-int do_debug = qtdb_none;
+// int do_debug = qtdb_none;
+int do_debug = qtdb_gc;
 
-VALUE pointer_map = Qundef;
+QPtrDict<VALUE> pointer_map(2179);
 int object_count = 0;
 
 bool temporary_virtual_function_success = false;
@@ -166,22 +168,22 @@ bool isDerivedFrom(Smoke *smoke, const char *className, const char *baseClassNam
     return isDerivedFrom(smoke, idClass, idBase);
 }
 
-void unmapPointer(smokeruby_object *, Smoke::Index, void*);
-
 VALUE getPointerObject(void *ptr) {
-    return rb_hash_aref(pointer_map, INT2NUM((int) ptr));
+	if (pointer_map[ptr] == 0) {
+	    return Qnil;
+	} else {
+		return *(pointer_map[ptr]);
+	}
 }
 
 extern VALUE rb_hash_delete(VALUE hash, VALUE value);
 
 void unmapPointer(smokeruby_object *o, Smoke::Index classId, void *lastptr) {
-    VALUE hv = pointer_map;
     void *ptr = o->smoke->cast(o->ptr, o->classId, classId);
     if(ptr != lastptr) {
 	lastptr = ptr;
-	VALUE key = INT2NUM((int) ptr);
-	if (rb_hash_aref(hv, key) != Qnil) {
-	    rb_hash_delete(hv, key);
+	if (pointer_map[ptr] != 0) {
+	    pointer_map.remove(ptr);
 	}
     }
     for(Smoke::Index *i = o->smoke->inheritanceList + o->smoke->classes[classId].parents;
@@ -191,20 +193,19 @@ void unmapPointer(smokeruby_object *o, Smoke::Index classId, void *lastptr) {
     }
 }
 
-// Store pointer in pointer_map hash : "pointer_to_Qt_object" => weak ref to associated Perl object
+// Store pointer in pointer_map hash : "pointer_to_Qt_object" => weak ref to associated Ruby object
 // Recurse to store it also as casted to its parent classes.
 
-void mapPointer(VALUE obj, smokeruby_object *o, VALUE hv, Smoke::Index classId, void *lastptr) {
+void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *lastptr) {
     void *ptr = o->smoke->cast(o->ptr, o->classId, classId);
     if(ptr != lastptr) {
 	lastptr = ptr;
-	VALUE key = INT2NUM((int) ptr);
-	rb_hash_aset(hv, key, obj);
+	pointer_map.insert(ptr, &obj);
     }
     for(Smoke::Index *i = o->smoke->inheritanceList + o->smoke->classes[classId].parents;
 	*i;
 	i++) {
-	mapPointer(obj, o, hv, *i, lastptr);
+	mapPointer(obj, o, *i, lastptr);
     }
 }
 
@@ -1628,7 +1629,7 @@ mapObject(VALUE self, VALUE obj)
     if(!c.hasVirtual() ) {
 	return Qnil;
     }
-    mapPointer(obj, o, pointer_map, o->classId, 0);
+    mapPointer(obj, o, o->classId, 0);
     return self;
 }
 
@@ -2011,9 +2012,6 @@ Init_Qt()
     rb_define_method(qt_internal_module, "create_qobject_class", (VALUE (*) (...)) create_qobject_class, 1);
     rb_define_method(qt_internal_module, "version", (VALUE (*) (...)) version, 0);
     rb_define_method(qt_internal_module, "qtruby_version", (VALUE (*) (...)) qtruby_version, 0);
-
-    pointer_map = rb_hash_new();
-    rb_gc_register_address(&pointer_map);
 
 	rb_include_module(qt_module, qt_internal_module);
 	rb_require("Qt/Qt.rb");

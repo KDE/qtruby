@@ -4,22 +4,20 @@
 	
 	* Implement the special case method in Qt::Image constructor
 	
-	* Get freed memory management working by completing the smokeruby_mark() and smokeruby_free() fn's
-	
 	* Add more marshalling types for the various Qt lists
 	
 	* Implement method selector caching
 	
-	* Allow 'String' type to be used in connect statements
+	* Allow 'String' and other ruby types to be used in SIGNALs/SLOTs
 	
 	* More documentation or example code welcome
 	
 	* See the separate TODO list for the rbuic tool
-	
-	* Change the pointer_map hash 'Qt C++ instance -> Ruby instance' to have weak reference values
 	
 	* Add a QtRuby project template to KDevelop
 	
 	* Write a rubyeditor plugin for Qt Designer
 	
 	* Add an option to rbqtapi to show the api in ruby format, rather than C++
+	
+	* Write a graphic class browser based on rbqtapi

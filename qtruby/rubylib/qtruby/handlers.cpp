@@ -29,38 +29,73 @@
 
 extern "C" {
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
+bool isDerivedFrom(Smoke *smoke, const char *className, const char *baseClassName);
 };
 
 void
-smokeruby_mark(void * /*p*/)
+smokeruby_mark(void * p)
 {
+    smokeruby_object * o = (smokeruby_object *) p;
+	VALUE obj;
+    const char *className = o->smoke->classes[o->classId].className;
+	
+    if(o->ptr) {
+        if(do_debug & qtdb_gc) printf("Marking (%s*)%p\n", className, o->ptr);
+		if (	strcmp(className, "QObject") == 0
+				|| strcmp(className, "QLayoutItem") == 0
+				|| strcmp(className, "QListViewItem") == 0
+				|| strcmp(className, "QIconViewItem") == 0
+				|| strcmp(className, "QListBoxItem") == 0
+				|| strcmp(className, "QStyleSheetItem") == 0
+				|| strcmp(className, "QTableItem") == 0
+				|| strcmp(className, "QSqlCursor") == 0 )
+		{
+			// Don't allow instances of these classes to be garbage collected for now
+			obj = getPointerObject(p);
+			rb_gc_mark(obj);
+		} else if (isDerivedFrom(o->smoke, className, "QWidget") == 0) {
+			QWidget * qwidget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget"));
+			if (qwidget->parentWidget(TRUE) != 0) {
+				obj = getPointerObject(p);
+				rb_gc_mark(obj);
+			}
+		} else if (isDerivedFrom(o->smoke, className, "QObject") == 0) {
+			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+			if (qobject->parent() != 0) {
+				obj = getPointerObject(p);
+				rb_gc_mark(obj);
+			}
+		}
+	}
 }
 
 void
-smokeruby_free(void * /*p*/)
+smokeruby_free(void * p)
 {
-//    smokeperl_object *o = (smokeperl_object*)mg->mg_ptr;
+    smokeruby_object *o = (smokeruby_object*)p;
 
-//    const char *className = o->smoke->classes[o->classId].className;
-//    if(o->allocated && o->ptr) {
-//        if(do_debug & qtdb_gc) printf("Deleting (%s*)%p\n", className, o->ptr);
-//        SmokeClass sc(o->smoke, o->classId);
-//        if(sc.hasVirtual())
-//            unmapPointer(o, o->classId, 0);
-//        object_count --;
-//        char *methodName = new char[strlen(className) + 2];
-//        methodName[0] = '~';
-//        strcpy(methodName + 1, className);
-//        Smoke::Index nameId = o->smoke->idMethodName(methodName);
-//        Smoke::Index meth = o->smoke->findMethod(o->classId, nameId);
-//        if(meth > 0) {
-//            Smoke::Method &m = o->smoke->methods[o->smoke->methodMaps[meth].method];
-//            Smoke::ClassFn fn = o->smoke->classes[m.classId].classFn;
-//            Smoke::StackItem i[1];
-//            (*fn)(m.method, o->ptr, i);
-//        }
-//        delete[] methodName;
-//    }
+    const char *className = o->smoke->classes[o->classId].className;
+    if(o->allocated && o->ptr) {
+        if(do_debug & qtdb_gc) printf("Deleting (%s*)%p\n", className, o->ptr);
+        SmokeClass sc(o->smoke, o->classId);
+        if(sc.hasVirtual())
+            unmapPointer(o, o->classId, 0);
+        object_count --;
+		o->allocated = false;
+        char *methodName = new char[strlen(className) + 2];
+        methodName[0] = '~';
+        strcpy(methodName + 1, className);
+        Smoke::Index nameId = o->smoke->idMethodName(methodName);
+        Smoke::Index meth = o->smoke->findMethod(o->classId, nameId);
+        if(meth > 0) {
+            Smoke::Method &m = o->smoke->methods[o->smoke->methodMaps[meth].method];
+            Smoke::ClassFn fn = o->smoke->classes[m.classId].classFn;
+            Smoke::StackItem i[1];
+            (*fn)(m.method, o->ptr, i);
+        }
+        delete[] methodName;
+		o->ptr = 0;
+    }
     return;
 }
 
