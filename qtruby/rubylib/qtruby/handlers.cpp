@@ -1334,10 +1334,11 @@ void marshall_QValueListInt(Marshall *m) {
 		it != valuelist->end();
 		++it)
 		rb_ary_push(av, INT2NUM(*it));
+		
+	    *(m->var()) = av;
+		
 	    if(m->cleanup())
 		delete valuelist;
-  	    else
-	        *(m->var()) = av;
 	}
 	break;
       default:
@@ -1360,6 +1361,137 @@ void marshall_voidP(Marshall *m) {
       case Marshall::ToVALUE:
 	{
 	    *(m->var()) = Data_Wrap_Struct(rb_cObject, 0, 0, m->item().s_voidp);
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
+    }
+}
+
+void marshall_QMapQStringQString(Marshall *m) {
+    switch(m->action()) {
+      case Marshall::FromVALUE:
+	{
+	    VALUE hash = *(m->var());
+	    if (TYPE(hash) != T_HASH) {
+		m->item().s_voidp = 0;
+		break;
+	    }
+		
+		QMap<QString,QString> * map = new QMap<QString,QString>;
+		
+		// Convert the ruby hash to an array of key/value arrays
+		VALUE temp = rb_funcall(hash, rb_intern("to_a"), 0);
+
+		for (long i = 0; i < RARRAY(temp)->len; i++) {
+			VALUE key = rb_ary_entry(rb_ary_entry(temp, i), 0);
+			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
+			(*map)[QString(StringValuePtr(key))] = QString(StringValuePtr(value));
+		}
+	    
+		m->item().s_voidp = map;
+		m->next();
+		
+	    if(m->cleanup())
+		delete map;
+	}
+	break;
+      case Marshall::ToVALUE:
+	{
+	    QMap<QString,QString> *map = (QMap<QString,QString>*)m->item().s_voidp;
+	    if(!map) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+		
+	    VALUE hv = rb_hash_new();
+			
+		QMap<QString,QString>::Iterator it;
+		for (it = map->begin(); it != map->end(); ++it) {
+			rb_hash_aset(hv, rstringFromQString((QString*)&(it.key())), rstringFromQString((QString*) &(it.data())));
+        }
+		
+		*(m->var()) = hv;
+		m->next();
+		
+	    if(m->cleanup())
+		delete map;
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
+    }
+}
+
+void marshall_QMapQStringQVariant(Marshall *m) {
+    switch(m->action()) {
+      case Marshall::FromVALUE:
+	{
+	    VALUE hash = *(m->var());
+	    if (TYPE(hash) != T_HASH) {
+		m->item().s_voidp = 0;
+		break;
+	    }
+		
+		QMap<QString,QVariant> * map = new QMap<QString,QVariant>;
+		
+		// Convert the ruby hash to an array of key/value arrays
+		VALUE temp = rb_funcall(hash, rb_intern("to_a"), 0);
+
+		for (long i = 0; i < RARRAY(temp)->len; i++) {
+			VALUE key = rb_ary_entry(rb_ary_entry(temp, i), 0);
+			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
+			
+			smokeruby_object *o = value_obj_info(value);
+			if( !o || !o->ptr)
+                   continue;
+			void * ptr = o->ptr;
+			ptr = o->smoke->cast(ptr, o->classId, o->smoke->idClass("QVariant"));
+			
+			(*map)[QString(StringValuePtr(key))] = (QVariant)*(QVariant*)ptr;
+		}
+	    
+		m->item().s_voidp = map;
+		m->next();
+		
+	    if(m->cleanup())
+		delete map;
+	}
+	break;
+      case Marshall::ToVALUE:
+	{
+	    QMap<QString,QVariant> *map = (QMap<QString,QVariant>*)m->item().s_voidp;
+	    if(!map) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+		
+	    VALUE hv = rb_hash_new();
+			
+		QMap<QString,QVariant>::Iterator it;
+		for (it = map->begin(); it != map->end(); ++it) {
+			void *p = new QVariant(it.data());
+			VALUE obj = getPointerObject(p);
+				
+			if (obj == Qnil) {
+				smokeruby_object  * o = ALLOC(smokeruby_object);
+				o->classId = m->smoke()->idClass("QVariant");
+				o->smoke = m->smoke();
+				o->ptr = p;
+				o->allocated = true;
+				obj = set_obj_info("Qt::Variant", o);
+			}
+			
+			rb_hash_aset(hv, rstringFromQString((QString*)&(it.key())), obj);
+        }
+		
+		*(m->var()) = hv;
+		m->next();
+		
+	    if(m->cleanup())
+		delete map;
 	}
 	break;
       default:
@@ -1487,6 +1619,8 @@ TypeHandler Qt_handlers[] = {
     { "QCanvasItemList", marshall_QCanvasItemList },
     { "QCanvasItemList*", marshall_QCanvasItemList },
     { "QCanvasItemList&", marshall_QCanvasItemList },
+    { "QMap<QString,QString>", marshall_QMapQStringQString },
+    { "QMap<QString,QVariant>", marshall_QMapQStringQVariant },
 #if QT_VERSION >= 0x030200
     { "QWidgetList", marshall_QWidgetList },
     { "QWidgetList*", marshall_QWidgetList },

@@ -1,5 +1,9 @@
 2004-07-26  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* Added marshallers for QMap<QString,QString> and QMap<QString,QVariant> to and from ruby hashes
+
+2004-07-26  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* The error messages for missing methods or missing constants now give the
 	  name of the missing item.
 	* For example, this incorrect line:
