@@ -938,9 +938,6 @@ method_missing(int argc, VALUE * argv, VALUE self)
 		savestack[count+3] = argv[count];
 	}
 
-    /// BLAH
-    /// BLAH
-    /// BLAH
 	VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
 	if (retval != Qnil)
 	        return retval;
@@ -1061,9 +1058,6 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 		savestack[count+4] = argv[count];
 	}
 
-    /// BLAH
-    /// BLAH
-    /// BLAH
 	VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+4, savestack);
 	if (retval != Qnil)
 	        return retval;
@@ -1111,9 +1105,6 @@ new_qt(int argc, VALUE * argv, VALUE klass)
 	(void) class_name;
 #endif
 			
-    /// BLAH
-    /// BLAH
-    /// BLAH
 	VALUE * localstack = ALLOCA_N(VALUE, argc + 1);
 	localstack[0] = rb_obj_alloc(klass);
 	for (int count = 0; count < argc; count++) {
