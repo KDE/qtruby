@@ -13,7 +13,7 @@
         </rect>
     </property>
     <property name="caption">
-        <string>Color Tool -- Find Color</string>
+        <string>Color Tool - Find Color</string>
     </property>
     <vbox>
         <property name="name">
@@ -32,7 +32,7 @@
                         <cstring>TextLabel3</cstring>
                     </property>
                     <property name="text">
-                        <string>&amp;Look for</string>
+                        <string>&amp;Look for:</string>
                     </property>
                     <property name="buddy" stdset="0">
                         <cstring>findLineEdit</cstring>
@@ -103,7 +103,7 @@
                         <cstring>closePushButton</cstring>
                     </property>
                     <property name="text">
-                        <string>Close</string>
+                        <string>&amp;Close</string>
                     </property>
                 </widget>
             </hbox>

@@ -13,7 +13,7 @@
         </rect>
     </property>
     <property name="caption">
-        <string>Color Tool -- Color Name</string>
+        <string>Color Tool - Color Name</string>
     </property>
     <hbox>
         <property name="name">
@@ -60,7 +60,7 @@
                                 <cstring>TextLabel2</cstring>
                             </property>
                             <property name="text">
-                                <string>&amp;Name</string>
+                                <string>&amp;Name:</string>
                             </property>
                             <property name="buddy" stdset="0">
                                 <cstring>colorLineEdit</cstring>
@@ -120,7 +120,7 @@
                                 <cstring>okPushButton</cstring>
                             </property>
                             <property name="text">
-                                <string>OK</string>
+                                <string>&amp;OK</string>
                             </property>
                             <property name="default">
                                 <bool>true</bool>
@@ -131,7 +131,7 @@
                                 <cstring>cancelPushButton</cstring>
                             </property>
                             <property name="text">
-                                <string>Cancel</string>
+                                <string>&amp;Cancel</string>
                             </property>
                         </widget>
                     </hbox>

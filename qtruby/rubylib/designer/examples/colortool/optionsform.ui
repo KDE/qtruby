@@ -13,7 +13,7 @@
         </rect>
     </property>
     <property name="caption">
-        <string>Color Tool -- Options</string>
+        <string>Color Tool - Options</string>
     </property>
     <vbox>
         <property name="name">
@@ -35,7 +35,7 @@
                         <cstring>webCheckBox</cstring>
                     </property>
                     <property name="text">
-                        <string>Indicate &amp;Web Colors</string>
+                        <string>Indicate &amp;Web colors</string>
                     </property>
                     <property name="checked">
                         <bool>true</bool>
@@ -113,7 +113,7 @@
                         <cstring>okPushButton</cstring>
                     </property>
                     <property name="text">
-                        <string>OK</string>
+                        <string>&amp;OK</string>
                     </property>
                     <property name="default">
                         <bool>true</bool>
@@ -124,7 +124,7 @@
                         <cstring>cancelPushButton</cstring>
                     </property>
                     <property name="text">
-                        <string>Cancel</string>
+                        <string>&amp;Cancel</string>
                     </property>
                 </widget>
             </hbox>
