@@ -421,9 +421,7 @@ module Qt
 			end
 			
 			chosen = nil
-			if methodIds.length == 1 && method !~ /^operator/
-				chosen = methodIds[0]
-			elsif methodIds.length > 0
+			if methodIds.length > 0
 				best_match = -1
 				methodIds.each do
 					|id|
