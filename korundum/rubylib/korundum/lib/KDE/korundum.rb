@@ -143,12 +143,12 @@ module KDE
 		
 		def inspect
 			str = super
-			str.sub(/>$/, " objId=%s>" % objId.inspect)
+			str.sub(/>$/, " objId=%s, functions=Array (%d element(s))>" % [objId.inspect, functions.length])
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, "\n objId=%s>" % objId.inspect)
+			pp.text str.sub(/>$/, "\n objId=%s,\n functions=Array (%d element(s))>" % [objId.inspect, functions.length])
 		end
 	end
 
