@@ -1,3 +1,10 @@
+2004-12-18  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added a 'receivers' property to the Qt::Object inspector. This allows the active signal
+	  connections for a Qt::Object instance to be viewed in the KDevelop debugger as a 
+	  Hash. The hash keys are the signal names, and the hash values are arrays of the target 
+	  signals/slots as Qt::Connection instances.
+
 2004-12-17  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added 'metaObject' as an expandable property for Qt::Objects. This allows the

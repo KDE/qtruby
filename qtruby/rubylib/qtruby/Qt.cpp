@@ -32,6 +32,7 @@
 #include <qvariant.h>
 #include <qcursor.h>
 #include <qobjectlist.h>
+#include <qsignalslotimp.h>
 
 #undef DEBUG
 #ifndef __USE_POSIX
@@ -942,8 +943,54 @@ VALUE prettyPrintMethod(Smoke::Index id)
 
 //---------- Ruby methods (for all functions except fully qualified statics & enums) ---------
 
-// Takes a variable name and a QVariant, and returns a 'variable=value' pair with the
-// value in ruby inspect style
+// Used to display debugging info about the signals a Qt::Object has connected.
+// Returns a Hash with keys of the signals names, and values of Arrays of 
+// Qt::Connections for the target slots
+static VALUE
+receivers_qobject(VALUE self)
+{
+	if (TYPE(self) != T_DATA) {
+		return Qnil;
+	}
+		
+	smokeruby_object * o = 0;
+    Data_Get_Struct(self, smokeruby_object, o);	
+	UnencapsulatedQObject * qobject = (UnencapsulatedQObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+	VALUE result = rb_hash_new();
+	QStrList signalNames = qobject->metaObject()->signalNames(true);
+	
+	for (int sig = 0; sig < qobject->metaObject()->numSignals(true); sig++) {
+		QConnectionList * clist = qobject->public_receivers(sig);
+		if (clist != 0) {
+			VALUE name = rb_str_new2(signalNames.at(sig));
+			VALUE members = rb_ary_new();
+			
+			for (	QConnection * connection = clist->first(); 
+					connection != 0; 
+					connection = clist->next() ) 
+			{
+				VALUE obj = getPointerObject(connection);
+				if (obj == Qnil) {
+					smokeruby_object * c = ALLOC(smokeruby_object);
+					c->classId = o->smoke->idClass("QConnection");
+					c->smoke = o->smoke;
+					c->ptr = connection;
+					c->allocated = false;
+					obj = set_obj_info("Qt::Connection", c);
+				}
+				
+				rb_ary_push(members, obj);
+			}
+			
+			rb_hash_aset(result, name, members);
+		}
+	}
+	
+	return result;
+}
+
+// Takes a variable name and a QProperty with QVariant value, and returns a '
+// variable=value' pair with the value in ruby inspect style
 static QCString
 inspectProperty(const QMetaProperty * property, const char * name, QVariant & value)
 {
@@ -1073,7 +1120,7 @@ inspect_qobject(VALUE self)
 	
 	smokeruby_object * o = 0;
     Data_Get_Struct(self, smokeruby_object, o);	
-	QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+	UnencapsulatedQObject * qobject = (UnencapsulatedQObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
 	QStrList names = qobject->metaObject()->propertyNames(true);
 	
 	QCString value_list;
@@ -1100,6 +1147,19 @@ inspect_qobject(VALUE self)
 					
 	value_list.append(">, ");
 		
+	
+	int signalCount = 0;
+	for (int sig = 0; sig < qobject->metaObject()->numSignals(true); sig++) {
+		QConnectionList * clist = qobject->public_receivers(sig);
+		if (clist != 0) {
+			signalCount++;
+		}
+	}
+	
+	if (signalCount > 0) {
+		value_list.append(QCString().sprintf(" receivers=Hash (%d element(s)),", signalCount));
+	}		
+	
 	int index = 0;
 	const char * name = names.first();
 	
@@ -1152,7 +1212,7 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	
 	smokeruby_object * o = 0;
     Data_Get_Struct(self, smokeruby_object, o);	
-	QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+	UnencapsulatedQObject * qobject = (UnencapsulatedQObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
 	QStrList names = qobject->metaObject()->propertyNames(true);
 	
 	QCString value_list;		
@@ -1164,7 +1224,7 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	
 	value_list = QCString("  metaObject=#<Qt::MetaObject:0x0");
 	value_list.append(QCString().sprintf(" className=%s", qobject->metaObject()->className()));
-		
+	
 	if (qobject->metaObject()->superClass() != 0) {
 		value_list.append(QCString().sprintf(", superClass=#<Qt::MetaObject:0x0>", qobject->metaObject()->superClass()));
 	}		
@@ -1179,7 +1239,20 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	
 	value_list.append(">,\n");
 	rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.data()));
-		
+				
+	int signalCount = 0;
+	for (int sig = 0; sig < qobject->metaObject()->numSignals(true); sig++) {
+		QConnectionList * clist = qobject->public_receivers(sig);
+		if (clist != 0) {
+			signalCount++;
+		}
+	}
+	
+	if (signalCount > 0) {
+		value_list = QCString().sprintf(" receivers=Hash (%d element(s)),\n", signalCount);
+		rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.data()));
+	}		
+	
 	int	index = 0;
 	const char * name = names.first();
 	
@@ -2293,6 +2366,7 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 
 	rb_define_method(klass, "inspect", (VALUE (*) (...)) inspect_qobject, 0);
 	rb_define_method(klass, "pretty_print", (VALUE (*) (...)) pretty_print_qobject, 1);
+	rb_define_method(klass, "receivers", (VALUE (*) (...)) receivers_qobject, 0);
 	rb_define_method(klass, "className", (VALUE (*) (...)) class_name, 0);
     
 	return klass;

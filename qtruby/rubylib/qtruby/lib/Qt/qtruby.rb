@@ -145,6 +145,20 @@ module Qt
 		end
 	end
 	
+	class Connection < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " memberName=%s, memberType=%s, object=%s>" %
+				[memberName.inspect, memberType == 1 ? "SLOT" : "SIGNAL", object.inspect] )
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n memberName=%s,\n memberType=%s,\n object=%s>" %
+				[memberName.inspect, memberType == 1 ? "SLOT" : "SIGNAL", object.inspect] )
+		end
+	end
+	
 	class Cursor < Qt::Base
 		def inspect
 			str = super
