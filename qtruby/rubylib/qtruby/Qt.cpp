@@ -2001,7 +2001,7 @@ set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE))
 }
 
 void
-Init_Qt()
+Init_qtruby()
 {
     init_qt_Smoke();
     qt_Smoke->binding = new QtRubySmokeBinding(qt_Smoke);
@@ -2090,7 +2090,7 @@ Init_Qt()
     rb_define_method(qt_internal_module, "qtruby_version", (VALUE (*) (...)) qtruby_version, 0);
 
 	rb_include_module(qt_module, qt_internal_module);
-	rb_require("Qt/Qt.rb");
+	rb_require("Qt/qtruby.rb");
 
     // Do package initialization
     rb_funcall(qt_internal_module, rb_intern("init_all_classes"), 0);
