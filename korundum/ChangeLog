@@ -1,3 +1,8 @@
+2005-04-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added some #ifdefs so the bindings build with KDE 3.1.x
+	* Fixed problem with rbkconfig_compile Makefile.am
+
 2005-03-30  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Fixed problems caused ''include Qt'' and "include KDE" statements in korundum.rb where a 

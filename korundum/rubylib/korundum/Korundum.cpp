@@ -26,7 +26,9 @@
 #include <dcopref.h>
 #include <kapplication.h>
 #include <kurl.h>
+#if KDE_VERSION >= 0x030200
 #include <kconfigskeleton.h>
+#endif
 #include <kio/global.h>
 
 #include <ruby.h>
@@ -1022,6 +1024,8 @@ new_kde(int argc, VALUE * argv, VALUE klass)
 	return instance;
 }
 
+#if KDE_VERSION >= 0x030200
+
 static VALUE
 kconfigskeletonitem_immutable(VALUE self)
 {
@@ -1107,6 +1111,8 @@ set_choice_whatsthis(VALUE self, VALUE whatsthis)
 	return self;
 }
 
+#endif
+
 static VALUE
 udsatom_str(VALUE self)
 {
@@ -1166,7 +1172,9 @@ void
 Init_korundum()
 {
 	set_new_kde(new_kde);
+#if KDE_VERSION >= 0x030200
 	set_kconfigskeletonitem_immutable(kconfigskeletonitem_immutable);
+#endif
 	set_kde_resolve_classname(kde_resolve_classname);
 		
 	// The Qt extension is linked against libsmokeqt.so, but Korundum links against
@@ -1182,6 +1190,8 @@ Init_korundum()
 	rb_define_singleton_method(kde_module, "dcop_call", (VALUE (*) (...)) dcop_call, -1);
 	rb_define_singleton_method(kde_module, "dcop_send", (VALUE (*) (...)) dcop_send, -1);
 	
+#if KDE_VERSION >= 0x030200
+
 	rb_define_method(kconfigskeleton_class, "addItem", (VALUE (*) (...)) config_additem, -1);
 	
 	rb_define_method(kconfigskeleton_itemenum_choice_class, "name", (VALUE (*) (...)) choice_name, 0);
@@ -1190,6 +1200,8 @@ Init_korundum()
 	rb_define_method(kconfigskeleton_itemenum_choice_class, "name=", (VALUE (*) (...)) set_choice_name, 1);
 	rb_define_method(kconfigskeleton_itemenum_choice_class, "label=", (VALUE (*) (...)) set_choice_label, 1);
 	rb_define_method(kconfigskeleton_itemenum_choice_class, "whatsThis=", (VALUE (*) (...)) set_choice_whatsthis, 1);
+
+#endif
 	
 	rb_define_method(kio_udsatom_class, "m_str", (VALUE (*) (...)) udsatom_str, 0);
 	rb_define_method(kio_udsatom_class, "m_long", (VALUE (*) (...)) udsatom_long, 0);

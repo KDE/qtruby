@@ -13,8 +13,6 @@ autoexample_SOURCES = exampleprefs_base.rb general_base.ui myoptions_base.ui \
 exampleprefs_base.rb: $(srcdir)/example.kcfg rbkconfig_compiler $(srcdir)/exampleprefs_base.kcfgc
 	./rbkconfig_compiler $(srcdir)/example.kcfg $(srcdir)/exampleprefs_base.kcfgc
 
-EXTRA_PROGRAMS = autoexample example
-
 AM_CPPFLAGS = -I$(top_srcdir)/kdecore -I$(top_srcdir) $(all_includes)
 
 bin_PROGRAMS = rbkconfig_compiler
