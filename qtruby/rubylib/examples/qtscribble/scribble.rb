@@ -30,7 +30,7 @@ require 'Qt'
 		end
 		
 		  #
-		  # self slot sets the curren color for the scribble area. It will be
+		  # This slot sets the curren color for the scribble area. It will be
 		  # connected with the colorChanged( Qt::Color ) signal from the
 		  # ScribbleWindow.
 		  #
@@ -39,7 +39,7 @@ require 'Qt'
 		end
 		
 		 #
-		 # self slot clears the drawing area by filling the off-screen buffer with
+		 # This slot clears the drawing area by filling the off-screen buffer with
 		 # white and copying it over to the window.
 		 #
 		def slotClearArea()
@@ -52,7 +52,7 @@ require 'Qt'
 		
 		
 		  #
-		  # self method does the actual loading. It relies on Qt::Pixmap (and the
+		  # This method does the actual loading. It relies on Qt::Pixmap (and the
 		  # underlying I/O machinery) to determine the filetype.
 		  #
 		def slotLoad( filename )
@@ -65,8 +65,8 @@ require 'Qt'
 		
 		
 		  #
-		 # self method does the actual saving. We hard-code the file type as
-		 # BMP. Unix users might want to replace self with something like XPM.
+		 # This method does the actual saving. We hard-code the file type as
+		 # BMP. Unix users might want to replace this with something like XPM.
 		 #
 		def slotSave( filename )
 			if !@_buffer.save( filename, "BMP" )
@@ -76,7 +76,7 @@ require 'Qt'
 		
 		
 		  #
-		  # self method is called whenever the user presses the
+		  # This method is called whenever the user presses the
 		  # mouse over the window. It just records the position of the mouse
 		  # at the time of the click.
 		  #
@@ -104,8 +104,8 @@ require 'Qt'
 			bufferpainter = Qt::Painter.new()
 			
 			# start painting
-			windowpainter.begin( self ) # self painter paints onto the window
-			bufferpainter.begin( @_buffer )  # and self one paints in the buffer
+			windowpainter.begin( self ) # This painter paints onto the window
+			bufferpainter.begin( @_buffer )  # and this one paints in the buffer
 		
 			# set a standard pen with the currently selected color
 			windowpainter.setPen( @_currentcolor )
@@ -124,7 +124,7 @@ require 'Qt'
 		end
 		
 		  #
-		  # self method is called whenever the widget needs
+		  # This method is called whenever the widget needs
 		  # painting, for example when it has been obscured and then revealed again.
 		  #
 		def paintEvent(event)
@@ -132,7 +132,7 @@ require 'Qt'
 		end
 	
 		  #
-		  # self method get called whenever the widget needs
+		  # This method get called whenever the widget needs
 		  # painting, for example, when it has been obscured and then revealed again.
 		  #
 		def resizeEvent(event)
@@ -235,7 +235,7 @@ class ScribbleWindow < Qt::Widget
 	
 	
 	  #
-	  # self is the slot for the menu item File/Load. It opens a
+	  # This is the slot for the menu item File/Load. It opens a
 	  # Qt::FileDialog to ask the user for a filename, then emits a save()
 	  # signal with the filename as parameter.
 	  #
@@ -250,7 +250,7 @@ class ScribbleWindow < Qt::Widget
 	end
 	
 	  #
-	  # self is the slot for the menu item File/Load. It opens a
+	  # This is the slot for the menu item File/Load. It opens a
 	  # Qt::FileDialog to ask the user for a filename, then emits a save()
 	  # signal with the filename as parameter.
 	  #
