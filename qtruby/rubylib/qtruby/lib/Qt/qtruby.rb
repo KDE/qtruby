@@ -34,64 +34,64 @@ module Qt
                 @@debug_level
         end
 		
-		class Base
-			def **(a)
-				return Qt::**(self, a)
-			end
-			def +(a)
-				return Qt::+(self, a)
-			end
-			def ~(a)
-				return Qt::~(self, a)
-			end
-			def -@()
-				return Qt::-(self)
-			end
-			def -(a)
-				return Qt::-(self, a)
-			end
-			def *(a)
-				return Qt::*(self, a)
-			end
-			def /(a)
-				return Qt::/(self, a)
-			end
-			def %(a)
-				return Qt::%(self, a)
-			end
-			def >>(a)
-				return Qt::>>(self, a)
-			end
-			def <<(a)
-				return Qt::<<(self, a)
-			end
-			def &(a)
-				return Qt::&(self, a)
-			end
-			def ^(a)
-				return Qt::^(self, a)
-			end
-			def |(a)
-				return Qt::|(self, a)
-			end
-			def <(a)
-				return Qt::<(self, a)
-			end
-			def <=(a)
-				return Qt::<=(self, a)
-			end
-			def >(a)
-				return Qt::>(self, a)
-			end
-			def >=(a)
-				return Qt::>=(self, a)
-			end
-#			Object has a unary equality operator, so this call gives a wrong number
-#			of arguments error, rather than despatched to method_missing()
-#			def ==(a)
-#				return Qt::==(self, a)
-#			end
+	class Base
+		def **(a)
+			return Qt::**(self, a)
 		end
+		def +(a)
+			return Qt::+(self, a)
+		end
+		def ~(a)
+			return Qt::~(self, a)
+		end
+		def -@()
+			return Qt::-(self)
+		end
+		def -(a)
+			return Qt::-(self, a)
+		end
+		def *(a)
+			return Qt::*(self, a)
+		end
+		def /(a)
+			return Qt::/(self, a)
+		end
+		def %(a)
+			return Qt::%(self, a)
+		end
+		def >>(a)
+			return Qt::>>(self, a)
+		end
+		def <<(a)
+			return Qt::<<(self, a)
+		end
+		def &(a)
+			return Qt::&(self, a)
+		end
+		def ^(a)
+			return Qt::^(self, a)
+		end
+		def |(a)
+			return Qt::|(self, a)
+		end
+		def <(a)
+			return Qt::<(self, a)
+		end
+		def <=(a)
+			return Qt::<=(self, a)
+		end
+		def >(a)
+			return Qt::>(self, a)
+		end
+		def >=(a)
+			return Qt::>=(self, a)
+		end
+#		Object has a unary equality operator, so this call gives a wrong number
+#		of arguments error, rather than despatched to method_missing()
+#		def ==(a)
+#			return Qt::==(self, a)
+#		end
+	end
 			
 	require 'delegate.rb'
 	
@@ -242,8 +242,8 @@ module Qt
 				end
 			end
 			if method == "new"
-			    method = classname.dup 
-			    method.gsub!(/^(KParts|KIO|khtml|DOM)::/,"")
+				method = classname.dup 
+				method.gsub!(/^(KParts|KIO|khtml|DOM)::/,"")
 			end
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
 			# Change foobar= to setFoobar()					
@@ -275,15 +275,15 @@ module Qt
 			methods.collect { |meth| methodIds.concat( findMethod(classname, meth) ) }
 
 			if debug_level >= DebugLevel::High
-			    puts "classname    == #{classname}"
-			    puts ":: method == #{method}"
-			    puts "-> methodIds == #{methodIds.inspect}"
-			    puts "candidate list:"
-			    prototypes = dumpCandidates(methodIds).split("\n")
-			    line_len = (prototypes.collect { |p| p.length }).max
-			    prototypes.zip(methodIds) { 
-				|prototype,id| puts "#{prototype.ljust line_len}  (#{id})" 
-			    }
+				puts "classname    == #{classname}"
+				puts ":: method == #{method}"
+				puts "-> methodIds == #{methodIds.inspect}"
+				puts "candidate list:"
+				prototypes = dumpCandidates(methodIds).split("\n")
+				line_len = (prototypes.collect { |p| p.length }).max
+				prototypes.zip(methodIds) { 
+					|prototype,id| puts "#{prototype.ljust line_len}  (#{id})" 
+				}
 			end
 			
 			chosen = nil
@@ -317,11 +317,11 @@ module Qt
 				hash = findAllMethods(id)
 				constructor_names = nil
 				if method == classname
-				    puts "No matching constructor found, possibles:\n"
-				    constructor_names = hash.keys.grep(/^#{classname}/)
+					puts "No matching constructor found, possibles:\n"
+					constructor_names = hash.keys.grep(/^#{classname}/)
 				else
-				    puts "Possible prototypes:"
-				    constructor_names = hash.keys
+					puts "Possible prototypes:"
+					constructor_names = hash.keys
 				end
 				method_ids = hash.values_at(*constructor_names).flatten
 				puts dumpCandidates(method_ids)
@@ -399,10 +399,10 @@ module Qt
 		classname = qobject.class.name if qobject.class.is_a? Module
 		signals = Meta[classname].signals
                 signals.each_with_index {
-                        |signal, i|
-                        if signal.sub(/\(.*/, '') == signalName
-                        	return [signal, i]
-                        end
+			|signal, i|
+			if signal.sub(/\(.*/, '') == signalName
+				return [signal, i]
+			end
                 }
 	end
 
@@ -461,11 +461,11 @@ module Qt
 			slotTable       = makeMetaData(meta.slots)
 			signalTable     = makeMetaData(meta.signals)
 			meta.metaobject = make_metaObject(qobject.class.name, 
-							  qobject.staticMetaObject(),
-							  slotTable, 
-							  meta.slots.length,
-							  signalTable, 
-							  meta.signals.length)
+			                                  qobject.staticMetaObject(),
+			                                  slotTable, 
+			                                  meta.slots.length,
+			                                  signalTable, 
+			                                  meta.signals.length)
 			meta.changed = false
 		end
 		
