@@ -13,68 +13,68 @@ def init()
     @clipboard = Qt::Application.clipboard()
     if @clipboard.supportsSelection()
         @clipboard.setSelectionMode( true )
-	end
+    end
 
     findForm = 0
     loadSettings()
-    @m_filename = ""
-    @m_changed = false
-    @m_table_dirty = true
-    @m_icons_dirty = true
-	@m_colors = {}
-	@m_comments = {}
+    @filename = nil
+    @changed = false
+    @table_dirty = true
+    @icons_dirty = true
+    @colors = {}
+    @comments = {}
     clearData( true )
 end
 
 def clearData( fillWithDefaults )
     setCaption( "Color Tool" )
 
-    @m_colors.clear()
-    @m_comments.clear()
+    @colors.clear()
+    @comments.clear()
 
     if fillWithDefaults
-		@m_colors["black"] = Qt::black
-		@m_colors["blue"] = Qt::blue
-		@m_colors["cyan"] = Qt::cyan
-		@m_colors["darkblue"] = Qt::darkBlue
-		@m_colors["darkcyan"] = Qt::darkCyan
-		@m_colors["darkgray"] = Qt::darkGray
-		@m_colors["darkgreen"] = Qt::darkGreen
-		@m_colors["darkmagenta"] = Qt::darkMagenta
-		@m_colors["darkred"] = Qt::darkRed
-		@m_colors["darkyellow"] = Qt::darkYellow
-		@m_colors["gray"] = Qt::gray
-		@m_colors["green"] = Qt::green
-		@m_colors["lightgray"] = Qt::lightGray
-		@m_colors["magenta"] = Qt::magenta
-		@m_colors["red"] = Qt::red
-		@m_colors["white"] = Qt::white
-		@m_colors["yellow"] = Qt::yellow
+        @colors["black"] = Qt::black
+        @colors["blue"] = Qt::blue
+        @colors["cyan"] = Qt::cyan
+        @colors["darkblue"] = Qt::darkBlue
+        @colors["darkcyan"] = Qt::darkCyan
+        @colors["darkgray"] = Qt::darkGray
+        @colors["darkgreen"] = Qt::darkGreen
+        @colors["darkmagenta"] = Qt::darkMagenta
+        @colors["darkred"] = Qt::darkRed
+        @colors["darkyellow"] = Qt::darkYellow
+        @colors["gray"] = Qt::gray
+        @colors["green"] = Qt::green
+        @colors["lightgray"] = Qt::lightGray
+        @colors["magenta"] = Qt::magenta
+        @colors["red"] = Qt::red
+        @colors["white"] = Qt::white
+        @colors["yellow"] = Qt::yellow
     end
 
     populate()
 end
 
 def populate()
-    if @m_table_dirty
+    if @table_dirty
         (0...@colorTable.numRows).each do |r|
             (0...@colorTable.numRows).each do |c|
                 @colorTable.clearCell( r, c )
             end
         end
 
-        @colorTable.setNumRows( @m_colors.length )
-        if ! @m_colors.empty?
+        @colorTable.setNumRows( @colors.length )
+        if ! @colors.empty?
             pixmap = Qt::Pixmap.new( 22, 22 )
             row = 0
-            @m_colors.sort.each do |pair|
-				key = pair[0]
-				color = pair[1]
+            @colors.sort.each do |pair|
+                key = pair[0]
+                color = pair[1]
                 pixmap.fill( color )
                 @colorTable.setText( row, COL_NAME, key )
                 @colorTable.setPixmap( row, COL_NAME, pixmap );
                 @colorTable.setText( row, COL_HEX, color.name().upcase() )
-                if @m_show_web
+                if @show_web
                     item = Qt::CheckTableItem.new( @colorTable, "" )
                     item.setChecked( isWebColor( color ) )
                     @colorTable.setItem( row, COL_WEB, item )
@@ -85,22 +85,22 @@ def populate()
         end
         @colorTable.adjustColumn( COL_NAME )
         @colorTable.adjustColumn( COL_HEX )
-        if @m_show_web
+        if @show_web
             @colorTable.showColumn( COL_WEB )
             @colorTable.adjustColumn( COL_WEB )
         else
             @colorTable.hideColumn( COL_WEB )
-		end
-        @m_table_dirty = FALSE;
+        end
+        @table_dirty = FALSE;
     end
 
-    if @m_icons_dirty
+    if @icons_dirty
         @colorIconView.clear()
 
-        @m_colors.each do |key, data|
+        @colors.each do |key, data|
             Qt::IconViewItem.new( @colorIconView, key, colorSwatch(data) )
-		end
-        @m_icons_dirty = false
+        end
+        @icons_dirty = false
     end
 end
 
@@ -118,10 +118,10 @@ end
 
 def fileNew()
     if okToClear()
-        @m_filename = ""
-        @m_changed = false
-        @m_table_dirty = true
-        @m_icons_dirty = true
+        @filename = ""
+        @changed = false
+        @table_dirty = true
+        @icons_dirty = true
         clearData( false )
     end
 end
@@ -134,7 +134,7 @@ def fileOpen()
     filename = Qt::FileDialog.getOpenFileName(
                 nil, "Colors (*.txt)", self,
                 "file open", "Color Tool -- File Open" )
-    if ! filename.empty?
+    if ! filename.nil?
         load( filename )
     else
         statusBar().message( "File Open abandoned", 2000 )
@@ -142,27 +142,27 @@ def fileOpen()
 end
 
 def fileSave()
-    if @m_filename.empty?
+    if @filename.nil?
         fileSaveAs()
         return
     end
 
-    file = Qt::File.new( @m_filename )
+    file = Qt::File.new( @filename )
     if file.open( Qt::IO_WriteOnly )
         stream = Qt::TextStream.new( file )
-        if ! @m_comments.empty? 
-            stream << @m_comments + "\n" << "\n"
-		end
+        if ! @comments.empty? 
+            stream << @comments + "\n" << "\n"
+        end
         
-        @m_colors.each do |key, color|
+        @colors.each do |key, color|
             stream << "%3d %3d %3d \t\t#{key}" % [color.red, color.green, color.blue] << "\n"
          end
         file.close()
-        setCaption( "Color Tool -- #{@m_filename}" )
-        statusBar().message( "Saved #{@m_colors.length} colors to '#{@m_filename}'", 3000 )
-        @m_changed = false;
+        setCaption( "Color Tool -- #{@filename}" )
+        statusBar().message( "Saved #{@colors.length} colors to '#{@filename}'", 3000 )
+        @changed = false;
     else
-        statusBar().message( "Failed to save '#{@m_filename}'", 3000 )
+        statusBar().message( "Failed to save '#{@filename}'", 3000 )
     end
 end
 
@@ -170,26 +170,26 @@ def fileSaveAs()
     filename = Qt::FileDialog.getSaveFileName(
                 nil, "Colors (*.txt)", self,
                 "file save as", "Color Tool -- File Save As" )
-    if ! filename.empty? 
+    if ! filename.nil? 
         ans = 0
         if Qt::File.exists( filename )
            ans = Qt::MessageBox.warning(
                 self, "Color Tool -- Overwrite File",
                 "Overwrite\n'#{filename}'?" ,
                 "&Yes", "&No", nil, 1, 1 )
-	    end
+        end
         if ans == 0 
-           @m_filename = filename
+           @filename = filename
            fileSave()
            return
         end
-	end
+    end
     statusBar().message( "Saving abandoned", 2000 )
 end
 
 def load( filename )
     clearData( false )
-    @m_filename = filename
+    @filename = filename
     regex = Regexp.new( "^\\s*(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\S+.*)$" )
     file = Qt::File.new( filename )
     if file.open( Qt::IO_ReadOnly )
@@ -199,33 +199,33 @@ def load( filename )
             line = stream.readLine()
             m = regex.match( line )
             if m.nil?
-                @m_comments += line
+                @comments += line
             else
-                @m_colors[m[4]] = Qt::Color.new(m[1].to_i,m[2].to_i,m[3].to_i )
-		    end
+                @colors[m[4]] = Qt::Color.new(m[1].to_i,m[2].to_i,m[3].to_i )
+            end
         end
         file.close()
-        @m_filename = filename
-        setCaption( "Color Tool -- #{@m_filename}" )
-        statusBar().message( "Loaded '{@m_filename}'", 3000 )
+        @filename = filename
+        setCaption( "Color Tool -- #{@filename}" )
+        statusBar().message( "Loaded '{@filename}'", 3000 )
         visible = @colorWidgetStack.visibleWidget()
-        @m_icons_dirty = ! ( @m_table_dirty = ( visible == @tablePage ) )
+        @icons_dirty = ! ( @table_dirty = ( visible == @tablePage ) )
         populate()
-        @m_icons_dirty = ! ( @m_table_dirty = ( visible != @tablePage ) )
-        @m_changed = false
+        @icons_dirty = ! ( @table_dirty = ( visible != @tablePage ) )
+        @changed = false
     else
-        statusBar().message( "Failed to load '#{@m_filename}'", 3000 )
+        statusBar().message( "Failed to load '#{@filename}'", 3000 )
     end
 end
 
 
 def okToClear()
-    if @m_changed
-        if @m_filename.empty?
+    if @changed
+        if @filename.nil?
             msg = "Unnamed colors "
         else
-            msg = "Colors '@m_filename'\n"
-	    end
+            msg = "Colors '@filename'\n"
+        end
         msg += "has been changed."
         ans = Qt::MessageBox.information(
             self,
@@ -237,7 +237,7 @@ def okToClear()
         elsif ans == 1
             return false
         end
-	end
+    end
 
     return true
 end
@@ -265,8 +265,8 @@ def editCut()
             @colorTable.setCurrentCell( row, 0 )
         elsif @colorTable.numRows() > 0
             @colorTable.setCurrentCell( @colorTable.numRows() - 1, 0 )
-		end
-        @m_icons_dirty = true
+        end
+        @icons_dirty = true
     elsif visible == @iconsPage && @colorIconView.currentItem()
         item = colorIconView.currentItem()
         name = item.text()
@@ -276,23 +276,23 @@ def editCut()
             current = item.nextItem()
             if ! current
                 current = item.prevItem()
-		    end
+            end
             item.dispose
             if current
                 @colorIconView.setCurrentItem( current )
-		    end
+            end
             @colorIconView.arrangeItemsInGrid()
         end
-        @m_table_dirty = true
+        @table_dirty = true
     end
 
     if ! name.nil?
-        @m_colors.delete( name )
-        @m_changed = true
+        @colors.delete( name )
+        @changed = true
         statusBar().message( "Deleted '#{name}'", 5000 )
     else
         statusBar().message( "Failed to delete '#{name}'", 5000 )
-	end
+    end
 end
 
 def editCopy()
@@ -306,8 +306,8 @@ def editCopy()
         text = item.text()
     end
     if ! text.nil?
-        color = @m_colors[text]
-        case @m_clip_as
+        color = @colors[text]
+        case @clip_as
         when CLIP_AS_HEX then text = color.name()
         when CLIP_AS_NAME then
         when CLIP_AS_RGB
@@ -347,22 +347,22 @@ def lookfor( text )
         end
         if ! found
             @colorTable.setCurrentCell( row, 0 )
-		end
+        end
     elsif visible == @iconsPage
         start = @colorIconView.currentItem()
-		item = start.nextItem()
-		while !item.nil?
+        item = start.nextItem()
+        while !item.nil?
             if item.text().downcase().include?( ltext ) 
                 @colorIconView.setCurrentItem( item )
                 @colorIconView.ensureItemVisible( item )
                 found = true
             end
-			item = item.nextItem()
+            item = item.nextItem()
         end
         if ! found && !start.nil?
             @colorIconView.setCurrentItem( start )
         end
-	end
+    end
     if ! found
         statusBar().message( "Could not find '#{text}' after here" )
         findForm.notfound()
@@ -390,14 +390,14 @@ def changedIconColor( item )
 end
 
 def changedColor( name )
-    color = @m_colors[name]
+    color = @colors[name]
     r = color.red()
     g = color.green()
     b = color.blue()
     statusBar().message( "%s \"%s\" (%d,%d,%d) %s {%.3f %.3f %.3f}" % 
-	                     [name, color.name.upcase, 
-	                     r, g, b, isWebColor( color ) ? ' web' : '', 
-	                     r / 255.0, g / 255.0, b / 255.0] )
+                         [name, color.name.upcase, 
+                         r, g, b, isWebColor( color ) ? ' web' : '', 
+                         r / 255.0, g / 255.0, b / 255.0] )
 end
 
 def changeView(action)
@@ -424,25 +424,25 @@ end
 
 def editAdd()
     color = Qt::white
-    if ! @m_colors.empty?
+    if ! @colors.empty?
         visible = @colorWidgetStack.visibleWidget()
         if visible == @tablePage
             color = Qt::Color.new(@colorTable.text( @colorTable.currentRow(),
                           @colorTable.currentColumn() ))
         else
             color = Qt::Color.new(@colorIconView.currentItem().text())
-		end
+        end
     end
     color = Qt::ColorDialog.getColor( color, self )
     if color.isValid()
         pixmap = Qt::Pixmap.new( 80, 10 )
         pixmap.fill( color )
         colorForm = ColorNameForm.new( self, "color", true )
-        colorForm.setColors( @m_colors )
+        colorForm.setColors( @colors )
         colorForm.colorLabel.setPixmap( pixmap )
         if colorForm.exec()
             name = colorForm.colorLineEdit.text()
-            @m_colors[name] = color
+            @colors[name] = color
             pixmap = Qt::Pixmap.new( 22, 22 )
             pixmap.fill( color )
             row = @colorTable.currentRow()
@@ -450,7 +450,7 @@ def editAdd()
             @colorTable.setText( row, COL_NAME, name )
             @colorTable.setPixmap( row, COL_NAME, pixmap )
             @colorTable.setText( row, COL_HEX, color.name().upcase() )
-            if @m_show_web
+            if @show_web
                 item = Qt::CheckTableItem.new( @colorTable, "" )
                 item.setChecked( isWebColor( color ) )
                 @colorTable.setItem( row, COL_WEB, item )
@@ -459,14 +459,14 @@ def editAdd()
 
             Qt::IconViewItem.new( @colorIconView, name,
                       colorSwatch( color ) )
-            @m_changed = true;
+            @changed = true;
         end
     end
 end
 
 def editOptions()
     options = OptionsForm.new( self, "options", true )
-    case @m_clip_as
+    case @clip_as
     when CLIP_AS_HEX
         options.hexRadioButton.setChecked( true )
     when CLIP_AS_NAME
@@ -474,19 +474,19 @@ def editOptions()
     when CLIP_AS_RGB
         options.rgbRadioButton.setChecked( true )
     end
-    options.webCheckBox.setChecked( @m_show_web )
+    options.webCheckBox.setChecked( @show_web )
 
     if options.exec()
         if options.hexRadioButton.isChecked()
-            @m_clip_as = CLIP_AS_HEX
+            @clip_as = CLIP_AS_HEX
         elsif options.nameRadioButton.isChecked()
-            @m_clip_as = CLIP_AS_NAME
+            @clip_as = CLIP_AS_NAME
         elsif options.rgbRadioButton.isChecked()
-            @m_clip_as = CLIP_AS_RGB
-		end
-        @m_table_dirty = @m_show_web !=
+            @clip_as = CLIP_AS_RGB
+        end
+        @table_dirty = @show_web !=
             options.webCheckBox.isChecked()
-        @m_show_web = options.webCheckBox.isChecked()
+        @show_web = options.webCheckBox.isChecked()
 
         populate()
     end
@@ -499,8 +499,8 @@ def loadSettings()
     windowHeight = settings.readNumEntry( APP_KEY + "WindowHeight", 500 )
     windowX = settings.readNumEntry( APP_KEY + "WindowX", 0 )
     windowY = settings.readNumEntry( APP_KEY + "WindowY", 0 )
-    @m_clip_as = settings.readNumEntry( APP_KEY + "ClipAs", CLIP_AS_HEX )
-    @m_show_web = settings.readBoolEntry( APP_KEY + "ShowWeb", true )
+    @clip_as = settings.readNumEntry( APP_KEY + "ClipAs", CLIP_AS_HEX )
+    @show_web = settings.readBoolEntry( APP_KEY + "ShowWeb", true )
     if ! settings.readBoolEntry( APP_KEY + "View", true )
     @colorWidgetStack.raiseWidget( @iconsPage )
     @viewIconsAction.setOn( true )
@@ -517,8 +517,8 @@ def saveSettings()
     settings.writeEntry( APP_KEY + "WindowHeight", height() )
     settings.writeEntry( APP_KEY + "WindowX", x() )
     settings.writeEntry( APP_KEY + "WindowY", y() )
-    settings.writeEntry( APP_KEY + "ClipAs", @m_clip_as )
-    settings.writeEntry( APP_KEY + "ShowWeb", @m_show_web )
+    settings.writeEntry( APP_KEY + "ClipAs", @clip_as )
+    settings.writeEntry( APP_KEY + "ShowWeb", @show_web )
     settings.writeEntry( APP_KEY + "View", @colorWidgetStack.visibleWidget() == @tablePage )
 end
 

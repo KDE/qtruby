@@ -1,19 +1,19 @@
 class ColorNameForm
 
-@m_colors = {}
+@colors = {}
 
 def setColors( colors )
-    @m_colors = colors
+    @colors = colors
 end
 
 def validate()
     name = @colorLineEdit.text()
     if ! name.empty? &&
-	 ( @m_colors.empty? || ! @m_colors.has_key?( name ) ) 
-	accept()
+     ( @colors.empty? || ! @colors.has_key?( name ) ) 
+    accept()
     else
-	@colorLineEdit.selectAll()
-	end
+    @colorLineEdit.selectAll()
+    end
 end
 
 end
