@@ -134,7 +134,7 @@ class CPUWaster < Qt::Widget
     end
 
     def stopDrawing
-        @got_stop = 1 
+        @got_stop = true
     end
 
     def timerDriven
@@ -218,9 +218,9 @@ class CPUWaster < Qt::Widget
             @pb = newProgressDialog("Drawing rectangles.\nUsing timer event.", n, false)
             @pb.setCaption("Please Wait")
             connect(@pb, SIGNAL('cancelled()'), self, SLOT('stopDrawing()'))
-            enableDrawingItems(0)
+            enableDrawingItems(false)
             startTimer(0)
-            @got_stop = 0
+            @got_stop = false
         else
             lpb = newProgressDialog("Drawing rectangles.\nUsing loop.", n, true)
             lpb.setCaption("Please Wait")
