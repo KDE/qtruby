@@ -140,7 +140,7 @@ class CPUWaster < Qt::Widget
     end
 
     def drawItemRects(id)
-        n = id - FIRST_DRAW_ITEM
+        n = id - FIRST_DRAW_ITEM - 1
         r = 100
 	n.downto(0) { |n|
 	    r *= (n%3 != 0) ? 5 : 4
@@ -202,6 +202,8 @@ class CPUWaster < Qt::Widget
 	    h = rand(wh - y)
 	    painter.fillRect(x, y, w, h, Qt::Brush.new(c))
 	end
+	
+	painter.end()
 
         if @rects == 0 || @got_stop
             @pb.setProgress(@pb.totalSteps)
@@ -261,6 +263,7 @@ class CPUWaster < Qt::Widget
             }
             lpb.cancel
             painter.fillRect(0, 0, width, height, Qt::Brush.new(backgroundColor))
+			painter.end()
         end
     end
 end
