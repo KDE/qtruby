@@ -10,15 +10,6 @@
 
 Here is a Ruby SMOKE adaptor for Qt
 
-To build the Qt.so extension, provide 'extconf.rb' with the directories where
-the Qt and Smoke libraries are installed:
-
-$ cd qtruby/rubylib/qtruby
-$ ruby extconf.rb --with-smoke-dir=/opt/kde3 \
-      --with-qt-dir=/home/duke/src/kde/HEAD/qt-copy
-$ make
-$ make install
-
 Here is 'Hello World' in QtRuby:
 
 #!/usr/bin/ruby -w
