@@ -1,3 +1,14 @@
+2004-08-25  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * Underscore naming for can be used for method names instead of camel case if
+   preferred. Any underscores in method names are removed, and the following
+   character is capitalised. For example, either of these two forms can be used
+   to call the same method:
+  
+     create_standard_status_bar_action()
+  
+     createStandardStatusBarAction()
+
 2004-08-23  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * A 'thing?' ruby method can now be used as a synonym for either isThing() or hasThing() in the Smoke runtime
@@ -18,70 +29,70 @@
 
 2004-07-29  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
-	* Added a template based method for QValueList marshallers, and several
-	  QValueList types.
+ * Added a template based method for QValueList marshallers, and several
+   QValueList types.
 
 2004-07-28  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
-	* Removed any marshaller types that weren't in the Smoke runtime from the
-	  type name to marshaller function lookup table.
+ * Removed any marshaller types that weren't in the Smoke runtime from the
+   type name to marshaller function lookup table.
 
 2004-07-28  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
-	* If a class doesn't have a virtual destructor, then no mapping was being
-	  kept from the C++ instance to the corresponding ruby value. If the class
-	  had virtual method callbacks, this meant that the ruby instance couldn't
-	  be found, and the callback couldn't be made.
-	
-	* Hence, the Qt::ToolTip callback in examples/qt-examples/tooltip didn't
-	  work, as that class doesn't have a virtual destructor.
+ * If a class doesn't have a virtual destructor, then no mapping was being
+   kept from the C++ instance to the corresponding ruby value. If the class
+   had virtual method callbacks, this meant that the ruby instance couldn't
+   be found, and the callback couldn't be made.
+ 
+ * Hence, the Qt::ToolTip callback in examples/qt-examples/tooltip didn't
+   work, as that class doesn't have a virtual destructor.
 
-	* Added an 'isEnum()' function to use when matching args in overloaded
-	  method resolution.
+ * Added an 'isEnum()' function to use when matching args in overloaded
+   method resolution.
 
-	* QCString arg types are chosen in preference to QByteArray ones, matching
-	  against ruby strings, when resolving an overloaded method call.
+ * QCString arg types are chosen in preference to QByteArray ones, matching
+   against ruby strings, when resolving an overloaded method call.
 
-	* Qt::Enums and Qt::Integers can be marshalled to uints, longs and ulongs as
-	  well as ints.
-	  
-	* Added a '==' operator to Qt::Enums so they can be compared with ruby Integers
-
-2004-07-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
-
-	* Qt::Integer arithmetic and bit operations return Qt::Integers, rather
-	  than ruby Integers so that ops can be nested as for Qt::Enums.
+ * Qt::Enums and Qt::Integers can be marshalled to uints, longs and ulongs as
+   well as ints.
+   
+ * Added a '==' operator to Qt::Enums so they can be compared with ruby Integers
 
 2004-07-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
-	* The recently added Qt::Integer bit operators were returning a ruby Integer
-	  type. When they were nested, the Integer didn't know how to convert the
-	  Enum it was being or'd with to an Integer.
-	
-	* The solution is to add bit operators to the Enum class which return Enums
-	  rather than Integers.
-
-	* The following code didn't work:
-	    
-	    def initialize(message)
-	        super(nil, "passivedlg",
-	                Qt::WStyle_Customize | Qt::WX11BypassWM | Qt::WStyle_StaysOnTop |
-	                Qt::WStyle_Tool | Qt::WStyle_NoBorder)
+ * Qt::Integer arithmetic and bit operations return Qt::Integers, rather
+   than ruby Integers so that ops can be nested as for Qt::Enums.
 
 2004-07-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
-	* Replaced QString casts to 'const char *' with latin1() calls
+ * The recently added Qt::Integer bit operators were returning a ruby Integer
+   type. When they were nested, the Integer didn't know how to convert the
+   Enum it was being or'd with to an Integer.
+ 
+ * The solution is to add bit operators to the Enum class which return Enums
+   rather than Integers.
+
+ * The following code didn't work:
+     
+     def initialize(message)
+         super(nil, "passivedlg",
+                 Qt::WStyle_Customize | Qt::WX11BypassWM | Qt::WStyle_StaysOnTop |
+                 Qt::WStyle_Tool | Qt::WStyle_NoBorder)
 
 2004-07-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
-	* The Qt::Enum class was missing bit operations, so various bit methods
-	  were added to Qt::Enum's superclass, Qt::Integer.
-	
-	* This was causing this line from examples/uimodules/uidialogs.rb to fail:
+ * Replaced QString casts to 'const char *' with latin1() calls
 
-	    dlg =   KDE::DialogBase.new(parent, "sample_dialog", false, caption,
+2004-07-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * The Qt::Enum class was missing bit operations, so various bit methods
+   were added to Qt::Enum's superclass, Qt::Integer.
+ 
+ * This was causing this line from examples/uimodules/uidialogs.rb to fail:
+
+     dlg =   KDE::DialogBase.new(parent, "sample_dialog", false, caption,
                                         KDE::DialogBase::Ok | KDE::DialogBase::Cancel, 
-	                                KDE::DialogBase::Ok, true )
+                                 KDE::DialogBase::Ok, true )
 
 2004-07-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 

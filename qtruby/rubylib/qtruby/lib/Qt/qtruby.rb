@@ -398,6 +398,15 @@ module Qt
 			
 			methodIds = []
 			methods.collect { |meth| methodIds.concat( findMethod(classname, meth) ) }
+			
+			if method =~ /_/ && methodIds.length == 0
+				# If the method name contains underscores, convert to camel case
+				# form and try again
+				while method =~ /([^_]*)_(.)(.*)/ 
+					method = $1 + $2.upcase + $3
+				end
+				do_method_missing(package, method, klass, this, *args)
+			end
 
 			if debug_level >= DebugLevel::High
 				puts "classname    == #{classname}"

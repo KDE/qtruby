@@ -63,6 +63,15 @@ QtRuby features a very complete coverage of the Qt api:
 	- Predicates
 		'if foo?' is a synonym for 'if isFoo()' or 'if hasFoo()'
 		
+	- Use underscore naming for method names instead of camel case if you 
+		prefer. Any underscores in method names are removed, and the following
+		character is capitalised. For example, you can use either of these two 
+		forms to call the same method:
+		
+		create_standard_status_bar_action()
+		
+		createStandardStatusBarAction()
+		
 	- Operator overloading
 		The full range of Qt operator methods is available, for example:
 		
