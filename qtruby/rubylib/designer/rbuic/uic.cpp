@@ -103,7 +103,10 @@ QString Uic::fixString( const QString &str )
 
 QString Uic::trcall( const QString& sourceText, const QString& comment )
 {
-    if ( comment.isEmpty() )
+    if ( sourceText.isEmpty() && comment.isEmpty() )
+	return "nil";
+    
+	if ( comment.isEmpty() )
 	return trmacro + "(" + fixString( sourceText ) + ")";
     return trmacro + "(" + fixString( sourceText ) + "," + fixString( comment ) + ")";
 }

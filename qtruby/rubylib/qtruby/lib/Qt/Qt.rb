@@ -74,7 +74,7 @@ module Qt
 			def >=(a)
 				return Qt::>=(self, a)
 			end
-#			Remove the equality operator for now, as it gives a wrong number
+#			Object has a unary equality operator, so this call gives a wrong number
 #			of arguments error, rather than despatched to method_missing()
 #			def ==(a)
 #				return Qt::==(self, a)
@@ -164,7 +164,15 @@ module Qt
 					return 0
 				end
 			elsif argtype == 'u'
-				return 0
+				# Give nil matched against string types a higher score than anything else
+				if typename =~ /^(?:u?char\*|const u?char\*|(?:const )?((Q(C?)String)|QByteArray)[*&]?)$/
+					return 1
+				# Numerics will give a runtime conversion error, so they fail the match
+				elsif typename =~ /^(?:short|ushort|uint|long|ulong|signed|unsigned|int)$/
+					return -99
+				else
+					return 0
+				end
 			elsif argtype == 'U'
 				return 0
 			else
@@ -212,16 +220,6 @@ module Qt
 				raise ArgumentError, "Wrong number of arguments to block(#{block.arity} for 1)"
 			end
 		end
-		
-		def type_char(arg)
-		    if arg.nil? or isObject(arg)
-			    "#"
-		    elsif arg.kind_of? Array or arg.kind_of? Hash
-			    "?"
-		    else
-			    "$"
-		    end
-		end
 
 		def do_method_missing(package, method, klass, this, *args)
 			classname = @@cpp_names[klass.name]
@@ -234,21 +232,37 @@ module Qt
 			end
 			method = classname.dup if method == "new"
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
-#			Change foobar= to setFoobar()					
+			# Change foobar= to setFoobar()					
 			method = 'set' + method[0,1].upcase + method[1,method.length].sub("=", "") if method =~ /.*[^-+%\/|]=$/
 
-			method_argstr = ""
-			args.each {
-				|arg| method_argstr << type_char(arg)
-			}
+			methods = []
+			methods << method
+			args.each do |arg|
+				if arg.nil?
+					# For each nil arg encountered, triple the number of munged method
+					# templates, in order to cover all possible types that can match nil
+					temp = []
+					methods.collect! do |meth| 
+						temp << meth + '?' 
+						temp << meth + '#'
+						meth << '$'
+					end
+					methods.concat(temp)
+				elsif isObject(arg)
+					methods.collect! { |meth| meth << '#' }
+				elsif arg.kind_of? Array or arg.kind_of? Hash
+					methods.collect! { |meth| meth << '?' }
+				else
+					methods.collect! { |meth| meth << '$' }
+				end
+			end
+			
+			methodIds = []
+			methods.collect { |meth| methodIds.concat( findMethod(classname, meth) ) }
 
-			chosen = nil
-
-			methodStr = method + method_argstr
-			methodIds = findMethod(classname, methodStr)
 			if debug_level >= DebugLevel::High
 			    puts "classname    == #{classname}"
-			    puts ":: methodStr == #{methodStr}"
+			    puts ":: method == #{method}"
 			    puts "-> methodIds == #{methodIds.inspect}"
 			    puts "candidate list:"
 			    prototypes = dumpCandidates(methodIds).split("\n")
@@ -258,6 +272,7 @@ module Qt
 			    }
 			end
 			
+			chosen = nil
 			if methodIds.length == 1 && method !~ /^operator/
 				chosen = methodIds[0]
 			elsif methodIds.length > 0

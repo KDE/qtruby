@@ -1,3 +1,11 @@
+2003-11-11  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Improved nil argument matching, and nil can match any type now
+	  not just classes. Translated the code from the Qt.pm in PerlQt,
+	  after discussion on the kde-perl list.
+	* Fixed bug in rbuic where a C++ 'QString::null' was "" in ruby, and
+	  should have been a nil.
+
 2003-11-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Finally fixed huge leak, causing the progress.rb example to grow by
