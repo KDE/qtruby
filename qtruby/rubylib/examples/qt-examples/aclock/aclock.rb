@@ -6,8 +6,8 @@ require 'Qt'
 class AnalogClock < Qt::Widget
 	slots 'setTime(const QTime&)', 'drawClock(QPainter*)', 'timeout()'
 
-	def initialize
-		super
+	def initialize(*k)
+		super(*k)
 
 		@time = Qt::Time::currentTime
 		@internalTimer = Qt::Timer.new(self)
@@ -51,6 +51,7 @@ class AnalogClock < Qt::Widget
 			paint = Qt::Painter.new(self)
 			paint.setBrush(colorGroup.foreground)
 			drawClock(paint)
+			paint.end
 		end
 	end
 
