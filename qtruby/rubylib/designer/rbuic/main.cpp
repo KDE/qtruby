@@ -173,7 +173,7 @@ int main( int argc, char * argv[] )
 		 "\t-nofwd\t\tOmit imports of custom widgets\n"
 		 "\t-tr func\tUse func(...) rather than trUtf8(...) for i18n\n"
 		 "\t-x\t\tGenerate extra code to test the class\n"
-		 "\t-version\tDisplay version of puic\n"
+		 "\t-version\tDisplay version of rbuic\n"
 		 "\t-help\t\tDisplay this information\n"
 		 , argv[0], argv[0], argv[0], argv[0]);
 	exit( 1 );
@@ -234,8 +234,6 @@ int main( int argc, char * argv[] )
     if (execCode) {
 	out << endl;
 	out << endl;
-        out << "require Qt" << endl;
-        out << "require " << (subcl ? QString::fromLatin1(className) : uicClass) << ".rb" << endl;
         out << endl;
 	out << indent << "a = Qt::Application.new(ARGV)" << endl;
         QString s;
