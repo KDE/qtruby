@@ -6,8 +6,6 @@
 	
 	* Add more marshalling types for the various Qt lists
 	
-	* Implement method selector caching
-	
 	* Allow 'String' and other ruby types to be used in SIGNALs/SLOTs
 	
 	* More documentation or example code welcome

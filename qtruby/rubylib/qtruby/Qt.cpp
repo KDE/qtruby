@@ -942,15 +942,47 @@ method_missing(int argc, VALUE * argv, VALUE self)
     }
 
     _current_method = -1;
-    VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
-    if (retval != Qnil)
-       return retval;
+	
+	// Get the classid
+	smokeruby_object * o = value_obj_info(self);
+    // Look in the cache
+	char *cname = (char*)qt_Smoke->className(o->classId);
+	QCString mcid(cname);
+	mcid += ';';
+	mcid += methodName;
+	for(int i=1; i<argc ; i++)
+	{
+		mcid += ';';
+		mcid += get_VALUEtype(savestack[i+3]);
+	}
+	
+	Smoke::Index *rcid = methcache.find((const char *)mcid);
+#ifdef DEBUG
+	if (do_debug & qtdb_calls) printf("method_missing mcid: %s\n", (const char *) mcid);
+#endif
 
-    // If the method can't be found allow the default method_missing
-    //	to display an error message, by calling super on the method
-    if (_current_method == -1) {
-		return rb_call_super(argc, argv);
-    }
+	if (rcid) {
+		// Got a hit
+#ifdef DEBUG
+		if (do_debug & qtdb_calls) printf("method_missing cache hit, mcid: %s\n", (const char *) mcid);
+#endif
+		_current_method = *rcid;
+	} else {
+		// Find the C++ method to call. I'll do that from Ruby for now
+
+		VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
+		if (retval != Qnil)
+		return retval;
+	
+    	// If the method can't be found allow the default method_missing
+    	//	to display an error message, by calling super on the method
+    	if (_current_method == -1) {
+			return rb_call_super(argc, argv);
+    	}
+        
+		// Success. Cache result.
+        methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
+	}
 
     MethodCall c(qt_Smoke, _current_method, self, savestack+4, argc-1);
     c.next();
@@ -1399,7 +1431,7 @@ insert_mcid(VALUE self, VALUE mcid_value, VALUE ix_value)
     return self;
 }
 
-    static VALUE
+static VALUE
 find_mcid(VALUE /*self*/, VALUE mcid_value)
 {
     char *mcid = STR2CSTR(mcid_value);
