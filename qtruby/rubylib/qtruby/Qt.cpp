@@ -61,7 +61,7 @@
 
 // #define DEBUG
 
-#define QTRUBY_VERSION "1.0.6"
+#define QTRUBY_VERSION "1.0.7"
 
 extern Smoke *qt_Smoke;
 extern void init_qt_Smoke();
@@ -88,7 +88,6 @@ VALUE kde_module = Qnil;
 VALUE kparts_module = Qnil;
 VALUE kio_module = Qnil;
 VALUE kns_module = Qnil;
-VALUE khtml_module = Qnil;
 VALUE dom_module = Qnil;
 VALUE kontact_module = Qnil;
 VALUE kate_module = Qnil;
@@ -2347,9 +2346,6 @@ kde_package_to_class(const char * package)
 		if (packageName == "KIO::UDSAtom") {
 			kio_udsatom_class = klass;
 		}
-	} else if (packageName.startsWith("khtml::")) {
-		klass = rb_define_class_under(khtml_module, package+strlen("khtml::"), qt_base_class);
-		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (packageName.startsWith("DOM::")) {
 		klass = rb_define_class_under(dom_module, package+strlen("DOM::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
@@ -2490,10 +2486,6 @@ Init_qtruby()
 	kio_module = rb_define_module("KIO");
 	rb_define_singleton_method(kio_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 	rb_define_singleton_method(kio_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
-
-	khtml_module = rb_define_module("khtml");
-    rb_define_singleton_method(khtml_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
-    rb_define_singleton_method(khtml_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 
 	dom_module = rb_define_module("DOM");
     rb_define_singleton_method(dom_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
