@@ -30,16 +30,18 @@ $ cd smoke/qt
 $ perl generate.pl
 # Overwrite the automake generated Makefile:
 $ qmake -makefile
-# Build the Smoke library
+# Build the Smoke library and install into /usr/lib
 $ make
-$ make install
 ...
 
 $ cd qtruby/rubylib/qtruby
-$ ruby extconf.rb --with-qt-dir=/Developer/qt --with-smoke-dir=/usr
+$ ruby extconf.rb --with-qt-dir=/Developer/qt --with-smoke-dir=/usr \
+      --with-smoke-include=../../../smoke
 $ make
 $ make install
 ...
 
+# Build the rbuic tool and install into /usr/bin
 $ cd qtruby/rubylib/designer/rbuic
 $ qmake -makefile
+$ make

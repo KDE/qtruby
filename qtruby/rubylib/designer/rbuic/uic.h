@@ -147,6 +147,7 @@ private:
     uint stdsetdef : 1;
     uint externPixmaps : 1;
 
+    QString uiFileVersion;
     QString nameOfClass;
     QString pixmapLoaderFunction;
 

@@ -161,6 +161,7 @@ Uic::Uic( const QString &fn, QTextStream &outStream, QDomDocument doc,
     pixmapLoaderFunction = getPixmapLoaderFunction( doc.firstChild().toElement() );
     nameOfClass = getFormClassName( doc.firstChild().toElement() );
 
+    uiFileVersion = doc.firstChild().toElement().attribute("version");
     stdsetdef = toBool( doc.firstChild().toElement().attribute("stdsetdef") );
 
     QDomElement e = doc.firstChild().firstChild().toElement();
@@ -365,6 +366,8 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 	else
 	    continue;
 	bool subActionsDone = FALSE;
+	bool hasMenuText = FALSE;
+	QString actionText;
 	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 	    if ( n2.tagName() == "property" ) {
 		bool stdset = stdsetdef;
@@ -385,6 +388,11 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 			call += "Qt::Variant.new(" + value + "))";
 		}
 		
+		if (prop == "menuText")
+		    hasMenuText = TRUE;
+		else if (prop == "text")
+		    actionText = value;
+		
 		if ( n2.firstChild().toElement().tagName() == "string" ) {
 		    trout << indent << call << endl;
 		} else {
@@ -395,6 +403,9 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 		subActionsDone = TRUE;
 	    }
 	}
+	// workaround for loading pre-3.3 files expecting bogus QAction behavior
+	if (!hasMenuText && !actionText.isEmpty() && uiFileVersion < "3.3")
+	    trout << indent << objName << ".setMenuText(" << actionText << ")" << endl;
     }
 }
 
@@ -435,7 +446,7 @@ void Uic::createToolbarImpl( const QDomElement &n, const QString &parentClass, c
 		if ( n2.attribute( "class" ) != "Spacer" ) {
 			createObjectImpl( n2, "Qt::ToolBar", objName );
 		} else {
-		    QString child = createSpacerImpl( n, parentClass, parent, objName );
+		    QString child = createSpacerImpl( n2, parentClass, parent, objName );
 		    out << indent << "Qt::Application.sendPostedEvents( " << objName
 			<< ", Qt::Event::ChildInserted)" << endl;
 		    out << indent <<  objName << ".boxLayout().addItem(" << child << ")" << endl;
@@ -459,7 +470,11 @@ void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, c
 	    out << indent << itemName << " = Qt::PopupMenu.new( self )" << endl;
 	    createPopupMenuImpl( c, parentClass, itemName );
 	    out << indent << objName << ".insertItem( \"\", " << itemName << ", " << i << " )" << endl;
-	    trout << indent << objName << ".findItem( " << i << " ).setText( " << trcall( c.attribute( "text" ) ) << " )" << endl;
+		QString findItem(objName + ".findItem(%1)");
+	    findItem = findItem.arg(i);
+	    trout << indent << "if !" << findItem << ".nil?" << endl;
+	    trout << indent << indent << findItem << ".setText( " << trcall( c.attribute( "text" ) ) << " )" << endl;
+	    trout << indent << "end" << endl;
 	} else if ( c.tagName() == "separator" ) {
 	    out << endl;
 	    out << indent << objName << ".insertSeparator( " << i << " )" << endl;
@@ -471,16 +486,18 @@ void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, c
 
 void Uic::createPopupMenuImpl( const QDomElement &e, const QString &parentClass, const QString &parent )
 {
+	int i = 0;
     for ( QDomElement n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "action" ) {
+	if ( n.tagName() == "action" || n.tagName() == "actiongroup" ) {
 	    QDomElement n2 = n.nextSibling().toElement();
 	    if ( n2.tagName() == "item" ) { // the action has a sub menu
 		QString itemName = "@" + n2.attribute( "name" );
 		QString itemText = n2.attribute( "text" );
 		out << indent << itemName << " = Qt::PopupMenu.new( self )" << endl;
-		out << indent << parent << ".setAccel( tr( \"" << n2.attribute( "accel" ) << "\" ), " << endl;
 		out << indent << indent << parent << ".insertItem( @" << n.attribute( "name" ) << ".iconSet(),";
-		out << trcall( itemText ) << ", " << itemName << " ) )" << endl;
+		out << trcall( itemText ) << ", " << itemName << " )" << endl;
+		trout << indent << parent << ".changeItem( " << parent << ".idAt( " << i << " ), ";
+		trout << trcall( itemText ) << " )" << endl;
 		createPopupMenuImpl( n2, parentClass, itemName );
 		n = n2;
 	    } else {
@@ -489,6 +506,7 @@ void Uic::createPopupMenuImpl( const QDomElement &e, const QString &parentClass,
 	} else if ( n.tagName() == "separator" ) {
 	    out << indent << parent << ".insertSeparator()" << endl;
 	}
+	++i;
     }
 }
 
@@ -862,7 +880,7 @@ QString Uic::createSpacerImpl( const QDomElement &e, const QString& /*parentClas
     QDomElement n;
     QString objClass, objName;
     objClass = e.tagName();
-    objName = registerObject( "spacer" );
+    objName = registerObject( getObjectName( e ) );
 
     QSize size = DomTool::readProperty( e, "sizeHint", QSize( 0, 0 ) ).toSize();
     QString sizeType = DomTool::readProperty( e, "sizeType", "Expanding" ).toString();
