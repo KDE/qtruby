@@ -57,10 +57,10 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 	for(int i = 0; i < items; i++) {
 		switch(args[i].argType) {
 		case xmoc_bool:
-			*stream << (Q_INT8) stack[i].s_bool;
+			*stream << stack[i].s_bool;
 			break;
 		case xmoc_int:
-			*stream << (Q_INT32) stack[i].s_int;
+			*stream << stack[i].s_int;
 			break;
 		case xmoc_double:
 			*stream << stack[i].s_double;
@@ -79,31 +79,31 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 				const SmokeType &t = args[i].st;
 				switch(t.elem()) {
 				case Smoke::t_bool:
-					*stream << (Q_INT8) stack[i].s_bool;
+					*stream << stack[i].s_bool;
 					break;
 				case Smoke::t_char:
-					*stream << (Q_INT8) stack[i].s_char;
+					*stream << stack[i].s_char;
 					break;
 				case Smoke::t_uchar:
-					*stream << (Q_UINT8) stack[i].s_uchar;
+					*stream << stack[i].s_uchar;
 					break;
 				case Smoke::t_short:
-					*stream << (Q_INT16) stack[i].s_short;
+					*stream << stack[i].s_short;
 					break;
 				case Smoke::t_ushort:
-					*stream << (Q_UINT16) stack[i].s_ushort;
+					*stream << stack[i].s_ushort;
 					break;
 				case Smoke::t_int:
-					*stream << (Q_INT32) stack[i].s_int;
+					*stream << stack[i].s_int;
 					break;
 				case Smoke::t_uint:
-					*stream << (Q_UINT32) stack[i].s_uint;
+					*stream << stack[i].s_uint;
 					break;
 				case Smoke::t_long:
-					*stream << (Q_LONG) stack[i].s_long;
+					*stream << stack[i].s_long;
 					break;
 				case Smoke::t_ulong:
-					*stream << (Q_ULONG) stack[i].s_ulong;
+					*stream << stack[i].s_ulong;
 					break;
 				case Smoke::t_float:
 					*stream << stack[i].s_float;
@@ -192,16 +192,12 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 		switch(args[i].argType) {
 		case xmoc_bool: 
 			{
-			Q_INT8 temp;
-			*stream >> temp;
-			stack[i].s_bool = temp;
+			*stream >> stack[i].s_bool;
 			break;
 			}
 		case xmoc_int:
 			{
-			Q_INT32 temp;
-			*stream >> temp;
-			stack[i].s_int = temp;
+			*stream >> stack[i].s_int;
 			break;
 			}
 		case xmoc_double:
@@ -223,65 +219,49 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 				switch(t.elem()) {
 				case Smoke::t_bool:
 					{
-					Q_INT8 temp;
-					*stream >> temp;
-					stack[i].s_bool = temp;
+					*stream >> stack[i].s_bool;
 					break;
 					}
 				case Smoke::t_char:
 					{
-					Q_INT8 temp;
+					Q_INT8	temp;
 					*stream >> temp;
 					stack[i].s_char = temp;
 					break;
 					}
 				case Smoke::t_uchar:
 					{
-					Q_UINT8 temp;
-					*stream >> temp;
-					stack[i].s_uchar = temp;
+					*stream >> stack[i].s_uchar;
 					break;
 					}
 				case Smoke::t_short:
 					{
-					Q_INT16 temp;
-					*stream >> temp;
-					stack[i].s_short = temp;
+					*stream >> stack[i].s_short;
 					break;
 					}
 				case Smoke::t_ushort:
 					{
-					Q_UINT16 temp;
-					*stream >> temp;
-					stack[i].s_ushort = temp;
+					*stream >> stack[i].s_ushort;
 					break;
 					}
 				case Smoke::t_int:
 					{
-					Q_INT16 temp;
-					*stream >> temp;
-					stack[i].s_int = temp;
+					*stream >> stack[i].s_int;
 					break;
 					}
 				case Smoke::t_uint:
 					{
-					Q_UINT16 temp;
-					*stream >> temp;
-					stack[i].s_uint = temp;
+					*stream >> stack[i].s_uint;
 					break;
 					}
 				case Smoke::t_long:
 					{
-					Q_LONG temp;
-					*stream >> temp;
-					stack[i].s_long = temp;
+					*stream >> stack[i].s_long;
 					break;
 					}
 				case Smoke::t_ulong:
 					{
-					Q_ULONG temp;
-					*stream >> temp;
-					stack[i].s_ulong = temp;
+					*stream >> stack[i].s_ulong;
 					break;
 					}
 				case Smoke::t_float:
