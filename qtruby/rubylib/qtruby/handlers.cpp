@@ -904,7 +904,7 @@ void marshall_voidP(Marshall *m) {
 	{
 	    VALUE rv = *(m->var());
 //	    if(SvROK(sv) && SvRV(sv) && SvOK(SvRV(sv)))
-		if (rv != Qundef)
+	    if (rv != Qundef)
 		m->item().s_voidp = (void*)NUM2INT(*(m->var()));
 //		m->item().s_voidp = (void*)SvIV(SvRV(*(m->var())));
 	    else

@@ -1060,11 +1060,12 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
     //	to display an error message, by calling super on the method
     if (_current_method == -1) {
 	if (argc == 0) {
-	    fprintf(stderr, "sorry, i'm gonna crash now, hope you saved your work!\n");
-	    exit(0);
-	}
-	rb_enable_super(rb_cObject, rb_id2name(SYM2ID(argv[0])));
-	return rb_call_super(argc, argv);
+	    fprintf(stderr, "FATAL ERROR: unresolved constructor call\n");
+            exit(0);
+	} else {
+            rb_enable_super(rb_cObject, rb_id2name(SYM2ID(argv[0])));
+            return rb_call_super(argc, argv);
+        }
     }
 
     // Success. Cache result.

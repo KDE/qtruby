@@ -1,12 +1,21 @@
 module Qt
+        module DebugLevel
+                Off, Minimal, High = *(0..2).to_a
+        end
+
+        @@debug_level = DebugLevel::Off
+        def Qt.debug_level=(level)
+                @@debug_level = level
+        end
+        def Qt.debug_level
+                @@debug_level
+        end
 	
 	module Internal
 
-		DEBUG = false
-
-		Classes	= {}
-		CppName	= {}
-		IdClass	= []
+		@@classes   = {}
+		@@cpp_names = {}
+		@@idclass   = []
 
 		def normalize_classname(classname)
 			classname.sub(/^Q(?=[A-Z])/,'Qt::')
@@ -16,17 +25,21 @@ module Qt
 			classname = normalize_classname(c)
 			classId = idClass(c)
 			insert_pclassid(classname, classId)
-			IdClass[classId] = classname
-			CppName[classname] = c
+			@@idclass[classId] = classname
+			@@cpp_names[classname] = c
 			klass = isQObject(classId) ? create_qobject_class(classname) \
                                                    : create_qt_class(classname)
-			Classes[classname] = klass unless klass.nil?
+			@@classes[classname] = klass unless klass.nil?
 		end
 
+                def debug_level
+                        Qt.debug_level
+                end
+
 		def checkarg(argtype, method, i)
-			p "argtype == #{argtype}" if DEBUG
+			p "argtype == #{argtype}" if debug_level >= DebugLevel::High
 			typename = getTypeNameOfArg(method, i)
-			p "typename == #{typename}" if DEBUG
+			p "typename == #{typename}" if debug_level >= DebugLevel::High
 			if argtype == 'i'
 				if typename =~ /^(?:short|ushort|int|uint|long|ulong|signed|unsigned)$/
 					return 0
@@ -79,12 +92,12 @@ module Qt
 				match_value = checkarg(argtype, method, i)
 				match[method] = match_value unless match_value.nil?
                         }
-			p match if DEBUG
+			p match if debug_level >= DebugLevel::High
 			return match.sort {|a,b| a[1] <=> b[1]}
 		end
 
 		def find_class(classname)
-			Classes[classname]
+			@@classes[classname]
 		end
 
                 # 
@@ -103,7 +116,7 @@ module Qt
 		end
 
 		def do_method_missing(package, method, klass, this, *args)
-			classname = CppName[klass.name]
+			classname = @@cpp_names[klass.name]
 			if classname.nil? and klass != Object
 				do_method_missing(package, method, klass.superclass, this, *args)
 				return nil
@@ -128,57 +141,57 @@ module Qt
 
 			methodStr = method + method_argstr
 			methodIds = findMethod(classname, methodStr)
-			p classname if DEBUG
-			p methodStr if DEBUG
-			p methodIds if DEBUG
+			p classname if debug_level >= DebugLevel::High
+			p methodStr if debug_level >= DebugLevel::High
+			p methodIds if debug_level >= DebugLevel::High
 			if methodIds.length > 1
 #			unless methodIds.empty?
-				puts "resolving method" if DEBUG
+				puts "resolving method" if debug_level >= DebugLevel::High
 				for i in 0..(args.length - 1)
 					matching = argmatch(methodIds, args, i)
-					print "matching list" if DEBUG
-					p matching if DEBUG
+					print "matching list" if debug_level >= DebugLevel::High
+					p matching if debug_level >= DebugLevel::High
 					# Match if there is either just a single result returned, or if there are
 					# multiple matches and the first match is a better match than subequent ones
 					next if matching.empty?
-					puts "possible match" if DEBUG
-					puts "matching == #{matching}" if DEBUG
+					puts "possible match" if debug_level >= DebugLevel::High
+					puts "matching == #{matching}" if debug_level >= DebugLevel::High
 #					chosen = matching[0][0]
 					methodIds[0] = matching[0][0]
-					puts "chosen == #{methodIds[0]}" if DEBUG
-					p dumpCandidates([methodIds[0]]) if DEBUG
+					puts "chosen == #{methodIds[0]}" if debug_level >= DebugLevel::High
+					p dumpCandidates([methodIds[0]]) if debug_level >= DebugLevel::High
 #					print("Resolved Method #{classname}::#{method_str} => " + methodIds[0].to_s + "\n")
 					break
 				end
 			end
 			chosen = methodIds[0]
-			print "chosen ==== #{chosen}" if DEBUG
+			print "chosen ==== #{chosen}" if debug_level >= DebugLevel::High
 
 			if chosen.nil? and not method =~ /[a-zA-Z]/
 				opMethodStr = method + "#" + method_argstr
-                                p opMethodStr if DEBUG
+                                p opMethodStr if debug_level >= DebugLevel::High
 				methodIds = findMethod("QFriendOperators", opMethodStr)
-				p methodIds if DEBUG
-				p dumpCandidates(methodIds) if DEBUG
+				p methodIds if debug_level >= DebugLevel::High
+				p dumpCandidates(methodIds) if debug_level >= DebugLevel::High
 				methodIds.each {
 					|id|
 					# check the "this" type
-					p "checking id == #{id}" if DEBUG
+					p "checking id == #{id}" if debug_level >= DebugLevel::High
 					typename = getTypeNameOfArg(id, 0)
 					t = typename.sub(/^const\s+/, '')
 					t.sub!(/[&*]$/, '')
-					puts "checking t against classname" if DEBUG
-					p t if DEBUG
-					p classname if DEBUG
-					puts "sorry, no match" if t != classname && DEBUG
+					puts "checking t against classname" if debug_level >= DebugLevel::High
+					p t if debug_level >= DebugLevel::High
+					p classname if debug_level >= DebugLevel::High
+					puts "sorry, no match" if t != classname && debug_level >= DebugLevel::High
 					next if t != classname
                                         # check the actual params
 					argtype = getVALUEtype(args[0])
-					p argtype if DEBUG
+					p argtype if debug_level >= DebugLevel::High
 					matched = checkarg(argtype, id, 1)
 					chosen = id if matched
-					p matched if DEBUG
-					puts "got a match == #{id}" if DEBUG
+					p matched if debug_level >= DebugLevel::High
+					puts "got a match == #{id}" if debug_level >= DebugLevel::High
 				}
 				unless chosen.nil?
 					return FriendOperators.send(method, this, *args)
@@ -194,7 +207,7 @@ module Qt
 				puts dumpCandidates(method_ids)
 			end
 
-			p chosen if DEBUG
+			p chosen if debug_level >= DebugLevel::High
 			setCurrentMethod(chosen) if chosen
 			return nil
 		end
@@ -204,7 +217,7 @@ module Qt
                                 |c|
 				if c == "Qt"
 					# Don't change Qt to Qt::t, just leave as is
-					CppName["Qt"] = c
+					@@cpp_names["Qt"] = c
 				elsif c != "QInternal"
 					init_class(c)
 				end

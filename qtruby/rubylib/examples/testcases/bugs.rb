@@ -47,6 +47,8 @@ def bug3
     a = Qt::Application.new(ARGV)
     @file = Qt::PopupMenu.new
     @file.insertSeparator
+    Qt::debug_level = Qt::DebugLevel::High
+    p $qApp
     @file.insertItem("Quit", $qApp, SLOT('quit()'))
     @file.exec
 end
