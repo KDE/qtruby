@@ -321,8 +321,7 @@ class Page5
         pw1Lbl.setGeometry(x, y, 150, 20)
         pw1Lbl.show()
 
-#        pw1 = KDE::PasswordEdit.new(KDE::PasswordEdit::OneStar, page, "")
-        pw1 = KDE::PasswordEdit.new(page, "")
+        pw1 = KDE::PasswordEdit.new(KDE::PasswordEdit::OneStar, page, "")
         pw1.setGeometry(x, y + 20, 100, 20)
         pw1.show()
 
@@ -332,8 +331,7 @@ class Page5
         pw2Lbl.setGeometry(x, y, 150, 20)
         pw2Lbl.show()
 
-#        pw2 = KDE::PasswordEdit.new(KDE::PasswordEdit::ThreeStars, page, "")
-        pw2 = KDE::PasswordEdit.new(page, "")
+        pw2 = KDE::PasswordEdit.new(KDE::PasswordEdit::ThreeStars, page, "")
         pw2.setGeometry(x, y + 20, 100, 20)
         pw2.show()
 
@@ -343,8 +341,7 @@ class Page5
         pw3Lbl.setGeometry(x, y, 150, 20)
         pw3Lbl.show()
 
-#        pw3 = KDE::PasswordEdit.new(KDE::PasswordEdit::NoEcho, page, "")
-        pw3 = KDE::PasswordEdit.new(page, "")
+        pw3 = KDE::PasswordEdit.new(KDE::PasswordEdit::NoEcho, page, "")
         pw3.setGeometry(x, y + 20, 100, 20)
         pw3.show()
 
@@ -596,7 +593,7 @@ class PageThisApp
         x = 10
         y = 10
 
-        taLbl   = Qt::Label.new("This application uses KDE::MainWindow as its top level widget\n and KDE::ListView in the"\
+        taLbl   = Qt::Label.new("This application uses KMainWindow as its top level widget\n and KListView in the"\
                           " left-hand panel", page)
         taLbl.setGeometry(x, y, 300, 60)
         taLbl.show()
