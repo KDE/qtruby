@@ -735,7 +735,8 @@ public:
     bool callMethod(Smoke::Index method, void *ptr, Smoke::Stack args, bool /*isAbstract*/) {
 		VALUE obj = getPointerObject(ptr);
 		smokeruby_object *o = value_obj_info(obj);
-		if(do_debug & qtdb_virtual) fprintf(stderr, "virtual %p->%s::%s() called\n", ptr,
+	if(do_debug & qtdb_virtual) 
+	    fprintf(stderr, "virtual %p->%s::%s() called\n", ptr,
 	    	smoke->classes[smoke->methods[method].classId].className,
 	    	smoke->methodNames[smoke->methods[method].name]
         	);
@@ -938,6 +939,7 @@ method_missing(int argc, VALUE * argv, VALUE self)
 		savestack[count+3] = argv[count];
 	}
 
+    _current_method = -1;
 	VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
 	if (retval != Qnil)
 	        return retval;
@@ -984,6 +986,7 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
 		savestack[count+3] = argv[count];
 	}
 
+    _current_method = -1;
 	VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
 	if (retval != Qnil)
 	        return retval;
@@ -1058,6 +1061,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 		savestack[count+4] = argv[count];
 	}
 
+    _current_method = -1;
 	VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+4, savestack);
 	if (retval != Qnil)
 	        return retval;
@@ -1065,6 +1069,10 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	// If the method can't be found, allow the default method_missing
 	//	to display an error message, by calling super on the method
 	if (_current_method == -1) {
+	if (argc == 0) {
+	    fprintf(stderr, "sorry, i'm gonna crash now, hope you saved your work!\n");
+	    exit(0);
+	}
 		rb_enable_super(rb_cObject, rb_id2name(SYM2ID(argv[0])));
 		return rb_call_super(argc, argv);
 	}
@@ -1096,13 +1104,11 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 static VALUE
 new_qt(int argc, VALUE * argv, VALUE klass)
 {
-	VALUE class_name = rb_funcall(klass, rb_intern("name"), 0);
 #ifdef DEBUG
+    VALUE class_name = rb_funcall(klass, rb_intern("name"), 0);
 	printf("In new_qt, argc: %d, self class_name: %s\n",
 			argc,
 			STR2CSTR(class_name) );
-#else
-	(void) class_name;
 #endif
 			
 	VALUE * localstack = ALLOCA_N(VALUE, argc + 1);
