@@ -60,6 +60,9 @@ QtRuby features a very complete coverage of the Qt api:
 	- Properties 
 		'fooBar = 5' is a synonym for 'setFooBar(5)'
 		
+	- Predicates
+		'if foo?' is a synonym for 'if isFoo()' or 'if hasFoo()'
+		
 	- Operator overloading
 		The full range of Qt operator methods is available, for example:
 		
