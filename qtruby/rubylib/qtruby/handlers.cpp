@@ -1012,6 +1012,7 @@ void marshall_QRgb_array(Marshall *m) {
 #include <qtoolbar.h>
 #include <qtabbar.h>
 
+#if QT_VERSION >= 0x030200
 DEF_LIST_MARSHALLER( QPtrListQNetworkOperation, QPtrList<QNetworkOperation>, QNetworkOperation, QPtrListStdIterator<QNetworkOperation> )
 DEF_LIST_MARSHALLER( QPtrListQToolBar, QPtrList<QToolBar>, QToolBar, QPtrListStdIterator<QToolBar> )
 DEF_LIST_MARSHALLER( QPtrListQTab, QPtrList<QTab>, QTab, QPtrListStdIterator<QTab> )
@@ -1019,6 +1020,8 @@ DEF_LIST_MARSHALLER( QPtrListQDockWindow, QPtrList<QDockWindow>, QDockWindow, QP
 DEF_LIST_MARSHALLER( QFileInfoList, QFileInfoList, QFileInfo, QFileInfoList::Iterator )
 DEF_LIST_MARSHALLER( QObjectList, QObjectList, QObject, QPtrListStdIterator<QObject> )
 DEF_LIST_MARSHALLER( QWidgetList, QWidgetList, QWidget, QPtrListStdIterator<QWidget> )
+#endif
+
 DEF_LIST_MARSHALLER( QCanvasItemList, QCanvasItemList, QCanvasItem, QValueListIterator<QCanvasItem*> )
 
 TypeHandler Qt_handlers[] = {
@@ -1048,6 +1051,7 @@ TypeHandler Qt_handlers[] = {
     { "QCanvasItemList", marshall_QCanvasItemList },
     { "QCanvasItemList*", marshall_QCanvasItemList },
     { "QCanvasItemList&", marshall_QCanvasItemList },
+#if QT_VERSION >= 0x030200
     { "QWidgetList", marshall_QWidgetList },
     { "QWidgetList*", marshall_QWidgetList },
     { "QWidgetList&", marshall_QWidgetList },
@@ -1069,6 +1073,7 @@ TypeHandler Qt_handlers[] = {
     { "QPtrList<QNetworkOperation>", marshall_QPtrListQNetworkOperation },
     { "QPtrList<QNetworkOperation>*", marshall_QPtrListQNetworkOperation },
     { "QPtrList<QNetworkOperation>&", marshall_QPtrListQNetworkOperation },
+#endif
     { 0, 0 }
 };
 
