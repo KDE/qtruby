@@ -1,6 +1,5 @@
-####### kdevelop will overwrite this part!!! (begin)##########
-
-
 EXTRA_DIST = Qt.rb 
 
-####### kdevelop will overwrite this part!!! (end)############
+install-data-local:
+	-mkdir $(RUBY_SITEDIR)/Qt
+	cp Qt.rb $(RUBY_SITEDIR)/Qt
