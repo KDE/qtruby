@@ -801,13 +801,13 @@ public:
 		{
 			// And another.. 
 			QMap<QCString,DCOPRef> actionMap;
-			VALUE temp = rb_funcall(kde_internal_module, rb_intern("action_map_to_list"), 1, result);
+			// Convert the ruby hash to an array of key/value arrays
+			VALUE temp = rb_funcall(result, rb_intern("to_a"), 0);
 
 			for (long i = 0; i < RARRAY(temp)->len; i++) {
-				VALUE action = rb_ary_entry(temp, i);
-				i++;
+				VALUE action = rb_ary_entry(rb_ary_entry(temp, i), 0);
+				VALUE item = rb_ary_entry(rb_ary_entry(temp, i), 1);
 				
-				VALUE item = rb_ary_entry(temp, i);
 				smokeruby_object *o = value_obj_info(item);
 				if( !o || !o->ptr)
                     continue;
