@@ -446,7 +446,11 @@ marshall_basetype(Marshall *m)
       case Smoke::t_int:
 	switch(m->action()) {
 	  case Marshall::FromVALUE:
-	    m->item().s_int = (int) NUM2INT(*(m->var()));
+	    if (TYPE(*(m->var())) == T_OBJECT) {
+			m->item().s_int = (int) NUM2INT(rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, *(m->var())));
+		} else {
+	    	m->item().s_int = (int) NUM2INT(*(m->var()));
+		}
 	    break;
 	  case Marshall::ToVALUE:
 	    *(m->var()) = INT2NUM(m->item().s_int);
@@ -898,16 +902,22 @@ static void marshall_intR(Marshall *m) {
       case Marshall::FromVALUE:
 	{
 	    VALUE rv = *(m->var());
-	    if(m->type().isPtr() &&		// is pointer
-	       TYPE(rv) != T_BIGNUM) {   // and real undef
-		m->item().s_voidp = 0;		// pass null pointer
-		break;
-	    }
+		int i = 0;
+		if (TYPE(rv) == T_OBJECT) {
+			// A Qt::Integer has been passed as an integer value
+			VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, rv);
+			i = NUM2INT(temp);
+			m->item().s_voidp = &i;
+			m->next();
+			rb_funcall(qt_internal_module, rb_intern("set_qinteger"), 2, rv, INT2NUM(i));
+			rv = temp;
+		} else {
+			i = NUM2INT(rv);
+			m->item().s_voidp = &i;
+			m->next();
+		}
 	    if(m->cleanup()) {
-		int i = NUM2INT(rv);
-		m->item().s_voidp = &i;
-		m->next();
-		*(m->var()) = INT2NUM(i);
+			;
 	    } else {
 		m->item().s_voidp = new int((int)NUM2INT(rv));
 	    }

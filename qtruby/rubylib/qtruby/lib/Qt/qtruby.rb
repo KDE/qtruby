@@ -116,6 +116,22 @@ module Qt
 		end
 	end
 	
+	# Provides a mutable numeric class for passing to methods with
+	# C++ 'int*' or 'int&' arg types
+	class Integer
+		attr_accessor :value
+		def initialize(n) @value = n end
+		def +(n) n + @value end
+		def -(n) n - @value end
+		def *(n) n * @value end
+		def /(n) n / @value end
+		def %(n) n % @value end
+		def **(n) n ** @value end
+		def to_f() return @value.to_f end
+		def to_i() return @value.to_i end
+		def to_s() return @value.to_s end
+	end
+	
 	module Internal
 
 		@@classes   = {}
@@ -357,6 +373,7 @@ module Qt
 			# Special case QByteArray, as it's disguised as a ruby String
 			# and not in the public api.
 			@@classes['Qt::ByteArray'] = Qt::ByteArray.class
+			@@classes['Qt::Integer'] = Qt::Integer.class
 		end
 		
 		def create_qbytearray(string, data)
@@ -365,6 +382,14 @@ module Qt
 		
 		def get_qbytearray(string)
 			return string.data
+		end
+		
+		def get_qinteger(num)
+			return num.value
+		end
+		
+		def set_qinteger(num, val)
+			return num.value = val
 		end
 	end
 

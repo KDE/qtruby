@@ -839,10 +839,11 @@ cast_object_to(VALUE /*self*/, VALUE object, VALUE new_klassname)
 const char *
 get_VALUEtype(VALUE ruby_value)
 {
+	char * classname = rb_obj_classname(ruby_value);
     const char *r = "";
     if(ruby_value == Qnil)
 	r = "u";
-    else if(TYPE(ruby_value) == T_FIXNUM || TYPE(ruby_value) == T_BIGNUM)
+    else if(TYPE(ruby_value) == T_FIXNUM || TYPE(ruby_value) == T_BIGNUM || strcmp(classname, "Qt::Integer") == 0)
 	r = "i";
     else if(TYPE(ruby_value) == T_FLOAT)
 	r = "n";
