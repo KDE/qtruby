@@ -1,5 +1,6 @@
 ####### kdevelop will overwrite this part!!! (begin)##########
 
-SUBDIRS = Qt 
+
+EXTRA_DIST = Qt.rb 
 
 ####### kdevelop will overwrite this part!!! (end)############

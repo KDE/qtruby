@@ -1,3 +1,7 @@
+2003-07-31  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Fixed problem with non-working installed version, lib/Qt.rb moved to lib/Qt/Qt.rb
+
 2003-07-30  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* QtRuby - a Ruby SMOKE adaptor for Qt, initial checkin
