@@ -1,5 +1,9 @@
 2003-10-22  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* Changed some error messages in do_method_missing() to be 'debug only' for now.
+
+2003-10-22  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Got the checklists.rb example working after bug report from Mikhail Yakshin
 	  - Corrected some coding errors in the example itself.
 	  - The arg matching code in method_missing() has been improved and simplified.

@@ -281,7 +281,7 @@ module Qt
 				puts "Resolved to id: #{chosen}" if debug_level >= DebugLevel::High && !chosen.nil?
 			end
 
-			if chosen.nil?
+			if debug_level >= DebugLevel::High && chosen.nil? && method !~ /^operator/
 				id = find_pclassid(normalize_classname(klass.name))
 				hash = findAllMethods(id)
 				constructor_names = nil
