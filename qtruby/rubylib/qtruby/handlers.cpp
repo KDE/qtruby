@@ -341,7 +341,7 @@ construct_copy(smokeruby_object *o)
     return args[0].s_voidp;
 }
 
-static void
+void
 marshall_basetype(Marshall *m)
 {
     switch(m->type().elem()) {
@@ -649,7 +649,7 @@ static void marshall_QString(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE:
 	{
-	    QString s;
+	    QString* s = 0;
 	    if( *(m->var()) != Qnil) {
 #if 0
                if(SvUTF8(*(m->var())))
@@ -660,14 +660,22 @@ static void marshall_QString(Marshall *m) {
                     s = QString::fromLatin1(SvPV_nolen(*(m->var())));
 #else
             // Treat everything as UTF-8..for now
-            s = QString::fromUtf8(StringValuePtr(*(m->var())), RSTRING(*(m->var()))->len);
+            s = new QString(QString::fromUtf8(StringValuePtr(*(m->var())), RSTRING(*(m->var()))->len));
 #endif
             } else {
-                s = QString::null;
+                s = new QString(QString::null);
             }
 		
-	    m->item().s_voidp = &s;
+	    m->item().s_voidp = s;
 	    m->next();
+		
+		if (!m->type().isConst() && *(m->var()) != Qnil && s != 0) {
+			rb_str_resize(*(m->var()), 0);
+			rb_str_cat2(*(m->var()), (const char *)*s);
+		}
+	    
+		if(s && m->cleanup())
+		delete s;
 	}
 	break;
       case Marshall::ToVALUE:
@@ -707,11 +715,12 @@ static void marshall_QByteArray(Marshall *m) {
 	{
 	    VALUE rv = *(m->var());
 	    QByteArray *s = 0;
+		VALUE data = Qnil;
 	    if(rv != Qnil) {
 			if (rb_respond_to(rv, rb_intern("data")) != 0) {
 				// Qt::ByteArray - use the contents of the 'data' instance var, a C++ QByteArray
-				VALUE data = rb_funcall(qt_internal_module, rb_intern("get_qbytearray"), 1, rv);
-				 Data_Get_Struct(data, QByteArray, s);
+				data = rb_funcall(qt_internal_module, rb_intern("get_qbytearray"), 1, rv);
+				Data_Get_Struct(data, QByteArray, s);
 			} else {
 				// Ordinary ruby string - use the contents of the string
             	s = new QByteArray(RSTRING(rv)->len);
@@ -721,8 +730,10 @@ static void marshall_QByteArray(Marshall *m) {
             s = new QByteArray(0);
 	    }
 	    m->item().s_voidp = s;
-	    m->next();
-	    if(s && m->cleanup())
+	    
+		m->next();
+	    
+		if(s && m->cleanup() && data == Qnil)
 		delete s;
 	}
 	break;
@@ -768,11 +779,20 @@ static void marshall_QCString(Marshall *m) {
 	{
 	    QCString *s = 0;
 	    VALUE rv = *(m->var());
-	    if ( (rv != Qnil) || m->type().isStack()) {
-		s = new QCString(StringValuePtr(*(m->var())), RSTRING(*(m->var()))->len);
-            }
+	    if (rv == Qnil) {
+		s = new QCString(); 
+        } else {
+		// Add 1 to the ruby string length to allow for a QCString '\0' terminator
+		s = new QCString(StringValuePtr(*(m->var())), RSTRING(*(m->var()))->len + 1); 
+		}
 	    m->item().s_voidp = s;
-	    m->next();
+	    
+		m->next();
+	    
+		if (!m->type().isConst() && rv != Qnil && s != 0) {
+			rb_str_resize(rv, 0);
+			rb_str_cat2(rv, (const char *)*s);
+		}
 	    if(s && m->cleanup())
 		delete s;
 	}
@@ -794,11 +814,21 @@ static void marshall_QCString(Marshall *m) {
 //                  #endif
 //                    SvUTF8_on(*(m->var()));
 //                }
-	    	if(m->cleanup())
-				delete s;
 	    } else {
+			if (m->type().isConst()) {
                 *(m->var()) = Qnil;
+			} else {
+                *(m->var()) = rb_str_new2("");
+			}
 	    }
+		m->next();
+
+		if (!m->type().isConst() && s != 0) {
+			*s = (const char *) StringValuePtr(*(m->var()));
+		}
+	    
+	    if(s && m->cleanup())
+		delete s;
 	}
 	break;
       default:
@@ -845,12 +875,9 @@ static void marshall_intR(Marshall *m) {
 		int i = NUM2INT(rv);
 		m->item().s_voidp = &i;
 		m->next();
-		// How to do this in Ruby?
-//		sv_setiv_mg(sv, (IV)i);
+		*(m->var()) = INT2NUM(i);
 	    } else {
 		m->item().s_voidp = new int((int)NUM2INT(rv));
-//		if(PL_dowarn)
-//		    rb_warning("Leaking memory from int& handler");
 	    }
 	}
 	break;
@@ -864,9 +891,8 @@ static void marshall_intR(Marshall *m) {
 	    }
 	    *(m->var()) = INT2NUM(*ip);
 	    m->next();
-// FIXME How to do this in Ruby?
-//	    if(!m->type().isConst())
-//		*ip = (int)SvIV(sv);
+	    if(!m->type().isConst())
+		*ip = NUM2INT(*(m->var()));
 	}
 	break;
       default:
@@ -889,11 +915,9 @@ static void marshall_boolR(Marshall *m) {
 		bool i = rv == Qtrue ? true : false;
 		m->item().s_voidp = &i;
 		m->next();
-//		sv_setsv_mg(sv, boolSV(i));
+	    *(m->var()) = (i?Qtrue:Qfalse);
 	    } else {
 		m->item().s_voidp = new bool(rv == Qtrue?true:false);
-//		if(PL_dowarn)
-//		    rb_warning("Leaking memory from bool& handler");
 	    }
 	}
 	break;
@@ -906,8 +930,8 @@ static void marshall_boolR(Marshall *m) {
 	    }
 	    *(m->var()) = (*ip?Qtrue:Qfalse);
 	    m->next();
-//	    if(!m->type().isConst())
-//		*ip = SvTRUE(sv)? true : false;
+	    if(!m->type().isConst())
+		*ip = *(m->var()) == Qtrue ? true : false;
 	}
 	break;
       default:
@@ -1115,7 +1139,7 @@ void marshall_QValueListInt(Marshall *m) {
 	    QValueList<int> *valuelist = new QValueList<int>;
 	    long i;
 	    for(i = 0; i < count; i++) {
-	    VALUE item = rb_ary_entry(list, i);
+		VALUE item = rb_ary_entry(list, i);
 		if(TYPE(item) != T_FIXNUM && TYPE(item) != T_BIGNUM) {
 		    valuelist->append(0);
 		    continue;
@@ -1149,9 +1173,11 @@ void marshall_QValueListInt(Marshall *m) {
 	    for(QValueListIterator<int> it = valuelist->begin();
 		it != valuelist->end();
 		++it)
-		rb_ary_push(av, INT2NUM((int)*it));
+		rb_ary_push(av, INT2NUM(*it));
 	    if(m->cleanup())
 		delete valuelist;
+  	    else
+	        *(m->var()) = av;
 	}
 	break;
       default:
