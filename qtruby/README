@@ -107,6 +107,20 @@ QtRuby features a very complete coverage of the Qt api:
 			
 			w = MyWidget.new { |theWidget| theWidget.setCaption "foobar" }
 			
+	- Garbage Collection
+		When a ruby instance is garbage collected, the underlying C++ instance will only be
+		deleted if it isn't 'owned' by a parent object. Normally this will 'just work', but
+		there are occasions when you need to delete the C++ ahead of garbage collection, and
+		whether or not it has a parent. Use the dispose() and isDisposed() methods like this:
+		
+			item0.takeItem(item1)  
+			item0.insertItem(item1)  
+		
+			item2.dispose
+			if item2.isDisposed
+				puts "item2 is disposed"
+			end
+			
 	- Use Qt Designer
 		A 'rbuic' tool is included in qtruby/rubylib/designer/rbuic to compile
 			.ui files into ruby code.

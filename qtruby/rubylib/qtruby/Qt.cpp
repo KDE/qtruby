@@ -1617,14 +1617,36 @@ setAllocated(VALUE self, VALUE obj, VALUE b_value)
 }
 
 static VALUE
-deleteObject(VALUE self, VALUE obj)
+dispose(VALUE self)
 {
-    smokeruby_object *o = value_obj_info(obj);
+    smokeruby_object *o = value_obj_info(self);
     if(!o || !o->ptr) { return Qnil; }
-    QObject *qobj = (QObject*)o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
-    delete qobj;
+	
+    const char *className = o->smoke->classes[o->classId].className;
+	char *methodName = new char[strlen(className) + 2];
+	methodName[0] = '~';
+	strcpy(methodName + 1, className);
+	Smoke::Index nameId = o->smoke->idMethodName(methodName);
+	Smoke::Index meth = o->smoke->findMethod(o->classId, nameId);
+	if(meth > 0) {
+		Smoke::Method &m = o->smoke->methods[o->smoke->methodMaps[meth].method];
+		Smoke::ClassFn fn = o->smoke->classes[m.classId].classFn;
+		Smoke::StackItem i[1];
+		(*fn)(m.method, o->ptr, i);
+	}
+	delete[] methodName;
 	o->ptr = 0;
-    return self;
+	o->allocated = false;
+	
+	return self;
+}
+
+static VALUE
+is_disposed(VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+    if(!o || !o->ptr) { return Qtrue; }
+	return Qfalse;
 }
 
 static VALUE
@@ -1969,6 +1991,9 @@ Init_qtruby()
     rb_define_singleton_method(qt_module, "const_missing", (VALUE (*) (...)) module_method_missing, -1);
     rb_define_method(qt_base_class, "const_missing", (VALUE (*) (...)) method_missing, -1);
 
+    rb_define_method(qt_base_class, "dispose", (VALUE (*) (...)) dispose, 0);
+    rb_define_method(qt_base_class, "isDisposed", (VALUE (*) (...)) is_disposed, 0);
+
 	kde_module = rb_define_module("KDE");
     rb_define_singleton_method(kde_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
     rb_define_singleton_method(kde_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
@@ -2010,7 +2035,6 @@ Init_qtruby()
     rb_define_method(qt_internal_module, "make_QMetaData_tbl", (VALUE (*) (...)) make_QMetaData_tbl, 1);
     rb_define_method(qt_internal_module, "make_metaObject", (VALUE (*) (...)) make_metaObject, 6);
     rb_define_method(qt_internal_module, "setAllocated", (VALUE (*) (...)) setAllocated, 2);
-    rb_define_method(qt_internal_module, "deleteObject", (VALUE (*) (...)) deleteObject, 1);
     rb_define_method(qt_internal_module, "mapObject", (VALUE (*) (...)) mapObject, 1);
     // isQOjbect => isaQObject
     rb_define_method(qt_internal_module, "isQObject", (VALUE (*) (...)) isaQObject, 1);
