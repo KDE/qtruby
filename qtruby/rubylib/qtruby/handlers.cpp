@@ -1239,8 +1239,8 @@ void marshall_QStrList(Marshall *m) {
 
 	    if(m->cleanup()) {
 		rb_ary_clear(list);
-		for(QStrList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it)
-		    rb_ary_push(list, rb_str_new2(static_cast<const char *>(*it)));
+		for(const char * it = stringlist->first(); it != 0; it = stringlist->next())
+		    rb_ary_push(list, rb_str_new2(it));
 		delete stringlist;
 	    }
 	    break;
@@ -1254,8 +1254,8 @@ void marshall_QStrList(Marshall *m) {
 	    }
 
 	    VALUE av = rb_ary_new();
-	    for(QStrList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it) {
-		VALUE rv = rb_str_new2(static_cast<const char *>(*it));
+		for(const char * it = stringlist->first(); it != 0; it = stringlist->next()) {
+		VALUE rv = rb_str_new2(it);
 		rb_ary_push(av, rv);
 	    }
 
