@@ -187,7 +187,7 @@ void marshall_KMimeTypeList(Marshall *m) {
 		    o->smoke = m->smoke();
 		    o->classId = m->smoke()->idClass("KMimeType");
 		    o->ptr = item;
-		    o->allocated = false;
+		    o->allocated = true;
 		    obj = set_obj_info("KDE::MimeType", o);
 		}
 		rb_ary_push(av, obj);
@@ -213,7 +213,7 @@ void marshall_KMimeTypePtr(Marshall *m) {
 		break;
 	case Marshall::ToVALUE: 
 		{
-	    KMimeType * mimeType = (KMimeType *) (*(KMimeType::Ptr*) m->item().s_voidp);
+	    KMimeType * mimeType = new KMimeType(*((KMimeType *) (*(KMimeType::Ptr*) m->item().s_voidp)));
 	    if(mimeType == 0) {
 		*(m->var()) = Qnil;
 		break;
@@ -224,7 +224,7 @@ void marshall_KMimeTypePtr(Marshall *m) {
 		    o->smoke = m->smoke();
 		    o->classId = m->smoke()->idClass("KMimeType");
 		    o->ptr = mimeType;
-		    o->allocated = false;
+		    o->allocated = true;
 		    obj = set_obj_info("KDE::MimeType", o);
 		}
 
@@ -266,7 +266,7 @@ void marshall_KServiceList(Marshall *m) {
 		ptr->_KShared_ref();
 		KService * currentOffer = ptr;
 
-		VALUE obj = getPointerObject(ptr);
+		VALUE obj = getPointerObject(currentOffer);
 		if(obj == Qnil) {
 		    smokeruby_object  * o = ALLOC(smokeruby_object);
 		    o->smoke = m->smoke();
@@ -298,7 +298,7 @@ void marshall_KServiceGroupPtr(Marshall *m) {
 		break;
 	case Marshall::ToVALUE: 
 		{
-	    KServiceGroup * serviceGroup = (*(KServiceGroup::Ptr*)m->item().s_voidp);
+	    KServiceGroup * serviceGroup = new KServiceGroup(*((KServiceGroup*)(KServiceGroup::Ptr*)m->item().s_voidp));
 	    if(serviceGroup == 0) {
 		*(m->var()) = Qnil;
 		break;
@@ -310,7 +310,7 @@ void marshall_KServiceGroupPtr(Marshall *m) {
 		    o->smoke = m->smoke();
 		    o->classId = m->smoke()->idClass("KServiceGroup");
 		    o->ptr = serviceGroup;
-		    o->allocated = false;
+		    o->allocated = true;
 		    obj = set_obj_info("KDE::ServiceGroup", o);
 		}
 
@@ -345,20 +345,15 @@ void marshall_KServiceTypeList(Marshall *m) {
 	    for(KServiceType::List::Iterator it = offerList->begin();
 		it != offerList->end();
 		++it) {
-		KServiceType::Ptr ptr = *it;
-		// Increment the reference count to prevent C++ garbage collection.
-		// The contents of the offerList ruby Array should really be deref'd 
-		// when it's gc'd.
-		ptr->_KShared_ref();
-		KServiceType * currentOffer = ptr;
+		KServiceType * currentOffer = new KServiceType(*((KServiceType*)*it));
 
-		VALUE obj = getPointerObject(ptr);
+		VALUE obj = getPointerObject(currentOffer);
 		if(obj == Qnil) {
 		    smokeruby_object  * o = ALLOC(smokeruby_object);
 		    o->smoke = m->smoke();
 		    o->classId = m->smoke()->idClass("KServiceType");
 		    o->ptr = currentOffer;
-		    o->allocated = false;
+		    o->allocated = true;
 		    obj = set_obj_info("KDE::ServiceType", o);
 		}
 		rb_ary_push(av, obj);
@@ -402,7 +397,7 @@ void marshall_KTraderOfferList(Marshall *m) {
 		ptr->_KShared_ref();
 		KService * currentOffer = ptr;
 
-		VALUE obj = getPointerObject(ptr);
+		VALUE obj = getPointerObject(currentOffer);
 		if(obj == Qnil) {
 		    smokeruby_object  * o = ALLOC(smokeruby_object);
 		    o->smoke = m->smoke();

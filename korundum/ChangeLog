@@ -1,3 +1,12 @@
+2004-07-13  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Improved the KSharePtr item marshalling so that a copy of the item
+	  is constructed with no accompanying smart pointer. The new item
+	  can be owned by ruby without needing to special case deref'ing
+	  the pointer on destruction. Apart from KService's don't have a 
+	  public copy constructor, where the ref count is incremented to
+	  prevent their destruction.
+
 2004-07-12  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* The full C++ type signature is no longer needed in DCOP calls:
