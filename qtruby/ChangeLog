@@ -1,3 +1,7 @@
+2004-12-17  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Fixed bug in lower case/underscore method naming to camel case conversion
+
 2004-12-15  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * Added an attribute of 'children' to the Qt::Object inspect method, which is an array

@@ -555,7 +555,7 @@ module Qt
 			method = 'set' + method[0,1].upcase + method[1,method.length].sub("=", "") if method =~ /.*[^-+%\/|]=$/
 
 			methods = []
-			methods << method
+			methods << method.dup
 			args.each do |arg|
 				if arg.nil?
 					# For each nil arg encountered, triple the number of munged method
@@ -585,7 +585,7 @@ module Qt
 				while method =~ /([^_]*)_(.)(.*)/ 
 					method = $1 + $2.upcase + $3
 				end
-				do_method_missing(package, method, klass, this, *args)
+				return do_method_missing(package, method, klass, this, *args)
 			end
 
 			if debug_level >= DebugLevel::High
