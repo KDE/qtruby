@@ -10,14 +10,14 @@ about = KDE::AboutData.new("one", "two", "three")
 KDE::CmdLineArgs.init(1, ["four"], about)
 a = KDE::Application.new()
 
-Qt::Internal::setDebug Qt::QtDebugChannel::QTDB_ALL
-Qt.debug_level = Qt::DebugLevel::High
+# Qt::Internal::setDebug Qt::QtDebugChannel::QTDB_ALL
+# Qt.debug_level = Qt::DebugLevel::High
 
 class MyBase < Qt::VBox
    HOME = KDE::URL.new ENV["BASEDOCURL"]
    slots "go_back()", "go_forward()", "goto_url()", "go_home()", "debug()"
    attr_accessor :back, :forward, :url
-   def initialize *k
+   def initialize( *k )
       super *k
       buttons = Qt::HBox.new self
       @w = KDE::HTMLPart.new self
@@ -134,9 +134,9 @@ occurs frequently
 
 dum di dum
 
-can't get tabwidget working. umm... wonder what i'm fucking up...
+can't get tabwidget working. umm... wonder what i'm messing up...
 
-      tabwidget = KDE::TabWidget.new self
+      tabwidget = KDE::TabWidget.new browser
       tabwidget.setTabPosition Qt::TabWidget::Top
       @w = KDE::HTMLPart.new tabwidget
       w2 = KDE::HTMLPart.new tabwidget
