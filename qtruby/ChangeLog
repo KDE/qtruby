@@ -1,3 +1,10 @@
+2004-12-15  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * Added an attribute of 'children' to the Qt::Object inspect method, which is an array
+   of the Qt::Object's children
+ * The QObjects in a QObjectList were not being created with the exact ruby class
+   if they hadn't been allocated from within the ruby code, and just left as Qt::Objects
+
 2004-12-14  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * Qt::Object properities of type enum are shown by name in the KDevelop debugger,

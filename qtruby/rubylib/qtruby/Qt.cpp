@@ -31,6 +31,7 @@
 #include <private/qucomextra_p.h>
 #include <qvariant.h>
 #include <qcursor.h>
+#include <qobjectlist.h>
 
 #undef DEBUG
 #ifndef __USE_POSIX
@@ -1070,12 +1071,17 @@ inspect_qobject(VALUE self)
 	
 	// Drop the closing '>'
 	rb_str_resize(inspect_str, RSTRING(inspect_str)->len - 1);
-	QCString value_list;
 	smokeruby_object * o = 0;
     Data_Get_Struct(self, smokeruby_object, o);	
 	QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
 	QStrList names = qobject->metaObject()->propertyNames(true);
 	
+	QCString value_list;
+	
+	if (qobject->children() != 0) {
+		value_list.append(QCString().sprintf(" children=Array (%d element(s)), ", qobject->children()->count())); 
+	}
+		
 	int index = 0;
 	const char * name = names.first();
 	
@@ -1133,6 +1139,12 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	QStrList names = qobject->metaObject()->propertyNames(true);
 	
 	QCString temp;		
+	
+	if (qobject->children() != 0) {
+		temp = QCString().sprintf("  children=Array (%d element(s)),\n", qobject->children()->count());
+		rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(temp.data()));
+	}
+		
 	int	index = 0;
 	const char * name = names.first();
 	
@@ -1147,7 +1159,7 @@ pretty_print_qobject(VALUE self, VALUE pp)
 				name != 0; 
 				name = names.next(), index++ ) 
 		{
-			rb_funcall(pp, rb_intern("comma_breakable"), 0);
+			rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(",\n"));
 						
 			value = qobject->property(name);
 			property = qobject->metaObject()->property(index, true);

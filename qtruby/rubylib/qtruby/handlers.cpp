@@ -56,12 +56,12 @@ extern bool application_terminated;
 extern bool isDerivedFromByName(Smoke *smoke, const char *className, const char *baseClassName);
 extern void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *lastptr);
 
-static const char * (*_kde_resolve_classname)(Marshall*, void *) = 0;
+static const char * (*_kde_resolve_classname)(Smoke*, int, void*) = 0;
 
 extern "C" {
 
 void
-set_kde_resolve_classname(const char * (*kde_resolve_classname) (Marshall*, void *))
+set_kde_resolve_classname(const char * (*kde_resolve_classname) (Smoke*, int, void *))
 {
 	_kde_resolve_classname = kde_resolve_classname;
 }
@@ -254,10 +254,10 @@ smokeruby_free(void * p)
  * by using the various Qt rtti mechanisms for QObjects, QEvents and QCanvasItems
  */
 static const char *
-resolve_classname(Marshall* m, void * ptr)
+resolve_classname(Smoke* smoke, int classId, void * ptr)
 {
-	if (isDerivedFromByName(m->smoke(), m->smoke()->classes[m->type().classId()].className, "QEvent")) {
-		QEvent * qevent = (QEvent *) m->smoke()->cast(ptr, m->type().classId(), m->smoke()->idClass("QEvent"));
+	if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QEvent")) {
+		QEvent * qevent = (QEvent *) smoke->cast(ptr, classId, smoke->idClass("QEvent"));
 		switch (qevent->type()) {
 		case QEvent::ChildInserted:
 		case QEvent::ChildRemoved:
@@ -312,15 +312,15 @@ resolve_classname(Marshall* m, void * ptr)
 		default:
 			break;
 		}
-	} else if (isDerivedFromByName(m->smoke(), m->smoke()->classes[m->type().classId()].className, "QObject")) {
-		QObject * qobject = (QObject *) m->smoke()->cast(ptr, m->type().classId(), m->smoke()->idClass("QObject"));
+	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QObject")) {
+		QObject * qobject = (QObject *) smoke->cast(ptr, classId, smoke->idClass("QObject"));
 		const char * classname = qobject->className();
-		Smoke::Index classId = m->smoke()->idClass(classname);
+		Smoke::Index classId = smoke->idClass(classname);
 		if (classId != 0) {
-			return m->smoke()->binding->className(classId);
+			return smoke->binding->className(classId);
 		}
-	} else if (isDerivedFromByName(m->smoke(), m->smoke()->classes[m->type().classId()].className, "QCanvasItem")) {
-		QCanvasItem * qcanvasitem = (QCanvasItem *) m->smoke()->cast(ptr, m->type().classId(), m->smoke()->idClass("QCanvasItem"));
+	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QCanvasItem")) {
+		QCanvasItem * qcanvasitem = (QCanvasItem *) smoke->cast(ptr, classId, smoke->idClass("QCanvasItem"));
 		switch (qcanvasitem->rtti()) {
 		case QCanvasItem::Rtti_Sprite:
 			return "Qt::CanvasSprite";
@@ -341,8 +341,8 @@ resolve_classname(Marshall* m, void * ptr)
 		default:
 			break;
 		}
-	} else if (isDerivedFromByName(m->smoke(), m->smoke()->classes[m->type().classId()].className, "QListViewItem")) {
-		QListViewItem * item = (QListViewItem *) m->smoke()->cast(ptr, m->type().classId(), m->smoke()->idClass("QListViewItem"));
+	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QListViewItem")) {
+		QListViewItem * item = (QListViewItem *) smoke->cast(ptr, classId, smoke->idClass("QListViewItem"));
 		switch (item->rtti()) {
 		case 0:
 			return "Qt::ListViewItem";
@@ -352,8 +352,8 @@ resolve_classname(Marshall* m, void * ptr)
 			return "Qt::ListViewItem";
 			break;
 		}
-	} else if (isDerivedFromByName(m->smoke(), m->smoke()->classes[m->type().classId()].className, "QTableItem")) {
-		QTableItem * item = (QTableItem *) m->smoke()->cast(ptr, m->type().classId(), m->smoke()->idClass("QTableItem"));
+	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QTableItem")) {
+		QTableItem * item = (QTableItem *) smoke->cast(ptr, classId, smoke->idClass("QTableItem"));
 		switch (item->rtti()) {
 		case 0:
 			return "Qt::TableItem";
@@ -368,10 +368,10 @@ resolve_classname(Marshall* m, void * ptr)
 	}
 	
 	if (_kde_resolve_classname != 0) {
-		return (*_kde_resolve_classname)(m, ptr);
+		return (*_kde_resolve_classname)(smoke, classId, ptr);
 	}
 	
-	return m->smoke()->binding->className(m->type().classId());
+	return smoke->binding->className(classId);
 }
 
 bool
@@ -684,7 +684,7 @@ marshall_basetype(Marshall *m)
 		o->ptr = p;
 		o->allocated = false;
 
-		const char * classname = resolve_classname(m, o->ptr);
+		const char * classname = resolve_classname(o->smoke, o->classId, o->ptr);
 		
 		if(m->type().isConst() && m->type().isRef()) {
 		    p = construct_copy( o );
@@ -1373,9 +1373,6 @@ void marshall_ItemList(Marshall *m) {
 
 	    VALUE av = rb_ary_new();
 
-	    int ix = m->smoke()->idClass(ItemSTR);
-	    const char * className = m->smoke()->binding->className(ix);
-
 	    for(ItemListIterator it = valuelist->begin();
 		it != valuelist->end();
 		++it) {
@@ -1390,10 +1387,10 @@ void marshall_ItemList(Marshall *m) {
 		if(obj == Qnil) {
 		    smokeruby_object  * o = ALLOC(smokeruby_object);
 		    o->smoke = m->smoke();
-		    o->classId = m->type().classId();
+		    o->classId = m->smoke()->idClass(ItemSTR);
 		    o->ptr = p;
 		    o->allocated = false;
-		    obj = set_obj_info(className, o);
+		    obj = set_obj_info(resolve_classname(o->smoke, o->classId, o->ptr), o);
 		}
 		rb_ary_push(av, obj);
             }
