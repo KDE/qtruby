@@ -157,9 +157,9 @@ class MainWin < MainWindow
 
         # This really belongs in Kicker, not here,
         # but it actually works
-        wlMenu = WindowListMenu.new(self)
-        wlMenu.init()
-        menuBar().insertItem(i18n("&WindowListMenu"), wlMenu)
+        # wlMenu = WindowListMenu.new(self)
+        # wlMenu.init()
+        # menuBar().insertItem(i18n("&WindowListMenu"), wlMenu)
 
         helpMenu = helpMenu("")
         menuBar().insertItem(i18n("&Help"), helpMenu)
