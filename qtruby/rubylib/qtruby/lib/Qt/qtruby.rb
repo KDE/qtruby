@@ -191,8 +191,8 @@ module Qt
 			@@classes[classname]
 		end
 		
-				# Runs the initializer as far as allocating the Qt C++ instance.
-				# Then use the @@current_initializer continuation to jump back to here
+		# Runs the initializer as far as allocating the Qt C++ instance.
+		# Then use the @@current_initializer continuation to jump back to here
 		def try_initialize(instance, *args)
 			initializer = instance.method(:initialize)
 			return callcc {
@@ -208,9 +208,9 @@ module Qt
 		end
 		
                 # If a block was passed to the constructor, then
-				# run that now. Either run the context of the new instance
-				# if no args were passed to the block. Or otherwise,
-				# run the block in the context of the arg.
+		# run that now. Either run the context of the new instance
+		# if no args were passed to the block. Or otherwise,
+		# run the block in the context of the arg.
 		def run_initializer_block(instance, block)
 			if block.arity == -1
 				instance.instance_eval(&block)
@@ -286,7 +286,7 @@ module Qt
 						current_match += checkarg( getVALUEtype(args[i]), getTypeNameOfArg(id, i) )
 					end
 					
-					if current_match > best_match
+					if current_match > best_match || chosen.nil?
 						best_match = current_match
 						chosen = id
 					elsif current_match == best_match
