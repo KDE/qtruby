@@ -20,6 +20,8 @@
 #include <qvaluelist.h>
 #include <qobjectlist.h>
 #include <qtextcodec.h>
+#include <qhostaddress.h>
+
 #include <private/qucomextra_p.h>
 
 #include "smoke.h"
@@ -1596,6 +1598,107 @@ DEF_LIST_MARSHALLER( QWidgetList, QWidgetList, QWidget, QPtrListStdIterator<QWid
 
 DEF_LIST_MARSHALLER( QCanvasItemList, QCanvasItemList, QCanvasItem, QValueListIterator<QCanvasItem*> )
 
+template <class Item, class ItemList, class ItemListIterator, const char *ItemSTR >
+void marshall_ValueItemList(Marshall *m) {
+    switch(m->action()) {
+      case Marshall::FromVALUE:
+	{
+	    VALUE list = *(m->var());
+	    if (TYPE(list) != T_ARRAY) {
+		m->item().s_voidp = 0;
+		break;
+	    }
+	    int count = RARRAY(list)->len;
+	    ItemList *cpplist = new ItemList;
+	    long i;
+	    for(i = 0; i < count; i++) {
+		VALUE item = rb_ary_entry(list, i);
+                // TODO do type checking!
+		smokeruby_object *o = value_obj_info(item);
+		if(!o || !o->ptr)
+                    continue;
+		void *ptr = o->ptr;
+		ptr = o->smoke->cast(
+		    ptr,				// pointer
+		    o->classId,				// from
+		    o->smoke->idClass(ItemSTR)	        // to
+		);
+		cpplist->append(*(Item*)ptr);
+	    }
+
+	    m->item().s_voidp = cpplist;
+	    m->next();
+
+	    if(m->cleanup()) {
+		rb_ary_clear(list);
+		for(ItemListIterator it = cpplist->begin();
+		    it != cpplist->end();
+		    ++it) {
+		    VALUE obj = getPointerObject((void*)&(*it));
+		    rb_ary_push(list, obj);
+		}
+		delete cpplist;
+	    }
+	}
+	break;
+      case Marshall::ToVALUE:
+	{
+	    ItemList *valuelist = (ItemList*)m->item().s_voidp;
+	    if(!valuelist) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+
+	    VALUE av = rb_ary_new();
+
+	    int ix = m->smoke()->idClass(ItemSTR);
+	    const char * className = m->smoke()->binding->className(ix);
+
+	    for(ItemListIterator it = valuelist->begin();
+		it != valuelist->end();
+		++it) {
+		void *p = &(*it);
+
+		if(m->item().s_voidp == 0) {
+		    *(m->var()) = Qnil;
+		    break;
+		}
+
+		VALUE obj = getPointerObject(p);
+		if(obj == Qnil) {
+		    smokeruby_object  * o = ALLOC(smokeruby_object);
+		    o->smoke = m->smoke();
+		    o->classId = o->smoke->idClass(ItemSTR);
+		    o->ptr = p;
+		    o->allocated = false;
+		    obj = set_obj_info(className, o);
+		}
+		rb_ary_push(av, obj);
+            }
+
+	    if(m->cleanup())
+		delete valuelist;
+	    else
+	        *(m->var()) = av;
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
+    }
+}
+
+#define DEF_VALUELIST_MARSHALLER(ListIdent,ItemList,Item,Itr) namespace { char ListIdent##STR[] = #Item; };  \
+        Marshall::HandlerFn marshall_##ListIdent = marshall_ValueItemList<Item,ItemList,Itr,ListIdent##STR>;
+
+DEF_VALUELIST_MARSHALLER( QVariantList, QValueList<QVariant>, QVariant, QValueList<QVariant>::Iterator )
+DEF_VALUELIST_MARSHALLER( QPixmapList, QValueList<QPixmap>, QPixmap, QValueList<QPixmap>::Iterator )
+DEF_VALUELIST_MARSHALLER( QIconDragItemList, QValueList<QIconDragItem>, QIconDragItem, QValueList<QIconDragItem>::Iterator )
+DEF_VALUELIST_MARSHALLER( QImageTextKeyLangList, QValueList<QImageTextKeyLang>, QImageTextKeyLang, QValueList<QImageTextKeyLang>::Iterator )
+DEF_VALUELIST_MARSHALLER( QUrlInfoList, QValueList<QUrlInfo>, QUrlInfo, QValueList<QUrlInfo>::Iterator )
+DEF_VALUELIST_MARSHALLER( QTranslatorMessageList, QValueList<QTranslatorMessage>, QTranslatorMessage, QValueList<QTranslatorMessage>::Iterator )
+DEF_VALUELIST_MARSHALLER( QHostAddressList, QValueList<QHostAddress>, QHostAddress, QValueList<QHostAddress>::Iterator )
+
 TypeHandler Qt_handlers[] = {
     { "QString", marshall_QString },
     { "QString&", marshall_QString },
@@ -1624,6 +1727,14 @@ TypeHandler Qt_handlers[] = {
     { "QByteArray&", marshall_QByteArray },
     { "QValueList<int>", marshall_QValueListInt },
     { "QValueList<int>&", marshall_QValueListInt },
+    { "QValueList<QVariant>", marshall_QVariantList },
+    { "QValueList<QVariant>&", marshall_QVariantList },
+    { "QValueList<QPixmap>", marshall_QPixmapList },
+    { "QValueList<QIconDragItem>&", marshall_QIconDragItemList },
+    { "QValueList<QImageTextKeyLang>", marshall_QImageTextKeyLangList },
+    { "QValueList<QUrlInfo>&", marshall_QUrlInfoList },
+    { "QValueList<QTranslatorMessage>", marshall_QTranslatorMessageList },
+    { "QValueList<QHostAddress>", marshall_QHostAddressList },
     { "QCanvasItemList", marshall_QCanvasItemList },
     { "QMap<QString,QString>", marshall_QMapQStringQString },
     { "QMap<QString,QString>&", marshall_QMapQStringQString },
@@ -1647,9 +1758,19 @@ TypeHandler Qt_handlers[] = {
 };
 
 QAsciiDict<TypeHandler> type_handlers(199);
+extern Smoke *qt_Smoke;
 
 void install_handlers(TypeHandler *h) {
     while(h->name) {
+	Smoke::Index typeId = qt_Smoke->idType(h->name);
+	if (typeId == 0) {
+		QString temp(h->name);
+		temp.prepend("const ");
+		typeId = qt_Smoke->idType(temp.latin1());
+		if (typeId == 0) {
+			printf("No smoke type for: %s\n", h->name);
+		}
+	}
 	type_handlers.insert(h->name, h);
 	h++;
     }

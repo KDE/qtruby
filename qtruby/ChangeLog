@@ -1,3 +1,8 @@
+2004-07-29  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added a template based method for QValueList marshallers, and several
+	  QValueList types.
+
 2004-07-28  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Removed any marshaller types that weren't in the Smoke runtime from the
