@@ -92,12 +92,12 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 					{
 						// Look for methods of the form: QDataStream & operator<<(QDataStream&, const MyClass&)
 						Smoke::Index meth = t.smoke()->findMethod("QGlobalSpace", "operator<<##");
-						Smoke::Index i;
+						Smoke::Index ix;
 						if (meth > 0) {
-							i = t.smoke()->methodMaps[meth].method;
-							i = -i;		// turn into ambiguousMethodList index
-							while (t.smoke()->ambiguousMethodList[i]) {
-								Smoke::Method &method = t.smoke()->methods[t.smoke()->ambiguousMethodList[i]];
+							ix = t.smoke()->methodMaps[meth].method;
+							ix = -ix;		// turn into ambiguousMethodList index
+							while (t.smoke()->ambiguousMethodList[ix]) {
+								Smoke::Method &method = t.smoke()->methods[t.smoke()->ambiguousMethodList[ix]];
 								QString	refType("const ");
 								refType += t.name();
 								refType += "&";
@@ -116,7 +116,7 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 									delete local_stack;
 									break;
 								}
-								i++;
+								ix++;
 							}
 						}
 					}
