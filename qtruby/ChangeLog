@@ -1,3 +1,14 @@
+2003-10-22  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Got the checklists.rb example working after bug report from Mikhail Yakshin
+	  - Corrected some coding errors in the example itself.
+	  - The arg matching code in method_missing() has been improved and simplified.
+	  - In the overloaded arg type resolution matching, an enum is type 'long'
+	  - A class which matches exactly is a better match than a subclass.
+	    Multiple matches are allowed as long as there is a 'best match'.
+	  - Operator overloading now looks for methods of the form 'operator+=',
+	    'operator-=' etc in the Smoke runtime.
+
 2003-10-14  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Fixed serious random crash problem

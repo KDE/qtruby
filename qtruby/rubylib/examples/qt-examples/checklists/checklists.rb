@@ -99,20 +99,20 @@ class CheckLists < Qt::Widget
 		it = Qt::ListViewItemIterator.new(@lv1)
 		# Insert first a controller Item into the second ListView. Always if Radio-ListViewItems
 		# are inserted into a Listview, the parent item of these MUST be a controller Item!
-		item = Qt::CheckListItem.new(@lv2, 'Controller', Qt::CheckListItem.Controller );
+		item = Qt::CheckListItem.new(@lv2, 'Controller', Qt::CheckListItem::Controller );
 		item.setOpen(true);
 
 		# iterate through the first ListView...
 		while (it.current)
-			++it
 			# ...check state of childs, and...
-			if ( it.parent )
+			if ( it.current.parent )
 				#  ...if the item is checked...
-				if (it.isOn)
+				if (it.current.isOn)
 					# ...insert a Radio-ListViewItem with the same text into the second ListView
-					QCheckListItem.new(item, it.text(0), Qt::CheckListItem.RadioButton)
+					Qt::CheckListItem.new(item, it.current.text(0), Qt::CheckListItem::RadioButton)
 				end
 			end
+			it += 1
 		end
 
 		if (item.firstChild)
@@ -141,6 +141,7 @@ class CheckLists < Qt::Widget
 					@label.setText(it.current.text(0))
 				end
 			end
+			it += 1
 		end
 	end
 end

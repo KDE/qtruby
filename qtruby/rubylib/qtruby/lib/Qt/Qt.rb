@@ -129,8 +129,7 @@ module Qt
                         Qt.debug_level
                 end
 
-		def checkarg(argtype, method, i)
-			typename = getTypeNameOfArg(method, i)
+		def checkarg(argtype, typename)
 			puts "      #{typename} (#{argtype})" if debug_level >= DebugLevel::High
 			if argtype == 'i'
 				if typename =~ /^(?:short|ushort|int|uint|long|ulong|signed|unsigned)$/
@@ -169,23 +168,13 @@ module Qt
 			else
 				t = typename.sub(/^const\s+/, '')
 				t.sub!(/[&*]$/, '')
-				if classIsa(argtype, t)
+				if classEquals(argtype, t)
+					return 1
+				elsif classIsa(argtype, t)
 					return 0
 				end
 			end
-			return nil
-		end
-
-		def arg_matches?(methodIds, args, i)
-			match = {}
-			argtype = getVALUEtype(args[i])
-                        methodIds.each {
-                                |id|
-				puts "   #{id}:" if debug_level >= DebugLevel::High
-				match_value = checkarg(argtype, id, i)
-				match[id] = match_value unless match_value.nil?
-                        }
-			return match.sort {|a,b| a[1] <=> b[1]}
+			return -99
 		end
 
 		def find_class(classname)
@@ -244,7 +233,7 @@ module Qt
 			method = classname.dup if method == "new"
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
 #			Change foobar= to setFoobar()					
-			method = 'set' + method[0,1].upcase + method[1,method.length].sub("=", "") if method =~ /.*=$/
+			method = 'set' + method[0,1].upcase + method[1,method.length].sub("=", "") if method =~ /.*[^-+%\/|]=$/
 
 			method_argstr = ""
 			args.each {
@@ -266,29 +255,30 @@ module Qt
 				|prototype,id| puts "#{prototype.ljust line_len}  (#{id})" 
 			    }
 			end
-			if methodIds.length == 1
+			
+			if methodIds.length == 1 && method !~ /^operator/
 				chosen = methodIds[0]
-			elsif methodIds.length > 1
-				puts "attempting to resolve:" if debug_level >= DebugLevel::High
-				remainingIds = methodIds.dup
-				matching = nil
-				(0...args.length).each {
-					|i|
-					puts "arg #{i}:" if debug_level >= DebugLevel::High
-					matching = arg_matches?(remainingIds, args, i)
-					remainingIds.delete_if { |id| matching.assoc(id).nil? }
-					puts "remaining ids => #{remainingIds.inspect}" if debug_level >= DebugLevel::High
-					puts "arg_matches => #{matching.inspect}" if debug_level >= DebugLevel::High
-					break matching if remainingIds.length <= 1
-				}
-				if ! matching.nil?
-					if matching.length == 1
-						chosen = matching[0][0]
-						puts "Resolved to id: #{methodIds[0]}" if debug_level >= DebugLevel::High
-					else
-						raise ArgumentError, "Ambiguous method call '#{method}'"
+			elsif methodIds.length > 0
+				best_match = -1
+				methodIds.each do
+					|id|
+					puts "matching => #{id}" if debug_level >= DebugLevel::High
+					current_match = 0
+					(0...args.length).each do
+						|i|
+						current_match += checkarg( getVALUEtype(args[i]), getTypeNameOfArg(id, i) )
 					end
+					
+					if current_match > best_match
+						best_match = current_match
+						chosen = id
+					elsif current_match == best_match
+						chosen = nil
+					end
+					puts "match => #{id} score: #{current_match}" if debug_level >= DebugLevel::High
 				end
+					
+				puts "Resolved to id: #{chosen}" if debug_level >= DebugLevel::High && !chosen.nil?
 			end
 
 			if chosen.nil?
