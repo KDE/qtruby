@@ -30,4 +30,17 @@ test("r1 = Qt::Region.new()")
 test("r2 = Qt::Region.new( 100,100,200,80, Qt::Region::Ellipse )")
 test("r1 + r2")
 
+class Qt::WMatrix
+   def to_s
+      "(#{m11}, #{m12}, #{m21}, #{m22}, #{dx}, #{dy})"
+   end
+end
 
+test("a    = Math::PI/180 * 25")         # convert 25 to radians
+test("sina = Math.sin(a)")
+test("cosa = Math.cos(a)")
+test("m1 = Qt::WMatrix.new(1, 0, 0, 1, 10, -20)")  # translation matrix
+test("m2 = Qt::WMatrix.new( cosa, sina, -sina, cosa, 0, 0 )")
+test("m3 = Qt::WMatrix.new(1.2, 0, 0, 0.7, 0, 0)") # scaling matrix
+test("m = Qt::WMatrix.new")
+test("m = m3 * m2 * m1")                  # combine all transformations
