@@ -54,25 +54,21 @@ class Element
     
     
     def proX( index )
-    #    Q_ASSERT(index >= 0 && index < MAX_PROPOINTS)
         return @propoints[2 * index]
     end
     
     
     def proY( index )
-    #    Q_ASSERT(index >= 0 && index < MAX_PROPOINTS)
         return @propoints[(2 * index) + 1]
     end
     
     
     def setProX( index, value )
-    #    Q_ASSERT(index >= 0 && index < MAX_PROPOINTS)
         @propoints[2 * index] = value
     end
     
     
     def setProY( index, value )
-    #    Q_ASSERT(index >= 0 && index < MAX_PROPOINTS)
         @propoints[(2 * index) + 1] = value
     end
     

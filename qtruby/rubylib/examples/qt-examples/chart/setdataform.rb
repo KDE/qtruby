@@ -1,7 +1,7 @@
 class SetDataForm < Qt::Dialog
 
     slots 'setColor()',
-        'setColor( int, int )',
+        'setChosenColor( int, int )',
         'currentChanged( int, int )',
         'valueChanged( int, int )',
         'accept()'
@@ -65,7 +65,7 @@ class SetDataForm < Qt::Dialog
         @tableButtonBox.addLayout( @buttonBox )
     
         connect( @table, SIGNAL( 'clicked(int,int,int,const QPoint&)' ),
-                self, SLOT( 'setColor(int,int)' ) )
+                self, SLOT( 'setChosenColor(int,int)' ) )
         connect( @table, SIGNAL( 'currentChanged(int,int)' ),
                 self, SLOT( 'currentChanged(int,int)' ) )
         connect( @table, SIGNAL( 'valueChanged(int,int)' ),
@@ -141,12 +141,12 @@ class SetDataForm < Qt::Dialog
     
     
     def setColor()
-        setColor( @table.currentRow(), @table.currentColumn() )
+        setChosenColor( @table.currentRow(), @table.currentColumn() )
         @table.setFocus()
     end
     
     
-    def setColor( row, col )
+    def setChosenColor( row, col )
         if  !( col == 1 || col == 4 )
             return
         end

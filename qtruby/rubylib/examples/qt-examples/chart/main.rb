@@ -13,7 +13,7 @@ app = Qt::Application.new( ARGV )
 
 if app.ARGV.length > 0
     filename = app.ARGV[0]
-	if filename.rindex( /.cht$/ ).nil?
+    if filename.rindex( /.cht$/ ).nil?
 	    filename = nil
     end
 end
