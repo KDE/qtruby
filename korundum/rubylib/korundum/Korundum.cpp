@@ -32,6 +32,7 @@
 
 extern "C" {
 extern VALUE qt_internal_module;
+extern VALUE set_obj_info(const char * className, smokeruby_object * o);
 };
 
 extern TypeHandler KDE_handlers[];
@@ -73,19 +74,40 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 				const SmokeType &t = args[i].st;
 				switch(t.elem()) {
 				case Smoke::t_bool:
+					*stream << si->s_bool;
+					break;
 				case Smoke::t_char:
+					*stream << si->s_char;
+					break;
 				case Smoke::t_uchar:
+					*stream << si->s_uchar;
+					break;
 				case Smoke::t_short:
+					*stream << si->s_short;
+					break;
 				case Smoke::t_ushort:
+					*stream << si->s_short;
+					break;
 				case Smoke::t_int:
+					*stream << si->s_int;
+					break;
 				case Smoke::t_uint:
+					*stream << si->s_uint;
+					break;
 				case Smoke::t_long:
+					*stream << si->s_long;
+					break;
 				case Smoke::t_ulong:
+					*stream << si->s_ulong;
+					break;
 				case Smoke::t_float:
+					*stream << si->s_float;
+					break;
 				case Smoke::t_double:
-					m->unsupported();
+					*stream << si->s_double;
 					break;
 				case Smoke::t_enum:
+					m->unsupported();
 					break;
 				case Smoke::t_class:
 				case Smoke::t_voidp:
@@ -163,16 +185,38 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 				const SmokeType &t = args[i].st;
 				switch(t.elem()) {
 				case Smoke::t_bool:
-				case Smoke::t_char:
+					*stream >> stack[i].s_bool;
+					break;
+//				case Smoke::t_char:
+//					*stream >> (Q_INT8) stack[i].s_char;
+//					break;
 				case Smoke::t_uchar:
+					*stream >> stack[i].s_uchar;
+					break;
 				case Smoke::t_short:
+					*stream >> stack[i].s_short;
+					break;
 				case Smoke::t_ushort:
+					*stream >> stack[i].s_ushort;
+					break;
 				case Smoke::t_int:
+					*stream >> stack[i].s_int;
+					break;
 				case Smoke::t_uint:
+					*stream >> stack[i].s_uint;
+					break;
 				case Smoke::t_long:
+					*stream >> stack[i].s_long;
+					break;
 				case Smoke::t_ulong:
+					*stream >> stack[i].s_ulong;
+					break;
 				case Smoke::t_float:
+					*stream >> stack[i].s_float;
+					break;
 				case Smoke::t_double:
+					*stream >> stack[i].s_double;
+					break;
 				case Smoke::t_enum:
 					m->unsupported();
 					break;
@@ -185,14 +229,16 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 						Smoke::Index ctorMeth = t.smoke()->findMethod(t.classId(), ctorId);
 						Smoke::Index ctor = t.smoke()->methodMaps[ctorMeth].method;
 						if(ctor < 1) {
+							stack[i].s_voidp = 0;
+							m->unsupported();
 							break; // Ambiguous or non-existent method, shouldn't happen with a no arg constructor
 						}
 						// Okay, ctor is the constructor. Time to call it.
-						Smoke::StackItem args[1];
-						args[0].s_voidp = 0;
+						Smoke::StackItem ctor_stack[1];
+						ctor_stack[0].s_voidp = 0;
 						Smoke::ClassFn classfn = t.smoke()->classes[t.classId()].classFn;
-						(*classfn)(t.smoke()->methods[ctor].method, 0, args);
-						stack[i].s_voidp = args[0].s_voidp;
+						(*classfn)(t.smoke()->methods[ctor].method, 0, ctor_stack);
+						stack[i].s_voidp = ctor_stack[0].s_voidp;
 						
 						// Look for methods of the form: QDataStream & operator>>(QDataStream&, MyClass&)
 						Smoke::Index meth = t.smoke()->findMethod("QGlobalSpace", "operator>>##");
@@ -234,18 +280,16 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 */
 class DCOPReturn : public Marshall {
     MocArgument *	_replyType;
-    QDataStream * _retval;
     Smoke::Stack _stack;
 	VALUE * _result;
 public:
-	DCOPReturn(QByteArray & retval, VALUE * result, VALUE replyType) 
+	DCOPReturn(QDataStream & retval, VALUE * result, VALUE replyType) 
 	{
-		_retval = new QDataStream(retval, IO_ReadOnly);
 		_result = result;
 		VALUE temp = rb_funcall(qt_internal_module, rb_intern("getMocArguments"), 1, replyType);
 		Data_Get_Struct(rb_ary_entry(temp, 1), MocArgument, _replyType);
 		_stack = new Smoke::StackItem[1];
-		smokeStackFromStream(this, _stack, _retval, 1, _replyType);
+		smokeStackFromStream(this, _stack, &retval, 1, _replyType);
 		Marshall::HandlerFn fn = getMarshallFn(type());
 		(*fn)(this);
     }
@@ -279,7 +323,6 @@ class DCOPCall : public Marshall {
 	QDataStream *_stream;
     int _id;
     MocArgument *_args;
-	QByteArray *	_retval;
 	bool _useEventLoop;
 	int _timeout;
     int _cur;
@@ -292,7 +335,6 @@ public:
 		_useEventLoop(useEventLoop), _timeout(timeout), _cur(-1), _called(false)
     {
 		_data = new QByteArray();
-		_retval = new QByteArray();
 		_stream = new QDataStream(*_data, IO_WriteOnly);
 		Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
 		_stack = new Smoke::StackItem[_items];
@@ -329,17 +371,42 @@ public:
 		DCOPRef * dcopRef = (DCOPRef *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("DCOPRef"));
 		DCOPClient* dc = dcopRef->dcopClient();
 		QCString replyType;
-		bool ok = dc->call(dcopRef->app(), dcopRef->obj(), _remFun, *_data, replyType, *_retval, _useEventLoop, _timeout);
+		QByteArray dataReceived;
+		bool ok = dc->call(dcopRef->app(), dcopRef->obj(), _remFun, *_data, replyType, dataReceived, _useEventLoop, _timeout);
 		
-		if (replyType == "void" || replyType == "ASYNC") {
+		if (!ok) {
 			// Note that a failed dcop call returns 'nil', not 'false'
-			_result = (ok ? Qtrue : Qnil);
-		} else {
-			if (ok) {
-				DCOPReturn dcopReturn(*_retval, &_result, rb_str_new2((const char *)replyType));
-			} else {
-				_result = Qnil;
+			_result = Qnil;
+			return;
+		} else if (replyType == "void" || replyType == "ASYNC") {
+			_result = Qtrue;
+			return;
+		}
+		
+		QDataStream ds(dataReceived, IO_ReadOnly);
+		
+		if (replyType == "QValueList<DCOPRef>") {
+			// Special case QValueList<DCOPRef> as a QDataStream marshaller 
+			// isn't in the Smoke runtime
+			QValueList<DCOPRef> valuelist;
+			ds >> valuelist;
+			_result = rb_ary_new();
+			for (QValueListIterator<DCOPRef> it = valuelist.begin(); it != valuelist.end(); ++it) {
+				void *p = &(*it);
+				VALUE obj = getPointerObject(p);
+				
+				if (obj == Qnil) {
+					smokeruby_object  * o = ALLOC(smokeruby_object);
+					o->classId = o->smoke->idClass("DCOPRef");
+					o->ptr = p;
+					o->allocated = true;
+					obj = set_obj_info("KDE::DCOPRef", o);
+				}
+				
+				rb_ary_push(_result, obj);
 			}
+		} else {
+			DCOPReturn dcopReturn(ds, &_result, rb_str_new2((const char *)replyType));
 		}
     }
 	

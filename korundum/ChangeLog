@@ -1,3 +1,9 @@
+2004-07-16  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Removed the recently added QValueList<DCOPRef> marshaller as no '<<'
+	  or '<<' QDataStream marshallers are in the Smoke runtime
+	* Added missing primitive type marshalling to and from a DCOP QByteArray
+
 2004-07-15  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Fixed completely non-working DCOP call reply marshalling. An instance wasn't
