@@ -263,7 +263,7 @@ module Qt
 				methodIds.each do
 					|id|
 					puts "matching => #{id}" if debug_level >= DebugLevel::High
-					current_match = 0
+					current_match = -1
 					(0...args.length).each do
 						|i|
 						current_match += checkarg( getVALUEtype(args[i]), getTypeNameOfArg(id, i) )
