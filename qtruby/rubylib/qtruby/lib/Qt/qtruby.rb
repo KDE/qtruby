@@ -308,11 +308,15 @@ module Qt
 						current_match += checkarg( getVALUEtype(args[i]), getTypeNameOfArg(id, i) )
 					end
 					
-					if current_match > best_match || chosen.nil?
+					# Note that if current_match > best_match, then chosen must be nil
+					if current_match > best_match
 						best_match = current_match
 						chosen = id
-#					elsif current_match == best_match
-#						chosen = nil
+					# Multiple matches are an error; the equality test below _cannot_ be commented out.
+					# If ambiguous matches occur the problem must be fixed be adjusting the relative
+					# ranking of the arg types involved in checkarg().
+					elsif current_match == best_match
+						chosen = nil
 					end
 					puts "match => #{id} score: #{current_match}" if debug_level >= DebugLevel::High
 				end
