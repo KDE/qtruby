@@ -1053,7 +1053,7 @@ class LCDRange < Qt::Widget
 For a case such as the above, the QWidget can't be instantiated until
 the initializer has been run up to the point where 'super(parent, name)'
 is called. Only then, can the number and type of arguments passed to the
-constructor can be known. However, the rest of the intializer
+constructor be known. However, the rest of the intializer
 can't be run until 'self' is a proper T_DATA object with a wrapped C++
 instance.
 
@@ -1072,7 +1072,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	VALUE temp_obj;
 	
 	if (TYPE(self) == T_DATA) {
-		// If a block was passed then run that now
+		// If a ruby block was passed then run that now
 		if (rb_block_given_p()) {
 		rb_funcall(qt_internal_module, rb_intern("run_initializer_block"), 2, self, rb_block_proc());
 		}
@@ -1093,7 +1093,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
     }
 
 	{ 
-		// Put this in a block so that the mcid will be de-allocated at the end of the block,
+		// Put this in a C block so that the mcid will be de-allocated at the end of the C block,
 		// rather than on f'n exit, to avoid the longjmp problem described below
 		QCString mcid = find_cached_selector(argc+4, temp_stack, klass, rb_class2name(klass));
 
@@ -1113,7 +1113,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	}
 
 	{
-		// Allocate the MethodCall within a block. Otherwise, because the continue_new_instance()
+		// Allocate the MethodCall within a C block. Otherwise, because the continue_new_instance()
 		// call below will longjmp out, it wouldn't give C++ an opportunity to clean up
 		MethodCall c(qt_Smoke, _current_method, self, temp_stack+4, argc);
 		c.next();
