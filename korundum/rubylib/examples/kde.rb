@@ -9,8 +9,8 @@ about = KDE::AboutData.new("one", "two", "three")
 KDE::CmdLineArgs.init(1, ["RubberDoc"], about)
 a = KDE::Application.new()
 
-# Qt::Internal::setDebug Qt::QtDebugChannel::QTDB_ALL
 # Qt.debug_level = Qt::DebugLevel::High
+# Qt.debug_level = Qt::DebugLevel::Extensive
 
 class String
    def trigrams
@@ -31,22 +31,26 @@ class GenericTriGramIndex
    end
 
    def clear
-      @trigrams = Hash.new{ |h,k| h[k] = [] }
+      @trigrams = {}
    end
 
    def insert_with_key string, key
       string.downcase.trigrams.each {
-         |trigram| @trigrams[trigram] << key
+         |trigram| 
+         @trigrams[trigram] = [] unless @trigrams.has_key? trigram
+         @trigrams[trigram] << key
       }
    end
 
    # returns a list of matching keys
    def search search_string
+      return [] if search_string.length < 3
       trigs = search_string.trigrams
-      key_subset = trigrams[trigs.delete_at(0)]
+      key_subset = @trigrams[trigs.delete_at(0)]
+      return [] if key_subset.nil?
       trigs.each {
          |trigram|
-         key_subset &= trigrams[trigram]
+         key_subset &= @trigrams[trigram]
       }
       key_subset
    end
@@ -62,6 +66,7 @@ class MyBase < Qt::VBox
    DEBUG_IDX    = false
    DEBUG_FAST   = true
    DEBUG_SEARCH = false
+   DEBUG_GOTO   = true
    def initialize( *k )
       super( *k )
       @index     = GenericTriGramIndex.new
@@ -114,7 +119,7 @@ class MyBase < Qt::VBox
       @cur_doc_idx = 0
       @freq_sorted_idxs = nil
       @idx2uri, @idx2title = {}, {}
-      @cidx = nil
+      @cidx, @to_undo_cidx, @to_undo = nil, nil, nil
       @search_text = nil
    end
    def log s
@@ -151,6 +156,10 @@ class MyBase < Qt::VBox
       index_documents
 
       search "chomp" if DEBUG_SEARCH
+      if DEBUG_GOTO
+         search "ubb"
+         goto_search
+      end
    end
    def first_url
       KDE::URL.new ENV["BASEDOCURL"]
@@ -162,48 +171,21 @@ class MyBase < Qt::VBox
       s.to_i
    end
    def index_documents
-      index_fname     = ENV["BASEDOCURL"].gsub(/\//,",") + ".docuidx"
-      nodeindex_fname = ENV["BASEDOCURL"].gsub(/\//,",") + ".nodeidx"
+      # fix this to use kde's actual dir
+      basedir = ENV["HOME"] + "/.rubberdocs"
+      dotfilepref = basedir + "/." + ENV["BASEDOCURL"].gsub(/\//,",") + ".idx"
+      Dir.mkdir basedir unless File.exists? basedir
+      index_fname     = "#{dotfilepref}.doc"
+      nodeindex_fname = "#{dotfilepref}.nodes"
+      titles_fname    = "#{dotfilepref}.titles"
+      uris_fname      = "#{dotfilepref}.uris"
       if File.exists? index_fname and File.exists? nodeindex_fname
-time_me("reading doc index") {
-         File.open(index_fname, "r") {
-            |file| 
-            index = GenericTriGramIndex.new
-            len = get_count file.gets
-            len.times {
-               trigram = ""
-               3.times { trigram << file.gets.to_i.chr }
-               doc_list = []
-               doc_list_len = get_count file.gets
-               doc_list_len.times {
-                  doc_list << file.gets.to_i
-               }
-               index.trigrams[trigram] = doc_list
-            }
-            @index = index
-         }
+time_me("reading indexes") {
+         File.open(index_fname,     "r") { |file| @index     = Marshal.load file }
+         File.open(nodeindex_fname, "r") { |file| @nodeindex = Marshal.load file }
+         File.open(titles_fname,    "r") { |file| @idx2title = Marshal.load file }
+         File.open(uris_fname,      "r") { |file| @idx2uri   = Marshal.load file }
 }         
-time_me("reading node index") {
-         File.open(nodeindex_fname, "r") {
-            |file| 
-            index = GenericTriGramIndex.new
-            len = get_count file.gets
-            len.times {
-               trigram = ""
-               3.times { trigram << file.gets.to_i.chr }
-               node_list = []
-               node_list_len = get_count file.gets
-               node_list_len.times {
-                  doc_idx = file.gets.to_i
-                  node_path = file.read(4).unpack("V*")
-                  node_list << DocNodeRef.new(doc_idx, node_path)
-               }
-               index.trigrams[trigram] = node_list
-            }
-            @nodeindex = index
-         }
-}         
-         p @nodeindex
          @url = first_url
          load_page
          self.show
@@ -214,80 +196,29 @@ time_me("reading node index") {
       @done = []
       @todo_links = []
       @t1 = Time.now
-      progress = Qt::ProgressDialog.new("Indexing files...", "Abort Indexing", 100, nil, "progress", true)
-      progress.setProgress 1
+      progress = KDE::ProgressDialog.new(self, "blah", "Indexing files...", "Abort Indexing", true)
+      progress.progressBar.setTotalSteps 100
       count = 1
       @url = first_url
       @todo_links = [ DOM::DOMString.new first_url.url ]
       until @todo_links.empty?
-         progress.setProgress count
+         progress.progressBar.setProgress count
          count += 10 # TODO base on rate decrease in page number growth providing total estimate and use done number as current
                      # possibly use some sort of averaging algorithm to stop the progress bar being going crazy
                      # possibly make use of the kde version which iirc has a bouncing version that can be used before estimate is stable
          follow_links
-         fail "errr, you really didn't want to do that dave" if progress.wasCanceled
+         fail "errr, you really didn't want to do that dave" if progress.wasCancelled
       end
-      progress.reset
-      progress.setTotalSteps @index.trigrams.length
-      progress.setLabelText  "Writing document index..."
-      progress.setProgress   1
-time_me("writing doc index") {
-      File.open(index_fname, "w") {
-         |file| 
-         index = @index
-         file.puts ":" + index.trigrams.length.to_s
-         n = 0
-         index.trigrams.each_pair {
-            |trigram, doc_list|
-            trigram.each_byte {
-               |byte|
-               file.puts byte.to_s
-            }
-            file.puts ":" + doc_list.length.to_s
-            doc_list.each {
-               |idx|
-               file.puts idx.to_s
-            }
-            progress.setProgress n += 1
-            n += 1
-            fail "errr, you really didn't want to do that dave" if progress.wasCanceled
-         }
-      }
+      progress.progressBar.reset
+      progress.progressBar.setTotalSteps(@index.trigrams.length * 2)
+      progress.setLabel  "Writing indexes..."
+time_me("writing indexes") {
+      File.open(index_fname,     "w") { |file| Marshal.dump @index,     file }
+      File.open(nodeindex_fname, "w") { |file| Marshal.dump @nodeindex, file }
+      File.open(titles_fname,    "w") { |file| Marshal.dump @idx2title, file }
+      File.open(uris_fname,      "w") { |file| Marshal.dump @idx2uri,   file }
 }
-      progress.setTotalSteps @nodeindex.trigrams.length
-      progress.setLabelText  "Writing node index..."
-      progress.setProgress   1
-time_me("writing node index") {
-      File.open(nodeindex_fname, "w") {
-         |file| 
-         index = @nodeindex
-         # trigrams
-         file.puts ":" + index.trigrams.length.to_s
-         n = 0
-         index.trigrams.each_pair {
-            |trigram, node_list|
-            # letters in trigram
-            trigram.each_byte {
-               |byte|
-               file.puts byte.to_s
-            }
-            # node_list
-            file.puts ":" + node_list.length.to_s
-            node_list.each {
-               |noderef|
-               # doc_idx
-               file.puts noderef.doc_idx.to_s
-               # node_path
-               file.write noderef.node_path.pack("V*")
-            }
-            progress.setProgress n += 1
-            n += 1
-            fail "errr, you really didn't want to do that dave" if progress.wasCanceled
-         }
-      }
-}
-      p @nodeindex
-      progress.reset
+      progress.progressBar.reset
       @viewed.show
       t2 = Time.now
       log "all documents indexed in #{(t2 - t1).to_i}s"
@@ -376,7 +307,8 @@ time_me("writing node index") {
    def search s
       @search_text = s
       idx_hash = Hash.new { |h,k| h[k] = 0 }
-      @index.search(s).each {
+      results = @index.search(s)
+      results.each {
          |idx|
          idx_hash[idx] += 1
       }
@@ -417,16 +349,12 @@ time_me("writing node index") {
       idx, count = *(@freq_sorted_idxs.first)
       @cidx = idx
       goto_url @idx2uri[idx]
-      puts "goto_search"
-      puts idx
    end
    def clicked_result i
       return if i == @listview.firstChild
       idx = i.text(0).to_i
       @cidx = idx 
       goto_url @idx2uri[idx]
-      puts "clicked_result"
-      puts idx
    end
    def gather_for_current_page
       title_map = {}
@@ -456,6 +384,7 @@ time_me("writing node index") {
    end
    DocNodeRef = Struct.new :doc_idx, :node_path
    def preload_text
+      # TODO don't do it for non first level docs?
       log "preloading text for url #{@viewed.htmlDocument.URL.string}"
       doc_text = ""
       @idx2uri[@cur_doc_idx]   = @viewed.htmlDocument.URL.string
