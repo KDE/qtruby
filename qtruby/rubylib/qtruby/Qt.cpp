@@ -943,7 +943,7 @@ VALUE prettyPrintMethod(Smoke::Index id)
 // Takes a variable name and a QVariant, and returns a 'variable=value' pair with the
 // value in ruby inspect style
 static QCString
-inspectVariant(const char * name, QVariant value)
+inspectVariant(const char * name, QVariant & value)
 {
 	switch (value.type()) {
 	case QVariant::String:
@@ -1026,7 +1026,7 @@ inspectVariant(const char * name, QVariant value)
 	case QVariant::Pixmap:
 	case QVariant::Region:
 	{
-		return QCString().sprintf(" %s=#<Qt::%s:0x>", name, value.typeName() + 1);
+		return QCString().sprintf(" %s=#<Qt::%s:0x0>", name, value.typeName() + 1);
 	}
 	
 	default:
@@ -1136,8 +1136,6 @@ metaObject(VALUE self)
     VALUE metaObject = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 1, self);
     return metaObject;
 }
-
-bool avoid_fetchmethod = false;
 
 static QCString
 find_cached_selector(int argc, VALUE * argv, VALUE klass, char * methodName)
@@ -2215,7 +2213,6 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 		klass = kde_package_to_class(package);
 	}
 
-//	rb_define_method(klass, "to_s", (VALUE (*) (...)) to_s_qobject, 0);
 	rb_define_method(klass, "inspect", (VALUE (*) (...)) inspect_qobject, 0);
 	rb_define_method(klass, "pretty_print", (VALUE (*) (...)) pretty_print_qobject, 1);
 	rb_define_method(klass, "className", (VALUE (*) (...)) class_name, 0);
