@@ -37,6 +37,8 @@
 extern "C" {
 extern VALUE qt_internal_module;
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
+extern void set_kde_resolve_classname(const char * (*kde_resolve_classname) (Marshall*, void *));
+extern const char * kde_resolve_classname(Marshall* m, void * ptr);
 };
 
 extern TypeHandler KDE_handlers[];
@@ -872,6 +874,8 @@ public:
 extern "C" {
 extern void Init_qtruby();
 extern void set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE));
+extern void set_kde_resolve_classname(const char * (*kde_resolve_classname) (Marshall*, void *));
+extern const char * kde_resolve_classname(Marshall* m, void * ptr);
 extern VALUE new_qt(int argc, VALUE * argv, VALUE klass);
 extern VALUE new_qobject(int argc, VALUE * argv, VALUE klass);
 extern VALUE qt_module;
@@ -1016,7 +1020,8 @@ void
 Init_korundum()
 {
 	set_new_kde(new_kde);
-	
+	set_kde_resolve_classname(kde_resolve_classname);
+		
 	// The Qt extension is linked against libsmokeqt.so, but Korundum links against
 	// libsmokekde.so only. Specifying both a 'require Qt' and a 'require Korundum',
 	// would give a link error.

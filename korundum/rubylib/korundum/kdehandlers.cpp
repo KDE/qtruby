@@ -40,6 +40,7 @@
 #include <kparts/plugin.h>
 #include <kuserprofile.h>
 #include <kaboutdata.h>
+#include <karchive.h>
 #if KDE_VERSION >= 0x030200
 #include <kplugininfo.h>
 #include <kmountpoint.h>
@@ -50,6 +51,30 @@
 
 extern "C" {
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
+};
+
+extern bool isDerivedFromByName(Smoke *smoke, const char *className, const char *baseClassName);
+
+extern "C" {
+/*
+ * Given an approximate classname and a kde instance, try to improve the resolution of the name
+ * by using the various KDE rtti mechanisms
+ */
+const char *
+kde_resolve_classname(Marshall* m, void * ptr)
+{
+	if (isDerivedFromByName(m->smoke(), m->smoke()->classes[m->type().classId()].className, "KArchiveEntry")) {
+		KArchiveEntry * entry = (KArchiveEntry *) m->smoke()->cast(ptr, m->type().classId(), m->smoke()->idClass("KArchiveEntry"));
+		if (entry->isDirectory()) {
+			return "KDE::ArchiveDirectory";
+		} else {
+			return "KDE::ArchiveFile";
+		}
+	}
+	
+	return m->smoke()->binding->className(m->type().classId());
+}
+
 };
 
 void marshall_QCStringList(Marshall *m) {
