@@ -155,7 +155,9 @@ module KDE
 			if instance.kind_of? DCOPObject
 				meta.dcop_object = nil
 				instance.set_functions(funcs)
-			else
+			elsif meta.dcop_object.nil?
+				# Only ever allocate a single instance of a DCOPObject if the
+				# class isn't a subclass of DCOPObject
 				meta.dcop_object = DCOPObject.new(instance, funcs)
 			end
 		end
@@ -168,13 +170,14 @@ module KDE
 	end
 	
 	class DCOPRef < Qt::Base
-		
 		def method_missing(*k)
 			# Enables DCOPRef calls to be made like this:
 			#
 			# dcopRef = DCOPRef.new("dcopslot", "MyWidget")
 			# result = dcopRef.getPoint("Hello from dcopcall")
 			begin
+				# First look for a method in the Smoke runtime.
+				# If not found, then throw an exception and try dcop.
 				super(*k)
 			rescue
 				dcopArgs = k[1, k.length-1]
@@ -219,7 +222,7 @@ module KDE
 					return
 				end
 
-				callExt(method, *dcopArgs)
+				return callExt(method, *dcopArgs)
 			end
 		end
 		

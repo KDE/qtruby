@@ -1,5 +1,11 @@
 2004-07-23  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* If a ruby class with 'k_dcop' declarations isn't a subclass of DCOPObject,
+	  only one instance of a DCOPObject is created no matter how many instances
+	  are instantiated.
+
+2004-07-23  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Tidied code - removed unnecessary action_map_to_list helper method
 
 2004-07-21  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
