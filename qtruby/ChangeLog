@@ -1,3 +1,8 @@
+2004-10-16  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * Upped the version to 1.0.4 for the RubyForge release
+ * Added some names to AUTHORS from the ChangeLog
+
 2004-10-14  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * If the smokeruby_mark() function was called for an instance of a QObject, it should
