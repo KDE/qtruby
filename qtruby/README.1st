@@ -1,0 +1,17 @@
+Startup Crashes
+---------------
+
+For some strange reason ruby occasionally needs to be compiled 
+with --enable-pthread. Gentoo at the very least doesn't default
+this to using this unfortunately. Even worse, using this flag
+makes programs using the gnome2 bindings randomly crash so its
+highly unlikely it'll get into distributions / ruby by default.
+
+There is a workaround however:
+
+With the program krubyinit from korundum/bin installed it is
+possible to simply replace a programs shebang line with:
+   #!/usr/bin/env krubyinit
+Incidently as well as majorly fixing up pthread related startup
+crashes, this also makes it possible for kdeinit_wrapper usage,
+therefore improving startup speed yet further.
