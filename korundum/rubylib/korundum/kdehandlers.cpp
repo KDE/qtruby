@@ -19,6 +19,7 @@
 #include <smokeruby.h>
 
 #include <dcopclient.h>
+#include <dcopref.h>
 #include <qptrlist.h>
 #include <ktrader.h>
 #include <kservicegroup.h>
@@ -610,6 +611,81 @@ DEF_LIST_MARSHALLER( KFileItemList, KFileItemList, KFileItem, KFileItemList::Ite
 DEF_LIST_MARSHALLER( KMainWindowList, QPtrList<KMainWindow>, KMainWindow, QPtrList<KMainWindow>::Iterator )
 DEF_LIST_MARSHALLER( KActionList, QPtrList<KAction>, KAction, QPtrList<KAction>::Iterator )
 
+void marshall_QMapQCStringDCOPRef(Marshall *m) {
+    switch(m->action()) {
+      case Marshall::FromVALUE:
+	{
+	    VALUE hash = *(m->var());
+	    if (TYPE(hash) != T_HASH) {
+		m->item().s_voidp = 0;
+		break;
+	    }
+		
+		QMap<QCString,DCOPRef> * map = new QMap<QCString,DCOPRef>;
+		
+		// Convert the ruby hash to an array of key/value arrays
+		VALUE temp = rb_funcall(hash, rb_intern("to_a"), 0);
+
+		for (long i = 0; i < RARRAY(temp)->len; i++) {
+			VALUE key = rb_ary_entry(rb_ary_entry(temp, i), 0);
+			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
+			
+			smokeruby_object *o = value_obj_info(value);
+			if( !o || !o->ptr)
+                   continue;
+			void * ptr = o->ptr;
+			ptr = o->smoke->cast(ptr, o->classId, o->smoke->idClass("DCOPRef"));
+			
+			(*map)[QCString(StringValuePtr(key))] = (DCOPRef)*(DCOPRef*)ptr;
+		}
+	    
+		m->item().s_voidp = map;
+		m->next();
+		
+	    if(m->cleanup())
+		delete map;
+	}
+	break;
+      case Marshall::ToVALUE:
+	{
+	    QMap<QCString,DCOPRef> *map = (QMap<QCString,DCOPRef>*)m->item().s_voidp;
+	    if(!map) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+		
+	    VALUE hv = rb_hash_new();
+			
+		QMap<QCString,DCOPRef>::Iterator it;
+		for (it = map->begin(); it != map->end(); ++it) {
+			void *p = new DCOPRef(it.data());
+			VALUE obj = getPointerObject(p);
+				
+			if (obj == Qnil) {
+				smokeruby_object  * o = ALLOC(smokeruby_object);
+				o->classId = m->smoke()->idClass("DCOPRef");
+				o->smoke = m->smoke();
+				o->ptr = p;
+				o->allocated = true;
+				obj = set_obj_info("KDE::DCOPRef", o);
+			}
+			
+			rb_hash_aset(hv, rb_str_new2((const char *) it.key()), obj);
+        }
+		
+		*(m->var()) = hv;
+		m->next();
+		
+	    if(m->cleanup())
+		delete map;
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
+    }
+}
+
 TypeHandler KDE_handlers[] = {
     { "QCStringList", marshall_QCStringList },
     { "QCStringList&", marshall_QCStringList },
@@ -637,5 +713,6 @@ TypeHandler KDE_handlers[] = {
     { "KURL::List", marshall_KURLList },
     { "KURL::List&", marshall_KURLList },
     { "KURL::List*", marshall_KURLList },
+    { "QMap<QCString,DCOPRef>", marshall_QMapQCStringDCOPRef },
     { 0, 0 }
 };

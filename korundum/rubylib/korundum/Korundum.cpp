@@ -116,6 +116,8 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 				case Smoke::t_class:
 				case Smoke::t_voidp:
 					{
+						// Special case any types which are in the Smoke runtime, but
+						// don't have QDataStream '<<' methods
 						if (strcmp(t.name(), "QCString") == 0) {
 							QCString temp((const QCString&) *((QCString *) stack[i].s_voidp));
 							*stream << temp;
@@ -132,7 +134,12 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 							KURL::List temp((const KURL::List&) *((KURL::List *) stack[i].s_voidp));
 							*stream << temp;
 							break;
+						} else if (strcmp(t.name(), "QMap<QCString,DCOPRef>") == 0) {
+							QMap<QCString,DCOPRef> temp((const QMap<QCString,DCOPRef>&) *((QMap<QCString,DCOPRef>*) stack[i].s_voidp));
+							*stream << temp;
+							break;
 						}
+						
 						// Look for methods of the form: QDataStream & operator<<(QDataStream&, const MyClass&)
 						Smoke::Index meth = t.smoke()->findMethod("QGlobalSpace", "operator<<##");
 						Smoke::Index ix;
@@ -287,6 +294,8 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 				case Smoke::t_class:
 				case Smoke::t_voidp:
 					{
+						// Special case any types which are in the Smoke runtime, but
+						// don't have QDataStream '>>' methods
 						if (strcmp(t.name(), "QCString") == 0) {
 							QCString temp;
 							*stream >> temp;
@@ -307,7 +316,13 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 							*stream >> temp;
 							stack[i].s_voidp = new KURL::List(temp);
 							break;
+						} else if (strcmp(t.name(), "QMap<QCString,DCOPRef>") == 0) {
+							QMap<QCString,DCOPRef> temp;
+							*stream >> temp;
+							stack[i].s_voidp = new QMap<QCString,DCOPRef>(temp);
+							break;
 						}
+						
 						// First construct an instance to read the QDataStream into,
 						// so look for a no args constructor
     					Smoke::Index ctorId = t.smoke()->idMethodName(t.name());
@@ -506,28 +521,6 @@ public:
 			for (QValueListIterator<QCString> it = propertyList.begin(); it != propertyList.end(); ++it) {
 				rb_ary_push(_result, rb_str_new2((const char *) *it));
 			}
-		} else if (replyType == "QMap<QCString,DCOPRef>") {
-			// And another.. 
-			QMap<QCString,DCOPRef>	actionMap;
-			ds >> actionMap;
-			_result = rb_hash_new();
-			
-			QMap<QCString,DCOPRef>::Iterator it;
-			for (it = actionMap.begin(); it != actionMap.end(); ++it) {
-				void *p = new DCOPRef(it.data());
-				VALUE obj = getPointerObject(p);
-				
-				if (obj == Qnil) {
-					smokeruby_object  * o = ALLOC(smokeruby_object);
-					o->classId = qt_Smoke->idClass("DCOPRef");
-					o->smoke = qt_Smoke;
-					o->ptr = p;
-					o->allocated = true;
-					obj = set_obj_info("KDE::DCOPRef", o);
-				}
-				
-				rb_hash_aset(_result, rb_str_new2((const char *)it.key()), obj);
-        	}		
 		} else if (replyType == "QMap<QString,DCOPRef>") {
 			// And another.. 
 			QMap<QString,DCOPRef>	actionMap;
@@ -828,28 +821,6 @@ public:
 			}
 			QDataStream retval(*_retval, IO_WriteOnly);
 			retval << propertyList;
-		} else if (	strcmp(_replyTypeName, "QMap<QCString,DCOPRef>") == 0
-					&& TYPE(result) == T_HASH ) 
-		{
-			// And another.. 
-			QMap<QCString,DCOPRef> actionMap;
-			// Convert the ruby hash to an array of key/value arrays
-			VALUE temp = rb_funcall(result, rb_intern("to_a"), 0);
-
-			for (long i = 0; i < RARRAY(temp)->len; i++) {
-				VALUE action = rb_ary_entry(rb_ary_entry(temp, i), 0);
-				VALUE item = rb_ary_entry(rb_ary_entry(temp, i), 1);
-				
-				smokeruby_object *o = value_obj_info(item);
-				if( !o || !o->ptr)
-                    continue;
-				void * ptr = o->ptr;
-				ptr = o->smoke->cast(ptr, o->classId, o->smoke->idClass("DCOPRef"));
-				
-				actionMap[QCString(StringValuePtr(action))] = (DCOPRef)*(DCOPRef*)ptr;
-			}
-			QDataStream retval(*_retval, IO_WriteOnly);
-			retval << actionMap;
 		} else if (	strcmp(_replyTypeName, "QMap<QString,DCOPRef>") == 0
 					&& TYPE(result) == T_HASH ) 
 		{
