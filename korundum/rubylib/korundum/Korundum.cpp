@@ -518,6 +518,28 @@ public:
 				
 				rb_hash_aset(_result, rb_str_new2((const char *)it.key()), obj);
         	}		
+		} else if (replyType == "QMap<QString,DCOPRef>") {
+			// And another.. 
+			QMap<QString,DCOPRef>	actionMap;
+			ds >> actionMap;
+			_result = rb_hash_new();
+			
+			QMap<QString,DCOPRef>::Iterator it;
+			for (it = actionMap.begin(); it != actionMap.end(); ++it) {
+				void *p = new DCOPRef(it.data());
+				VALUE obj = getPointerObject(p);
+				
+				if (obj == Qnil) {
+					smokeruby_object  * o = ALLOC(smokeruby_object);
+					o->classId = qt_Smoke->idClass("DCOPRef");
+					o->smoke = qt_Smoke;
+					o->ptr = p;
+					o->allocated = true;
+					obj = set_obj_info("KDE::DCOPRef", o);
+				}
+				
+				rb_hash_aset(_result, rb_str_new2((const char *)it.key()), obj);
+        	}		
 		} else {
 			DCOPReturn dcopReturn(ds, &_result, rb_str_new2((const char *)replyType));
 		}
@@ -815,6 +837,28 @@ public:
 				ptr = o->smoke->cast(ptr, o->classId, o->smoke->idClass("DCOPRef"));
 				
 				actionMap[QCString(StringValuePtr(action))] = (DCOPRef)*(DCOPRef*)ptr;
+			}
+			QDataStream retval(*_retval, IO_WriteOnly);
+			retval << actionMap;
+		} else if (	strcmp(_replyTypeName, "QMap<QString,DCOPRef>") == 0
+					&& TYPE(result) == T_HASH ) 
+		{
+			// And another.. 
+			QMap<QString,DCOPRef> actionMap;
+			// Convert the ruby hash to an array of key/value arrays
+			VALUE temp = rb_funcall(result, rb_intern("to_a"), 0);
+
+			for (long i = 0; i < RARRAY(temp)->len; i++) {
+				VALUE action = rb_ary_entry(rb_ary_entry(temp, i), 0);
+				VALUE item = rb_ary_entry(rb_ary_entry(temp, i), 1);
+				
+				smokeruby_object *o = value_obj_info(item);
+				if( !o || !o->ptr)
+                    continue;
+				void * ptr = o->ptr;
+				ptr = o->smoke->cast(ptr, o->classId, o->smoke->idClass("DCOPRef"));
+				
+				actionMap[QString(StringValuePtr(action))] = (DCOPRef)*(DCOPRef*)ptr;
 			}
 			QDataStream retval(*_retval, IO_WriteOnly);
 			retval << actionMap;
