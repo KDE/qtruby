@@ -216,7 +216,7 @@ module KDE
 				
 				method = @functions[method]
 				if method.nil?
-					puts( "DCOPRef: call #{k[0].id2name}() not found" )
+					Qt.qWarning( "DCOPRef: call #{k[0].id2name}() not found" )
 					return
 				end
 
@@ -255,7 +255,7 @@ module KDE
 
 		def callExt(fun, *k)
 			if isNull
-				puts( "DCOPRef: call #{fun} on null reference error" )
+				Qt.qWarning( "DCOPRef: call #{fun} on null reference error" )
 				return
 			end
 			sig = fun
@@ -264,13 +264,13 @@ module KDE
 			end
 			dc = dcopClient()
 			if !dc || !dc.isAttached
-				puts( "DCOPRef::call():  no DCOP client or client not attached error" )
+				Qt.qWarning( "DCOPRef::call():  no DCOP client or client not attached error" )
 				return
 			end
 			if sig =~ /([^\s]*)(\(.*\))/
 				full_name = $1+$2
 			else
-				puts( "DCOPRef: call #{fun} invalid format, expecting '<function_name>(<args>)'" )
+				Qt.qWarning( "DCOPRef: call #{fun} invalid format, expecting '<function_name>(<args>)'" )
 				return
 			end
 			return KDE::dcop_call(	self, 
@@ -281,7 +281,7 @@ module KDE
 
 		def send(fun, *k)
 			if isNull
-				puts( "DCOPRef: send #{fun} on null reference error" )
+				Qt.qWarning( "DCOPRef: send #{fun} on null reference error" )
 			end
 			sig = fun
 			if fun.index('(') == nil
@@ -289,11 +289,11 @@ module KDE
 			end
 			dc = dcopClient()
 			if !dc || !dc.isAttached
-				puts( "DCOPRef::send():  no DCOP client or client not attached error" )
+				Qt.qWarning( "DCOPRef::send():  no DCOP client or client not attached error" )
 				return
 			end
 			if !sig =~ /^([^\s]*)(\(.*\))/
-				puts( "DCOPRef: send #{sig} invalid format, expecting '<function_name>(<args>)'" )
+				Qt.qWarning( "DCOPRef: send #{sig} invalid format, expecting '<function_name>(<args>)'" )
 				return
 			end
 			return KDE::dcop_send(	self, 
