@@ -957,8 +957,36 @@ find_cached_selector(int argc, VALUE * argv, VALUE klass, char * methodName)
 static VALUE
 method_missing(int argc, VALUE * argv, VALUE self)
 {
-    VALUE klass = rb_funcall(self, rb_intern("class"), 0);
 	char * methodName = rb_id2name(SYM2ID(argv[0]));
+    VALUE klass = rb_funcall(self, rb_intern("class"), 0);
+	
+	// Look for 'thing?' methods, and try to match isThing() or hasThing() in the Smoke runtime
+	QRegExp px("^.*[?]$");
+	QString pred(rb_id2name(SYM2ID(argv[0])));
+	if (px.search(pred) != -1) {
+		printf("found a boolean predicate\n");
+		smokeruby_object *o = value_obj_info(self);
+		if(!o || !o->ptr) {
+			rb_call_super(argc, argv);
+		}
+		
+		// Drop the trailing '?'
+		pred.replace(pred.length() - 1, 1, "");
+		
+		pred.replace(0, 1, pred.at(0).upper());
+		pred.replace(0, 0, QString("is"));
+		Smoke::Index meth = qt_Smoke->findMethod(qt_Smoke->classes[o->classId].className, pred.latin1());
+		
+		if (meth == 0) {
+			pred.replace(0, 2, QString("has"));
+			meth = qt_Smoke->findMethod(qt_Smoke->classes[o->classId].className, pred.latin1());
+		}
+		
+		if (meth > 0) {
+			methodName = (char *) pred.latin1();
+		}
+	}
+		
 	VALUE * temp_stack = (VALUE *) calloc(argc+3, sizeof(VALUE));
     temp_stack[0] = rb_str_new2("Qt");
     temp_stack[1] = rb_str_new2(methodName);
