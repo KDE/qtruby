@@ -1720,18 +1720,21 @@ findMethodFromIds(VALUE /*self*/, VALUE idclass_value, VALUE idmethodname_value)
 // findAllMethods(classid [, startingWith]) : returns { "mungedName" => [index in methods, ...], ... }
 
 static VALUE
-findAllMethods(int /*argc*/, VALUE * argv, VALUE self)
+findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
 {
     VALUE classid = argv[0];
-    (void) classid;
-/*
-    if(SvIOK(classid)) {
-        Smoke::Index c = (Smoke::Index) SvIV(classid);
+    VALUE result = rb_hash_new();
+    if(classid != Qundef) {
+#ifdef DEBUG
+	printf("findAllMethods called with classid = %d, pat == %s\n", c, pat);
+#endif
+        Smoke::Index c = (Smoke::Index) NUM2INT(classid);
         char * pat = 0L;
-        if(items > 1 && SvPOK(ST(1)))
-            pat = SvPV_nolen(ST(1));
+        if(argc > 1 && TYPE(argv[1]) == T_STRING)
+            pat = STR2CSTR(argv[1]);
         Smoke::Index imax = qt_Smoke->numMethodMaps;
         Smoke::Index imin = 0, icur = -1, methmin, methmax;
+	methmin = -1; methmax = -1; // kill warnings
         int icmp = -1;
         while(imax >= imin) {
             icur = (imin + imax) / 2;
@@ -1757,23 +1760,22 @@ findAllMethods(int /*argc*/, VALUE * argv, VALUE self)
                 Smoke::Index m = qt_Smoke->methodMaps[i].name;
                 if(!pat || !strncmp(qt_Smoke->methodNames[m], pat, strlen(pat))) {
                     Smoke::Index ix= qt_Smoke->methodMaps[i].method;
-                    AV* meths = newAV();
+		    VALUE meths = rb_ary_new();
                     if(ix >= 0) {	// single match
-                        av_push(meths, newSViv((IV)ix));
+			rb_ary_push(meths, INT2NUM((int)ix));
                     } else {		// multiple match
                         ix = -ix;		// turn into ambiguousMethodList index
                         while(qt_Smoke->ambiguousMethodList[ix]) {
-                          av_push(meths, newSViv((IV)qt_Smoke->ambiguousMethodList[ix]));
+                          rb_ary_push(meths, INT2NUM((int)qt_Smoke->ambiguousMethodList[ix]));
                           ix++;
                         }
                     }
-                    hv_store(return self;, qt_Smoke->methodNames[m],strlen(qt_Smoke->methodNames[m]),newRV_inc((SV*)meths),0);
+		    rb_hash_aset(result, rb_str_new2(qt_Smoke->methodNames[m]), meths);
                 }
             }
         }
     }
-    */
-    return self;
+    return result;
 }
 
 static VALUE
@@ -1965,7 +1967,7 @@ Init_Qt()
 	rb_define_method(qt_internal_module, "idMethod", (VALUE (*) (...)) idMethod, 2);
 	rb_define_method(qt_internal_module, "findMethod", (VALUE (*) (...)) findMethod, 2);
 	rb_define_method(qt_internal_module, "findMethodFromIds", (VALUE (*) (...)) findMethodFromIds, 2);
-	rb_define_method(qt_internal_module, "findAllMethods", (VALUE (*) (...)) findAllMethods, 2);
+	rb_define_method(qt_internal_module, "findAllMethods", (VALUE (*) (...)) findAllMethods, -1);
 	rb_define_method(qt_internal_module, "dumpCandidates", (VALUE (*) (...)) dumpCandidates, 1);
 	rb_define_method(qt_internal_module, "catArguments", (VALUE (*) (...)) catArguments, 1);
 	rb_define_method(qt_internal_module, "isObject", (VALUE (*) (...)) isObject, 1);
