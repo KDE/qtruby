@@ -311,8 +311,8 @@ module Qt
 					if current_match > best_match || chosen.nil?
 						best_match = current_match
 						chosen = id
-					elsif current_match == best_match
-						chosen = nil
+#					elsif current_match == best_match
+#						chosen = nil
 					end
 					puts "match => #{id} score: #{current_match}" if debug_level >= DebugLevel::High
 				end
