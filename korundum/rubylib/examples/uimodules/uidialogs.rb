@@ -166,8 +166,8 @@ def UIDialogs.dlgKDialog(parent)
 end
 
 def UIDialogs.dlgKDialogBase(parent)
-    caption = "KDE::DialogBase sample"
-    text_ = "This is a KDE::DialogBase example"
+    caption = "KDialogBase sample"
+    text_ = "This is a KDialogBase example"
     dlg =   KDE::DialogBase.new(parent, "sample_dialog", false, caption,
             KDE::DialogBase::Ok | KDE::DialogBase::Cancel, KDE::DialogBase::Ok, true )
 

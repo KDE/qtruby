@@ -40,7 +40,7 @@ class LCDRange < Qt::Widget
     
     def setRange( minVal, maxVal )
 		if minVal < 0 || maxVal > 99 || minVal > maxVal
-      		Qt.qWarning( "LCDRange::setRange(#{minVal},#{maxVal})\n" +
+      		qWarning( "LCDRange::setRange(#{minVal},#{maxVal})\n" +
                		"\tRange must be 0..99\n" +
                		"\tand minVal must not be greater than maxVal" )
 			return

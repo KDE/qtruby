@@ -113,8 +113,7 @@ class Page1 < Qt::Object
         grp.show()
 
         page.show()
-        kapp = KDE::Application.kApplication()
-        kapp.processEvents()
+        $kapp.processEvents()
 
         y = y + 195
         sqzLbl = Qt::Label.new("This text is too long to fit in the label below", page)

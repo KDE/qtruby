@@ -1,3 +1,22 @@
+2004-10-30  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * References to Qt.qWarning() changed to qWarning()
+
+2004-10-24  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * Fixed crashes in the KURL::List marshalling. A copy is now made of each KURL item
+   in the list when being marshalled to a ruby Array. When a KURL::List is deleted the
+   contents are all deleted too as it's a QValueList. Hence, the need to make copies.
+
+2004-10-20  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * The RESTORE() method is no longer an KDE::Mainwindow method, but a globally available
+   Object method
+
+2004-10-20  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * Added I18N_NOOP() and I18N_NOOP2() methods
+
 2004-10-11  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * Set global flag 'application_terminated' when KDE::Application or KDE::UniqueApplication

@@ -57,7 +57,7 @@
 
 // #define DEBUG
 
-#define QTRUBY_VERSION "1.0.3"
+#define QTRUBY_VERSION "1.0.4"
 
 extern Smoke *qt_Smoke;
 extern void init_qt_Smoke();
@@ -356,6 +356,7 @@ public:
     MethodCall(Smoke *smoke, Smoke::Index method, VALUE target, VALUE *sp, int items) :
 	_cur(-1), _smoke(smoke), _method(method), _target(target), _current_object(0), _sp(sp), _items(items), _called(false)
     {
+	
 	if (_target != Qnil) {
 	    smokeruby_object *o = value_obj_info(_target);
 		if (o && o->ptr) {
@@ -414,6 +415,15 @@ public:
     inline void callMethod() {
 	if(_called) return;
 	_called = true;
+		
+	if (	_smoke->methodNames[method().name] != _smoke->className(method().classId)
+			&& TYPE(_target) != T_DATA 
+			&& _target != Qnil
+			&& !(method().flags & Smoke::mf_static) ) 
+	{
+		rb_raise(rb_eArgError, "Instance is not initialized, cannot call %s", 
+					_smoke->methodNames[method().name]);
+	}
 	
 	if (_target == Qnil && !(method().flags & Smoke::mf_static)) {
 		rb_raise(rb_eArgError, "%s is not a class method\n", _smoke->methodNames[method().name]);
@@ -2090,9 +2100,9 @@ Init_qtruby()
     rb_define_method(qt_base_class, "isDisposed", (VALUE (*) (...)) is_disposed, 0);
     rb_define_method(qt_base_class, "disposed?", (VALUE (*) (...)) is_disposed, 0);
     
-	rb_define_module_function(qt_module, "qDebug", (VALUE (*) (...)) qdebug, 1);
-	rb_define_module_function(qt_module, "qFatal", (VALUE (*) (...)) qfatal, 1);
-	rb_define_module_function(qt_module, "qWarning", (VALUE (*) (...)) qwarning, 1);
+	rb_define_method(rb_cObject, "qDebug", (VALUE (*) (...)) qdebug, 1);
+	rb_define_method(rb_cObject, "qFatal", (VALUE (*) (...)) qfatal, 1);
+	rb_define_method(rb_cObject, "qWarning", (VALUE (*) (...)) qwarning, 1);
 
 	kde_module = rb_define_module("KDE");
     rb_define_singleton_method(kde_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);

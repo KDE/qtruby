@@ -1,3 +1,41 @@
+2004-10-30  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * qError(), qWarning() and qFatal() are now Object instance methods, rather than Qt module
+   methods. This means they don't need to be referenced with an ugly 'Qt.' module scope anymore.
+
+2004-10-21  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * If a class method was called before super, it was wrongly throwing an exception
+   as an error. For instance, this call to i18n():
+
+               def initialize()
+                   super(TreeList, i18n("My App Preferences"),
+                            Help|Default|Ok|Apply|Cancel, Ok)
+      ...
+
+
+2004-10-16  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * Until super has been called in an initialize() method, Qt methods can't be called on
+   it. An exception is now thrown 'Instance not initialized', instead of it causing a seg fault.
+ * For instance:
+
+     class MyWidget < Qt::ComboBox
+         def initialize
+             # Must call super first
+             insertItem('abc')
+             super
+         end
+     end
+
+ * Fixes problem reported by Han Holl
+ CCMAIL: kde-bindings@kde.org
+
+2004-10-16  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * Upped the version to 1.0.4 for the RubyForge release
+ * Added some names to AUTHORS from the ChangeLog
+
 2004-10-14  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * If the smokeruby_mark() function was called for an instance of a QObject, it should

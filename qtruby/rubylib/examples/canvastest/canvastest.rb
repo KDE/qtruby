@@ -16,7 +16,7 @@ class MyCanvasView < Qt::CanvasView
       list = canvas.collisions(e.pos)
       return if list.empty?
       c = list.first
-      return if c.rtti != Qt::CanvasRectangle.rtti() 
+      return if c.rtti != Qt::CanvasItem::Rtti_Rectangle
       c.hide
       @canvas.update
    end
