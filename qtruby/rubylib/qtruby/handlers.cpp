@@ -29,8 +29,9 @@
 
 extern "C" {
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
-bool isDerivedFrom(Smoke *smoke, const char *className, const char *baseClassName);
 };
+
+extern bool isDerivedFromByName(Smoke *smoke, const char *className, const char *baseClassName);
 
 void
 smokeruby_mark(void * p)
@@ -38,36 +39,41 @@ smokeruby_mark(void * p)
     smokeruby_object * o = (smokeruby_object *) p;
 	VALUE obj;
     const char *className = o->smoke->classes[o->classId].className;
-    printf("Marking (%s*)%p\n", className, o->ptr);
-	
-	// Don't mark anything for now..
-	return;
-	
+		
     if(o->ptr) {
-        if(do_debug & qtdb_gc) printf("Marking (%s*)%p\n", className, o->ptr);
-		if (	strcmp(className, "QObject") == 0
+ 		if (	strcmp(className, "QObject") == 0
 				|| strcmp(className, "QLayoutItem") == 0
 				|| strcmp(className, "QListViewItem") == 0
 				|| strcmp(className, "QIconViewItem") == 0
 				|| strcmp(className, "QListBoxItem") == 0
 				|| strcmp(className, "QStyleSheetItem") == 0
 				|| strcmp(className, "QTableItem") == 0
+				|| strcmp(className, "QColor") == 0
 				|| strcmp(className, "QSqlCursor") == 0 )
 		{
 			// Don't allow instances of these classes to be garbage collected for now
-			obj = getPointerObject(p);
-			rb_gc_mark(obj);
-		} else if (isDerivedFrom(o->smoke, className, "QWidget") == 0) {
-			QWidget * qwidget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget"));
-			if (qwidget->parentWidget(TRUE) != 0) {
-				obj = getPointerObject(p);
+			obj = getPointerObject(o->ptr);
+			if (obj != Qnil) {
+				if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
 				rb_gc_mark(obj);
 			}
-		} else if (isDerivedFrom(o->smoke, className, "QObject") == 0) {
+		} else if (isDerivedFromByName(o->smoke, className, "QWidget")) {
+			QWidget * qwidget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget"));
+			if (qwidget->parentWidget(TRUE) != 0) {
+				obj = getPointerObject(o->ptr);
+				if (obj != Qnil) {
+					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
+					rb_gc_mark(obj);
+				}
+			}
+		} else if (isDerivedFromByName(o->smoke, className, "QObject")) {
 			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
 			if (qobject->parent() != 0) {
-				obj = getPointerObject(p);
-				rb_gc_mark(obj);
+				obj = getPointerObject(o->ptr);
+				if (obj != Qnil) {
+					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, o->ptr, obj);
+					rb_gc_mark(obj);
+				}
 			}
 		}
 	}
@@ -79,10 +85,6 @@ smokeruby_free(void * p)
     smokeruby_object *o = (smokeruby_object*)p;
 
     const char *className = o->smoke->classes[o->classId].className;
-    printf("Deleting (%s*)%p\n", className, o->ptr);
-	
-	// Don't delete anything for now..
-	return;
     
 	if(o->allocated && o->ptr) {
         if(do_debug & qtdb_gc) printf("Deleting (%s*)%p\n", className, o->ptr);
@@ -90,7 +92,6 @@ smokeruby_free(void * p)
         if(sc.hasVirtual())
             unmapPointer(o, o->classId, 0);
         object_count --;
-		o->allocated = false;
         char *methodName = new char[strlen(className) + 2];
         methodName[0] = '~';
         strcpy(methodName + 1, className);
@@ -365,8 +366,6 @@ marshall_basetype(Marshall *m)
                     *(m->var()) = obj;
 		    break;
 		}
-//		HV *hv = newHV();
-//		obj = newRV_noinc((SV*)hv);
 		// TODO: Generic mapping from C++ classname to Qt classname
 
 		smokeruby_object  * o = ALLOC(smokeruby_object);
@@ -375,20 +374,22 @@ marshall_basetype(Marshall *m)
 		o->ptr = p;
 		o->allocated = false;
 
-		if(m->type().isStack())
-		    o->allocated = true;
-
-//		sv_magic((SV*)hv, sv_qapp, '~', (char*)&o, sizeof(o));
-//		MAGIC *mg = mg_find((SV*)hv, '~');
-//		mg->mg_virtual = &vtbl_smoke;
+//		TODO: Is this correct?
+//    		In qtnamespace.h, 'QT_STATIC_CONST QColor & blue;' is an isStack() item.
+//			But the QColor shouldn't be deleted, and so allocated should be 'false'.
+//			Hence, this code is commented out for now. 
+//		if(m->type().isStack())
+//		    o->allocated = true;
 
 		const char * classname = m->smoke()->binding->className(m->type().classId());
 		obj = set_obj_info(classname, o);
-//		sv_bless(obj, gv_stashpv(buf, TRUE));
-//		delete[] buf;
-
+		if (do_debug & qtdb_calls) {
+			if (m->type().isStack()) {
+				printf("allocating stack based %s %p -> %p\n", classname, o->ptr, obj);
+			}
+		}
+		
 		*(m->var()) = obj;
-//		SvREFCNT_dec(obj);
 	    }
 	    break;
 	  default:

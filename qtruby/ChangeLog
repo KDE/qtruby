@@ -1,5 +1,9 @@
 2003-09-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* GC getting closer to working. Debugging code improved.
+
+2003-09-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* From below 'watch out for extra crashes!' - indeed! Have now disabled
 	  smokeruby_free() and smokeruby_mark() until garbage collection works.
 
