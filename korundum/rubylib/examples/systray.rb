@@ -1,4 +1,8 @@
 =begin
+This is a ruby version of Jim Bublitz's pykde program, translated by Richard Dale
+=end
+
+=begin
 Copyright 2003 Jim Bublitz
 
 Terms and Conditions
@@ -43,7 +47,8 @@ aboutData = KDE::AboutData.new("systry", "Systray test",\
     "0.1", "Systray test", KDE::AboutData::License_GPL,\
     "(c) 2002, Jim Bublitz")
 
-aboutData.addAuthor("Jim Bublitz", "Example for Korundum", "jbublitz@nwinternet.com")
+aboutData.addAuthor('Jim Bublitz', 'Example for PyKDE', 'jbublitz@nwinternet.com')
+aboutData.addAuthor('Richard Dale', 'For Korundum', 'Richard_Dale@tipitina.demon.co.uk')
 
 # This MUST go here (before KApplication () is called)
 KDE::CmdLineArgs.init(ARGV, aboutData)

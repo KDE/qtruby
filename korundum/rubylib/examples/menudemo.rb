@@ -1,8 +1,12 @@
 =begin
+This is a ruby version of Jim Bublitz's pykde program, translated by Richard Dale
+=end
+
+=begin
 This template constructs an application with menus, toolbar and statusbar.
 It uses KDE classes and methods that simplify the task of building and
 operating a GUI. It is recommended that this approach be used, rather
-than the primitive approach in menuapp1.rb
+than the primitive approach in menuapp1.py
 =end
 
 =begin

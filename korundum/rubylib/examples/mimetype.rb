@@ -1,4 +1,8 @@
 =begin
+This is a ruby version of Jim Bublitz's pykde program, translated by Richard Dale
+=end
+
+=begin
 This program tests/demos some of the KSharedPtr related classes and
 methods (KMimeType, KService, etc). It generally tests the *::List
 methods for these classes (eg KService::List) since that also tests

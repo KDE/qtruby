@@ -1,3 +1,7 @@
+=begin
+This is a ruby version of Jim Bublitz's pykde program, translated by Richard Dale
+=end
+
 #
 #  pyParts.py (C) 2002 Jim Bublitz <jbublitz@nwinternet.com>
 #
@@ -133,7 +137,7 @@ class RbPartsMW < KParts::MainWindow
 
         # some boilerplate left over from pyKLess/KLess
         def queryClose()
-                res = KDE::MessageBox.warningYesNoCancel(self,\
+                res = KDE::MessageBox.warningYesNoCancel(self,
                         i18n("Save changes to Document?<br>(Does not make sense, we know, but it is just a programming example :-)"))
                 if res == KDE::MessageBox::Yes
 	        #// save document here. If saving fails, return FALSE
@@ -182,11 +186,12 @@ description = "KHTMLPart - simple example"
 version = "0.1"
 
 # stuff for the "About" menu
-aboutData = KDE::AboutData.new("rbKHTMLPart", "rbHTMLPart",\
-    version, description, KDE::AboutData::License_GPL,\
+aboutData = KDE::AboutData.new("rbKHTMLPart", "rbHTMLPart",
+    version, description, KDE::AboutData::License_GPL,
     "(c) 2002, Jim Bublitz")
 
-aboutData.addAuthor("Jim Bublitz", "Example for Korundum", "jbublitz@nwinternet.com")
+aboutData.addAuthor("Jim Bublitz", "Example for PyKDE", "jbublitz@nwinternet.com")
+aboutData.addAuthor('Richard Dale', 'Example for Korundum', 'Richard_Dale@tipitina.demon.co.uk')
 
 # This MUST go here (before KApplication () is called)
 KDE::CmdLineArgs.init(ARGV, aboutData)
@@ -194,7 +199,7 @@ KDE::CmdLineArgs.init(ARGV, aboutData)
 app = KDE::Application.new()
 
 if app.isRestored()
-        RESTORE(KLess)
+        KDE::MainWindow.kRestoreMainWindows(RbPartsMW)
 else
         # no session management: just create one window
         # this is our KParts::MainWindow derived class

@@ -1,4 +1,8 @@
 =begin
+This is a ruby version of Jim Bublitz's pykde program, translated by Richard Dale
+=end
+
+=begin
 Copyright 2003 Jim Bublitz
 
 Terms and Conditions

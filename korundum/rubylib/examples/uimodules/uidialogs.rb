@@ -85,7 +85,7 @@ class MessageDlg < KDE::Dialog
         super(parent, name, modal)
 
         buttons = ["QuestionYesNo", "WarningYesNo", "WarningContinueCancel", "WarningYesNoCancel",
-                   "Information", "Sorry", "Error"]
+                   "Information", "SSLMessageBox", "Sorry", "Error", "QuestionYesNoCancel"]
 
         n = buttons.length
 
@@ -97,6 +97,8 @@ class MessageDlg < KDE::Dialog
 	end
 
     def launch(which)
+		which += 1 # Qt::ButtonGroup id's start at 0, but the KDE::MessageBox enum starts at 1
+		
         if which == KDE::MessageBox::QuestionYesNo
             KDE::MessageBox.questionYesNo(self, "This is a questionYesNo message box\nThere is also a list version of this dialog",\
                                        "questionYesNo")
@@ -113,11 +115,17 @@ class MessageDlg < KDE::Dialog
         elsif which == KDE::MessageBox::Information
             KDE::MessageBox.information(self, "This is an information message box", "Information")
 
+#        elsif which == KDE::MessageBox::SSLMessageBox
+#            KDE::MessageBox.SSLMessageBox(self, "This is an SSLMessageBox message box", "not implemented yet")
+
         elsif which == KDE::MessageBox::Sorry
             KDE::MessageBox.sorry(self, "This is a 'sorry' message box", "Sorry")
 
         elsif which == KDE::MessageBox::Error
             KDE::MessageBox.error(self, "No - this isn't really an error\nIt's an error message box\n", "Error")
+        
+		elsif which == KDE::MessageBox::QuestionYesNoCancel
+            KDE::MessageBox.questionYesNoCancel(self, "No - this isn't really an error\nIt's an QuestionYesNoCancel message box\n", "QuestionYesNoCancel")
 		end
 	end
 end
@@ -172,7 +180,6 @@ def UIDialogs.dlgKDialogBase(parent)
     lineedit = Qt::LineEdit.new(text_, page, "lineedit" );
     lineedit.setMinimumWidth(dlg.fontMetrics().maxWidth()*20);
 
-    # This tests some handwritten code in KDE::DialogBase
     label0 = Qt::Label.new("Border widths", page)
 #    widths = dlg.getBorderWidths()
 #    labelA = Qt::Label.new("Upper Left X: " + widths[0].to_s, page)
@@ -190,7 +197,6 @@ end
 
 def UIDialogs.dlgKKeyDialog(parent)
     # This really doesn't do anything except pop up the dlg
-Qt.debug_level = Qt::DebugLevel::High
     keys = KDE::Accel.new(parent)
 #    keys.insertItem( i18n( "Zoom in" ), "Zoom in", "+" )
     keys.readSettings();
@@ -243,7 +249,7 @@ end
 
 if $0 == __FILE__
     puts
-    puts "Please run uisampler.py"
+    puts "Please run uisampler.rb"
     puts
 end
 

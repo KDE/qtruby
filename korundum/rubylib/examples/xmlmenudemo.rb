@@ -1,5 +1,3 @@
-require 'Korundum'
-
 =begin
 This is a ruby version of Jim Bublitz's pykde program, translated by Richard Dale
 =end
@@ -40,6 +38,7 @@ dealings in this Software without prior written authorization from the
 copyright holder.
 =end
 
+require 'Korundum'
 
 class MainWin < KDE::MainWindow
 

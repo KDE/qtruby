@@ -94,14 +94,14 @@ class Page3 < Qt::Object
 
         y = y + 100
 
-        dvLbl  = Qt::Label.new("KDE::DateValidator", page)
+        dvLbl  = Qt::Label.new("KDateValidator", page)
         dvLbl.setGeometry(x, y, 100, 20)
         dvLbl.show()
 
         @dv = KDE::LineEdit.new(page)
         @dv.setGeometry(x, y + 20, 100, 20)
         @dv.show()
-#        page.connect(dv, SIGNAL("textChanged(const Qt::String &)"), dvChanged)
+#        connect(dv, SIGNAL("textChanged(const QString&)"), SLOT('dvChanged()'))
 
         @dvVal = KDE::DateValidator.new(page)
 #        dvVal.setRange(10.0, 40.0)
@@ -183,7 +183,7 @@ class Page3 < Qt::Object
 
         if state == Qt::Validator::Acceptable
             @dvAccLed.on()
-        elif state == Qt::Validator::Intermediate
+        elsif state == Qt::Validator::Intermediate
             @dvInterLed.on()
         else
             @dvInvalLed.on()

@@ -116,7 +116,6 @@ $listItems = {"Dialogs" =>
 
 BLANK_MSG = <<END_OF_STRING 
 <b>UISampler</b> - provides examples of <b>Korundum</b> widgets<p>
-	
 Select a dialog/widget/menu/etc example from the tree at left
 END_OF_STRING
 
