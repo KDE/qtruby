@@ -50,6 +50,7 @@
 extern "C" {
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
 extern VALUE qt_internal_module;
+extern bool application_terminated;
 };
 
 extern bool isDerivedFromByName(Smoke *smoke, const char *className, const char *baseClassName);
@@ -144,7 +145,7 @@ smokeruby_free(void * p)
 	
 	if(do_debug & qtdb_gc) printf("Checking for delete (%s*)%p allocated: %s\n", className, o->ptr, o->allocated ? "true" : "false");
     
-	if(!o->allocated || o->ptr == 0) {
+	if(application_terminated || !o->allocated || o->ptr == 0) {
 		free(o);
 		return;
 	}

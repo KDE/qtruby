@@ -91,6 +91,7 @@ VALUE ktexteditor_module = Qnil;
 VALUE qt_internal_module = Qnil;
 VALUE qt_base_class = Qnil;
 VALUE qt_qmetaobject_class = Qnil;
+bool application_terminated = FALSE;
 };
 
 #define logger logger_backend
@@ -2041,6 +2042,13 @@ set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE))
 	_new_kde = new_kde;
 }
 
+static VALUE
+set_application_terminated(VALUE /*self*/, VALUE yn)
+{
+    application_terminated = (yn == Qtrue ? true : false);
+	return Qnil;
+}
+
 void
 Init_qtruby()
 {
@@ -2145,6 +2153,7 @@ Init_qtruby()
     rb_define_method(qt_internal_module, "version", (VALUE (*) (...)) version, 0);
     rb_define_method(qt_internal_module, "qtruby_version", (VALUE (*) (...)) qtruby_version, 0);
     rb_define_method(qt_internal_module, "cast_object_to", (VALUE (*) (...)) cast_object_to, 2);
+    rb_define_method(qt_internal_module, "application_terminated=", (VALUE (*) (...)) set_application_terminated, 1);
 
 	rb_include_module(qt_module, qt_internal_module);
 	rb_require("Qt/qtruby.rb");

@@ -129,6 +129,7 @@ module Qt
 			widgets = topLevelWidgets
 			widgets.each {|widget| widget.dispose}
 			self.dispose
+			Qt::Internal.application_terminated = true
 		end
 	end
 	
