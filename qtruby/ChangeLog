@@ -1,3 +1,8 @@
+2004-10-12  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * Added Qt::Application.ARGV. It returns the original ruby ARGV array with Qt command line 
+   options removed.
+
 2004-10-11  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * Added a global flag 'application_terminated'. Once this is set the QtRuby runtime will no longer

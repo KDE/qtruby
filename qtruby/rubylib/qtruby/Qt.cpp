@@ -1260,6 +1260,18 @@ new_qapplication(int argc, VALUE * argv, VALUE klass)
     return result;
 }
 
+// Returns $qApp.ARGV() - the original ARGV array with Qt command line options removed
+static VALUE
+qapplication_argv(VALUE /*self*/)
+{
+	VALUE result = rb_ary_new();
+	// Drop argv[0], as it isn't included in the ruby global ARGV
+	for (int index = 1; index < qApp->argc(); index++) {
+		rb_ary_push(result, rb_str_new2(qApp->argv()[index]));
+	}
+	
+	return result;
+}
 //----------------- Sig/Slot ------------------
 
 
@@ -1993,6 +2005,7 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
     	klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
 		if (strcmp(package, "Qt::Application") == 0) {
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qapplication, -1);
+		rb_define_method(klass, "ARGV", (VALUE (*) (...)) qapplication_argv, 0);
 		} else {
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
 		}
