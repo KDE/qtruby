@@ -1,5 +1,13 @@
 =begin
 /***************************************************************************
+                          qtruby.rb  -  description
+                             -------------------
+    begin                : Fri Jul 4 2003
+    copyright            : (C) 2003 by Richard Dale
+    email                : Richard_Dale@tipitina.demon.co.uk
+ ***************************************************************************/
+
+/***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
