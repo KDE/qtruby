@@ -929,15 +929,19 @@ method_missing(int argc, VALUE * argv, VALUE self)
 			TYPE(self) );
 #endif
 
-	VALUE * savestack = ALLOCA_N(VALUE, argc + 2);
+	VALUE * savestack = ALLOCA_N(VALUE, argc + 3);
 	savestack[0] = rb_str_new2("Qt");
 	savestack[1] = rb_str_new2(rb_id2name(SYM2ID(argv[0])));
 	savestack[2] = klass;
+	savestack[3] = self;
 	for (int count = 1; count < argc; count++) {
-		savestack[count+2] = argv[count];
+		savestack[count+3] = argv[count];
 	}
 
-	VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+2, savestack);
+    /// BLAH
+    /// BLAH
+    /// BLAH
+	VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
 	if (retval != Qnil)
 	        return retval;
 
@@ -959,7 +963,7 @@ method_missing(int argc, VALUE * argv, VALUE self)
                 }
         }
 
-	MethodCall c(qt_Smoke, _current_method, savestack+3, argc-1);
+	MethodCall c(qt_Smoke, _current_method, savestack+4, argc-1);
 	c.next();
 	VALUE result = *(c.var());
 	return result;
@@ -974,15 +978,16 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
 			rb_id2name( SYM2ID(argv[0]) ) );
 #endif
 
-	VALUE * savestack = ALLOCA_N(VALUE, argc + 2);
+	VALUE * savestack = ALLOCA_N(VALUE, argc + 3);
 	savestack[0] = rb_str_new2("Qt");
 	savestack[1] = rb_str_new2(rb_id2name(SYM2ID(argv[0])));
 	savestack[2] = klass;
+	savestack[3] = Qnil;
 	for (int count = 1; count < argc; count++) {
-		savestack[count+2] = argv[count];
+		savestack[count+3] = argv[count];
 	}
 
-	VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+2, savestack);
+	VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
 	if (retval != Qnil)
 	        return retval;
 
@@ -993,7 +998,7 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
 		return rb_call_super(argc, argv);
 	}
 
-	MethodCall c(qt_Smoke, _current_method, savestack+3, argc-1);
+	MethodCall c(qt_Smoke, _current_method, savestack+4, argc-1);
 	c.next();
 	VALUE result = *(c.var());
 	return result;
@@ -1047,15 +1052,19 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
 	VALUE constructor_name = rb_str_new2("new");
 
-	VALUE * savestack = ALLOCA_N(VALUE, argc + 3);
+	VALUE * savestack = ALLOCA_N(VALUE, argc + 4);
 	savestack[0] = rb_str_new2("Qt");
 	savestack[1] = constructor_name;
 	savestack[2] = klass;
+	savestack[3] = self;
 	for (int count = 0; count < argc; count++) {
-		savestack[count+3] = argv[count];
+		savestack[count+4] = argv[count];
 	}
 
-	VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, savestack);
+    /// BLAH
+    /// BLAH
+    /// BLAH
+	VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+4, savestack);
 	if (retval != Qnil)
 	        return retval;
 
@@ -1080,7 +1089,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
                 }
         }
 
-	MethodCall c(qt_Smoke, _current_method, savestack+3, argc);
+	MethodCall c(qt_Smoke, _current_method, savestack+4, argc);
 	c.next();
 	VALUE temp_obj = *(c.var());
 	void * ptr = 0;
@@ -1102,6 +1111,9 @@ new_qt(int argc, VALUE * argv, VALUE klass)
 	(void) class_name;
 #endif
 			
+    /// BLAH
+    /// BLAH
+    /// BLAH
 	VALUE * localstack = ALLOCA_N(VALUE, argc + 1);
 	localstack[0] = rb_obj_alloc(klass);
 	for (int count = 0; count < argc; count++) {
@@ -1560,8 +1572,7 @@ make_metaObject(VALUE /*self*/, VALUE className_value, VALUE parent, VALUE slot_
 	0, 0,	// enums
 	0, 0);
 
-
-	smokeruby_object * o = (smokeruby_object *) ALLOC(smokeruby_object);
+    smokeruby_object * o = (smokeruby_object *) ALLOC(smokeruby_object);
     o->smoke = qt_Smoke;
     o->classId = qt_Smoke->idClass("QMetaObject");
     o->ptr = meta;

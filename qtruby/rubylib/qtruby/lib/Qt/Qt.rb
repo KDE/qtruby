@@ -22,28 +22,23 @@ module Qt
 			end
 		end
 		
-		def argmatch(methodIds, args, i)
-			match = Hash.new
-			argtype = getVALUEtype(args[i])
-			for method in methodIds
-				arg = args[i] 
-				typename = getTypeNameOfArg(method, i)
-				
-				if argtype == 'i'
-					if typename =~ /^(?:short|ushort|int|uint|long|ulong|signed|unsigned)$/
-						match[method] = 0
-					end
-				elsif argtype == 'n'
-					if typename =~ /^(?:float|double)$/
-						match[method] = 0
-					end
-				elsif argtype == 's'
-					if typename =~ /^(?:char\*|const char\*|(?:const )?(Q(C?)String)[*&]?)$/
+		def checkarg(argtype, method, i)
+			typename = getTypeNameOfArg(method, i)
+			if argtype == 'i'
+				if typename =~ /^(?:short|ushort|int|uint|long|ulong|signed|unsigned)$/
+					return true
+				end
+			elsif argtype == 'n'
+				if typename =~ /^(?:float|double)$/
+					return true
+				end
+			elsif argtype == 's'
+				if typename =~ /^(?:char\*|const char\*|(?:const )?(Q(C?)String)[*&]?)$/
 #		$match{$method} = defined $2 ? 1 : ( defined $1 ? 2 : 0 );
-						match[method] = 0
-					end
-				elsif argtype == 'a'
-            # FIXME: shouldn't be hardcoded. Installed handlers should tell what perl type they expect.
+					return true
+				end
+			elsif argtype == 'a'
+# FIXME: shouldn't be hardcoded. Installed handlers should tell what perl type they expect.
 #					if typename =~ /^(?:
 #                                const\ QCOORD\*|
 #                                (?:const\ )?
@@ -54,21 +49,29 @@ module Qt
 #                                  char\*\*
 #                                )
 #                              )$/x)
-#						match[method] = 0
+#						return true
 #					end
-				elsif argtype == 'u'
-					if typename =~ /^(?:float|double)$/
-						match[method] = 0
-					end
-				elsif argtype == 'U'
-	    			match[method] = 0
-				else
-					t = typename.sub(/^const\s+/, '')
-					t.sub!(/[&*]$/, '')
-					if classIsa(argtype, t)
-						match[method] = 0
-					end
+			elsif argtype == 'u'
+				if typename =~ /^(?:float|double)$/
+					return true
 				end
+			elsif argtype == 'U'
+				return true
+			else
+				t = typename.sub(/^const\s+/, '')
+				t.sub!(/[&*]$/, '')
+				if classIsa(argtype, t)
+					return true
+				end
+			end
+			return false
+		end
+		
+		def argmatch(methodIds, args, i)
+			match = Hash.new
+			argtype = getVALUEtype(args[i])
+			for method in methodIds
+			    match[method] = 0 if checkarg(argtype, method, i)
 			end
 			return match.sort {|a,b| a[1] <=> b[1]}
 		end
@@ -89,11 +92,12 @@ module Qt
 		def continue_new_instance(instance)
 			@@current_initializer.call(instance)
 		end
-				
-		def do_method_missing(package, method, klass, *args)
+
+		def do_method_missing(package, method, klass, this, *args)
+    
 			classname = CppName[klass.name]
 			if classname.nil? and klass != Object
-				do_method_missing(package, method, klass.superclass, *args)
+				do_method_missing(package, method, klass.superclass, this, *args)
 				return nil
 			end
 
@@ -113,9 +117,9 @@ module Qt
 					method_argstr << "$"
 				end
 			end
-			
-			method << method_argstr 
-			methodIds = findMethod(classname, method)
+
+                        methodStr = method + method_argstr
+			methodIds = findMethod(classname, methodStr)
 			if methodIds.length > 1
 				for i in 0..(args.length - 1)
 					matching = argmatch(methodIds, args, i)
@@ -123,7 +127,7 @@ module Qt
 					# multiple matches and the first match is a better match than subequent ones
 					if matching != nil and (matching.length == 1 or matching[0][1] != matching[1][1])
 						methodIds[0] = matching[0][0]
-#						print("Resolved Method #{classname}::#{method} => " + methodIds[0].to_s + "\n")
+#						print("Resolved Method #{classname}::#{method_str} => " + methodIds[0].to_s + "\n")
 						break
 					end
 				end
