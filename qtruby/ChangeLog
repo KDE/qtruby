@@ -1,5 +1,9 @@
 2004-07-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* Replaced QString casts to 'const char *' with latin1() calls
+
+2004-07-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* The Qt::Enum class was missing bit operations, so various bit methods
 	  were added to Qt::Enum's superclass, Qt::Integer.
 	

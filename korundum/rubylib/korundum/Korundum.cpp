@@ -48,8 +48,8 @@ Marshall::HandlerFn getMarshallFn(const SmokeType &type);
 
 /*
 	Copy items from the stack to the stream, each item has a corresponding description in the 
-	args array of MocArguments. Used for marshalling the args to DCOP calls and sends, and 
-	converting the return value of a DCOP slot to a stream.
+	args array of MocArguments. Used for marshalling the args to DCOP calls and sends, emitting 
+	DCOP signals, and converting the return value of a DCOP slot to a stream.
 */
 static void
 smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int items, MocArgument* args)
@@ -154,7 +154,7 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 								refType += "&";
 								if (	strcmp(	"QDataStream&", 
 												t.smoke()->types[t.smoke()->argumentList[method.args+0]].name ) == 0 
-										&& strcmp(	(const char *) refType, 
+										&& strcmp(	refType.latin1(), 
 													t.smoke()->types[t.smoke()->argumentList[method.args+1]].name ) == 0 ) 
 								{
 									Smoke::ClassFn fn = t.smoke()->classes[method.classId].classFn;
@@ -182,7 +182,7 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 
 /*
 	Copy items from the stream to the stack, each item has a corresponding description in the 
-	args array of MocArguments.   Used for marshalling the arguments to a DCOP slot invocation,
+	args array of MocArguments. Used for marshalling the arguments to a DCOP slot invocation,
 	and for converting a dcop reply to a ruby value.
 */
 static void
@@ -354,7 +354,7 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 								refType += "&";
 								if (	strcmp(	"QDataStream&", 
 												t.smoke()->types[t.smoke()->argumentList[method.args+0]].name ) == 0 
-										&& strcmp(	(const char *) refType, 
+										&& strcmp(	refType.latin1(), 
 													t.smoke()->types[t.smoke()->argumentList[method.args+1]].name ) == 0 ) 
 								{
 									Smoke::ClassFn fn = t.smoke()->classes[method.classId].classFn;
@@ -543,10 +543,10 @@ public:
 					obj = set_obj_info("KDE::DCOPRef", o);
 				}
 				
-				rb_hash_aset(_result, rb_str_new2((const char *)it.key()), obj);
+				rb_hash_aset(_result, rb_str_new2(it.key().latin1()), obj);
         	}		
 		} else {
-			DCOPReturn dcopReturn(ds, &_result, rb_str_new2((const char *)replyType));
+			DCOPReturn dcopReturn(ds, &_result, rb_str_new2((const char *) replyType));
 		}
     }
 	
@@ -905,7 +905,7 @@ getdcopinfo(VALUE self, QString & signalname)
     VALUE member = rb_funcall(	kde_internal_module, 
 								rb_intern("fullSignalName"), 
 								2, self, rb_str_new2(signalname) );
-	signalname = (const char *) StringValuePtr(member);
+	signalname.fromLatin1(StringValuePtr(member));
     return rb_funcall(	qt_internal_module, 
 						rb_intern("getMocArguments"), 
 						1, member );
@@ -921,7 +921,7 @@ k_dcop_signal(int argc, VALUE * argv, VALUE self)
 
     if(args == Qnil) return Qfalse;
 
-    EmitDCOPSignal signal(dcopObject, (const char *) signalname, argc, argv, args);
+    EmitDCOPSignal signal(dcopObject, signalname.latin1(), argc, argv, args);
     signal.next();
 
     return Qtrue;

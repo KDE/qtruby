@@ -978,7 +978,7 @@ method_missing(int argc, VALUE * argv, VALUE self)
 				QString op(rb_id2name(SYM2ID(argv[0])));
 				if (rx.search(op) != -1) {
 					// Look for operator methods of the form 'operator+=', 'operator-=' and so on..
-					temp_stack[1] = rb_str_new2((const char *) op.append("="));
+					temp_stack[1] = rb_str_new2(op.append("=").latin1());
 					retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, temp_stack);
 				}
 
@@ -1321,7 +1321,7 @@ qt_invoke(int argc, VALUE * argv, VALUE self)
 
     QString name(slotname);
     name.replace(QRegExp("\\(.*"), "");
-    InvokeSlot slot(self, rb_intern((const char *) name), mocArgs, _o);
+    InvokeSlot slot(self, rb_intern(name.latin1()), mocArgs, _o);
     slot.next();
 
     return Qtrue;
