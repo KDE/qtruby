@@ -334,14 +334,6 @@ module KDE
 		end
 	end
 	
-	def MainWindow::RESTORE(klass)
-		n = 1
-		while MainWindow.canBeRestored(n)
-			klass.new.restore(n)
-			n += 1
-		end
-	end
-	
 	# A sane alternative to the strange looking C++ template version,
 	# this takes a variable number of ruby args as classes to restore
 	def MainWindow::kRestoreMainWindows(*k)
@@ -388,6 +380,14 @@ module KDE
 end
 
 class Object
+	def RESTORE(klass)
+		n = 1
+		while MainWindow.canBeRestored(n)
+			klass.new.restore(n)
+			n += 1
+		end
+	end
+
 	def I18N_NOOP(x) x end
 	def I18N_NOOP2(comment, x) x end
 end
