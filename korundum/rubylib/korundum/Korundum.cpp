@@ -215,9 +215,13 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 					*stream >> temp;
 					stack[i].s_bool = temp;
 					break;
-//				case Smoke::t_char:
-//					*stream >> (Q_INT8) stack[i].s_char;
-//					break;
+				case Smoke::t_char:
+					{
+					Q_INT8 temp;
+					*stream >> temp;
+					stack[i].s_char = temp;
+					break;
+					}
 				case Smoke::t_uchar:
 					{
 					Q_UINT8 temp;
