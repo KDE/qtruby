@@ -1,5 +1,10 @@
 2003-08-25  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* Removed ugly _current_object global variable. 
+          The current target object is now passed to the MethodCall constructor.
+
+2003-08-25  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Removed obsolete rb_enable_super() calls
 	* Removed test for _current_object in class_method_missing()
 	* Fixed missing index in signalInfo() method

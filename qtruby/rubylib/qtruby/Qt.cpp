@@ -66,7 +66,6 @@ int do_debug = qtdb_none;
 
 VALUE pointer_map = Qundef;
 int object_count = 0;
-void *_current_object = 0;    // TODO: ask myself if this is stupid
 
 bool temporary_virtual_function_success = false;
 
@@ -79,9 +78,7 @@ VALUE qt_internal_module = Qundef;
 VALUE qt_base_class = Qundef;
 VALUE qt_qmetaobject_class = Qundef;
 
-Smoke::Index _current_object_class = 0;
 Smoke::Index _current_method = 0;
-
 /*
  * Type handling by moc is simple.
  *
@@ -342,14 +339,25 @@ class MethodCall : public Marshall {
     Smoke::Stack _stack;
     Smoke::Index _method;
     Smoke::Index *_args;
+	VALUE _target;
+	void *_current_object;
+	Smoke::Index _current_object_class;
     VALUE *_sp;
     int _items;
     VALUE _retval;
     bool _called;
 public:
-    MethodCall(Smoke *smoke, Smoke::Index method, VALUE *sp, int items) :
-	_cur(-1), _smoke(smoke), _method(method), _sp(sp), _items(items), _called(false)
+    MethodCall(Smoke *smoke, Smoke::Index method, VALUE target, VALUE *sp, int items) :
+	_cur(-1), _smoke(smoke), _method(method), _target(target), _current_object(0), _sp(sp), _items(items), _called(false)
     {
+	if (_target != Qnil) {
+	    smokeruby_object *o = value_obj_info(_target);
+		if (o && o->ptr) {
+		    _current_object = o->ptr;
+		    _current_object_class = o->classId;
+		}
+	}
+	
 	_args = _smoke->argumentList + _smoke->methods[_method].args;
 	_items = _smoke->methods[_method].numArgs;
 	_stack = new Smoke::StackItem[items + 1];
@@ -940,18 +948,8 @@ method_missing(int argc, VALUE * argv, VALUE self)
 	return rb_call_super(argc, argv);
     }
 
-    // FIXME: I shouldn't have to set the current object
-    {
-	smokeruby_object *o = value_obj_info(self);
-	if(o && o->ptr) {
-	    _current_object = o->ptr;
-	    _current_object_class = o->classId;
-	} else {
-	    _current_object = 0;
-	}
-    }
 
-    MethodCall c(qt_Smoke, _current_method, savestack+4, argc-1);
+    MethodCall c(qt_Smoke, _current_method, self, savestack+4, argc-1);
     c.next();
     VALUE result = *(c.var());
     return result;
@@ -986,7 +984,7 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
 	return rb_call_super(argc, argv);
     }
 
-    MethodCall c(qt_Smoke, _current_method, savestack+4, argc-1);
+    MethodCall c(qt_Smoke, _current_method, Qnil, savestack+4, argc-1);
     c.next();
     VALUE result = *(c.var());
     return result;
@@ -1068,18 +1066,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
     // Success. Cache result.
     //methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
 
-    // FIXME: I shouldn't have to set the current object
-    {
-	smokeruby_object *o = value_obj_info(ruby_self);
-	if(o && o->ptr) {
-	    _current_object = o->ptr;
-	    _current_object_class = o->classId;
-	} else {
-	    _current_object = 0;
-	}
-    }
-
-    MethodCall c(qt_Smoke, _current_method, savestack+4, argc);
+    MethodCall c(qt_Smoke, _current_method, self, savestack+4, argc);
     c.next();
     VALUE temp_obj = *(c.var());
     void * ptr = 0;
