@@ -10,7 +10,7 @@ class GameBoard < Qt::Widget
     	quit = Qt::PushButton.new("&Quit", self, "quit")
     	quit.setFont(Qt::Font.new("Times", 18, Qt::Font.Bold))
     
-		connect(quit, SIGNAL('clicked()'), $qapp, SLOT('quit()'))
+		connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
     
 		angle = LCDRange.new( "ANGLE", self, "angle" )
 		angle.setRange( 5, 70 )
