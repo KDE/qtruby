@@ -14,8 +14,8 @@ KDE Specific Infomation:
 	  	$ rbkdeapi KDE::Action
 	  
 	  Will list all the methods in the KDE::Action class. There are currently
-	  977 classes/30841 methods in the Smoke library runtime - so the coverage
-	  of the Qt/KDE api is pretty complete.
+	  (as at KDE 3.3 beta 2) 977 classes/30841 methods in the Smoke library 
+	  runtime, so the coverage of the Qt/KDE api is pretty complete.
 
 	- DCOP Support. Here is a minimal ruby dcop slot implementation:
 	

@@ -190,7 +190,7 @@ module KDE
 						return nil
 					end
 					funcs.each do |func|
-						if func =~ /^(\w*) (.*)(\(.*\))/
+						if func =~ /^([\w,<>]*) (.*)(\(.*\))/
 							return_type = $1
 							name = $2
 							args = $3

@@ -17,6 +17,7 @@
 
 #include <qobject.h>
 #include <qstringlist.h>
+#include <qmap.h>
 
 #include <dcopclient.h>
 #include <dcopobject.h>
@@ -37,6 +38,7 @@ extern VALUE set_obj_info(const char * className, smokeruby_object * o);
 
 extern TypeHandler KDE_handlers[];
 extern void install_handlers(TypeHandler *);
+extern Smoke *qt_Smoke;
 
 Marshall::HandlerFn getMarshallFn(const SmokeType &type);
 
@@ -428,12 +430,13 @@ public:
 			ds >> valuelist;
 			_result = rb_ary_new();
 			for (QValueListIterator<DCOPRef> it = valuelist.begin(); it != valuelist.end(); ++it) {
-				void *p = &(*it);
+				void *p = new DCOPRef(*it);
 				VALUE obj = getPointerObject(p);
 				
 				if (obj == Qnil) {
 					smokeruby_object  * o = ALLOC(smokeruby_object);
-					o->classId = o->smoke->idClass("DCOPRef");
+					o->classId = qt_Smoke->idClass("DCOPRef");
+					o->smoke = qt_Smoke;
 					o->ptr = p;
 					o->allocated = true;
 					obj = set_obj_info("KDE::DCOPRef", o);
@@ -441,6 +444,28 @@ public:
 				
 				rb_ary_push(_result, obj);
 			}
+		} else if (replyType == "QMap<QCString,DCOPRef>") {
+			// And special case this type too 
+			QMap<QCString,DCOPRef>	actionMap;
+			ds >> actionMap;
+			_result = rb_hash_new();
+			
+			QMap<QCString,DCOPRef>::Iterator it;
+			for (it = actionMap.begin(); it != actionMap.end(); ++it) {
+				void *p = new DCOPRef(it.data());
+				VALUE obj = getPointerObject(p);
+				
+				if (obj == Qnil) {
+					smokeruby_object  * o = ALLOC(smokeruby_object);
+					o->classId = qt_Smoke->idClass("DCOPRef");
+					o->smoke = qt_Smoke;
+					o->ptr = p;
+					o->allocated = true;
+					obj = set_obj_info("KDE::DCOPRef", o);
+				}
+				
+				rb_hash_aset(_result, rb_str_new2((const char *)it.key()), obj);
+        	}		
 		} else {
 			DCOPReturn dcopReturn(ds, &_result, rb_str_new2((const char *)replyType));
 		}
