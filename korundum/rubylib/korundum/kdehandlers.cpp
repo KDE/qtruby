@@ -214,11 +214,13 @@ void marshall_KMimeTypePtr(Marshall *m) {
 		break;
 	case Marshall::ToVALUE: 
 		{
-	    KMimeType * mimeType = new KMimeType(*((KMimeType *) (*(KMimeType::Ptr*) m->item().s_voidp)));
-	    if(mimeType == 0) {
+	    KMimeType::Ptr ptr(*(KMimeType::Ptr*)m->item().s_voidp);
+	    if(ptr == 0) {
 		*(m->var()) = Qnil;
 		break;
 	    }
+	    KMimeType * mimeType = new KMimeType(*(KMimeType*)ptr);
+	    
 		VALUE obj = getPointerObject(mimeType);
 		if(obj == Qnil) {
 		    smokeruby_object  * o = ALLOC(smokeruby_object);
@@ -299,11 +301,12 @@ void marshall_KServiceGroupPtr(Marshall *m) {
 		break;
 	case Marshall::ToVALUE: 
 		{
-	    KServiceGroup * serviceGroup = new KServiceGroup(*((KServiceGroup*)(KServiceGroup::Ptr*)m->item().s_voidp));
-	    if(serviceGroup == 0) {
+	    KServiceGroup::Ptr ptr(*(KServiceGroup::Ptr*)m->item().s_voidp);
+	    if(ptr == 0) {
 		*(m->var()) = Qnil;
 		break;
 	    }
+	    KServiceGroup * serviceGroup = new KServiceGroup(*(KServiceGroup*)ptr);
 
 		VALUE obj = getPointerObject(serviceGroup);
 		if(obj == Qnil) {
