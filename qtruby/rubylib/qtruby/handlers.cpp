@@ -535,10 +535,21 @@ marshall_basetype(Marshall *m)
       case Smoke::t_enum:
 	switch(m->action()) {
 	  case Marshall::FromVALUE:
-	    m->item().s_enum = (long) NUM2LONG(*(m->var()));
+	  	{
+		if (TYPE(*(m->var())) == T_OBJECT) {
+			// A Qt::Enum
+			VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qenum"), 1, *(m->var()));
+	    	m->item().s_enum = (long) NUM2LONG(temp);
+		} else {
+	    	m->item().s_enum = (long) NUM2LONG(*(m->var()));
+		}
+		}
 	    break;
 	  case Marshall::ToVALUE:
-	    *(m->var()) = INT2NUM(m->item().s_enum);
+		*(m->var()) = rb_funcall(	qt_internal_module, 
+									rb_intern("create_qenum"), 
+									2, INT2NUM(m->item().s_enum), rb_str_new2(m->type().name()) );
+ 
 	    break;
 	  default:
 	    m->unsupported();

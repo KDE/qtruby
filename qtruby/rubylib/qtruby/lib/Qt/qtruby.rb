@@ -136,6 +136,18 @@ module Qt
 		def to_s() return @value.to_s end
 	end
 	
+	# If a C++ enum was converted to an ordinary ruby Integer, the
+	# name of the type is lost. The enum name is needed for overloaded
+	# method resolution when two methods differ only by an enum type.
+	class Enum < Integer
+		attr_accessor :type
+		def initialize(n, type)
+			super(n) 
+			@value = n 
+			@type = type
+		end
+	end
+	
 	# Provides a mutable boolean class for passing to methods with
 	# C++ 'bool*' or 'bool&' arg types
 	class Boolean
@@ -240,7 +252,7 @@ module Qt
 			else
 				t = typename.sub(/^const\s+/, '')
 				t.sub!(/[&*]$/, '')
-				if classEquals(argtype, t)
+				if argtype == t
 					return 1
 				elsif classIsa(argtype, t)
 					return 0
@@ -403,6 +415,7 @@ module Qt
 			@@classes['Qt::ByteArray'] = Qt::ByteArray.class
 			@@classes['Qt::Integer'] = Qt::Integer.class
 			@@classes['Qt::Boolean'] = Qt::Boolean.class
+			@@classes['Qt::Enum'] = Qt::Enum.class
 		end
 		
 		def create_qbytearray(string, data)
@@ -422,6 +435,18 @@ module Qt
 		
 		def set_qinteger(num, val)
 			return num.value = val
+		end
+		
+		def create_qenum(num, type)
+			return Qt::Enum.new(num, type)
+		end
+		
+		def get_qenum(e)
+			return e.value
+		end
+		
+		def get_qenum_type(e)
+			return e.type
 		end
 		
 		def get_qboolean(b)

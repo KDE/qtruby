@@ -1,3 +1,16 @@
+2004-07-19  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added Qt::Enum type. Before a C++ enum was being marshalled to a ruby
+	  Integer, and the type name of the enum was lost. A Qt::Enum is a subclass
+	  of Integer with an extra type name.
+	* This fixes a problem with overloaded method resolution where two methods differ
+	  only be an enum type such as this:
+
+	    # KPasswordEdit(EchoMode echoMode, QWidget *parent, const char *name);
+	    # KPasswordEdit(EchoModes echoMode, QWidget *parent, const char *name);
+
+	    pw2 = KDE::PasswordEdit.new(KDE::PasswordEdit::ThreeStars, page, "")
+
 2004-07-17  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* After a non-const string arg was passed to a method, the value of the QString

@@ -853,7 +853,10 @@ get_VALUEtype(VALUE ruby_value)
 	r = "b";
     else if(strcmp(classname, "Qt::Boolean") == 0)
 	r = "B";
-    else if(TYPE(ruby_value) == T_DATA) {
+    else if(strcmp(classname, "Qt::Enum") == 0) {
+	VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qenum_type"), 1, ruby_value);
+	r = StringValuePtr(temp);
+    } else if(TYPE(ruby_value) == T_DATA) {
 	smokeruby_object *o = value_obj_info(ruby_value);
 	if(!o) {
 	    r = "a";
@@ -1415,12 +1418,7 @@ getTypeNameOfArg(VALUE /*self*/, VALUE method_value, VALUE idx_value)
     int idx = NUM2INT(idx_value);
     Smoke::Method &m = qt_Smoke->methods[method];
     Smoke::Index *args = qt_Smoke->argumentList + m.args;
-    if ((qt_Smoke->types[args[idx]].flags & 0x0f) == Smoke::t_enum) {
-		// Just treat enums as longs, don't bother matching on the enum name
-		return rb_str_new2("long");
-	} else {
-    	return rb_str_new2((char*)qt_Smoke->types[args[idx]].name);
-	}
+    return rb_str_new2((char*)qt_Smoke->types[args[idx]].name);
 }
 
 static VALUE
@@ -1429,16 +1427,6 @@ classIsa(VALUE /*self*/, VALUE className_value, VALUE base_value)
     char *className = StringValuePtr(className_value);
     char *base = StringValuePtr(base_value);
     return isDerivedFromByName(qt_Smoke, className, base) ? Qtrue : Qfalse;
-}
-
-static VALUE
-classEquals(VALUE /*self*/, VALUE className_value, VALUE otherClassName_value)
-{
-    char *className = StringValuePtr(className_value);
-    char *otherClassName = StringValuePtr(otherClassName_value);
-    Smoke::Index idClass = qt_Smoke->idClass(className);
-    Smoke::Index idOtherClass = qt_Smoke->idClass(otherClassName);
-    return idClass != 0 && idClass == idOtherClass ? Qtrue : Qfalse;
 }
 
 static VALUE
@@ -2031,7 +2019,6 @@ Init_qtruby()
     rb_define_method(qt_internal_module, "debug", (VALUE (*) (...)) debugging, 0);
     rb_define_method(qt_internal_module, "getTypeNameOfArg", (VALUE (*) (...)) getTypeNameOfArg, 2);
     rb_define_method(qt_internal_module, "classIsa", (VALUE (*) (...)) classIsa, 2);
-    rb_define_method(qt_internal_module, "classEquals", (VALUE (*) (...)) classEquals, 2);
     rb_define_method(qt_internal_module, "insert_pclassid", (VALUE (*) (...)) insert_pclassid, 2);
     rb_define_method(qt_internal_module, "find_pclassid", (VALUE (*) (...)) find_pclassid, 1);
     rb_define_method(qt_internal_module, "insert_mcid", (VALUE (*) (...)) insert_mcid, 2);
