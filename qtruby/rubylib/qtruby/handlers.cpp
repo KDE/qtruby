@@ -3,7 +3,6 @@
 #include <qapplication.h>
 #include <qmetaobject.h>
 #include <qvaluelist.h>
-#include <qcanvas.h>
 #include <private/qucomextra_p.h>
 
 #include "smoke.h"
@@ -962,8 +961,26 @@ void marshall_QRgb_array(Marshall *m) {
     }
 }
 
-namespace { char QCanvasItemSTR[] = "QCanvasItem"; }; 
-Marshall::HandlerFn marshall_QCanvasItemList = marshall_ItemList<QCanvasItem, QCanvasItemList, QValueListIterator<QCanvasItem*>, QCanvasItemSTR >;
+#define DEF_LIST_MARSHALLER(ListIdent,ItemList,Item,Itr) namespace { char ListIdent##STR[] = #Item; };  \
+        Marshall::HandlerFn marshall_##ListIdent = marshall_ItemList<Item,ItemList,Itr,ListIdent##STR>;
+
+#include <qcanvas.h>
+#include <qdir.h>
+#include <qobjectlist.h>
+#include <qwidgetlist.h>
+#include <qdockwindow.h>
+#include <qnetworkprotocol.h>
+#include <qtoolbar.h>
+#include <qtabbar.h>
+
+DEF_LIST_MARSHALLER( QPtrListQNetworkOperation, QPtrList<QNetworkOperation>, QNetworkOperation, QPtrListStdIterator<QNetworkOperation> )
+DEF_LIST_MARSHALLER( QPtrListQToolBar, QPtrList<QToolBar>, QDockWindow, QPtrListStdIterator<QToolBar> )
+DEF_LIST_MARSHALLER( QPtrListQTab, QPtrList<QTab>, QDockWindow, QPtrListStdIterator<QTab> )
+DEF_LIST_MARSHALLER( QPtrListQDockWindow, QPtrList<QDockWindow>, QDockWindow, QPtrListStdIterator<QDockWindow> )
+DEF_LIST_MARSHALLER( QFileInfoList, QFileInfoList, QFileInfo, QFileInfoList::Iterator )
+DEF_LIST_MARSHALLER( QObjectList, QObjectList, QObject, QPtrListStdIterator<QObject> )
+DEF_LIST_MARSHALLER( QWidgetList, QWidgetList, QWidget, QPtrListStdIterator<QWidget> )
+DEF_LIST_MARSHALLER( QCanvasItemList, QCanvasItemList, QCanvasItem, QValueListIterator<QCanvasItem*> )
 
 TypeHandler Qt_handlers[] = {
     { "QString", marshall_QString },
@@ -992,6 +1009,27 @@ TypeHandler Qt_handlers[] = {
     { "QCanvasItemList", marshall_QCanvasItemList },
     { "QCanvasItemList*", marshall_QCanvasItemList },
     { "QCanvasItemList&", marshall_QCanvasItemList },
+    { "QWidgetList", marshall_QWidgetList },
+    { "QWidgetList*", marshall_QWidgetList },
+    { "QWidgetList&", marshall_QWidgetList },
+    { "QObjectList", marshall_QObjectList },
+    { "QObjectList*", marshall_QObjectList },
+    { "QObjectList&", marshall_QObjectList },
+    { "QFileInfoList", marshall_QFileInfoList },
+    { "QFileInfoList*", marshall_QFileInfoList },
+    { "QFileInfoList&", marshall_QFileInfoList },
+    { "QPtrList<QToolBar>", marshall_QPtrListQToolBar },
+    { "QPtrList<QToolBar>*", marshall_QPtrListQToolBar },
+    { "QPtrList<QToolBar>&", marshall_QPtrListQToolBar },
+    { "QPtrList<QTab>", marshall_QPtrListQTab },
+    { "QPtrList<QTab>*", marshall_QPtrListQTab },
+    { "QPtrList<QTab>&", marshall_QPtrListQTab },
+    { "QPtrList<QDockWindow>", marshall_QPtrListQDockWindow },
+    { "QPtrList<QDockWindow>*", marshall_QPtrListQDockWindow },
+    { "QPtrList<QDockWindow>&", marshall_QPtrListQDockWindow },
+    { "QPtrList<QNetworkOperation>", marshall_QPtrListQNetworkOperation },
+    { "QPtrList<QNetworkOperation>*", marshall_QPtrListQNetworkOperation },
+    { "QPtrList<QNetworkOperation>&", marshall_QPtrListQNetworkOperation },
     { 0, 0 }
 };
 
