@@ -154,7 +154,6 @@ module KDE
 			if !dc || !dc.isAttached
 				puts( "DCOPRef::call():  no DCOP client or client not attached error" )
 			end
-			puts "fun: #{fun}"
 			if fun =~ /^(.*)\s([^\s]*)(\(.*\))/
 				reply_type = $1
 				full_name = $2+$3
