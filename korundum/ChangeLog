@@ -1,5 +1,10 @@
 2004-07-21  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* QDataStream temporary variables added for the Q_INT32 etc types when
+	  writing to a Smoke stack from a QDataStream.
+
+2004-07-21  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Added casts to the various macros like 'Q_INT32' when writing a Smoke
 	  stack to a QDataStream
 

@@ -179,12 +179,20 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 {
 	for(int i = 0; i < items; i++) {
 		switch(args[i].argType) {
-		case xmoc_bool:
-			*stream >> (Q_INT8) stack[i].s_bool;
+		case xmoc_bool: 
+			{
+			Q_INT8 temp;
+			*stream >> temp;
+			stack[i].s_bool = temp;
 			break;
+			}
 		case xmoc_int:
-			*stream >> stack[i].s_int;
+			{
+			Q_INT32 temp;
+			*stream >> temp;
+			stack[i].s_int = temp;
 			break;
+			}
 		case xmoc_double:
 			*stream >> stack[i].s_double;
 			break;
@@ -203,32 +211,62 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 				const SmokeType &t = args[i].st;
 				switch(t.elem()) {
 				case Smoke::t_bool:
-					*stream >> (Q_INT8) stack[i].s_bool;
+					Q_INT8 temp;
+					*stream >> temp;
+					stack[i].s_bool = temp;
 					break;
 //				case Smoke::t_char:
 //					*stream >> (Q_INT8) stack[i].s_char;
 //					break;
 				case Smoke::t_uchar:
-					*stream >> stack[i].s_uchar;
+					{
+					Q_UINT8 temp;
+					*stream >> temp;
+					stack[i].s_uchar = temp;
 					break;
+					}
 				case Smoke::t_short:
-					*stream >> stack[i].s_short;
+					{
+					Q_INT16 temp;
+					*stream >> temp;
+					stack[i].s_short = temp;
 					break;
+					}
 				case Smoke::t_ushort:
-					*stream >> stack[i].s_ushort;
+					{
+					Q_UINT16 temp;
+					*stream >> temp;
+					stack[i].s_ushort = temp;
 					break;
+					}
 				case Smoke::t_int:
-					*stream >> stack[i].s_int;
+					{
+					Q_INT16 temp;
+					*stream >> temp;
+					stack[i].s_int = temp;
 					break;
+					}
 				case Smoke::t_uint:
-					*stream >> stack[i].s_uint;
+					{
+					Q_UINT16 temp;
+					*stream >> temp;
+					stack[i].s_uint = temp;
 					break;
+					}
 				case Smoke::t_long:
-					*stream >> stack[i].s_long;
+					{
+					Q_LONG temp;
+					*stream >> temp;
+					stack[i].s_long = temp;
 					break;
+					}
 				case Smoke::t_ulong:
-					*stream >> stack[i].s_ulong;
+					{
+					Q_ULONG temp;
+					*stream >> temp;
+					stack[i].s_ulong = temp;
 					break;
+					}
 				case Smoke::t_float:
 					*stream >> stack[i].s_float;
 					break;
