@@ -413,7 +413,7 @@ module HTMLIndexer
             |node|
             text << node.nodeValue.string if node.nodeType == DOM::Node::TEXT_NODE
          }
-         link = Qt::Internal::cast_object_to f, "DOM::HTMLLinkElement"
+         link = Qt::Internal::cast_object_to f, DOM::HTMLLinkElement
          if should_follow? link.href.string
             title_map[link.href.string] = text
             urlonly, = uri_anchor_split link.href.string
