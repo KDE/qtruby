@@ -7,42 +7,17 @@
 # license: GNU Public License v2
 #
 
-=begin
-use utf8;
-use strict 'vars';
+require 'Qt'
+include Qt
 
-package QtShellControl;
+class QtShellControl < Qt::MainWindow
+   attr_accessor :menubar, :fileMenu, :helpMenu, :toolBar, :fileName, :fileOpenAction
+   attr_accessor :fileSaveAction, :fileSaveAsAction, :filePrintAction, :fileExitAction
+   attr_accessor :helpExampleAction, :comboBox, :sessionLog, :executedLines, :printer
+   slots 'fileOpen()', 'fileOpen()', 'fileSave()', 'fileSaveAs()'
+   slots 'filePrint()', 'fileExit()', 'helpExample()'
 
-use Qt;
-use Qt::isa qw(Qt::MainWindow);
-use Qt::slots
-    fileOpen => [],
-    fileSave => [],
-    fileSaveAs => [],
-    filePrint => [],
-    fileExit => [],
-    helpExample => [];
-use Qt::signals
-    fileNeedsEval => [QString];
-use Qt::attributes qw(
-    menubar
-    fileMenu
-    helpMenu
-    toolBar
-    fileName
-    fileOpenAction
-    fileSaveAction
-    fileSaveAsAction
-    filePrintAction
-    fileExitAction
-    helpExampleAction
-    comboBox
-    sessionLog
-    executedLines
-    printer
-);
-
-our $image0_data =
+$image0_data =
 ["22 22 7 1",
 ". c None",
 "# c #000000",
@@ -72,9 +47,9 @@ our $image0_data =
 "....#aaaaaaaaaaaaa#...",
 "....###############...",
 "......................",
-"......................"];
+"......................"]
 
-our $image1_data =
+$image1_data =
 ["22 22 5 1",
 ". c None",
 "# c #000000",
@@ -102,9 +77,9 @@ our $image1_data =
 "###cccccccccccc##.....",
 "##cccccccccccc##......",
 "###############.......",
-"......................"];
+"......................"]
 
-our $image2_data =
+$image2_data =
 ["22 22 5 1",
 ". c None",
 "# c #000000",
@@ -132,9 +107,9 @@ our $image2_data =
 ".#aaa#########bbb#aa#.",
 ".#aaa#########bbb#aa#.",
 "..##################..",
-"......................"];
+"......................"]
 
-our $image3_data =
+$image3_data =
 ["22 22 88 2",
 "Qt c None",
 ".2 c #000000",
@@ -245,105 +220,95 @@ our $image3_data =
 ".m.3.K.K#a.k#a#d#a.k#a#d#a#d.q.m.8#i.x#c#e.d",
 "#f#g#i.w#j.w#i.8.w#i.8.8.m.8.m#k.8.w#b#e#fQt",
 ".#.l.z.A#l.z#m#m#m#n#o#o#p#p#q#q#p#o#p#fQtQt",
-"QtQt.d#r#s#s#t#p.T.T.T#u#u.z#e#e#v.o.kQtQtQt"];
+"QtQt.d#r#s#s#t#p.T.T.T#u#u.z#e#e#v.o.kQtQtQt"]
 
+   def initialize(*k)
+      super(*k)
+      image0 = Qt::Pixmap.new($image0_data)
+      image1 = Qt::Pixmap.new($image1_data)
+      image2 = Qt::Pixmap.new($image2_data)
+      image3 = Qt::Pixmap.new($image3_data)
+      box = VBox.new(self);
+      @sessionLog = TextEdit.new(box, "sessionLog")
+      @sessionLog.setTextFormat(Qt::RichText)
+      @sessionLog.setReadOnly(1)
+      @comboBox = ComboBox.new(box, "comboBox")
+      @comboBox.setEditable(1)
+      @comboBox.setAutoCompletion(1)
+      self.setCentralWidget(box)
+      comboBox.setFocus
+      self.resize(500,300)
+      self.setCaption("PerlQt Shell")
+      def trUtf8(k)
+         return k
+      end
+      @fileOpenAction = Qt::Action.new(self, "fileOpenAction")
+      @fileOpenAction.setIconSet(Qt::IconSet.new(image1))
+      @fileOpenAction.setText(trUtf8("Open"))
+      @fileOpenAction.setMenuText(trUtf8("&Open..."))
+#     @fileOpenAction.setAccel(KeySequence(trUtf8("Ctrl+O")))
+      @fileSaveAction = Qt::Action.new(self, "fileSaveAction")
+      @fileSaveAction.setIconSet(Qt::IconSet.new(image2))
+      @fileSaveAction.setText(trUtf8("Save"))
+      @fileSaveAction.setMenuText(trUtf8("&Save"))
+#     @fileSaveAction.setAccel(KeySequence(trUtf8("Ctrl+S")))
+      @fileSaveAsAction = Qt::Action.new(self, "fileSaveAsAction")
+      @fileSaveAsAction.setText(trUtf8("Save As"))
+      @fileSaveAsAction.setMenuText(trUtf8("Save &As..."))
+#     @fileSaveAsAction.setAccel(KeySequence(trUtf8("Ctrl+A")))
+      @filePrintAction = Qt::Action.new(self, "filePrintAction")
+      @filePrintAction.setIconSet(Qt::IconSet.new(image3))
+      @filePrintAction.setText(trUtf8("Print"))
+      @filePrintAction.setMenuText(trUtf8("&Print..."))
+#     @filePrintAction.setAccel(KeySequence(trUtf8("Ctrl+P")))
+      @fileExitAction = Qt::Action.new(self, "fileExitAction")
+      @fileExitAction.setText(trUtf8("Exit"))
+      @fileExitAction.setMenuText(trUtf8("E&xit"))
+#     @fileExitAction.setAccel(KeySequence(trUtf8("Ctrl+E")))
 
-sub NEW
-{
-    shift->SUPER::NEW(@_);
+      @helpExampleAction= Qt::Action.new(self, "helpExampleAction");
+      @helpExampleAction.setText(trUtf8("Example"));
+      @helpExampleAction.setMenuText(trUtf8("Examp&le"));
+#     @helpExampleAction.setAccel(KeySequence(trUtf8("Ctrl+L")));
 
-    my $image0 = Qt::Pixmap($image0_data);
-    my $image1 = Qt::Pixmap($image1_data);
-    my $image2 = Qt::Pixmap($image2_data);
-    my $image3 = Qt::Pixmap($image3_data);
-    my $box = VBox(this);
-    sessionLog = TextEdit($box, "sessionLog");
-    sessionLog->setTextFormat(Qt::RichText());
-    sessionLog->setReadOnly(1);
-    comboBox = ComboBox($box, "comboBox");
-    comboBox->setEditable(1);
-    comboBox->setAutoCompletion(1);
-    this->setCentralWidget($box);
-    comboBox->setFocus;
-    this->resize(500,300);
-    setCaption("PerlQt Shell");
-#   fileNewAction= Qt::Action(this, "fileNewAction");
-#   fileNewAction->setIconSet(Qt::IconSet($image0));
-#   fileNewAction->setText(trUtf8("New"));
-#   fileNewAction->setMenuText(trUtf8("&New"));
-#   fileNewAction->setAccel(KeySequence(trUtf8("Ctrl+N")));
-    fileOpenAction= Qt::Action(this, "fileOpenAction");
-    fileOpenAction->setIconSet(Qt::IconSet($image1));
-    fileOpenAction->setText(trUtf8("Open"));
-    fileOpenAction->setMenuText(trUtf8("&Open..."));
-    fileOpenAction->setAccel(KeySequence(trUtf8("Ctrl+O")));
-    fileSaveAction= Qt::Action(this, "fileSaveAction");
-    fileSaveAction->setIconSet(Qt::IconSet($image2));
-    fileSaveAction->setText(trUtf8("Save"));
-    fileSaveAction->setMenuText(trUtf8("&Save"));
-    fileSaveAction->setAccel(KeySequence(trUtf8("Ctrl+S")));
-    fileSaveAsAction= Qt::Action(this, "fileSaveAsAction");
-    fileSaveAsAction->setText(trUtf8("Save As"));
-    fileSaveAsAction->setMenuText(trUtf8("Save &As..."));
-    fileSaveAsAction->setAccel(KeySequence(trUtf8("Ctrl+A")));
-    filePrintAction= Qt::Action(this, "filePrintAction");
-    filePrintAction->setIconSet(Qt::IconSet($image3));
-    filePrintAction->setText(trUtf8("Print"));
-    filePrintAction->setMenuText(trUtf8("&Print..."));
-    filePrintAction->setAccel(KeySequence(trUtf8("Ctrl+P")));
-    fileExitAction= Qt::Action(this, "fileExitAction");
-    fileExitAction->setText(trUtf8("Exit"));
-    fileExitAction->setMenuText(trUtf8("E&xit"));
-    fileExitAction->setAccel(KeySequence(trUtf8("Ctrl+E")));
+      @toolBar = Qt::ToolBar.new("", self, DockTop)
+      @toolBar.setLabel(trUtf8("Tools"))
 
-    helpExampleAction= Qt::Action(this, "helpExampleAction");
-    helpExampleAction->setText(trUtf8("Example"));
-    helpExampleAction->setMenuText(trUtf8("Examp&le"));
-    helpExampleAction->setAccel(KeySequence(trUtf8("Ctrl+L")));
+      @fileOpenAction.addTo(toolBar)
+      @fileSaveAction.addTo(toolBar)
+      @filePrintAction.addTo(toolBar)
 
-    toolBar = Qt::ToolBar("", this, DockTop());
+      @menubar= Qt::MenuBar.new(self, "menubar")
 
-    toolBar->setLabel(trUtf8("Tools"));
-    fileOpenAction->addTo(toolBar);
-    fileSaveAction->addTo(toolBar);
-    filePrintAction->addTo(toolBar);
+      @fileMenu= Qt::PopupMenu.new(self)
+      @fileOpenAction.addTo(fileMenu)
+      @fileSaveAction.addTo(fileMenu)
+      @fileSaveAsAction.addTo(fileMenu)
+      @fileMenu.insertSeparator
+      @filePrintAction.addTo(fileMenu)
+      @fileMenu.insertSeparator
+      @fileExitAction.addTo(fileMenu)
+      @menubar.insertItem(trUtf8("&File"), fileMenu)
 
+      @menubar.insertSeparator
+  
+      @helpMenu= Qt::PopupMenu.new(self)
+      @helpExampleAction.addTo(helpMenu)
+      @menubar.insertItem(trUtf8("&Help"), helpMenu)
+  
+      connect(@fileOpenAction, SIGNAL('activated()'), self, SLOT('fileOpen()'))
+      connect(@fileSaveAction, SIGNAL('activated()'), self, SLOT('fileSave()'))
+      connect(@fileSaveAsAction, SIGNAL('activated()'), self, SLOT('fileSaveAs()'))
+      connect(@filePrintAction, SIGNAL('activated()'), self, SLOT('filePrint()'))
+      connect(@fileExitAction, SIGNAL('activated()'), self, SLOT('fileExit()'))
+      connect(@helpExampleAction, SIGNAL('activated()'), self, SLOT('helpExample()'))
 
-    menubar= Qt::MenuBar( this, "menubar");
+      executedLines = []
+   end
 
-    fileMenu= Qt::PopupMenu(this);
-#   fileNewAction->addTo(fileMenu);
-    fileOpenAction->addTo(fileMenu);
-    fileSaveAction->addTo(fileMenu);
-    fileSaveAsAction->addTo(fileMenu);
-    fileMenu->insertSeparator;
-    filePrintAction->addTo(fileMenu);
-    fileMenu->insertSeparator;
-    fileExitAction->addTo(fileMenu);
-    menubar->insertItem(trUtf8("&File"), fileMenu);
+end
 
-    menubar->insertSeparator;
-
-    helpMenu= Qt::PopupMenu(this);
-    helpExampleAction->addTo(helpMenu);
-    menubar->insertItem(trUtf8("&Help"), helpMenu);
-
-#   Qt::Object::connect(fileNewAction, SIGNAL "activated()", this, SLOT "fileNew()");
-    Qt::Object::connect(fileOpenAction, SIGNAL "activated()", this, SLOT "fileOpen()");
-    Qt::Object::connect(fileSaveAction, SIGNAL "activated()", this, SLOT "fileSave()");
-    Qt::Object::connect(fileSaveAsAction, SIGNAL "activated()", this, SLOT "fileSaveAs()");
-    Qt::Object::connect(filePrintAction, SIGNAL "activated()", this, SLOT "filePrint()");
-    Qt::Object::connect(fileExitAction, SIGNAL "activated()", this, SLOT "fileExit()");
-    Qt::Object::connect(helpExampleAction, SIGNAL "activated()", this, SLOT "helpExample()");
-
-
-    executedLines = [];
-}
-
-#sub fileNew
-#{
-#    print "Form1->fileNew(): Not implemented yet.\n";
-#}
+=begin
 
 sub fileOpen
 {
@@ -642,25 +607,17 @@ sub PRINTF { shift->PRINT(sprintf shift, @_); }
 sub CLOSE  { shift->UNTIE; }
 sub UNTIE  { }
 
-
-1;
-
-package main;
-use strict;
-use Qt;
-use QtShell;
-use Qt::debug;
-
-my $app = Qt::Application(\@ARGV);
-my $w = QtShell(undef, "mainWindow");
-my $shw = $w->shellWindow;
-$app->setMainWidget($shw);
-tie *STDOUT, 'Qt::TextHandle', $shw->sessionLog, 'black';
-tie *STDERR, 'Qt::TextHandle', $shw->sessionLog, 'red';
-
-exit $app->exec;
-
 =end
+
+app = Qt::Application.new(ARGV)
+#w = QtShell(nil, "mainWindow")
+shellWindow = QtShellControl.new(nil, "shellWindow")
+shellWindow.show
+app.setMainWidget(shellWindow)
+app.exec
+
+#tie *STDOUT, 'Qt::TextHandle', $shw->sessionLog, 'black';
+#tie *STDERR, 'Qt::TextHandle', $shw->sessionLog, 'red';
 
 BEGIN {
 $example = <<EXAMPLE
