@@ -1,5 +1,10 @@
 2004-12-14  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+ * Qt::Object properities of type enum are shown by name in the KDevelop debugger,
+   and not as numeric literals
+
+2004-12-14  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
  * Changed the format of the Qt::Color inspect string to #<Qt::Color:0x0 #ffffff>
  * Added some more attributes to the Qt::Font inspector
  * Added a Qt::Cursor inspector

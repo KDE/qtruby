@@ -944,8 +944,12 @@ VALUE prettyPrintMethod(Smoke::Index id)
 // Takes a variable name and a QVariant, and returns a 'variable=value' pair with the
 // value in ruby inspect style
 static QCString
-inspectVariant(const char * name, QVariant & value)
+inspectProperty(const QMetaProperty * property, const char * name, QVariant & value)
 {
+	if (property->isEnumType()) {
+		return QCString().sprintf(" %s=%s", name, property->valueToKey(value.toInt()));
+	}
+	
 	switch (value.type()) {
 	case QVariant::String:
 	case QVariant::CString:
@@ -1072,18 +1076,24 @@ inspect_qobject(VALUE self)
 	QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
 	QStrList names = qobject->metaObject()->propertyNames(true);
 	
-	QVariant value;
-	
+	int index = 0;
 	const char * name = names.first();
-	if (name != 0) {
-		value = qobject->property(name);
-		value_list.append(" "); 
-		value_list.append(inspectVariant(name, value)); 
 	
-		for (name = names.next(); name != 0; name = names.next()) {
+	if (name != 0) {
+		QVariant value = qobject->property(name);
+		const QMetaProperty * property = qobject->metaObject()->property(index, true);
+		value_list.append(" "); 
+		value_list.append(inspectProperty(property, name, value));
+		index++; 
+	
+		for (	name = names.next(); 
+				name != 0; 
+				name = names.next(), index++ ) 
+		{
 			value = qobject->property(name);
+			property = qobject->metaObject()->property(index, true);
 			value_list.append(", "); 
-			value_list.append(inspectVariant(name, value)); 
+			value_list.append(inspectProperty(property, name, value)); 
 		}
 	}
 	
@@ -1122,18 +1132,26 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
 	QStrList names = qobject->metaObject()->propertyNames(true);
 	
-	QCString temp;
+	QCString temp;		
+	int	index = 0;
 	const char * name = names.first();
+	
 	if (name != 0) {
 		QVariant value = qobject->property(name);
-		temp = " " + inspectVariant(name, value);
+		const QMetaProperty * property = qobject->metaObject()->property(index, true);
+		temp = " " + inspectProperty(property, name, value);
 		rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(temp.data()));
+		index++;
 	
-		for (name = names.next(); name != 0; name = names.next()) {
+		for (	name = names.next(); 
+				name != 0; 
+				name = names.next(), index++ ) 
+		{
 			rb_funcall(pp, rb_intern("comma_breakable"), 0);
 						
 			value = qobject->property(name);
-			temp = " " + inspectVariant(name, value);
+			property = qobject->metaObject()->property(index, true);
+			temp = " " + inspectProperty(property, name, value);
 			rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(temp.data()));
 		}
 	}
