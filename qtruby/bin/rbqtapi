@@ -62,7 +62,7 @@ regexp = ( $OPT_i ? Regexp.new($OPT_r, Regexp::IGNORECASE) : Regexp.new($OPT_r) 
 candidates = ""
 while true
     a = Qt::findAllMethods(classid)
-    break if a.empty?
+    break if a.nil? 
     ids = (a.keys.sort.map{|k|a[k]}).flatten
     candidates = Qt::dumpCandidates(ids)
     if $OPT_p and !search_string.empty? and classid

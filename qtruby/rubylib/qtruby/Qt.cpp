@@ -1769,6 +1769,9 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
     VALUE result = rb_hash_new();
     if(classid != Qnil) {
         Smoke::Index c = (Smoke::Index) NUM2INT(classid);
+		if (c > qt_Smoke->numClasses) {
+			return Qnil;
+		}
         char * pat = 0L;
         if(argc > 1 && TYPE(argv[1]) == T_STRING)
             pat = STR2CSTR(argv[1]);
