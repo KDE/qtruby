@@ -1,3 +1,7 @@
+2004-09-18  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+ * Added marshallers for KPluginInfo::List and QPtrList<KParts::Plugin>
+
 2004-09-16  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * The KDE::UniqueApplication constructor now sets up the $kapp global variable

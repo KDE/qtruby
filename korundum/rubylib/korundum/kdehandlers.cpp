@@ -37,8 +37,10 @@
 #include <kfiletreebranch.h>
 #include <kfiletreeviewitem.h>
 #include <khtml_part.h>
+#include <kparts/plugin.h>
 #include <kuserprofile.h>
 #include <kaboutdata.h>
+#include <kplugininfo.h>
 #if KDE_VERSION >= 0x030200
 #include <kmountpoint.h>
 #endif
@@ -663,6 +665,58 @@ void marshall_KURLList(Marshall *m) {
 	}
 }
 
+void marshall_KPluginInfoList(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE: 
+		{
+	    }			
+		break;
+	case Marshall::ToVALUE: 
+		{
+	    KPluginInfo::List *valuelist = (KPluginInfo::List*)m->item().s_voidp;
+	    if(!valuelist) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+
+	    VALUE av = rb_ary_new();
+
+	    int ix = m->smoke()->idClass("KPluginInfo");
+	    const char * className = m->smoke()->binding->className(ix);
+
+	    for(KPluginInfo::List::Iterator it = valuelist->begin();
+		it != valuelist->end();
+		++it) {
+		void *p = (*it);
+
+		if(m->item().s_voidp == 0) {
+		    *(m->var()) = Qnil;
+		    break;
+		}
+
+		VALUE obj = getPointerObject(p);
+		if(obj == Qnil) {
+		    smokeruby_object  * o = ALLOC(smokeruby_object);
+		    o->smoke = m->smoke();
+		    o->classId = o->smoke->idClass("KPluginInfo");
+		    o->ptr = p;
+		    o->allocated = false;
+		    obj = set_obj_info(className, o);
+		}
+		rb_ary_push(av, obj);
+            }
+
+	    if(m->cleanup())
+		delete valuelist;
+	    else
+	        *(m->var()) = av;		
+		}
+		break;
+	default:
+		m->unsupported();
+		break;
+	}
+}
 
 // Some time saving magic from Alex Kellett here..
 template <class Item, class ItemList, const char *ItemSTR >
@@ -766,6 +820,7 @@ DEF_LIST_MARSHALLER( KDockWidgetList, QPtrList<KDockWidget>, KDockWidget )
 DEF_LIST_MARSHALLER( KFileTreeBranch, QPtrList<KFileTreeBranch>, KFileTreeBranch )
 DEF_LIST_MARSHALLER( KFileTreeViewItem, QPtrList<KFileTreeViewItem>, KFileTreeViewItem )
 DEF_LIST_MARSHALLER( KPartList, QPtrList<KParts::Part>, KParts::Part )
+DEF_LIST_MARSHALLER( KPartPluginList, QPtrList<KParts::Plugin>, KParts::Plugin )
 DEF_LIST_MARSHALLER( KPartReadOnlyPartList, QPtrList<KParts::ReadOnlyPart>, KParts::ReadOnlyPart )
 DEF_LIST_MARSHALLER( KServiceTypeProfileList, QPtrList<KServiceTypeProfile>, KServiceTypeProfile )
 
@@ -1075,8 +1130,10 @@ TypeHandler KDE_handlers[] = {
     { "KFileTreeBranchList&", marshall_KFileTreeBranch },
     { "KFileTreeViewItemList&", marshall_KFileTreeViewItem },
     { "QPtrList<KParts::Part>*", marshall_KPartList },
+    { "QPtrList<KParts::Plugin>", marshall_KPartPluginList },
     { "QPtrList<KParts::ReadOnlyPart>", marshall_KPartReadOnlyPartList },
     { "QPtrList<KServiceTypeProfile>&", marshall_KServiceTypeProfileList },
+    { "KPluginInfo::List>", marshall_KPluginInfoList },
     { "QValueList<KAboutPerson>", marshall_KAboutPersonList },
     { "QValueList<KAboutTranslator>", marshall_KAboutTranslatorList },
     { "QValueList<KIO::CopyInfo>&", marshall_KIOCopyInfoList },
