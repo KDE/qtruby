@@ -18,7 +18,7 @@ def initialize()
     slider.setRange(0, 99)
     slider.setValue(0)
 
-    lcd.connect(slider, SIGNAL('valueChanged(int)'), SLOT('display(int)'))
+    connect(slider, SIGNAL('valueChanged(int)'), lcd, SLOT('display(int)'))
 end
 
 end
