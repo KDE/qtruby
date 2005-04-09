@@ -27,19 +27,19 @@ if $OPT_m
         line = STDIN.readline.chomp
         line.gsub!(/^Q(?=[A-Z])/,'Qt::')
         line.gsub!(/^K/,'KDE::') unless line =~ /^(KDE)|(KIO)|(KParts)/
-        classid = Qt::find_pclassid($_)
+        classid = Qt::Internal::find_pclassid($_)
         puts "__START__"
         if classid
-            a = Qt::findAllMethods(classid)
+            a = Qt::Internal::findAllMethods(classid)
             ids = (a.keys.sort.map{|k|a[k]}).flatten
             candidates = Qt::dumpCandidates(ids)
             sup = []
-            Qt::getAllParents(classid, sup)
+            Qt::Internal::getAllParents(classid, sup)
             sup.each {
                 |sup_item|
-                a = Qt::findAllMethods(sup_item)
+                a = Qt::Internal::findAllMethods(sup_item)
                 ids = (a.keys.sort.map{|k|a[k]}).flatten
-                candidates << Qt::dumpCandidates(ids)
+                candidates << Qt::Internal::dumpCandidates(ids)
             }
             candidates.gsub("\t","") # erm. whats the "s" mean on s/\t//gs ?
             print candidates
@@ -52,7 +52,7 @@ search_string = ARGV[0] ? ARGV[0].dup : nil
 search_string.gsub!(/^Q(?=[A-Z])/,'Qt::') if search_string
 # search_string.gsub!(/^K(?=[^D][^E])/,'KDE::') if search_string
 search_string.gsub!(/^K/,'KDE::') unless search_string.nil? or search_string =~ /^(KDE)|(KIO)|(KParts)/
-classid = search_string ? Qt::find_pclassid(search_string) : 1
+classid = search_string ? Qt::Internal::find_pclassid(search_string) : 1
 if classid == 0
     puts "Class #{search_string} not found"
     exit 1
@@ -61,18 +61,18 @@ regexp = nil
 regexp = ( $OPT_i ? Regexp.new($OPT_r, Regexp::IGNORECASE) : Regexp.new($OPT_r) ) if $OPT_r
 candidates = ""
 while true
-    a = Qt::findAllMethods(classid)
+    a = Qt::Internal::findAllMethods(classid)
     break if a.nil? 
     ids = (a.keys.sort.map{|k|a[k]}).flatten
-    candidates = Qt::dumpCandidates(ids)
+    candidates = Qt::Internal::dumpCandidates(ids)
     if $OPT_p and !search_string.empty? and classid
 	sup = []
-        Qt::getAllParents(classid, sup)
+        Qt::Internal::getAllParents(classid, sup)
 	sup.each {
 	    |sup_item|
-            a = Qt::findAllMethods(sup_item)
+            a = Qt::Internal::findAllMethods(sup_item)
             ids = (a.keys.sort.map{|k|a[k]}).flatten
-            candidates << Qt::dumpCandidates(ids)
+            candidates << Qt::Internal::dumpCandidates(ids)
         }
     end
     if regexp
