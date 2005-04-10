@@ -53,7 +53,7 @@ $ perl generate.pl
 # Overwrite the automake generated Makefile:
 $ qmake -makefile
 # Build the Smoke library and install into /usr/lib
-$ make
+$ sudo make
 ...
 
 # Build the 'Qt' extension:
@@ -61,20 +61,20 @@ $ cd qtruby/rubylib/qtruby
 $ ruby extconf.rb --with-qt-dir=/Developer/qt --with-smoke-dir=/usr \
       --with-smoke-include=../../../smoke
 $ make
-$ make install
+$ sudo make install
 ...
 
 # Build the rbuic tool and install into /usr/bin
 $ cd qtruby/rubylib/designer/rbuic
 $ qmake -makefile
-$ make
+$ sudo make
 ...
 
 # Build the 'qui' QWidgetFactory extension
 $ cd qtruby/rubylib/designer/uilib
 $ ruby extconf.rb --with-qtruby-include=../../qtruby --with-qt-dir=/Developer/qt
 $ make
-$ make install
+$ sudo make install
 
 To get Mac menus to appear, when a QtRuby program is run from the command line,
 link ruby against the carbon resource lib and call it 'rubyw', see:
@@ -87,8 +87,8 @@ http://www.rubygarden.org/ruby?RubyTkOnOSX
  On my machine, ruby is installed at /usr/local/bin/ruby, so I did sudo 
 cp /usr/local/bin/ruby /usr/local/bin/rubyw 
  Using the suggestion directly above (on this page), I then ran 
-sudo /Developer?/Tools?/Rez? -t APPL Carbon.r -o rubyw 
+sudo /Developer/Tools/Rez -t APPL Carbon.r -o rubyw 
  I was then able to successfully run an example RubyTk app by 
 running /usr/local/bin/rubyw ruby-1.8.0/ext/tk/sample/tkmenubutton.rb 
 Everything worked as expected, and I was able to interact with the UI without 
-any SetFrontProcess? errors. "
+any SetFrontProcess errors. "
