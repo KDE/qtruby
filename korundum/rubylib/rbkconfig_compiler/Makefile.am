@@ -5,11 +5,6 @@ RBUIC=rbuic
 %.rb: %.ui
 	$(RBUIC) -tr ${UIC_TR} -kde $< -o $@
 
-example_SOURCES = example.rb exampleprefs_base.rb
-
-autoexample_SOURCES = exampleprefs_base.rb general_base.ui myoptions_base.ui \
-  autoexample.rb myoptions_base.rb
-
 exampleprefs_base.rb: $(srcdir)/example.kcfg rbkconfig_compiler $(srcdir)/exampleprefs_base.kcfgc
 	./rbkconfig_compiler $(srcdir)/example.kcfg $(srcdir)/exampleprefs_base.kcfgc
 
