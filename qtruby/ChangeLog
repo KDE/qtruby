@@ -1,3 +1,7 @@
+2005-04-25  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	*  Upped the version to 1.0.9 for the RubyForge release
+
 2005-04-09  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Fixed regressions in the rbqtapi and rbkdeapi utilities caused by the Qt::Internal namespace
