@@ -17,8 +17,6 @@
  ***************************************************************************/
 =end
 
-require 'pp'
-
 module Qt
 	module DebugLevel
 		Off, Minimal, High, Extensive = 0, 1, 2, 3
