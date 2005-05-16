@@ -953,9 +953,6 @@ class Object
 end
 
 module Kernel
-	alias_method :_exec, :exec
-	undef_method :exec
-	
 	# Kernel has a method called open() which takes a String as
 	# the first argument. When a call is made to an open() method
 	# in the Qt classes, it messes up the method_missing()
@@ -969,6 +966,26 @@ module Kernel
 			_open(*k)
 		else
 			method_missing(:open, *k)
+		end
+	end
+
+	alias_method :_format, :format
+
+	def format(*k)
+		if k.length > 0 and k[0].kind_of? String
+			_format(*k)
+		else
+			method_missing(:format, *k)
+		end
+	end
+
+	alias_method :_exec, :exec
+
+	def exec(*k)
+		if k.length > 0 and k[0].kind_of? String
+			_exec(*k)
+		else
+			method_missing(:exec, *k)
 		end
 	end
 end

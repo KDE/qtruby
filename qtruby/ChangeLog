@@ -1,3 +1,9 @@
+2005-05-16  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* The Kernel.format() method was clashing with the Qt::MimeSource.format() method.
+	  The correct method is now called according to the type of the first argument. Fixes
+	  problem reported by Armin Joellenbeck
+
 2005-04-29  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Removed superfluous "require 'pp'" statement
