@@ -26,7 +26,7 @@ if $OPT_m
     while 1
         line = STDIN.readline.chomp
         line.gsub!(/^Q(?=[A-Z])/,'Qt::')
-        line.gsub!(/^K/,'KDE::') unless line =~ /^(KDE)|(KIO)|(KParts)/
+        line.gsub!(/^K/,'KDE::') unless line =~ /^(KDE)|(KIO)|(KParts)|(KNS)/
         classid = Qt::Internal::find_pclassid($_)
         puts "__START__"
         if classid
@@ -51,7 +51,7 @@ end
 search_string = ARGV[0] ? ARGV[0].dup : nil
 search_string.gsub!(/^Q(?=[A-Z])/,'Qt::') if search_string
 # search_string.gsub!(/^K(?=[^D][^E])/,'KDE::') if search_string
-search_string.gsub!(/^K/,'KDE::') unless search_string.nil? or search_string =~ /^(KDE)|(KIO)|(KParts)/
+search_string.gsub!(/^K/,'KDE::') unless search_string.nil? or search_string =~ /^(KDE)|(KIO)|(KParts)|(KNS)/
 classid = search_string ? Qt::Internal::find_pclassid(search_string) : 1
 if classid == 0
     puts "Class #{search_string} not found"
