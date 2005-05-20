@@ -2262,6 +2262,9 @@ methodMatches(Smoke::Method &methodRef, unsigned short flags)
 static VALUE
 findAllMethodNames(VALUE /*self*/, VALUE result, VALUE classid, VALUE flags_value)
 {
+	QRegExp predicate_re("^(is|has)(.)(.*)");
+	QRegExp set_re("^(set)(.)(.*)");
+
 	unsigned short flags = (unsigned short) NUM2UINT(flags_value);
 	if (classid != Qnil) {
 		Smoke::Index c = (Smoke::Index) NUM2INT(classid);
@@ -2304,6 +2307,10 @@ findAllMethodNames(VALUE /*self*/, VALUE result, VALUE classid, VALUE flags_valu
 					if (methodMatches(methodRef, flags)) {
 						if (strncmp(qt_Smoke->methodNames[methodRef.name], "operator", strlen("operator")) == 0) {
 							rb_ary_push(result, rb_str_new2(qt_Smoke->methodNames[methodRef.name] + strlen("operator")));
+						} else if (predicate_re.search(qt_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 0) {
+							rb_ary_push(result, rb_str_new2(predicate_re.cap(2).lower() + predicate_re.cap(3) + "?"));
+						} else if (set_re.search(qt_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 1) {
+							rb_ary_push(result, rb_str_new2(set_re.cap(2).lower() + set_re.cap(3) + "="));
 						} else {
 							rb_ary_push(result, rb_str_new2(qt_Smoke->methodNames[methodRef.name]));
 						}
@@ -2315,6 +2322,10 @@ findAllMethodNames(VALUE /*self*/, VALUE result, VALUE classid, VALUE flags_valu
 						if (methodMatches(methodRef, flags)) {
 							if (strncmp(qt_Smoke->methodNames[methodRef.name], "operator", strlen("operator")) == 0) {
 								rb_ary_push(result, rb_str_new2(qt_Smoke->methodNames[methodRef.name] + strlen("operator")));
+							} else if (predicate_re.search(qt_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 0) {
+								rb_ary_push(result, rb_str_new2(predicate_re.cap(2).lower() + predicate_re.cap(3) + "?"));
+							} else if (set_re.search(qt_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 1) {
+								rb_ary_push(result, rb_str_new2(set_re.cap(2).lower() + set_re.cap(3) + "="));
 							} else {
 								rb_ary_push(result, rb_str_new2(qt_Smoke->methodNames[methodRef.name]));
 							}
