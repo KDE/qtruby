@@ -100,6 +100,38 @@ module Qt
 #		def ==(a)
 #			return Qt::==(self, a)
 #		end
+
+		def methods(regular=true)
+			if !regular
+				return singleton_methods
+			end
+	
+			qt_methods(super, 0x0)
+		end
+	
+		def protected_methods
+			# From smoke.h, Smoke::mf_protected 0x80
+			qt_methods(super, 0x80)
+		end
+	
+		def public_methods
+			methods
+		end
+	
+		def singleton_methods
+			# From smoke.h, Smoke::mf_static 0x01
+			qt_methods(super, 0x01)
+		end
+	
+		private
+		def qt_methods(meths, flags)
+			ids = []
+			classid = Qt::Internal::idInstance(self)
+			Qt::Internal::getAllParents(classid, ids)
+			ids << classid
+			ids.each { |c| Qt::Internal::findAllMethodNames(meths, c, flags) }
+			return meths.uniq
+		end
 	end # Qt::Base
 			
 	require 'delegate.rb'
@@ -1001,5 +1033,56 @@ class Module
 		meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
 		meta.add_slots(slot_list)
 		meta.changed = true
+	end
+
+	alias_method :_constants, :constants
+	alias_method :_instance_methods, :instance_methods
+	alias_method :_protected_instance_methods, :protected_instance_methods
+	alias_method :_public_instance_methods, :public_instance_methods
+
+	private :_constants, :_instance_methods
+	private :_protected_instance_methods, :_public_instance_methods
+
+	def constants
+		qt_methods(_constants, 0x10, true)
+	end
+
+	def instance_methods(inc_super=true)
+		qt_methods(_instance_methods(inc_super), 0x0, inc_super)
+	end
+
+	def protected_instance_methods(inc_super=true)
+		qt_methods(_protected_instance_methods(inc_super), 0x80, inc_super)
+	end
+
+	def public_instance_methods(inc_super=true)
+		qt_methods(_public_instance_methods(inc_super), 0x0, inc_super)
+	end
+
+	private
+	def qt_methods(meths, flags, inc_super=true)
+		if !self.kind_of? Class
+			return meths
+		end
+
+		klass = self
+		classid = 0
+		loop do
+			classid = Qt::Internal::find_pclassid(klass.name)
+			break if classid > 0
+			
+			klass = klass.superclass
+			if klass.nil?
+				return meths
+			end
+		end
+
+		ids = []
+		if inc_super
+			Qt::Internal::getAllParents(classid, ids)
+		end
+		ids << classid
+		ids.each { |c| Qt::Internal::findAllMethodNames(meths, c, flags) }
+		return meths.uniq
 	end
 end

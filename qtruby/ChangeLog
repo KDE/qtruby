@@ -1,3 +1,12 @@
+2005-05-20  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Removed unused Qt::Internal functions
+	* Added KNS:: to the namespaces expected by the rbkdeapi tool
+	* Introspection via Object#methods, public_methods, protected_methods and singleton_methods
+	  or Module#constants, instance_methods, protected_instance_methods and public_instance_methods
+	  now all include methods from the Smoke runtime. This fixes part of the request in bug 105772, but
+	  not enabling 'respond_to?' to be used with Smoke methods.
+
 2005-05-16  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* The Kernel.format() method was clashing with the Qt::MimeSource.format() method.
