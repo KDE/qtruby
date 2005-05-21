@@ -1,3 +1,7 @@
+2005-05-21  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Improved the format of enums displayed by rbqtapi and rbkdeapi
+
 2005-05-20  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Removed unused Qt::Internal functions
