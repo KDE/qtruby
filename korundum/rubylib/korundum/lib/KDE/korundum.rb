@@ -333,7 +333,16 @@ module KDE
 									Qt::Internal::getMocArguments(sig),
 									*k )
 		end
-		
+
+		def methods
+			if @functions.nil?
+				functions()
+			end
+
+			result = super + @functions.keys.map {|k| k.sub(/^(set)(.)(.*)/) { $2.downcase + $3 + '=' } }
+			return result.uniq
+		end
+
 		def inspect
 			str = super
 			str.sub(/>$/, " app=%s, obj=%s>" % [app.inspect, obj.inspect])
