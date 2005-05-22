@@ -2245,26 +2245,41 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
 		mf_protected		Protected non-static methods only
 */
 
-static bool
-methodMatches(Smoke::Method &methodRef, unsigned short flags)
-{
-	return (	(methodRef.flags & (Smoke::mf_internal|Smoke::mf_ctor|Smoke::mf_dtor)) == 0
-				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator=") != 0
-				&& (	(flags == 0 && (methodRef.flags & (Smoke::mf_static|Smoke::mf_enum|Smoke::mf_protected)) == 0)
-						|| (	flags == Smoke::mf_static 
-								&& (methodRef.flags & Smoke::mf_enum) == 0
-								&& (methodRef.flags & Smoke::mf_static) == Smoke::mf_static )
-						|| (flags == Smoke::mf_enum && (methodRef.flags & Smoke::mf_enum) == Smoke::mf_enum)
-						|| (	flags == Smoke::mf_protected 
-								&& (methodRef.flags & Smoke::mf_static) == 0 
-								&& (methodRef.flags & Smoke::mf_protected) == Smoke::mf_protected ) ) );
-}
+#define PUSH_QTRUBY_METHOD		\
+		if (	(methodRef.flags & (Smoke::mf_internal|Smoke::mf_ctor|Smoke::mf_dtor)) == 0 \
+				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator=") != 0 \
+				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator--") != 0 \
+				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator++") != 0 \
+				&& strncmp(qt_Smoke->methodNames[methodRef.name], "operator ", strlen("operator ")) != 0 \
+				&& (	(flags == 0 && (methodRef.flags & (Smoke::mf_static|Smoke::mf_enum|Smoke::mf_protected)) == 0) \
+						|| (	flags == Smoke::mf_static \
+								&& (methodRef.flags & Smoke::mf_enum) == 0 \
+								&& (methodRef.flags & Smoke::mf_static) == Smoke::mf_static ) \
+						|| (flags == Smoke::mf_enum && (methodRef.flags & Smoke::mf_enum) == Smoke::mf_enum) \
+						|| (	flags == Smoke::mf_protected \
+								&& (methodRef.flags & Smoke::mf_static) == 0 \
+								&& (methodRef.flags & Smoke::mf_protected) == Smoke::mf_protected ) ) ) { \
+			if (strncmp(qt_Smoke->methodNames[methodRef.name], "operator", strlen("operator")) == 0) { \
+				if (op_re.search(qt_Smoke->methodNames[methodRef.name]) != -1) { \
+					rb_ary_push(result, rb_str_new2(op_re.cap(1) + op_re.cap(2))); \
+				} else { \
+					rb_ary_push(result, rb_str_new2(qt_Smoke->methodNames[methodRef.name] + strlen("operator"))); \
+				} \
+			} else if (predicate_re.search(qt_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 0) { \
+				rb_ary_push(result, rb_str_new2(predicate_re.cap(2).lower() + predicate_re.cap(3) + "?")); \
+			} else if (set_re.search(qt_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 1) { \
+				rb_ary_push(result, rb_str_new2(set_re.cap(2).lower() + set_re.cap(3) + "=")); \
+			} else { \
+				rb_ary_push(result, rb_str_new2(qt_Smoke->methodNames[methodRef.name])); \
+			} \
+		}
  
 static VALUE
 findAllMethodNames(VALUE /*self*/, VALUE result, VALUE classid, VALUE flags_value)
 {
 	QRegExp predicate_re("^(is|has)(.)(.*)");
 	QRegExp set_re("^(set)([A-Z])(.*)");
+	QRegExp op_re("operator(.*)(([-%~/+|&*])|(>>)|(<<)|(&&)|(\\|\\|)|(\\*\\*))=$");
 
 	unsigned short flags = (unsigned short) NUM2UINT(flags_value);
 	if (classid != Qnil) {
@@ -2305,32 +2320,12 @@ findAllMethodNames(VALUE /*self*/, VALUE result, VALUE classid, VALUE flags_valu
 				Smoke::Index ix= qt_Smoke->methodMaps[i].method;
 				if (ix >= 0) {	// single match
 					Smoke::Method &methodRef = qt_Smoke->methods[ix];
-					if (methodMatches(methodRef, flags)) {
-						if (strncmp(qt_Smoke->methodNames[methodRef.name], "operator", strlen("operator")) == 0) {
-							rb_ary_push(result, rb_str_new2(qt_Smoke->methodNames[methodRef.name] + strlen("operator")));
-						} else if (predicate_re.search(qt_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 0) {
-							rb_ary_push(result, rb_str_new2(predicate_re.cap(2).lower() + predicate_re.cap(3) + "?"));
-						} else if (set_re.search(qt_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 1) {
-							rb_ary_push(result, rb_str_new2(set_re.cap(2).lower() + set_re.cap(3) + "="));
-						} else {
-							rb_ary_push(result, rb_str_new2(qt_Smoke->methodNames[methodRef.name]));
-						}
-					}
+					PUSH_QTRUBY_METHOD
 				} else {		// multiple match
 					ix = -ix;		// turn into ambiguousMethodList index
 					while (qt_Smoke->ambiguousMethodList[ix]) {
 						Smoke::Method &methodRef = qt_Smoke->methods[qt_Smoke->ambiguousMethodList[ix]];
-						if (methodMatches(methodRef, flags)) {
-							if (strncmp(qt_Smoke->methodNames[methodRef.name], "operator", strlen("operator")) == 0) {
-								rb_ary_push(result, rb_str_new2(qt_Smoke->methodNames[methodRef.name] + strlen("operator")));
-							} else if (predicate_re.search(qt_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 0) {
-								rb_ary_push(result, rb_str_new2(predicate_re.cap(2).lower() + predicate_re.cap(3) + "?"));
-							} else if (set_re.search(qt_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 1) {
-								rb_ary_push(result, rb_str_new2(set_re.cap(2).lower() + set_re.cap(3) + "="));
-							} else {
-								rb_ary_push(result, rb_str_new2(qt_Smoke->methodNames[methodRef.name]));
-							}
-						}
+						PUSH_QTRUBY_METHOD
 						ix++;
 					}
 				}

@@ -126,6 +126,9 @@ module Qt
 		private
 		def qt_methods(meths, flags)
 			ids = []
+			# These methods are all defined in Qt::Base, even if they aren't supported by a particular
+			# subclass, so remove them to avoid confusion
+			meths -= ["%", "&", "*", "**", "+", "-", "-@", "/", "<", "<<", "<=", ">", ">=", ">>", "|", "~", "^"]
 			classid = Qt::Internal::idInstance(self)
 			Qt::Internal::getAllParents(classid, ids)
 			ids << classid
@@ -1077,6 +1080,9 @@ class Module
 			end
 		end
 
+		# These methods are all defined in Qt::Base, even if they aren't supported by a particular
+		# subclass, so remove them to avoid confusion
+		meths -= ["%", "&", "*", "**", "+", "-", "-@", "/", "<", "<<", "<=", ">", ">=", ">>", "|", "~", "^"]
 		ids = []
 		if inc_super
 			Qt::Internal::getAllParents(classid, ids)
