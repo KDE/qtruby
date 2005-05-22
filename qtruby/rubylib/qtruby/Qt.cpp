@@ -2249,6 +2249,7 @@ static bool
 methodMatches(Smoke::Method &methodRef, unsigned short flags)
 {
 	return (	(methodRef.flags & (Smoke::mf_internal|Smoke::mf_ctor|Smoke::mf_dtor)) == 0
+				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator=") != 0
 				&& (	(flags == 0 && (methodRef.flags & (Smoke::mf_static|Smoke::mf_enum|Smoke::mf_protected)) == 0)
 						|| (	flags == Smoke::mf_static 
 								&& (methodRef.flags & Smoke::mf_enum) == 0
