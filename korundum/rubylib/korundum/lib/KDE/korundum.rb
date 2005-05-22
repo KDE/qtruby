@@ -339,7 +339,7 @@ module KDE
 				functions()
 			end
 
-			result = super + @functions.keys.map {|k| k.sub(/^(set)(.)(.*)/) { $2.downcase + $3 + '=' } }
+			result = super + @functions.keys.map {|k| k.sub(/^(set)([A-Z])(.*)/) { $2.downcase + $3 + '=' } }
 			return result.uniq
 		end
 
