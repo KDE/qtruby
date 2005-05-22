@@ -2263,7 +2263,7 @@ static VALUE
 findAllMethodNames(VALUE /*self*/, VALUE result, VALUE classid, VALUE flags_value)
 {
 	QRegExp predicate_re("^(is|has)(.)(.*)");
-	QRegExp set_re("^(set)(.)(.*)");
+	QRegExp set_re("^(set)([A-Z])(.*)");
 
 	unsigned short flags = (unsigned short) NUM2UINT(flags_value);
 	if (classid != Qnil) {
