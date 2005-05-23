@@ -2038,17 +2038,6 @@ make_metaObject(VALUE /*self*/, VALUE className_value, VALUE parent, VALUE slot_
 }
 
 static VALUE
-setAllocated(VALUE self, VALUE obj, VALUE b_value)
-{
-    bool b = b_value != Qfalse && b_value != Qnil;
-    smokeruby_object *o = value_obj_info(obj);
-    if(o) {
-	o->allocated = b;
-    }
-    return self;
-}
-
-static VALUE
 dispose(VALUE self)
 {
     smokeruby_object *o = value_obj_info(self);
@@ -2098,25 +2087,15 @@ isaQObject(VALUE /*self*/, VALUE classid)
     return isQObject(qt_Smoke, classid_value) ? Qtrue : Qfalse;
 }
 
+// Returns the Smoke classId of a ruby instance
 static VALUE
-isValidAllocatedPointer(VALUE /*self*/, VALUE obj)
+idInstance(VALUE /*self*/, VALUE instance)
 {
-    smokeruby_object *o = value_obj_info(obj);
-    if(o && o->ptr && o->allocated) {
-	return Qtrue;
-    } else {
-	return Qfalse;
-    }
-}
-
-static VALUE
-findAllocatedObjectFor(VALUE /*self*/, VALUE obj)
-{
-    smokeruby_object *o = value_obj_info(obj);
-    VALUE ret;
-    if(o && o->ptr && (ret = getPointerObject(o->ptr)))
-        return ret;
-    return Qnil;
+    smokeruby_object *o = value_obj_info(instance);
+    if(!o)
+        return Qnil;
+	
+    return INT2NUM(o->classId);
 }
 
 static VALUE
@@ -2258,6 +2237,104 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
     return result;
 }
 
+/*
+	Flags values
+		0					All methods, except enum values and protected non-static methods
+		mf_static			Static methods only
+		mf_enum				Enums only
+		mf_protected		Protected non-static methods only
+*/
+
+#define PUSH_QTRUBY_METHOD		\
+		if (	(methodRef.flags & (Smoke::mf_internal|Smoke::mf_ctor|Smoke::mf_dtor)) == 0 \
+				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator=") != 0 \
+				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator--") != 0 \
+				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator++") != 0 \
+				&& strncmp(qt_Smoke->methodNames[methodRef.name], "operator ", strlen("operator ")) != 0 \
+				&& (	(flags == 0 && (methodRef.flags & (Smoke::mf_static|Smoke::mf_enum|Smoke::mf_protected)) == 0) \
+						|| (	flags == Smoke::mf_static \
+								&& (methodRef.flags & Smoke::mf_enum) == 0 \
+								&& (methodRef.flags & Smoke::mf_static) == Smoke::mf_static ) \
+						|| (flags == Smoke::mf_enum && (methodRef.flags & Smoke::mf_enum) == Smoke::mf_enum) \
+						|| (	flags == Smoke::mf_protected \
+								&& (methodRef.flags & Smoke::mf_static) == 0 \
+								&& (methodRef.flags & Smoke::mf_protected) == Smoke::mf_protected ) ) ) { \
+			if (strncmp(qt_Smoke->methodNames[methodRef.name], "operator", strlen("operator")) == 0) { \
+				if (op_re.search(qt_Smoke->methodNames[methodRef.name]) != -1) { \
+					rb_ary_push(result, rb_str_new2(op_re.cap(1) + op_re.cap(2))); \
+				} else { \
+					rb_ary_push(result, rb_str_new2(qt_Smoke->methodNames[methodRef.name] + strlen("operator"))); \
+				} \
+			} else if (predicate_re.search(qt_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 0) { \
+				rb_ary_push(result, rb_str_new2(predicate_re.cap(2).lower() + predicate_re.cap(3) + "?")); \
+			} else if (set_re.search(qt_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 1) { \
+				rb_ary_push(result, rb_str_new2(set_re.cap(2).lower() + set_re.cap(3) + "=")); \
+			} else { \
+				rb_ary_push(result, rb_str_new2(qt_Smoke->methodNames[methodRef.name])); \
+			} \
+		}
+ 
+static VALUE
+findAllMethodNames(VALUE /*self*/, VALUE result, VALUE classid, VALUE flags_value)
+{
+	QRegExp predicate_re("^(is|has)(.)(.*)");
+	QRegExp set_re("^(set)([A-Z])(.*)");
+	QRegExp op_re("operator(.*)(([-%~/+|&*])|(>>)|(<<)|(&&)|(\\|\\|)|(\\*\\*))=$");
+
+	unsigned short flags = (unsigned short) NUM2UINT(flags_value);
+	if (classid != Qnil) {
+		Smoke::Index c = (Smoke::Index) NUM2INT(classid);
+		if (c > qt_Smoke->numClasses) {
+			return Qnil;
+		}
+#ifdef DEBUG
+		if (do_debug & qtdb_calls) logger("findAllMethodNames called with classid = %d", c);
+#endif
+		Smoke::Index imax = qt_Smoke->numMethodMaps;
+		Smoke::Index imin = 0, icur = -1, methmin, methmax;
+		methmin = -1; methmax = -1; // kill warnings
+		int icmp = -1;
+
+		while (imax >= imin) {
+			icur = (imin + imax) / 2;
+			icmp = qt_Smoke->leg(qt_Smoke->methodMaps[icur].classId, c);
+			if (icmp == 0) {
+				Smoke::Index pos = icur;
+				while(icur && qt_Smoke->methodMaps[icur-1].classId == c)
+					icur --;
+				methmin = icur;
+				icur = pos;
+				while(icur < imax && qt_Smoke->methodMaps[icur+1].classId == c)
+					icur ++;
+				methmax = icur;
+				break;
+			}
+			if (icmp > 0)
+				imax = icur - 1;
+			else
+				imin = icur + 1;
+		}
+
+        if (icmp == 0) {
+ 			for (Smoke::Index i=methmin ; i <= methmax ; i++) {
+				Smoke::Index ix= qt_Smoke->methodMaps[i].method;
+				if (ix >= 0) {	// single match
+					Smoke::Method &methodRef = qt_Smoke->methods[ix];
+					PUSH_QTRUBY_METHOD
+				} else {		// multiple match
+					ix = -ix;		// turn into ambiguousMethodList index
+					while (qt_Smoke->ambiguousMethodList[ix]) {
+						Smoke::Method &methodRef = qt_Smoke->methods[qt_Smoke->ambiguousMethodList[ix]];
+						PUSH_QTRUBY_METHOD
+						ix++;
+					}
+				}
+            }
+        }
+    }
+    return result;
+}
+
 static VALUE
 dumpCandidates(VALUE /*self*/, VALUE rmeths)
 {
@@ -2269,17 +2346,23 @@ dumpCandidates(VALUE /*self*/, VALUE rmeths)
 	    int id = NUM2INT(rb_ary_entry(rmeths, i));
 	    Smoke::Method &meth = qt_Smoke->methods[id];
 	    const char *tname = qt_Smoke->types[meth.ret].name;
-	    if(meth.flags & Smoke::mf_static) rb_str_catf(errmsg, "static ");
-	    rb_str_catf(errmsg, "%s ", (tname ? tname:"void"));
-	    rb_str_catf(errmsg, "%s::%s(", qt_Smoke->classes[meth.classId].className, qt_Smoke->methodNames[meth.name]);
-	    for(int i = 0; i < meth.numArgs; i++) {
-		if(i) rb_str_catf(errmsg, ", ");
-		tname = qt_Smoke->types[qt_Smoke->argumentList[meth.args+i]].name;
-		rb_str_catf(errmsg, "%s", (tname ? tname:"void"));
-	    }
-	    rb_str_catf(errmsg, ")");
-	    if(meth.flags & Smoke::mf_const) rb_str_catf(errmsg, " const");
-	    rb_str_catf(errmsg, "\n");
+	    if(meth.flags & Smoke::mf_enum) {
+			rb_str_catf(errmsg, "enum ");
+			rb_str_catf(errmsg, "%s::%s", qt_Smoke->classes[meth.classId].className, qt_Smoke->methodNames[meth.name]);
+			rb_str_catf(errmsg, "\n");
+	    } else {
+			if(meth.flags & Smoke::mf_static) rb_str_catf(errmsg, "static ");
+			rb_str_catf(errmsg, "%s ", (tname ? tname:"void"));
+			rb_str_catf(errmsg, "%s::%s(", qt_Smoke->classes[meth.classId].className, qt_Smoke->methodNames[meth.name]);
+			for(int i = 0; i < meth.numArgs; i++) {
+			if(i) rb_str_catf(errmsg, ", ");
+			tname = qt_Smoke->types[qt_Smoke->argumentList[meth.args+i]].name;
+			rb_str_catf(errmsg, "%s", (tname ? tname:"void"));
+			}
+			rb_str_catf(errmsg, ")");
+			if(meth.flags & Smoke::mf_const) rb_str_catf(errmsg, " const");
+			rb_str_catf(errmsg, "\n");
+        	}
         }
     }
     return errmsg;
@@ -2529,17 +2612,16 @@ Init_qtruby()
     rb_define_module_function(qt_internal_module, "make_QUMethod", (VALUE (*) (...)) make_QUMethod, 2);
     rb_define_module_function(qt_internal_module, "make_QMetaData_tbl", (VALUE (*) (...)) make_QMetaData_tbl, 1);
     rb_define_module_function(qt_internal_module, "make_metaObject", (VALUE (*) (...)) make_metaObject, 6);
-    rb_define_module_function(qt_internal_module, "setAllocated", (VALUE (*) (...)) setAllocated, 2);
     rb_define_module_function(qt_internal_module, "mapObject", (VALUE (*) (...)) mapObject, 1);
     // isQOjbect => isaQObject
     rb_define_module_function(qt_internal_module, "isQObject", (VALUE (*) (...)) isaQObject, 1);
-    rb_define_module_function(qt_internal_module, "isValidAllocatedPointer", (VALUE (*) (...)) isValidAllocatedPointer, 1);
-    rb_define_module_function(qt_internal_module, "findAllocatedObjectFor", (VALUE (*) (...)) findAllocatedObjectFor, 1);
+    rb_define_module_function(qt_internal_module, "idInstance", (VALUE (*) (...)) idInstance, 1);
     rb_define_module_function(qt_internal_module, "idClass", (VALUE (*) (...)) idClass, 1);
     rb_define_module_function(qt_internal_module, "idMethodName", (VALUE (*) (...)) idMethodName, 1);
     rb_define_module_function(qt_internal_module, "idMethod", (VALUE (*) (...)) idMethod, 2);
     rb_define_module_function(qt_internal_module, "findMethod", (VALUE (*) (...)) findMethod, 2);
     rb_define_module_function(qt_internal_module, "findAllMethods", (VALUE (*) (...)) findAllMethods, -1);
+    rb_define_module_function(qt_internal_module, "findAllMethodNames", (VALUE (*) (...)) findAllMethodNames, 3);
     rb_define_module_function(qt_internal_module, "dumpCandidates", (VALUE (*) (...)) dumpCandidates, 1);
     rb_define_module_function(qt_internal_module, "isObject", (VALUE (*) (...)) isObject, 1);
     rb_define_module_function(qt_internal_module, "setCurrentMethod", (VALUE (*) (...)) setCurrentMethod, 1);
