@@ -481,7 +481,7 @@ end
 
 class Page7 < Qt::Object
 	slots 'add1()'
-	
+
     def initialize(parent)
 		super
         page = parent.addPage()
@@ -544,6 +544,10 @@ class Page7 < Qt::Object
 
         page.show()
 
+        @timer = Qt::Timer.new(page)
+		connect(@timer, SIGNAL('timeout()'), SLOT('add1()'))
+		@timer.start(100)
+
         add1()
 	end
 
@@ -552,8 +556,8 @@ class Page7 < Qt::Object
         @p1.advance(1)
         @p2.advance(1)
 
-        if @total < 26
-            Qt::Timer.singleShot(100, self, SLOT('add1()'))
+        if @total == 26
+			@timer.stop
 		end
 	end
 end
