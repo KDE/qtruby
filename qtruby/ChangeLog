@@ -1,3 +1,9 @@
+2005-05-25  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* '!=' operator methods in the Smoke library were being shown via ruby introspection when they
+	  can't actually be written in ruby, and are derived from the corresponding '==' operator method.
+	* '==' operator methods can now be called.
+
 2005-05-22  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
         * Fixed bug in Smoke code generation where spaces were not being removed from operator

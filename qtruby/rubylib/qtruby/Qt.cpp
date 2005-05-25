@@ -2248,6 +2248,7 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
 #define PUSH_QTRUBY_METHOD		\
 		if (	(methodRef.flags & (Smoke::mf_internal|Smoke::mf_ctor|Smoke::mf_dtor)) == 0 \
 				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator=") != 0 \
+				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator!=") != 0 \
 				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator--") != 0 \
 				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator++") != 0 \
 				&& strncmp(qt_Smoke->methodNames[methodRef.name], "operator ", strlen("operator ")) != 0 \

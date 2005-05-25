@@ -95,11 +95,16 @@ module Qt
 		def >=(a)
 			return Qt::>=(self, a)
 		end
-#		Object has a unary equality operator, so this call gives a wrong number
-#		of arguments error, rather than despatched to method_missing()
-#		def ==(a)
-#			return Qt::==(self, a)
-#		end
+
+#		Object has an equality operator instance method, so pretend it
+#		doesn't exist by calling method_missing() explicitely
+		def ==(a)
+			begin
+				Qt::method_missing(:==, self, a)
+			rescue
+				super(a)
+			end
+		end
 
 		def methods(regular=true)
 			if !regular
@@ -633,7 +638,7 @@ module Qt
 			end
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
 			# Change foobar= to setFoobar()					
-			method = 'set' + method[0,1].upcase + method[1,method.length].sub("=", "") if method =~ /.*[^-+%\/|]=$/
+			method = 'set' + method[0,1].upcase + method[1,method.length].sub("=", "") if method =~ /.*[^-+%\/|=]=$/
 
 			methods = []
 			methods << method.dup
