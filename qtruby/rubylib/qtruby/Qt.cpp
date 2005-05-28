@@ -84,6 +84,7 @@ QIntDict<char> classname(2179);
 
 extern "C" {
 VALUE qt_module = Qnil;
+VALUE qext_scintilla_module = Qnil;
 VALUE kde_module = Qnil;
 VALUE kparts_module = Qnil;
 VALUE kio_module = Qnil;
@@ -2462,6 +2463,12 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 		} else {
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
 		}
+	} else if (QString(package).startsWith("Qext::")) {
+		if (qext_scintilla_module == Qnil) {
+			qext_scintilla_module = rb_define_module("Qext");
+		}
+		klass = rb_define_class_under(qext_scintilla_module, package+strlen("Qext::"), qt_base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
 	} else {
 		klass = kde_package_to_class(package);
 	}
@@ -2482,6 +2489,11 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 	
 	if (QString(package).startsWith("Qt::")) {
     	klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
+	} else if (QString(package).startsWith("Qext::")) {
+		if (qext_scintilla_module == Qnil) {
+			qext_scintilla_module = rb_define_module("Qext");
+		}
+    	klass = rb_define_class_under(qext_scintilla_module, package+strlen("Qext::"), qt_base_class);
 	} else {
 		klass = kde_package_to_class(package);
 	}
@@ -2509,52 +2521,12 @@ void
 set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE))
 {
 	_new_kde = new_kde;
-}
 
-void
-set_kconfigskeletonitem_immutable(VALUE (*kconfigskeletonitem_immutable) (VALUE))
-{
-	_kconfigskeletonitem_immutable = kconfigskeletonitem_immutable;
-}
-
-static VALUE
-set_application_terminated(VALUE /*self*/, VALUE yn)
-{
-    application_terminated = (yn == Qtrue ? true : false);
-	return Qnil;
-}
-
-void
-Init_qtruby()
-{
-    init_qt_Smoke();
-    qt_Smoke->binding = new QtRubySmokeBinding(qt_Smoke);
-    install_handlers(Qt_handlers);
-
-    methcache.setAutoDelete(1);
-    classcache.setAutoDelete(1);
-
-    qt_module = rb_define_module("Qt");
-    qt_internal_module = rb_define_module_under(qt_module, "Internal");
-    qt_base_class = rb_define_class_under(qt_module, "Base", rb_cObject);
-
-    rb_define_singleton_method(qt_base_class, "new", (VALUE (*) (...)) new_qt, -1);
-    rb_define_method(qt_base_class, "initialize", (VALUE (*) (...)) initialize_qt, -1);
-    rb_define_singleton_method(qt_base_class, "method_missing", (VALUE (*) (...)) class_method_missing, -1);
-    rb_define_singleton_method(qt_module, "method_missing", (VALUE (*) (...)) module_method_missing, -1);
-    rb_define_method(qt_base_class, "method_missing", (VALUE (*) (...)) method_missing, -1);
-
-    rb_define_singleton_method(qt_base_class, "const_missing", (VALUE (*) (...)) class_method_missing, -1);
-    rb_define_singleton_method(qt_module, "const_missing", (VALUE (*) (...)) module_method_missing, -1);
-    rb_define_method(qt_base_class, "const_missing", (VALUE (*) (...)) method_missing, -1);
-
-    rb_define_method(qt_base_class, "dispose", (VALUE (*) (...)) dispose, 0);
-    rb_define_method(qt_base_class, "isDisposed", (VALUE (*) (...)) is_disposed, 0);
-    rb_define_method(qt_base_class, "disposed?", (VALUE (*) (...)) is_disposed, 0);
-    
-	rb_define_method(rb_cObject, "qDebug", (VALUE (*) (...)) qdebug, 1);
-	rb_define_method(rb_cObject, "qFatal", (VALUE (*) (...)) qfatal, 1);
-	rb_define_method(rb_cObject, "qWarning", (VALUE (*) (...)) qwarning, 1);
+	if (qt_module == Qnil) {
+		qt_module = rb_define_module("Qt");
+		qt_internal_module = rb_define_module_under(qt_module, "Internal");
+		qt_base_class = rb_define_class_under(qt_module, "Base", rb_cObject);
+	}
 
 	kde_module = rb_define_module("KDE");
     rb_define_singleton_method(kde_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
@@ -2584,14 +2556,62 @@ Init_qtruby()
     rb_define_singleton_method(ktexteditor_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
     rb_define_singleton_method(ktexteditor_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 
-	kconfigskeleton_class = rb_define_class_under(kde_module, "ConfigSkeleton", qt_base_class);
-	kconfigskeleton_itemenum_class = rb_define_class_under(kconfigskeleton_class, "ItemEnum", qt_base_class);
-
 	kwin_class = rb_define_class_under(kde_module, "Win", qt_base_class);
 
 	kate_module = rb_define_module("Kate");
     rb_define_singleton_method(kate_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
     rb_define_singleton_method(kate_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+}
+
+void
+set_kconfigskeletonitem_immutable(VALUE (*kconfigskeletonitem_immutable) (VALUE))
+{
+	_kconfigskeletonitem_immutable = kconfigskeletonitem_immutable;
+
+	kconfigskeleton_class = rb_define_class_under(kde_module, "ConfigSkeleton", qt_base_class);
+	kconfigskeleton_itemenum_class = rb_define_class_under(kconfigskeleton_class, "ItemEnum", qt_base_class);
+}
+
+static VALUE
+set_application_terminated(VALUE /*self*/, VALUE yn)
+{
+    application_terminated = (yn == Qtrue ? true : false);
+	return Qnil;
+}
+
+void
+Init_qtruby()
+{
+    init_qt_Smoke();
+    qt_Smoke->binding = new QtRubySmokeBinding(qt_Smoke);
+    install_handlers(Qt_handlers);
+
+    methcache.setAutoDelete(1);
+    classcache.setAutoDelete(1);
+
+	if (qt_module == Qnil) {
+		qt_module = rb_define_module("Qt");
+		qt_internal_module = rb_define_module_under(qt_module, "Internal");
+		qt_base_class = rb_define_class_under(qt_module, "Base", rb_cObject);
+	}
+
+    rb_define_singleton_method(qt_base_class, "new", (VALUE (*) (...)) new_qt, -1);
+    rb_define_method(qt_base_class, "initialize", (VALUE (*) (...)) initialize_qt, -1);
+    rb_define_singleton_method(qt_base_class, "method_missing", (VALUE (*) (...)) class_method_missing, -1);
+    rb_define_singleton_method(qt_module, "method_missing", (VALUE (*) (...)) module_method_missing, -1);
+    rb_define_method(qt_base_class, "method_missing", (VALUE (*) (...)) method_missing, -1);
+
+    rb_define_singleton_method(qt_base_class, "const_missing", (VALUE (*) (...)) class_method_missing, -1);
+    rb_define_singleton_method(qt_module, "const_missing", (VALUE (*) (...)) module_method_missing, -1);
+    rb_define_method(qt_base_class, "const_missing", (VALUE (*) (...)) method_missing, -1);
+
+    rb_define_method(qt_base_class, "dispose", (VALUE (*) (...)) dispose, 0);
+    rb_define_method(qt_base_class, "isDisposed", (VALUE (*) (...)) is_disposed, 0);
+    rb_define_method(qt_base_class, "disposed?", (VALUE (*) (...)) is_disposed, 0);
+    
+	rb_define_method(rb_cObject, "qDebug", (VALUE (*) (...)) qdebug, 1);
+	rb_define_method(rb_cObject, "qFatal", (VALUE (*) (...)) qfatal, 1);
+	rb_define_method(rb_cObject, "qWarning", (VALUE (*) (...)) qwarning, 1);
 
     rb_define_module_function(qt_internal_module, "getMethStat", (VALUE (*) (...)) getMethStat, 0);
     rb_define_module_function(qt_internal_module, "getClassStat", (VALUE (*) (...)) getClassStat, 0);

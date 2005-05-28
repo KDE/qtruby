@@ -452,7 +452,9 @@ module Qt
 		@@idclass   = []
 
 		def Internal.normalize_classname(classname)
-			if classname =~ /^Q/
+			if classname =~ /^Qext/
+				now = classname.sub(/^Qext(?=[A-Z])/,'Qext::')
+			elsif classname =~ /^Q/
 				now = classname.sub(/^Q(?=[A-Z])/,'Qt::')
 			elsif classname =~ /^(KConfigSkeleton|KWin)::/
 				now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
@@ -624,7 +626,7 @@ module Qt
 			else
 				classname = @@cpp_names[klass.name]
 				if classname.nil?
-					if klass != Object and klass != KDE and klass != Qt
+					if klass != Object and klass != Qt
 						return do_method_missing(package, method, klass.superclass, this, *args)
 					else
 						return nil

@@ -1,3 +1,14 @@
+2005-05-28  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added support for the QScintilla text editing widget, including an optional 
+	   '--enable-qscintilla=yes' configure option. The QScintilla classes are included in a
+	  Qext:: namespace. Thanks to Blackshack for the idea and configure code.
+	* The KDE namespace modules are only created if the Korundum extension is used.
+	  Otherwise the Object namespace was being polluted with unused constants.
+	* Some enums in the QScintilla headers had a spurious comma after
+	  the last enum value, and kalyptus was failing with a parse error.
+	  The comma is now ignored.
+
 2005-05-25  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* '!=' operator methods in the Smoke library were being shown via ruby introspection when they
