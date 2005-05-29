@@ -696,12 +696,10 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	QDomElement n3 = e.firstChild().toElement();
 	QString listname;
 	if ( !obj.isEmpty() ) {
-	    listname = obj + ".[_strlist";
-	    listname = registerObject( listname );
-            listname += "]";
+	    listname = obj + "_strlist";
 	    out << indent << listname << " = [";
 	} else {
-            listname = "strlist";
+        listname = "strlist";
 	    out << indent << listname << " = [";
 	}
         int i = 0;
