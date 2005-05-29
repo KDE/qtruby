@@ -101,7 +101,7 @@ VALUE kconfigskeleton_itemenum_class = Qnil;
 VALUE kconfigskeleton_itemenum_choice_class = Qnil;
 VALUE kio_udsatom_class = Qnil;
 VALUE kwin_class = Qnil;
-bool application_terminated = FALSE;
+bool application_terminated = false;
 };
 
 #define logger logger_backend
@@ -2582,12 +2582,20 @@ set_application_terminated(VALUE /*self*/, VALUE yn)
 void
 Init_qtruby()
 {
+	if (qt_Smoke != 0L) {
+		// This function must have been called twice because both
+		// 'require Qt' and 'require Korundum' statements have
+		// been included in a ruby program
+		rb_fatal("require 'Qt' must not follow require 'Korundum'\n");
+		return;
+	}
+
     init_qt_Smoke();
     qt_Smoke->binding = new QtRubySmokeBinding(qt_Smoke);
     install_handlers(Qt_handlers);
 
-    methcache.setAutoDelete(1);
-    classcache.setAutoDelete(1);
+    methcache.setAutoDelete(true);
+    classcache.setAutoDelete(true);
 
 	if (qt_module == Qnil) {
 		qt_module = rb_define_module("Qt");

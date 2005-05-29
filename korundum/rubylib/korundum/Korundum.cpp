@@ -1171,6 +1171,11 @@ set_udsatom_uds(VALUE self, VALUE uds)
 void
 Init_korundum()
 {
+	if (qt_internal_module != Qnil) {
+		rb_fatal("require 'Korundum' must not follow require 'Qt'\n");
+		return;
+	}
+
 	set_new_kde(new_kde);
 #if KDE_VERSION >= 0x030200
 	set_kconfigskeletonitem_immutable(kconfigskeletonitem_immutable);
@@ -1179,7 +1184,7 @@ Init_korundum()
 		
 	// The Qt extension is linked against libsmokeqt.so, but Korundum links against
 	// libsmokekde.so only. Specifying both a 'require Qt' and a 'require Korundum',
-	// would give a link error.
+	// would give a link error (see the rb_fatal() error above).
 	// So call the Init_qtruby() initialization function explicitely, not via 'require Qt'
 	// (Qt.o is linked into libqtruby.so, as well as the Qt.so extension).
 	Init_qtruby();
