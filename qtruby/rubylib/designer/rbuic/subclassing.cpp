@@ -54,27 +54,25 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	} else {
     	out << indent << "require 'Qt'" << endl;
 	}
-    out << indent << subClass << " < " << nameOfClass << endl;
+    out << endl;
+    out << indent << "class " << subClass << " < " << nameOfClass << endl;
 
     out << endl;
+    ++indent;
 
     // constructor
     if ( objClass == "Qt::Dialog" || objClass == "Qt::Wizard" ) {
-	out << "=begin " << endl;
-	out << "    Constructs a " << subClass << " which is a child of 'parent', with the " << endl;
-	out << "    name 'name' and widget flags set to 'f' " << endl;
-	out << "  " << endl;
-	out << "    The " << objClass.mid(1).lower() << " will by default be modeless, unless you set 'modal' to" << endl;
-	out << "    true to construct a modal " << objClass.mid(1).lower() << "." << endl;
-	out << "=end" << endl;
+	out << indent << "#  Constructs a " << subClass << " which is a child of 'parent', with the " << endl;
+	out << indent << "#  name 'name' and widget flags set to 'fl' " << endl;
+	out << indent << "#  " << endl;
+	out << indent << "#  The " << objClass.mid(4).lower() << " will by default be modeless, unless you set 'modal' to" << endl;
+	out << indent << "#  true to construct a modal " << objClass.mid(4).lower() << "." << endl;
     out << indent << "def initialize(parent = nil, name = nil, modal = false, fl = 0)" << endl;
     ++indent;
 	out << indent << "super" << endl;
     } else {
-	out << "=begin " << endl;
-	out << "    Constructs a " << subClass << " which is a child of 'parent', with the " << endl;
-	out << "    name 'name' and widget flags set to 'f' " << endl;
-	out << "=end" << endl;
+	out << indent << "#  Constructs a " << subClass << " which is a child of 'parent', with the " << endl;
+	out << indent << "#  name 'name' and widget flags set to 'fl' " << endl;
     out << indent << "def initialize(parent = nil, name = nil, fl = 0)" << endl;
     ++indent;
 	out << indent << "super" << endl;
@@ -138,7 +136,7 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	    if ( isEmptyFunction( *it ) ) {
 	        out << endl;
 	        int astart = (*it).find('(');
-	        out << indent << "def " << (*it).left(astart)<< "()" << endl;
+	        out << indent << "def " << (*it).left(astart)<< "(*k)" << endl;
 		++indent;
 		out << indent << "print(\"" << subClass << "." << (*it) << ": Not implemented yet.\\n\")" << endl;
 		--indent;
@@ -160,7 +158,7 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	    if ( isEmptyFunction( *it ) ) {
 	        out << endl;
 	        int astart = (*it).find('(');
-	        out << indent << "def " << (*it).left(astart)<< "()" << endl;
+	        out << indent << "def " << (*it).left(astart)<< "(*k)" << endl;
 		++indent;
 		out << indent << "print(\"" << subClass << "." << (*it) << ": (Protected) Not implemented yet.\\n\")" << endl;
 		--indent;
@@ -184,7 +182,7 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	    if ( isEmptyFunction( *it ) ) {
 	        out << endl;
 	        int astart = (*it).find('(');
-	        out << indent << "def " << (*it).left(astart)<< "()" << endl;
+	        out << indent << "def " << (*it).left(astart)<< "(*k)" << endl;
 		++indent;
 		out << indent << "print(\"" << subClass << "." << (*it) << ": (Private) Not implemented yet.\\n\")" << endl;
 		--indent;
@@ -193,4 +191,7 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	    }
 	}
     }
+
+	--indent;
+    out << indent << "end" << endl;
 }
