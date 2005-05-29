@@ -526,22 +526,22 @@ void Uic::createFormImpl( const QDomElement &e )
 
     // constructor(s)
     if ( objClass == "Qt::Dialog" || objClass == "Qt::Wizard" ) {
-    out << indent << "def initialize(*k)" << endl;
+    out << indent << "def initialize(parent = nil, name = nil, modal = false, fl = 0)" << endl;
     ++indent;
-	out << indent << "super(*k)" << endl;
+	out << indent << "super" << endl;
     } else if ( objClass == "Qt::Widget")  {
-    out << indent << "def initialize(*k)" << endl;
+    out << indent << "def initialize(parent = nil, name = nil, fl = 0)" << endl;
     ++indent;
-	out << indent << "super(*k)" << endl;
+	out << indent << "super" << endl;
     } else if ( objClass == "Qt::MainWindow" ) {
-    out << indent << "def initialize(*k)" << endl;
+    out << indent << "def initialize(parent = nil, name = nil, fl = WType_TopLevel)" << endl;
     ++indent;
-	out << indent << "super(*k)" << endl;
+	out << indent << "super" << endl;
 	isMainWindow = TRUE;
     } else {
-    out << indent << "def initialize(*k)" << endl;
+    out << indent << "def initialize(parent = nil, name = nil)" << endl;
     ++indent;
-	out << indent << "super(*k)" << endl;
+	out << indent << "super" << endl;
     }
 
     out << endl;
