@@ -59,18 +59,25 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
     out << endl;
 
     // constructor
-    out << indent << "def initialize(*k)" << endl;
-    ++indent;
     if ( objClass == "Qt::Dialog" || objClass == "Qt::Wizard" ) {
-	out << indent << "super(*k)" << endl;
-    } else if ( objClass == "Qt::Widget")  {
-	out << indent << "super(*k)" << endl;
-    } else if ( objClass == "Qt::MainWindow" ) {
-	out << indent << "super(*k)" << endl;
-	out << indent << "statusBar()" << endl;
-	isMainWindow = TRUE;
+	out << "=begin " << endl;
+	out << "    Constructs a " << subClass << " which is a child of 'parent', with the " << endl;
+	out << "    name 'name' and widget flags set to 'f' " << endl;
+	out << "  " << endl;
+	out << "    The " << objClass.mid(1).lower() << " will by default be modeless, unless you set 'modal' to" << endl;
+	out << "    true to construct a modal " << objClass.mid(1).lower() << "." << endl;
+	out << "=end" << endl;
+    out << indent << "def initialize(parent = nil, name = nil, modal = false, fl = 0)" << endl;
+    ++indent;
+	out << indent << "super" << endl;
     } else {
-	out << indent << "super(*k)" << endl;
+	out << "=begin " << endl;
+	out << "    Constructs a " << subClass << " which is a child of 'parent', with the " << endl;
+	out << "    name 'name' and widget flags set to 'f' " << endl;
+	out << "=end" << endl;
+    out << indent << "def initialize(parent = nil, name = nil, fl = 0)" << endl;
+    ++indent;
+	out << indent << "super" << endl;
     }
     --indent;
     out << indent << "end" << endl;
