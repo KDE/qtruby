@@ -47,8 +47,8 @@
 #include <stdlib.h>
 #include <zlib.h>
 
-bool Uic::hasKDEwidget = FALSE;
-bool Uic::isMainWindow = FALSE;
+bool Uic::hasKDEwidget = false;
+bool Uic::isMainWindow = false;
 RubyIndent Uic::indent;
 
 
@@ -128,7 +128,7 @@ bool Uic::isEmptyFunction( const QString& fname )
 	return body.simplifyWhiteSpace().isEmpty();
     }
 	// For now ruby functions are always empty, until a rubyeditor Qt Designer plugin exists..
-    return TRUE;
+    return true;
 }
 
 
@@ -147,10 +147,10 @@ Uic::Uic( const QString &fn, QTextStream &outStream, QDomDocument doc,
 {
 	Uic::hasKDEwidget = useKDE;
     fileName = fn;
-    writeSlotImpl = TRUE;
+    writeSlotImpl = true;
     defMargin = BOXLAYOUT_DEFAULT_MARGIN;
     defSpacing = BOXLAYOUT_DEFAULT_SPACING;
-    externPixmaps = FALSE;
+    externPixmaps = false;
 
     item_used = cg_used = pal_used = 0;
 
@@ -170,7 +170,7 @@ Uic::Uic( const QString &fn, QTextStream &outStream, QDomDocument doc,
 	if ( e.tagName() == "widget" ) {
 	    widget = e;
 	} else if ( e.tagName() == "pixmapinproject" ) {
-	    externPixmaps = TRUE;
+	    externPixmaps = true;
 	} else if ( e.tagName() == "layoutdefaults" ) {
 	    defSpacing = e.attribute( "spacing", QString::number( defSpacing ) ).toInt();
 	    defMargin = e.attribute( "margin", QString::number( defMargin ) ).toInt();
@@ -231,17 +231,19 @@ QString Uic::getClassName( const QDomElement& e )
 	s = "Qt::ToolBar";
     else if ( s.isEmpty() && e.tagName() == "menubar" )
 	s = "Qt::MenuBar";
-//    else if( WidgetDatabase::idFromClassName( s ) == -1)
-//	  return s;
     else
     {
 	QRegExp r("^([QK])(\\S+)");
         if( r.search( s ) != -1 ) {
 	    	if (r.cap(1) == "K") {
-				hasKDEwidget = TRUE;
+				hasKDEwidget = true;
 	    		s = "KDE::" + r.cap(2);
 			} else {
-	    		s = "Qt::" + r.cap(2);
+				if (s.startsWith("Qext")) {
+	    			s = "Qext::" + r.cap(2).mid(4);
+				} else {
+	    			s = "Qt::" + r.cap(2);
+				}
 			}
 		}
     }
@@ -257,9 +259,9 @@ bool Uic::isFrameworkCodeGenerated( const QDomElement& e )
 {
     QDomElement n = getObjectProperty( e, "frameworkCode" );
     if ( n.attribute("name") == "frameworkCode" &&
-	 !DomTool::elementToVariant( n.firstChild().toElement(), QVariant( TRUE, 0 ) ).toBool() )
-	return FALSE;
-    return TRUE;
+	 !DomTool::elementToVariant( n.firstChild().toElement(), QVariant( true, 0 ) ).toBool() )
+	return false;
+    return true;
 }
 
 /*! Extracts an object name from \a e. It's stored in the 'name'
@@ -365,8 +367,8 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 	    out << indent << objName << "= Qt::ActionGroup.new(" << parent << ", \"" << objName.mid(1) << "\")" << endl;
 	else
 	    continue;
-	bool subActionsDone = FALSE;
-	bool hasMenuText = FALSE;
+	bool subActionsDone = false;
+	bool hasMenuText = false;
 	QString actionText;
 	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 	    if ( n2.tagName() == "property" ) {
@@ -389,7 +391,7 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 		}
 		
 		if (prop == "menuText")
-		    hasMenuText = TRUE;
+		    hasMenuText = true;
 		else if (prop == "text")
 		    actionText = value;
 		
@@ -400,7 +402,7 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 		}
 	    } else if ( !subActionsDone && ( n2.tagName() == "actiongroup" || n2.tagName() == "action" ) ) {
 		createActionImpl( n2, objName );
-		subActionsDone = TRUE;
+		subActionsDone = true;
 	    }
 	}
 	// workaround for loading pre-3.3 files expecting bogus QAction behavior
@@ -610,7 +612,7 @@ QString Uic::createListViewItemImpl( const QDomElement &e, const QString &parent
 			// This is here to make the ruby generated names for 'item', 
 			// the same as the original C++
 			item = registerObject( "item" );
-			item_used = TRUE;
+			item_used = true;
 		}
 	item = "item";
 	s = indent + item + " = ";
@@ -669,7 +671,7 @@ QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &pare
     QString txt;
     QString com;
     QString pix;
-    bool clickable = FALSE, resizeable = FALSE;
+    bool clickable = false, resizeable = false;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "property" ) {
 	    QString attrib = n.attribute("name");
@@ -976,8 +978,8 @@ bool Uic::isWidgetInTable( const QDomElement& e, const QString& connection, cons
     QString conn = getDatabaseInfo( e, "connection" );
     QString tab = getDatabaseInfo( e, "table" );
     if ( conn == connection && tab == table )
-	return TRUE;
-    return FALSE;
+	return true;
+    return false;
 }
 
 /*!
