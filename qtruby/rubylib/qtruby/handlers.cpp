@@ -212,13 +212,13 @@ smokeruby_free(void * p)
 		}
 	} else if (strcmp(className, "QPopupMenu") == 0) {
 		QPopupMenu * item = (QPopupMenu *) o->ptr;
-		if (item->parentWidget(FALSE) != 0) {
+		if (item->parentWidget(false) != 0) {
 			free(o);
 			return;
 		}
 	} else if (isDerivedFromByName(o->smoke, className, "QWidget")) {
 		QWidget * qwidget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget"));
-		if (qwidget->parentWidget(TRUE) != 0) {
+		if (qwidget->parentWidget(true) != 0) {
 			free(o);
 			return;
 		}
