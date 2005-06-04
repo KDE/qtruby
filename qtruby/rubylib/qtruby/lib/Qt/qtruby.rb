@@ -988,7 +988,17 @@ class Object
 	
 	alias_method :_type, :type
 	undef_method :type
-	
+
+	alias_method :_id, :id
+
+	def id(*k)
+		if k.length == 0
+			_id
+		else
+			method_missing(:id, *k)
+		end
+	end
+
 	def SIGNAL(string) ; return "2" + string; end
 	def SLOT(string)   ; return "1" + string; end
 	def emit(signal)   ; end
