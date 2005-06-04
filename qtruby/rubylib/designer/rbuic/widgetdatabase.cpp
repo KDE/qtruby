@@ -46,17 +46,17 @@ static int dbcount  = 0;
 static int dbcustomcount = 200;
 static QStrList *wGroups;
 static QStrList *invisibleGroups;
-static bool whatsThisLoaded = FALSE;
+static bool whatsThisLoaded = false;
 static QPluginManager<WidgetInterface> *widgetPluginManager = 0;
-static bool plugins_set_up = FALSE;
-static bool was_in_setup = FALSE;
+static bool plugins_set_up = false;
+static bool was_in_setup = false;
 
 QCleanupHandler<QPluginManager<WidgetInterface> > cleanup_manager;
 
 WidgetDatabaseRecord::WidgetDatabaseRecord()
 {
-    isForm = FALSE;
-    isContainer = FALSE;
+    isForm = false;
+    isContainer = false;
     icon = 0;
     nameCounter = 0;
 }
@@ -97,7 +97,7 @@ WidgetDatabase::WidgetDatabase()
 
 void WidgetDatabase::setupDataBase( int id )
 {
-    was_in_setup = TRUE;
+    was_in_setup = true;
 #ifndef UIC
     Q_UNUSED( id )
     if ( dbcount )
@@ -118,7 +118,7 @@ void WidgetDatabase::setupDataBase( int id )
     invisibleGroups->append( "Forms" );
     invisibleGroups->append( "Temp" );
     className2Id = new QDict<int>( dbdictsize );
-    className2Id->setAutoDelete( TRUE );
+    className2Id->setAutoDelete( true );
 
     WidgetDatabaseRecord *r = 0;
 
@@ -159,7 +159,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->name = "QGroupBox";
     r->group = widgetGroup( "Containers" );
     r->toolTip = "Group Box";
-    r->isContainer = TRUE;
+    r->isContainer = true;
 
     append( r );
 
@@ -168,7 +168,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->name = "QButtonGroup";
     r->group = widgetGroup( "Containers" );
     r->toolTip = "Button Group";
-    r->isContainer = TRUE;
+    r->isContainer = true;
 
     append( r );
 
@@ -177,7 +177,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->name = "QFrame";
     r->group = widgetGroup( "Containers" );
     r->toolTip = "Frame";
-    r->isContainer = TRUE;
+    r->isContainer = true;
 
     append( r );
 
@@ -186,7 +186,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->name = "QTabWidget";
     r->group = widgetGroup( "Containers" );
     r->toolTip = "Tabwidget";
-    r->isContainer = TRUE;
+    r->isContainer = true;
 
     append( r );
 
@@ -408,7 +408,7 @@ void WidgetDatabase::setupDataBase( int id )
 
     r = new WidgetDatabaseRecord;
     r->name = "QWidget";
-    r->isForm = TRUE;
+    r->isForm = true;
     r->group = widgetGroup( "Forms" );
 
     append( r );
@@ -416,21 +416,21 @@ void WidgetDatabase::setupDataBase( int id )
     r = new WidgetDatabaseRecord;
     r->name = "QDialog";
     r->group = widgetGroup( "Forms" );
-    r->isForm = TRUE;
+    r->isForm = true;
 
     append( r );
 
     r = new WidgetDatabaseRecord;
     r->name = "QWizard";
     r->group = widgetGroup( "Forms" );
-    r->isContainer = TRUE;
+    r->isContainer = true;
 
     append( r );
 
     r = new WidgetDatabaseRecord;
     r->name = "QDesignerWizard";
     r->group = widgetGroup( "Forms" );
-    r->isContainer = TRUE;
+    r->isContainer = true;
 
     append( r );
 
@@ -438,7 +438,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->name = "QLayoutWidget";
     r->group = widgetGroup( "Temp" );
     r->includeFile = "";
-    r->isContainer = TRUE;
+    r->isContainer = true;
 
     append( r );
 
@@ -446,7 +446,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->name = "QSplitter";
     r->group = widgetGroup( "Temp" );
     r->includeFile = "qsplitter.h";
-    r->isContainer = TRUE;
+    r->isContainer = true;
 
     append( r );
 
@@ -454,7 +454,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->iconSet = "tabwidget.xpm";
     r->name = "QDesignerTabWidget";
     r->group = widgetGroup( "Temp" );
-    r->isContainer = TRUE;
+    r->isContainer = true;
 
     append( r );
 
@@ -462,7 +462,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->iconSet = "tabwidget.xpm";
     r->name = "QDesignerWidget";
     r->group = widgetGroup( "Temp" );
-    r->isContainer = TRUE;
+    r->isContainer = true;
 
     append( r );
 
@@ -470,7 +470,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->iconSet = "tabwidget.xpm";
     r->name = "QDesignerDialog";
     r->group = widgetGroup( "Temp" );
-    r->isContainer = TRUE;
+    r->isContainer = true;
 
     append( r );
 
@@ -479,7 +479,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->name = "QMainWindow";
     r->includeFile = "qmainwindow.h";
     r->group = widgetGroup( "Temp" );
-    r->isContainer = TRUE;
+    r->isContainer = true;
 
     append( r );
 
@@ -491,7 +491,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->group = widgetGroup( "Database" );
     r->toolTip = "Data Browser";
     r->iconSet = "databrowser.xpm";
-    r->isContainer = TRUE;
+    r->isContainer = true;
 
     append( r );
 
@@ -502,7 +502,7 @@ void WidgetDatabase::setupDataBase( int id )
     r->group = widgetGroup( "Database" );
     r->toolTip = "Data View";
     r->iconSet = "dataview.xpm";
-    r->isContainer = TRUE;
+    r->isContainer = true;
 
     append( r );
 #endif
@@ -516,7 +516,7 @@ void WidgetDatabase::setupPlugins()
 {
     if ( plugins_set_up )
 	return;
-    plugins_set_up = TRUE;
+    plugins_set_up = true;
     QStringList widgets = widgetManager()->featureList();
     for ( QStringList::Iterator it = widgets.begin(); it != widgets.end(); ++it ) {
 	if ( hasWidget( *it ) )
@@ -660,7 +660,7 @@ bool WidgetDatabase::isForm( int id )
     setupDataBase( id );
     WidgetDatabaseRecord *r = at( id );
     if ( !r )
-	return FALSE;
+	return false;
     return r->isForm;
 }
 
@@ -673,7 +673,7 @@ bool WidgetDatabase::isContainer( int id )
     setupDataBase( id );
     WidgetDatabaseRecord *r = at( id );
     if ( !r )
-	return FALSE;
+	return false;
     return r->isContainer || r->isForm;
 }
 
@@ -762,9 +762,9 @@ bool WidgetDatabase::isGroupEmpty( const QString &grp )
 	if ( !( r = db[ i ] ) )
 	    continue;
 	if ( r->group == grp )
-	    return FALSE;
+	    return false;
     }
-    return TRUE;
+    return true;
 }
 
 QString WidgetDatabase::widgetGroup( int i )
@@ -796,8 +796,8 @@ int WidgetDatabase::addCustomWidget( WidgetDatabaseRecord *r )
 bool WidgetDatabase::isCustomWidget( int id )
 {
     if ( id >= dbcustom && id < dbcustomcount )
-	return TRUE;
-    return FALSE;
+	return true;
+    return false;
 }
 
 bool WidgetDatabase::isWhatsThisLoaded()
@@ -820,7 +820,7 @@ void WidgetDatabase::loadWhatsThis( const QString &docPath )
 	if ( r )
 	    r->whatsThis = l[ 0 ];
     }
-    whatsThisLoaded = TRUE;
+    whatsThisLoaded = true;
 }
 
 QPluginManager<WidgetInterface> *widgetManager()

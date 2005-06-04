@@ -241,7 +241,7 @@ void Uic::createFormImpl( const QDomElement &e )
 
     // children
     if( !objectNames.isEmpty() )
-    	qWarning("WARNING : objectNames should be empty at form.cpp line %d\n", __LINE__);
+    	qWarning("WARNING : objectNames should be empty at "__FILE__" line %d\n", __LINE__);
     nl = e.parentNode().toElement().elementsByTagName( "widget" );
     for ( i = 1; i < (int) nl.length(); i++ )
     { // start at 1, 0 is the toplevel widget
@@ -388,14 +388,14 @@ void Uic::createFormImpl( const QDomElement &e )
 	sqlClasses += "Qt::SqlDatabase";
     if ( dbCursors.count() )
 	sqlClasses += "Qt::SqlCursor";
-    bool dbForm = FALSE;
+    bool dbForm = false;
     if ( dbForms[ "(default)" ].count() )
-	dbForm = TRUE;
-    bool subDbForms = FALSE;
+	dbForm = true;
+    bool subDbForms = false;
     for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
 	if ( !(*it).isEmpty()  && (*it) != "(default)" ) {
 	    if ( dbForms[ (*it) ].count() ) {
-		subDbForms = TRUE;
+		subDbForms = true;
 		break;
 	    }
 	}
@@ -526,22 +526,22 @@ void Uic::createFormImpl( const QDomElement &e )
 
     // constructor(s)
     if ( objClass == "Qt::Dialog" || objClass == "Qt::Wizard" ) {
-    out << indent << "def initialize(*k)" << endl;
+    out << indent << "def initialize(parent = nil, name = nil, modal = false, fl = 0)" << endl;
     ++indent;
-	out << indent << "super(*k)" << endl;
+	out << indent << "super" << endl;
     } else if ( objClass == "Qt::Widget")  {
-    out << indent << "def initialize(*k)" << endl;
+    out << indent << "def initialize(parent = nil, name = nil, fl = 0)" << endl;
     ++indent;
-	out << indent << "super(*k)" << endl;
+	out << indent << "super" << endl;
     } else if ( objClass == "Qt::MainWindow" ) {
-    out << indent << "def initialize(*k)" << endl;
+    out << indent << "def initialize(parent = nil, name = nil, fl = WType_TopLevel)" << endl;
     ++indent;
-	out << indent << "super(*k)" << endl;
-	isMainWindow = TRUE;
+	out << indent << "super" << endl;
+	isMainWindow = true;
     } else {
-    out << indent << "def initialize(*k)" << endl;
+    out << indent << "def initialize(parent = nil, name = nil)" << endl;
     ++indent;
-	out << indent << "super(*k)" << endl;
+	out << indent << "super" << endl;
     }
 
     out << endl;
@@ -625,7 +625,7 @@ void Uic::createFormImpl( const QDomElement &e )
 		QString label = DomTool::readAttribute( n, "title", "", comment ).toString();
 		out << indent << "addPage(" << page << ", "<< trcall( label ) << ")" << endl;
 		trout << indent << "setTitle( " << page << ", " << trcall( label, comment ) << " )" << endl;
-		QVariant def( FALSE, 0 );
+		QVariant def( false, 0 );
 		if ( DomTool::hasAttribute( n, "backEnabled" ) )
 		    out << indent << "setBackEnabled(" << page << "," << mkBool( DomTool::readAttribute( n, "backEnabled", def).toBool() ) << ");" << endl;
 		if ( DomTool::hasAttribute( n, "nextEnabled" ) )
@@ -675,35 +675,35 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     // actions, toolbars, menubar
-    bool needEndl = FALSE;
+    bool needEndl = false;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "actions" ) {
 	    if ( !needEndl )
 		out << endl;
 	    createActionImpl( n.firstChild().toElement(), "self" );
-	    needEndl = TRUE;
+	    needEndl = true;
 	}
     }
     if ( needEndl )
 	out << endl;
-    needEndl = FALSE;
+    needEndl = false;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "toolbars" ) {
 	    if ( !needEndl )
 		out << endl;
 	    createToolbarImpl( n, objClass, objName );
-	    needEndl = TRUE;
+	    needEndl = true;
 	}
     }
     if ( needEndl )
 	out << endl;
-    needEndl = FALSE;
+    needEndl = false;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "menubar" ) {
 	    if ( !needEndl )
 		out << endl;
 	    createMenuBarImpl( n, objClass, objName );
-	    needEndl = TRUE;
+	    needEndl = true;
 	}
     }
     if ( needEndl )
@@ -773,14 +773,14 @@ void Uic::createFormImpl( const QDomElement &e )
 
 // QtRuby - FIXME: what the heck is this ?
     // buddies
-    bool firstBuddy = TRUE;
+    bool firstBuddy = true;
     for ( QValueList<Buddy>::Iterator buddy = buddies.begin(); buddy != buddies.end(); ++buddy ) {
 	if ( isObjectRegistered( (*buddy).buddy ) ) {
 	    if ( firstBuddy ) {
 		out << endl;
 	    }
 	    out << indent << (*buddy).key << ".setBuddy(" << registeredName( (*buddy).buddy ) << ")" << endl;
-	    firstBuddy = FALSE;
+	    firstBuddy = false;
 	}
 
     }
@@ -796,21 +796,21 @@ void Uic::createFormImpl( const QDomElement &e )
 
 
     // handle application events if required
-    bool needFontEventHandler = FALSE;
-    bool needSqlTableEventHandler = FALSE;
-    bool needSqlDataBrowserEventHandler = FALSE;
+    bool needFontEventHandler = false;
+    bool needSqlTableEventHandler = false;
+    bool needSqlDataBrowserEventHandler = false;
     nl = e.elementsByTagName( "widget" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	if ( !DomTool::propertiesOfType( nl.item(i).toElement() , "font" ).isEmpty() )
-	    needFontEventHandler = TRUE;
+	    needFontEventHandler = true;
 	QString s = getClassName( nl.item(i).toElement() );
 	if ( s == "Qt::DataTable" || s == "Qt::DataBrowser" ) {
 	    if ( !isFrameworkCodeGenerated( nl.item(i).toElement() ) )
 		 continue;
 	    if ( s == "Qt::DataTable" )
-		needSqlTableEventHandler = TRUE;
+		needSqlTableEventHandler = true;
 	    if ( s == "Qt::DataBrowser" )
-		needSqlDataBrowserEventHandler = TRUE;
+		needSqlDataBrowserEventHandler = true;
 	}
 	if ( needFontEventHandler && needSqlTableEventHandler && needSqlDataBrowserEventHandler )
 	    break;
@@ -939,7 +939,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	    out << endl;
 	    int astart = (*it).find('(');
 	    out << indent << "def " << (*it).left(astart) << "(*k)" << endl;
-	    bool createWarning = TRUE;
+	    bool createWarning = true;
 	    QString fname = Parser::cleanArgs( *it );
 	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
 	    if ( fit != functionImpls.end() ) {

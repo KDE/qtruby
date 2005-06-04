@@ -95,11 +95,16 @@ module Qt
 		def >=(a)
 			return Qt::>=(self, a)
 		end
-#		Object has a unary equality operator, so this call gives a wrong number
-#		of arguments error, rather than despatched to method_missing()
-#		def ==(a)
-#			return Qt::==(self, a)
-#		end
+
+#		Object has an equality operator instance method, so pretend it
+#		doesn't exist by calling method_missing() explicitely
+		def ==(a)
+			begin
+				Qt::method_missing(:==, self, a)
+			rescue
+				super(a)
+			end
+		end
 
 		def methods(regular=true)
 			if !regular
@@ -447,7 +452,9 @@ module Qt
 		@@idclass   = []
 
 		def Internal.normalize_classname(classname)
-			if classname =~ /^Q/
+			if classname =~ /^Qext/
+				now = classname.sub(/^Qext(?=[A-Z])/,'Qext::')
+			elsif classname =~ /^Q/
 				now = classname.sub(/^Q(?=[A-Z])/,'Qt::')
 			elsif classname =~ /^(KConfigSkeleton|KWin)::/
 				now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
@@ -619,7 +626,7 @@ module Qt
 			else
 				classname = @@cpp_names[klass.name]
 				if classname.nil?
-					if klass != Object and klass != KDE and klass != Qt
+					if klass != Object and klass != Qt
 						return do_method_missing(package, method, klass.superclass, this, *args)
 					else
 						return nil
@@ -633,7 +640,7 @@ module Qt
 			end
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
 			# Change foobar= to setFoobar()					
-			method = 'set' + method[0,1].upcase + method[1,method.length].sub("=", "") if method =~ /.*[^-+%\/|]=$/
+			method = 'set' + method[0,1].upcase + method[1,method.length].sub("=", "") if method =~ /.*[^-+%\/|=]=$/
 
 			methods = []
 			methods << method.dup
@@ -981,7 +988,17 @@ class Object
 	
 	alias_method :_type, :type
 	undef_method :type
-	
+
+	alias_method :_id, :id
+
+	def id(*k)
+		if k.length == 0
+			_id
+		else
+			method_missing(:id, *k)
+		end
+	end
+
 	def SIGNAL(string) ; return "2" + string; end
 	def SLOT(string)   ; return "1" + string; end
 	def emit(signal)   ; end

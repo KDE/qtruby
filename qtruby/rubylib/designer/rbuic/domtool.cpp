@@ -86,10 +86,10 @@ bool DomTool::hasProperty( const QDomElement& e, const QString& name )
 	if ( n.tagName() == "property" ) {
 	    if ( n.attribute( "name" ) != name )
 		continue;
-	    return TRUE;
+	    return true;
 	}
     }
-    return FALSE;
+    return false;
 }
 
 QStringList DomTool::propertiesOfType( const QDomElement& e, const QString& type )
@@ -186,7 +186,7 @@ QVariant DomTool::elementToVariant( const QDomElement& e, const QVariant& defVal
     } else if ( e.tagName() == "cstring" ) {
 	v = QVariant( QCString( e.firstChild().toText().data() ) );
     } else if ( e.tagName() == "number" ) {
-	bool ok = TRUE;
+	bool ok = true;
 	v = QVariant( e.firstChild().toText().data().toInt( &ok ) );
 	if ( !ok )
 	    v = QVariant( e.firstChild().toText().data().toDouble() );
@@ -340,10 +340,10 @@ bool DomTool::hasAttribute( const QDomElement& e, const QString& name )
 	if ( n.tagName() == "attribute" ) {
 	    if ( n.attribute( "name" ) != name )
 		continue;
-	    return TRUE;
+	    return true;
 	}
     }
-    return FALSE;
+    return false;
 }
 
 static bool toBool( const QString& s )

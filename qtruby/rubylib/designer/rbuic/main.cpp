@@ -53,9 +53,9 @@ void getDBConnections( Uic& uic, QString& s);
 int main( int argc, char * argv[] )
 {
     RubyIndent indent;
-    bool execCode = FALSE;
-    bool subcl = FALSE;
-    bool imagecollection = FALSE;
+    bool execCode = false;
+    bool subcl = false;
+    bool imagecollection = false;
     QStringList images;
     const char *error = 0;
     const char* fileName = 0;
@@ -63,10 +63,10 @@ int main( int argc, char * argv[] )
     const char* outputFile = 0;
     const char* projectName = 0;
     const char* trmacro = 0;
-    bool nofwd = FALSE;
-    bool useKDE = FALSE;
-    bool fix = FALSE;
-    QApplication app(argc, argv, FALSE);
+    bool nofwd = false;
+    bool useKDE = false;
+    bool fix = false;
+    QApplication app(argc, argv, false);
     QString uicClass;
 
 
@@ -84,7 +84,7 @@ int main( int argc, char * argv[] )
 		} else
 		    outputFile = &opt[1];
 	    } else if ( opt[0] == 'e' || opt == "embed" ) {
-		imagecollection = TRUE;
+		imagecollection = true;
 		if ( opt == "embed" || opt[1] == '\0' ) {
 		    if ( !(n < argc-1) ) {
 			error = "Missing name of project.";
@@ -94,11 +94,11 @@ int main( int argc, char * argv[] )
 		} else
 		    projectName = &opt[1];
 	    } else if ( opt == "nofwd" ) {
-		nofwd = TRUE;
+		nofwd = true;
 	    } else if ( opt == "kde" ) {
-		useKDE = TRUE;
+		useKDE = true;
 	    } else if ( opt == "subimpl" ) {
-		subcl = TRUE;
+		subcl = true;
 		if ( !(n < argc-1) ) {
 		    error = "Missing class name.";
 		    break;
@@ -122,7 +122,7 @@ int main( int argc, char * argv[] )
 	    } else if ( opt == "help" ) {
 		break;
 	    } else if ( opt == "fix" ) {
-		fix = TRUE;
+		fix = true;
 	    } else if ( opt[0] == 'p' ) {
 		uint tabstop;
 		bool ok;
@@ -141,7 +141,7 @@ int main( int argc, char * argv[] )
 		else
 		    error = "Invalid indent";
 	    } else if ( opt == "x" ) {
-		execCode = TRUE;
+		execCode = true;
 	    } else {
 		error = "Unrecognized option";
 	    }

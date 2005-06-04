@@ -17,11 +17,11 @@ On 8/28/03 8:56 PM, "Scott Thompson" wrote:
 >> : Can anyone give me a good reason why I would want to use Ruby over
 >> Python?
 >> 
->> Ruby smells better than Python.  Also, it has cuter girls.
+>> Ruby smells better than Python. Also, it has cuter girls.
 >> 
 >> Python sometimes tastes better if you prepare it right.
 > 
-> I hadn't noticed the odor thing.  It does have a faintly floral aroma
+> I hadn't noticed the odor thing. It does have a faintly floral aroma
 > doesn't it.
 > 
 > Of course it is no surprise that you can get more and cuter girls with
@@ -250,6 +250,9 @@ QtRuby features a very complete coverage of the Qt api:
 		The best way to start programming QtRuby is to look at some existing
 		code and start messing with it.. 
 		The are various samples under qtruby/rubylib/examples.
+
+	- Optional QScintilla text editing widget support
+		Great for building your own ruby IDE..
 
 Have Fun!
 
