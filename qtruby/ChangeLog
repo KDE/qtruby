@@ -1,4 +1,8 @@
 2005-06-04  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+	
+	* Upped the version to 1.0.10
+
+2005-06-04  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* The Object.id method was clashing with the one in Qt::WidgetStack.
 	  Both methods now work correctly. Fixes problem reported by Dave M.
