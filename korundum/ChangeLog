@@ -1,3 +1,8 @@
+2005-06-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* DCOP signals were failing with a 'undefined method `fullSignalName'' error
+	* Fixes problem reported by Chris Gow
+
 2005-05-29  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* At the moment require 'Qt' and require 'Korundum' statements can't appear

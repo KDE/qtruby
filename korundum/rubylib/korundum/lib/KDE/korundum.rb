@@ -86,10 +86,12 @@ module KDE
 		return signals.keys
 	end
 
-	def KDE.fullSignalName(instance, signalName)
-		classname = instance.class.name if instance.class.is_a? Module
-		signals = DCOPMeta[classname].k_dcop_signals
-		return signals[signalName].full_name
+	module Internal
+		def Internal.fullSignalName(instance, signalName)
+			classname = instance.class.name if instance.class.is_a? Module
+			signals = DCOPMeta[classname].k_dcop_signals
+			return signals[signalName].full_name
+		end
 	end
 
 	class KDE::DCOPObject
