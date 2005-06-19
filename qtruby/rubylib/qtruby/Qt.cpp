@@ -61,7 +61,7 @@
 
 // #define DEBUG
 
-#define QTRUBY_VERSION "1.0.9"
+#define QTRUBY_VERSION "1.0.10"
 
 extern Smoke *qt_Smoke;
 extern void init_qt_Smoke();
