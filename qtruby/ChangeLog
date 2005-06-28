@@ -1,3 +1,15 @@
+2005-06-28  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Improved display of Qt::Enums in the KDevelop debugger. With a p
+	  command it just looks like a constant, but a pretty print pp command
+	  shows the type of the underlying C++ enum:
+
+	  (rdb:1) p AlignTop 
+	  16
+
+	  (rdb:1) pp AlignTop 
+	  #<Qt::Enum:0x1825db68 @type=Qt::AlignmentFlags, @value=16>
+
 2005-06-04  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 	
 	* Upped the version to 1.0.10

@@ -434,6 +434,14 @@ module Qt
 		
 		def ==(n) return @value == n.to_i end
 		def to_i() return @value end
+		
+		def inspect
+			to_s
+		end
+
+		def pretty_print(pp)
+			pp.text "#<%s:0x%8.8x @type=%s, @value=%d>" % [self.class.name, object_id, type, value]
+		end
 	end
 	
 	# Provides a mutable boolean class for passing to methods with
