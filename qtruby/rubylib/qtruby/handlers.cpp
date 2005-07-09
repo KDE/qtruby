@@ -863,7 +863,7 @@ static void marshall_QString(Marshall *m) {
 	     	} else {
                *(m->var()) = rstringFromQString(s);
 	     	}
-	     	if(m->cleanup())
+	     	if(m->cleanup() || m->type().isStack())
 	     	delete s;
          } else {
                 *(m->var()) = Qnil;
