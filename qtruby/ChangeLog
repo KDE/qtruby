@@ -1,3 +1,12 @@
+2005-07-14  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added example programs for client/server programming with Qt::Socket
+	  and associated classes. client.rb illustrates current bugs in QtRuby
+	* Qt::Socket.canReadLine() always returns true
+	* Qt::readLine() seg faults when called a second time
+	* A memory leak and seg faulting problems like the above were reported
+	  by Caleb Tennis
+
 2005-07-09  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* When a Qt method returned a QString value type, such as:
