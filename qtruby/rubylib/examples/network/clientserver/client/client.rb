@@ -59,8 +59,6 @@ class Client < Qt::VBox
 
     def socketReadyRead()
 		# read from the server
-		# This loops forever in QtRuby because 'canReadLine()'
-		# is alway true
 		while @socket.canReadLine() do
 	    	@infoText.append( @socket.readLine() )
 		end
