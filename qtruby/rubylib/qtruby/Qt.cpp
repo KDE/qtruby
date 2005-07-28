@@ -21,18 +21,27 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#define QT3_SUPPORT
+
 #include <qglobal.h>
 #include <qregexp.h>
 #include <qstring.h>
-#include <qptrdict.h>
-#include <qintdict.h>
+#include <q3ptrdict.h>
+#include <q3intdict.h>
 #include <qapplication.h>
 #include <qmetaobject.h>
-#include <private/qucomextra_p.h>
+//Added by qt3to4:
+#include <Q3CString>
+#include <Q3StrList>
+//#include <private/qucomextra_p.h>
 #include <qvariant.h>
 #include <qcursor.h>
-#include <qobjectlist.h>
-#include <qsignalslotimp.h>
+#include <qobject.h>
+//#include <qsignalslotimp.h>
+#include <qhash.h>
+#include <qcolor.h>			
+#include <qrect.h>			
+#include <qfont.h>			
 
 #undef DEBUG
 #ifndef __USE_POSIX
@@ -74,13 +83,13 @@ int do_debug = qtdb_gc;
 int do_debug = qtdb_none;
 #endif
 
-QPtrDict<VALUE> pointer_map(2179);
+QHash<void *, VALUE *> pointer_map;
 int object_count = 0;
 
-QAsciiDict<Smoke::Index> methcache(2179);
-QAsciiDict<Smoke::Index> classcache(2179);
+QHash<QString, Smoke::Index *> methcache;
+QHash<QString, Smoke::Index *> classcache;
 // Maps from a classname in the form Qt::Widget to an int id
-QIntDict<char> classname(2179);
+QHash<int, QString> classname;
 
 extern "C" {
 VALUE qt_module = Qnil;
@@ -171,6 +180,7 @@ VALUE getPointerObject(void *ptr) {
 	if (pointer_map[ptr] == 0) {
 	    return Qnil;
 	} else {
+//		return *(pointer_map[ptr]);
 		return *(pointer_map[ptr]);
 	}
 }
@@ -467,14 +477,14 @@ public:
     }
 };
 
-class UnencapsulatedQObject : public QObject {
-public:
-    QConnectionList *public_receivers(int signal) const { return receivers(signal); }
-    void public_activate_signal(QConnectionList *clist, QUObject *o) { activate_signal(clist, o); }
-};
+//class UnencapsulatedQObject : public QObject {
+//public:
+//    QConnectionList *public_receivers(int signal) const { return receivers(signal); }
+//    void public_activate_signal(QConnectionList *clist, QUObject *o) { activate_signal(clist, o); }
+//};
 
 class EmitSignal : public Marshall {
-    UnencapsulatedQObject *_qobj;
+//    UnencapsulatedQObject *_qobj;
     int _id;
     MocArgument *_args;
     VALUE *_sp;
@@ -484,7 +494,8 @@ class EmitSignal : public Marshall {
     bool _called;
 public:
     EmitSignal(QObject *qobj, int id, int items, VALUE args, VALUE *sp) :
-    _qobj((UnencapsulatedQObject*)qobj), _id(id), _sp(sp), _items(items),
+//    _qobj((UnencapsulatedQObject*)qobj), _id(id), _sp(sp), _items(items),
+    _id(id), _sp(sp), _items(items),
     _cur(-1), _called(false)
     {
 	_items = NUM2INT(rb_ary_entry(args, 0));
@@ -506,7 +517,7 @@ public:
     void emitSignal() {
 	if(_called) return;
 	_called = true;
-
+/*
 	QConnectionList *clist = _qobj->public_receivers(_id);
 	if(!clist) return;
 
@@ -595,9 +606,9 @@ public:
 		}
 	    }
 	}
-
-	_qobj->public_activate_signal(clist, o);
-        delete[] o;
+*/
+//	_qobj->public_activate_signal(clist, o);
+//        delete[] o;
     }
     void next() {
 	int oldcur = _cur;
@@ -620,7 +631,7 @@ class InvokeSlot : public Marshall {
     ID _slotname;
     int _items;
     MocArgument *_args;
-    QUObject *_o;
+//    QUObject *_o;
     int _cur;
     bool _called;
     VALUE *_sp;
@@ -637,6 +648,7 @@ public:
 	rb_raise(rb_eArgError, "Cannot handle '%s' as slot argument\n", type().name());
     }
     void copyArguments() {
+/*
 	for(int i = 0; i < _items; i++) {
 	    QUObject *o = _o + i + 1;
 	    switch(_args[i].argType) {
@@ -713,6 +725,7 @@ public:
 		}
 	    }
 	}
+*/
     }
     void invokeSlot() {
 	if(_called) return;
@@ -735,8 +748,10 @@ public:
 	_cur = oldcur;
     }
 
-    InvokeSlot(VALUE obj, ID slotname, VALUE args, QUObject *o) :
-    _obj(obj), _slotname(slotname), _o(o), _cur(-1), _called(false)
+//    InvokeSlot(VALUE obj, ID slotname, VALUE args, QUObject *o) :
+//    _obj(obj), _slotname(slotname), _o(o), _cur(-1), _called(false)
+    InvokeSlot(VALUE obj, ID slotname, VALUE args) :
+    _slotname(slotname), _cur(-1), _called(false)
     {
 	_items = NUM2INT(rb_ary_entry(args, 0));
 	Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
@@ -799,7 +814,7 @@ public:
     }
 
     char *className(Smoke::Index classId) {
-		return classname.find((int) classId);
+		return (char *) (const char *) classname.value((int) classId);
     }
 };
 
@@ -867,7 +882,7 @@ set_obj_info(const char * className, smokeruby_object * o)
 			     rb_intern("find_class"),
 			     1,
 			     rb_str_new2(className) );
-	Smoke::Index *r = classcache.find(className);
+	Smoke::Index *r = classcache.value(className);
 	if (r != 0) {
 		o->classId = (int)*r;
 	}
@@ -884,7 +899,7 @@ cast_object_to(VALUE /*self*/, VALUE object, VALUE new_klass)
 
 	VALUE new_klassname = rb_funcall(new_klass, rb_intern("name"), 0);
 
-    Smoke::Index * cast_to_id = classcache.find(StringValuePtr(new_klassname));
+    Smoke::Index * cast_to_id = classcache.value(StringValuePtr(new_klassname));
 	if (cast_to_id == 0) {
 		rb_raise(rb_eArgError, "unable to find class \"%s\" to cast to\n", StringValuePtr(new_klassname));
 	}
@@ -961,9 +976,11 @@ VALUE prettyPrintMethod(Smoke::Index id)
 // Used to display debugging info about the signals a Qt::Object has connected.
 // Returns a Hash with keys of the signals names, and values of Arrays of 
 // Qt::Connections for the target slots
+
 static VALUE
 receivers_qobject(VALUE self)
 {
+/*
 	if (TYPE(self) != T_DATA) {
 		return Qnil;
 	}
@@ -972,7 +989,7 @@ receivers_qobject(VALUE self)
     Data_Get_Struct(self, smokeruby_object, o);	
 	UnencapsulatedQObject * qobject = (UnencapsulatedQObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
 	VALUE result = rb_hash_new();
-	QStrList signalNames = qobject->metaObject()->signalNames(true);
+	Q3StrList signalNames = qobject->metaObject()->signalNames(true);
 	
 	for (int sig = 0; sig < qobject->metaObject()->numSignals(true); sig++) {
 		QConnectionList * clist = qobject->public_receivers(sig);
@@ -1002,31 +1019,32 @@ receivers_qobject(VALUE self)
 	}
 	
 	return result;
+*/
 }
 
 // Takes a variable name and a QProperty with QVariant value, and returns a '
 // variable=value' pair with the value in ruby inspect style
-static QCString
+static Q3CString
 inspectProperty(Smoke * smoke, const QMetaProperty * property, const char * name, QVariant & value)
 {
 	if (property->isEnumType()) {
-		QMetaObject * metaObject = *(property->meta);
-		return QCString().sprintf(	" %s=%s::%s",
-									name,
-									smoke->binding->className(smoke->idClass(metaObject->className())), 
-									property->valueToKey(value.toInt()) );
+//		QMetaObject * metaObject = *(property->meta);
+//		return Q3CString().sprintf(	" %s=%s::%s",
+//									name,
+//									smoke->binding->className(smoke->idClass(metaObject->className())), 
+//									property->valueToKey(value.toInt()) );
 	}
 	
 	switch (value.type()) {
 	case QVariant::String:
-	case QVariant::CString:
+//	case QVariant::CString:
 	{
 		if (value.toString().isNull()) {
-			return QCString().sprintf(" %s=nil", name); 
+			return Q3CString().sprintf(" %s=nil", name); 
 		} else {
-			return QCString().sprintf(	" %s=\"%s\"", 
-										name, 
-										value.toString().latin1() );
+//			return Q3CString().sprintf(	" %s=\"%s\"", 
+//										name, 
+//										value.toString().latin1() );
 		}
 	}
 		
@@ -1035,46 +1053,46 @@ inspectProperty(Smoke * smoke, const QMetaProperty * property, const char * name
 		QString rubyName;
 		QRegExp name_re("^(is|has)(.)(.*)");
 		
-		if (name_re.search(name) != -1) {
-			rubyName = name_re.cap(2).lower() + name_re.cap(3) + "?";
+		if (name_re.indexIn(name) != -1) {
+			rubyName = name_re.cap(2).toLower() + name_re.cap(3) + "?";
 		} else {
 			rubyName = name;
 		}
 		
-		return QCString().sprintf(" %s=%s", rubyName.latin1(), value.toString().latin1());
+//		return Q3CString().sprintf(" %s=%s", rubyName.latin1(), value.toString().latin1());
 	}
-			
+
 	case QVariant::Color:
 	{
-		QColor c = value.toColor();
-		return QCString().sprintf(" %s=#<Qt::Color:0x0 %s>", name, c.name().latin1());
+//		QColor c = value.toColor();
+//		return Q3CString().sprintf(" %s=#<Qt::Color:0x0 %s>", name, c.name().latin1());
 	}
 			
 	case QVariant::Cursor:
 	{
-		QCursor c = value.toCursor();
-		return QCString().sprintf(" %s=#<Qt::Cursor:0x0 shape=%d>", name, c.shape());
+//		QCursor c = value.toCursor();
+//		return Q3CString().sprintf(" %s=#<Qt::Cursor:0x0 shape=%d>", name, c.shape());
 	}
 	
 	case QVariant::Double:
 	{
-		return QCString().sprintf(" %s=%.4f", name, value.toDouble());
+		return Q3CString().sprintf(" %s=%.4f", name, value.toDouble());
 	}
 	
 	case QVariant::Font:
 	{
-		QFont f = value.toFont();
-		return QCString().sprintf(	" %s=#<Qt::Font:0x0 family=%s, pointSize=%d, weight=%d, italic=%s, bold=%s, underline=%s, strikeOut=%s>", 
-									name, 
-									f.family().latin1(), f.pointSize(), f.weight(), 
-									f.italic() ? "true" : "false", f.bold() ? "true" : "false",
-									f.underline() ? "true" : "false", f.strikeOut() ? "true" : "false" );
+//		QFont f = value.toFont();
+//		return Q3CString().sprintf(	" %s=#<Qt::Font:0x0 family=%s, pointSize=%d, weight=%d, italic=%s, bold=%s, underline=%s, strikeOut=%s>", 
+//									name, 
+//									f.family().latin1(), f.pointSize(), f.weight(), 
+//									f.italic() ? "true" : "false", f.bold() ? "true" : "false",
+//									f.underline() ? "true" : "false", f.strikeOut() ? "true" : "false" );
 	}
 	
 	case QVariant::Point:
 	{
 		QPoint p = value.toPoint();
-		return QCString().sprintf(	" %s=#<Qt::Point:0x0 x=%d, y=%d>", 
+		return Q3CString().sprintf(	" %s=#<Qt::Point:0x0 x=%d, y=%d>", 
 									name, 
 									p.x(), p.y() );
 	}
@@ -1082,7 +1100,7 @@ inspectProperty(Smoke * smoke, const QMetaProperty * property, const char * name
 	case QVariant::Rect:
 	{
 		QRect r = value.toRect();
-		return QCString().sprintf(	" %s=#<Qt::Rect:0x0 left=%d, right=%d, top=%d, bottom=%d>", 
+		return Q3CString().sprintf(	" %s=#<Qt::Rect:0x0 left=%d, right=%d, top=%d, bottom=%d>", 
 									name, 
 									r.left(), r.right(), r.top(), r.bottom() );
 	}
@@ -1090,17 +1108,17 @@ inspectProperty(Smoke * smoke, const QMetaProperty * property, const char * name
 	case QVariant::Size:
 	{
 		QSize s = value.toSize();
-		return QCString().sprintf(	" %s=#<Qt::Size:0x0 width=%d, height=%d>", 
+		return Q3CString().sprintf(	" %s=#<Qt::Size:0x0 width=%d, height=%d>", 
 									name, 
 									s.width(), s.height() );
 	}
 	
 	case QVariant::SizePolicy:
 	{
-		QSizePolicy s = value.toSizePolicy();
-		return QCString().sprintf(	" %s=#<Qt::SizePolicy:0x0 horData=%d, verData=%d>", 
-									name, 
-									s.horData(), s.verData() );
+//		QSizePolicy s = value.toSizePolicy();
+//		return Q3CString().sprintf(	" %s=#<Qt::SizePolicy:0x0 horData=%d, verData=%d>", 
+//									name, 
+//									s.horData(), s.verData() );
 	}
 	
 	case QVariant::Brush:
@@ -1110,11 +1128,11 @@ inspectProperty(Smoke * smoke, const QMetaProperty * property, const char * name
 	case QVariant::Pixmap:
 	case QVariant::Region:
 	{
-		return QCString().sprintf(" %s=#<Qt::%s:0x0>", name, value.typeName() + 1);
+		return Q3CString().sprintf(" %s=#<Qt::%s:0x0>", name, value.typeName() + 1);
 	}
 	
 	default:
-		return QCString().sprintf(	" %s=%s", 
+		return Q3CString().sprintf(	" %s=%s", 
 									name, 
 									(value.isNull() || value.toString().isNull()) ? "nil" : value.toString().latin1() );
 	}
@@ -1141,12 +1159,12 @@ inspect_qobject(VALUE self)
     Data_Get_Struct(self, smokeruby_object, o);	
 	QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
 	
-	QCString value_list;
-	value_list.append(QCString().sprintf(" name=\"%s\"", qobject->name()));
+	Q3CString value_list;
+	value_list.append(Q3CString().sprintf(" name=\"%s\"", qobject->name()));
 	
 	if (qobject->isWidgetType()) {
 		QWidget * w = (QWidget *) qobject;
-		value_list.append(QCString().sprintf(	", x=%d, y=%d, width=%d, height=%d", 
+		value_list.append(Q3CString().sprintf(	", x=%d, y=%d, width=%d, height=%d", 
 												w->x(),
 												w->y(),
 												w->width(),
@@ -1184,13 +1202,13 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	
 	smokeruby_object * o = 0;
     Data_Get_Struct(self, smokeruby_object, o);	
-	UnencapsulatedQObject * qobject = (UnencapsulatedQObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
-	QStrList names = qobject->metaObject()->propertyNames(true);
+	QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+//	Q3StrList names = qobject->metaObject()->propertyNames(true);
 	
-	QCString value_list;		
+	Q3CString value_list;		
 	
 	if (qobject->parent() != 0) {
-		QCString parentInspectString;
+		Q3CString parentInspectString;
 		VALUE obj = getPointerObject(qobject->parent());
 		if (obj != Qnil) {
 			VALUE parent_inspect_str = rb_funcall(obj, rb_intern("to_s"), 0, 0);	
@@ -1202,7 +1220,7 @@ pretty_print_qobject(VALUE self, VALUE pp)
 		
 		if (qobject->parent()->isWidgetType()) {
 			QWidget * w = (QWidget *) qobject->parent();
-			value_list = QCString().sprintf(	"  parent=%s name=\"%s\", x=%d, y=%d, width=%d, height=%d>,\n", 
+			value_list = Q3CString().sprintf(	"  parent=%s name=\"%s\", x=%d, y=%d, width=%d, height=%d>,\n", 
 												parentInspectString.data(),
 												w->name(),
 												w->x(),
@@ -1210,7 +1228,7 @@ pretty_print_qobject(VALUE self, VALUE pp)
 												w->width(),
 												w->height() );
 		} else {
-			value_list = QCString().sprintf(	"  parent=%s name=\"%s\">,\n", 
+			value_list = Q3CString().sprintf(	"  parent=%s name=\"%s\">,\n", 
 												parentInspectString.data(),
 												qobject->parent()->name() );
 		}
@@ -1218,29 +1236,30 @@ pretty_print_qobject(VALUE self, VALUE pp)
 		rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.data()));
 	}
 	
-	if (qobject->children() != 0) {
-		value_list = QCString().sprintf("  children=Array (%d element(s)),\n", qobject->children()->count());
-		rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.data()));
-	}
+//	if (qobject->children() != 0) {
+//		value_list = Q3CString().sprintf("  children=Array (%d element(s)),\n", qobject->children()->count());
+//		rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.data()));
+//	}
 	
-	value_list = QCString("  metaObject=#<Qt::MetaObject:0x0");
-	value_list.append(QCString().sprintf(" className=%s", qobject->metaObject()->className()));
+	value_list = Q3CString("  metaObject=#<Qt::MetaObject:0x0");
+	value_list.append(Q3CString().sprintf(" className=%s", qobject->metaObject()->className()));
 	
 	if (qobject->metaObject()->superClass() != 0) {
-		value_list.append(QCString().sprintf(", superClass=#<Qt::MetaObject:0x0>", qobject->metaObject()->superClass()));
+		value_list.append(Q3CString().sprintf(", superClass=#<Qt::MetaObject:0x0>", qobject->metaObject()->superClass()));
 	}		
 	
-	if (qobject->metaObject()->numSignals() > 0) {
-		value_list.append(QCString().sprintf(", signalNames=Array (%d element(s))", qobject->metaObject()->numSignals()));
-	}		
+//	if (qobject->metaObject()->numSignals() > 0) {
+//		value_list.append(Q3CString().sprintf(", signalNames=Array (%d element(s))", qobject->metaObject()->numSignals()));
+//	}		
 	
-	if (qobject->metaObject()->numSlots() > 0) {
-		value_list.append(QCString().sprintf(", slotNames=Array (%d element(s))", qobject->metaObject()->numSlots()));
-	}
+//	if (qobject->metaObject()->numSlots() > 0) {
+//		value_list.append(Q3CString().sprintf(", slotNames=Array (%d element(s))", qobject->metaObject()->numSlots()));
+//	}
 	
 	value_list.append(">,\n");
 	rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.data()));
-				
+
+/*				
 	int signalCount = 0;
 	for (int sig = 0; sig < qobject->metaObject()->numSignals(true); sig++) {
 		QConnectionList * clist = qobject->public_receivers(sig);
@@ -1250,12 +1269,12 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	}
 	
 	if (signalCount > 0) {
-		value_list = QCString().sprintf(" receivers=Hash (%d element(s)),\n", signalCount);
+		value_list = Q3CString().sprintf(" receivers=Hash (%d element(s)),\n", signalCount);
 		rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.data()));
 	}		
-	
+*/	
 	int	index = 0;
-	const char * name = names.first();
+/*	const char * name = names.first();
 	
 	if (name != 0) {
 		QVariant value = qobject->property(name);
@@ -1276,7 +1295,7 @@ pretty_print_qobject(VALUE self, VALUE pp)
 			rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.data()));
 		}
 	}
-	
+*/	
 	rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(">"));
 	
 	return self;
@@ -1289,11 +1308,11 @@ metaObject(VALUE self)
     return metaObject;
 }
 
-static QCString
+static Q3CString
 find_cached_selector(int argc, VALUE * argv, VALUE klass, char * methodName)
 {
     // Look in the cache
-	QCString mcid(rb_class2name(klass));
+	Q3CString mcid(rb_class2name(klass));
 	mcid += ';';
 	mcid += methodName;
 	for(int i=3; i<argc ; i++)
@@ -1302,7 +1321,7 @@ find_cached_selector(int argc, VALUE * argv, VALUE klass, char * methodName)
 		mcid += get_VALUEtype(argv[i]);
 	}
 	
-	Smoke::Index *rcid = methcache.find((const char *)mcid);
+	Smoke::Index *rcid = methcache.value((const char *)mcid);
 #ifdef DEBUG
 	if (do_debug & qtdb_calls) logger("method_missing mcid: %s", (const char *) mcid);
 #endif
@@ -1362,7 +1381,7 @@ method_missing(int argc, VALUE * argv, VALUE self)
     }
 
 	{
-		QCString mcid = find_cached_selector(argc+3, temp_stack, klass, methodName);
+		Q3CString mcid = find_cached_selector(argc+3, temp_stack, klass, methodName);
 
 		if (_current_method == -1) {
 			// Find the C++ method to call. Do that from Ruby for now
@@ -1410,7 +1429,7 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
     }
 
     {
-		QCString mcid = find_cached_selector(argc+3, temp_stack, klass, methodName);
+		Q3CString mcid = find_cached_selector(argc+3, temp_stack, klass, methodName);
 
 		if (_current_method == -1) {
 			VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, temp_stack);
@@ -1512,7 +1531,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	{ 
 		// Put this in a C block so that the mcid will be de-allocated at the end of the block,
 		// rather than on f'n exit, to avoid the longjmp problem described below
-		QCString mcid = find_cached_selector(argc+4, temp_stack, klass, rb_class2name(klass));
+		Q3CString mcid = find_cached_selector(argc+4, temp_stack, klass, rb_class2name(klass));
 
 		if (_current_method == -1) {
 			retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+4, temp_stack);
@@ -1581,7 +1600,7 @@ new_qobject(int argc, VALUE * argv, VALUE klass)
 	// TODO: Don't do this everytime a new instance is created, just once..
 	rb_define_method(klass, "qt_invoke", (VALUE (*) (...)) qt_invoke, -1);
 	rb_define_method(klass, "qt_emit", (VALUE (*) (...)) qt_invoke, -1);
-	rb_define_method(klass, "metaObject", (VALUE (*) (...)) metaObject, 0);
+//	rb_define_method(klass, "metaObject", (VALUE (*) (...)) metaObject, 0);
 	VALUE signalNames = rb_funcall(qt_internal_module, rb_intern("getSignalNames"), 1, klass);
 	for (long index = 0; index < RARRAY(signalNames)->len; index++) {
 	    VALUE signal = rb_ary_entry(signalNames, index);
@@ -1639,7 +1658,7 @@ getmetainfo(VALUE self, int &offset, int &index)
     if(!ometa) return 0;
     QMetaObject *metaobject = (QMetaObject*)ometa->ptr;
 
-    offset = metaobject->signalOffset();
+//    offset = metaobject->signalOffset();
 
     VALUE signalInfo = rb_funcall(qt_internal_module, rb_intern("signalInfo"), 2, self, rb_str_new2(signalname));
     VALUE member = rb_ary_entry(signalInfo, 0);
@@ -1658,7 +1677,8 @@ getslotinfo(VALUE self, int id, char *&slotname, int &index, bool isSignal = fal
 
     QMetaObject *metaobject = (QMetaObject*)ometa->ptr;
 
-    int offset = isSignal ? metaobject->signalOffset() : metaobject->slotOffset();
+//    int offset = isSignal ? metaobject->signalOffset() : metaobject->slotOffset();
+    int offset;
 
     index = id - offset;   // where we at
     if(index < 0) return Qnil;
@@ -1705,12 +1725,12 @@ qt_invoke(int argc, VALUE * argv, VALUE self)
 {
     // Arguments: int id, QUObject *o
     int id = NUM2INT(argv[0]);
-    QUObject *_o = 0;
+//    QUObject *_o = 0;
 
-    Data_Get_Struct(rb_ary_entry(argv[1], 0), QUObject, _o);
-    if(_o == 0) {
-    	rb_raise(rb_eRuntimeError, "Cannot create QUObject\n");
-    }
+//    Data_Get_Struct(rb_ary_entry(argv[1], 0), QUObject, _o);
+//    if(_o == 0) {
+//    	rb_raise(rb_eRuntimeError, "Cannot create QUObject\n");
+//    }
 
     smokeruby_object *o = value_obj_info(self);
     (void) (QObject*)o->smoke->cast(
@@ -1731,8 +1751,8 @@ qt_invoke(int argc, VALUE * argv, VALUE self)
 
     QString name(slotname);
     name.replace(QRegExp("\\(.*"), "");
-    InvokeSlot slot(self, rb_intern(name.latin1()), mocArgs, _o);
-    slot.next();
+//    InvokeSlot slot(self, rb_intern(name.latin1()), mocArgs, _o);
+//    slot.next();
 
     return Qtrue;
 }
@@ -1883,7 +1903,7 @@ static VALUE
 find_pclassid(VALUE /*self*/, VALUE p_value)
 {
     char *p = StringValuePtr(p_value);
-    Smoke::Index *r = classcache.find(p);
+    Smoke::Index *r = classcache.value(p);
     if(r)
         return INT2NUM((int)*r);
     else
@@ -1903,7 +1923,7 @@ static VALUE
 find_mcid(VALUE /*self*/, VALUE mcid_value)
 {
     char *mcid = StringValuePtr(mcid_value);
-    Smoke::Index *r = methcache.find(mcid);
+    Smoke::Index *r = methcache.value(mcid);
     if(r)
 	return INT2NUM((int)*r);
     else
@@ -1919,6 +1939,7 @@ getVALUEtype(VALUE /*self*/, VALUE ruby_value)
 static VALUE
 make_QUParameter(VALUE /*self*/, VALUE name_value, VALUE type_value, VALUE /*extra*/, VALUE inout_value)
 {
+/*
     char *name = StringValuePtr(name_value);
     char *type = StringValuePtr(type_value);
     int inout = NUM2INT(inout_value);
@@ -1942,23 +1963,27 @@ make_QUParameter(VALUE /*self*/, VALUE name_value, VALUE type_value, VALUE /*ext
     p->inOut = inout;
     p->typeExtra = 0;
     return Data_Wrap_Struct(rb_cObject, 0, 0, p);
+*/
 }
 
 static VALUE
 make_QMetaData(VALUE /*self*/, VALUE name_value, VALUE method)
 {
+/*
     char *name = StringValuePtr(name_value);
     QMetaData *m = new QMetaData;		// will be deleted
     m->name = new char[strlen(name) + 1];
     strcpy((char*)m->name, name);
-    Data_Get_Struct(method, QUMethod, m->method);
+//    Data_Get_Struct(method, QUMethod, m->method);
     m->access = QMetaData::Public;
     return Data_Wrap_Struct(rb_cObject, 0, 0, m);
+*/
 }
 
 static VALUE
 make_QUMethod(VALUE /*self*/, VALUE name_value, VALUE params)
 {
+/*
     char *name = StringValuePtr(name_value);
     QUMethod *m = new QUMethod;			// permanent memory allocation
     m->name = new char[strlen(name) + 1];	// this too
@@ -1977,11 +2002,13 @@ make_QUMethod(VALUE /*self*/, VALUE name_value, VALUE params)
 	}
     }
     return Data_Wrap_Struct(rb_cObject, 0, 0, m);
+*/
 }
 
 static VALUE
 make_QMetaData_tbl(VALUE /*self*/, VALUE list)
 {
+/*
     long count = RARRAY(list)->len;
     QMetaData *m = new QMetaData[count];
 
@@ -1995,11 +2022,13 @@ make_QMetaData_tbl(VALUE /*self*/, VALUE list)
     }
 
     return Data_Wrap_Struct(rb_cObject, 0, 0, m);
+*/
 }
 
 static VALUE
 make_metaObject(VALUE /*self*/, VALUE className_value, VALUE parent, VALUE slot_tbl_value, VALUE slot_count_value, VALUE signal_tbl_value, VALUE signal_count_value)
 {
+/*
     char *className = strdup(StringValuePtr(className_value));
 
     QMetaData * slot_tbl = 0;
@@ -2036,6 +2065,7 @@ make_metaObject(VALUE /*self*/, VALUE className_value, VALUE parent, VALUE slot_
     o->allocated = true;
 
     return Data_Wrap_Struct(qt_qmetaobject_class, smokeruby_mark, smokeruby_free, o);
+*/
 }
 
 static VALUE
@@ -2268,9 +2298,9 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
 					rb_ary_push(result, rb_str_new2(qt_Smoke->methodNames[methodRef.name] + strlen("operator"))); \
 				} \
 			} else if (predicate_re.search(qt_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 0) { \
-				rb_ary_push(result, rb_str_new2(predicate_re.cap(2).lower() + predicate_re.cap(3) + "?")); \
+				rb_ary_push(result, rb_str_new2(predicate_re.cap(2).toLower() + predicate_re.cap(3) + "?")); \
 			} else if (set_re.search(qt_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 1) { \
-				rb_ary_push(result, rb_str_new2(set_re.cap(2).lower() + set_re.cap(3) + "=")); \
+				rb_ary_push(result, rb_str_new2(set_re.cap(2).toLower() + set_re.cap(3) + "=")); \
 			} else { \
 				rb_ary_push(result, rb_str_new2(qt_Smoke->methodNames[methodRef.name])); \
 			} \
@@ -2594,8 +2624,8 @@ Init_qtruby()
     qt_Smoke->binding = new QtRubySmokeBinding(qt_Smoke);
     install_handlers(Qt_handlers);
 
-    methcache.setAutoDelete(true);
-    classcache.setAutoDelete(true);
+//    methcache.setAutoDelete(true);
+//    classcache.setAutoDelete(true);
 
 	if (qt_module == Qnil) {
 		qt_module = rb_define_module("Qt");

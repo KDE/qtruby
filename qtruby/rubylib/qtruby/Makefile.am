@@ -10,6 +10,8 @@ rubylibdir = $(RUBY_SITEARCHDIR)
 rubylib_LTLIBRARIES = qtruby.la
 qtruby_la_SOURCES = 
 qtruby_la_LDFLAGS = -module $(all_libraries) -version-info 0:0:0 -L$(top_srcdir)/smoke/qt/
-qtruby_la_LIBADD = libqtrubyinternal.la $(LIB_QT) $(top_builddir)/smoke/qt/libsmokeqt.la
+qtruby_la_LIBADD = libqtrubyinternal.la $(LIB_QTCORE) $(LIB_QTGUI) $(LIB_QTNETWORK) \
+						$(LIB_QTOPENGL) $(LIB_QTSQL) $(LIB_QTCORE) $(LIB_QTXML) \
+ 						$(top_builddir)/smoke/qt/libsmokeqt.la
 
 SUBDIRS = lib 
