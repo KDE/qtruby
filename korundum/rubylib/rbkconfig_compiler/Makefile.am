@@ -3,7 +3,7 @@ SUBDIRS = tests
 RBUIC=rbuic
 
 %.rb: %.ui
-	$(RBUIC) -tr ${UIC_TR} -kde $< -o $@
+	$(RBUIC) -tr ${UIC_TR} -kde $*.ui -o $@
 
 exampleprefs_base.rb: $(srcdir)/example.kcfg rbkconfig_compiler $(srcdir)/exampleprefs_base.kcfgc
 	./rbkconfig_compiler $(srcdir)/example.kcfg $(srcdir)/exampleprefs_base.kcfgc
