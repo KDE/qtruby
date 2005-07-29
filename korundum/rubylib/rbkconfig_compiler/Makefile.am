@@ -8,7 +8,7 @@ RBUIC=rbuic
 exampleprefs_base.rb: $(srcdir)/example.kcfg rbkconfig_compiler $(srcdir)/exampleprefs_base.kcfgc
 	./rbkconfig_compiler $(srcdir)/example.kcfg $(srcdir)/exampleprefs_base.kcfgc
 
-AM_CPPFLAGS = -I$(top_srcdir)/kdecore -I$(top_srcdir) $(all_includes)
+AM_CPPFLAGS =  -I$(top_srcdir) $(all_includes) -DQT3_SUPPORT
 
 bin_PROGRAMS = rbkconfig_compiler
 

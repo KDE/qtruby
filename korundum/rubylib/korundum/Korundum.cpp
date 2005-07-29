@@ -19,6 +19,9 @@
 #include <qstringlist.h>
 #include <qmap.h>
 #include <qdatastream.h>
+//Added by qt3to4:
+#include <Q3ValueList>
+#include <Q3CString>
 
 #include <kdeversion.h>
 #include <dcopclient.h>
@@ -130,13 +133,13 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 						// Special case any types which are in the Smoke runtime, but
 						// don't have QDataStream '<<' methods
 						if (strcmp(t.name(), "QCString") == 0) {
-							QCString temp((const QCString&) *((QCString *) stack[i].s_voidp));
+							Q3CString temp((const Q3CString&) *((Q3CString *) stack[i].s_voidp));
 							*stream << temp;
 							break;
-						} else if (strcmp(t.name(), "QCStringList") == 0) {
-							QCStringList temp((const QCStringList&) *((QCStringList *) stack[i].s_voidp));
-							*stream << temp;
-							break;
+//						} else if (strcmp(t.name(), "QCStringList") == 0) {
+//							QCStringList temp((const QCStringList&) *((QCStringList *) stack[i].s_voidp));
+//							*stream << temp;
+//							break;
 						} else if (strcmp(t.name(), "QStringList") == 0) {
 							QStringList temp((const QStringList&) *((QStringList *) stack[i].s_voidp));
 							*stream << temp;
@@ -146,7 +149,7 @@ smokeStackToStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int ite
 							*stream << temp;
 							break;
 						} else if (strcmp(t.name(), "QMap<QCString,DCOPRef>") == 0) {
-							QMap<QCString,DCOPRef> temp((const QMap<QCString,DCOPRef>&) *((QMap<QCString,DCOPRef>*) stack[i].s_voidp));
+							QMap<Q3CString,DCOPRef> temp((const QMap<Q3CString,DCOPRef>&) *((QMap<Q3CString,DCOPRef>*) stack[i].s_voidp));
 							*stream << temp;
 							break;
 						}
@@ -287,15 +290,15 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 						// Special case any types which are in the Smoke runtime, but
 						// don't have QDataStream '>>' methods
 						if (strcmp(t.name(), "QCString") == 0) {
-							QCString temp;
+							Q3CString temp;
 							*stream >> temp;
-							stack[i].s_voidp = new QCString(temp);
+							stack[i].s_voidp = new Q3CString(temp);
 							break;
-						} else if (strcmp(t.name(), "QCStringList") == 0) {
-							QCStringList temp;
-							*stream >> temp;
-							stack[i].s_voidp = new QCStringList(temp);
-							break;
+//						} else if (strcmp(t.name(), "QCStringList") == 0) {
+//							QCStringList temp;
+//							*stream >> temp;
+//							stack[i].s_voidp = new QCStringList(temp);
+//							break;
 						} else if (strcmp(t.name(), "QStringList") == 0) {
 							QStringList temp;
 							*stream >> temp;
@@ -307,9 +310,9 @@ smokeStackFromStream(Marshall *m, Smoke::Stack stack, QDataStream* stream, int i
 							stack[i].s_voidp = new KURL::List(temp);
 							break;
 						} else if (strcmp(t.name(), "QMap<QCString,DCOPRef>") == 0) {
-							QMap<QCString,DCOPRef> temp;
+							QMap<Q3CString,DCOPRef> temp;
 							*stream >> temp;
-							stack[i].s_voidp = new QMap<QCString,DCOPRef>(temp);
+							stack[i].s_voidp = new QMap<Q3CString,DCOPRef>(temp);
 							break;
 						}
 						
@@ -411,7 +414,7 @@ public:
 
 class DCOPCall : public Marshall {
 	VALUE _obj;
-	QCString & _remFun;
+	Q3CString & _remFun;
     int _items;
     VALUE *_sp;
 	QByteArray *_data;
@@ -425,12 +428,12 @@ class DCOPCall : public Marshall {
     VALUE _result;
     bool _called;
 public:
-    DCOPCall(VALUE obj, QCString & remFun, int items, VALUE *sp, VALUE args, bool useEventLoop, int timeout) :
+    DCOPCall(VALUE obj, Q3CString & remFun, int items, VALUE *sp, VALUE args, bool useEventLoop, int timeout) :
 		_obj(obj), _remFun(remFun), _items(items), _sp(sp),
 		_useEventLoop(useEventLoop), _timeout(timeout), _cur(-1), _called(false)
     {
 		_data = new QByteArray();
-		_stream = new QDataStream(*_data, IO_WriteOnly);
+		_stream = new QDataStream(_data, QIODevice::WriteOnly);
 		Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
 		_stack = new Smoke::StackItem[_items];
 		_result = Qnil;
@@ -467,7 +470,7 @@ public:
 		smokeruby_object *o = value_obj_info(_obj);
 		DCOPRef * dcopRef = (DCOPRef *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("DCOPRef"));
 		DCOPClient* dc = dcopRef->dcopClient();
-		QCString replyType;
+		DCOPCString replyType;
 		QByteArray dataReceived;
 #if KDE_VERSION >= 0x030200
 		bool ok = dc->call(dcopRef->app(), dcopRef->obj(), _remFun, *_data, replyType, dataReceived, _useEventLoop, _timeout);
@@ -484,15 +487,15 @@ public:
 			return;
 		}
 		
-		QDataStream ds(dataReceived, IO_ReadOnly);
+		QDataStream ds((QByteArray *) &dataReceived, QIODevice::ReadOnly);
 		
 		if (replyType == "QValueList<DCOPRef>") {
 			// Special case QValueList<DCOPRef> as a QDataStream marshaller 
 			// isn't in the Smoke runtime
-			QValueList<DCOPRef> valuelist;
+			Q3ValueList<DCOPRef> valuelist;
 			ds >> valuelist;
 			_result = rb_ary_new();
-			for (QValueListIterator<DCOPRef> it = valuelist.begin(); it != valuelist.end(); ++it) {
+			for (Q3ValueListIterator<DCOPRef> it = valuelist.begin(); it != valuelist.end(); ++it) {
 				void *p = new DCOPRef(*it);
 				VALUE obj = getPointerObject(p);
 				
@@ -509,10 +512,10 @@ public:
 			}
 		} else if (replyType == "QValueList<QCString>") {
 			// And special case this type too 
-			QValueList<QCString> propertyList;
+			Q3ValueList<Q3CString> propertyList;
 			ds >> propertyList;
 			_result = rb_ary_new();
-			for (QValueListIterator<QCString> it = propertyList.begin(); it != propertyList.end(); ++it) {
+			for (Q3ValueListIterator<Q3CString> it = propertyList.begin(); it != propertyList.end(); ++it) {
 				rb_ary_push(_result, rb_str_new2((const char *) *it));
 			}
 		} else if (replyType == "QMap<QString,DCOPRef>") {
@@ -562,7 +565,7 @@ public:
 
 class DCOPSend : public Marshall {
 	VALUE _obj;
-	QCString & _remFun;
+	Q3CString & _remFun;
 	QByteArray *_data;
 	QDataStream *_stream;
     int _id;
@@ -574,11 +577,11 @@ class DCOPSend : public Marshall {
     Smoke::Stack _stack;
     bool _called;
 public:
-    DCOPSend(VALUE obj, QCString & remFun, int items, VALUE *sp, VALUE args, VALUE * result) :
+    DCOPSend(VALUE obj, Q3CString & remFun, int items, VALUE *sp, VALUE args, VALUE * result) :
 		_obj(obj), _remFun(remFun), _items(items), _sp(sp), _cur(-1), _result(result), _called(false)
     {
 		_data = new QByteArray();
-		_stream = new QDataStream(*_data, IO_WriteOnly);
+		_stream = new QDataStream(_data, QIODevice::WriteOnly);
 		Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
 		_stack = new Smoke::StackItem[_items];
     }
@@ -650,7 +653,7 @@ public:
 		_obj(obj), _signalName(signalName), _sp(sp), _items(items), _cur(-1), _called(false)
     {
 		_data = new QByteArray();
-		_stream = new QDataStream(*_data, IO_WriteOnly);
+		_stream = new QDataStream(_data, QIODevice::WriteOnly);
 		Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
 		_stack = new Smoke::StackItem[_items];
     }
@@ -711,7 +714,7 @@ class DCOPReplyValue : public Marshall {
 public:
 	DCOPReplyValue(QByteArray & retval, VALUE * result, VALUE replyType) 
 	{
-		QDataStream _retval(retval, IO_WriteOnly);
+		QDataStream _retval(&retval, QIODevice::WriteOnly);
 		_result = result;
 		Data_Get_Struct(rb_ary_entry(replyType, 1), MocArgument, _replyType);
 		_stack = new Smoke::StackItem[1];
@@ -790,7 +793,7 @@ public:
 		{
 			// Special case QValueList<DCOPRef> as a QDataStream marshaller 
 			// isn't in the Smoke runtime
-			QValueList<DCOPRef> windowList;
+			Q3ValueList<DCOPRef> windowList;
 			
 			for (long i = 0; i < RARRAY(result)->len; i++) {
 				VALUE item = rb_ary_entry(result, i);
@@ -801,19 +804,19 @@ public:
 				ptr = o->smoke->cast(ptr, o->classId, o->smoke->idClass("DCOPRef"));
 				windowList.append((DCOPRef)*(DCOPRef*)ptr);
 			}
-			QDataStream retval(*_retval, IO_WriteOnly);
+			QDataStream retval(_retval, QIODevice::WriteOnly);
 			retval << windowList;
 		} else if (	strcmp(_replyTypeName, "QValueList<QCString>") == 0
 					&& TYPE(result) == T_ARRAY ) 
 		{
 			// And special case this type too 
-			QValueList<QCString> propertyList;
+			Q3ValueList<Q3CString> propertyList;
 			
 			for (long i = 0; i < RARRAY(result)->len; i++) {
 				VALUE item = rb_ary_entry(result, i);
-				propertyList.append(QCString(StringValuePtr(item)));
+				propertyList.append(Q3CString(StringValuePtr(item)));
 			}
-			QDataStream retval(*_retval, IO_WriteOnly);
+			QDataStream retval(_retval, QIODevice::WriteOnly);
 			retval << propertyList;
 		} else if (	strcmp(_replyTypeName, "QMap<QString,DCOPRef>") == 0
 					&& TYPE(result) == T_HASH ) 
@@ -835,7 +838,7 @@ public:
 				
 				actionMap[QString(StringValuePtr(action))] = (DCOPRef)*(DCOPRef*)ptr;
 			}
-			QDataStream retval(*_retval, IO_WriteOnly);
+			QDataStream retval(_retval, QIODevice::WriteOnly);
 			retval << actionMap;
 		} else if (_replyType != Qnil) {
 			DCOPReplyValue dcopReply(*_retval, &result, _replyType);
@@ -862,7 +865,7 @@ public:
 	{
 		_replyTypeName = StringValuePtr(replyTypeName);
 		_items = NUM2INT(rb_ary_entry(args, 0));
-		_stream = new QDataStream(data, IO_ReadOnly);
+		_stream = new QDataStream(&data, QIODevice::ReadOnly);
 		_retval = &returnValue;
 
 		Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
@@ -970,7 +973,7 @@ dcop_process(VALUE /*self*/, VALUE target, VALUE slotname, VALUE args, VALUE dat
 static VALUE
 dcop_call(int argc, VALUE * argv, VALUE /*self*/)
 {
-	QCString fun(StringValuePtr(argv[1]));
+	Q3CString fun(StringValuePtr(argv[1]));
 	VALUE args = argv[2];
 	bool useEventLoop = (argv[argc-2] == Qtrue ? true : false);
 	int timeout = NUM2INT(argv[argc-1]);
@@ -984,7 +987,7 @@ dcop_call(int argc, VALUE * argv, VALUE /*self*/)
 static VALUE
 dcop_send(int argc, VALUE * argv, VALUE /*self*/)
 {
-	QCString fun(StringValuePtr(argv[1]));
+	Q3CString fun(StringValuePtr(argv[1]));
 	VALUE args = argv[2];
 	VALUE result = Qnil;
 	

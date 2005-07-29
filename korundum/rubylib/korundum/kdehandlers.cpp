@@ -16,13 +16,16 @@
  ***************************************************************************/
 
 #include <qtruby.h>
+//Added by qt3to4:
+#include <Q3ValueList>
+#include <Q3CString>
 #include <smokeruby.h>
 
 #include <kdeversion.h>
 #include <dcopclient.h>
 #include <dcopobject.h>
 #include <dcopref.h>
-#include <qptrlist.h>
+#include <q3ptrlist.h>
 #include <ktrader.h>
 #include <kservicegroup.h>
 #include <kservice.h>
@@ -112,6 +115,7 @@ kde_resolve_classname(Smoke * smoke, int classId, void * ptr)
 
 };
 
+/*
 void marshall_QCStringList(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE: 
@@ -128,10 +132,10 @@ void marshall_QCStringList(Marshall *m) {
 	    for(long i = 0; i < count; i++) {
 		VALUE item = rb_ary_entry(list, i);
 		if(TYPE(item) != T_STRING) {
-		    stringlist->append(QCString());
+		    stringlist->append(Q3CString());
 		    continue;
 		}
-		stringlist->append(QCString(StringValuePtr(item), RSTRING(item)->len + 1));
+		stringlist->append(Q3CString(StringValuePtr(item), RSTRING(item)->len + 1));
 	    }
 
 	    m->item().s_voidp = stringlist;
@@ -170,6 +174,7 @@ void marshall_QCStringList(Marshall *m) {
 	break;
     }
 }
+*/
 
 #if defined (__i386__) && defined (__GNUC__) && __GNUC__ >= 2
 #  define BREAKPOINT { __asm__ __volatile__ ("int $03"); }
@@ -963,17 +968,17 @@ void marshall_ItemList(Marshall *m) {
 #define DEF_LIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; };  \
         Marshall::HandlerFn marshall_##ListIdent = marshall_ItemList<Item,ItemList,ListIdent##STR>;
 
-DEF_LIST_MARSHALLER( KFileItemList, QPtrList<KFileItem>, KFileItem )
-DEF_LIST_MARSHALLER( KMainWindowList, QPtrList<KMainWindow>, KMainWindow )
-DEF_LIST_MARSHALLER( KActionList, QPtrList<KAction>, KAction )
-DEF_LIST_MARSHALLER( DCOPObjectList, QPtrList<DCOPObject>, DCOPObject )
-DEF_LIST_MARSHALLER( KDockWidgetList, QPtrList<KDockWidget>, KDockWidget )
-DEF_LIST_MARSHALLER( KFileTreeBranch, QPtrList<KFileTreeBranch>, KFileTreeBranch )
-DEF_LIST_MARSHALLER( KFileTreeViewItem, QPtrList<KFileTreeViewItem>, KFileTreeViewItem )
-DEF_LIST_MARSHALLER( KPartList, QPtrList<KParts::Part>, KParts::Part )
-DEF_LIST_MARSHALLER( KPartPluginList, QPtrList<KParts::Plugin>, KParts::Plugin )
-DEF_LIST_MARSHALLER( KPartReadOnlyPartList, QPtrList<KParts::ReadOnlyPart>, KParts::ReadOnlyPart )
-DEF_LIST_MARSHALLER( KServiceTypeProfileList, QPtrList<KServiceTypeProfile>, KServiceTypeProfile )
+DEF_LIST_MARSHALLER( KFileItemList, Q3PtrList<KFileItem>, KFileItem )
+DEF_LIST_MARSHALLER( KMainWindowList, Q3PtrList<KMainWindow>, KMainWindow )
+DEF_LIST_MARSHALLER( KActionList, Q3PtrList<KAction>, KAction )
+DEF_LIST_MARSHALLER( DCOPObjectList, Q3PtrList<DCOPObject>, DCOPObject )
+DEF_LIST_MARSHALLER( KDockWidgetList, Q3PtrList<KDockWidget>, KDockWidget )
+DEF_LIST_MARSHALLER( KFileTreeBranch, Q3PtrList<KFileTreeBranch>, KFileTreeBranch )
+DEF_LIST_MARSHALLER( KFileTreeViewItem, Q3PtrList<KFileTreeViewItem>, KFileTreeViewItem )
+DEF_LIST_MARSHALLER( KPartList, Q3PtrList<KParts::Part>, KParts::Part )
+DEF_LIST_MARSHALLER( KPartPluginList, Q3PtrList<KParts::Plugin>, KParts::Plugin )
+DEF_LIST_MARSHALLER( KPartReadOnlyPartList, Q3PtrList<KParts::ReadOnlyPart>, KParts::ReadOnlyPart )
+DEF_LIST_MARSHALLER( KServiceTypeProfileList, Q3PtrList<KServiceTypeProfile>, KServiceTypeProfile )
 
 template <class Item, class ItemList, class ItemListIterator, const char *ItemSTR >
 void marshall_ValueItemList(Marshall *m) {
@@ -1069,15 +1074,16 @@ void marshall_ValueItemList(Marshall *m) {
         Marshall::HandlerFn marshall_##ListIdent = marshall_ValueItemList<Item,ItemList,Itr,ListIdent##STR>;
 
 #if KDE_VERSION >= 0x030200
-DEF_VALUELIST_MARSHALLER( ChoicesList, QValueList<KConfigSkeleton::ItemEnum::Choice>, KConfigSkeleton::ItemEnum::Choice, QValueList<KConfigSkeleton::ItemEnum::Choice>::Iterator )
+DEF_VALUELIST_MARSHALLER( ChoicesList, Q3ValueList<KConfigSkeleton::ItemEnum::Choice>, KConfigSkeleton::ItemEnum::Choice, Q3ValueList<KConfigSkeleton::ItemEnum::Choice>::Iterator )
 #endif
-DEF_VALUELIST_MARSHALLER( KAboutPersonList, QValueList<KAboutPerson>, KAboutPerson, QValueList<KAboutPerson>::Iterator )
-DEF_VALUELIST_MARSHALLER( KAboutTranslatorList, QValueList<KAboutTranslator>, KAboutTranslator, QValueList<KAboutTranslator>::Iterator )
-DEF_VALUELIST_MARSHALLER( KIOCopyInfoList, QValueList<KIO::CopyInfo>, KIO::CopyInfo, QValueList<KIO::CopyInfo>::Iterator )
-DEF_VALUELIST_MARSHALLER( KServiceOfferList, QValueList<KServiceOffer>, KServiceOffer, QValueList<KServiceOffer>::Iterator )
-DEF_VALUELIST_MARSHALLER( UDSEntry, QValueList<KIO::UDSAtom>, KIO::UDSAtom, QValueList<KIO::UDSAtom>::Iterator )
+DEF_VALUELIST_MARSHALLER( KAboutPersonList, Q3ValueList<KAboutPerson>, KAboutPerson, Q3ValueList<KAboutPerson>::Iterator )
+DEF_VALUELIST_MARSHALLER( KAboutTranslatorList, Q3ValueList<KAboutTranslator>, KAboutTranslator, Q3ValueList<KAboutTranslator>::Iterator )
+DEF_VALUELIST_MARSHALLER( KIOCopyInfoList, Q3ValueList<KIO::CopyInfo>, KIO::CopyInfo, Q3ValueList<KIO::CopyInfo>::Iterator )
+DEF_VALUELIST_MARSHALLER( KServiceOfferList, Q3ValueList<KServiceOffer>, KServiceOffer, Q3ValueList<KServiceOffer>::Iterator )
+DEF_VALUELIST_MARSHALLER( UDSEntry, Q3ValueList<KIO::UDSAtom>, KIO::UDSAtom, Q3ValueList<KIO::UDSAtom>::Iterator )
 
-template <class Key, class Value, class ItemMapIterator, const char *KeySTR, const char *ValueSTR >
+/*
+template <class Qt::Key, class Value, class ItemMapIterator, const char *KeySTR, const char *ValueSTR >
 void marshall_Map(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE:
@@ -1088,7 +1094,7 @@ void marshall_Map(Marshall *m) {
 		break;
 	    }
 		
-		QMap<Key,Value> * map = new QMap<Key,Value>;
+		QMap<Qt::Key,Value> * map = new QMap<Qt::Key,Value>;
 		
 		// Convert the ruby hash to an array of key/value arrays
 		VALUE temp = rb_funcall(hash, rb_intern("to_a"), 0);
@@ -1109,7 +1115,7 @@ void marshall_Map(Marshall *m) {
 			void * val_ptr = o->ptr;
 			val_ptr = o->smoke->cast(val_ptr, o->classId, o->smoke->idClass(ValueSTR));
 			
-			(*map)[(Key)*(Key*)key_ptr] = (Value)*(Value*)val_ptr;
+			(*map)[(Qt::Key)*(Qt::Key*)key_ptr] = (Value)*(Value*)val_ptr;
 		}
 	    
 		m->item().s_voidp = map;
@@ -1121,7 +1127,7 @@ void marshall_Map(Marshall *m) {
 	break;
       case Marshall::ToVALUE:
 	{
-	    QMap<Key,Value> *map = (QMap<Key,Value>*)m->item().s_voidp;
+	    QMap<Qt::Key,Value> *map = (QMap<Qt::Key,Value>*)m->item().s_voidp;
 	    if(!map) {
 		*(m->var()) = Qnil;
 		break;
@@ -1178,8 +1184,8 @@ void marshall_Map(Marshall *m) {
     }
 }
 
-#define DEF_MAP_MARSHALLER(MapIdent,Key,Value) namespace { char KeyIdent##STR[] = #Key; char ValueIdent##STR[] = #Value; };  \
-        Marshall::HandlerFn marshall_##MapIdent = marshall_Map<Key, Value,QMap<Key,Value>::Iterator,KeyIdent##STR, ValueIdent##STR>;
+#define DEF_MAP_MARSHALLER(MapIdent,Qt::Key,Value) namespace { char KeyIdent##STR[] = #Qt::Key; char ValueIdent##STR[] = #Value; };  \
+        Marshall::HandlerFn marshall_##MapIdent = marshall_Map<Qt::Key, Value,QMap<Qt::Key,Value>::Iterator,KeyIdent##STR, ValueIdent##STR>;
 
 DEF_MAP_MARSHALLER( QMapKEntryKeyKEntry, KEntryKey, KEntry )
 
@@ -1193,7 +1199,7 @@ void marshall_QMapQCStringDCOPRef(Marshall *m) {
 		break;
 	    }
 		
-		QMap<QCString,DCOPRef> * map = new QMap<QCString,DCOPRef>;
+		QMap<Q3CString,DCOPRef> * map = new QMap<Q3CString,DCOPRef>;
 		
 		// Convert the ruby hash to an array of key/value arrays
 		VALUE temp = rb_funcall(hash, rb_intern("to_a"), 0);
@@ -1208,7 +1214,7 @@ void marshall_QMapQCStringDCOPRef(Marshall *m) {
 			void * ptr = o->ptr;
 			ptr = o->smoke->cast(ptr, o->classId, o->smoke->idClass("DCOPRef"));
 			
-			(*map)[QCString(StringValuePtr(key))] = (DCOPRef)*(DCOPRef*)ptr;
+			(*map)[Q3CString(StringValuePtr(key))] = (DCOPRef)*(DCOPRef*)ptr;
 		}
 	    
 		m->item().s_voidp = map;
@@ -1220,7 +1226,7 @@ void marshall_QMapQCStringDCOPRef(Marshall *m) {
 	break;
       case Marshall::ToVALUE:
 	{
-	    QMap<QCString,DCOPRef> *map = (QMap<QCString,DCOPRef>*)m->item().s_voidp;
+	    QMap<Q3CString,DCOPRef> *map = (QMap<Q3CString,DCOPRef>*)m->item().s_voidp;
 	    if(!map) {
 		*(m->var()) = Qnil;
 		break;
@@ -1228,7 +1234,7 @@ void marshall_QMapQCStringDCOPRef(Marshall *m) {
 		
 	    VALUE hv = rb_hash_new();
 			
-		QMap<QCString,DCOPRef>::Iterator it;
+		QMap<Q3CString,DCOPRef>::Iterator it;
 		for (it = map->begin(); it != map->end(); ++it) {
 			void *p = new DCOPRef(it.data());
 			VALUE obj = getPointerObject(p);
@@ -1257,9 +1263,10 @@ void marshall_QMapQCStringDCOPRef(Marshall *m) {
 	break;
     }
 }
+*/
 
 TypeHandler KDE_handlers[] = {
-    { "QCStringList", marshall_QCStringList },
+//    { "QCStringList", marshall_QCStringList },
     { "KCmdLineOptions*", marshall_KCmdLineOptions },
     { "KFileItemList", marshall_KFileItemList },
     { "QPtrList<KAction>", marshall_KActionList },
@@ -1297,9 +1304,9 @@ TypeHandler KDE_handlers[] = {
 	{ "KIO::UDSEntry&", marshall_UDSEntry },
     { "KIO::UDSEntryList&", marshall_UDSEntryList },
     { "KServiceTypeProfile::OfferList", marshall_KServiceOfferList },
-    { "KEntryMap", marshall_QMapKEntryKeyKEntry },
-    { "KEntryMap&", marshall_QMapKEntryKeyKEntry },
-    { "KEntryMap*", marshall_QMapKEntryKeyKEntry },
-    { "QMap<QCString,DCOPRef>", marshall_QMapQCStringDCOPRef },
+//    { "KEntryMap", marshall_QMapKEntryKeyKEntry },
+//    { "KEntryMap&", marshall_QMapKEntryKeyKEntry },
+//    { "KEntryMap*", marshall_QMapKEntryKeyKEntry },
+//    { "QMap<QCString,DCOPRef>", marshall_QMapQCStringDCOPRef },
     { 0, 0 }
 };
