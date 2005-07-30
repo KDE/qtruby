@@ -1,3 +1,7 @@
+2005-07-30  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Qt::version and Qt::ruby_version are now module methods
+
 2005-07-15  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Qt::Socket started working correctly when I and regenerated and rebuilt 
