@@ -1,4 +1,4 @@
-.SUFFIXES: .rb
+SUFFIXES: .rb
 
 check_PROGRAMS = test1 test2 test3 test4 test5
 
