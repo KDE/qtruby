@@ -11,11 +11,8 @@ CLEANFILES = test1.rb \
 
 all: $(SOURCES)
 
-SOURCES = test1main.rb test1.rb \
-	test2main.rb test2.rb \
-	test3main.rb test3.rb \
-	test4main.rb test4.rb \
-	test5main.rb test5.rb
+# Splitting this with backslashses produces broken Makefiles
+SOURCES = test1main.rb test1.rb test2main.rb test2.rb  test3main.rb test3.rb test4main.rb test4.rb  test5main.rb test5.rb
 
 # avoid running the below command in parallel
 test1.rb: $(srcdir)/test1.kcfg ../rbkconfig_compiler $(srcdir)/test1.kcfgc
