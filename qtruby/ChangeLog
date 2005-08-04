@@ -1,3 +1,31 @@
+2005-08-04  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added a file called 'COPYING' to the qtruby project, with a note that
+	  the 'Qt' trademark in the QtRuby name is used with Trolltech's permission,
+	  followed by the text of the GPL v2 license.
+
+2005-07-30  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Qt::version and Qt::ruby_version are now module methods
+
+2005-07-15  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Qt::Socket started working correctly when I and regenerated and rebuilt 
+	  my Smoke library. Before then it was calling the wrong version of 
+	  QSocket::at() for some reason, and wasn't discarding bytes that had 
+	  already been read.
+	* Removed comment from the client.rb example about Qt::Socket.canReadLine
+	  always returning true now it works.
+
+2005-07-14  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added example programs for client/server programming with Qt::Socket
+	  and associated classes. client.rb illustrates current bugs in QtRuby
+	* Qt::Socket.canReadLine() always returns true
+	* Qt::readLine() seg faults when called a second time
+	* A memory leak and seg faulting problems like the above were reported
+	  by Caleb Tennis
+
 2005-07-09  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* When a Qt method returned a QString value type, such as:
