@@ -1,3 +1,21 @@
+2005-08-09  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+	
+	* Caleb Tennis wrote:
+	  One nice feature would be to allow Qt::Object::inherits() to use the QtRuby 
+	  naming scheme for valid lookups.  For example, right now:
+
+	    irb(main):001:0> w = Qt::Widget.new(nil)
+	    irb(main):002:0> w.inherits("Qt::Widget")
+	    => true
+	    irb(main):003:0> w.inherits("Qt::Object")
+	    => false
+	    irb(main):004:0> w.inherits("QWidget")
+	    => true
+	    irb(main):005:0> w.inherits("QObject")
+	    => true
+
+	* Inherits now works for "QObject", and for "Qt::Object" as well.
+
 2005-08-04  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added a file called 'COPYING' to the qtruby project, with a note that

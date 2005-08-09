@@ -1784,6 +1784,25 @@ class_name(VALUE self)
     return rb_funcall(klass, rb_intern("name"), 0);
 }
 
+// Allow classnames in both 'Qt::Widget' and 'QWidget' formats to be
+// used as an argument to Qt::Object.inherits()
+static VALUE
+inherits_qobject(int argc, VALUE * argv, VALUE /*self*/)
+{
+	if (argc != 1) {
+		return rb_call_super(argc, argv);
+	}
+
+	Smoke::Index * classId = classcache.find(StringValuePtr(argv[0]));
+
+	if (classId == 0) {
+		return rb_call_super(argc, argv);
+	} else {
+		VALUE super_class = rb_str_new2(qt_Smoke->classes[*classId].className);
+		return rb_call_super(argc, &super_class);
+	}
+}
+
 static void
 mocargs_free(void * ptr)
 {
@@ -2477,6 +2496,7 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 	rb_define_method(klass, "pretty_print", (VALUE (*) (...)) pretty_print_qobject, 1);
 	rb_define_method(klass, "receivers", (VALUE (*) (...)) receivers_qobject, 0);
 	rb_define_method(klass, "className", (VALUE (*) (...)) class_name, 0);
+	rb_define_method(klass, "inherits", (VALUE (*) (...)) inherits_qobject, -1);
     
 	return klass;
 }
