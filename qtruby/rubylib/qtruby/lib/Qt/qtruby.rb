@@ -3,7 +3,7 @@
                           qtruby.rb  -  description
                              -------------------
     begin                : Fri Jul 4 2003
-    copyright            : (C) 2003 by Richard Dale
+    copyright            : (C) 2003-2005 by Richard Dale
     email                : Richard_Dale@tipitina.demon.co.uk
  ***************************************************************************/
 
@@ -237,12 +237,20 @@ module Qt
 	end
 	
 	class MetaObject < Qt::Base
+		alias_method :_method, :method
+
+		def method(arg)
+			if arg.kind_of? Symbol
+				_method(arg)
+			else
+				method_missing(:method, arg)
+			end
+		end
+
 		def inspect
 			str = super
 			str.sub!(/>$/, "")
 			str << " className=%s," % className
-			str << " signalNames=Array (%d element(s))," % numSignals unless numSignals == 0
-			str << " slotNames=Array (%d element(s))," % numSlots unless numSlots == 0
 			str << " superClass=%s," % superClass.inspect unless superClass == nil
 			str.chop!
 			str << ">"
@@ -252,9 +260,13 @@ module Qt
 			str = to_s
 			str.sub!(/>$/, "")
 			str << "\n className=%s," % className
-			str << "\n signalNames=Array (%d element(s))," % numSignals unless numSignals == 0
-			str << "\n slotNames=Array (%d element(s))," % numSlots unless numSlots == 0
 			str << "\n superClass=%s," % superClass.inspect unless superClass == nil
+			str << "\n methodCount=%d," % methodCount
+			str << "\n methodOffset=%d," % methodOffset
+			str << "\n propertyCount=%d," % propertyCount
+			str << "\n propertyOffset=%d," % propertyOffset
+			str << "\n enumeratorCount=%d," % enumeratorCount
+			str << "\n enumeratorOffset=%d," % enumeratorOffset
 			str.chop!
 			str << ">"
 			pp.text str
@@ -597,19 +609,17 @@ module Qt
 		# wrapped in a new ruby variable of type T_DATA
 		def Internal.try_initialize(instance, *args)
 			# If a debugger calls an inspect method with the half 
-			# constructed instance, it will fail. So prevent that by
-			# defining a dummy 'do nothing' inspect method here
+			# constructed instance, it will fail and return nil. 
+			# So prevent that by defining an inspect method here
+=begin
 			class <<instance
 				def inspect
-					return nil
-				end
-				def pretty_print(pp)
-					return nil
+					return "#<%s:0x%8.8x>" % [self.class.name, self.object_id]
 				end
 			end
-			
+=end		
 			initializer = instance.method(:initialize)
-			catch "newqt" do 
+			catch "newqt" do
 				initializer.call(*args)
 			end
 		end
@@ -846,24 +856,77 @@ module Qt
 			result << args.length << mocargs
 			result
 		end
+
+		#
+		# From the enum MethodFlags in qt-copy/src/tools/moc/generator.cpp
+		#
+		AccessPrivate = 0x00
+		AccessProtected = 0x01
+		AccessPublic = 0x02
+		MethodMethod = 0x00
+		MethodSignal = 0x04
+		MethodSlot = 0x08
+		MethodCompatibility = 0x10
+		MethodCloned = 0x20
+		MethodScriptable = 0x40
 	
-		def Internal.makeMetaData(data)
-			return nil if data.nil?
-			tbl = []
-			data.each do |entry|
-				name = entry.name
-				argStr = entry.arg_types
-				params = []
-				args = argStr.scan(/[^,]+/)
-				args.each do |arg|
-					name = '' # umm.. is this the aim?, well. it works. soo... ;-)
-					param = make_QUParameter(name, arg, 0, 1)
-									params << param
+		# Keeps a hash of strings against their corresponding offsets
+		# within the qt_meta_stringdata sequence of null terminated
+		# strings. Returns a proc to get an offset given a string.
+		# That proc also adds new strings to the 'data' array, and updates 
+		# the corresponding 'pack_str' Array#pack template.
+		def Internal.string_table_handler(data, pack_str)
+			hsh = {}
+			offset = 0
+			return lambda do |str|
+				if !hsh.has_key? str
+					hsh[str] = offset
+					data << str
+					pack_str << "a*x"
+					offset += str.length + 1
 				end
-				method = make_QUMethod(name, params)
-				tbl << make_QMetaData(entry.full_name, method)
+
+				return hsh[str]
 			end
-			make_QMetaData_tbl(tbl)
+		end
+
+		def Internal.makeMetaData(classname, signals, slots)
+			# Each entry in 'stringdata' corresponds to a string in the
+			# qt_meta_stringdata_<classname> structure.
+			# 'pack_string' is used to convert 'stringdata' into the
+			# binary sequence of null terminated strings for the metaObject
+			stringdata = []
+			pack_string = ""
+			string_table = string_table_handler(stringdata, pack_string)
+
+			# This is used to create the array of uints that make up the
+			# qt_meta_data_<classname> structure in the metaObject
+			data = [1, 								# revision
+					string_table.call(classname), 	# classname
+					0, 0, 							# classinfo
+					signals.length + slots.length, 10, 	# methods
+					0, 0, 							# properties
+					0, 0]							# enums/sets
+
+			signals.each do |entry|
+				data.push string_table.call(entry.full_name)				# signature
+				data.push string_table.call(entry.full_name.delete("^,"))	# parameters
+				data.push string_table.call("")				# type, "" means void
+				data.push string_table.call("")				# tag
+				data.push MethodSignal | AccessProtected	# flags, always protected for now
+			end
+
+			slots.each do |entry|
+				data.push string_table.call(entry.full_name)				# signature
+				data.push string_table.call(entry.full_name.delete("^,"))	# parameters
+				data.push string_table.call("")				# type, "" means void
+				data.push string_table.call("")				# tag
+				data.push MethodSlot | AccessPublic			# flags, always public for now
+			end
+
+			data.push 0		# eod
+
+			return [stringdata.pack(pack_string), data]
 		end
 		
 		def Internal.getMetaObject(qobject)
@@ -871,16 +934,12 @@ module Qt
 			return nil if meta.nil?
 	
 			if meta.metaobject.nil? or meta.changed
-				slots 			= meta.get_slots
-				slotTable       = makeMetaData(slots)
-				signals 		= meta.get_signals
-				signalTable     = makeMetaData(signals)
-				meta.metaobject = make_metaObject(qobject.class.name, 
-												qobject.staticMetaObject(),
-												slotTable, 
-												slots.length,
-												signalTable, 
-												signals.length)
+				signals 			= meta.get_signals
+				slots 				= meta.get_slots
+				stringdata, data 	= makeMetaData(qobject.class.name, signals, slots)
+				meta.metaobject 	= make_metaObject(	qobject.staticMetaObject,
+														stringdata,
+														data )
 				meta.changed = false
 			end
 			
@@ -911,7 +970,7 @@ module Qt
 		
 		def add_signals(signal_list)
 			signal_list.each do |signal|
-				signal = Qt::Object.normalizeSignalSlot(signal)
+				signal = Qt::MetaObject.normalizedSignature(signal).to_s
 				if signal =~ /([^\s]*)\((.*)\)/
 					@signals.push QObjectMember.new($1, signal, $2)
 				else
@@ -936,7 +995,7 @@ module Qt
 		
 		def add_slots(slot_list)
 			slot_list.each do |slot|
-				slot = Qt::Object.normalizeSignalSlot(slot)
+				slot = Qt::MetaObject.normalizedSignature(slot).to_s
 				if slot =~ /([^\s]*)\((.*)\)/
 					@slots.push QObjectMember.new($1, slot, $2)
 				else

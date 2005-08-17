@@ -7,34 +7,25 @@
  *                                                                         *
  ***************************************************************************/
 
-#define QT3_SUPPORT
-
 #include <qstring.h>
 #include <qregexp.h>
 #include <qapplication.h>
-#include <q3canvas.h>
 #include <qpainter.h>
 #include <qpalette.h>
-#include <q3listview.h>
-#include <q3iconview.h>
-#include <q3table.h>
-#include <q3popupmenu.h>
+#include <qlistwidget.h>
+#include <qtablewidget.h>
+#include <qtoolbar.h>
+#include <qdockwidget.h>
+#include <qurlinfo.h>
 #include <qlayout.h>
 #include <qmetaobject.h>
-#include <q3valuelist.h>
+#include <qlinkedlist.h>
 #include <qobject.h>
 #include <qtextcodec.h>
 #include <qhostaddress.h>
 #include <qpair.h>
-
-//Added by qt3to4:
-#include <Q3StrList>
-#include <QEvent>
-#include <Q3CString>
-#include <Q3PtrList>
-#include <QPixmap>
-
-// #include <private/qucomextra_p.h>
+#include <qevent.h>
+#include <qpixmap.h>
 
 #include "smoke.h"
 
@@ -96,7 +87,7 @@ mark_qobject_children(QObject * qobject)
 		child = *it;
 		obj = getPointerObject(child);
 		if (obj != Qnil) {
-			if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", child->className(), child, (void*)obj);
+			if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", child->metaObject()->className(), child, (void*)obj);
 			rb_gc_mark(obj);
 		}
 		
@@ -114,10 +105,11 @@ smokeruby_mark(void * p)
 	if(do_debug & qtdb_gc) printf("Checking for mark (%s*)%p\n", className, o->ptr);
 		
     if(o->ptr && o->allocated) {
-		if (isDerivedFromByName(o->smoke, className, "QListView")) {
-			Q3ListView * listview = (Q3ListView *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QListView"));
-			Q3ListViewItemIterator it(listview);
-			Q3ListViewItem *item;
+/*
+		if (isDerivedFromByName(o->smoke, className, "QListWidget")) {
+			QListWidget * listwidget = (QListWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QListWidget"));
+			QListViewItemIterator it(listwidget);
+			QListViewItem *item;
 
 			while ( (item = it.current()) != 0 ) {
 				++it;
@@ -129,13 +121,13 @@ smokeruby_mark(void * p)
 			}
 			return;
 		}
-		
-		if (isDerivedFromByName(o->smoke, className, "QTable")) {
-			Q3Table * table = (Q3Table *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTable"));
-			Q3TableItem *item;
+*/		
+		if (isDerivedFromByName(o->smoke, className, "QTableWidget")) {
+			QTableWidget * table = (QTableWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTableWidget"));
+			QTableWidgetItem *item;
 
-			for ( int row = 0; row < table->numRows(); row++ ) {
-				for ( int col = 0; col < table->numCols(); col++ ) {
+			for ( int row = 0; row < table->rowCount(); row++ ) {
+				for ( int col = 0; col < table->columnCount(); col++ ) {
 					item = table->item(row, col);
 					obj = getPointerObject(item);
 					if (obj != Qnil) {
@@ -146,7 +138,7 @@ smokeruby_mark(void * p)
 			}
 			return;		
 		}
-		
+/*		
 		if (isDerivedFromByName(o->smoke, className, "QCanvas")) {
 			Q3Canvas * canvas = (Q3Canvas *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QCanvas"));
     		Q3CanvasItemList list = canvas->allItems();
@@ -159,7 +151,7 @@ smokeruby_mark(void * p)
 			}
 			return;
 		}
-		
+*/		
 		if (isDerivedFromByName(o->smoke, className, "QObject")) {
 			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
 			mark_qobject_children(qobject);
@@ -198,39 +190,39 @@ smokeruby_free(void * p)
 			free(o);
 			return;
 		}
-	} else if (strcmp(className, "QIconViewItem") == 0) {
-		Q3IconViewItem * item = (Q3IconViewItem *) o->ptr;
-		if (item->iconView() != 0) {
+//	} else if (strcmp(className, "QIconViewItem") == 0) {
+//		Q3IconViewItem * item = (Q3IconViewItem *) o->ptr;
+//		if (item->iconView() != 0) {
+//			free(o);
+//			return;
+//		}
+//	} else if (strcmp(className, "QCheckListItem") == 0) {
+//		Q3CheckListItem * item = (Q3CheckListItem *) o->ptr;
+//		if (item->parent() != 0 || item->listView() != 0) {
+//			free(o);
+//			return;
+//		}
+	} else if (strcmp(className, "QListWidgetItem") == 0) {
+		QListWidgetItem * item = (QListWidgetItem *) o->ptr;
+		if (item->listWidget() != 0) {
 			free(o);
 			return;
 		}
-	} else if (strcmp(className, "QCheckListItem") == 0) {
-		Q3CheckListItem * item = (Q3CheckListItem *) o->ptr;
-		if (item->parent() != 0 || item->listView() != 0) {
+	} else if (isDerivedFromByName(o->smoke, className, "QTableWidgetItem")) {
+		QTableWidgetItem * item = (QTableWidgetItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTableWidgetItem"));
+		if (item->tableWidget() != 0) {
 			free(o);
 			return;
 		}
-	} else if (strcmp(className, "QListViewItem") == 0) {
-		Q3ListViewItem * item = (Q3ListViewItem *) o->ptr;
-		if (item->parent() != 0 || item->listView() != 0) {
-			free(o);
-			return;
-		}
-	} else if (isDerivedFromByName(o->smoke, className, "QTableItem")) {
-		Q3TableItem * item = (Q3TableItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTableItem"));
-		if (item->table() != 0) {
-			free(o);
-			return;
-		}
-	} else if (strcmp(className, "QPopupMenu") == 0) {
-		Q3PopupMenu * item = (Q3PopupMenu *) o->ptr;
-		if (item->parentWidget(false) != 0) {
-			free(o);
-			return;
-		}
+//	} else if (strcmp(className, "QPopupMenu") == 0) {
+//		Q3PopupMenu * item = (Q3PopupMenu *) o->ptr;
+//		if (item->parentWidget(false) != 0) {
+//			free(o);
+//			return;
+//		}
 	} else if (isDerivedFromByName(o->smoke, className, "QWidget")) {
 		QWidget * qwidget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget"));
-		if (qwidget->parentWidget(true) != 0) {
+		if (qwidget->parentWidget() != 0) {
 			free(o);
 			return;
 		}
@@ -243,7 +235,7 @@ smokeruby_free(void * p)
 	}
 			
 	if(do_debug & qtdb_gc) printf("Deleting (%s*)%p\n", className, o->ptr);
-	
+
 	char *methodName = new char[strlen(className) + 2];
 	methodName[0] = '~';
 	strcpy(methodName + 1, className);
@@ -338,6 +330,7 @@ resolve_classname(Smoke* smoke, int classId, void * ptr)
 
 			meta = meta->superClass();
 		}
+/*
 	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QCanvasItem")) {
 		Q3CanvasItem * qcanvasitem = (Q3CanvasItem *) smoke->cast(ptr, classId, smoke->idClass("QCanvasItem"));
 		switch (qcanvasitem->rtti()) {
@@ -360,9 +353,10 @@ resolve_classname(Smoke* smoke, int classId, void * ptr)
 		default:
 			break;
 		}
-	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QListViewItem")) {
-		Q3ListViewItem * item = (Q3ListViewItem *) smoke->cast(ptr, classId, smoke->idClass("QListViewItem"));
-		switch (item->rtti()) {
+*/
+	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QListWidgetItem")) {
+		QListWidgetItem * item = (QListWidgetItem *) smoke->cast(ptr, classId, smoke->idClass("QListWidgetItem"));
+		switch (item->type()) {
 		case 0:
 			return "Qt::ListViewItem";
 		case 1:
@@ -371,9 +365,9 @@ resolve_classname(Smoke* smoke, int classId, void * ptr)
 			return "Qt::ListViewItem";
 			break;
 		}
-	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QTableItem")) {
-		Q3TableItem * item = (Q3TableItem *) smoke->cast(ptr, classId, smoke->idClass("QTableItem"));
-		switch (item->rtti()) {
+	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QTableWidgetItem")) {
+		QTableWidgetItem * item = (QTableWidgetItem *) smoke->cast(ptr, classId, smoke->idClass("QTableWidgetItem"));
+		switch (item->type()) {
 		case 0:
 			return "Qt::TableItem";
 		case 1:
@@ -833,15 +827,15 @@ rstringFromQString(QString * s) {
 	}
 	
 	if (strcmp(KCODE, "UTF8") == 0)
-		return rb_str_new2(s->utf8());
+		return rb_str_new2(s->toUtf8());
 	else if (strcmp(KCODE, "EUC") == 0)
 		return rb_str_new2(codec->fromUnicode(*s));
 	else if (strcmp(KCODE, "SJIS") == 0)
 		return rb_str_new2(codec->fromUnicode(*s));
 	else if (strcmp(KCODE, "NONE") == 0)
-		return rb_str_new2(s->latin1());
+		return rb_str_new2(s->toLatin1());
 	else
-		return rb_str_new2(s->local8Bit());
+		return rb_str_new2(s->toLocal8Bit());
 }
 
 static void marshall_QString(Marshall *m) {
@@ -906,16 +900,16 @@ static void marshall_QByteArray(Marshall *m) {
 					Data_Get_Struct(data, QByteArray, s);
 				} else {
 					// Or a ruby String inside
-            		s = new QByteArray(RSTRING(data)->len);
+            		s = new QByteArray(RSTRING(data)->len, '\0');
 					memcpy((void*)s->data(), StringValuePtr(data), RSTRING(data)->len);
 				}
 			} else {
 				// Ordinary ruby String - use the contents of the string
-            	s = new QByteArray(RSTRING(rv)->len);
+            	s = new QByteArray(RSTRING(rv)->len, '\0');
 				memcpy((void*)s->data(), StringValuePtr(rv), RSTRING(rv)->len);
 			}
         } else {
-            s = new QByteArray(0);
+            s = new QByteArray(0, '\0');
 	    }
 	    m->item().s_voidp = s;
 	    
@@ -961,6 +955,7 @@ static const char *not_ascii(const char *s, uint &len)
 }
 #endif
 
+/*
 static void marshall_QCString(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE:
@@ -1024,7 +1019,9 @@ static void marshall_QCString(Marshall *m) {
 	break;
     }
 }
+*/
 
+/*
 static void marshall_QCOORD_array(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE:
@@ -1048,6 +1045,7 @@ static void marshall_QCOORD_array(Marshall *m) {
 	m->unsupported();
     }
 }
+*/
 
 static void marshall_longlong(Marshall *m) {
     switch(m->action()) {
@@ -1286,6 +1284,7 @@ void marshall_QStringList(Marshall *m) {
     }
 }
 
+/*
 void marshall_QStrList(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE: 
@@ -1344,6 +1343,7 @@ void marshall_QStrList(Marshall *m) {
 	break;
     }
 }
+*/
 
 template <class Item, class ItemList, class ItemListIterator, const char *ItemSTR >
 void marshall_ItemList(Marshall *m) {
@@ -1381,7 +1381,7 @@ void marshall_ItemList(Marshall *m) {
 		for(ItemListIterator it = cpplist->begin();
 		    it != cpplist->end();
 		    ++it) {
-		    VALUE obj = getPointerObject((void*)(*it));
+		    VALUE obj = getPointerObject((void*)*it);
 		    rb_ary_push(list, obj);
 		}
 		delete cpplist;
@@ -1398,7 +1398,7 @@ void marshall_ItemList(Marshall *m) {
 
 	    VALUE av = rb_ary_new();
 
-	    for(ItemListIterator it = valuelist->begin();
+	    for (ItemListIterator it = valuelist->begin();
 		it != valuelist->end();
 		++it) {
 		void *p = *it;
@@ -1432,7 +1432,7 @@ void marshall_ItemList(Marshall *m) {
     }
 }
 
-void marshall_QValueListInt(Marshall *m) {
+void marshall_QLinkedListInt(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE:
 	{
@@ -1442,7 +1442,7 @@ void marshall_QValueListInt(Marshall *m) {
 		break;
 	    }
 	    int count = RARRAY(list)->len;
-	    Q3ValueList<int> *valuelist = new Q3ValueList<int>;
+	    QLinkedList<int> *valuelist = new QLinkedList<int>;
 	    long i;
 	    for(i = 0; i < count; i++) {
 		VALUE item = rb_ary_entry(list, i);
@@ -1458,17 +1458,20 @@ void marshall_QValueListInt(Marshall *m) {
 
 	    if(m->cleanup()) {
 		rb_ary_clear(list);
-		for(Q3ValueListIterator<int> it = valuelist->begin();
-		    it != valuelist->end();
-		    ++it)
-		    rb_ary_push(list, INT2NUM((int)*it));
+
+		for (	QLinkedList<int>::iterator i = valuelist->begin(); 
+				i != valuelist->end(); 
+				++i ) 
+		{
+		    rb_ary_push(list, INT2NUM((int)*i));
+		}
 		delete valuelist;
 	    }
 	}
 	break;
       case Marshall::ToVALUE:
 	{
-	    Q3ValueList<int> *valuelist = (Q3ValueList<int>*)m->item().s_voidp;
+	    QLinkedList<int> *valuelist = (QLinkedList<int>*)m->item().s_voidp;
 	    if(!valuelist) {
 		*(m->var()) = Qnil;
 		break;
@@ -1476,10 +1479,12 @@ void marshall_QValueListInt(Marshall *m) {
 
 	    VALUE av = rb_ary_new();
 
-	    for(Q3ValueListIterator<int> it = valuelist->begin();
-		it != valuelist->end();
-		++it)
-		rb_ary_push(av, INT2NUM(*it));
+		for (	QLinkedList<int>::iterator i = valuelist->begin(); 
+				i != valuelist->end(); 
+				++i ) 
+		{
+		    rb_ary_push(av, INT2NUM((int)*i));
+		}
 		
 	    *(m->var()) = av;
 		
@@ -1555,7 +1560,7 @@ void marshall_QMapQStringQString(Marshall *m) {
 			
 		QMap<QString,QString>::Iterator it;
 		for (it = map->begin(); it != map->end(); ++it) {
-			rb_hash_aset(hv, rstringFromQString((QString*)&(it.key())), rstringFromQString((QString*) &(it.data())));
+			rb_hash_aset(hv, rstringFromQString((QString*)&(it.key())), rstringFromQString((QString*) &(it.value())));
         }
 		
 		*(m->var()) = hv;
@@ -1618,7 +1623,7 @@ void marshall_QMapQStringQVariant(Marshall *m) {
 			
 		QMap<QString,QVariant>::Iterator it;
 		for (it = map->begin(); it != map->end(); ++it) {
-			void *p = new QVariant(it.data());
+			void *p = new QVariant(it.value());
 			VALUE obj = getPointerObject(p);
 				
 			if (obj == Qnil) {
@@ -1646,29 +1651,26 @@ void marshall_QMapQStringQVariant(Marshall *m) {
     }
 }
 
-void marshall_QUObject(Marshall *m) {
+void marshall_voidP_array(Marshall *m) {
     switch(m->action()) {
-      case Marshall::FromVALUE:
+	case Marshall::FromVALUE:
 	{
-	    VALUE array = *(m->var());
-	    if (array != Qnil && TYPE(array) == T_ARRAY) {
-		VALUE rv = rb_ary_entry(array, 0);
-//		Data_Get_Struct(rv, QUObject, m->item().s_voidp);
-	    } else {
-		m->item().s_voidp = 0;
+	    VALUE rv = *(m->var());
+		if (rv != Qnil) {
+			Data_Get_Struct(rv, void*, m->item().s_voidp);
+		} else {
+			m->item().s_voidp = 0;
 		}
 	}
 	break;
-      case Marshall::ToVALUE:
+	case Marshall::ToVALUE:
 	{
-	    VALUE rv = Data_Wrap_Struct(rb_cObject, 0, 0, m->item().s_voidp);
-		VALUE array = rb_ary_new2(1);
-		rb_ary_push(array, rv);
-	    *(m->var()) = array;
+		VALUE rv = Data_Wrap_Struct(rb_cObject, 0, 0, m->item().s_voidp);
+		*(m->var()) = rv;
 	}
 	break;
-      default:
-	m->unsupported();
+		default:
+		m->unsupported();
 	break;
     }
 }
@@ -1748,29 +1750,29 @@ void marshall_QPairintint(Marshall *m) {
 #define DEF_LIST_MARSHALLER(ListIdent,ItemList,Item,Itr) namespace { char ListIdent##STR[] = #Item; };  \
         Marshall::HandlerFn marshall_##ListIdent = marshall_ItemList<Item,ItemList,Itr,ListIdent##STR>;
 
-#include <q3canvas.h>
+//#include <q3canvas.h>
 #include <qdir.h>
 #include <qobject.h>
 #include <qwidget.h>
-#include <q3dockwindow.h>
-#include <q3networkprotocol.h>
-#include <q3toolbar.h>
+//#include <q3dockwindow.h>
+//#include <q3networkprotocol.h>
+//#include <q3toolbar.h>
 #include <qtabbar.h>
 
 #if QT_VERSION >= 0x030200
-DEF_LIST_MARSHALLER( QPtrListQNetworkOperation, Q3PtrList<Q3NetworkOperation>, Q3NetworkOperation, Q3PtrListStdIterator<Q3NetworkOperation> )
-DEF_LIST_MARSHALLER( QPtrListQToolBar, Q3PtrList<Q3ToolBar>, Q3ToolBar, Q3PtrListStdIterator<Q3ToolBar> )
+//DEF_LIST_MARSHALLER( QPtrListQNetworkOperation, Q3PtrList<Q3NetworkOperation>, Q3NetworkOperation, Q3PtrListStdIterator<Q3NetworkOperation> )
+//DEF_LIST_MARSHALLER( QLinkedListQToolBar, QLinkedList<QToolBar>, QToolBar, QLinkedListIterator<QToolBar> )
 //DEF_LIST_MARSHALLER( QPtrListQTab, Q3PtrList<QTab>, QTab, Q3PtrListStdIterator<QTab> )
-DEF_LIST_MARSHALLER( QPtrListQDockWindow, Q3PtrList<Q3DockWindow>, Q3DockWindow, Q3PtrListStdIterator<Q3DockWindow> )
+//DEF_LIST_MARSHALLER( QLinkedListQDockWidget, QLinkedList<QDockWigdet>, QDockWidget, QLinkedListIterator<QDockWidget )
 //DEF_LIST_MARSHALLER( QFileInfoList, QFileInfoList, QFileInfo, QFileInfoList::Iterator )
-//DEF_LIST_MARSHALLER( QObjectList, QObjectList, QObject, Q3PtrListStdIterator<QObject> )
-//DEF_LIST_MARSHALLER( QWidgetList, QWidgetList, QWidget, Q3PtrListStdIterator<QWidget> )
+DEF_LIST_MARSHALLER( QObjectList, QList<QObject*>, QObject, QList<QObject*>::iterator )
+DEF_LIST_MARSHALLER( QWidgetList, QList<QWidget*>, QWidget, QList<QWidget*>::iterator )
 #endif
 
-DEF_LIST_MARSHALLER( Q3CanvasItemList, Q3CanvasItemList, Q3CanvasItem, Q3ValueListIterator<Q3CanvasItem*> )
+//DEF_LIST_MARSHALLER( Q3CanvasItemList, Q3CanvasItemList, Q3CanvasItem, Q3ValueListIterator<Q3CanvasItem*> )
 
 template <class Item, class ItemList, class ItemListIterator, const char *ItemSTR >
-void marshall_ValueItemList(Marshall *m) {
+void marshall_LinkedListItem(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE:
 	{
@@ -1860,29 +1862,29 @@ void marshall_ValueItemList(Marshall *m) {
 }
 
 #define DEF_VALUELIST_MARSHALLER(ListIdent,ItemList,Item,Itr) namespace { char ListIdent##STR[] = #Item; };  \
-        Marshall::HandlerFn marshall_##ListIdent = marshall_ValueItemList<Item,ItemList,Itr,ListIdent##STR>;
+        Marshall::HandlerFn marshall_##ListIdent = marshall_LinkedListItem<Item,ItemList,Itr,ListIdent##STR>;
 
-DEF_VALUELIST_MARSHALLER( QVariantList, Q3ValueList<QVariant>, QVariant, Q3ValueList<QVariant>::Iterator )
-DEF_VALUELIST_MARSHALLER( QPixmapList, Q3ValueList<QPixmap>, QPixmap, Q3ValueList<QPixmap>::Iterator )
-DEF_VALUELIST_MARSHALLER( QIconDragItemList, Q3ValueList<Q3IconDragItem>, Q3IconDragItem, Q3ValueList<Q3IconDragItem>::Iterator )
-DEF_VALUELIST_MARSHALLER( QImageTextKeyLangList, Q3ValueList<QImageTextKeyLang>, QImageTextKeyLang, Q3ValueList<QImageTextKeyLang>::Iterator )
-DEF_VALUELIST_MARSHALLER( QUrlInfoList, Q3ValueList<QUrlInfo>, QUrlInfo, Q3ValueList<QUrlInfo>::Iterator )
+DEF_VALUELIST_MARSHALLER( QVariantList, QLinkedList<QVariant>, QVariant, QLinkedList<QVariant>::Iterator )
+DEF_VALUELIST_MARSHALLER( QPixmapList, QLinkedList<QPixmap>, QPixmap, QLinkedList<QPixmap>::Iterator )
+//DEF_VALUELIST_MARSHALLER( QIconDragItemList, QLinkedList<QIconDragItem>, QIconDragItem, QLinkedList<QIconDragItem>::Iterator )
+DEF_VALUELIST_MARSHALLER( QImageTextKeyLangList, QLinkedList<QImageTextKeyLang>, QImageTextKeyLang, QLinkedList<QImageTextKeyLang>::Iterator )
+DEF_VALUELIST_MARSHALLER( QUrlInfoList, QLinkedList<QUrlInfo>, QUrlInfo, QLinkedList<QUrlInfo>::Iterator )
 //DEF_VALUELIST_MARSHALLER( QTranslatorMessageList, Q3ValueList<QTranslatorMessage>, QTranslatorMessage, Q3ValueList<QTranslatorMessage>::Iterator )
-DEF_VALUELIST_MARSHALLER( QHostAddressList, Q3ValueList<QHostAddress>, QHostAddress, Q3ValueList<QHostAddress>::Iterator )
+DEF_VALUELIST_MARSHALLER( QHostAddressList, QLinkedList<QHostAddress>, QHostAddress, QLinkedList<QHostAddress>::Iterator )
 
 TypeHandler Qt_handlers[] = {
     { "QString", marshall_QString },
     { "QString&", marshall_QString },
     { "QString*", marshall_QString },
-    { "QCString", marshall_QCString },
-    { "QCString&", marshall_QCString },
-    { "QCString*", marshall_QCString },
+//    { "QCString", marshall_QCString },
+//    { "QCString&", marshall_QCString },
+//    { "QCString*", marshall_QCString },
     { "QStringList", marshall_QStringList },
     { "QStringList&", marshall_QStringList },
     { "QStringList*", marshall_QStringList },
-    { "QStrList", marshall_QStrList },
-    { "QStrList&", marshall_QStrList },
-    { "QStrList*", marshall_QStrList },
+//    { "QStrList", marshall_QStrList },
+//    { "QStrList&", marshall_QStrList },
+//    { "QStrList*", marshall_QStrList },
     { "long long int", marshall_longlong },
     { "long long int&", marshall_longlong },
     { "Q_INT64", marshall_longlong },
@@ -1906,17 +1908,17 @@ TypeHandler Qt_handlers[] = {
     { "uchar*", marshall_ucharP },
     { "QRgb*", marshall_QRgb_array },
     { "QPair<int,int>&", marshall_QPairintint },
-    { "QUObject*", marshall_QUObject },
-    { "const QCOORD*", marshall_QCOORD_array },
+    { "void**", marshall_voidP_array },
+//    { "const QCOORD*", marshall_QCOORD_array },
     { "void", marshall_void },
     { "QByteArray", marshall_QByteArray },
     { "QByteArray&", marshall_QByteArray },
-    { "QValueList<int>", marshall_QValueListInt },
-    { "QValueList<int>&", marshall_QValueListInt },
+    { "QLinkedList<int>", marshall_QLinkedListInt },
+    { "QLinkedList<int>&", marshall_QLinkedListInt },
     { "QValueList<QVariant>", marshall_QVariantList },
     { "QValueList<QVariant>&", marshall_QVariantList },
     { "QValueList<QPixmap>", marshall_QPixmapList },
-    { "QValueList<QIconDragItem>&", marshall_QIconDragItemList },
+//    { "QValueList<QIconDragItem>&", marshall_QIconDragItemList },
     { "QValueList<QImageTextKeyLang>", marshall_QImageTextKeyLangList },
     { "QValueList<QUrlInfo>&", marshall_QUrlInfoList },
 //    { "QValueList<QTranslatorMessage>", marshall_QTranslatorMessageList },
@@ -1927,18 +1929,17 @@ TypeHandler Qt_handlers[] = {
     { "QMap<QString,QVariant>", marshall_QMapQStringQVariant },
     { "QMap<QString,QVariant>&", marshall_QMapQStringQVariant },
 #if QT_VERSION >= 0x030200
-//    { "QWidgetList", marshall_QWidgetList },
-//    { "QWidgetList*", marshall_QWidgetList },
-//    { "QWidgetList&", marshall_QWidgetList },
-//    { "QObjectList*", marshall_QObjectList },
-//    { "QObjectList&", marshall_QObjectList },
+    { "QWidgetList", marshall_QWidgetList },
+    { "QWidgetList&", marshall_QWidgetList },
+    { "QObjectList", marshall_QObjectList },
+    { "QObjectList&", marshall_QObjectList },
 //    { "QFileInfoList*", marshall_QFileInfoList },
-    { "QPtrList<QToolBar>", marshall_QPtrListQToolBar },
+//    { "QPtrList<QToolBar>", marshall_QLinkedListQToolBar },
 //    { "QPtrList<QTab>*", marshall_QPtrListQTab },
-    { "QPtrList<QDockWindow>", marshall_QPtrListQDockWindow },
-    { "QPtrList<QDockWindow>*", marshall_QPtrListQDockWindow },
-    { "QPtrList<QNetworkOperation>", marshall_QPtrListQNetworkOperation },
-    { "QPtrList<QNetworkOperation>&", marshall_QPtrListQNetworkOperation },
+//    { "QPtrList<QDockWindow>", marshall_QLinkedListQDockWindow },
+//    { "QPtrList<QDockWindow>*", marshall_QLinkedListQDockWindow },
+//    { "QPtrList<QNetworkOperation>", marshall_QLinkedListQNetworkOperation },
+//    { "QPtrList<QNetworkOperation>&", marshall_QLinkedListQNetworkOperation },
 #endif
     { 0, 0 }
 };

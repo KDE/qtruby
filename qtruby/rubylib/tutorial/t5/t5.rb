@@ -3,29 +3,35 @@ $VERBOSE = true; $:.unshift File.dirname($0)
 
 require 'Qt'
 
-class MyWidget < Qt::VBox
+class MyWidget < Qt::Widget
 
 def initialize()
-   super
-    quit = Qt::PushButton.new('Quit', self, 'quit')
+    super
+    quit = Qt::PushButton.new('Quit')
     quit.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
     
-	connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
+    connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
     
-	lcd = Qt::LCDNumber.new(2, self, 'lcd')
+    lcd = Qt::LCDNumber.new(2)
 
-    slider = Qt::Slider.new(Horizontal, self, 'slider')
+    slider = Qt::Slider.new(Qt::Horizontal)
     slider.setRange(0, 99)
     slider.setValue(0)
 
-    connect(slider, SIGNAL('valueChanged(int)'), lcd, SLOT('display(int)'))
+    connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
+    connect(slider, SIGNAL('valueChanged(int)'),
+            lcd, SLOT('display(int)'))
+
+    layout = Qt::VBoxLayout.new
+    layout.addWidget(quit)
+    layout.addWidget(lcd)
+    layout.addWidget(slider)
+    setLayout(layout)
 end
 
 end
 
-a = Qt::Application.new(ARGV)
-
-w = MyWidget.new
-a.setMainWidget(w)
-w.show
-a.exec
+app = Qt::Application.new(ARGV)
+widget = MyWidget.new
+widget.show
+app.exec

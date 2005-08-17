@@ -7,20 +7,21 @@ class GameBoard < Qt::Widget
 
     def initialize()
         super
-        quit = Qt::PushButton.new('&Quit', self, 'quit')
-        quit.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
+        quit = Qt::PushButton.new('&Quit')
+        quit.font = Qt::Font.new('Times', 18, Qt::Font::Bold)
     
         connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
     
-        angle = LCDRange.new( 'ANGLE', self, 'angle' )
+        angle = LCDRange.new( 'ANGLE' )
         angle.setRange( 5, 70 )
         
-        force  = LCDRange.new( 'FORCE', self, 'force' )
+        force  = LCDRange.new( 'FORCE' )
         force.setRange( 10, 50 )
         
-        box = Qt::VBox.new( self, 'cannonFrame' )
-        box.setFrameStyle( Qt::Frame::WinPanel | Qt::Frame::Sunken )
-        @cannonField = CannonField.new( box, 'cannonField' )
+        cannonBox = Qt::Frame.new
+        cannonBox.frameStyle = Qt::Frame::WinPanel | Qt::Frame::Sunken
+
+        @cannonField = CannonField.new
 
         connect( angle, SIGNAL('valueChanged(int)'),
                 @cannonField, SLOT('setAngle(int)') )
@@ -37,53 +38,50 @@ class GameBoard < Qt::Widget
         connect( @cannonField, SIGNAL('missed()'),
                     self, SLOT('missed()') )
                 
-        shoot = Qt::PushButton.new( '&Shoot', self, 'shoot' )
-        shoot.setFont( Qt::Font.new( 'Times', 18, Qt::Font::Bold ) )
+        shoot = Qt::PushButton.new( '&Shoot' )
+        shoot.font = Qt::Font.new( 'Times', 18, Qt::Font::Bold )
 
         connect( shoot, SIGNAL('clicked()'), SLOT('fire()') )
         connect( @cannonField, SIGNAL('canShoot(bool)'),
                     shoot, SLOT('setEnabled(bool)') )
                                 
-        restart = Qt::PushButton.new( '&New Game', self, 'newgame' )
-        restart.setFont( Qt::Font.new( 'Times', 18, Qt::Font::Bold ) )
+        restart = Qt::PushButton.new( '&New Game' )
+        restart.font = Qt::Font.new( 'Times', 18, Qt::Font::Bold )
 
         connect( restart, SIGNAL('clicked()'), self, SLOT('newGame()') )
 
-        @hits = Qt::LCDNumber.new( 2, self, 'hits' )
-        @shotsLeft = Qt::LCDNumber.new( 2, self, 'shotsleft' )
-        hitsL = Qt::Label.new( 'HITS', self, 'hitsLabel' )
-        shotsLeftL = Qt::Label.new( 'SHOTS LEFT', self, 'shotsleftLabel' )
+        @hits = Qt::LCDNumber.new( 2, self )
+        @shotsLeft = Qt::LCDNumber.new( 2, self  )
+        hitsLabel = Qt::Label.new( 'HITS', self  )
+        shotsLeftLabel = Qt::Label.new( 'SHOTS LEFT', self  )
                 
-        accel = Qt::Accel.new( self )
-        accel.connectItem( accel.insertItem( Qt::KeySequence.new(Key_Enter) ),
-                            self, SLOT('fire()') )
-        accel.connectItem( accel.insertItem( Qt::KeySequence.new(Key_Return) ),
-                            self, SLOT('fire()') )
-        accel.connectItem( accel.insertItem( Qt::KeySequence.new(CTRL+Key_Q) ),
-                            $qApp, SLOT('quit()') )
+        Qt::Shortcut.new(Qt::KeySequence.new(Qt::Key_Enter), self, SLOT('fire()'))
+        Qt::Shortcut.new(Qt::KeySequence.new(Qt::Key_Return), self, SLOT('fire()'))
+        Qt::Shortcut.new(Qt::KeySequence.new(Qt::CTRL + Qt::Key_Q), self, SLOT('close()'))
                                      
-        grid = Qt::GridLayout.new( self, 2, 2, 10 )
-        grid.addWidget( quit, 0, 0 )
-        grid.addWidget( box, 1, 1)
-        grid.setColStretch( 1, 10 )
+        topLayout = Qt::HBoxLayout.new
+        topLayout.addWidget(shoot)
+        topLayout.addWidget(@hits)
+        topLayout.addWidget(hitsLabel)
+        topLayout.addWidget(@shotsLeft)
+        topLayout.addWidget(shotsLeftLabel)
+        topLayout.addStretch(1)
+        topLayout.addWidget(restart)
 
-        leftBox = Qt::VBoxLayout.new()
-        grid.addLayout( leftBox, 1, 0 )
-        leftBox.addWidget( angle )
-        leftBox.addWidget( force )
+        leftLayout = Qt::VBoxLayout.new()
+        leftLayout.addWidget( angle )
+        leftLayout.addWidget( force )
+
+        gridLayout = Qt::GridLayout.new
+        gridLayout.addWidget( quit, 0, 0 )
+        gridLayout.addLayout(topLayout, 0, 1)
+        gridLayout.addLayout(leftLayout, 1, 0)
+        gridLayout.addWidget( @cannonField, 1, 1, 2, 1 )
+        gridLayout.setColumnStretch( 1, 10 )
+		setLayout(gridLayout)
     
-        topBox = Qt::HBoxLayout.new()
-        grid.addLayout( topBox, 0, 1 )
-        topBox.addWidget( shoot )
-        topBox.addWidget( @hits )
-        topBox.addWidget( hitsL )
-        topBox.addWidget( @shotsLeft )
-        topBox.addWidget( shotsLeftL )
-        topBox.addStretch( 1 )
-        topBox.addWidget( restart )
-    
-        angle.setValue( 60 )
-        force.setValue( 25 )
+        angle.setValue(60)
+        force.setValue(25)
         angle.setFocus()
         
         newGame()

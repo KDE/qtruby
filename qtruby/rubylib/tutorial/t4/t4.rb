@@ -5,23 +5,21 @@ require 'Qt'
 
 class MyWidget < Qt::Widget
 
-def initialize(parent = nil, name = nil)
-	super
-    setMinimumSize(200, 120)
-    setMaximumSize(200, 120)
+def initialize(parent = nil)
+    super
+    setFixedSize(200, 120)
 
-    quit = Qt::PushButton.new('Quit', self, 'quit')
+    quit = Qt::PushButton.new('Quit', self)
     quit.setGeometry(62, 40, 75, 30)
     quit.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
+
     connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
 end
 
 end
 
-a = Qt::Application.new(ARGV)
+app = Qt::Application.new(ARGV)
 
-w = MyWidget.new
-w.setGeometry(100, 100, 200, 120)
-a.setMainWidget(w)
-w.show
-a.exec
+widget = MyWidget.new
+widget.show
+app.exec

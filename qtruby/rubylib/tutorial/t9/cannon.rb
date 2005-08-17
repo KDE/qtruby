@@ -1,43 +1,44 @@
 require 'Qt'
 
 class CannonField < Qt::Widget
-	signals 'angleChanged(int)'
-	slots 'setAngle(int)'
-	
-	def initialize(parent, name)
-		super
-		@ang = 45
-    	setPalette( Qt::Palette.new( Qt::Color.new( 250, 250, 200) ) )
-	end
+    signals 'angleChanged(int)'
+    slots 'setAngle(int)'
+    
+    def initialize(parent = nil)
+        super
+        @currentAngle = 45
+        setPalette( Qt::Palette.new( Qt::Color.new( 250, 250, 200) ) )
+    end
 
-	def setAngle( degrees )
-		if degrees < 5
-			degrees = 5
-		elsif degrees > 70
-        	degrees = 70
-		end
-		if @ang == degrees
-			return
-		end
-		@ang = degrees
-		repaint()
-		emit angleChanged( @ang )
-	end
+    def setAngle( degrees )
+        if degrees < 5
+            degrees = 5
+        elsif degrees > 70
+            degrees = 70
+        end
+        if @currentAngle == degrees
+            return
+        end
+        @currentAngle = degrees
+        repaint()
+        emit angleChanged( @currentAngle )
+    end
 
-	def paintEvent( event )
-		p = Qt::Painter.new( self )
+    def paintEvent( event )
+        painter = Qt::Painter.new( self )
 
-		p.setBrush( blue )
-		p.setPen( Qt::NoPen )
-		p.translate( 0, rect().bottom() )
-		p.drawPie( Qt::Rect.new(-35, -35, 70, 70), 0, 90*16 )
-		p.rotate( - @ang )
-		p.drawRect( Qt::Rect.new(33, -4, 15, 8) )
-		p.end()		
-	end
+        painter.setPen( Qt::NoPen )
+        painter.setBrush( Qt::Brush.new(Qt::blue) )
+
+        painter.translate( 0, rect().bottom() )
+        painter.drawPie( Qt::Rect.new(-35, -35, 70, 70), 0, 90*16 )
+        painter.rotate( - @currentAngle )
+        painter.drawRect( Qt::Rect.new(33, -4, 15, 8) )
+        painter.end()
+    end
 
 
-	def sizePolicy()
-    	return Qt::SizePolicy.new( Qt::SizePolicy::Expanding, Qt::SizePolicy::Expanding )
-	end
+    def sizePolicy()
+        return Qt::SizePolicy.new( Qt::SizePolicy::Expanding, Qt::SizePolicy::Expanding )
+    end
 end

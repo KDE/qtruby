@@ -4,7 +4,7 @@ class CannonField < Qt::Widget
     signals 'angleChanged(int)', 'forceChanged(int)'
     slots 'setAngle(int)', 'setForce(int)'
     
-    def initialize(parent, name)
+    def initialize(parent = nil)
         super
         @ang = 45
         @f = 0
@@ -45,18 +45,18 @@ class CannonField < Qt::Widget
         pix = Qt::Pixmap.new( cr.size() )
         pix.fill( self, cr.topLeft() )
         
-        p = Qt::Painter.new( pix )
-        p.setBrush( blue )
-        p.setPen( Qt::NoPen )
-        p.translate( 0, pix.height() - 1 )
-        p.drawPie( Qt::Rect.new(-35, -35, 70, 70), 0, 90*16 )
-        p.rotate( - @ang )
-        p.drawRect( Qt::Rect.new(33, -4, 15, 8) )
-        p.end()
+        painter = Qt::Painter.new( pix )
+        painter.setBrush( Qt::Brush.new(Qt::blue) )
+        painter.setPen( Qt::NoPen )
+        painter.translate( 0, pix.height() - 1 )
+        painter.drawPie( Qt::Rect.new(-35, -35, 70, 70), 0, 90*16 )
+        painter.rotate( - @ang )
+        painter.drawRect( Qt::Rect.new(33, -4, 15, 8) )
+        painter.end()
         
-        p.begin(self)
-        p.drawPixmap(cr.topLeft(), pix )
-        p.end()        
+        painter.begin(self)
+        painter.drawPixmap(cr.topLeft(), pix )
+        painter.end()        
     end
 
     def cannonRect()

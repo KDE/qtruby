@@ -3,18 +3,16 @@ $VERBOSE = true; $:.unshift File.dirname($0)
 
 require 'Qt'
 
-a = Qt::Application.new(ARGV)
+app = Qt::Application.new(ARGV)
 
-box = Qt::VBox.new()
-box.resize(200, 120)
+window = Qt::Widget.new
+window.resize(200, 120)
 
-quit = Qt::PushButton.new('Quit', box)
-quit.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
+quit = Qt::PushButton.new('Quit', window)
+quit.font = Qt::Font.new('Times', 18, Qt::Font::Bold)
+quit.setGeometry(10, 40, 180, 40)
+app.connect(quit, SIGNAL('clicked()'), app, SLOT('quit()'))
 
-a.connect(quit, SIGNAL('clicked()'), SLOT('quit()'))
+window.show
+app.exec
 
-a.setMainWidget(box)
-box.show
-
-a.exec
-exit

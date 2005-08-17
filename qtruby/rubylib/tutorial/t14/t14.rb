@@ -4,11 +4,8 @@ $VERBOSE = true; $:.unshift File.dirname($0)
 require 'Qt'
 require 'gamebrd.rb'
 
-Qt::Application.setColorSpec( Qt::Application::CustomColor )
-a = Qt::Application.new(ARGV)
-
-gb = GameBoard.new
-gb.setGeometry( 100, 100, 500, 355 )
-a.setMainWidget(gb)
-gb.show
-a.exec
+app = Qt::Application.new(ARGV)
+board = GameBoard.new
+board.setGeometry( 100, 100, 500, 355 )
+board.show
+app.exec

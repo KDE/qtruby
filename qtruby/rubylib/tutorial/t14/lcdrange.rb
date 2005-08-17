@@ -1,41 +1,40 @@
-require 'Qt'
-
 class LCDRange < Qt::Widget
     signals 'valueChanged(int)'
     slots 'setValue(int)', 'setRange(int, int)', 'setText(const char*)'
     
-    def initialize(s, parent, name)
-        super(parent, name)
+    def initialize(s, parent = nil)
+        super(parent)
         init()
         setText(s)
     end
     
     def init()
-        @lcd = Qt::LCDNumber.new(2, self, 'lcd')
-        @slider = Qt::Slider.new(Qt::VBox::Horizontal, self, 'slider')
+        lcd = Qt::LCDNumber.new(2)
+        @slider = Qt::Slider.new(Qt::Horizontal)
         @slider.setRange(0, 99)
-        @slider.setValue(0)
+        @slider.value = 0
         
-        @label = Qt::Label.new( ' ', self, 'label'  )
-        @label.setAlignment( Qt::AlignCenter )
+        @label = Qt::Label.new
+        @label.alignment = Qt::AlignHCenter.to_i | Qt::AlignTop.to_i
+        @label.setSizePolicy(Qt::SizePolicy::Preferred, Qt::SizePolicy::Fixed)
             
-        connect(@slider, SIGNAL('valueChanged(int)'), @lcd, SLOT('display(int)'))
+        connect(@slider, SIGNAL('valueChanged(int)'), lcd, SLOT('display(int)'))
         connect(@slider, SIGNAL('valueChanged(int)'), SIGNAL('valueChanged(int)'))
         
-        setFocusProxy(@slider)
+        layout = Qt::VBoxLayout.new
+        layout.addWidget(lcd)
+        layout.addWidget(@slider)
+        setLayout(layout)
         
-        @l = Qt::VBoxLayout.new( self )
-        @l.addWidget( @lcd, 1 )
-        @l.addWidget( @slider )
-        @l.addWidget( @label )
+        setFocusProxy(@slider)
     end
     
     def value()
-        @slider.value()
+        @slider.value
     end
 
     def setValue( value )
-        @slider.setValue( value )
+        @slider.value = value
     end
     
     def setRange( minVal, maxVal )
@@ -49,7 +48,7 @@ class LCDRange < Qt::Widget
     end
     
     def setText( s )
-        @label.setText( s )
+        @label.text = s
     end
 
 end

@@ -1,17 +1,23 @@
 require 'Qt'
 
-class LCDRange < Qt::VBox
+class LCDRange < Qt::Widget
 	signals 'valueChanged(int)'
 	slots 'setValue(int)', 'setRange(int, int)'
 
-	def initialize(parent, name)
+	def initialize(parent = nil)
 		super
-		lcd = Qt::LCDNumber.new(2, self, 'lcd')
-	    @slider = Qt::Slider.new(Qt::VBox::Horizontal, self, 'slider')
+		lcd = Qt::LCDNumber.new(2)
+	    @slider = Qt::Slider.new(Qt::Horizontal)
 	    @slider.setRange(0, 99)
 	    @slider.setValue(0)
 		connect(@slider, SIGNAL('valueChanged(int)'), lcd, SLOT('display(int)'))
 		connect(@slider, SIGNAL('valueChanged(int)'), SIGNAL('valueChanged(int)'))
+
+		layout = Qt::VBoxLayout.new
+		layout.addWidget(lcd)
+		layout.addWidget(@slider)
+		setLayout(layout)
+
 		setFocusProxy(@slider)
 	end
 

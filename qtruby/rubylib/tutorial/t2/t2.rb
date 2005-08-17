@@ -11,7 +11,6 @@ quit.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
 
 Qt::Object.connect(quit, SIGNAL('clicked()'), a, SLOT('quit()'))
 
-a.setMainWidget(quit)
 quit.show
 a.exec
 exit

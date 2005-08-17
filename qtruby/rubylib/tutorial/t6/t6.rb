@@ -3,43 +3,50 @@ $VERBOSE = true; $:.unshift File.dirname($0)
 
 require 'Qt'
 
-class LCDRange < Qt::VBox
+class LCDRange < Qt::Widget
 
-def initialize(grid)
-   super
-	lcd = Qt::LCDNumber.new(2, self, 'lcd')
-
-    slider = Qt::Slider.new(Qt::VBox::Horizontal, self, 'slider')
+def initialize(parent = nil)
+    super
+    lcd = Qt::LCDNumber.new(2)
+    slider = Qt::Slider.new(Qt::Horizontal)
     slider.setRange(0, 99)
     slider.setValue(0)
 
     lcd.connect(slider, SIGNAL('valueChanged(int)'), SLOT('display(int)'))
+
+    layout = Qt::VBoxLayout.new
+    layout.addWidget(lcd)
+    layout.addWidget(slider)
+    setLayout(layout)
 end
 
 end
 
-class MyWidget < Qt::VBox
+class MyWidget < Qt::Widget
 
 def initialize()
-   super
-    quit = Qt::PushButton.new('Quit', self, 'quit')
+    super
+    quit = Qt::PushButton.new('Quit')
     quit.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
-    
-	connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
-	grid = Qt::Grid.new( 4, self )
+    connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
+
+    grid = Qt::GridLayout.new
 	
-	for c in 0..3
-		for r in 0..3
-			LCDRange.new(grid)
-		end
-	end
+    for row in 0..3
+        for column in 0..3
+            grid.addWidget(LCDRange.new, row, column)
+        end
+    end
+
+    layout = Qt::VBoxLayout.new
+    layout.addWidget(quit)
+    layout.addLayout(grid)
+    setLayout(layout)
 end
 
 end    
 
-a = Qt::Application.new(ARGV)
-
-w = MyWidget.new
-a.setMainWidget(w)
-w.show
-a.exec
+app = Qt::Application.new(ARGV)
+widget = MyWidget.new
+widget.show
+app.exec

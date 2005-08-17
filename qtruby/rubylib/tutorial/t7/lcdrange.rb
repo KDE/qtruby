@@ -1,25 +1,32 @@
 #!/usr/bin/ruby -w
 require 'Qt'
 
-class LCDRange < Qt::VBox
-	signals 'valueChanged(int)'
-	slots 'setValue(int)'
+class LCDRange < Qt::Widget
+    signals 'valueChanged(int)'
+    slots 'setValue(int)'
 
-	def initialize(grid)
-		super
-		lcd = Qt::LCDNumber.new(2, self, 'lcd')
-	    @slider = Qt::Slider.new(Qt::VBox::Horizontal, self, 'slider')
-	    @slider.setRange(0, 99)
-	    @slider.setValue(0)
-		connect(@slider, SIGNAL('valueChanged(int)'), lcd, SLOT('display(int)'))
-		connect(@slider, SIGNAL('valueChanged(int)'), SIGNAL('valueChanged(int)'))
-	end
+    def initialize(parent = nil)
+        super
+        lcd = Qt::LCDNumber.new(2)
 
-	def value()
-    	@slider.value()
-	end
+        @slider = Qt::Slider.new(Qt::Horizontal)
+        @slider.setRange(0, 99)
+        @slider.setValue(0)
 
-	def setValue( value )
-    	@slider.setValue( value )
-	end
+        connect(@slider, SIGNAL('valueChanged(int)'), lcd, SLOT('display(int)'))
+        connect(@slider, SIGNAL('valueChanged(int)'), SIGNAL('valueChanged(int)'))
+   
+        layout = Qt::VBoxLayout.new
+        layout.addWidget(lcd)
+        layout.addWidget(@slider)
+        setLayout(layout)
+    end
+
+    def value()
+        @slider.value()
+    end
+
+    def setValue( value )
+        @slider.setValue( value )
+    end
 end

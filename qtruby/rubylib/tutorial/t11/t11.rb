@@ -6,20 +6,20 @@ require 'lcdrange.rb'
 require 'cannon.rb'
 
 class MyWidget < Qt::Widget
-    def initialize()
+    def initialize(parent = nil)
         super
-        quit = Qt::PushButton.new('Quit', self, 'quit')
+        quit = Qt::PushButton.new('Quit')
         quit.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
     
         connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
     
-        angle = LCDRange.new( self, 'angle' )
+        angle = LCDRange.new( self )
         angle.setRange( 5, 70 )
         
-        force  = LCDRange.new( self, 'force' )
+        force  = LCDRange.new( self )
         force.setRange( 10, 50 )
         
-        cannonField = CannonField.new( self, 'cannonField' )
+        cannonField = CannonField.new( self )
 
         connect( angle, SIGNAL('valueChanged(int)'),
                 cannonField, SLOT('setAngle(int)') )
@@ -31,37 +31,35 @@ class MyWidget < Qt::Widget
         connect( cannonField, SIGNAL('forceChanged(int)'),
                 force, SLOT('setValue(int)') )
         
-        shoot = Qt::PushButton.new( '&Shoot', self, 'shoot' )
+        shoot = Qt::PushButton.new( '&Shoot' )
         shoot.setFont( Qt::Font.new( 'Times', 18, Qt::Font::Bold ) )
 
         connect( shoot, SIGNAL('clicked()'), cannonField, SLOT('shoot()') )
-            
-        grid = Qt::GridLayout.new( self, 2, 2, 10 )
-        grid.addWidget( quit, 0, 0 )
-        grid.addWidget( cannonField, 1, 1 )
-        grid.setColStretch( 1, 10 )
+    
+        topLayout = Qt::HBoxLayout.new
+        topLayout.addWidget(shoot)
+        topLayout.addStretch(1)
 
-        leftBox = Qt::VBoxLayout.new()
-        grid.addLayout( leftBox, 1, 0 )
-        leftBox.addWidget( angle )
-        leftBox.addWidget( force )
-    
-        topBox = Qt::HBoxLayout.new()
-        grid.addLayout( topBox, 0, 1 )
-        topBox.addWidget( shoot )
-        topBox.addStretch( 1 )
-    
+        leftLayout = Qt::VBoxLayout.new()
+        leftLayout.addWidget( angle )
+        leftLayout.addWidget( force )
+
+        gridLayout = Qt::GridLayout.new
+        gridLayout.addWidget( quit, 0, 0 )
+        gridLayout.addLayout(topLayout, 0, 1)
+        gridLayout.addLayout(leftLayout, 1, 0)
+        gridLayout.addWidget( cannonField, 1, 1, 2, 1 )
+        gridLayout.setColumnStretch( 1, 10 )
+		setLayout(gridLayout)
+
         angle.setValue( 60 )
         force.setValue( 25 )
         angle.setFocus()
     end
 end    
 
-Qt::Application.setColorSpec( Qt::Application::CustomColor )
-a = Qt::Application.new(ARGV)
-
-w = MyWidget.new
-w.setGeometry( 100, 100, 500, 355 )
-a.setMainWidget(w)
-w.show
-a.exec
+app = Qt::Application.new(ARGV)
+widget = MyWidget.new
+widget.setGeometry( 100, 100, 500, 355 )
+widget.show
+app.exec

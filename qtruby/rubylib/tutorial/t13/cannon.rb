@@ -7,32 +7,34 @@ class CannonField < Qt::Widget
             'canShoot(bool)'
     
     slots   'setAngle(int)', 'setForce(int)', 'shoot()', 'moveShot()', 
-            'newTarget()', 'setGameOver()', 'restartGame'
+            'newTarget()', 'setGameOver()', 'restartGame()'
     
     
-    def initialize(parent, name)
+    def initialize(parent = nil)
         super
-        @ang = 45
-        @f = 0
+        @currentAngle = 45
+        @currentForce = 0
         @timerCount = 0;
-        @autoShootTimer = Qt::Timer.new( self, "movement handler" )
+        @autoShootTimer = Qt::Timer.new( self )
         connect( @autoShootTimer, SIGNAL('timeout()'),
                  self, SLOT('moveShot()') );
-        @shoot_ang = 0
-        @shoot_f = 0
+        @shootAngle = 0
+        @shootForce = 0
         @target = Qt::Point.new(0, 0)
-        @gameEnded = false        
+        @gameEnded = false
         setPalette( Qt::Palette.new( Qt::Color.new( 250, 250, 200) ) )
         newTarget()
         @barrelRect = Qt::Rect.new(33, -4, 15, 8)
     end
 
     def angle() 
-        return @ang 
+        return @currentAngle 
     end
+
     def force() 
-        return @f 
+        return @currentForce 
     end
+
     def gameOver() 
         return @gameEnded 
     end
@@ -43,23 +45,23 @@ class CannonField < Qt::Widget
         elsif degrees > 70
             degrees = 70
         end
-        if @ang == degrees
+        if @currentAngle == degrees
             return
         end
-        @ang = degrees
-        repaint( cannonRect(), false )
-        emit angleChanged( @ang )
+        @currentAngle = degrees
+        update( cannonRect() )
+        emit angleChanged( @currentAngle )
     end
     
     def setForce( newton )
         if newton < 0
             newton = 0
         end
-        if @f == newton
+        if @currentForce == newton
             return
         end
-        @f = newton
-        emit forceChanged( @f )
+        @currentForce = newton
+        emit forceChanged( @currentForce )
     end
     
     def shoot()
@@ -67,8 +69,8 @@ class CannonField < Qt::Widget
             return
         end
         @timerCount = 0
-        @shoot_ang = @ang
-        @shoot_f = @f
+        @shootAngle = @currentAngle
+        @shootForce = @currentForce
         @autoShootTimer.start( 50 )
 		emit canShoot( false )
     end
@@ -81,10 +83,8 @@ class CannonField < Qt::Widget
             midnight = Qt::Time.new( 0, 0, 0 )
             srand( midnight.secsTo(Qt::Time.currentTime()) )
         end
-        r = Qt::Region.new( targetRect() )
-        @target = Qt::Point.new( 200 + rand(190),
-                     10  + rand(255) )
-        repaint( r.unite( Qt::Region.new(targetRect()) ) )
+        @target = Qt::Point.new( 200 + rand(190), 10  + rand(255) )
+        update()
     end
     
     def setGameOver()
@@ -95,7 +95,7 @@ class CannonField < Qt::Widget
             @autoShootTimer.stop()
         end
         @gameEnded = true
-        repaint()
+        update()
     end
 
     def restartGame()
@@ -103,7 +103,7 @@ class CannonField < Qt::Widget
             @autoShootTimer.stop()
         end
         @gameEnded = false
-        repaint()
+        update()
         emit canShoot( true )
     end
     
@@ -125,57 +125,49 @@ class CannonField < Qt::Widget
             r = r.unite( Qt::Region.new( shotR ) )
         end
         
-        repaint( r )
+        update( r )
     end
 
     def paintEvent( e )
-        updateR = e.rect()
-        p = Qt::Painter.new( self )
+        painter = Qt::Painter.new( self )
 
         if @gameEnded
-            p.setPen( black )
-            p.setFont( Qt::Font.new( "Courier", 48, QFont::Bold ) )
-            p.drawText( rect(), AlignCenter, "Game Over" )
+            painter.setPen( black )
+            painter.setFont( Qt::Font.new( "Courier", 48, QFont::Bold ) )
+            painter.drawText( rect(), AlignCenter, "Game Over" )
         end
-        if updateR.intersects( cannonRect() )
-            paintCannon( p )
-        end
-        if isShooting() && updateR.intersects( shotRect() )
-            paintShot( p )
+        paintCannon(painter)
+        if isShooting()
+            paintShot( painter )
         end        
-        if !@gameEnded && updateR.intersects( targetRect() )
-            paintTarget( p )
+        if !@gameEnded
+            paintTarget( painter )
         end
-        p.end()
+        painter.end()
     end
 
-    def paintShot( p )
-        p.setBrush( black )
-        p.setPen( Qt::NoPen )
-        p.drawRect( shotRect() )
+    def paintShot( painter )
+        painter.setPen( Qt::NoPen )
+        painter.setBrush( Qt::Brush.new(Qt::black) )
+        painter.drawRect( shotRect() )
     end
 
-    def paintTarget( p )
-        p.setBrush( red )
-        p.setPen( black )
-        p.drawRect( targetRect() )
+    def paintTarget( painter )
+        painter.setBrush( Qt::Brush.new(Qt::red) )
+        painter.setPen( Qt::Pen.new(Qt::Color.new(Qt::black)) )
+        painter.drawRect( targetRect() )
     end
     
-    def paintCannon(p)                
-        cr = cannonRect()
-        pix = Qt::Pixmap.new( cr.size() )
-        pix.fill( self, cr.topLeft() )
-        
-        tmp = Qt::Painter.new( pix )
-        tmp.setBrush( blue )
-        tmp.setPen( Qt::NoPen )
-        tmp.translate( 0, pix.height() - 1 )
-        tmp.drawPie( Qt::Rect.new(-35, -35, 70, 70), 0, 90*16 )
-        tmp.rotate( - @ang )
-        tmp.drawRect( @barrelRect )
-        tmp.end()
-        
-        p.drawPixmap(cr.topLeft(), pix )        
+    def paintCannon(painter)                
+        painter.setPen(Qt::NoPen)
+        painter.setBrush(Qt::Brush.new(Qt::blue))
+
+        painter.save()
+        painter.translate(0, height())
+        painter.drawPie( Qt::Rect.new(-35, -35, 70, 70), 0, 90*16 )
+        painter.rotate( - @currentAngle )
+        painter.drawRect( @barrelRect )
+        painter.restore()
     end
 
     def cannonRect()
@@ -188,8 +180,8 @@ class CannonField < Qt::Widget
         gravity = 4.0
 
         time      = @timerCount / 4.0
-        velocity  = @shoot_f
-        radians   = @shoot_ang*3.14159265/180.0
+        velocity  = @shootForce
+        radians   = @shootAngle*3.14159265/180.0
 
         velx      = velocity*cos( radians )
         vely      = velocity*sin( radians )
@@ -205,15 +197,11 @@ class CannonField < Qt::Widget
 
     def targetRect()
         r = Qt::Rect.new( 0, 0, 20, 10 )
-        r.moveCenter( Qt::Point.new(@target.x(),height() - 1 - @target.y()) );
+        r.moveCenter( Qt::Point.new(@target.x(), height() - 1 - @target.y()) )
         return r
     end
     
     def isShooting()
         return @autoShootTimer.isActive()
-    end
-
-    def sizePolicy()
-        return Qt::SizePolicy.new( Qt::SizePolicy::Expanding, Qt::SizePolicy::Expanding )
     end
 end

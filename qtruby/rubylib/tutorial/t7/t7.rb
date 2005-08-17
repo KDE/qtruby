@@ -4,34 +4,39 @@ $VERBOSE = true; $:.unshift File.dirname($0)
 require 'Qt'
 require 'lcdrange.rb'
 
-class MyWidget < Qt::VBox
+class MyWidget < Qt::Widget
 
-def initialize()
-	super
-    quit = Qt::PushButton.new('Quit', self, 'quit')
-    quit.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
+    def initialize(parent = nil)
+        super(parent)
+        quit = Qt::PushButton.new('Quit')
+        quit.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
     
-	connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
-	grid = Qt::Grid.new( 4, self )
+        connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
 
-	previous = nil	
-	for c in 0..3
-		for r in 0..3
-			lr = LCDRange.new(grid)
-			if previous != nil
-				connect( lr, SIGNAL('valueChanged(int)'),
-						previous, SLOT('setValue(int)') )
-			end
-			previous = lr
-		end
-	end
-end
+        grid = Qt::GridLayout.new
+        previousRange = nil
+        for row in 0..3
+            for column in 0..3
+                lcdRange = LCDRange.new(self)
+                grid.addWidget(lcdRange, row, column)
+                if previousRange != nil
+                    connect( lcdRange, SIGNAL('valueChanged(int)'),
+                             previousRange, SLOT('setValue(int)') )
+                end
+                previousRange = lcdRange
+            end
+        end
+
+        layout = Qt::VBoxLayout.new
+        layout.addWidget(quit)
+        layout.addLayout(grid)
+        setLayout(layout)
+    end
 
 end    
 
-a = Qt::Application.new(ARGV)
+app = Qt::Application.new(ARGV)
 
-w = MyWidget.new
-a.setMainWidget(w)
-w.show
-a.exec
+widget = MyWidget.new
+widget.show
+app.exec
