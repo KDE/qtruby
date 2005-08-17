@@ -1,5 +1,10 @@
 2005-08-17  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* Left some debugging code in. qt_metacall() was not being called 
+	  correctly for non-ruby C++ slots.
+
+2005-08-17  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* QtRuby now ported to Qt4. Pure Qt4 code with no dependencies on
 	  libQt3Support
 	* Qt4 style QMetaObjects are created on the fly. Slots and signals work

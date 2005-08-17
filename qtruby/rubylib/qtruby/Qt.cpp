@@ -1634,7 +1634,7 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 	if (id < offset) {
 		// Assume the target slot is a C++ one
 		smokeruby_object *o = value_obj_info(self);
-		Smoke::Index nameId = o->smoke->idMethodName("qt_metacall");
+		Smoke::Index nameId = o->smoke->idMethodName("qt_metacall$$?");
 		Smoke::Index meth = o->smoke->findMethod(o->classId, nameId);
 		if(meth > 0) {
 			Smoke::Method &m = o->smoke->methods[o->smoke->methodMaps[meth].method];
@@ -1662,8 +1662,6 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 
     QString name(method.signature());
     name.replace(QRegExp("\\(.*"), "");
-
-printf("qt_metacall() id: %d offset: %d method: %s\n", id, offset, (const char *) name.toLatin1());
 
     InvokeSlot slot(self, rb_intern(name.toLatin1()), mocArgs, _o);
     slot.next();
