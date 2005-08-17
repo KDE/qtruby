@@ -1647,7 +1647,10 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 			return INT2NUM(i[0].s_int);
 		}
 
-		return argv[1];
+		// Should never happen..
+    	rb_raise(	rb_eRuntimeError, 
+					"Cannot find qt_metacall method for %s class\n", 
+					o->smoke->classes[o->classId].className );
 	}
 
     if (_c != QMetaObject::InvokeMetaMethod) {

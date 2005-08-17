@@ -247,10 +247,53 @@ module Qt
 			end
 		end
 
+		# Add two methods, 'slotNames()' and 'signalNames()' from
+		# Qt3, as they are very useful when debugging
+		def slotNames(inherits = false)
+			res = []
+			if inherits
+				(0...methodCount()).each do |m| 
+					if method(m).methodType == Qt::MetaMethod::Slot 
+						res.push method(m).signature
+					end
+				end
+			else
+				(methodOffset()...methodCount()).each do |m| 
+					if method(m).methodType == Qt::MetaMethod::Slot 
+						res.push method(m).signature
+					end
+				end
+			end
+			return res
+		end
+
+		def signalNames(inherits = false)
+			res = []
+			if inherits
+				(0...methodCount()).each do |m| 
+#					Oops name clash with the Signal module
+#					if method(m).methodType == Qt::MetaMethod::Signal 
+					if method(m).methodType == 1 
+						res.push method(m).signature
+					end
+				end
+			else
+				(methodOffset()...methodCount()).each do |m| 
+#					if method(m).methodType == Qt::MetaMethod::Signal 
+					if method(m).methodType == 1 
+						res.push method(m).signature
+					end
+				end
+			end
+			return res
+		end
+
 		def inspect
 			str = super
 			str.sub!(/>$/, "")
 			str << " className=%s," % className
+			str << " signalNames=Array (%d element(s))," % signalNames.length unless signalNames.length == 0
+			str << " slotNames=Array (%d element(s))," % slotNames.length unless slotNames.length == 0
 			str << " superClass=%s," % superClass.inspect unless superClass == nil
 			str.chop!
 			str << ">"
@@ -260,6 +303,8 @@ module Qt
 			str = to_s
 			str.sub!(/>$/, "")
 			str << "\n className=%s," % className
+			str << "\n signalNames=Array (%d element(s))," % signalNames.length unless signalNames.length == 0
+			str << "\n slotNames=Array (%d element(s))," % slotNames.length unless slotNames.length == 0
 			str << "\n superClass=%s," % superClass.inspect unless superClass == nil
 			str << "\n methodCount=%d," % methodCount
 			str << "\n methodOffset=%d," % methodOffset
