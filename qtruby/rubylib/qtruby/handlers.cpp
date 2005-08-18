@@ -1651,6 +1651,81 @@ void marshall_QMapQStringQVariant(Marshall *m) {
     }
 }
 
+void marshall_QMapintQVariant(Marshall *m) {
+    switch(m->action()) {
+      case Marshall::FromVALUE:
+	{
+	    VALUE hash = *(m->var());
+	    if (TYPE(hash) != T_HASH) {
+		m->item().s_voidp = 0;
+		break;
+	    }
+		
+		QMap<int,QVariant> * map = new QMap<int,QVariant>;
+		
+		// Convert the ruby hash to an array of key/value arrays
+		VALUE temp = rb_funcall(hash, rb_intern("to_a"), 0);
+
+		for (long i = 0; i < RARRAY(temp)->len; i++) {
+			VALUE key = rb_ary_entry(rb_ary_entry(temp, i), 0);
+			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
+			
+			smokeruby_object *o = value_obj_info(value);
+			if( !o || !o->ptr)
+                   continue;
+			void * ptr = o->ptr;
+			ptr = o->smoke->cast(ptr, o->classId, o->smoke->idClass("QVariant"));
+			
+			(*map)[NUM2INT(key)] = (QVariant)*(QVariant*)ptr;
+		}
+	    
+		m->item().s_voidp = map;
+		m->next();
+		
+	    if(m->cleanup())
+		delete map;
+	}
+	break;
+      case Marshall::ToVALUE:
+	{
+	    QMap<int,QVariant> *map = (QMap<int,QVariant>*)m->item().s_voidp;
+	    if(!map) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+		
+	    VALUE hv = rb_hash_new();
+			
+		QMap<int,QVariant>::Iterator it;
+		for (it = map->begin(); it != map->end(); ++it) {
+			void *p = new QVariant(it.value());
+			VALUE obj = getPointerObject(p);
+				
+			if (obj == Qnil) {
+				smokeruby_object  * o = ALLOC(smokeruby_object);
+				o->classId = m->smoke()->idClass("QVariant");
+				o->smoke = m->smoke();
+				o->ptr = p;
+				o->allocated = true;
+				obj = set_obj_info("Qt::Variant", o);
+			}
+			
+			rb_hash_aset(hv, INT2NUM((int)(it.key())), obj);
+        }
+		
+		*(m->var()) = hv;
+		m->next();
+		
+	    if(m->cleanup())
+		delete map;
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
+    }
+}
+
 void marshall_voidP_array(Marshall *m) {
     switch(m->action()) {
 	case Marshall::FromVALUE:
@@ -1924,6 +1999,7 @@ TypeHandler Qt_handlers[] = {
 //    { "QValueList<QTranslatorMessage>", marshall_QTranslatorMessageList },
     { "QValueList<QHostAddress>", marshall_QHostAddressList },
 //    { "QCanvasItemList", marshall_QCanvasItemList },
+    { "QMap<int,QVariant>", marshall_QMapintQVariant },
     { "QMap<QString,QString>", marshall_QMapQStringQString },
     { "QMap<QString,QString>&", marshall_QMapQStringQString },
     { "QMap<QString,QVariant>", marshall_QMapQStringQVariant },
