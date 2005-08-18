@@ -235,7 +235,13 @@ module Qt
 			pp.text str.sub(/>$/, "\n x=%d,\n y=%d>" % [x, y])
 		end
 	end
-	
+
+	class MetaMethod < Qt::Base
+		# Oops, name clash with the Signal module so hard code
+		# this value rather than get it from the Smoke runtime
+		Signal = 1
+	end
+
 	class MetaObject < Qt::Base
 		alias_method :_method, :method
 
@@ -271,16 +277,13 @@ module Qt
 			res = []
 			if inherits
 				(0...methodCount()).each do |m| 
-#					Oops name clash with the Signal module
-#					if method(m).methodType == Qt::MetaMethod::Signal 
-					if method(m).methodType == 1 
+					if method(m).methodType == Qt::MetaMethod::Signal 
 						res.push method(m).signature
 					end
 				end
 			else
 				(methodOffset()...methodCount()).each do |m| 
-#					if method(m).methodType == Qt::MetaMethod::Signal 
-					if method(m).methodType == 1 
+					if method(m).methodType == Qt::MetaMethod::Signal 
 						res.push method(m).signature
 					end
 				end
@@ -982,9 +985,7 @@ module Qt
 				signals 			= meta.get_signals
 				slots 				= meta.get_slots
 				stringdata, data 	= makeMetaData(qobject.class.name, signals, slots)
-				meta.metaobject 	= make_metaObject(	qobject.staticMetaObject,
-														stringdata,
-														data )
+				meta.metaobject 	= make_metaObject(qobject, stringdata,data)
 				meta.changed = false
 			end
 			

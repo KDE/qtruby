@@ -1,3 +1,11 @@
+2005-08-18  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* When a QMetaObject was constructed on the fly, the metaObject
+	  for the superClass was being obtained via Qbject::staticMetaClass()
+	  which returns a copy. However, this messed up qobject_cast() and
+	  QMetaObject::cast(), so now the parent metaObject is obtained via
+	  QObject::metaObject() which returns a pointer to a QMetaObject.
+
 2005-08-17  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added Qt::MetaObject.slotNames() and signalNames() from Qt3 as they

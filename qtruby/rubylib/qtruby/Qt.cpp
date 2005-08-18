@@ -1649,7 +1649,7 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 
 		// Should never happen..
     	rb_raise(	rb_eRuntimeError, 
-					"Cannot find qt_metacall method for %s class\n", 
+					"Cannot find %s::qt_metacall() method\n", 
 					o->smoke->classes[o->classId].className );
 	}
 
@@ -1871,18 +1871,26 @@ getVALUEtype(VALUE /*self*/, VALUE ruby_value)
 }
 
 static VALUE
-make_metaObject(VALUE /*self*/, VALUE parent, VALUE stringdata_value, VALUE data_value)
+make_metaObject(VALUE /*self*/, VALUE obj, VALUE stringdata_value, VALUE data_value)
 {
-    smokeruby_object *po = value_obj_info(parent);
-    if (!po || !po->ptr) {
+    smokeruby_object *o = value_obj_info(obj);
+    if (!o || !o->ptr) {
     	rb_raise(rb_eRuntimeError, "Cannot create metaObject\n");
     }
 
-	// QObject::staticMetaObject() returns a value type, so it gets copied by
-	// the QtRuby runtime and 'allocated' is true. However, we are about to
-	// use the pointer and don't want this QMetaObject freed when the ruby
-	// instance is garbage collected. So set 'allocated' to false.
-	po->allocated = false;
+	Smoke::Index nameId = o->smoke->idMethodName("metaObject");
+	Smoke::Index meth = o->smoke->findMethod(o->classId, nameId);
+	if (meth <= 0) {
+		// Should never happen..
+    	rb_raise(	rb_eRuntimeError, 
+					"Cannot find %s::metaObject() method\n", 
+					o->smoke->classes[o->classId].className );
+	}
+
+	Smoke::Method &methodId = o->smoke->methods[o->smoke->methodMaps[meth].method];
+	Smoke::ClassFn fn = o->smoke->classes[methodId.classId].classFn;
+	Smoke::StackItem i[1];
+	(*fn)(methodId.method, o->ptr, i);
 
 	// C++ expert needed. Is it possible to allocate a QMetaObject
 	// via 'new', without explicitely setting the d pointer? For
@@ -1900,7 +1908,7 @@ make_metaObject(VALUE /*self*/, VALUE parent, VALUE stringdata_value, VALUE data
 	//
 	// But for now set the d pointer instead..
 	QMetaObject * meta = new QMetaObject;
-	meta->d.superdata = (QMetaObject *) po->ptr;
+	meta->d.superdata = (QMetaObject *) i[0].s_voidp;
 
 	meta->d.stringdata = new char[RSTRING(stringdata_value)->len];
 	memcpy(	(void *) meta->d.stringdata, 
@@ -1915,16 +1923,35 @@ make_metaObject(VALUE /*self*/, VALUE parent, VALUE stringdata_value, VALUE data
 		data[i] = NUM2UINT(rv);
 	}
 
+#ifdef DEBUG
+	printf("make_metaObject() superdata: %p\n", meta->d.superdata);
+	printf("stringdata: ");
+	for (int j = 0; j < RSTRING(stringdata_value)->len; j++) {
+		if (meta->d.stringdata[j] == 0) {
+			printf("\\0");
+		} else {
+			printf("%c", meta->d.stringdata[j]);
+		}
+	}
+	printf("\n");
+	
+	printf("data: ");
+	for (long i = 0; i < count; i++) {
+		printf("%d, ", data[i]);
+	}
+	printf("\n");
+#endif
+
 	meta->d.data = (const uint *) data;
 	meta->d.extradata = 0;
 
-    smokeruby_object * o = (smokeruby_object *) malloc(sizeof(smokeruby_object));
-    o->smoke = qt_Smoke;
-    o->classId = qt_Smoke->idClass("QMetaObject");
-    o->ptr = meta;
-    o->allocated = true;
+    smokeruby_object * m = (smokeruby_object *) malloc(sizeof(smokeruby_object));
+    m->smoke = qt_Smoke;
+    m->classId = qt_Smoke->idClass("QMetaObject");
+    m->ptr = meta;
+    m->allocated = true;
 
-    return Data_Wrap_Struct(qt_qmetaobject_class, smokeruby_mark, smokeruby_free, o);
+    return Data_Wrap_Struct(qt_qmetaobject_class, smokeruby_mark, smokeruby_free, m);
 }
 
 static VALUE
