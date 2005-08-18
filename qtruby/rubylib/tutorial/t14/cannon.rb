@@ -5,7 +5,7 @@ class CannonField < Qt::Widget
     signals 'hit()', 'missed()', 'angleChanged(int)', 'forceChanged(int)',
             'canShoot(bool)'
 
-    slots   'setAngle(int)', 'setForce(int)', 'shoot()', 'moveShot()',
+    slots   'angle=(int)', 'force=(int)', 'shoot()', 'moveShot()',
             'newTarget()', 'setGameOver()', 'restartGame()'
 
     def initialize(parent = nil)
@@ -38,7 +38,7 @@ class CannonField < Qt::Widget
         return @gameEnded 
     end
 
-    def setAngle( degrees )
+    def angle=( degrees )
         if degrees < 5
             degrees = 5
         elsif degrees > 70
@@ -52,7 +52,7 @@ class CannonField < Qt::Widget
         emit angleChanged( @currentAngle )
     end
     
-    def setForce( newton )
+    def force=( newton )
         if newton < 0
             newton = 0
         end
@@ -64,7 +64,7 @@ class CannonField < Qt::Widget
     end
     
     def shoot()
-        if isShooting()
+        if shooting?
             return
         end
         @timerCount = 0
@@ -90,7 +90,7 @@ class CannonField < Qt::Widget
         if @gameEnded
             return
         end
-        if isShooting()
+        if shooting?
             @autoShootTimer.stop()
         end
         @gameEnded = true
@@ -98,7 +98,7 @@ class CannonField < Qt::Widget
     end
 
     def restartGame()
-        if isShooting()
+        if shooting?
             @autoShootTimer.stop()
         end
         @gameEnded = false
@@ -150,7 +150,7 @@ class CannonField < Qt::Widget
             pnt.setY( height() - 1 )
         end
         rad = atan2((rect().bottom()-pnt.y()), pnt.x())
-        setAngle( ( rad*180/3.14159265 ).round )
+        self.angle = ( rad*180/3.14159265 ).round
     end
 
     def mouseReleaseEvent( e )
@@ -169,7 +169,7 @@ class CannonField < Qt::Widget
         end
         paintCannon( painter )
         paintBarrier( painter )
-        if isShooting()
+        if shooting?
             paintShot( painter )
         end       
         if !@gameEnded
@@ -246,17 +246,17 @@ class CannonField < Qt::Widget
         return Qt::Rect.new( 145, height() - 100, 15, 99 )
     end
 
-    def barrelHit( p )
-        mtx = Qt::WMatrix.new
-        mtx.translate( 0, height() - 1 )
-        mtx.rotate( - @currentAngle )
-        mtx = mtx.invert()
-        return @barrelRect.contains( mtx.map(p) )
+    def barrelHit( pos )
+        matrix = Qt::Matrix.new
+        matrix.translate( 0, height() )
+        matrix.rotate( - @currentAngle )
+        matrix = matrix.inverted()
+        return @barrelRect.contains( matrix.map(pos) )
     end
 
     private :cannonRect, :shotRect, :targetRect, :barrierRect, :barrelHit
 
-    def isShooting()
-        return @autoShootTimer.isActive()
+    def shooting?
+        return @autoShootTimer.active?
     end
 end

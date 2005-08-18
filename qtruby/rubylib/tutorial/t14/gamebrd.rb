@@ -24,14 +24,14 @@ class GameBoard < Qt::Widget
         @cannonField = CannonField.new
 
         connect( angle, SIGNAL('valueChanged(int)'),
-                @cannonField, SLOT('setAngle(int)') )
+                @cannonField, SLOT('angle=(int)') )
         connect( @cannonField, SIGNAL('angleChanged(int)'),
-                angle, SLOT('setValue(int)') )
+                angle, SLOT('value=(int)') )
 
         connect( force, SIGNAL('valueChanged(int)'),
-                @cannonField, SLOT('setForce(int)') )
+                @cannonField, SLOT('force=(int)') )
         connect( @cannonField, SIGNAL('forceChanged(int)'),
-                force, SLOT('setValue(int)') )
+                force, SLOT('value=(int)') )
         
         connect( @cannonField, SIGNAL('hit()'),
                     self, SLOT('hit()') )
@@ -80,40 +80,40 @@ class GameBoard < Qt::Widget
         gridLayout.setColumnStretch( 1, 10 )
 		setLayout(gridLayout)
     
-        angle.setValue(60)
-        force.setValue(25)
-        angle.setFocus()
+        angle.value = 60
+        force.value = 25
+        angle.setFocus
         
         newGame()
     end
     
     def fire()
-        if @cannonField.gameOver() || @cannonField.isShooting()
+        if @cannonField.gameOver || @cannonField.shooting?
             return
         end
         @shotsLeft.display( @shotsLeft.intValue() - 1 )
-        @cannonField.shoot()
+        @cannonField.shoot
     end
 
     def hit()
         @hits.display( @hits.intValue() + 1 )
         if @shotsLeft.intValue() == 0
-            @cannonField.setGameOver()
+            @cannonField.setGameOver
         else
-            @cannonField.newTarget()
+            @cannonField.newTarget
         end
     end
 
     def missed()
         if @shotsLeft.intValue() == 0
-            @cannonField.setGameOver()
+            @cannonField.setGameOver
         end
     end
 
     def newGame()
         @shotsLeft.display( 15.0 )
         @hits.display( 0 )
-        @cannonField.restartGame()
-        @cannonField.newTarget()
+        @cannonField.restartGame
+        @cannonField.newTarget
     end
 end

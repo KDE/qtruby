@@ -1,14 +1,16 @@
 class LCDRange < Qt::Widget
+
     signals 'valueChanged(int)'
-    slots 'setValue(int)', 'setRange(int, int)', 'setText(const char*)'
+
+    slots 'value=(int)', 'setRange(int, int)', 'text=(const char*)'
     
     def initialize(s, parent = nil)
         super(parent)
         init()
-        setText(s)
+        self.text = s
     end
     
-    def init()
+    def init
         lcd = Qt::LCDNumber.new(2)
         @slider = Qt::Slider.new(Qt::Horizontal)
         @slider.setRange(0, 99)
@@ -29,11 +31,11 @@ class LCDRange < Qt::Widget
         setFocusProxy(@slider)
     end
     
-    def value()
+    def value
         @slider.value
     end
 
-    def setValue( value )
+    def value=( value )
         @slider.value = value
     end
     
@@ -47,7 +49,7 @@ class LCDRange < Qt::Widget
         @slider.setRange( minVal, maxVal )
     end
     
-    def setText( s )
+    def text=( s )
         @label.text = s
     end
 
