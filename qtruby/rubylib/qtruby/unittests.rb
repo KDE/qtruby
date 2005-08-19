@@ -33,4 +33,20 @@ class TestQtRuby < Test::Unit::TestCase
     assert widget.inherits("QObject")
   end
 
+  def test_qstring_marshall
+    widget = Qt::Widget.new(nil)
+    assert widget.objectName.nil?
+    widget.objectName = "Barney"
+    assert widget.objectName == "Barney"
+  end
+
+  def test_widgetlist
+    w1 = Qt::Widget.new(nil)
+    w2 = Qt::Widget.new(w1)
+    w3 = Qt::Widget.new(w1)
+    w4 = Qt::Widget.new(w2)
+
+    assert w1.children == [ w2, w3 ]
+  end
+
 end
