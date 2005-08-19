@@ -1491,20 +1491,20 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 VALUE
 new_qt(int argc, VALUE * argv, VALUE klass)
 {
-    VALUE * temp_stack = (VALUE *) calloc(argc + 1, sizeof(VALUE));
-    temp_stack[0] = rb_obj_alloc(klass);
-    for (int count = 0; count < argc; count++) {
-	temp_stack[count+1] = argv[count];
-    }
+	VALUE * temp_stack = ALLOCA_N(VALUE, argc + 1);
+	temp_stack[0] = rb_obj_alloc(klass);
 
-    VALUE result = rb_funcall2(qt_internal_module, rb_intern("try_initialize"), argc+1, temp_stack);
+	for (int count = 0; count < argc; count++) {
+		temp_stack[count+1] = argv[count];
+	}
 
-    if (rb_respond_to(result, rb_intern("initialize")) != 0) {
-	rb_obj_call_init(result, argc, argv);
-    }
+	VALUE result = rb_funcall2(qt_internal_module, rb_intern("try_initialize"), argc+1, temp_stack);
+
+	if (rb_respond_to(result, rb_intern("initialize")) != 0) {
+		rb_obj_call_init(result, argc, argv);
+	}
 	
-	free(temp_stack);
-    return result;
+	return result;
 }
 
 static VALUE qt_metacall(int argc, VALUE * argv, VALUE self);
