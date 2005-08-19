@@ -1904,7 +1904,7 @@ DEF_LIST_MARSHALLER( QActionList, QList<QAction*>, QAction )
 DEF_LIST_MARSHALLER( QTextFrameList, QList<QTextFrame*>, QTextFrame )
 DEF_LIST_MARSHALLER( QTreeWidgetItemList, QList<QTreeWidgetItem*>, QTreeWidgetItem )
 
-template <class Item, class ItemList, class ItemListIterator, const char *ItemSTR >
+template <class Item, class ItemList, const char *ItemSTR >
 void marshall_LinkedListItem(Marshall *m) {
 	switch(m->action()) {
 		case Marshall::FromVALUE:
@@ -1936,78 +1936,77 @@ void marshall_LinkedListItem(Marshall *m) {
 			m->item().s_voidp = cpplist;
 			m->next();
 
-	    if(m->cleanup()) {
-		rb_ary_clear(list);
-		for(ItemListIterator it = cpplist->begin();
-		    it != cpplist->end();
-		    ++it) {
-		    VALUE obj = getPointerObject((void*)&(*it));
-		    rb_ary_push(list, obj);
+			if(m->cleanup()) {
+				rb_ary_clear(list);
+				for(int i=0; i < cpplist->size(); ++i) {
+					VALUE obj = getPointerObject((void*)&(cpplist[i]));
+					rb_ary_push(list, obj);
+				}
+				delete cpplist;
+			}
 		}
-		delete cpplist;
-	    }
-	}
-	break;
-      case Marshall::ToVALUE:
-	{
-	    ItemList *valuelist = (ItemList*)m->item().s_voidp;
-	    if(!valuelist) {
-		*(m->var()) = Qnil;
 		break;
-	    }
+      
+		case Marshall::ToVALUE:
+		{
+			ItemList *valuelist = (ItemList*)m->item().s_voidp;
+			if(!valuelist) {
+				*(m->var()) = Qnil;
+				break;
+			}
 
-	    VALUE av = rb_ary_new();
+			VALUE av = rb_ary_new();
 
-	    int ix = m->smoke()->idClass(ItemSTR);
-	    const char * className = m->smoke()->binding->className(ix);
+			int ix = m->smoke()->idClass(ItemSTR);
+			const char * className = m->smoke()->binding->className(ix);
 
-	    for(ItemListIterator it = valuelist->begin();
-		it != valuelist->end();
-		++it) {
-		void *p = &(*it);
+			for(int i=0; i < valuelist->size() ; ++i) {
+				void *p = &valuelist[i];
 
-		if(m->item().s_voidp == 0) {
-		    *(m->var()) = Qnil;
-		    break;
+				if(m->item().s_voidp == 0) {
+				*(m->var()) = Qnil;
+				break;
+				}
+
+				VALUE obj = getPointerObject(p);
+				if(obj == Qnil) {
+					smokeruby_object  * o = ALLOC(smokeruby_object);
+					o->smoke = m->smoke();
+					o->classId = o->smoke->idClass(ItemSTR);
+					o->ptr = p;
+					o->allocated = false;
+					obj = set_obj_info(className, o);
+				}
+		
+				rb_ary_push(av, obj);
+			}
+
+			if(m->cleanup())
+				delete valuelist;
+			else
+				*(m->var()) = av;
 		}
-
-		VALUE obj = getPointerObject(p);
-		if(obj == Qnil) {
-		    smokeruby_object  * o = ALLOC(smokeruby_object);
-		    o->smoke = m->smoke();
-		    o->classId = o->smoke->idClass(ItemSTR);
-		    o->ptr = p;
-		    o->allocated = false;
-		    obj = set_obj_info(className, o);
-		}
-		rb_ary_push(av, obj);
-            }
-
-	    if(m->cleanup())
-		delete valuelist;
-	    else
-	        *(m->var()) = av;
+		break;
+      
+		default:
+			m->unsupported();
+		break;
 	}
-	break;
-      default:
-	m->unsupported();
-	break;
-    }
 }
 
-#define DEF_VALUELIST_MARSHALLER(ListIdent,ItemList,Item,Itr) namespace { char ListIdent##STR[] = #Item; };  \
-        Marshall::HandlerFn marshall_##ListIdent = marshall_LinkedListItem<Item,ItemList,Itr,ListIdent##STR>;
+#define DEF_VALUELIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; };  \
+        Marshall::HandlerFn marshall_##ListIdent = marshall_LinkedListItem<Item,ItemList,ListIdent##STR>;
 
-DEF_VALUELIST_MARSHALLER( QTableWidgetSelectionRangeList, QList<QTableWidgetSelectionRange>, QTableWidgetSelectionRange, QList<QTableWidgetSelectionRange>::iterator )
-DEF_VALUELIST_MARSHALLER( QTextLayoutFormatRangeList, QList<QTextLayout::FormatRange>, QTextLayout::FormatRange, QList<QTextLayout::FormatRange>::iterator )
-DEF_VALUELIST_MARSHALLER( QVariantList, QList<QVariant>, QVariant, QList<QVariant>::iterator )
-DEF_VALUELIST_MARSHALLER( QPixmapList, QList<QPixmap>, QPixmap, QList<QPixmap>::iterator )
-DEF_VALUELIST_MARSHALLER( QHostAddressList, QList<QHostAddress>, QHostAddress, QList<QHostAddress>::iterator )
-DEF_VALUELIST_MARSHALLER( QPolygonFList, QList<QPolygonF>, QPolygonF, QList<QPolygonF>::iterator )
-DEF_VALUELIST_MARSHALLER( QImageTextKeyLangList, QLinkedList<QImageTextKeyLang>, QImageTextKeyLang, QLinkedList<QImageTextKeyLang>::iterator )
-DEF_VALUELIST_MARSHALLER( QUrlList, QList<QUrl>, QUrl, QList<QUrl>::iterator )
-DEF_VALUELIST_MARSHALLER( QFileInfoList, QFileInfoList, QFileInfo, QFileInfoList::iterator )
-DEF_VALUELIST_MARSHALLER( QTextBlockList, QList<QTextBlock>, QTextBlock, QList<QTextBlock>::iterator )
+DEF_VALUELIST_MARSHALLER( QTableWidgetSelectionRangeList, QList<QTableWidgetSelectionRange>, QTableWidgetSelectionRange )
+DEF_VALUELIST_MARSHALLER( QTextLayoutFormatRangeList, QList<QTextLayout::FormatRange>, QTextLayout::FormatRange)
+DEF_VALUELIST_MARSHALLER( QVariantList, QList<QVariant>, QVariant )
+DEF_VALUELIST_MARSHALLER( QPixmapList, QList<QPixmap>, QPixmap )
+DEF_VALUELIST_MARSHALLER( QHostAddressList, QList<QHostAddress>, QHostAddress )
+DEF_VALUELIST_MARSHALLER( QPolygonFList, QList<QPolygonF>, QPolygonF )
+DEF_VALUELIST_MARSHALLER( QImageTextKeyLangList, QLinkedList<QImageTextKeyLang>, QImageTextKeyLang )
+DEF_VALUELIST_MARSHALLER( QUrlList, QList<QUrl>, QUrl )
+DEF_VALUELIST_MARSHALLER( QFileInfoList, QFileInfoList, QFileInfo )
+DEF_VALUELIST_MARSHALLER( QTextBlockList, QList<QTextBlock>, QTextBlock )
 
 TypeHandler Qt_handlers[] = {
     { "QString", marshall_QString },
