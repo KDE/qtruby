@@ -1435,7 +1435,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
 	VALUE constructor_name = rb_str_new2("new");
 
-	VALUE * temp_stack = ALLOCA_N(VALUE, argc);
+	VALUE * temp_stack = (VALUE *) calloc(argc+4, sizeof(VALUE));
 
 	temp_stack[0] = rb_str_new2("Qt");
 	temp_stack[1] = constructor_name;
@@ -1481,6 +1481,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	p->ptr = 0;
 	p->allocated = false;
 	o->allocated = true;
+	free(temp_stack);
 	VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, o);
 	mapObject(result, result);
 	// Off with a longjmp, never to return..
