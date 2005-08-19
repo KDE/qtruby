@@ -9,7 +9,7 @@
         * Modified new_qobject to only add method definitions if the kclass
           doesn't respond_to qt_metacall (was a TODO item).
  
-        * Prefer using Ruby's ALLOCA_N over calloc in new_qt
+        * Prefer using Ruby's ALLOCA_N over calloc in new_qt and initialize_qt
 
 2005-08-19  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 

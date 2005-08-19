@@ -1428,21 +1428,23 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 		if (rb_block_given_p()) {
 		rb_funcall(qt_internal_module, rb_intern("run_initializer_block"), 2, self, rb_block_proc());
 		}
-    
-	return self;
-    }
 
-    VALUE klass = rb_funcall(self, rb_intern("class"), 0);
-    VALUE constructor_name = rb_str_new2("new");
+		return self;
+	}
 
-    VALUE * temp_stack = (VALUE *) calloc(argc+4, sizeof(VALUE));
-    temp_stack[0] = rb_str_new2("Qt");
-    temp_stack[1] = constructor_name;
-    temp_stack[2] = klass;
-    temp_stack[3] = self;
-    for (int count = 0; count < argc; count++) {
-	temp_stack[count+4] = argv[count];
-    }
+	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
+	VALUE constructor_name = rb_str_new2("new");
+
+	VALUE * temp_stack = ALLOCA_N(VALUE, argc);
+
+	temp_stack[0] = rb_str_new2("Qt");
+	temp_stack[1] = constructor_name;
+	temp_stack[2] = klass;
+	temp_stack[3] = self;
+	
+	for (int count = 0; count < argc; count++) {
+		temp_stack[count+4] = argv[count];
+	}
 
 	{ 
 		// Put this in a C block so that the mcid will be de-allocated at the end of the block,
@@ -1470,20 +1472,19 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 		MethodCall c(qt_Smoke, _current_method, self, temp_stack+4, argc);
 		c.next();
 		temp_obj = *(c.var());
-    }
+	}
 	
 	smokeruby_object * p = 0;
-    Data_Get_Struct(temp_obj, smokeruby_object, p);
+	Data_Get_Struct(temp_obj, smokeruby_object, p);
 	smokeruby_object  * o = (smokeruby_object *) malloc(sizeof(smokeruby_object));
 	memcpy(o, p, sizeof(smokeruby_object));
 	p->ptr = 0;
 	p->allocated = false;
 	o->allocated = true;
-    VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, o);
-    mapObject(result, result);
-	free(temp_stack);
+	VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, o);
+	mapObject(result, result);
 	// Off with a longjmp, never to return..
-    rb_throw("newqt", result);
+	rb_throw("newqt", result);
 	/*NOTREACHED*/
 	return self;
 }
