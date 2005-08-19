@@ -127,6 +127,58 @@ module Qt
 			# From smoke.h, Smoke::mf_static 0x01
 			qt_methods(super, 0x01)
 		end
+
+		def findChildren(baseclass,name=nil)
+			raise NoMethodError unless self.methods.include?("children")
+			raise ArgumentError unless baseclass.class == Class
+			all_ancestors = [ ]
+			
+			outer_kids = [ ]
+			
+			fcp = Proc.new do |a| 
+				kids = a.children
+				kids.each do |kid|
+					fcp.call(kid)
+					next unless kid.inherits(baseclass.to_s)
+					outer_kids << kid if name.nil?
+					outer_kids << kid if name and name.class == String and name == kid.objectName
+					outer_kids << kid if name and name.class == Regexp and name.match(objectName)
+				end
+			end
+
+			fcp.call(self)
+			outer_kids
+		end
+
+		def findChild(baseclass,name=nil)
+			kids = findChildren(baseclass,name)
+			return nil if kids.empty?
+
+			generation = 0
+
+			recurse_parent = Proc.new do |kid|
+				generation += 1
+				raise "Too Much Recursion" if generation > 100000
+				recurse_parent.call(kid.parent) unless kid.parent == self
+			end
+
+			# find the closest kid
+			best_generation = 100_000
+			best_kid = nil
+
+			kids.each do |kid|
+				generation = 0
+				recurse_parent.call(kid)
+				return kid if generation == 1
+
+				if(generation < best_generation)
+					best_kid = kid
+					best_generation = generation
+				end
+			end
+
+			best_kid
+		end
 	
 		private
 		def qt_methods(meths, flags)
@@ -150,6 +202,7 @@ module Qt
 	# sync the QByteArray with the changed string.
 	# If the data arg is nil, the string is returned as the
 	# value instead. 
+
 	class ByteArray < DelegateClass(String)
 		attr_reader :private_data
 		attr_reader :data

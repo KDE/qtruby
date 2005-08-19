@@ -1,6 +1,14 @@
 2005-08-19  Caleb Tennis <caleb@aei-tech.com>
         * For marshalling ItemLists, prefer using ->at(index) over an iterator
 
+	* Add findChild and findChildren methods which attempt to mimic their Qt::Object
+          counterparts.  Unit tests included.  e.g.:   
+            object.findChildren(Qt::Widget) 
+            object.findChildren(Qt::Object, "ObjectName")
+            object.findChildren(Qt::Object, /SomeName*/)
+
+            findChild just returns the closest child to the parent from findChildren
+
 2005-08-19  Caleb Tennis <caleb@aei-tech.com>
 
         * Added a unittests.rb file as the start of a unit test suite for
