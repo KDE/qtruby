@@ -89,16 +89,16 @@ mark_qobject_children(QObject * qobject)
 {
 	VALUE obj;
 	
-	const QObjectList l = qobject->children();
+	const QList<QObject*> l = qobject->children();
+	
 	if (l.count() == 0) {
 		return;
 	}
 
-	QObjectList::const_iterator it; // iterate over the children
 	QObject *child;
 
-	for (it = l.constBegin(); it != l.constEnd(); ++it) {
-		child = *it;
+	for (int i=0; i < l.size(); ++i) {
+		child = l.at(i);
 		obj = getPointerObject(child);
 		if (obj != Qnil) {
 			if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", child->metaObject()->className(), child, (void*)obj);
