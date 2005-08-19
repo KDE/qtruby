@@ -777,18 +777,16 @@ qstringFromRString(VALUE rstring) {
 		init_codec();
 	}
 	
-	QString *	s;
 	if (strcmp(KCODE, "UTF8") == 0)
-		s = new QString(QString::fromUtf8(StringValuePtr(rstring), RSTRING(rstring)->len));
+		return new QString(QString::fromUtf8(StringValuePtr(rstring), RSTRING(rstring)->len));
 	else if (strcmp(KCODE, "EUC") == 0)
-		s = new QString(codec->toUnicode(StringValuePtr(rstring)));
+		return new QString(codec->toUnicode(StringValuePtr(rstring)));
 	else if (strcmp(KCODE, "SJIS") == 0)
-		s = new QString(codec->toUnicode(StringValuePtr(rstring)));
+		return new QString(codec->toUnicode(StringValuePtr(rstring)));
 	else if(strcmp(KCODE, "NONE") == 0)
-		s = new QString(QString::fromLatin1(StringValuePtr(rstring)));
-	else
-		s = new QString(QString::fromLocal8Bit(StringValuePtr(rstring), RSTRING(rstring)->len));
-	return s;
+		return new QString(QString::fromLatin1(StringValuePtr(rstring)));
+
+	return new QString(QString::fromLocal8Bit(StringValuePtr(rstring), RSTRING(rstring)->len));
 }
 
 VALUE 
@@ -810,106 +808,113 @@ rstringFromQString(QString * s) {
 }
 
 static void marshall_QString(Marshall *m) {
-    switch(m->action()) {
-      case Marshall::FromVALUE:
-	{
-	    QString* s = 0;
-	    if( *(m->var()) != Qnil) {
-               s = qstringFromRString(*(m->var()));
-            } else {
-                s = new QString(QString::null);
-            }
+	switch(m->action()) {
+		case Marshall::FromVALUE:
+		{
+			QString* s = 0;
+			if( *(m->var()) != Qnil) {
+				s = qstringFromRString(*(m->var()));
+			} else {
+				s = new QString();
+			}
+
+			m->item().s_voidp = s;
+			m->next();
 		
-	    m->item().s_voidp = s;
-	    m->next();
-		
-		if (!m->type().isConst() && *(m->var()) != Qnil && s != 0 && !s->isNull()) {
-			rb_str_resize(*(m->var()), 0);
-			VALUE temp = rstringFromQString(s);
-			rb_str_cat2(*(m->var()), StringValuePtr(temp));
+			if (!m->type().isConst() && *(m->var()) != Qnil && s != 0 && !s->isNull()) {
+				rb_str_resize(*(m->var()), 0);
+				VALUE temp = rstringFromQString(s);
+				rb_str_cat2(*(m->var()), StringValuePtr(temp));
+			}
+	
+			if(s && m->type().isConst() && m->cleanup())
+				delete s;
 		}
-	    
-		if(s && m->type().isConst() && m->cleanup())
-		delete s;
-	}
-	break;
-      case Marshall::ToVALUE:
-	{
-	    QString *s = (QString*)m->item().s_voidp;
-	    if(s) {
-	    	if (s->isNull()) {
-                    *(m->var()) = Qnil;
-	     	} else {
-               *(m->var()) = rstringFromQString(s);
-	     	}
-	     	if(m->cleanup())
-	     	delete s;
-         } else {
-                *(m->var()) = Qnil;
-            }
-	}
-	break;
-      default:
-	m->unsupported();
-	break;
-    }
+		break;
+
+		case Marshall::ToVALUE:
+		{
+			QString *s = (QString*)m->item().s_voidp;
+			if(s) {
+				if (s->isNull()) {
+					*(m->var()) = Qnil;
+				} else {
+					*(m->var()) = rstringFromQString(s);
+				}
+				if(m->cleanup())
+					delete s;
+			} else {
+				*(m->var()) = Qnil;
+			}
+		}
+		break;
+ 
+		default:
+			m->unsupported();
+		break;
+   }
 }
 
 static void marshall_QByteArray(Marshall *m) {
-    switch(m->action()) {
-      case Marshall::FromVALUE:
-	{
-	    VALUE rv = *(m->var());
-	    QByteArray *s = 0;
-		VALUE data = Qnil;
-	    if(rv != Qnil) {
-			if (rb_respond_to(rv, rb_intern("data")) != 0) {
-				// Qt::ByteArray - use the contents of the 'data' instance var
-				data = rb_funcall(qt_internal_module, rb_intern("get_qbytearray"), 1, rv);
-				if (TYPE(data) == T_DATA) {
-					// A C++ QByteArray inside the Qt::ByteArray
-					Data_Get_Struct(data, QByteArray, s);
+	switch(m->action()) {
+		case Marshall::FromVALUE:
+		{
+			VALUE rv = *(m->var());
+			QByteArray *s = 0;
+			VALUE data = Qnil;
+			
+			if(rv != Qnil) {
+				if (rb_respond_to(rv, rb_intern("data")) != 0) {
+					// Qt::ByteArray - use the contents of the 'data' instance var
+					data = rb_funcall(qt_internal_module, rb_intern("get_qbytearray"), 1, rv);
+					if (TYPE(data) == T_DATA) {
+						// A C++ QByteArray inside the Qt::ByteArray
+						Data_Get_Struct(data, QByteArray, s);
+					} else {
+						// Or a ruby String inside
+						s = new QByteArray(RSTRING(data)->len, '\0');
+						memcpy((void*)s->data(), StringValuePtr(data), RSTRING(data)->len);
+					}
 				} else {
-					// Or a ruby String inside
-            		s = new QByteArray(RSTRING(data)->len, '\0');
-					memcpy((void*)s->data(), StringValuePtr(data), RSTRING(data)->len);
+					// Ordinary ruby String - use the contents of the string
+					s = new QByteArray(RSTRING(rv)->len, '\0');
+					memcpy((void*)s->data(), StringValuePtr(rv), RSTRING(rv)->len);
 				}
 			} else {
-				// Ordinary ruby String - use the contents of the string
-            	s = new QByteArray(RSTRING(rv)->len, '\0');
-				memcpy((void*)s->data(), StringValuePtr(rv), RSTRING(rv)->len);
+				s = new QByteArray(0, '\0');
 			}
-        } else {
-            s = new QByteArray(0, '\0');
-	    }
-	    m->item().s_voidp = s;
-	    
-		m->next();
-	    
-		if(s && m->cleanup() && data == Qnil)
-		delete s;
-	}
-	break;
-      case Marshall::ToVALUE:
-	{
-		VALUE result;
-	    QByteArray *s = (QByteArray*)m->item().s_voidp;
-	    if(s) {
-			VALUE string = rb_str_new2("");
-			rb_str_cat(string, (const char *)s->data(), s->size());
-			result = rb_funcall(qt_internal_module, rb_intern("create_qbytearray"), 2, string, Data_Wrap_Struct(rb_cObject, 0, 0, s));
-        } else {
-			result = Qnil;
+			
+			m->item().s_voidp = s;
+			m->next();
+	
+			if(s && m->cleanup() && data == Qnil)
+				delete s;
 		}
-		*(m->var()) = result;
-	    if(m->cleanup())
-		delete s;
-	}
-	break;
-      default:
-	m->unsupported();
-	break;
-    }
+		break;
+      
+		case Marshall::ToVALUE:
+		{
+			VALUE result;
+			QByteArray *s = (QByteArray*)m->item().s_voidp;
+			if(s) {
+				VALUE string = rb_str_new2("");
+				rb_str_cat(string, (const char *)s->data(), s->size());
+				result = rb_funcall(qt_internal_module, rb_intern("create_qbytearray"), 
+					2, string, Data_Wrap_Struct(rb_cObject, 0, 0, s));
+			} else {
+				result = Qnil;
+			}
+		
+			*(m->var()) = result;
+			if(m->cleanup())
+				delete s;
+		}
+		break;
+      
+		default:
+			m->unsupported();
+		break;
+ 	}
 }
 
 #if 0
@@ -1168,41 +1173,42 @@ static void marshall_charP_array(Marshall *m) {
 }
 
 void marshall_QStringList(Marshall *m) {
-    switch(m->action()) {
-      case Marshall::FromVALUE: 
-	{
-	    VALUE list = *(m->var());
-	    if (TYPE(list) != T_ARRAY) {
-		m->item().s_voidp = 0;
-		break;
-	    }
+	switch(m->action()) {
+		case Marshall::FromVALUE: 
+		{
+			VALUE list = *(m->var());
+			if (TYPE(list) != T_ARRAY) {
+				m->item().s_voidp = 0;
+				break;
+			}
 
-	    int count = RARRAY(list)->len;
-	    QStringList *stringlist = new QStringList;
+			int count = RARRAY(list)->len;
+			QStringList *stringlist = new QStringList;
 
-	    for(long i = 0; i < count; i++) {
-		VALUE item = rb_ary_entry(list, i);
-		if(TYPE(item) != T_STRING) {
-		    stringlist->append(QString());
-		    continue;
-		}
-		stringlist->append(*(qstringFromRString(item)));
-	    }
+			for(long i = 0; i < count; i++) {
+				VALUE item = rb_ary_entry(list, i);
+					if(TYPE(item) != T_STRING) {
+						stringlist->append(QString());
+						continue;
+					}
+				stringlist->append(*(qstringFromRString(item)));
+			}
 
-	    m->item().s_voidp = stringlist;
-	    m->next();
+			m->item().s_voidp = stringlist;
+			m->next();
 
-		
-		if (stringlist != 0 && !m->type().isConst()) {
-			rb_ary_clear(list);
-			for(QStringList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it)
-		    	rb_ary_push(list, rstringFromQString(&(*it)));
-		}
+			if (stringlist != 0 && !m->type().isConst()) {
+				rb_ary_clear(list);
+				for(QStringList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it)
+				rb_ary_push(list, rstringFromQString(&(*it)));
+			}
 			
-		if (stringlist != 0 && m->type().isConst() && m->cleanup())
-		delete stringlist;
-	    break;
-      }
+			if (stringlist != 0 && m->type().isConst() && m->cleanup())
+				delete stringlist;
+	   
+			break;
+		}
+
       case Marshall::ToVALUE: 
 	{
 	    QStringList *stringlist = static_cast<QStringList *>(m->item().s_voidp);
@@ -1291,91 +1297,100 @@ void marshall_QByteArrayList(Marshall *m) {
 }
 
 
-template <class Item, class ItemList, class ItemListIterator, const char *ItemSTR >
+template <class Item, class ItemList, const char *ItemSTR >
 void marshall_ItemList(Marshall *m) {
-    switch(m->action()) {
-      case Marshall::FromVALUE:
-	{
-	    VALUE list = *(m->var());
-	    if (TYPE(list) != T_ARRAY) {
-		m->item().s_voidp = 0;
+	switch(m->action()) {
+		case Marshall::FromVALUE:
+		{
+			VALUE list = *(m->var());
+			if (TYPE(list) != T_ARRAY) {
+				m->item().s_voidp = 0;
+				break;
+			}
+
+			int count = RARRAY(list)->len;
+			ItemList *cpplist = new ItemList;
+			long i;
+			for(i = 0; i < count; i++) {
+				VALUE item = rb_ary_entry(list, i);
+				// TODO do type checking!
+				smokeruby_object *o = value_obj_info(item);
+				if(!o || !o->ptr)
+					continue;
+				void *ptr = o->ptr;
+				ptr = o->smoke->cast(
+					ptr,				// pointer
+					o->classId,				// from
+		    		o->smoke->idClass(ItemSTR)	// to
+				);
+				cpplist->append((Item*)ptr);
+			}
+
+			m->item().s_voidp = cpplist;
+			m->next();
+
+			if(m->cleanup()) {
+			rb_ary_clear(list);
+	
+//				for(ItemListIterator it = cpplist->begin();
+//					it != cpplist->end();
+//					++it) {
+//					VALUE obj = getPointerObject((void*)*it);
+				for(int i = 0; i < cpplist->size(); ++i ) {
+					VALUE obj = getPointerObject( cpplist->at(i) );
+					rb_ary_push(list, obj);
+				}
+			delete cpplist;
+			}
+		}
 		break;
-	    }
-	    int count = RARRAY(list)->len;
-	    ItemList *cpplist = new ItemList;
-	    long i;
-	    for(i = 0; i < count; i++) {
-		VALUE item = rb_ary_entry(list, i);
-                // TODO do type checking!
-		smokeruby_object *o = value_obj_info(item);
-		if(!o || !o->ptr)
-                    continue;
-		void *ptr = o->ptr;
-		ptr = o->smoke->cast(
-		    ptr,				// pointer
-		    o->classId,				// from
-		    o->smoke->idClass(ItemSTR)	        // to
-		);
-		cpplist->append((Item*)ptr);
-	    }
+      
+		case Marshall::ToVALUE:
+		{
+			ItemList *valuelist = (ItemList*)m->item().s_voidp;
+			if(!valuelist) {
+				*(m->var()) = Qnil;
+				break;
+			}
 
-	    m->item().s_voidp = cpplist;
-	    m->next();
+			VALUE av = rb_ary_new();
 
-	    if(m->cleanup()) {
-		rb_ary_clear(list);
-		for(ItemListIterator it = cpplist->begin();
-		    it != cpplist->end();
-		    ++it) {
-		    VALUE obj = getPointerObject((void*)*it);
-		    rb_ary_push(list, obj);
+			//for (ItemListIterator it = valuelist->begin();
+			//	it != valuelist->end();
+			//	++it) {
+			//	void *p = *it;
+			for(int i=0;i<valuelist->size();++i) {
+				void *p = valuelist->at(i);
+
+				if(m->item().s_voidp == 0) {
+					*(m->var()) = Qnil;
+					break;
+				}
+
+				VALUE obj = getPointerObject(p);
+				if(obj == Qnil) {
+					smokeruby_object  * o = ALLOC(smokeruby_object);
+					o->smoke = m->smoke();
+					o->classId = m->smoke()->idClass(ItemSTR);
+					o->ptr = p;
+					o->allocated = false;
+					obj = set_obj_info(resolve_classname(o->smoke, o->classId, o->ptr), o);
+				}
+			
+				rb_ary_push(av, obj);
+			}
+
+			if(m->cleanup())
+				delete valuelist;
+			else
+				*(m->var()) = av;
 		}
-		delete cpplist;
-	    }
-	}
-	break;
-      case Marshall::ToVALUE:
-	{
-	    ItemList *valuelist = (ItemList*)m->item().s_voidp;
-	    if(!valuelist) {
-		*(m->var()) = Qnil;
 		break;
-	    }
 
-	    VALUE av = rb_ary_new();
-
-	    for (ItemListIterator it = valuelist->begin();
-		it != valuelist->end();
-		++it) {
-		void *p = *it;
-
-		if(m->item().s_voidp == 0) {
-		    *(m->var()) = Qnil;
-		    break;
-		}
-
-		VALUE obj = getPointerObject(p);
-		if(obj == Qnil) {
-		    smokeruby_object  * o = ALLOC(smokeruby_object);
-		    o->smoke = m->smoke();
-		    o->classId = m->smoke()->idClass(ItemSTR);
-		    o->ptr = p;
-		    o->allocated = false;
-		    obj = set_obj_info(resolve_classname(o->smoke, o->classId, o->ptr), o);
-		}
-		rb_ary_push(av, obj);
-            }
-
-	    if(m->cleanup())
-		delete valuelist;
-	    else
-	        *(m->var()) = av;
-	}
-	break;
-      default:
-	m->unsupported();
-	break;
-    }
+		default:
+			m->unsupported();
+		break;
+   }
 }
 
 void marshall_QListInt(Marshall *m) {
@@ -1834,17 +1849,17 @@ void marshall_QPairintint(Marshall *m) {
     }
 }
 
-#define DEF_LIST_MARSHALLER(ListIdent,ItemList,Item,Itr) namespace { char ListIdent##STR[] = #Item; };  \
-        Marshall::HandlerFn marshall_##ListIdent = marshall_ItemList<Item,ItemList,Itr,ListIdent##STR>;
+#define DEF_LIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; };  \
+        Marshall::HandlerFn marshall_##ListIdent = marshall_ItemList<Item,ItemList,ListIdent##STR>;
 
-DEF_LIST_MARSHALLER( QAbstractButtonList, QList<QAbstractButton*>, QAbstractButton, QList<QAbstractButton*>::iterator )
-DEF_LIST_MARSHALLER( QListWidgetItemList, QList<QListWidgetItem*>, QListWidgetItem, QList<QListWidgetItem*>::iterator )
-DEF_LIST_MARSHALLER( QTableWidgetItemList, QList<QTableWidgetItem*>, QTableWidgetItem, QList<QTableWidgetItem*>::iterator )
-DEF_LIST_MARSHALLER( QObjectList, QList<QObject*>, QObject, QList<QObject*>::iterator )
-DEF_LIST_MARSHALLER( QWidgetList, QList<QWidget*>, QWidget, QList<QWidget*>::iterator )
-DEF_LIST_MARSHALLER( QActionList, QList<QAction*>, QAction, QList<QAction*>::iterator )
-DEF_LIST_MARSHALLER( QTextFrameList, QList<QTextFrame*>, QTextFrame, QList<QTextFrame*>::iterator )
-DEF_LIST_MARSHALLER( QTreeWidgetItemList, QList<QTreeWidgetItem*>, QTreeWidgetItem, QList<QTreeWidgetItem*>::iterator )
+DEF_LIST_MARSHALLER( QAbstractButtonList, QList<QAbstractButton*>, QAbstractButton )
+DEF_LIST_MARSHALLER( QListWidgetItemList, QList<QListWidgetItem*>, QListWidgetItem )
+DEF_LIST_MARSHALLER( QTableWidgetItemList, QList<QTableWidgetItem*>, QTableWidgetItem )
+DEF_LIST_MARSHALLER( QObjectList, QList<QObject*>, QObject )
+DEF_LIST_MARSHALLER( QWidgetList, QList<QWidget*>, QWidget )
+DEF_LIST_MARSHALLER( QActionList, QList<QAction*>, QAction )
+DEF_LIST_MARSHALLER( QTextFrameList, QList<QTextFrame*>, QTextFrame )
+DEF_LIST_MARSHALLER( QTreeWidgetItemList, QList<QTreeWidgetItem*>, QTreeWidgetItem )
 
 template <class Item, class ItemList, class ItemListIterator, const char *ItemSTR >
 void marshall_LinkedListItem(Marshall *m) {
@@ -2030,10 +2045,10 @@ TypeHandler Qt_handlers[] = {
 QHash<QString, TypeHandler*> type_handlers;
 
 void install_handlers(TypeHandler *h) {
-    while(h->name) {
-	type_handlers.insert(h->name, h);
-	h++;
-    }
+	while(h->name) {
+		type_handlers.insert(h->name, h);
+		h++;
+	}
 }
 
 Marshall::HandlerFn getMarshallFn(const SmokeType &type) {

@@ -1,4 +1,7 @@
 2005-08-19  Caleb Tennis <caleb@aei-tech.com>
+        * For marshalling ItemLists, prefer using ->at(index) over an iterator
+
+2005-08-19  Caleb Tennis <caleb@aei-tech.com>
 
         * Added a unittests.rb file as the start of a unit test suite for
           verifying QtRuby things are working properly and we don't create
