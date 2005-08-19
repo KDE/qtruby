@@ -3,7 +3,7 @@ INCLUDES = -I$(top_srcdir)/smoke $(all_includes) -I$(RUBY_ARCHDIR)
 noinst_HEADERS = qtruby.h marshall.h smokeruby.h extconf.rb 
 
 noinst_LTLIBRARIES = libqtrubyinternal.la
-libqtrubyinternal_la_SOURCES = Qt.cpp handlers.cpp 
+libqtrubyinternal_la_SOURCES = Qt.cpp handlers.cpp
 libqtrubyinternal_la_METASOURCES = AUTO
 
 rubylibdir = $(RUBY_SITEARCHDIR)

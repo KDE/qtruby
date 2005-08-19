@@ -135,9 +135,10 @@ void *value_to_ptr(VALUE ruby_value) {  // ptr on success, null on fail
 VALUE getPointerObject(void *ptr);
 
 bool isQObject(Smoke *smoke, Smoke::Index classId) {
-    if(strcmp(smoke->classes[classId].className, "QObject") == 0)
-	return true;
-    for(Smoke::Index *p = smoke->inheritanceList + smoke->classes[classId].parents;
+	if(strcmp(smoke->classes[classId].className, "QObject") == 0)
+		return true;
+	
+	for(Smoke::Index *p = smoke->inheritanceList + smoke->classes[classId].parents;
 	*p;
 	p++) {
 	if(isQObject(smoke, *p))
@@ -1961,10 +1962,10 @@ make_metaObject(VALUE /*self*/, VALUE obj, VALUE stringdata_value, VALUE data_va
 static VALUE
 dispose(VALUE self)
 {
-    smokeruby_object *o = value_obj_info(self);
-    if(!o || !o->ptr) { return Qnil; }
+	smokeruby_object *o = value_obj_info(self);
+	if(!o || !o->ptr) { return Qnil; }
 	
-    const char *className = o->smoke->classes[o->classId].className;
+	const char *className = o->smoke->classes[o->classId].className;
 	char *methodName = new char[strlen(className) + 2];
 	methodName[0] = '~';
 	strcpy(methodName + 1, className);
@@ -1986,8 +1987,8 @@ dispose(VALUE self)
 static VALUE
 is_disposed(VALUE self)
 {
-    smokeruby_object *o = value_obj_info(self);
-    if(!o || !o->ptr) { return Qtrue; }
+	smokeruby_object *o = value_obj_info(self);
+	if(o && o->ptr) { return Qtrue; }
 	return Qfalse;
 }
 
