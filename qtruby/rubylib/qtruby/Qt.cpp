@@ -1513,38 +1513,40 @@ static VALUE qt_signal(int argc, VALUE * argv, VALUE self);
 VALUE
 new_qobject(int argc, VALUE * argv, VALUE klass)
 {
-	// TODO: Don't do this everytime a new instance is created, just once..
-	rb_define_method(klass, "qt_metacall", (VALUE (*) (...)) qt_metacall, -1);
-	rb_define_method(klass, "metaObject", (VALUE (*) (...)) metaObject, 0);
-	VALUE signalNames = rb_funcall(qt_internal_module, rb_intern("getSignalNames"), 1, klass);
-	for (long index = 0; index < RARRAY(signalNames)->len; index++) {
-	    VALUE signal = rb_ary_entry(signalNames, index);
-	    rb_define_method(klass, StringValuePtr(signal), (VALUE (*) (...)) qt_signal, -1);
+	if( rb_respond_to(klass, rb_intern("qt_metacall")) == 0 ) {
+		rb_define_method(klass, "qt_metacall", (VALUE (*) (...)) qt_metacall, -1);
+		rb_define_method(klass, "metaObject", (VALUE (*) (...)) metaObject, 0);
+		VALUE signalNames = rb_funcall(qt_internal_module, rb_intern("getSignalNames"), 1, klass);
+	
+		for (long index = 0; index < RARRAY(signalNames)->len; index++) {
+			VALUE signal = rb_ary_entry(signalNames, index);
+			rb_define_method(klass, StringValuePtr(signal), (VALUE (*) (...)) qt_signal, -1);
+		}
 	}
 
-    return new_qt(argc, argv, klass);
+	return new_qt(argc, argv, klass);
 }
 
 static VALUE
 new_qapplication(int argc, VALUE * argv, VALUE klass)
 {
-    VALUE result = Qnil;
+ 	VALUE result = Qnil;
 
-    if (argc == 1 && TYPE(argv[0]) == T_ARRAY) {
-	// Convert '(ARGV)' to '(NUM, [$0]+ARGV)'
-	VALUE * local_argv = (VALUE *) calloc(argc + 1, sizeof(VALUE));
-	VALUE temp = rb_ary_dup(argv[0]);
-	rb_ary_unshift(temp, rb_gv_get("$0"));
-	local_argv[0] = INT2NUM(RARRAY(temp)->len);
-	local_argv[1] = temp;
-	result = new_qobject(2, local_argv, klass);
-	free(local_argv);
-    } else {
-	result = new_qobject(argc, argv, klass);
-    }
+	if (argc == 1 && TYPE(argv[0]) == T_ARRAY) {
+		// Convert '(ARGV)' to '(NUM, [$0]+ARGV)'
+		VALUE * local_argv = (VALUE *) calloc(argc + 1, sizeof(VALUE));
+		VALUE temp = rb_ary_dup(argv[0]);
+		rb_ary_unshift(temp, rb_gv_get("$0"));
+		local_argv[0] = INT2NUM(RARRAY(temp)->len);
+		local_argv[1] = temp;
+		result = new_qobject(2, local_argv, klass);
+		free(local_argv);
+	} else {
+		result = new_qobject(argc, argv, klass);
+	}
 
-    rb_gv_set("$qApp", result);
-    return result;
+	rb_gv_set("$qApp", result);
+	return result;
 }
 
 // Returns $qApp.ARGV() - the original ARGV array with Qt command line options removed
@@ -2368,18 +2370,21 @@ kde_package_to_class(const char * package)
 static VALUE
 create_qobject_class(VALUE /*self*/, VALUE package_value)
 {
-    const char *package = StringValuePtr(package_value);
+	const char *package = StringValuePtr(package_value);
 	VALUE klass;
 	
-	if (QString(package).startsWith("Qt::")) {
-    	klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
-		if (strcmp(package, "Qt::Application") == 0) {
-		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qapplication, -1);
-		rb_define_method(klass, "ARGV", (VALUE (*) (...)) qapplication_argv, 0);
+	QString pkg = QString(package);
+
+	if (pkg.startsWith("Qt::")) {
+		klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
+		
+		if (pkg == "Qt::Application" || pkg == "Qt::CoreApplication" ) {
+			rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qapplication, -1);
+			rb_define_method(klass, "ARGV", (VALUE (*) (...)) qapplication_argv, 0);
 		} else {
-		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
+			rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
 		}
-	} else if (QString(package).startsWith("Qext::")) {
+	} else if (pkg.startsWith("Qext::")) {
 		if (qext_scintilla_module == Qnil) {
 			qext_scintilla_module = rb_define_module("Qext");
 		}
