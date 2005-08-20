@@ -1905,7 +1905,7 @@ DEF_LIST_MARSHALLER( QTextFrameList, QList<QTextFrame*>, QTextFrame )
 DEF_LIST_MARSHALLER( QTreeWidgetItemList, QList<QTreeWidgetItem*>, QTreeWidgetItem )
 
 template <class Item, class ItemList, const char *ItemSTR >
-void marshall_LinkedListItem(Marshall *m) {
+void marshall_ValueListItem(Marshall *m) {
 	switch(m->action()) {
 		case Marshall::FromVALUE:
 		{
@@ -1995,7 +1995,7 @@ void marshall_LinkedListItem(Marshall *m) {
 }
 
 #define DEF_VALUELIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; };  \
-        Marshall::HandlerFn marshall_##ListIdent = marshall_LinkedListItem<Item,ItemList,ListIdent##STR>;
+        Marshall::HandlerFn marshall_##ListIdent = marshall_ValueListItem<Item,ItemList,ListIdent##STR>;
 
 DEF_VALUELIST_MARSHALLER( QTableWidgetSelectionRangeList, QList<QTableWidgetSelectionRange>, QTableWidgetSelectionRange )
 DEF_VALUELIST_MARSHALLER( QTextLayoutFormatRangeList, QList<QTextLayout::FormatRange>, QTextLayout::FormatRange)
