@@ -2008,6 +2008,18 @@ DEF_VALUELIST_MARSHALLER( QUrlList, QList<QUrl>, QUrl )
 DEF_VALUELIST_MARSHALLER( QFileInfoList, QFileInfoList, QFileInfo )
 DEF_VALUELIST_MARSHALLER( QTextBlockList, QList<QTextBlock>, QTextBlock )
 
+DEF_VALUELIST_MARSHALLER( QColorVector, QVector<QColor>, QColor )
+DEF_VALUELIST_MARSHALLER( QRgbVector, QVector<QRgb>, QRgb )
+DEF_VALUELIST_MARSHALLER( QVariantVector, QVector<QVariant>, QVariant )
+DEF_VALUELIST_MARSHALLER( QTextFormatVector, QVector<QTextFormat>, QTextFormat )
+DEF_VALUELIST_MARSHALLER( QTextLengthVector, QVector<QTextLength>, QTextLength )
+DEF_VALUELIST_MARSHALLER( QPointFVector, QVector<QPointF>, QPointF )
+DEF_VALUELIST_MARSHALLER( QPointVector, QVector<QPoint>, QPoint )
+DEF_VALUELIST_MARSHALLER( QLineVector, QVector<QLine>, QLine )
+DEF_VALUELIST_MARSHALLER( QLineFVector, QVector<QLineF>, QLineF )
+DEF_VALUELIST_MARSHALLER( QRectVector, QVector<QRect>, QRect )
+DEF_VALUELIST_MARSHALLER( QRectFVector, QVector<QRectF>, QRectF )
+
 TypeHandler Qt_handlers[] = {
     { "QString", marshall_QString },
     { "QString&", marshall_QString },
@@ -2065,6 +2077,27 @@ TypeHandler Qt_handlers[] = {
     { "QValueList<QImageTextKeyLang>", marshall_QImageTextKeyLangList },
     { "QList<QUrl>", marshall_QUrlList },
     { "QList<QUrl>&", marshall_QUrlList },
+    { "QVector<QPointF>", marshall_QPointFVector },
+    { "QVector<QPointF>&", marshall_QPointFVector },
+    { "QVector<QPoint>", marshall_QPointVector },
+    { "QVector<QPoint>&", marshall_QPointVector },
+    { "QVector<QLine>", marshall_QLineVector },
+    { "QVector<QLine>&", marshall_QLineVector },
+    { "QVector<QLineF>", marshall_QLineFVector },
+    { "QVector<QLineF>&", marshall_QLineFVector },
+    { "QVector<QRect>", marshall_QRectVector },
+    { "QVector<QRect>&", marshall_QRectVector },
+    { "QVector<QRectF>", marshall_QRectFVector },
+    { "QVector<QRectF>&", marshall_QRectFVector },
+    { "QVector<QColor>", marshall_QColorVector },
+    { "QVector<QColor>&", marshall_QColorVector },
+    { "QVector<QRgb>", marshall_QRgbVector },
+    { "QVector<QRgb>&", marshall_QRgbVector },
+    { "QVector<QVariant>", marshall_QVariantVector },
+    { "QVector<QVariant>&", marshall_QVariantVector },
+    { "QVector<QTextFormat>", marshall_QTextFormatVector },
+    { "QVector<QTextFormat>&", marshall_QTextFormatVector },
+    { "QVector<QTextLength>&", marshall_QTextLengthVector },
     { "QMap<int,QVariant>", marshall_QMapintQVariant },
     { "QMap<QString,QString>", marshall_QMapQStringQString },
     { "QMap<QString,QString>&", marshall_QMapQStringQString },

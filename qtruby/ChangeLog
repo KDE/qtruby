@@ -1,3 +1,10 @@
+2005-08-20  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added various marshallers for QVector list types
+	* Added the analogclock example from Qt4
+	* Added inspect methods for the new Qt::PointF, Qt::RectF etc
+	  types
+
 2005-08-19  Caleb Tennis <caleb@aei-tech.com>
         * For marshalling ItemLists, prefer using ->at(index) over an iterator
 

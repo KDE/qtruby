@@ -127,58 +127,6 @@ module Qt
 			# From smoke.h, Smoke::mf_static 0x01
 			qt_methods(super, 0x01)
 		end
-
-		def findChildren(baseclass,name=nil)
-			raise NoMethodError unless self.methods.include?("children")
-			raise ArgumentError unless baseclass.class == Class
-			all_ancestors = [ ]
-			
-			outer_kids = [ ]
-			
-			fcp = Proc.new do |a| 
-				kids = a.children
-				kids.each do |kid|
-					fcp.call(kid)
-					next unless kid.inherits(baseclass.to_s)
-					outer_kids << kid if name.nil?
-					outer_kids << kid if name and name.class == String and name == kid.objectName
-					outer_kids << kid if name and name.class == Regexp and name.match(objectName)
-				end
-			end
-
-			fcp.call(self)
-			outer_kids
-		end
-
-		def findChild(baseclass,name=nil)
-			kids = findChildren(baseclass,name)
-			return nil if kids.empty?
-
-			generation = 0
-
-			recurse_parent = Proc.new do |kid|
-				generation += 1
-				raise "Too Much Recursion" if generation > 100000
-				recurse_parent.call(kid.parent) unless kid.parent == self
-			end
-
-			# find the closest kid
-			best_generation = 100_000
-			best_kid = nil
-
-			kids.each do |kid|
-				generation = 0
-				recurse_parent.call(kid)
-				return kid if generation == 1
-
-				if(generation < best_generation)
-					best_kid = kid
-					best_generation = generation
-				end
-			end
-
-			best_kid
-		end
 	
 		private
 		def qt_methods(meths, flags)
@@ -202,7 +150,6 @@ module Qt
 	# sync the QByteArray with the changed string.
 	# If the data arg is nil, the string is returned as the
 	# value instead. 
-
 	class ByteArray < DelegateClass(String)
 		attr_reader :private_data
 		attr_reader :data
@@ -286,6 +233,18 @@ module Qt
 		def pretty_print(pp)
 			str = to_s
 			pp.text str.sub(/>$/, "\n x=%d,\n y=%d>" % [x, y])
+		end
+	end
+	
+	class PointF < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " x=%f, y=%f>" % [x, y])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n x=%f,\n y=%f>" % [x, y])
 		end
 	end
 
@@ -374,6 +333,30 @@ module Qt
 		end
 	end
 	
+	class Line < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " x1=%d, y1=%d, x2=%d, y2=%d>" % [x1, y1, x2, y2])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n x1=%d,\n y1=%d,\n x2=%d,\n y2=%d>" % [x1, y1, x2, y2])
+		end
+	end
+	
+	class LineF < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " x1=%f, y1=%f, x2=%f, y2=%f>" % [x1, y1, x2, y2])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n x1=%f,\n y1=%f,\n x2=%f,\n y2=%f>" % [x1, y1, x2, y2])
+		end
+	end
+	
 	class Rect < Qt::Base
 		def inspect
 			str = super
@@ -386,6 +369,18 @@ module Qt
 		end
 	end
 	
+	class RectF < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " left=%f, right=%f, top=%f, bottom=%f>" % [left, right, top, bottom])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n left=%f,\n right=%f,\n top=%f,\n bottom=%f>" % [left, right, top, bottom])
+		end
+	end
+	
 	class Size < Qt::Base
 		def inspect
 			str = super
@@ -395,6 +390,18 @@ module Qt
 		def pretty_print(pp)
 			str = to_s
 			pp.text str.sub(/>$/, "\n width=%d,\n height=%d>" % [width, height])
+		end
+	end
+	
+	class SizeF < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " width=%f, height=%f>" % [width, height])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n width=%f,\n height=%f>" % [width, height])
 		end
 	end
 	
@@ -709,16 +716,6 @@ module Qt
 		# Then use a throw to jump back to here with the C++ instance 
 		# wrapped in a new ruby variable of type T_DATA
 		def Internal.try_initialize(instance, *args)
-			# If a debugger calls an inspect method with the half 
-			# constructed instance, it will fail and return nil. 
-			# So prevent that by defining an inspect method here
-=begin
-			class <<instance
-				def inspect
-					return "#<%s:0x%8.8x>" % [self.class.name, self.object_id]
-				end
-			end
-=end		
 			initializer = instance.method(:initialize)
 			catch "newqt" do
 				initializer.call(*args)
@@ -1038,7 +1035,7 @@ module Qt
 				signals 			= meta.get_signals
 				slots 				= meta.get_slots
 				stringdata, data 	= makeMetaData(qobject.class.name, signals, slots)
-				meta.metaobject 	= make_metaObject(qobject, stringdata,data)
+				meta.metaobject 	= make_metaObject(qobject, stringdata, data)
 				meta.changed = false
 			end
 			
