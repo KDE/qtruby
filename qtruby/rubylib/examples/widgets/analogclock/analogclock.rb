@@ -56,8 +56,7 @@ class AnalogClock < Qt::Widget
         painter.drawConvexPolygon(minuteHand)
         painter.restore
 
-        painter.setPen(minuteColor);
-
+        painter.pen = minuteColor
         (0...60).each do |j|
             if (j % 5) != 0
                 painter.drawLine(92, 0, 96, 0)
