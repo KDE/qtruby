@@ -30,7 +30,7 @@ class AnalogClock < Qt::Widget
         time = Qt::Time.currentTime
 
         painter = Qt::Painter.new(self)
-        painter.setRenderHint(Qt::Painter::Antialiasing)
+        painter.renderHint = Qt::Painter::Antialiasing
         painter.translate(width() / 2, height() / 2)
         painter.scale(side / 200.0, side / 200.0)
 
