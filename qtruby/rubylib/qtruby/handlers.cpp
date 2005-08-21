@@ -264,58 +264,150 @@ resolve_classname(Smoke* smoke, int classId, void * ptr)
 	if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QEvent")) {
 		QEvent * qevent = (QEvent *) smoke->cast(ptr, classId, smoke->idClass("QEvent"));
 		switch (qevent->type()) {
-		case QEvent::ChildAdded:
-		case QEvent::ChildRemoved:
-			return "Qt::ChildEvent";
+		case QEvent::Timer:
+			return "Qt::TimerEvent";
+		case QEvent::MouseButtonPress:
+		case QEvent::MouseButtonRelease:
+		case QEvent::MouseButtonDblClick:
+		case QEvent::MouseMove:
+			return "Qt::MouseEvent";
+		case QEvent::KeyPress:
+		case QEvent::KeyRelease:
+		case QEvent::ShortcutOverride:
+			return "Qt::KeyEvent";
+		case QEvent::FocusIn:
+		case QEvent::FocusOut:
+			return "Qt::FocusEvent";
+		case QEvent::Enter:
+		case QEvent::Leave:
+			return "Qt::Event";
+		case QEvent::Paint:
+			return "Qt::PaintEvent";
+		case QEvent::Move:
+			return "Qt::MoveEvent";
+		case QEvent::Resize:
+			return "Qt::ResizeEvent";
+		case QEvent::Create:
+		case QEvent::Destroy:
+			return "Qt::Event";
+		case QEvent::Show:
+			return "Qt::ShowEvent";
+		case QEvent::Hide:
+			return "Qt::HideEvent";
 		case QEvent::Close:
 			return "Qt::CloseEvent";
-		case QEvent::ContextMenu:
-			return "Qt::ContextMenuEvent";
-//		case QEvent::User:
-//			return "Qt::CustomEvent";
+		case QEvent::Quit:
+		case QEvent::ParentChange:
+		case QEvent::ParentAboutToChange:
+		case QEvent::ThreadChange:
+		case QEvent::WindowActivate:
+		case QEvent::WindowDeactivate:
+		case QEvent::ShowToParent:
+		case QEvent::HideToParent:
+			return "Qt::Event";
+		case QEvent::Wheel:
+			return "Qt::WheelEvent";
+		case QEvent::WindowTitleChange:
+		case QEvent::WindowIconChange:
+		case QEvent::ApplicationWindowIconChange:
+		case QEvent::ApplicationFontChange:
+		case QEvent::ApplicationLayoutDirectionChange:
+		case QEvent::ApplicationPaletteChange:
+		case QEvent::PaletteChange:
+			return "Qt::Event";
+		case QEvent::Clipboard:
+			return "Qt::ClipboardEvent";
+		case QEvent::Speech:
+		case QEvent::MetaCall:
+		case QEvent::SockAct:
+		case QEvent::WinEventAct:
+		case QEvent::DeferredDelete:
+			return "Qt::Event";
 		case QEvent::DragEnter:
 			return "Qt::DragEnterEvent";
 		case QEvent::DragLeave:
 			return "Qt::DragLeaveEvent";
 		case QEvent::DragMove:
 			return "Qt::DragMoveEvent";
-		case QEvent::DragResponse:
-			return "Qt::DragResponseEvent";
 		case QEvent::Drop:
 			return "Qt::DropEvent";
-		case QEvent::FocusIn:
-		case QEvent::FocusOut:
-			return "Qt::FocusEvent";
-		case QEvent::Hide:
-			return "Qt::HideEvent";
-		case QEvent::KeyPress:
-		case QEvent::KeyRelease:
-			return "Qt::KeyEvent";
+		case QEvent::DragResponse:
+			return "Qt::DragResponseEvent";
+		case QEvent::ChildAdded:
+		case QEvent::ChildRemoved:
+		case QEvent::ChildPolished:
+			return "Qt::ChildEvent";
+		case QEvent::ShowWindowRequest:
+		case QEvent::PolishRequest:
+		case QEvent::Polish:
+		case QEvent::LayoutRequest:
+		case QEvent::UpdateRequest:
+		case QEvent::EmbeddingControl:
+		case QEvent::ActivateControl:
+		case QEvent::DeactivateControl:
+			return "Qt::Event";
+		case QEvent::ContextMenu:
+			return "Qt::ContextMenuEvent";
 		case QEvent::InputMethod:
-			return "Qt::IMEvent";
-//		case QEvent::InputMethodStart:
-//		case QEvent::InputMethodCompose:
-//		case QEvent::InputMethodEnd:
-//			return "Qt::IMEvent";
-		case QEvent::MouseButtonPress:
-		case QEvent::MouseButtonRelease:
-		case QEvent::MouseButtonDblClick:
-		case QEvent::MouseMove:
-			return "Qt::MouseEvent";
-		case QEvent::Move:
-			return "Qt::MoveEvent";
-		case QEvent::Paint:
-			return "Qt::PaintEvent";
-		case QEvent::Resize:
-			return "Qt::ResizeEvent";
-		case QEvent::Show:
-			return "Qt::ShowEvent";
-	//	case QEvent::Tablet:
-	//		 return "Qt::TabletEvent";
-		case QEvent::Timer:
-			return "Qt::TimerEvent";
-		case QEvent::Wheel:
-			return "Qt::WheelEvent";
+			return "Qt::InputMethodEvent";
+		case QEvent::AccessibilityPrepare:
+			return "Qt::Event";
+		case QEvent::TabletMove:
+		case QEvent::TabletPress:
+		case QEvent::TabletRelease:
+			return "Qt::TableEvent";
+		case QEvent::LocaleChange:
+		case QEvent::LanguageChange:
+		case QEvent::LayoutDirectionChange:
+		case QEvent::Style:
+		case QEvent::OkRequest:
+		case QEvent::HelpRequest:
+			return "Qt::Event";
+		case QEvent::IconDrag:
+			return "Qt::IconDragEvent";
+		case QEvent::FontChange:
+		case QEvent::EnabledChange:
+		case QEvent::ActivationChange:
+		case QEvent::StyleChange:
+		case QEvent::IconTextChange:
+		case QEvent::ModifiedChange:
+		case QEvent::MouseTrackingChange:
+			return "Qt::Event";
+		case QEvent::WindowBlocked:
+		case QEvent::WindowUnblocked:
+		case QEvent::WindowStateChange:
+			return "Qt::WindowStateChangeEvent";
+		case QEvent::ToolTip:
+		case QEvent::WhatsThis:
+			return "Qt::HelpEvent";
+		case QEvent::StatusTip:
+			return "Qt::Event";
+		case QEvent::ActionChanged:
+		case QEvent::ActionAdded:
+		case QEvent::ActionRemoved:
+			return "Qt::ActionEvent";
+		case QEvent::FileOpen:
+			return "Qt::FileOpenEvent";
+		case QEvent::Shortcut:
+			return "Qt::ShortcutEvent";
+		case QEvent::WhatsThisClicked:
+			return "Qt::WhatsThisClickedEvent";
+		case QEvent::ToolBarChange:
+			return "Qt::ToolBarChangeEvent";
+		case QEvent::ApplicationActivated:
+		case QEvent::ApplicationDeactivated:
+		case QEvent::QueryWhatsThis:
+		case QEvent::EnterWhatsThisMode:
+		case QEvent::LeaveWhatsThisMode:
+		case QEvent::ZOrderChange:
+			return "Qt::Event";
+		case QEvent::HoverEnter:
+		case QEvent::HoverLeave:
+		case QEvent::HoverMove:
+			return "Qt::HoverEvent";
+		case QEvent::AccessibilityHelp:
+		case QEvent::AccessibilityDescription:
+			return "Qt::Event";
 		default:
 			break;
 		}
@@ -896,6 +988,24 @@ static void marshall_QString(Marshall *m) {
 			m->unsupported();
 		break;
    }
+}
+
+// The only way to convert a QChar to a QString is to
+// pass a QChar to a QString constructor. However,
+// QStrings aren't in the QtRuby api, so add this
+// convenience method 'Qt::Char.to_s' to get a ruby
+// string from a Qt::Char.
+VALUE
+qchar_to_s(VALUE self)
+{
+	smokeruby_object *o = value_obj_info(self);
+	if (o == 0 || o->ptr == 0) {
+		return Qnil;
+	}
+
+	QChar * qchar = (QChar*) o->ptr;
+	QString s(*qchar);
+	return rstringFromQString(&s);
 }
 
 static void marshall_QByteArray(Marshall *m) {

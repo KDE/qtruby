@@ -23,26 +23,10 @@
 ** Translated to QtRuby by Richard Dale
 =end
 
-require 'wigglywidget.rb'
+require 'Qt'
+require 'calculator.rb'
 
-class Dialog < Qt::Dialog
-    def initialize(parent = nil)
-        super(parent)
+app = Qt::Application.new(ARGV)
+calc = Calculator.new
+calc.exec
 
-        wigglyWidget = WigglyWidget.new
-        lineEdit = Qt::LineEdit.new
-    
-        layout = Qt::VBoxLayout.new
-        layout.addWidget(wigglyWidget)
-        layout.addWidget(lineEdit)
-        setLayout(layout)
-    
-        connect(lineEdit, SIGNAL('textChanged(QString)'),
-                wigglyWidget, SLOT('setText(QString)'))
-    
-        lineEdit.setText(tr("Hello world!"))
-    
-        setWindowTitle(tr("Wiggly"))
-        resize(360, 145)
-    end
-end

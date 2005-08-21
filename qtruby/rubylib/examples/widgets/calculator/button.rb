@@ -1,6 +1,6 @@
 =begin
 **
-** Copyright (C) 2004-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 2005-2005 Trolltech AS. All rights reserved.
 **
 ** This file is part of the example classes of the Qt Toolkit.
 **
@@ -23,26 +23,23 @@
 ** Translated to QtRuby by Richard Dale
 =end
 
-require 'wigglywidget.rb'
 
-class Dialog < Qt::Dialog
-    def initialize(parent = nil)
-        super(parent)
+class CalcButton < Qt::ToolButton
 
-        wigglyWidget = WigglyWidget.new
-        lineEdit = Qt::LineEdit.new
-    
-        layout = Qt::VBoxLayout.new
-        layout.addWidget(wigglyWidget)
-        layout.addWidget(lineEdit)
-        setLayout(layout)
-    
-        connect(lineEdit, SIGNAL('textChanged(QString)'),
-                wigglyWidget, SLOT('setText(QString)'))
-    
-        lineEdit.setText(tr("Hello world!"))
-    
-        setWindowTitle(tr("Wiggly"))
-        resize(360, 145)
-    end
+	def initialize(text, color, parent = nil)
+		super(parent)
+		setSizePolicy(Qt::SizePolicy::Expanding, Qt::SizePolicy::Preferred)
+		setText(text)
+	
+		newPalette = palette()
+		newPalette.setColor(Qt::Palette::Button, color)
+		setPalette(newPalette)
+	end
+	
+	def sizeHint()
+		size = super()
+		size.height += 20
+		size.width = size.width > size.height ? size.width : size.height
+		return size
+	end
 end

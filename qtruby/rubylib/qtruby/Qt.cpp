@@ -68,6 +68,7 @@ extern Smoke *qt_Smoke;
 extern void init_qt_Smoke();
 extern void smokeruby_mark(void * ptr);
 extern void smokeruby_free(void * ptr);
+extern VALUE qchar_to_s(VALUE self);
 
 #ifdef DEBUG
 int do_debug = qtdb_gc;
@@ -528,7 +529,7 @@ public:
 				o[i + 1] = &si->s_voidp;
 				break;
 			case xmoc_QString:
-				o[i + 1] = &si->s_voidp;
+				o[i + 1] = si->s_voidp;
 				break;
 			default:
 			{
@@ -2408,11 +2409,11 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 static VALUE
 create_qt_class(VALUE /*self*/, VALUE package_value)
 {
-    const char *package = StringValuePtr(package_value);
+	const char *package = StringValuePtr(package_value);
 	VALUE klass;
 	
 	if (QString(package).startsWith("Qt::")) {
-    	klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
+		klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
 	} else if (QString(package).startsWith("Qext::")) {
 		if (qext_scintilla_module == Qnil) {
 			qext_scintilla_module = rb_define_module("Qext");
@@ -2422,11 +2423,13 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 		klass = kde_package_to_class(package);
 	}
 
-    if (strcmp(package, "Qt::MetaObject") == 0) {
-	qt_qmetaobject_class = klass;
-    }
+	if (strcmp(package, "Qt::MetaObject") == 0) {
+		qt_qmetaobject_class = klass;
+	} else if (strcmp(package, "Qt::Char") == 0) {
+		rb_define_method(klass, "to_s", (VALUE (*) (...)) qchar_to_s, 0);
+	}
 
-    return klass;
+	return klass;
 }
 
 static VALUE

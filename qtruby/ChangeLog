@@ -1,5 +1,13 @@
 2005-08-21  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
+	* Added calculator, charactermap, groupbox and wiggly to code examples
+	* Fixed crash in ruby QString signal types
+	* Improved runtime resolution of the Qt4 Qt::Event classes
+	* Added a Qt::Char.to_s method for converting a Qt::Char to a ruby
+	  string
+
+2005-08-21  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
 	* Added digitalclock example
 
 2005-08-20  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
