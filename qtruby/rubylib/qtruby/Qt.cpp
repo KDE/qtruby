@@ -1774,10 +1774,10 @@ find_qobject_children(int argc, VALUE *argv, VALUE self)
 	Check_Type(argv[0], T_CLASS);
 
 	VALUE kids = rb_ary_new();
-	VALUE cname = rb_funcall(argv[0], rb_intern("to_s"), 0);
+	VALUE cname = rb_funcall(argv[0], rb_intern("name"), 0);
 
 	qobject_children_recurse(self, kids);
-	rb_ary_pop(kids);
+	rb_ary_pop(kids);  // Pop self from the array as it's not a child
 
 	VALUE matching_kids = rb_ary_new();
 
