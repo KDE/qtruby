@@ -355,7 +355,7 @@ resolve_classname(Smoke* smoke, int classId, void * ptr)
 		case QEvent::TabletMove:
 		case QEvent::TabletPress:
 		case QEvent::TabletRelease:
-			return "Qt::TableEvent";
+			return "Qt::TabletEvent";
 		case QEvent::LocaleChange:
 		case QEvent::LanguageChange:
 		case QEvent::LayoutDirectionChange:
