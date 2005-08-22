@@ -516,22 +516,44 @@ module Qt
 	# If a C++ enum was converted to an ordinary ruby Integer, the
 	# name of the type is lost. The enum type name is needed for overloaded
 	# method resolution when two methods differ only by an enum type.
-	class Enum < Qt::Integer
+	class Enum
 		attr_accessor :type
 		def initialize(n, type)
-			super(n) 
+			super() 
 			@value = n 
 			@type = type
 		end
 		
+		def +(n) 
+			return @value + n.to_i
+		end
+		def -(n) 
+			return @value - n.to_i
+		end
+		def *(n) 
+			return @value * n.to_i
+		end
+		def /(n) 
+			return @value / n.to_i
+		end
+		def %(n) 
+			return @value % n.to_i
+		end
+		def **(n) 
+			return @value ** n.to_i
+		end
+		
 		def |(n) 
-			return Enum.new(@value | n.to_i, @type)
+			return @value | n.to_i
 		end
 		def &(n) 
-			return Enum.new(@value & n.to_i, @type)
+			return @value & n.to_i
 		end
 		def ^(n) 
-			return Enum.new(@value ^ n.to_i, @type)
+			return @value ^ n.to_i
+		end
+		def ~() 
+			return ~ @value
 		end
 		def <(n) 
 			return @value < n.to_i
@@ -546,14 +568,22 @@ module Qt
 			return @value >= n.to_i
 		end
 		def <<(n) 
-			return Enum.new(@value << n.to_i, @type)
+			return @value << n.to_i
 		end
 		def >>(n) 
-			return Enum.new(@value >> n.to_i, @type)
+			return @value >> n.to_i
 		end
 		
 		def ==(n) return @value == n.to_i end
 		def to_i() return @value end
+
+		def to_f() return @value.to_f end
+		def to_i() return @value.to_i end
+		def to_s() return @value.to_s end
+		
+		def coerce(n)
+			[n, @value]
+		end
 		
 		def inspect
 			to_s

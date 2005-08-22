@@ -1615,27 +1615,26 @@ qt_signal(int argc, VALUE * argv, VALUE self)
 static VALUE
 qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 {
-    // Arguments: QMetaObject::Call _c, int id, void ** _o
-    QMetaObject::Call _c = (QMetaObject::Call) NUM2INT(	rb_funcall(	qt_internal_module,
+	// Arguments: QMetaObject::Call _c, int id, void ** _o
+	QMetaObject::Call _c = (QMetaObject::Call) NUM2INT(	rb_funcall(	qt_internal_module,
 																	rb_intern("get_qinteger"), 
 																	1, 
 																	argv[0] ) );
-    int id = NUM2INT(argv[1]);
-    void ** _o = 0;
+	int id = NUM2INT(argv[1]);
+	void ** _o = 0;
 
-    Data_Get_Struct(argv[2], void*, _o);
-    if(_o == 0) {
-    	rb_raise(rb_eRuntimeError, "Cannot create qt_metacall stack\n");
-    }
-
-    VALUE metaObject_value = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 1, self);
-    smokeruby_object *ometa = value_obj_info(metaObject_value);
-    if (!ometa) return argv[1];
-
-    QMetaObject *metaobject = (QMetaObject*)ometa->ptr;
-
-    int count = metaobject->methodCount();
-    int offset = metaobject->methodOffset();
+	// Note that for a slot with no args and no return type,
+	// it isn't an error to get a NULL value of _o here.
+	Data_Get_Struct(argv[2], void*, _o);
+	
+	VALUE metaObject_value = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 1, self);
+	smokeruby_object *ometa = value_obj_info(metaObject_value);
+	if (!ometa) return argv[1];
+	
+	QMetaObject *metaobject = (QMetaObject*)ometa->ptr;
+	
+	int count = metaobject->methodCount();
+	int offset = metaobject->methodOffset();
 
 	if (id < offset) {
 		// Assume the target slot is a C++ one
@@ -1654,7 +1653,7 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 		}
 
 		// Should never happen..
-    	rb_raise(	rb_eRuntimeError, 
+		rb_raise(	rb_eRuntimeError, 
 					"Cannot find %s::qt_metacall() method\n", 
 					o->smoke->classes[o->classId].className );
 	}
@@ -1669,13 +1668,13 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 								1, 
 								rb_str_new2(method.signature()) );
 
-    QString name(method.signature());
-    name.replace(QRegExp("\\(.*"), "");
-
-    InvokeSlot slot(self, rb_intern(name.toLatin1()), mocArgs, _o);
-    slot.next();
-
-    return INT2NUM(id - (count - offset));
+	QString name(method.signature());
+	name.replace(QRegExp("\\(.*"), "");
+	
+	InvokeSlot slot(self, rb_intern(name.toLatin1()), mocArgs, _o);
+	slot.next();
+	
+	return INT2NUM(id - (count - offset));
 }
 
 

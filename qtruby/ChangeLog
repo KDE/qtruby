@@ -1,3 +1,15 @@
+2005-08-22  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* It isn't an error to pass a NULL void** stack to a qt_metacall() invocation.
+	  So don't throw a ruby exception, and assume it's for a slot with no args and
+	  no return type.
+	* Added the icons, imageviewer, lineedits, screenshot and scribble example
+	  programs
+	* Qt::Enum is no longer a subclass of Qt::Integer, and it handles its own
+	  arithmetic ops. A logical or arithmetic op on a Qt::Enum always returns a
+	  ruby Integer, rather than a Qt::Enum as before.
+
+
 2005-08-21  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added calculator, charactermap, groupbox and wiggly to code examples
