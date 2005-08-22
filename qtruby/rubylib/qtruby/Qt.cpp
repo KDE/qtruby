@@ -1743,6 +1743,56 @@ inherits_qobject(int argc, VALUE * argv, VALUE /*self*/)
 	}
 }
 
+/* For a given Qt::Object obj, it will recursively search all children
+   and keep put them into arry */
+
+static VALUE
+qobject_children_recurse(VALUE obj, VALUE arry)
+{
+	VALUE my_kids = rb_funcall(obj, rb_intern("children"), 0);
+
+	if(RARRAY(my_kids)->len) {
+		for(int i=0; i < RARRAY(my_kids)->len; ++i) {
+			qobject_children_recurse(RARRAY(my_kids)->ptr[i], arry);
+		}
+	}
+
+	rb_ary_push(arry,obj);
+	return obj;
+}
+
+/* Should mimic Qt4's QObject::findChildren method with this syntax:
+     obj.findChildren(Qt::Widget, "Optional Widget Name")
+*/
+
+static VALUE
+find_qobject_children(int argc, VALUE *argv, VALUE self)
+{
+	char * name = 0;
+	if (argc == 2) name = StringValuePtr(argv[1]);
+	if (argc < 1 || argc > 2) rb_raise(rb_eArgError, "Invalid argument list");
+	Check_Type(argv[0], T_CLASS);
+
+	VALUE kids = rb_ary_new();
+	VALUE cname = rb_funcall(argv[0], rb_intern("to_s"), 0);
+
+	qobject_children_recurse(self, kids);
+	rb_ary_pop(kids);
+
+	VALUE matching_kids = rb_ary_new();
+
+	for(int i=0;i < RARRAY(kids)->len; ++i) {
+		if ( rb_funcall(RARRAY(kids)->ptr[i], rb_intern("inherits"), 1, cname) == Qfalse) continue;
+		if ( name && 
+			rb_funcall(rb_funcall(RARRAY(kids)->ptr[i], rb_intern("objectName"), 0), rb_intern("=="), 1, argv[1]) == Qfalse) 
+			continue;
+	
+		rb_ary_push(matching_kids, RARRAY(kids)->ptr[i]);
+	}
+
+	return matching_kids;
+}
+
 static void
 mocargs_free(void * ptr)
 {
@@ -2401,7 +2451,8 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 	rb_define_method(klass, "pretty_print", (VALUE (*) (...)) pretty_print_qobject, 1);
 	rb_define_method(klass, "className", (VALUE (*) (...)) class_name, 0);
 	rb_define_method(klass, "inherits", (VALUE (*) (...)) inherits_qobject, -1);
-    
+ 	rb_define_method(klass, "findChildren", (VALUE (*) (...)) find_qobject_children, -1);
+   
 	return klass;
 }
 
