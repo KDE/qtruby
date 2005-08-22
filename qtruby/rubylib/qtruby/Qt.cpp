@@ -1793,6 +1793,39 @@ find_qobject_children(int argc, VALUE *argv, VALUE self)
 	return matching_kids;
 }
 
+static VALUE
+qobject_distance(VALUE parent, VALUE child, int* distance)
+{
+	(*distance)++;
+	VALUE childs_parent = rb_funcall(child, rb_intern("parent"), 0);
+	if( rb_funcall(parent, rb_intern("=="), 1, childs_parent) == Qfalse)
+		qobject_distance(parent, childs_parent, distance);
+
+	return child;
+}
+
+static VALUE
+find_qobject_child(int argc, VALUE *argv, VALUE self)
+{
+	VALUE kids = find_qobject_children(argc,argv,self);
+	VALUE best_child = Qnil;
+
+	int best_distance = 100000;
+
+	for(int i=0;i < RARRAY(kids)->len; ++i) {
+		int distance = 0;
+		VALUE child = RARRAY(kids)->ptr[i];
+		qobject_distance(self, child, &distance);
+		if(distance == 1) return child;
+		else if(distance < best_distance) {
+			best_distance = distance;
+			best_child = child;
+		}
+	}
+
+	return best_child;
+}
+
 static void
 mocargs_free(void * ptr)
 {
@@ -2451,8 +2484,9 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 	rb_define_method(klass, "pretty_print", (VALUE (*) (...)) pretty_print_qobject, 1);
 	rb_define_method(klass, "className", (VALUE (*) (...)) class_name, 0);
 	rb_define_method(klass, "inherits", (VALUE (*) (...)) inherits_qobject, -1);
- 	rb_define_method(klass, "findChildren", (VALUE (*) (...)) find_qobject_children, -1);
-   
+	rb_define_method(klass, "findChildren", (VALUE (*) (...)) find_qobject_children, -1);
+	rb_define_method(klass, "findChild", (VALUE (*) (...)) find_qobject_child, -1);   
+
 	return klass;
 }
 

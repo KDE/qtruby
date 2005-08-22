@@ -1,6 +1,6 @@
 2005-08-22  Caleb Tennis <caleb@aei-tech.com>
 
-        * Readded a findChildren method in C code under Qt::Object
+        * Readded findChildren and findChild methods in C code under Qt::Object
 
 2005-08-22  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
