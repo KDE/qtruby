@@ -8,7 +8,14 @@ VALUE marshall_from_smoke_to_ruby(T sv);
 template <class T>
 T marshall_from_ruby_to_smoke(Marshall *m) 
 {
-	return marshall_from_ruby_to_smoke<T>(*(m->var()));
+	VALUE obj = *(m->var());
+	return marshall_from_ruby_to_smoke<T>(obj);
+}
+
+template <class T>
+VALUE marshall_from_smoke_to_ruby(Marshall *m)
+{
+	return marshall_from_smoke_to_ruby<T>( (T)(m->item().s_voidp ) ); 
 }
 
 template <>
@@ -280,12 +287,19 @@ static VALUE marshall_from_smoke_to_ruby<SmokeClassWrapper>(SmokeClassWrapper sv
 
 
 template <>
-static VALUE marshall_from_smoke_to_ruby<char *>(char* sv)
+static VALUE marshall_from_smoke_to_ruby<char *>(Marshall *m)
 {
+	char *sv = (char*)m->item().s_voidp;
+	VALUE obj;
 	if(sv)
-		return rb_str_new2(sv);
+		obj = rb_str_new2(sv);
 	else
-		return Qnil;
+		obj = Qnil;
+
+	if(m->cleanup())
+		delete[] sv;
+
+	return obj;
 }
 
 template <>
@@ -295,6 +309,14 @@ static char* marshall_from_ruby_to_smoke<char *>(VALUE v)
 		return 0;
 	
 	return StringValuePtr(v);
+}
+
+template <>
+static VALUE marshall_from_smoke_to_ruby<unsigned char *>(Marshall *m)
+{
+	VALUE obj = Qnil;
+	m->unsupported();
+	return obj;
 }
 
 template <>

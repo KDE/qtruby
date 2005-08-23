@@ -514,6 +514,24 @@ construct_copy(smokeruby_object *o)
 #include "marshall_templates.cpp"
 
 template <class T>
+static void marshall_ptr(Marshall *m)
+{
+	switch(m->action()) {
+		case Marshall::FromVALUE:
+			m->item().s_voidp = marshall_from_ruby_to_smoke<T>(m);
+		break;
+ 
+		case Marshall::ToVALUE:
+			*(m->var()) = marshall_from_smoke_to_ruby<T>( m );
+		break;
+				
+		default:
+			m->unsupported();
+		break;
+	}
+}
+
+template <class T>
 static void marshall_it(Marshall *m, T* item)
 {
 	switch(m->action()) {
@@ -605,7 +623,9 @@ static void marshall_unknown(Marshall *m) {
 }
 
 static void marshall_charP(Marshall *m) {
-    switch(m->action()) {
+  marshall_ptr<char *>(m);
+}
+/*	switch(m->action()) {
       case Marshall::FromVALUE:
 	{
 	    VALUE rv = *(m->var());
@@ -633,8 +653,11 @@ static void marshall_charP(Marshall *m) {
 	break;
     }
 }
-
+*/
 void marshall_ucharP(Marshall *m) {
+  marshall_ptr<unsigned char *>(m);
+}
+/*
     switch(m->action()) {
       case Marshall::FromVALUE:
 	{
@@ -652,6 +675,7 @@ void marshall_ucharP(Marshall *m) {
 	break;
     }
 }
+*/
 
 static const char * KCODE = 0;
 static QTextCodec *codec = 0;
