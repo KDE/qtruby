@@ -518,11 +518,11 @@ static void marshall_it(Marshall *m)
 {
 	switch(m->action()) {
 		case Marshall::FromVALUE:
-			marshall_from_ruby_to_smoke<T>(m);
+			marshall_from_ruby<T>(m);
 		break;
  
 		case Marshall::ToVALUE:
-			*(m->var()) = marshall_from_smoke_to_ruby<T>( m );
+			marshall_to_ruby<T>( m );
 		break;
 				
 		default:
