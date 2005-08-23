@@ -43,4 +43,15 @@ public:
 
     virtual ~Marshall() {}
 };    
+
+class SmokeEnumWrapper {
+public:
+	Marshall *m;
+};	
+
+class SmokeClassWrapper {
+public:
+  Marshall *m;
+};
+
 #endif

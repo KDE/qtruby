@@ -511,331 +511,92 @@ construct_copy(smokeruby_object *o)
     return args[0].s_voidp;
 }
 
+#include "marshall_templates.cpp"
+
+template <class T>
+static void marshall_it(Marshall *m, T* item)
+{
+	switch(m->action()) {
+		case Marshall::FromVALUE:
+			*item = marshall_from_ruby_to_smoke<T>(m);
+		break;
+ 
+		case Marshall::ToVALUE:
+			*(m->var()) = marshall_from_smoke_to_ruby<T>( *item );
+		break;
+				
+		default:
+			m->unsupported();
+		break;
+	}
+}
+
 void
 marshall_basetype(Marshall *m)
 {
 	switch(m->type().elem()) {
 
 		case Smoke::t_bool:
-			switch(m->action()) {
-				case Marshall::FromVALUE:
-					if (TYPE(*(m->var())) == T_OBJECT) {
-						// A Qt::Boolean has been passed as a value
-						VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qboolean"), 1, *(m->var()));
-						m->item().s_bool = (temp == Qtrue ? true : false);
-					} else {
-						m->item().s_bool = (*(m->var()) == Qtrue ? true : false);
-					}
-	    		break;
- 
-				case Marshall::ToVALUE:
-					*(m->var()) = m->item().s_bool ? Qtrue : Qfalse;
-				break;
-				
-				default:
-					m->unsupported();
-				break;
-			}
+			marshall_it(m, &m->item().s_bool);
 		break;
 
 		case Smoke::t_char:
-			switch(m->action()) {
-				case Marshall::FromVALUE:
-					m->item().s_char = NUM2CHR(*(m->var()));
-				break;
-				
-				case Marshall::ToVALUE:
-					*(m->var()) = CHR2FIX(m->item().s_char);
-				break;
-				
-				default:
-					m->unsupported();
-				break;
-			}
+			marshall_it(m, &m->item().s_char);
 		break;
 		
 		case Smoke::t_uchar:
-			switch(m->action()) {
-				case Marshall::FromVALUE:
-					m->item().s_uchar = NUM2CHR(*(m->var()));
-				break;
-
-				case Marshall::ToVALUE:
-					*(m->var()) = CHR2FIX(m->item().s_uchar);
-				break;
-				
-				default:
-					m->unsupported();
-				break;
-			}
+			marshall_it(m, &m->item().s_uchar);
 		break;
-      
+ 
 		case Smoke::t_short:
-			switch(m->action()) {
-				case Marshall::FromVALUE:
-					m->item().s_short = (short) NUM2INT(*(m->var()));
-				break;
-
-				case Marshall::ToVALUE:
-					*(m->var()) = INT2NUM(m->item().s_short);
-				break;
-
-				default:
-					m->unsupported();
-				break;
-			}
+			marshall_it(m, &m->item().s_short);
 		break;
       
 		case Smoke::t_ushort:
-			switch(m->action()) {
-				case Marshall::FromVALUE:
-					m->item().s_ushort = (unsigned short) NUM2UINT(*(m->var()));
-				break;
-				
-				case Marshall::ToVALUE:
-					*(m->var()) = UINT2NUM(m->item().s_ushort);
-				break;
-				
-				default:
-					m->unsupported();
-				break;
-		}
-		break;
-      
+			marshall_it(m, &m->item().s_ushort);
+	
 		case Smoke::t_int:
-			switch(m->action()) {
-				case Marshall::FromVALUE:
-					if (TYPE(*(m->var())) == T_OBJECT) {
-						m->item().s_int = (int) NUM2INT(rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, *(m->var())));
-					} else {
-						m->item().s_int = (int) NUM2INT(*(m->var()));
-					}
-				break;
-	
-				case Marshall::ToVALUE:
-					*(m->var()) = INT2NUM(m->item().s_int);
-				break;
-	
-				default:
-					m->unsupported();
-				break;
-			}
+			marshall_it(m, &m->item().s_int);
 		break;
-      
+		
 		case Smoke::t_uint:
-			switch(m->action()) {
-				case Marshall::FromVALUE:
-					if (TYPE(*(m->var())) == T_OBJECT) {
-						m->item().s_int = (unsigned int) NUM2UINT(rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, *(m->var())));
-					} else {
-						m->item().s_uint = (unsigned int) NUM2UINT(*(m->var()));
-					}
-				break;
-	 
-				case Marshall::ToVALUE:
-					*(m->var()) = UINT2NUM(m->item().s_uint);
-				break;
-				
-				default:
-					m->unsupported();
-				break;
-			}
+			marshall_it(m, &m->item().s_uint);
 		break;
-  
+ 
 		case Smoke::t_long:
-			switch(m->action()) {
-				case Marshall::FromVALUE:
-					if (TYPE(*(m->var())) == T_OBJECT) {
-						m->item().s_int = (long) NUM2LONG(rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, *(m->var())));
-					} else {
-						m->item().s_long = (long) NUM2LONG(*(m->var()));
-					}
-				break;
-	  
-				case Marshall::ToVALUE:
-					*(m->var()) = INT2NUM(m->item().s_long);
-				break;
-	  
-				default:
-					m->unsupported();
-				break;
-			}
+			marshall_it(m, &m->item().s_long);
 		break;
 
 		case Smoke::t_ulong:
-			switch(m->action()) {
-				case Marshall::FromVALUE:
-					if (TYPE(*(m->var())) == T_OBJECT) {
-						m->item().s_int = (unsigned long) NUM2ULONG(rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, *(m->var())));
-					} else {
-						m->item().s_ulong = (unsigned long) NUM2ULONG(*(m->var()));
-					}
-				break;
-	  
-				case Marshall::ToVALUE:
-					*(m->var()) = INT2NUM(m->item().s_ulong);
-				break;
-				
-				default:
-					m->unsupported();
-				break;
-			}
+			marshall_it(m, &m->item().s_ulong);
 		break;
-
+ 
 		case Smoke::t_float:
-			switch(m->action()) {
-				case Marshall::FromVALUE:
-					m->item().s_float = (float) NUM2DBL(*(m->var()));
-				break;
-	  
-				case Marshall::ToVALUE:
-					*(m->var()) = rb_float_new((double) m->item().s_float);
-				break;
-	  
-				default:
-					m->unsupported();
-				break;
-			}
+			marshall_it<float>(m, &m->item().s_float);
 		break;
-      
+
 		case Smoke::t_double:
-			switch(m->action()) {
-				case Marshall::FromVALUE:
-					m->item().s_double = (double) NUM2DBL(*(m->var()));
-				break;
-	  
-				case Marshall::ToVALUE:
-					*(m->var()) = rb_float_new(m->item().s_double);
-				break;
-				
-				default:
-					m->unsupported();
-				break;
-			}
+			marshall_it<double>(m, &m->item().s_double);
 		break;
-      
+
 		case Smoke::t_enum:
-			switch(m->action()) {
-				case Marshall::FromVALUE:
-				{
-					if (TYPE(*(m->var())) == T_OBJECT) {
-						// A Qt::Enum is a subclass of Qt::Integer, so 'get_qinteger()' can be called ok
-						VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, *(m->var()));
-						m->item().s_enum = (long) NUM2LONG(temp);
-					} else {
-						m->item().s_enum = (long) NUM2LONG(*(m->var()));
-					}
-				}
-				break;
-				
-				case Marshall::ToVALUE:
-					*(m->var()) = rb_funcall(qt_internal_module, rb_intern("create_qenum"), 
-									2, INT2NUM(m->item().s_enum), rb_str_new2(m->type().name()) );
-				break;
-	  
-				default:
-					m->unsupported();
-				break;
-			}
+			SmokeEnumWrapper e;
+			e.m = m;
+			marshall_it<SmokeEnumWrapper>(m, &e);
 		break;
       
+     
 		case Smoke::t_class:
-			switch(m->action()) {
-				case Marshall::FromVALUE:
-				{
-					if(*(m->var()) == Qnil) {
-						m->item().s_class = 0;
-						break;
-					}
-				
-					if(TYPE(*(m->var())) != T_DATA) {
-						rb_raise(rb_eArgError, "Invalid type, expecting %s\n", m->type().name());
-						break;
-					}
-		
-					smokeruby_object *o = value_obj_info(*(m->var()));
-					if(!o || !o->ptr) {
-						if(m->type().isRef()) {
-							rb_warning("References can't be nil\n");
-							m->unsupported();
-						}
-					
-						m->item().s_class = 0;
-						break;
-					}
-		
-					void *ptr = o->ptr;
-					if(!m->cleanup() && m->type().isStack()) {
-						ptr = construct_copy(o);
-					}
-		
-					const Smoke::Class &c = m->smoke()->classes[m->type().classId()];
-					ptr = o->smoke->cast(
-						ptr,				// pointer
-						o->classId,				// from
-						o->smoke->idClass(c.className)	// to
-					);
-				
-					m->item().s_class = ptr;
-					break;
-				}
-			break;
-	  
-			case Marshall::ToVALUE:
-			{
-				if(m->item().s_voidp == 0) {
-					*(m->var()) = Qnil;
-		    		break;
-				}
+			SmokeClassWrapper c;
+			c.m = m;
+			marshall_it<SmokeClassWrapper>(m, &c);
+		break;
 
-				void *p = m->item().s_voidp;
-				VALUE obj = getPointerObject(p);
-				if(obj != Qnil) {
-					*(m->var()) = obj;
-		    		break;
-				}
-
-				smokeruby_object  * o = (smokeruby_object *) malloc(sizeof(smokeruby_object));
-				o->smoke = m->smoke();
-				o->classId = m->type().classId();
-				o->ptr = p;
-				o->allocated = false;
-
-				const char * classname = resolve_classname(o->smoke, o->classId, o->ptr);
-		
-				if(m->type().isConst() && m->type().isRef()) {
-					p = construct_copy( o );
-					if(p) {
-						o->ptr = p;
-						o->allocated = true;
-					}
-				}
-		
-				obj = set_obj_info(classname, o);
-				if (do_debug & qtdb_calls) {
-					printf("allocating %s %p -> %p\n", classname, o->ptr, (void*)obj);
-				}
-
-				if(m->type().isStack()) {
-					o->allocated = true;
-					// Keep a mapping of the pointer so that it is only wrapped once as a ruby VALUE
-					mapPointer(obj, o, o->classId, 0);
-				}
-			
-				*(m->var()) = obj;
-			}
-			break;
-
-			default:
-				m->unsupported();
-			break;
+		default:
+			m->unsupported();
+		break;	
 	}
-	break;
-	
-	default:
-		m->unsupported();
-	break;
-	}
+
 }
 
 static void marshall_void(Marshall * /*m*/) {}

@@ -1,4 +1,9 @@
 2005-08-22  Caleb Tennis <caleb@aei-tech.com>
+        * Started a migration to more template based classes.  Hopefully this is
+          just a start, but this *should* reduce redundant code by making use of
+          C++ templates for marshalling the various types.
+
+2005-08-22  Caleb Tennis <caleb@aei-tech.com>
 
         * Readded findChildren and findChild methods in C code under Qt::Object
 
