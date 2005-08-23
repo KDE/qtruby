@@ -128,6 +128,7 @@ static VALUE primitive_to_ruby<unsigned long>(unsigned long sv)
 	return INT2NUM(sv);
 }
 
+
 template <>
 static float ruby_to_primitive<float>(VALUE v)
 {
@@ -150,14 +151,6 @@ template <>
 static VALUE primitive_to_ruby<double>(double sv)
 {
 	return rb_float_new((double) sv);
-}
-
-template <>
-static VALUE primitive_to_ruby<SmokeEnumWrapper>(SmokeEnumWrapper sv)
-{
-	long val = sv.m->item().s_enum;
-	return rb_funcall(qt_internal_module, rb_intern("create_qenum"), 
-		2, INT2NUM(val), rb_str_new2(sv.m->type().name()) );
 }
 
 template <>

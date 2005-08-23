@@ -18,8 +18,6 @@ template<> void* smoke_ptr<void>(Marshall *m) { 	return m->item().s_voidp; }
 template <class T> T ruby_to_primitive(VALUE);
 template <class T> VALUE primitive_to_ruby(T);
 
-#include "marshall_primitives.cpp"
-
 template <class T> 
 static void marshall_from_ruby(Marshall *m) 
 {
@@ -32,6 +30,8 @@ static void marshall_to_ruby(Marshall *m)
 {
 	*(m->var()) = primitive_to_ruby<T>( *smoke_ptr<T>(m) ); 
 }
+
+#include "marshall_primitives.cpp"
 
 template <>
 static void marshall_from_ruby<char *>(Marshall *m) 
@@ -53,6 +53,14 @@ static void marshall_from_ruby<SmokeEnumWrapper>(Marshall *m)
 		m->item().s_enum = (long) NUM2LONG(v);
 	}
 
+}
+
+template <>
+static void marshall_to_ruby<SmokeEnumWrapper>(Marshall *m)
+{
+	long val = m->item().s_enum;
+	*(m->var()) = rb_funcall(qt_internal_module, rb_intern("create_qenum"), 
+		2, INT2NUM(val), rb_str_new2( m->type().name()) );
 }
 
 template <>
