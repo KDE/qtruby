@@ -33,7 +33,6 @@ static void marshall_to_ruby(Marshall *m)
 	*(m->var()) = primitive_to_ruby<T>( *smoke_ptr<T>(m) ); 
 }
 
-
 template <>
 static void marshall_from_ruby<char *>(Marshall *m) 
 {
@@ -104,15 +103,14 @@ static void marshall_to_ruby<SmokeClassWrapper>(Marshall *m)
 {
 	if(m->item().s_voidp == 0) {
 		*(m->var()) = Qnil;
+		return;
 	}
-
 	void *p = m->item().s_voidp;
 	VALUE obj = getPointerObject(p);
 	if(obj != Qnil) {
 		*(m->var()) = obj;
 		return ;
 	}
-
 	smokeruby_object  * o = (smokeruby_object *) malloc(sizeof(smokeruby_object));
 	o->smoke = m->smoke();
 	o->classId = m->type().classId();
@@ -120,7 +118,6 @@ static void marshall_to_ruby<SmokeClassWrapper>(Marshall *m)
 	o->allocated = false;
 
 	const char * classname = resolve_classname(o->smoke, o->classId, o->ptr);
-		
 	if(m->type().isConst() && m->type().isRef()) {
 		p = construct_copy( o );
 		if(p) {
@@ -164,7 +161,3 @@ static void marshall_to_ruby<unsigned char *>(Marshall *m)
 {
 	m->unsupported();
 }
-
-
-
-
