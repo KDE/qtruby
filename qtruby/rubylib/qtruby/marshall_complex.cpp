@@ -13,13 +13,6 @@ static void marshall_from_ruby<long long>(Marshall *m)
 }
 
 template <>
-static void marshall_to_ruby<long long>(Marshall *m)
-{
-	*(m->var()) = rb_ll2inum(*(long long *) m->item().s_voidp);
-}
-
-
-template <>
 static void marshall_from_ruby<unsigned long long>(Marshall *m) 
 {
 	VALUE obj = *(m->var());
@@ -33,9 +26,3 @@ static void marshall_from_ruby<unsigned long long>(Marshall *m)
 	}	
 }
 
-
-template <>
-static void marshall_to_ruby<unsigned long long>(Marshall *m)
-{
-	*(m->var()) = rb_ull2inum(*(unsigned long long *) m->item().s_voidp);
-}

@@ -1,6 +1,6 @@
 
-//template <class T> T* smoke_ptr(Marshall *m);
-template <class T> T* smoke_ptr(Marshall *m) { return (T*)&m->item().s_voidp; }
+template <class T> T* smoke_ptr(Marshall *m) { return (T*) m->item().s_voidp; }
+//template <class T> T smoke_ptr(Marshall *m) { return (T) m->item().s_voidp; }
 
 template<> bool* smoke_ptr<bool>(Marshall *m) { return &m->item().s_bool; }
 template<> signed char* smoke_ptr<signed char>(Marshall *m) { return &m->item().s_char; }
@@ -13,7 +13,7 @@ template<> long* smoke_ptr<long>(Marshall *m) { 	return &m->item().s_long; }
 template<> unsigned long* smoke_ptr<unsigned long>(Marshall *m) { return &m->item().s_ulong; }
 template<> float* smoke_ptr<float>(Marshall *m) { return &m->item().s_float; }
 template<> double* smoke_ptr<double>(Marshall *m) { return &m->item().s_double; }
-template<> void* smoke_ptr<void>(Marshall *m) { 	return m->item().s_voidp; }
+template<> void* smoke_ptr<void>(Marshall *m) { return m->item().s_voidp; }
 
 template <class T> T ruby_to_primitive(VALUE);
 template <class T> VALUE primitive_to_ruby(T);
@@ -21,6 +21,7 @@ template <class T> VALUE primitive_to_ruby(T);
 template <class T> 
 static void marshall_from_ruby(Marshall *m) 
 {
+	rb_warning("marshall from");
 	VALUE obj = *(m->var());
 	(*smoke_ptr<T>(m)) = ruby_to_primitive<T>(obj);
 }
@@ -28,22 +29,27 @@ static void marshall_from_ruby(Marshall *m)
 template <class T>
 static void marshall_to_ruby(Marshall *m)
 {
+	rb_warning("marshall to");
 	*(m->var()) = primitive_to_ruby<T>( *smoke_ptr<T>(m) ); 
 }
 
 #include "marshall_primitives.cpp"
 #include "marshall_complex.cpp"
-//template <>
-//static void marshall_from_ruby<char *>(Marshall *m) 
-//{
-//	VALUE obj = *(m->var());
-//	m->item().s_voidp = ruby_to_primitive<char*>(obj);
-//	rb_warning("In char*");
-//}
+
+// Special case marshallers
+
+template <> 
+static void marshall_from_ruby<char *>(Marshall *m) 
+{
+	rb_warning("marshall from");
+	VALUE obj = *(m->var());
+	m->item().s_voidp = ruby_to_primitive<char*>(obj);
+}
 
 template <>
 static void marshall_from_ruby<SmokeEnumWrapper>(Marshall *m)
 {
+	rb_warning("marshall from enum");
 	VALUE v = *(m->var());
 
 	if (TYPE(v) == T_OBJECT) {
@@ -59,6 +65,7 @@ static void marshall_from_ruby<SmokeEnumWrapper>(Marshall *m)
 template <>
 static void marshall_to_ruby<SmokeEnumWrapper>(Marshall *m)
 {
+	rb_warning("marshall to enum");
 	long val = m->item().s_enum;
 	*(m->var()) = rb_funcall(qt_internal_module, rb_intern("create_qenum"), 
 		2, INT2NUM(val), rb_str_new2( m->type().name()) );
@@ -67,6 +74,7 @@ static void marshall_to_ruby<SmokeEnumWrapper>(Marshall *m)
 template <>
 static void marshall_from_ruby<SmokeClassWrapper>(Marshall *m)
 {
+	rb_warning("marshall from class");
 	VALUE v = *(m->var());
 
 	if(v == Qnil) {
@@ -110,6 +118,7 @@ static void marshall_from_ruby<SmokeClassWrapper>(Marshall *m)
 template <>
 static void marshall_to_ruby<SmokeClassWrapper>(Marshall *m)
 {
+	rb_warning("marshall to class");
 	if(m->item().s_voidp == 0) {
 		*(m->var()) = Qnil;
 		return;

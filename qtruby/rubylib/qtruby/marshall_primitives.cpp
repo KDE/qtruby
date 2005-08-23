@@ -127,19 +127,19 @@ static VALUE primitive_to_ruby<unsigned long>(unsigned long sv)
 {
 	return INT2NUM(sv);
 }
-/*
+
 template <>
 static long long ruby_to_primitive<long long>(VALUE v)
 {
-	return rb_num2ll(v);
+	return NUM2LL(v);
 }
 
 template <>
 static VALUE primitive_to_ruby<long long>(long long sv)
 {
-	return rb_ll2inum(sv);
+	return LL2NUM(sv);
 }
-*/
+
 template <>
 static unsigned long long ruby_to_primitive<unsigned long long>(VALUE v)
 {
@@ -179,6 +179,7 @@ static VALUE primitive_to_ruby<double>(double sv)
 template <>
 static char* ruby_to_primitive<char *>(VALUE v)
 {
+	rb_warning("it's a char* to");
 	if(v == Qnil)
 		return 0;
 	
@@ -188,8 +189,10 @@ static char* ruby_to_primitive<char *>(VALUE v)
 template <>
 static unsigned char* ruby_to_primitive<unsigned char *>(VALUE v)
 {
+	rb_warning("it's a char* from");
 	if(v == Qnil)
 		return 0;
 	
 	return (unsigned char*)StringValuePtr(v);
 }
+
