@@ -1,6 +1,5 @@
 
 template <class T> T* smoke_ptr(Marshall *m) { return (T*) m->item().s_voidp; }
-//template <class T> T smoke_ptr(Marshall *m) { return (T) m->item().s_voidp; }
 
 template<> bool* smoke_ptr<bool>(Marshall *m) { return &m->item().s_bool; }
 template<> signed char* smoke_ptr<signed char>(Marshall *m) { return &m->item().s_char; }
@@ -21,7 +20,6 @@ template <class T> VALUE primitive_to_ruby(T);
 template <class T> 
 static void marshall_from_ruby(Marshall *m) 
 {
-	rb_warning("marshall from");
 	VALUE obj = *(m->var());
 	(*smoke_ptr<T>(m)) = ruby_to_primitive<T>(obj);
 }
@@ -29,7 +27,6 @@ static void marshall_from_ruby(Marshall *m)
 template <class T>
 static void marshall_to_ruby(Marshall *m)
 {
-	rb_warning("marshall to");
 	*(m->var()) = primitive_to_ruby<T>( *smoke_ptr<T>(m) ); 
 }
 
@@ -41,7 +38,6 @@ static void marshall_to_ruby(Marshall *m)
 template <> 
 static void marshall_from_ruby<char *>(Marshall *m) 
 {
-	rb_warning("marshall from");
 	VALUE obj = *(m->var());
 	m->item().s_voidp = ruby_to_primitive<char*>(obj);
 }
@@ -49,7 +45,6 @@ static void marshall_from_ruby<char *>(Marshall *m)
 template <>
 static void marshall_from_ruby<SmokeEnumWrapper>(Marshall *m)
 {
-	rb_warning("marshall from enum");
 	VALUE v = *(m->var());
 
 	if (TYPE(v) == T_OBJECT) {
@@ -65,7 +60,6 @@ static void marshall_from_ruby<SmokeEnumWrapper>(Marshall *m)
 template <>
 static void marshall_to_ruby<SmokeEnumWrapper>(Marshall *m)
 {
-	rb_warning("marshall to enum");
 	long val = m->item().s_enum;
 	*(m->var()) = rb_funcall(qt_internal_module, rb_intern("create_qenum"), 
 		2, INT2NUM(val), rb_str_new2( m->type().name()) );
@@ -74,7 +68,6 @@ static void marshall_to_ruby<SmokeEnumWrapper>(Marshall *m)
 template <>
 static void marshall_from_ruby<SmokeClassWrapper>(Marshall *m)
 {
-	rb_warning("marshall from class");
 	VALUE v = *(m->var());
 
 	if(v == Qnil) {
@@ -118,7 +111,6 @@ static void marshall_from_ruby<SmokeClassWrapper>(Marshall *m)
 template <>
 static void marshall_to_ruby<SmokeClassWrapper>(Marshall *m)
 {
-	rb_warning("marshall to class");
 	if(m->item().s_voidp == 0) {
 		*(m->var()) = Qnil;
 		return;

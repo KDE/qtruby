@@ -848,214 +848,20 @@ static const char *not_ascii(const char *s, uint &len)
 }
 #endif
 
-/*
-static void marshall_QCString(Marshall *m) {
-    switch(m->action()) {
-      case Marshall::FromVALUE:
-	{
-	    Q3CString *s = 0;
-	    VALUE rv = *(m->var());
-	    if (rv == Qnil) {
-		s = new Q3CString(); 
-        } else {
-		// Add 1 to the ruby string length to allow for a QCString '\0' terminator
-		s = new Q3CString(StringValuePtr(*(m->var())), RSTRING(*(m->var()))->len + 1); 
-		}
-	    m->item().s_voidp = s;
-	    
-		m->next();
-	    
-		if (!m->type().isConst() && rv != Qnil && s != 0) {
-			rb_str_resize(rv, 0);
-			rb_str_cat2(rv, (const char *)*s);
-		}
-	    if(s && m->cleanup())
-		delete s;
-	}
-	break;
-      case Marshall::ToVALUE:
-	{
-	    Q3CString *s = (Q3CString*)m->item().s_voidp;
-	    if(s && (const char *) *s != 0) {
-		*(m->var()) = rb_str_new2((const char *)*s);
-//                const char * p = (const char *)*s;
-//                uint len =  s->length();
-//                if(not_ascii(p,len))
-//                {
-//                  #if PERL_VERSION == 6 && PERL_SUBVERSION == 0
-//                  QTextCodec* c = QTextCodec::codecForMib(106); // utf8
-//                  if(c->heuristicContentMatch(p,len) >= 0)
-//                  #else
-//                  if(is_utf8_string((U8 *)p,len))
-//                  #endif
-//                    SvUTF8_on(*(m->var()));
-//                }
-	    } else {
-			if (m->type().isConst()) {
-                *(m->var()) = Qnil;
-			} else {
-                *(m->var()) = rb_str_new2("");
-			}
-	    }
-		m->next();
-
-		if (!m->type().isConst() && s != 0) {
-			*s = (const char *) StringValuePtr(*(m->var()));
-		}
-	    
-	    if(s && m->cleanup())
-		delete s;
-	}
-	break;
-      default:
-	m->unsupported();
-	break;
-    }
-}
-*/
-
 static void marshall_longlong(Marshall *m) {
   marshall_it<long long>(m);
 }
-/*
-    switch(m->action()) {
-      case Marshall::FromVALUE:
-	{
-	    m->item().s_voidp = new long long;
-	    *(long long *)m->item().s_voidp = rb_num2ll(*(m->var()));
-		
-	    m->next();
-		
-	    if(m->cleanup() && m->type().isConst()) {
-			delete (long long *) m->item().s_voidp;
-		}
-	}
-	break;
-      case Marshall::ToVALUE:
-	{
-	    *(m->var()) = rb_ll2inum(*(long long *) m->item().s_voidp);
-	}
-	break;
-      default:
-	m->unsupported();
-	break;
-    }
-}
-*/
+
 static void marshall_ulonglong(Marshall *m) {
   marshall_it<unsigned long long>(m);
 }
-/*
-    switch(m->action()) {
-      case Marshall::FromVALUE:
-	{
-	    m->item().s_voidp = new unsigned long long;
-	    *(long long *)m->item().s_voidp = rb_num2ull(*(m->var()));
-		
-	    m->next();
-		
-	    if(m->cleanup() && m->type().isConst()) {
-			delete (unsigned long long *) m->item().s_voidp;
-		}
-	}
-	break;
-      case Marshall::ToVALUE:
-	{
-	    *(m->var()) = rb_ull2inum(*(unsigned long long *) m->item().s_voidp);
-	}
-	break;
-      default:
-	m->unsupported();
-	break;
-    }
-}
-*/
+
 static void marshall_intR(Marshall *m) {
-    switch(m->action()) {
-      case Marshall::FromVALUE:
-	{
-	    VALUE rv = *(m->var());
-		int * i = new int;
-		if (TYPE(rv) == T_OBJECT) {
-			// A Qt::Integer has been passed as an integer value
-			VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, rv);
-			*i = NUM2INT(temp);
-			m->item().s_voidp = i;
-			m->next();
-			rb_funcall(qt_internal_module, rb_intern("set_qinteger"), 2, rv, INT2NUM(*i));
-			rv = temp;
-		} else {
-			*i = NUM2INT(rv);
-			m->item().s_voidp = i;
-			m->next();
-		}
-	    if(m->cleanup() && m->type().isConst()) {
-			delete i;
-	    } else {
-		m->item().s_voidp = new int((int)NUM2INT(rv));
-	    }
-	}
-	break;
-      case Marshall::ToVALUE:
-	{
-	    int *ip = (int*)m->item().s_voidp;
-	    VALUE rv = *(m->var());
-	    if(!ip) {
-	        rv = Qnil;
-		break;
-	    }
-	    *(m->var()) = INT2NUM(*ip);
-	    m->next();
-	    if(!m->type().isConst())
-		*ip = NUM2INT(*(m->var()));
-	}
-	break;
-      default:
-	m->unsupported();
-	break;
-    }
+  marshall_it<int *>(m);
 }
 
 static void marshall_boolR(Marshall *m) {
-    switch(m->action()) {
-      case Marshall::FromVALUE:
-	{
-	    VALUE rv = *(m->var());
-		bool * b = new bool;
-		if (TYPE(rv) == T_OBJECT) {
-			// A Qt::Boolean has been passed as a value
-			VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qboolean"), 1, rv);
-			*b = (temp == Qtrue ? true : false);
-			m->item().s_voidp = b;
-			m->next();
-			rb_funcall(qt_internal_module, rb_intern("set_qboolean"), 2, rv, (*b ? Qtrue : Qfalse));
-		} else {
-			*b = (rv == Qtrue ? true : false);
-			m->item().s_voidp = b;
-			m->next();
-		}
-	    	if(m->cleanup() && m->type().isConst()) {
-			delete b;
-		}
-	}
-	break;
-      case Marshall::ToVALUE:
-	{
-	    bool *ip = (bool*)m->item().s_voidp;
-	    if(!ip) {
-	    *(m->var()) = Qnil;
-		break;
-	    }
-	    *(m->var()) = (*ip?Qtrue:Qfalse);
-	    m->next();
-	    if(!m->type().isConst())
-		*ip = *(m->var()) == Qtrue ? true : false;
-	}
-	break;
-      default:
-	m->unsupported();
-	break;
-    }
+  marshall_it<bool*>(m);
 }
 
 static void marshall_charP_array(Marshall *m) {
@@ -1218,7 +1024,6 @@ void marshall_QByteArrayList(Marshall *m) {
 	break;
     }
 }
-
 
 template <class Item, class ItemList, const char *ItemSTR >
 void marshall_ItemList(Marshall *m) {
@@ -1904,9 +1709,6 @@ TypeHandler Qt_handlers[] = {
     { "QString", marshall_QString },
     { "QString&", marshall_QString },
     { "QString*", marshall_QString },
-//    { "QCString", marshall_QCString },
-//    { "QCString&", marshall_QCString },
-//    { "QCString*", marshall_QCString },
     { "QStringList", marshall_QStringList },
     { "QStringList&", marshall_QStringList },
     { "QStringList*", marshall_QStringList },

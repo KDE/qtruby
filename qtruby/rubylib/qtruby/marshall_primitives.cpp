@@ -179,7 +179,6 @@ static VALUE primitive_to_ruby<double>(double sv)
 template <>
 static char* ruby_to_primitive<char *>(VALUE v)
 {
-	rb_warning("it's a char* to");
 	if(v == Qnil)
 		return 0;
 	
@@ -189,10 +188,18 @@ static char* ruby_to_primitive<char *>(VALUE v)
 template <>
 static unsigned char* ruby_to_primitive<unsigned char *>(VALUE v)
 {
-	rb_warning("it's a char* from");
 	if(v == Qnil)
 		return 0;
 	
 	return (unsigned char*)StringValuePtr(v);
 }
 
+template <>
+static VALUE primitive_to_ruby<int*>(int* sv)
+{
+	if(!sv) {
+		return Qnil;
+	}
+	
+	return primitive_to_ruby<int>(*sv);
+}

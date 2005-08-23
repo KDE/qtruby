@@ -96,6 +96,25 @@ class TestQtRuby < Test::Unit::TestCase
     assert w.findChild(Qt::LineEdit,"Bob") == w4
   end
 
+  def test_boolean_marshalling
+    assert Qt::Variant.new(true).toBool
+    assert !Qt::Variant.new(false).toBool
+
+    assert !Qt::Boolean.new(true).nil?
+    assert Qt::Boolean.new(false).nil?
+
+    # Invalid variant conversion should change b to false
+    b = Qt::Boolean.new(true)
+    v = Qt::Variant.new("Blah")
+    v.toInt(b);
+
+    assert b.nil?
+  end
+
+  def test_intp_marshalling
+    assert Qt::Integer.new(100).value == 100
+  end
+
   def test_variant_conversions
     v = Qt::Variant.new(Qt::Variant::Invalid)
 
@@ -113,7 +132,7 @@ class TestQtRuby < Test::Unit::TestCase
     assert v.toChar == Qt::Char.new(55)
     assert v.toString == "55"
     assert v.toStringList == [ ]
- 
+
 
     assert Qt::Variant.new("Blah").toStringList == [ "Blah" ]
 
