@@ -915,6 +915,9 @@ static void marshall_QCString(Marshall *m) {
 */
 
 static void marshall_longlong(Marshall *m) {
+  marshall_it<long long>(m);
+}
+/*
     switch(m->action()) {
       case Marshall::FromVALUE:
 	{
@@ -938,8 +941,11 @@ static void marshall_longlong(Marshall *m) {
 	break;
     }
 }
-
+*/
 static void marshall_ulonglong(Marshall *m) {
+  marshall_it<unsigned long long>(m);
+}
+/*
     switch(m->action()) {
       case Marshall::FromVALUE:
 	{
@@ -963,7 +969,7 @@ static void marshall_ulonglong(Marshall *m) {
 	break;
     }
 }
-
+*/
 static void marshall_intR(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE:
@@ -1913,6 +1919,8 @@ TypeHandler Qt_handlers[] = {
     { "Q_INT64&", marshall_longlong },
     { "Q_LLONG", marshall_longlong },
     { "Q_LLONG&", marshall_longlong },
+    { "qlonglong", marshall_longlong },
+    { "qlonglong&", marshall_longlong },
     { "KIO::filesize_t", marshall_longlong },
     { "DOM::DOMTimeStamp", marshall_ulonglong },
     { "unsigned long long int", marshall_ulonglong },
@@ -1921,6 +1929,8 @@ TypeHandler Qt_handlers[] = {
     { "Q_UINT64&", marshall_ulonglong },
     { "Q_ULLONG", marshall_ulonglong },
     { "Q_ULLONG&", marshall_ulonglong },
+    { "qulonglong", marshall_ulonglong },
+    { "qulonglong&", marshall_ulonglong },
     { "int&", marshall_intR },
     { "int*", marshall_intR },
     { "bool&", marshall_boolR },

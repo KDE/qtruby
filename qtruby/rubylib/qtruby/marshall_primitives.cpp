@@ -127,7 +127,30 @@ static VALUE primitive_to_ruby<unsigned long>(unsigned long sv)
 {
 	return INT2NUM(sv);
 }
+/*
+template <>
+static long long ruby_to_primitive<long long>(VALUE v)
+{
+	return rb_num2ll(v);
+}
 
+template <>
+static VALUE primitive_to_ruby<long long>(long long sv)
+{
+	return rb_ll2inum(sv);
+}
+*/
+template <>
+static unsigned long long ruby_to_primitive<unsigned long long>(VALUE v)
+{
+	return rb_num2ull(v);
+}
+
+template <>
+static VALUE primitive_to_ruby<unsigned long long>(unsigned long long sv)
+{
+	return rb_ull2inum(sv);
+}
 
 template <>
 static float ruby_to_primitive<float>(VALUE v)

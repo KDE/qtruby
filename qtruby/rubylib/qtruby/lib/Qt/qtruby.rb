@@ -164,6 +164,7 @@ module Qt
 	# Delete the underlying C++ instance after exec returns
 	# Otherwise, rb_gc_call_finalizer_at_exit() can delete
 	# stuff that Qt::Application still needs for its cleanup.
+	
 	class Application < Qt::Base
 		def exec
 			super
@@ -517,8 +518,7 @@ module Qt
 	# name of the type is lost. The enum type name is needed for overloaded
 	# method resolution when two methods differ only by an enum type.
 	class Enum
-		attr_accessor :value
-		attr_accessor :type
+		attr_accessor :type, :value
 		def initialize(n, type)
 			super() 
 			@value = n 

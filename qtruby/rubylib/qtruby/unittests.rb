@@ -96,4 +96,37 @@ class TestQtRuby < Test::Unit::TestCase
     assert w.findChild(Qt::LineEdit,"Bob") == w4
   end
 
+  def test_variant_conversions
+    v = Qt::Variant.new(Qt::Variant::Invalid)
+
+    assert !v.isValid
+    assert v.isNull
+
+    v = Qt::Variant.new(55)
+    assert v.toInt == 55
+    assert v.toUInt == 55
+    assert v.toLongLong == 55
+    assert v.toULongLong == 55
+    assert Qt::Variant.new(-55).toLongLong == -55
+    assert Qt::Variant.new(-55).toULongLong == 18446744073709551561
+    assert v.toDouble == 55.0
+    assert v.toChar == Qt::Char.new(55)
+    assert v.toString == "55"
+    assert v.toStringList == [ ]
+ 
+
+    assert Qt::Variant.new("Blah").toStringList == [ "Blah" ]
+
+    assert Qt::Variant.new(Qt::Size.new(30,40)).toSize == Qt::Size.new(30,40)
+    assert Qt::Variant.new(Qt::SizeF.new(20,30)).toSizeF == Qt::SizeF.new(20,30)
+
+    assert Qt::Variant.new(Qt::Rect.new(30,40,10,10)).toRect == Qt::Rect.new(30,40,10,10)
+    assert Qt::Variant.new(Qt::RectF.new(20,30,10,10)).toRectF == Qt::RectF.new(20,30,10,10)
+
+    assert Qt::Variant.new(Qt::Point.new(30,40)).toPoint == Qt::Point.new(30,40)
+    assert Qt::Variant.new(Qt::PointF.new(20,30)).toPointF == Qt::PointF.new(20,30)
+
+
+  end
+
 end

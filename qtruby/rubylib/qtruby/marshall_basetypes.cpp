@@ -1,6 +1,6 @@
 
 //template <class T> T* smoke_ptr(Marshall *m);
-template <class T> T* smoke_ptr(Marshall *m) { return (T*)m->item().s_voidp; }
+template <class T> T* smoke_ptr(Marshall *m) { return (T*)&m->item().s_voidp; }
 
 template<> bool* smoke_ptr<bool>(Marshall *m) { return &m->item().s_bool; }
 template<> signed char* smoke_ptr<signed char>(Marshall *m) { return &m->item().s_char; }
@@ -32,13 +32,14 @@ static void marshall_to_ruby(Marshall *m)
 }
 
 #include "marshall_primitives.cpp"
-
-template <>
-static void marshall_from_ruby<char *>(Marshall *m) 
-{
-	VALUE obj = *(m->var());
-	m->item().s_voidp = ruby_to_primitive<char*>(obj);
-}
+#include "marshall_complex.cpp"
+//template <>
+//static void marshall_from_ruby<char *>(Marshall *m) 
+//{
+//	VALUE obj = *(m->var());
+//	m->item().s_voidp = ruby_to_primitive<char*>(obj);
+//	rb_warning("In char*");
+//}
 
 template <>
 static void marshall_from_ruby<SmokeEnumWrapper>(Marshall *m)
