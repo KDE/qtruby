@@ -1,21 +1,50 @@
 
-template <class T>
-T marshall_from_ruby_to_smoke(VALUE);
+//template <class T> T* smoke_ptr(Marshall *m);
+template <class T> T* smoke_ptr(Marshall *m) { rb_warning("Foobar"); return (T*)m->item().s_voidp; }
+
+template<> bool* smoke_ptr<bool>(Marshall *m) { return &m->item().s_bool; }
+template<> signed char* smoke_ptr<signed char>(Marshall *m) { return &m->item().s_char; }
+template<> unsigned char* smoke_ptr<unsigned char>(Marshall *m) { return &m->item().s_uchar; }
+template<> short* smoke_ptr<short>(Marshall *m) { return &m->item().s_short; }
+template<> unsigned short* smoke_ptr<unsigned short>(Marshall *m) { return &m->item().s_ushort; }
+template<> int* smoke_ptr<int>(Marshall *m) { return &m->item().s_int; }
+template<> unsigned int* smoke_ptr<unsigned int>(Marshall *m) { return &m->item().s_uint; }
+template<> long* smoke_ptr<long>(Marshall *m) { 	return &m->item().s_long; }
+template<> unsigned long* smoke_ptr<unsigned long>(Marshall *m) { return &m->item().s_ulong; }
+template<> float* smoke_ptr<float>(Marshall *m) { return &m->item().s_float; }
+template<> double* smoke_ptr<double>(Marshall *m) { return &m->item().s_double; }
+template<> void* smoke_ptr<void>(Marshall *m) { 	return m->item().s_voidp; }
+
+template <class T> T marshall_from_ruby_to_smoke(VALUE);
+template <class T> VALUE marshall_from_smoke_to_ruby(T);
+
+template <>
+static char* marshall_from_ruby_to_smoke<char *>(VALUE v)
+{
+	if(v == Qnil)
+		return 0;
+	
+	return StringValuePtr(v);
+}
 
 template <class T>
-VALUE marshall_from_smoke_to_ruby(T sv);
-
-template <class T>
-T marshall_from_ruby_to_smoke(Marshall *m) 
+void marshall_from_ruby_to_smoke(Marshall *m) 
 {
 	VALUE obj = *(m->var());
-	return marshall_from_ruby_to_smoke<T>(obj);
+	(*smoke_ptr<T>(m)) = marshall_from_ruby_to_smoke<T>(obj);
+}
+
+template <>
+void marshall_from_ruby_to_smoke<char *>(Marshall *m) 
+{
+	VALUE obj = *(m->var());
+	m->item().s_voidp = marshall_from_ruby_to_smoke<char*>(obj);
 }
 
 template <class T>
 VALUE marshall_from_smoke_to_ruby(Marshall *m)
 {
-	return marshall_from_smoke_to_ruby<T>( (T)(m->item().s_voidp ) ); 
+	return marshall_from_smoke_to_ruby<T>( *smoke_ptr<T>(m) ); 
 }
 
 template <>
@@ -173,20 +202,18 @@ static VALUE marshall_from_smoke_to_ruby<double>(double sv)
 }
 
 template <>
-static SmokeEnumWrapper marshall_from_ruby_to_smoke<SmokeEnumWrapper>(Marshall *m)
+static void marshall_from_ruby_to_smoke<SmokeEnumWrapper>(Marshall *m)
 {
 	VALUE v = *(m->var());
-	SmokeEnumWrapper e;
-	e.m = m;
+
 	if (TYPE(v) == T_OBJECT) {
 		// A Qt::Enum is a subclass of Qt::Integer, so 'get_qinteger()' can be called ok
 		VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, v);
-		e.m->item().s_enum = (long) NUM2LONG(temp);
+		m->item().s_enum = (long) NUM2LONG(temp);
 	} else {
-		e.m->item().s_enum = (long) NUM2LONG(v);
+		m->item().s_enum = (long) NUM2LONG(v);
 	}
 
-	return e;
 }
 
 template <>
@@ -198,39 +225,37 @@ static VALUE marshall_from_smoke_to_ruby<SmokeEnumWrapper>(SmokeEnumWrapper sv)
 }
 
 template <>
-static SmokeClassWrapper marshall_from_ruby_to_smoke<SmokeClassWrapper>(Marshall *m)
+static void marshall_from_ruby_to_smoke<SmokeClassWrapper>(Marshall *m)
 {
 	VALUE v = *(m->var());
-	SmokeClassWrapper c;
-	c.m = m;
 
 	if(v == Qnil) {
-		c.m->item().s_class = 0;
-		return c;
+		m->item().s_class = 0;
+		return;
 	}
 				
 	if(TYPE(v) != T_DATA) {
-		rb_raise(rb_eArgError, "Invalid type, expecting %s\n", c.m->type().name());
-		return c;
+		rb_raise(rb_eArgError, "Invalid type, expecting %s\n", m->type().name());
+		return;
 	}
-	rb_warning("References can't be nil2\n");		
+
 	smokeruby_object *o = value_obj_info(v);
 	if(!o || !o->ptr) {
-		if(c.m->type().isRef()) {
+		if(m->type().isRef()) {
 			rb_warning("References can't be nil\n");
-			c.m->unsupported();
+			m->unsupported();
 		}
 					
-		c.m->item().s_class = 0;
-		return c;
+		m->item().s_class = 0;
+		return;
 	}
 		
 	void *ptr = o->ptr;
-	if(!c.m->cleanup() && c.m->type().isStack()) {
+	if(!m->cleanup() && m->type().isStack()) {
 		ptr = construct_copy(o);
 	}
 		
-	const Smoke::Class &cl = c.m->smoke()->classes[c.m->type().classId()];
+	const Smoke::Class &cl = m->smoke()->classes[m->type().classId()];
 	
 	ptr = o->smoke->cast(
 		ptr,				// pointer
@@ -238,32 +263,32 @@ static SmokeClassWrapper marshall_from_ruby_to_smoke<SmokeClassWrapper>(Marshall
 		o->smoke->idClass(cl.className)	// to
 		);
 				
-	c.m->item().s_class = ptr;
-	return c;
+	m->item().s_class = ptr;
+	return;
 }
 
 template <>
-static VALUE marshall_from_smoke_to_ruby<SmokeClassWrapper>(SmokeClassWrapper sv)
+static VALUE marshall_from_smoke_to_ruby<SmokeClassWrapper>(Marshall *m)
 {
-	if(sv.m->item().s_voidp == 0) {
+	if(m->item().s_voidp == 0) {
 		return Qnil;
 	}
 
-	void *p = sv.m->item().s_voidp;
+	void *p = m->item().s_voidp;
 	VALUE obj = getPointerObject(p);
 	if(obj != Qnil) {
 		return obj;
 	}
 
 	smokeruby_object  * o = (smokeruby_object *) malloc(sizeof(smokeruby_object));
-	o->smoke = sv.m->smoke();
-	o->classId = sv.m->type().classId();
+	o->smoke = m->smoke();
+	o->classId = m->type().classId();
 	o->ptr = p;
 	o->allocated = false;
 
 	const char * classname = resolve_classname(o->smoke, o->classId, o->ptr);
 		
-	if(sv.m->type().isConst() && sv.m->type().isRef()) {
+	if(m->type().isConst() && m->type().isRef()) {
 		p = construct_copy( o );
 		if(p) {
 			o->ptr = p;
@@ -276,7 +301,7 @@ static VALUE marshall_from_smoke_to_ruby<SmokeClassWrapper>(SmokeClassWrapper sv
 		printf("allocating %s %p -> %p\n", classname, o->ptr, (void*)obj);
 	}
 
-	if(sv.m->type().isStack()) {
+	if(m->type().isStack()) {
 		o->allocated = true;
 		// Keep a mapping of the pointer so that it is only wrapped once as a ruby VALUE
 		mapPointer(obj, o, o->classId, 0);
@@ -303,15 +328,6 @@ static VALUE marshall_from_smoke_to_ruby<char *>(Marshall *m)
 }
 
 template <>
-static char* marshall_from_ruby_to_smoke<char *>(VALUE v)
-{
-	if(v == Qnil)
-		return 0;
-	
-	return StringValuePtr(v);
-}
-
-template <>
 static VALUE marshall_from_smoke_to_ruby<unsigned char *>(Marshall *m)
 {
 	VALUE obj = Qnil;
@@ -327,3 +343,5 @@ static unsigned char* marshall_from_ruby_to_smoke<unsigned char *>(VALUE v)
 	
 	return (unsigned char*)StringValuePtr(v);
 }
+
+

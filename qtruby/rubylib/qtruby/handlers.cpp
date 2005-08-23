@@ -514,33 +514,15 @@ construct_copy(smokeruby_object *o)
 #include "marshall_basetypes.cpp"
 
 template <class T>
-static void marshall_ptr(Marshall *m)
+static void marshall_it(Marshall *m)
 {
 	switch(m->action()) {
 		case Marshall::FromVALUE:
-			m->item().s_voidp = marshall_from_ruby_to_smoke<T>(m);
+			marshall_from_ruby_to_smoke<T>(m);
 		break;
  
 		case Marshall::ToVALUE:
 			*(m->var()) = marshall_from_smoke_to_ruby<T>( m );
-		break;
-				
-		default:
-			m->unsupported();
-		break;
-	}
-}
-
-template <class T>
-static void marshall_it(Marshall *m, T *item)
-{
-	switch(m->action()) {
-		case Marshall::FromVALUE:
-			*item = marshall_from_ruby_to_smoke<T>(m);
-		break;
- 
-		case Marshall::ToVALUE:
-			*(m->var()) = marshall_from_smoke_to_ruby<T>( *item );
 		break;
 				
 		default:
@@ -555,59 +537,54 @@ marshall_basetype(Marshall *m)
 	switch(m->type().elem()) {
 
 		case Smoke::t_bool:
-			marshall_it(m, &m->item().s_bool);
+			marshall_it<bool>(m);
 		break;
 
 		case Smoke::t_char:
-			marshall_it(m, &m->item().s_char);
+			marshall_it<signed char>(m);
 		break;
 		
 		case Smoke::t_uchar:
-			marshall_it(m, &m->item().s_uchar);
+			marshall_it<unsigned char>(m);
 		break;
  
 		case Smoke::t_short:
-			marshall_it(m, &m->item().s_short);
+			marshall_it<short>(m);
 		break;
       
 		case Smoke::t_ushort:
-			marshall_it(m, &m->item().s_ushort);
+			marshall_it<unsigned short>(m);
 	
 		case Smoke::t_int:
-			marshall_it(m, &m->item().s_int);
+			marshall_it<int>(m);
 		break;
 		
 		case Smoke::t_uint:
-			marshall_it(m, &m->item().s_uint);
+			marshall_it<unsigned int>(m);
 		break;
  
 		case Smoke::t_long:
-			marshall_it(m, &m->item().s_long);
+			marshall_it<long>(m);
 		break;
 
 		case Smoke::t_ulong:
-			marshall_it(m, &m->item().s_ulong);
+			marshall_it<unsigned long>(m);
 		break;
  
 		case Smoke::t_float:
-			marshall_it<float>(m, &m->item().s_float);
+			marshall_it<float>(m);
 		break;
 
 		case Smoke::t_double:
-			marshall_it<double>(m, &m->item().s_double);
+			marshall_it<double>(m);
 		break;
 
 		case Smoke::t_enum:
-			SmokeEnumWrapper e;
-			e.m = m;
-			marshall_it<SmokeEnumWrapper>(m, &e);
+			marshall_it<SmokeEnumWrapper>(m);
 		break;
-      
      
 		case Smoke::t_class:
-			SmokeClassWrapper c;
-			c.m = m;
-			marshall_it<SmokeClassWrapper>(m, &c);
+			marshall_it<SmokeClassWrapper>(m);
 		break;
 
 		default:
@@ -623,9 +600,10 @@ static void marshall_unknown(Marshall *m) {
 }
 
 static void marshall_charP(Marshall *m) {
-  marshall_ptr<char *>(m);
+  marshall_it<char *>(m);
 }
-/*	switch(m->action()) {
+/*
+	switch(m->action()) {
       case Marshall::FromVALUE:
 	{
 	    VALUE rv = *(m->var());
@@ -655,9 +633,10 @@ static void marshall_charP(Marshall *m) {
 }
 */
 void marshall_ucharP(Marshall *m) {
-  marshall_ptr<unsigned char *>(m);
+  marshall_it<unsigned char *>(m);
 }
 /*
+
     switch(m->action()) {
       case Marshall::FromVALUE:
 	{
