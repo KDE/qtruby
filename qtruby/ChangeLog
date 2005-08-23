@@ -1,3 +1,10 @@
+2005-08-23  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Fixed some code to obtain a Qt::Object's properties for Qt4. Added 
+	  property inspecting code for the new QPointF, QRectF etc types
+	* Fixed a missing attr accessor bug in Qt::Enum
+	* Added the sliders, spinboxes and tetrix code examples
+
 2005-08-22  Caleb Tennis <caleb@aei-tech.com>
         * Started a migration to more template based classes.  Hopefully this is
           just a start, but this *should* reduce redundant code by making use of

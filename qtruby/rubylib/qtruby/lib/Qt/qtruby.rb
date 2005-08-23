@@ -517,6 +517,7 @@ module Qt
 	# name of the type is lost. The enum type name is needed for overloaded
 	# method resolution when two methods differ only by an enum type.
 	class Enum
+		attr_accessor :value
 		attr_accessor :type
 		def initialize(n, type)
 			super() 

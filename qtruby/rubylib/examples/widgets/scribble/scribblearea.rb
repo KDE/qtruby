@@ -140,7 +140,7 @@ class ScribbleArea < Qt::Widget
 	end
 	
 	def resizeImage(image, newSize)
-		if image.size() == newSize
+		if image.size == newSize
 			return
 		end
 	

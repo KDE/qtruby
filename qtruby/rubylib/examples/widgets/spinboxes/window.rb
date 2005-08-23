@@ -1,0 +1,190 @@
+=begin
+**
+** Copyright (C) 2004-2005 Trolltech AS. All rights reserved.
+**
+** This file is part of the example classes of the Qt Toolkit.
+**
+** This file may be used under the terms of the GNU General Public
+** License version 2.0 as published by the Free Software Foundation
+** and appearing in the file LICENSE.GPL included in the packaging of
+** this file.  Please review the following information to ensure GNU
+** General Public Licensing requirements will be met:
+** http://www.trolltech.com/products/qt/opensource.html
+**
+** If you are unsure which license is appropriate for your use, please
+** review the following information:
+** http://www.trolltech.com/products/qt/licensing.html or contact the
+** sales department at sales@trolltech.com.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+
+** Translated to QtRuby by Richard Dale
+=end
+    
+    
+class Window < Qt::Widget
+        
+    slots 'changePrecision(int)',
+          'setFormatString(const QString &)'
+    
+    def initialize(parent = nil)
+        super(parent)
+        createSpinBoxes()
+        createDateTimeEdits()
+        createDoubleSpinBoxes()
+    
+        layout = Qt::HBoxLayout.new
+        layout.addWidget(@spinBoxesGroup)
+        layout.addWidget(@editsGroup)
+        layout.addWidget(@@doubleSpinBoxesGroup)
+        setLayout(layout)
+    
+        setWindowTitle(tr("Spin Boxes"))
+    end
+    
+    def createSpinBoxes()
+        @spinBoxesGroup = Qt::GroupBox.new(tr("Spinboxes"))
+    
+        integerLabel = Qt::Label.new(tr("Enter a value between %d and %d:" % [-20, 20]))
+        integerSpinBox = Qt::SpinBox.new
+        integerSpinBox.setRange(-20, 20)
+        integerSpinBox.singleStep = 1
+        integerSpinBox.value = 0
+    
+        zoomLabel = Qt::Label.new(tr("Enter a zoom value between %d and %d:" % [0, 1000]))
+        zoomSpinBox = Qt::SpinBox.new
+        zoomSpinBox.setRange(0, 1000)
+        zoomSpinBox.singleStep = 10
+        zoomSpinBox.suffix = "%"
+        zoomSpinBox.specialValueText = tr("Automatic")
+        zoomSpinBox.value = 100
+    
+        priceLabel = Qt::Label.new(tr("Enter a price between %d and %d:" % [0, 999]))
+        @priceSpinBox = Qt::SpinBox.new
+        @priceSpinBox.setRange(0, 999)
+        @priceSpinBox.singleStep = 1
+        @priceSpinBox.prefix = "$"
+        @priceSpinBox.value = 99
+    
+        spinBoxLayout = Qt::VBoxLayout.new
+        spinBoxLayout.addWidget(integerLabel)
+        spinBoxLayout.addWidget(integerSpinBox)
+        spinBoxLayout.addWidget(zoomLabel)
+        spinBoxLayout.addWidget(zoomSpinBox)
+        spinBoxLayout.addWidget(priceLabel)
+        spinBoxLayout.addWidget(@priceSpinBox)
+        @spinBoxesGroup.layout = spinBoxLayout
+    end
+    
+    def createDateTimeEdits()
+        @editsGroup = Qt::GroupBox.new(tr("Date and time spin boxes"))
+    
+        dateLabel = Qt::Label.new
+        dateEdit = Qt::DateTimeEdit.new(Qt::Date.currentDate())
+        dateEdit.setDateRange(Qt::Date.new(2005, 1, 1), Qt::Date.new(2010, 12, 31))
+        dateLabel.text = tr("Appointment date (between %s and %s:" %
+                           [dateEdit.minimumDate().toString(Qt::ISODate),
+                            dateEdit.maximumDate().toString(Qt::ISODate) ] )
+    
+        timeLabel = Qt::Label.new
+        timeEdit = Qt::DateTimeEdit.new(Qt::Time.currentTime())
+        timeEdit.setTimeRange(Qt::Time.new(9, 0, 0, 0), Qt::Time.new(16, 30, 0, 0))
+        timeLabel.text = tr("Appointment time (between %s and %s:" %
+                           [timeEdit.minimumTime().toString(Qt::ISODate),
+                            timeEdit.maximumTime().toString(Qt::ISODate) ] )
+    
+        @meetingLabel = Qt::Label.new
+        @meetingEdit = Qt::DateTimeEdit.new(Qt::DateTime.currentDateTime())
+    
+        formatLabel = Qt::Label.new(tr("Format string for the meeting date and time:"))
+        formatComboBox = Qt::ComboBox.new
+        formatComboBox.addItem("yyyy-MM-dd hh:mm:ss (zzz ms)")
+        formatComboBox.addItem("hh:mm:ss MM/dd/yyyy")
+        formatComboBox.addItem("hh:mm:ss dd/MM/yyyy")
+        formatComboBox.addItem("hh:mm:ss")
+        formatComboBox.addItem("hh:mm ap")
+    
+        connect(formatComboBox, SIGNAL('activated(const QString &)'),
+                self, SLOT('setFormatString(const QString &)'))
+    
+        setFormatString(formatComboBox.currentText())
+    
+        editsLayout = Qt::VBoxLayout.new
+        editsLayout.addWidget(dateLabel)
+        editsLayout.addWidget(dateEdit)
+        editsLayout.addWidget(timeLabel)
+        editsLayout.addWidget(timeEdit)
+        editsLayout.addWidget(@meetingLabel)
+        editsLayout.addWidget(@meetingEdit)
+        editsLayout.addWidget(formatLabel)
+        editsLayout.addWidget(formatComboBox)
+        @editsGroup.layout = editsLayout
+    end
+    
+    def setFormatString(formatString)
+        @meetingEdit.displayFormat = formatString
+        if @meetingEdit.displayedSections() & Qt::DateTimeEdit::DateSections_Mask.to_i
+            @meetingEdit.setDateRange(Qt::Date.new(2004, 11, 1), Qt::Date.new(2005, 11, 30))
+            @meetingLabel.text = tr("Meeting date (between %s and %s:" %
+                [@meetingEdit.minimumDate().toString(Qt::ISODate),
+                 @meetingEdit.maximumDate().toString(Qt::ISODate) ] )
+        else
+            @meetingEdit.setTimeRange(Qt::Time.new(0, 7, 20, 0), Qt::Time.new(21, 0, 0, 0))
+            @meetingLabel.text = tr("Meeting time (between %s and %s:" %
+                [@meetingEdit.minimumTime().toString(Qt::ISODate),
+                 @meetingEdit.maximumTime().toString(Qt::ISODate) ] )
+        end
+    end
+    
+    def createDoubleSpinBoxes()
+        @@doubleSpinBoxesGroup = Qt::GroupBox.new(tr("Double precision spinboxes"))
+    
+        precisionLabel = Qt::Label.new(tr("Number of decimal places to show:"))
+        precisionSpinBox = Qt::SpinBox.new
+        precisionSpinBox.setRange(0, 14)
+        precisionSpinBox.value = 2
+    
+        doubleLabel = Qt::Label.new(tr("Enter a value between %d and %d:" % [-20, 20]))
+        @doubleSpinBox = Qt::DoubleSpinBox.new
+        @doubleSpinBox.setRange(-20.0, 20.0)
+        @doubleSpinBox.singleStep = 1.0
+        @doubleSpinBox.value = 0.0
+    
+        scaleLabel = Qt::Label.new(tr("Enter a scale factor between %2f and %2f:" % [0.0, 1000.0]))
+        @scaleSpinBox = Qt::DoubleSpinBox.new
+        @scaleSpinBox.setRange(0.0, 1000.0)
+        @scaleSpinBox.singleStep = 10.0
+        @scaleSpinBox.suffix = "%"
+        @scaleSpinBox.specialValueText = tr("No scaling")
+        @scaleSpinBox.value = 100.0
+    
+        priceLabel = Qt::Label.new(tr("Enter a price between %2f and %2f:" % [0.0, 1000.0]))
+        @priceSpinBox = Qt::DoubleSpinBox.new
+        @priceSpinBox.setRange(0.0, 1000.0)
+        @priceSpinBox.singleStep = 1.0
+        @priceSpinBox.prefix = "$"
+        @priceSpinBox.value = 99.99
+    
+        connect(precisionSpinBox, SIGNAL('valueChanged(int)'),
+                self, SLOT('changePrecision(int)'))
+    
+        spinBoxLayout = Qt::VBoxLayout.new
+        spinBoxLayout.addWidget(precisionLabel)
+        spinBoxLayout.addWidget(precisionSpinBox)
+        spinBoxLayout.addWidget(doubleLabel)
+        spinBoxLayout.addWidget(@doubleSpinBox)
+        spinBoxLayout.addWidget(scaleLabel)
+        spinBoxLayout.addWidget(@scaleSpinBox)
+        spinBoxLayout.addWidget(priceLabel)
+        spinBoxLayout.addWidget(@priceSpinBox)
+        @@doubleSpinBoxesGroup.layout = spinBoxLayout
+    end
+    
+    def changePrecision(decimals)
+        @doubleSpinBox.decimals = decimals
+        @scaleSpinBox.decimals = decimals
+        @priceSpinBox.decimals = decimals
+    end
+end

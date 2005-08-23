@@ -34,6 +34,7 @@
 #include <qcolor.h>			
 #include <qrect.h>			
 #include <qfont.h>			
+#include <qline.h>			
 
 #undef DEBUG
 #ifndef __USE_POSIX
@@ -982,7 +983,6 @@ inspectProperty(QMetaProperty property, const char * name, QVariant & value)
 	
 	switch (value.type()) {
 	case QVariant::String:
-//	case QVariant::CString:
 	{
 		if (value.toString().isNull()) {
 			return QString(" %1=nil").arg(name); 
@@ -1007,14 +1007,14 @@ inspectProperty(QMetaProperty property, const char * name, QVariant & value)
 
 	case QVariant::Color:
 	{
-//		QColor c = value.toColor();
-//		return Q3CString().sprintf(" %s=#<Qt::Color:0x0 %s>", name, c.name().toLatin1());
+		QColor c = value.value<QColor>();
+		return QString(" %1=#<Qt::Color:0x0 %2>").arg(name).arg(c.name());
 	}
 			
 	case QVariant::Cursor:
 	{
-//		QCursor c = value.toCursor();
-//		return Q3CString().sprintf(" %s=#<Qt::Cursor:0x0 shape=%d>", name, c.shape());
+		QCursor c = value.value<QCursor>();
+		return QString(" %1=#<Qt::Cursor:0x0 shape=%2>").arg(name).arg(c.shape());
 	}
 	
 	case QVariant::Double:
@@ -1024,12 +1024,38 @@ inspectProperty(QMetaProperty property, const char * name, QVariant & value)
 	
 	case QVariant::Font:
 	{
-//		QFont f = value.toFont();
-//		return Q3CString().sprintf(	" %s=#<Qt::Font:0x0 family=%s, pointSize=%d, weight=%d, italic=%s, bold=%s, underline=%s, strikeOut=%s>", 
-//									name, 
-//									f.family().toLatin1(), f.pointSize(), f.weight(), 
-//									f.italic() ? "true" : "false", f.bold() ? "true" : "false",
-//									f.underline() ? "true" : "false", f.strikeOut() ? "true" : "false" );
+		QFont f = value.value<QFont>();
+		return QString(	" %1=#<Qt::Font:0x0 family=%2, pointSize=%3, weight=%4, italic=%5, bold=%6, underline=%7, strikeOut=%8>")
+									.arg(name)
+									.arg(f.family())
+									.arg(f.pointSize())
+									.arg(f.weight())
+									.arg(f.italic() ? "true" : "false")
+									.arg(f.bold() ? "true" : "false")
+									.arg(f.underline() ? "true" : "false")
+									.arg(f.strikeOut() ? "true" : "false");
+	}
+	
+	case QVariant::Line:
+	{
+		QLine l = value.toLine();
+		return QString(" %1=#<Qt::Line:0x0 x1=%2, y1=%3, x2=%4, y2=%5>")
+						.arg(name)
+						.arg(l.x1())
+						.arg(l.y1())
+						.arg(l.x2())
+						.arg(l.y2());
+	}
+	
+	case QVariant::LineF:
+	{
+		QLineF l = value.toLineF();
+		return QString(" %1=#<Qt::LineF:0x0 x1=%2, y1=%3, x2=%4, y2=%5>")
+						.arg(name)
+						.arg(l.x1())
+						.arg(l.y1())
+						.arg(l.x2())
+						.arg(l.y2());
 	}
 	
 	case QVariant::Point:
@@ -1038,10 +1064,24 @@ inspectProperty(QMetaProperty property, const char * name, QVariant & value)
 		return QString(" %1=#<Qt::Point:0x0 x=%2, y=%3>").arg(name).arg(p.x()).arg(p.y());
 	}
 	
+	case QVariant::PointF:
+	{
+		QPointF p = value.toPointF();
+		return QString(" %1=#<Qt::PointF:0x0 x=%2, y=%3>").arg(name).arg(p.x()).arg(p.y());
+	}
+	
 	case QVariant::Rect:
 	{
 		QRect r = value.toRect();
 		return QString(" %1=#<Qt::Rect:0x0 left=%2, right=%3, top=%4, bottom=%5>")
+									.arg(name)
+									.arg(r.left()).arg(r.right()).arg(r.top()).arg(r.bottom());
+	}
+	
+	case QVariant::RectF:
+	{
+		QRectF r = value.toRectF();
+		return QString(" %1=#<Qt::RectF:0x0 left=%2, right=%3, top=%4, bottom=%5>")
 									.arg(name)
 									.arg(r.left()).arg(r.right()).arg(r.top()).arg(r.bottom());
 	}
@@ -1054,12 +1094,21 @@ inspectProperty(QMetaProperty property, const char * name, QVariant & value)
 									.arg(s.width()).arg(s.height());
 	}
 	
+	case QVariant::SizeF:
+	{
+		QSizeF s = value.toSizeF();
+		return QString(" %1=#<Qt::SizeF:0x0 width=%2, height=%3>")
+									.arg(name) 
+									.arg(s.width()).arg(s.height());
+	}
+	
 	case QVariant::SizePolicy:
 	{
-//		QSizePolicy s = value.toSizePolicy();
-//		return Q3CString().sprintf(	" %s=#<Qt::SizePolicy:0x0 horData=%d, verData=%d>", 
-//									name, 
-//									s.horData(), s.verData() );
+		QSizePolicy s = value.value<QSizePolicy>();
+		return QString(" %1=#<Qt::SizePolicy:0x0 horizontalPolicy=%2, verticalPolicy=%3>")
+									.arg(name)
+									.arg(s.horizontalPolicy())
+									.arg(s.verticalPolicy());
 	}
 	
 	case QVariant::Brush:
@@ -1143,7 +1192,6 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	smokeruby_object * o = 0;
     Data_Get_Struct(self, smokeruby_object, o);	
 	QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
-//	Q3StrList names = qobject->metaObject()->propertyNames(true);
 	
 	QString value_list;		
 	
@@ -1176,10 +1224,11 @@ pretty_print_qobject(VALUE self, VALUE pp)
 		rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.toLatin1()));
 	}
 	
-//	if (qobject->children() != 0) {
-//		value_list = Q3CString().sprintf("  children=Array (%d element(s)),\n", qobject->children()->count());
-//		rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.data()));
-//	}
+	if (qobject->children().count() != 0) {
+		value_list = QString("  children=Array (%1 element(s)),\n")
+								.arg(qobject->children().count());
+		rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.toLatin1()));
+	}
 	
 	value_list = QString("  metaObject=#<Qt::MetaObject:0x0");
 	value_list.append(QString(" className=%1").arg(qobject->metaObject()->className()));
