@@ -511,7 +511,7 @@ construct_copy(smokeruby_object *o)
     return args[0].s_voidp;
 }
 
-#include "marshall_templates.cpp"
+#include "marshall_basetypes.cpp"
 
 template <class T>
 static void marshall_ptr(Marshall *m)
@@ -532,7 +532,7 @@ static void marshall_ptr(Marshall *m)
 }
 
 template <class T>
-static void marshall_it(Marshall *m, T* item)
+static void marshall_it(Marshall *m, T *item)
 {
 	switch(m->action()) {
 		case Marshall::FromVALUE:
