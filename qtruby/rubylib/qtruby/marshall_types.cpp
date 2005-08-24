@@ -98,6 +98,13 @@ public:
 		_cur = oldcur;
 	}
 
+	void unsupported() {
+		rb_raise(rb_eArgError, "Cannot handle '%s' as argument of %s::%s",
+			type().name(),
+			classname(),
+			_smoke->methodNames[method().name]);
+    }
+
 protected:
 	Smoke *_smoke;
 	Smoke::Index _method;
@@ -106,6 +113,7 @@ protected:
 	Smoke::Index *_args;
 	bool _called;
 	VALUE *_sp;
+	virtual const char* classname() { return _smoke->className(method().classId); }
 };
 
 class VirtualMethodCall : public MethodCallBase {
@@ -124,13 +132,6 @@ public:
 	Marshall::Action action() { return Marshall::ToVALUE; }
 	VALUE * var() { return _sp + _cur; }
 	
-	void unsupported() {
-		rb_raise(rb_eArgError, "Cannot handle '%s' as argument of virtual method %s::%s",
-			type().name(),
-			_smoke->className(method().classId),
-			_smoke->methodNames[method().name]);
-    }
-
 	int items() { return method().numArgs; }
 
 	void callMethod() {
@@ -183,19 +184,6 @@ public:
 		return _sp + _cur;
 	}
 
-	void unsupported() {
-		if (strcmp(_smoke->className(method().classId), "QGlobalSpace") == 0) {
-			rb_raise(rb_eArgError, "Cannot handle '%s' as argument to %s",
-				type().name(),
-				_smoke->methodNames[method().name]);
-		} else {
-			rb_raise(rb_eArgError, "Cannot handle '%s' as argument to %s::%s",
-				type().name(),
-				_smoke->className(method().classId),
-				_smoke->methodNames[method().name]);
-		}
-	}
-
 	inline void callMethod() {
 		if(_called) return;
 		_called = true;
@@ -232,7 +220,11 @@ private:
 	VALUE *_sp;
 	int _items;
 	VALUE _retval;
+	const char *classname() { 
+		return strcmp(MethodCallBase::classname(), "QGlobalSpace") == 0 ? "" : MethodCallBase::classname(); 
+	}
 };
+
 
 class EmitSignal : public Marshall {
     QObject *_obj;
