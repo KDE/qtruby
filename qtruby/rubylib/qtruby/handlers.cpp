@@ -740,7 +740,7 @@ static void marshall_QString(Marshall *m) {
 				} else {
 					*(m->var()) = rstringFromQString(s);
 				}
-				if(m->cleanup())
+				if(m->cleanup() || m->type().isStack() )
 					delete s;
 			} else {
 				*(m->var()) = Qnil;
@@ -847,22 +847,6 @@ static const char *not_ascii(const char *s, uint &len)
     return r ? s : 0L;
 }
 #endif
-
-static void marshall_longlong(Marshall *m) {
-  marshall_it<long long>(m);
-}
-
-static void marshall_ulonglong(Marshall *m) {
-  marshall_it<unsigned long long>(m);
-}
-
-static void marshall_intR(Marshall *m) {
-  marshall_it<int *>(m);
-}
-
-static void marshall_boolR(Marshall *m) {
-  marshall_it<bool*>(m);
-}
 
 static void marshall_charP_array(Marshall *m) {
     switch(m->action()) {
@@ -1060,10 +1044,6 @@ void marshall_ItemList(Marshall *m) {
 			if(m->cleanup()) {
 			rb_ary_clear(list);
 	
-//				for(ItemListIterator it = cpplist->begin();
-//					it != cpplist->end();
-//					++it) {
-//					VALUE obj = getPointerObject((void*)*it);
 				for(int i = 0; i < cpplist->size(); ++i ) {
 					VALUE obj = getPointerObject( cpplist->at(i) );
 					rb_ary_push(list, obj);
@@ -1083,10 +1063,6 @@ void marshall_ItemList(Marshall *m) {
 
 			VALUE av = rb_ary_new();
 
-			//for (ItemListIterator it = valuelist->begin();
-			//	it != valuelist->end();
-			//	++it) {
-			//	void *p = *it;
 			for(int i=0;i<valuelist->size();++i) {
 				void *p = valuelist->at(i);
 
@@ -1715,25 +1691,25 @@ TypeHandler Qt_handlers[] = {
     { "QList<QByteArray>", marshall_QByteArrayList },
     { "QList<QByteArray>&", marshall_QByteArrayList },
     { "QList<QByteArray>*", marshall_QByteArrayList },
-    { "long long int", marshall_longlong },
-    { "long long int&", marshall_longlong },
-    { "qint64", marshall_longlong },
-    { "qint64&", marshall_longlong },
-    { "qlonglong", marshall_longlong },
-    { "qlonglong&", marshall_longlong },
-    { "KIO::filesize_t", marshall_longlong },
-    { "DOM::DOMTimeStamp", marshall_ulonglong },
-    { "unsigned long long int", marshall_ulonglong },
-    { "unsigned long long int&", marshall_ulonglong },
-    { "quint64", marshall_ulonglong },
-    { "quint64&", marshall_ulonglong },
-    { "qlonglong", marshall_ulonglong },
-    { "qlonglong&", marshall_ulonglong },
-    { "int&", marshall_intR },
-    { "int*", marshall_intR },
-    { "bool&", marshall_boolR },
-    { "bool*", marshall_boolR },
-    { "char*", marshall_charP },
+    { "long long int", marshall_it<long long> },
+    { "long long int&", marshall_it<long long> },
+    { "qint64", marshall_it<long long> },
+    { "qint64&", marshall_it<long long> },
+    { "qlonglong", marshall_it<long long> },
+    { "qlonglong&", marshall_it<long long> },
+    { "KIO::filesize_t", marshall_it<long long> },
+    { "DOM::DOMTimeStamp", marshall_it<long long> },
+    { "unsigned long long int", marshall_it<long long> },
+    { "unsigned long long int&", marshall_it<long long> },
+    { "quint64", marshall_it<unsigned long long> },
+    { "quint64&", marshall_it<unsigned long long> },
+    { "qlonglong", marshall_it<unsigned long long> },
+    { "qlonglong&", marshall_it<unsigned long long> },
+    { "int&", marshall_it<int *> },
+    { "int*", marshall_it<int *> },
+    { "bool&", marshall_it<bool *> },
+    { "bool*", marshall_it<bool *> },
+    { "char*",marshall_it<char *> },
     { "char**", marshall_charP_array },
     { "uchar*", marshall_ucharP },
     { "QRgb*", marshall_QRgb_array },
