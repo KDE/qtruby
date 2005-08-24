@@ -135,10 +135,8 @@ public:
 		if(_called) return;
 		_called = true;
 	
-		VALUE _retval = rb_funcall2(_obj,
-			rb_intern(_smoke->methodNames[method().name]),
-			method().numArgs,
-			_sp );
+		VALUE _retval = rb_funcall2(_obj, rb_intern(_smoke->methodNames[method().name]),
+			method().numArgs,	_sp );
 	
 		VirtualMethodReturnValue r(_smoke, _method, _stack, _retval);
 	}
@@ -222,43 +220,65 @@ private:
 	}
 };
 
-
-class EmitSignal : public Marshall {
-    QObject *_obj;
-    int _id;
-    MocArgument *_args;
-    VALUE *_sp;
-    int _items;
-    int _cur;
-    Smoke::Stack _stack;
-    bool _called;
+class SigSlotBase : public Marshall {
 public:
-    EmitSignal(QObject *obj, int id, int items, VALUE args, VALUE *sp) :
-    	_obj(obj), _id(id), _sp(sp), _items(items),
-    	_cur(-1), _called(false)
-    {
+	SigSlotBase(VALUE args) : _cur(-1), _called(false) { 
 		_items = NUM2INT(rb_ary_entry(args, 0));
 		Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
 		_stack = new Smoke::StackItem[_items];
-    }
+	}
 
-    ~EmitSignal() 
-	{
-		delete[] _stack;
-    }
+	~SigSlotBase() { delete[] _stack; }
 
-    const MocArgument &arg() { return _args[_cur]; }
-    SmokeType type() { return arg().st; }
-    Marshall::Action action() { return Marshall::FromVALUE; }
-    Smoke::StackItem &item() { return _stack[_cur]; }
-    VALUE * var() { return _sp + _cur; }
+	const MocArgument &arg() { return _args[_cur]; }
+	SmokeType type() { return arg().st; }
+	Smoke::StackItem &item() { return _stack[_cur]; }
+	VALUE * var() { return _sp + _cur; }
+	Smoke *smoke() { return type().smoke(); }
+	virtual const char *mytype() = 0;
+	virtual void mainfunction() = 0;
 
 	void unsupported() 
 	{
-		rb_raise(rb_eArgError, "Cannot handle '%s' as signal argument", type().name());
+		rb_raise(rb_eArgError, "Cannot handle '%s' as %s argument\n", type().name(), mytype() );
+	}
+
+	void next() 
+	{
+		int oldcur = _cur;
+		_cur++;
+
+		while(!_called && _cur < _items) {
+			Marshall::HandlerFn fn = getMarshallFn(type());
+			(*fn)(this);
+			_cur++;
+		}
+
+		mainfunction();
+		_cur = oldcur;
     }
 
-    Smoke *smoke() { return type().smoke(); }
+protected:
+	MocArgument *_args;
+	int _cur;
+	bool _called;
+	Smoke::Stack _stack;
+	int _items;
+	VALUE *_sp;
+};
+
+class EmitSignal : public SigSlotBase {
+    QObject *_obj;
+    int _id;
+ public:
+    EmitSignal(QObject *obj, int id, int items, VALUE args, VALUE *sp) : SigSlotBase(args),
+    	_obj(obj), _id(id) { 
+		_sp = sp;
+	}
+
+    Marshall::Action action() { return Marshall::FromVALUE; }
+    Smoke::StackItem &item() { return _stack[_cur]; }
+	const char *mytype() { return "signal"; }
 
 	void emitSignal() 
 	{
@@ -354,47 +374,31 @@ public:
 		delete[] o;
     }
 
-	void next() 
-	{
-		int oldcur = _cur;
-		_cur++;
+	void mainfunction() { emitSignal(); }
 
-		while(!_called && _cur < _items) {
-			Marshall::HandlerFn fn = getMarshallFn(type());
-			(*fn)(this);
-			_cur++;
-		}
-
-		emitSignal();
-		_cur = oldcur;
-    }
-
-    bool cleanup() { return true; }
+	bool cleanup() { return true; }
 };
 
-class InvokeSlot : public Marshall {
+class InvokeSlot : public SigSlotBase {
     VALUE _obj;
     ID _slotname;
-    int _items;
-    MocArgument *_args;
     void **_o;
-    int _cur;
-    bool _called;
-    VALUE *_sp;
-    Smoke::Stack _stack;
 public:
-    const MocArgument &arg() { return _args[_cur]; }
-    SmokeType type() { return arg().st; }
+    InvokeSlot(VALUE obj, ID slotname, VALUE args, void ** o) : SigSlotBase(args),
+    _obj(obj), _slotname(slotname), _o(o)
+    {
+		_sp = (VALUE *) calloc(_items, sizeof(VALUE));
+		copyArguments();
+    }
+
+	~InvokeSlot() { free(_sp);	}
+
     Marshall::Action action() { return Marshall::ToVALUE; }
-    Smoke::StackItem &item() { return _stack[_cur]; }
-    VALUE * var() { return _sp + _cur; }
-    Smoke *smoke() { return type().smoke(); }
+	const char *mytype() { return "slot"; }
+
     bool cleanup() { return false; }
 
-	void unsupported() 
-	{
-		rb_raise(rb_eArgError, "Cannot handle '%s' as slot argument\n", type().name());
-    }
+
 
 	void copyArguments() 
 	{
@@ -480,37 +484,9 @@ public:
 	{
 		if (_called) return;
 		_called = true;
-        (void) rb_funcall2(_obj, _slotname, _items, _sp);
-    }
-
-	void next() 
-	{
-		int oldcur = _cur;
-		_cur++;
-
-		while(!_called && _cur < _items) {
-			Marshall::HandlerFn fn = getMarshallFn(type());
-			(*fn)(this);
-			_cur++;
-		}
-
-		invokeSlot();
-		_cur = oldcur;
-    }
-
-    InvokeSlot(VALUE obj, ID slotname, VALUE args, void ** o) :
-    _obj(obj), _slotname(slotname), _o(o), _cur(-1), _called(false)
-    {
-		_items = NUM2INT(rb_ary_entry(args, 0));
-		Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
-		_sp = (VALUE *) calloc(_items, sizeof(VALUE));
-		_stack = new Smoke::StackItem[_items];
-		copyArguments();
-    }
-
-	~InvokeSlot() 
-	{
-		delete[] _stack;
-		free(_sp);
+		(void) rb_funcall2(_obj, _slotname, _items, _sp);
 	}
+
+	void mainfunction() { invokeSlot(); }
+
 };
