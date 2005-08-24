@@ -22,52 +22,49 @@ public:
 		classname(),
 		_smoke->methodNames[method().name]);	
 	}
-
+    VALUE * var() { return _retval; }
 protected:
 	Smoke *_smoke;
 	Smoke::Index _method;
 	Smoke::Stack _stack;
 	SmokeType _st;
+	VALUE *_retval;
 	virtual const char *classname() { return _smoke->className(method().classId); }
 };
 
 class VirtualMethodReturnValue : public MethodReturnValueBase {
 public:
 	VirtualMethodReturnValue(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack, VALUE retval) :
-		MethodReturnValueBase(smoke,meth,stack), _retval(retval) {
-	
+		MethodReturnValueBase(smoke,meth,stack), _retval2(retval) {
+		_retval = &_retval2;
 		Marshall::HandlerFn fn = getMarshallFn(type());
 		(*fn)(this);
 	}
 
 	Marshall::Action action() { return Marshall::FromVALUE; }
-	VALUE * var() { return &_retval; }
 
 private:
-	VALUE _retval;
+	VALUE _retval2;
 };
 
 class MethodReturnValue : public MethodReturnValueBase {
 public:
 	MethodReturnValue(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack, VALUE * retval) :
-		MethodReturnValueBase(smoke,meth,stack), _retval(retval) {
-	
+		MethodReturnValueBase(smoke,meth,stack) {
+	 	_retval = retval;
 		Marshall::HandlerFn fn = getMarshallFn(type());
 		(*fn)(this);
 	}
 
     Marshall::Action action() { return Marshall::ToVALUE; }
 
-    VALUE * var() {
-    	return _retval;
-    }
-
 private:
 	const char *classname() { 
 		return strcmp(MethodReturnValueBase::classname(), "QGlobalSpace") == 0 ? "" : MethodReturnValueBase::classname(); 
 	}
-	VALUE * _retval;
 };
+
+
 
 class MethodCallBase : public Marshall
 {
