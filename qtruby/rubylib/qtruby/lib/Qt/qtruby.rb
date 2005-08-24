@@ -1146,31 +1146,21 @@ module Qt
 		end
 	end # Qt::MetaInfo
 
-	IO_Direct     = 0x0100
-	IO_Sequential = 0x0200
-	IO_Combined   = 0x0300
-	IO_TypeMask   = 0x0f00
-	IO_Raw        = 0x0040
-	IO_Async      = 0x0080
-	IO_ReadOnly   = 0x0001
-	IO_WriteOnly  = 0x0002
-	IO_ReadWrite  = 0x0003
-	IO_Append     = 0x0004
-	IO_Truncate   = 0x0008
-	IO_Translate  = 0x0010
-	IO_ModeMask   = 0x00ff
-	IO_Open       = 0x1000
-	IO_StateMask  = 0xf000
-	IO_Ok              = 0
-	IO_ReadError       = 1
-	IO_WriteError      = 2
-	IO_FatalError      = 3
-	IO_ResourceError   = 4       
-	IO_OpenError       = 5
-	IO_ConnectError    = 5
-	IO_AbortError      = 6
-	IO_TimeOutError    = 7
-	IO_UnspecifiedError= 8
+	# These values are from the enum WindowType in qnamespace.h.
+	# Some of the names such as 'Qt::Dialog', clash with QtRuby 
+	# class names. So add some constants here to use instead,
+	# renamed with an ending of 'Type'.
+	WidgetType = 0x00000000
+	WindowType = 0x00000001
+	DialogType = 0x00000002 | WindowType
+	SheetType = 0x00000004 | WindowType
+	DrawerType = 0x00000006 | WindowType
+	PopupType = 0x00000008 | WindowType
+	ToolType = 0x0000000a | WindowType
+	ToolTipType = 0x0000000c | WindowType
+	SplashScreenType = 0x0000000e | WindowType
+	DesktopType = 0x00000010 | WindowType
+	SubWindowType =  0x00000012
 		
 end # Qt
 

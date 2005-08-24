@@ -147,20 +147,20 @@ class TetrixBoard < Qt::Frame
     end
     
     def keyPressEvent(event)
-        if !@isStarting || @isPaused || @curPiece.shape() == TetrixPiece::NoShape
+        if !@isStarting || @isPaused || @curPiece.shape == TetrixPiece::NoShape
             super
             return
         end
     
-        case event.key()
+        case event.key
         when Qt::Key_Left:
             tryMove(@curPiece, @curX - 1, @curY)
         when Qt::Key_Right:
             tryMove(@curPiece, @curX + 1, @curY)
         when Qt::Key_Down:
-            tryMove(@curPiece.rotatedRight(), @curX, @curY)
+            tryMove(@curPiece.rotatedRight, @curX, @curY)
         when Qt::Key_Up:
-            tryMove(@curPiece.rotatedLeft(), @curX, @curY)
+            tryMove(@curPiece.rotatedLeft, @curX, @curY)
         when Qt::Key_Space:
             dropDown()
         when Qt::Key_D:
@@ -171,7 +171,7 @@ class TetrixBoard < Qt::Frame
     end
     
     def timerEvent(event)
-        if event.timerId() == @timer.timerId()
+        if event.timerId == @timer.timerId
             if @isWaitingAfterLine
                 @isWaitingAfterLine = false
                 newPiece()
@@ -252,7 +252,7 @@ class TetrixBoard < Qt::Frame
                     end
                 end
                 (0...BoardWidth).each do |j|
-                        setShapeAt(j, BoardHeight - 1, TetrixPiece::NoShape)
+                    setShapeAt(j, BoardHeight - 1, TetrixPiece::NoShape)
                 end
             end
         end
@@ -333,11 +333,11 @@ class TetrixBoard < Qt::Frame
         painter.fillRect(x + 1, y + 1, squareWidth() - 2, squareHeight() - 2,
                          Qt::Brush.new(color))
     
-        painter.pen = color.light()
+        painter.pen = color.light
         painter.drawLine(x, y + squareHeight() - 1, x, y)
         painter.drawLine(x, y, x + squareWidth() - 1, y)
     
-        painter.pen = color.dark()
+        painter.pen = color.dark
         painter.drawLine(x + 1, y + squareHeight() - 1,
                          x + squareWidth() - 1, y + squareHeight() - 1)
         painter.drawLine(x + squareWidth() - 1, y + squareHeight() - 1,

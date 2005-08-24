@@ -27,7 +27,7 @@
 class Window < Qt::Widget
         
     slots 'changePrecision(int)',
-          'setFormatString(const QString &)'
+          'setFormatString(const QString&)'
     
     def initialize(parent = nil)
         super(parent)
@@ -35,10 +35,12 @@ class Window < Qt::Widget
         createDateTimeEdits()
         createDoubleSpinBoxes()
     
-        layout = Qt::HBoxLayout.new
-        layout.addWidget(@spinBoxesGroup)
-        layout.addWidget(@editsGroup)
-        layout.addWidget(@@doubleSpinBoxesGroup)
+        layout = Qt::HBoxLayout.new do |l|
+            l.addWidget(@spinBoxesGroup)
+            l.addWidget(@editsGroup)
+            l.addWidget(@doubleSpinBoxesGroup)
+        end
+
         setLayout(layout)
     
         setWindowTitle(tr("Spin Boxes"))
@@ -48,33 +50,41 @@ class Window < Qt::Widget
         @spinBoxesGroup = Qt::GroupBox.new(tr("Spinboxes"))
     
         integerLabel = Qt::Label.new(tr("Enter a value between %d and %d:" % [-20, 20]))
-        integerSpinBox = Qt::SpinBox.new
-        integerSpinBox.setRange(-20, 20)
-        integerSpinBox.singleStep = 1
-        integerSpinBox.value = 0
+
+        integerSpinBox = Qt::SpinBox.new do |i|
+            i.setRange(-20, 20)
+            i.singleStep = 1
+            i.value = 0
+        end
     
         zoomLabel = Qt::Label.new(tr("Enter a zoom value between %d and %d:" % [0, 1000]))
-        zoomSpinBox = Qt::SpinBox.new
-        zoomSpinBox.setRange(0, 1000)
-        zoomSpinBox.singleStep = 10
-        zoomSpinBox.suffix = "%"
-        zoomSpinBox.specialValueText = tr("Automatic")
-        zoomSpinBox.value = 100
+
+        zoomSpinBox = Qt::SpinBox.new do |z|
+            z.setRange(0, 1000)
+            z.singleStep = 10
+            z.suffix = "%"
+            z.specialValueText = tr("Automatic")
+            z.value = 100
+        end
     
         priceLabel = Qt::Label.new(tr("Enter a price between %d and %d:" % [0, 999]))
-        @priceSpinBox = Qt::SpinBox.new
-        @priceSpinBox.setRange(0, 999)
-        @priceSpinBox.singleStep = 1
-        @priceSpinBox.prefix = "$"
-        @priceSpinBox.value = 99
+
+        @priceSpinBox = Qt::SpinBox.new do |s|
+            s.setRange(0, 999)
+            s.singleStep = 1
+            s.prefix = "$"
+            s.value = 99
+        end
     
-        spinBoxLayout = Qt::VBoxLayout.new
-        spinBoxLayout.addWidget(integerLabel)
-        spinBoxLayout.addWidget(integerSpinBox)
-        spinBoxLayout.addWidget(zoomLabel)
-        spinBoxLayout.addWidget(zoomSpinBox)
-        spinBoxLayout.addWidget(priceLabel)
-        spinBoxLayout.addWidget(@priceSpinBox)
+        spinBoxLayout = Qt::VBoxLayout.new do |s|
+            s.addWidget(integerLabel)
+            s.addWidget(integerSpinBox)
+            s.addWidget(zoomLabel)
+            s.addWidget(zoomSpinBox)
+            s.addWidget(priceLabel)
+            s.addWidget(@priceSpinBox)
+        end
+
         @spinBoxesGroup.layout = spinBoxLayout
     end
     
@@ -99,27 +109,30 @@ class Window < Qt::Widget
         @meetingEdit = Qt::DateTimeEdit.new(Qt::DateTime.currentDateTime())
     
         formatLabel = Qt::Label.new(tr("Format string for the meeting date and time:"))
-        formatComboBox = Qt::ComboBox.new
-        formatComboBox.addItem("yyyy-MM-dd hh:mm:ss (zzz ms)")
-        formatComboBox.addItem("hh:mm:ss MM/dd/yyyy")
-        formatComboBox.addItem("hh:mm:ss dd/MM/yyyy")
-        formatComboBox.addItem("hh:mm:ss")
-        formatComboBox.addItem("hh:mm ap")
+        formatComboBox = Qt::ComboBox.new do |f|
+            f.addItem("yyyy-MM-dd hh:mm:ss (zzz ms)")
+            f.addItem("hh:mm:ss MM/dd/yyyy")
+            f.addItem("hh:mm:ss dd/MM/yyyy")
+            f.addItem("hh:mm:ss")
+            f.addItem("hh:mm ap")
+        end
     
-        connect(formatComboBox, SIGNAL('activated(const QString &)'),
-                self, SLOT('setFormatString(const QString &)'))
+        connect(formatComboBox, SIGNAL('activated(const QString&)'),
+                self, SLOT('setFormatString(const QString&)'))
     
         setFormatString(formatComboBox.currentText())
     
-        editsLayout = Qt::VBoxLayout.new
-        editsLayout.addWidget(dateLabel)
-        editsLayout.addWidget(dateEdit)
-        editsLayout.addWidget(timeLabel)
-        editsLayout.addWidget(timeEdit)
-        editsLayout.addWidget(@meetingLabel)
-        editsLayout.addWidget(@meetingEdit)
-        editsLayout.addWidget(formatLabel)
-        editsLayout.addWidget(formatComboBox)
+        editsLayout = Qt::VBoxLayout.new do |l|
+            l.addWidget(dateLabel)
+            l.addWidget(dateEdit)
+            l.addWidget(timeLabel)
+            l.addWidget(timeEdit)
+            l.addWidget(@meetingLabel)
+            l.addWidget(@meetingEdit)
+            l.addWidget(formatLabel)
+            l.addWidget(formatComboBox)
+        end
+
         @editsGroup.layout = editsLayout
     end
     
@@ -139,47 +152,57 @@ class Window < Qt::Widget
     end
     
     def createDoubleSpinBoxes()
-        @@doubleSpinBoxesGroup = Qt::GroupBox.new(tr("Double precision spinboxes"))
+        @doubleSpinBoxesGroup = Qt::GroupBox.new(tr("Double precision spinboxes"))
     
         precisionLabel = Qt::Label.new(tr("Number of decimal places to show:"))
-        precisionSpinBox = Qt::SpinBox.new
-        precisionSpinBox.setRange(0, 14)
-        precisionSpinBox.value = 2
+
+        precisionSpinBox = Qt::SpinBox.new do |s|
+            s.setRange(0, 14)
+            s.value = 2
+        end
     
         doubleLabel = Qt::Label.new(tr("Enter a value between %d and %d:" % [-20, 20]))
-        @doubleSpinBox = Qt::DoubleSpinBox.new
-        @doubleSpinBox.setRange(-20.0, 20.0)
-        @doubleSpinBox.singleStep = 1.0
-        @doubleSpinBox.value = 0.0
+
+        @doubleSpinBox = Qt::DoubleSpinBox.new do |s|
+            s.setRange(-20.0, 20.0)
+            s.singleStep = 1.0
+            s.value = 0.0
+        end
     
         scaleLabel = Qt::Label.new(tr("Enter a scale factor between %2f and %2f:" % [0.0, 1000.0]))
-        @scaleSpinBox = Qt::DoubleSpinBox.new
-        @scaleSpinBox.setRange(0.0, 1000.0)
-        @scaleSpinBox.singleStep = 10.0
-        @scaleSpinBox.suffix = "%"
-        @scaleSpinBox.specialValueText = tr("No scaling")
-        @scaleSpinBox.value = 100.0
+
+        @scaleSpinBox = Qt::DoubleSpinBox.new do |s|
+            s.setRange(0.0, 1000.0)
+            s.singleStep = 10.0
+            s.suffix = "%"
+            s.specialValueText = tr("No scaling")
+            s.value = 100.0
+        end
     
         priceLabel = Qt::Label.new(tr("Enter a price between %2f and %2f:" % [0.0, 1000.0]))
-        @priceSpinBox = Qt::DoubleSpinBox.new
-        @priceSpinBox.setRange(0.0, 1000.0)
-        @priceSpinBox.singleStep = 1.0
-        @priceSpinBox.prefix = "$"
-        @priceSpinBox.value = 99.99
+
+        @priceSpinBox = Qt::DoubleSpinBox.new do |s|
+            s.setRange(0.0, 1000.0)
+            s.singleStep = 1.0
+            s.prefix = "$"
+            s.value = 99.99
+        end
     
         connect(precisionSpinBox, SIGNAL('valueChanged(int)'),
                 self, SLOT('changePrecision(int)'))
     
-        spinBoxLayout = Qt::VBoxLayout.new
-        spinBoxLayout.addWidget(precisionLabel)
-        spinBoxLayout.addWidget(precisionSpinBox)
-        spinBoxLayout.addWidget(doubleLabel)
-        spinBoxLayout.addWidget(@doubleSpinBox)
-        spinBoxLayout.addWidget(scaleLabel)
-        spinBoxLayout.addWidget(@scaleSpinBox)
-        spinBoxLayout.addWidget(priceLabel)
-        spinBoxLayout.addWidget(@priceSpinBox)
-        @@doubleSpinBoxesGroup.layout = spinBoxLayout
+        spinBoxLayout = Qt::VBoxLayout.new do |s|
+            s.addWidget(precisionLabel)
+            s.addWidget(precisionSpinBox)
+            s.addWidget(doubleLabel)
+            s.addWidget(@doubleSpinBox)
+            s.addWidget(scaleLabel)
+            s.addWidget(@scaleSpinBox)
+            s.addWidget(priceLabel)
+            s.addWidget(@priceSpinBox)
+        end
+
+        @doubleSpinBoxesGroup.layout = spinBoxLayout
     end
     
     def changePrecision(decimals)

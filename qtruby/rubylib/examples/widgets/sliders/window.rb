@@ -45,9 +45,11 @@ class Window < Qt::Widget
         connect(@valueSpinBox, SIGNAL('valueChanged(int)'),
                 @horizontalSliders, SLOT('setValue(int)'))
     
-        layout = Qt::HBoxLayout.new
-        layout.addWidget(@controlsGroup)
-        layout.addWidget(@stackedWidget)
+        layout = Qt::HBoxLayout.new do |l|
+            l.addWidget(@controlsGroup)
+            l.addWidget(@stackedWidget)
+        end
+
         setLayout(layout)
     
         @minimumSpinBox.value = 0
@@ -67,17 +69,20 @@ class Window < Qt::Widget
         @invertedAppearance = Qt::CheckBox.new(tr("Inverted appearance"))
         @invertedKeyBindings = Qt::CheckBox.new(tr("Inverted key bindings"))
     
-        @minimumSpinBox = Qt::SpinBox.new
-        @minimumSpinBox.setRange(-100, 100)
-        @minimumSpinBox.singleStep = 1
+        @minimumSpinBox = Qt::SpinBox.new do |s|
+            s.setRange(-100, 100)
+            s.singleStep = 1
+        end
     
-        @maximumSpinBox = Qt::SpinBox.new
-        @maximumSpinBox.setRange(-100, 100)
-        @maximumSpinBox.singleStep = 1
-    
-        @valueSpinBox = Qt::SpinBox.new
-        @valueSpinBox.setRange(-100, 100)
-        @valueSpinBox.singleStep = 1
+        @maximumSpinBox = Qt::SpinBox.new do |s|
+            s.setRange(-100, 100)
+            s.singleStep = 1
+        end
+
+        @valueSpinBox = Qt::SpinBox.new do |s|
+            s.setRange(-100, 100)
+            s.singleStep = 1
+        end
     
         @orientationCombo = Qt::ComboBox.new
         @orientationCombo.addItem(tr("Horizontal slider-like widgets"))
@@ -102,16 +107,18 @@ class Window < Qt::Widget
         connect(@invertedKeyBindings, SIGNAL('toggled(bool)'),
                 @verticalSliders, SLOT('invertKeyBindings(bool)'))
     
-        controlsLayout = Qt::GridLayout.new
-        controlsLayout.addWidget(@minimumLabel, 0, 0)
-        controlsLayout.addWidget(@maximumLabel, 1, 0)
-        controlsLayout.addWidget(@valueLabel, 2, 0)
-        controlsLayout.addWidget(@minimumSpinBox, 0, 1)
-        controlsLayout.addWidget(@maximumSpinBox, 1, 1)
-        controlsLayout.addWidget(@valueSpinBox, 2, 1)
-        controlsLayout.addWidget(@invertedAppearance, 0, 2)
-        controlsLayout.addWidget(@invertedKeyBindings, 1, 2)
-        controlsLayout.addWidget(@orientationCombo, 3, 0, 1, 3)
+        controlsLayout = Qt::GridLayout.new do |c|
+            c.addWidget(@minimumLabel, 0, 0)
+            c.addWidget(@maximumLabel, 1, 0)
+            c.addWidget(@valueLabel, 2, 0)
+            c.addWidget(@minimumSpinBox, 0, 1)
+            c.addWidget(@maximumSpinBox, 1, 1)
+            c.addWidget(@valueSpinBox, 2, 1)
+            c.addWidget(@invertedAppearance, 0, 2)
+            c.addWidget(@invertedKeyBindings, 1, 2)
+            c.addWidget(@orientationCombo, 3, 0, 1, 3)
+        end
+
         @controlsGroup.layout = controlsLayout
     end
 end

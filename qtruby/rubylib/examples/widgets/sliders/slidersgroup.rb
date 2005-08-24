@@ -28,7 +28,7 @@ class SlidersGroup < Qt::GroupBox
     
     signals 'valueChanged(int)'
     
-    slots     'setValue(int)',
+    slots   'value=(int)',
             'setMinimum(int)',
             'setMaximum(int)',
             'invertAppearance(bool)',
@@ -59,18 +59,19 @@ class SlidersGroup < Qt::GroupBox
             direction = Qt::BoxLayout::LeftToRight
         end
 
-        @slidersLayout = Qt::BoxLayout.new(direction)
-        @slidersLayout.addWidget(@slider)
-        @slidersLayout.addWidget(@scrollBar)
-        @slidersLayout.addWidget(@dial)
+        @slidersLayout = Qt::BoxLayout.new(direction) do |l|
+			l.addWidget(@slider)
+			l.addWidget(@scrollBar)
+			l.addWidget(@dial)
+		end
         setLayout(@slidersLayout)
     end
     
-    def setValue(value)
+    def value=(value)
         @slider.value = value
     end
     
-    def setMinimum(value)
+    def minimum=(value)
         @slider.minimum = value
         @scrollBar.minimum = value
         @dial.minimum = value

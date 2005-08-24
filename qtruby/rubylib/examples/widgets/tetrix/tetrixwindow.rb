@@ -58,19 +58,21 @@ class TetrixWindow < Qt::Widget
         connect(@board, SIGNAL('linesRemovedChanged(int)'),
                 @linesLcd, SLOT('display(int)'))
     
-        layout = Qt::GridLayout.new
-        layout.addWidget(createLabel(tr("NEXT")), 0, 0)
-        layout.addWidget(@nextPieceLabel, 1, 0)
-        layout.addWidget(createLabel(tr("LEVEL")), 2, 0)
-        layout.addWidget(@levelLcd, 3, 0)
-        layout.addWidget(@startButton, 4, 0)
-        layout.addWidget(@board, 0, 1, 6, 1)
-        layout.addWidget(createLabel(tr("SCORE")), 0, 2)
-        layout.addWidget(@scoreLcd, 1, 2)
-        layout.addWidget(createLabel(tr("LINES REMOVED")), 2, 2)
-        layout.addWidget(@linesLcd, 3, 2)
-        layout.addWidget(@quitButton, 4, 2)
-        layout.addWidget(@pauseButton, 5, 2)
+        layout = Qt::GridLayout.new do |l|
+            l.addWidget(createLabel(tr("NEXT")), 0, 0)
+            l.addWidget(@nextPieceLabel, 1, 0)
+            l.addWidget(createLabel(tr("LEVEL")), 2, 0)
+            l.addWidget(@levelLcd, 3, 0)
+            l.addWidget(@startButton, 4, 0)
+            l.addWidget(@board, 0, 1, 6, 1)
+            l.addWidget(createLabel(tr("SCORE")), 0, 2)
+            l.addWidget(@scoreLcd, 1, 2)
+            l.addWidget(createLabel(tr("LINES REMOVED")), 2, 2)
+            l.addWidget(@linesLcd, 3, 2)
+            l.addWidget(@quitButton, 4, 2)
+            l.addWidget(@pauseButton, 5, 2)
+        end
+
         setLayout(layout)
     
         setWindowTitle(tr("Tetrix"))
