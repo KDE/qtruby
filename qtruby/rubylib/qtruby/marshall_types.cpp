@@ -2,19 +2,33 @@ class MethodReturnValueBase : public Marshall
 {
 public:
 	MethodReturnValueBase(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack) :
-		_smoke(smoke), _method(meth), _stack(stack) { }
+		_smoke(smoke), _method(meth), _stack(stack) { 
+
+		_st.set(_smoke, method().ret);
+
+	}
 
 	const Smoke::Method &method() { return _smoke->methods[_method]; }
 	Smoke::StackItem &item() { return _stack[0]; }
 	Smoke *smoke() { return _smoke; }
+	SmokeType type() { return _st; }
 
 	void next() {}
 	bool cleanup() { return false; }
+
+	void unsupported() {
+		rb_raise(rb_eArgError, "Cannot handle '%s' as return-type of %s::%s",
+		type().name(),
+		classname(),
+		_smoke->methodNames[method().name]);	
+	}
 
 protected:
 	Smoke *_smoke;
 	Smoke::Index _method;
 	Smoke::Stack _stack;
+	SmokeType _st;
+	virtual const char *classname() { return _smoke->className(method().classId); }
 };
 
 class VirtualMethodReturnValue : public MethodReturnValueBase {
@@ -22,50 +36,36 @@ public:
 	VirtualMethodReturnValue(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack, VALUE retval) :
 		MethodReturnValueBase(smoke,meth,stack), _retval(retval) {
 	
-		_st.set(_smoke, method().ret);
-	
 		Marshall::HandlerFn fn = getMarshallFn(type());
 		(*fn)(this);
 	}
 
-	SmokeType type() { return _st; }
 	Marshall::Action action() { return Marshall::FromVALUE; }
 	VALUE * var() { return &_retval; }
 
-	void unsupported() {
-		rb_raise(rb_eArgError, "Cannot handle '%s' as return-type of virtual method %s::%s",
-		type().name(),
-		_smoke->className(method().classId),
-		_smoke->methodNames[method().name]);
-    }
-
 private:
-	SmokeType _st;
 	VALUE _retval;
 };
 
 class MethodReturnValue : public MethodReturnValueBase {
 public:
-	MethodReturnValue(Smoke *smoke, Smoke::Index method, Smoke::Stack stack, VALUE * retval) :
-		MethodReturnValueBase(smoke,method,stack), _retval(retval) {
+	MethodReturnValue(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack, VALUE * retval) :
+		MethodReturnValueBase(smoke,meth,stack), _retval(retval) {
+	
 		Marshall::HandlerFn fn = getMarshallFn(type());
 		(*fn)(this);
 	}
 
-    SmokeType type() { return SmokeType(_smoke, method().ret); }
     Marshall::Action action() { return Marshall::ToVALUE; }
 
     VALUE * var() {
     	return _retval;
     }
 
-    void unsupported() {
-		rb_raise(rb_eArgError, "Cannot handle '%s' as return-type of %s::%s",
-		type().name(),
-		strcmp(_smoke->className(method().classId), "QGlobalSpace") == 0 ? "" : _smoke->className(method().classId),
-		_smoke->methodNames[method().name]);
-    }
 private:
+	const char *classname() { 
+		return strcmp(MethodReturnValueBase::classname(), "QGlobalSpace") == 0 ? "" : MethodReturnValueBase::classname(); 
+	}
 	VALUE * _retval;
 };
 
