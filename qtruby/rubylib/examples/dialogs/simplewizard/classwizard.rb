@@ -183,7 +183,7 @@ class ClassWizard < SimpleWizard
             Qt::MessageBox.warning(self, tr("Simple Wizard"),
                                  tr("Cannot write file %s:\n%s" %
                                        [    implementationFile.fileName(), 
-                                         implementationFile.errorString() ] ) )
+                                            implementationFile.errorString() ] ) )
             return
         end
 
@@ -302,7 +302,7 @@ class SecondPage < Qt::Widget
             if Regexp.new("Q[A-Z].*").match(baseClass)
                 @baseIncludeLineEdit.text = "<" + baseClass + ">"
             else
-                @baseIncludeLineEdit.text = '"' + baseClass.toLower + '.h"'
+                @baseIncludeLineEdit.text = '"' + baseClass.downcase + '.h"'
             end
         end
     
