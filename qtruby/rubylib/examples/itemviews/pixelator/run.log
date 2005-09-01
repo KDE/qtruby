@@ -1,0 +1,3246 @@
+mapPointer (QBrush*)0x10159548 -> 0x3039d100
+mapPointer (QRect*)0x1013c170 -> 0x3039abb0
+mapPointer (QBrush*)0x10130320 -> 0x30399338
+mapPointer (QRect*)0x10085350 -> 0x303990c8
+mapPointer (QRect*)0x10078068 -> 0x30398cf0
+mapPointer (QRect*)0x100ec220 -> 0x30395588
+mapPointer (QRect*)0x1006a718 -> 0x303951f8
+mapPointer (QRect*)0x1007c0d0 -> 0x30394fb8
+mapPointer (QRect*)0x100792b0 -> 0x30394ca0
+mapPointer (QRectF*)0x100dd038 -> 0x30393ae8
+mapPointer (QBrush*)0x10062818 -> 0x30391610
+mapPointer (QRect*)0x10067558 -> 0x30391280
+mapPointer (QBrush*)0x100f24d8 -> 0x30390ec0
+mapPointer (QRect*)0x10074248 -> 0x30390d88
+mapPointer (QRect*)0x100ecbf8 -> 0x30390c20
+mapPointer (QRect*)0x100533f0 -> 0x303900e0
+mapPointer (QRect*)0x100788a0 -> 0x3038fe40
+mapPointer (QRect*)0x10055c60 -> 0x3038fc78
+mapPointer (QRect*)0x1004f8d8 -> 0x3038f9d8
+mapPointer (QRectF*)0x1013d728 -> 0x3038f390
+mapPointer (QBrush*)0x1006b1a0 -> 0x3038e538
+mapPointer (QRect*)0x10087338 -> 0x3038e028
+mapPointer (QBrush*)0x1007d718 -> 0x3038dc98
+mapPointer (QRect*)0x1004de28 -> 0x3038da10
+mapPointer (QRect*)0x1015bef8 -> 0x3038d740
+mapPointer (QRect*)0x10077548 -> 0x3038cc30
+mapPointer (QRect*)0x1004f6f0 -> 0x3038c978
+mapPointer (QRect*)0x1004f810 -> 0x3038c7c8
+mapPointer (QRect*)0x10055438 -> 0x3038c660
+mapPointer (QRectF*)0x1008b540 -> 0x3038c270
+mapPointer (QBrush*)0x10066e30 -> 0x3038ba90
+mapPointer (QRect*)0x1005e4a8 -> 0x3038b8e0
+mapPointer (QBrush*)0x100eaf20 -> 0x3038b700
+mapPointer (QRect*)0x10068068 -> 0x3038b670
+mapPointer (QRect*)0x100f4a30 -> 0x3038b460
+mapPointer (QRect*)0x10072dd0 -> 0x30389870
+mapPointer (QRect*)0x10056838 -> 0x303895b8
+mapPointer (QRect*)0x1006d4d0 -> 0x30389270
+mapPointer (QRect*)0x1006d5c0 -> 0x30389060
+mapPointer (QRectF*)0x10067590 -> 0x30388670
+mapPointer (QBrush*)0x100737f0 -> 0x30387248
+mapPointer (QRect*)0x1004daa8 -> 0x30386960
+mapPointer (QBrush*)0x100737c8 -> 0x303860d8
+mapPointer (QRect*)0x1007db00 -> 0x30385d60
+mapPointer (QRect*)0x1004dbd0 -> 0x303858b0
+mapPointer (QRect*)0x1008c118 -> 0x30384dd0
+mapPointer (QRect*)0x10059298 -> 0x30384d28
+mapPointer (QRect*)0x1007fde8 -> 0x30384c68
+mapPointer (QRect*)0x1007ff10 -> 0x30384bc0
+mapPointer (QRectF*)0x1008acd0 -> 0x30384680
+mapPointer (QBrush*)0x10086cd0 -> 0x30383468
+mapPointer (QRect*)0x1006f840 -> 0x30383348
+mapPointer (QBrush*)0x1006f800 -> 0x30383150
+mapPointer (QRect*)0x1008ac20 -> 0x30382f28
+mapPointer (QRect*)0x1006c620 -> 0x30382d00
+mapPointer (QRect*)0x10086ca0 -> 0x30382190
+mapPointer (QRect*)0x1008a230 -> 0x303820e8
+mapPointer (QRect*)0x1008a298 -> 0x30382010
+mapPointer (QRect*)0x10140f78 -> 0x30381ef0
+mapPointer (QRectF*)0x1008aca8 -> 0x30381ab8
+mapPointer (QBrush*)0x1006f4c0 -> 0x30381680
+mapPointer (QRect*)0x1008b238 -> 0x30381578
+mapPointer (QBrush*)0x1006f460 -> 0x303813b0
+mapPointer (QRect*)0x1007cb98 -> 0x30381320
+mapPointer (QRect*)0x1006c8e0 -> 0x30381278
+mapPointer (QRect*)0x1006c8c8 -> 0x30380cf0
+mapPointer (QRect*)0x10089ff0 -> 0x30380c48
+mapPointer (QRect*)0x1014d898 -> 0x30380b88
+mapPointer (QRect*)0x1014d988 -> 0x30380ae0
+mapPointer (QRectF*)0x10079628 -> 0x30380900
+mapPointer (QBrush*)0x1007a960 -> 0x30380558
+mapPointer (QRect*)0x1007aab8 -> 0x30380450
+mapPointer (QBrush*)0x10086bd8 -> 0x303802a0
+mapPointer (QRect*)0x1008c5f0 -> 0x303801f8
+mapPointer (QRect*)0x1007b3a8 -> 0x30380150
+mapPointer (QRect*)0x1007a948 -> 0x3037fd48
+mapPointer (QRect*)0x101336e8 -> 0x3037fca0
+mapPointer (QRect*)0x101337c8 -> 0x3037fbe0
+mapPointer (QRect*)0x10133878 -> 0x3037fb38
+mapPointer (QRectF*)0x1005a608 -> 0x3037f970
+mapPointer (QBrush*)0x10085bc8 -> 0x3037f5e0
+mapPointer (QRect*)0x1005a988 -> 0x3037f4d8
+mapPointer (QBrush*)0x10085a88 -> 0x3037f310
+mapPointer (QRect*)0x101315a0 -> 0x3037f280
+mapPointer (QRect*)0x1007d198 -> 0x3037f190
+mapPointer (QRect*)0x10131450 -> 0x3037eda0
+mapPointer (QRect*)0x100803e0 -> 0x3037ecf8
+mapPointer (QRect*)0x100804d0 -> 0x3037ec38
+mapPointer (QRect*)0x10080830 -> 0x3037eb90
+mapPointer (QRectF*)0x1007cf18 -> 0x3037e9c8
+mapPointer (QBrush*)0x100ee088 -> 0x3037e608
+mapPointer (QRect*)0x100ef6f8 -> 0x3037e500
+mapPointer (QBrush*)0x100ef818 -> 0x3037e350
+mapPointer (QRect*)0x100f6380 -> 0x3037e2c0
+mapPointer (QRect*)0x100122c8 -> 0x3037e218
+mapPointer (QRect*)0x100f63a8 -> 0x3037de28
+mapPointer (QRect*)0x100f69a8 -> 0x3037dd80
+mapPointer (QRect*)0x100f2040 -> 0x3037dcc0
+mapPointer (QRect*)0x100f2130 -> 0x3037dc18
+mapPointer (QRectF*)0x10146410 -> 0x3037da50
+mapPointer (QBrush*)0x10066b68 -> 0x3037d648
+mapPointer (QRect*)0x10066c80 -> 0x3037d510
+mapPointer (QBrush*)0x10063118 -> 0x3037d360
+mapPointer (QRect*)0x10146020 -> 0x3037d2d0
+mapPointer (QRect*)0x1007de68 -> 0x3037d228
+mapPointer (QRect*)0x100631e8 -> 0x3037ce50
+mapPointer (QRect*)0x10065940 -> 0x3037cda8
+mapPointer (QRect*)0x10082320 -> 0x3037cce8
+mapPointer (QRect*)0x10082410 -> 0x3037cc40
+mapPointer (QRectF*)0x100ef730 -> 0x3037ca78
+mapPointer (QBrush*)0x1013cb00 -> 0x3037c6e8
+mapPointer (QRect*)0x100867f8 -> 0x3037c5e0
+mapPointer (QBrush*)0x10149568 -> 0x3037c430
+mapPointer (QRect*)0x100f4738 -> 0x3037c3a0
+mapPointer (QRect*)0x10142a78 -> 0x3037c2f8
+mapPointer (QRect*)0x10149490 -> 0x3037bf08
+mapPointer (QRect*)0x100851a8 -> 0x3037be60
+mapPointer (QRect*)0x10085298 -> 0x3037bda0
+mapPointer (QRect*)0x100857e8 -> 0x3037bcf8
+mapPointer (QRectF*)0x1013ca18 -> 0x3037bb30
+mapPointer (QBrush*)0x100862f0 -> 0x3037b7a0
+mapPointer (QRect*)0x100860e0 -> 0x3037b680
+mapPointer (QBrush*)0x100863f0 -> 0x3037b470
+mapPointer (QRect*)0x10086500 -> 0x3037b3c8
+mapPointer (QRect*)0x1005e398 -> 0x3037b308
+mapPointer (QRect*)0x10086668 -> 0x3037aee8
+mapPointer (QRect*)0x100eb5c8 -> 0x3037ae10
+mapPointer (QRect*)0x100eb6b8 -> 0x3037ad08
+mapPointer (QRect*)0x100eb1d0 -> 0x3037ac30
+mapPointer (QRectF*)0x101428c8 -> 0x3037a9f0
+mapPointer (QBrush*)0x1006bb98 -> 0x3037a630
+mapPointer (QRect*)0x1006bcf0 -> 0x3037a528
+mapPointer (QBrush*)0x10086638 -> 0x3037a360
+mapPointer (QRect*)0x1006bb38 -> 0x3037a2d0
+mapPointer (QRect*)0x100f8028 -> 0x3037a228
+mapPointer (QRect*)0x10146780 -> 0x30379d90
+mapPointer (QRect*)0x10052268 -> 0x30379cd0
+mapPointer (QRect*)0x1013d8b0 -> 0x30379c10
+mapPointer (QRect*)0x1013d9a0 -> 0x30379b68
+mapPointer (QRectF*)0x100733d8 -> 0x30379988
+mapPointer (QBrush*)0x1006dfc8 -> 0x30379580
+mapPointer (QRect*)0x1013b138 -> 0x30379448
+mapPointer (QBrush*)0x1013b258 -> 0x303791c0
+mapPointer (QRect*)0x100f05f8 -> 0x30379130
+mapPointer (QRect*)0x100f44f8 -> 0x30379088
+mapPointer (QRect*)0x1013b268 -> 0x30378cb0
+mapPointer (QRect*)0x100516f0 -> 0x30378c08
+mapPointer (QRect*)0x100517e0 -> 0x30378b48
+mapPointer (QRect*)0x10057b30 -> 0x30378aa0
+mapPointer (QRectF*)0x100798b0 -> 0x303788d8
+mapPointer (QBrush*)0x10057378 -> 0x30378548
+mapPointer (QRect*)0x1005ed98 -> 0x30378440
+mapPointer (QBrush*)0x1005ef48 -> 0x30378290
+mapPointer (QRect*)0x1005eec8 -> 0x30378200
+mapPointer (QRect*)0x1006c9a8 -> 0x30378158
+mapPointer (QRect*)0x10063ca0 -> 0x301a46c0
+mapPointer (QRect*)0x10069bc0 -> 0x301a4618
+mapPointer (QRect*)0x10069cb0 -> 0x301a4120
+mapPointer (QRect*)0x1006d878 -> 0x301a3fd0
+mapPointer (QRectF*)0x1013b170 -> 0x301a2ce0
+mapPointer (QBrush*)0x10087c70 -> 0x301a2950
+mapPointer (QRect*)0x10087dc8 -> 0x301a2848
+mapPointer (QBrush*)0x10148ad0 -> 0x301a2698
+mapPointer (QRect*)0x1004e6d8 -> 0x301a2608
+mapPointer (QRect*)0x1004e828 -> 0x301a2560
+mapPointer (QRect*)0x1004e608 -> 0x301a2188
+mapPointer (QRect*)0x1013ef00 -> 0x301a1f00
+mapPointer (QRect*)0x1013eff0 -> 0x301a1df8
+mapPointer (QRect*)0x100ef038 -> 0x301a1d20
+mapPointer (QRectF*)0x1005edd0 -> 0x301a1948
+mapPointer (QBrush*)0x100f3958 -> 0x301a11c8
+mapPointer (QRect*)0x100f3a70 -> 0x301a0f10
+mapPointer (QBrush*)0x100f3910 -> 0x301a0b50
+mapPointer (QRect*)0x1013e740 -> 0x301a0a60
+mapPointer (QRect*)0x1013bb98 -> 0x301a08b0
+mapPointer (QRect*)0x1013e5e8 -> 0x301a0010
+mapPointer (QRect*)0x1006b518 -> 0x3019ff08
+mapPointer (QRect*)0x1006a8c0 -> 0x3019fd40
+mapPointer (QRect*)0x1006a9b0 -> 0x3019fba8
+mapPointer (QRectF*)0x101489e8 -> 0x3019f728
+mapPointer (QBrush*)0x1006e970 -> 0x3019f170
+mapPointer (QRect*)0x1006e6c0 -> 0x3019e840
+mapPointer (QBrush*)0x1006e7b8 -> 0x3019e498
+mapPointer (QRect*)0x1006abf8 -> 0x3019e408
+mapPointer (QRect*)0x100ee9f8 -> 0x3019e360
+mapPointer (QRect*)0x10148aa8 -> 0x3019ddd8
+mapPointer (QRect*)0x10141e50 -> 0x3019dbb0
+mapPointer (QRect*)0x10141f70 -> 0x3019daf0
+mapPointer (QRect*)0x10142060 -> 0x3019d9e8
+mapPointer (QRectF*)0x1006e7f8 -> 0x3019d4a8
+mapPointer (QBrush*)0x100eda70 -> 0x3019ca70
+mapPointer (QRect*)0x100ed760 -> 0x3019c7b8
+mapPointer (QBrush*)0x100ed878 -> 0x3019c3e0
+mapPointer (QRect*)0x1006e5b0 -> 0x3019c350
+mapPointer (QRect*)0x1013b7a0 -> 0x3019c218
+mapPointer (QRect*)0x1013b4f0 -> 0x3019b648
+mapPointer (QRect*)0x100f5e98 -> 0x3019b348
+mapPointer (QRect*)0x100f5be8 -> 0x3019b288
+mapPointer (QRect*)0x100f3218 -> 0x3019b1e0
+mapPointer (QRectF*)0x10143038 -> 0x3019abb0
+mapPointer (QBrush*)0x100f35d0 -> 0x3019a820
+mapPointer (QRect*)0x100f36e8 -> 0x3019a550
+mapPointer (QBrush*)0x100f5e30 -> 0x30199fe0
+mapPointer (QRect*)0x1006e708 -> 0x30199ce0
+mapPointer (QRect*)0x1015c540 -> 0x30199bc0
+mapPointer (QRect*)0x1015c360 -> 0x30198918
+mapPointer (QRect*)0x10163500 -> 0x30198858
+mapPointer (QRect*)0x101635f0 -> 0x30197fb8
+mapPointer (QRect*)0x101636e0 -> 0x30197958
+mapPointer (QRectF*)0x100ed798 -> 0x301976d0
+mapPointer (QBrush*)0x10163a70 -> 0x30196bc0
+mapPointer (QRect*)0x10163be8 -> 0x30196800
+mapPointer (QBrush*)0x10163a48 -> 0x301963f8
+mapPointer (QRect*)0x10163ec8 -> 0x30196350
+mapPointer (QRect*)0x10164108 -> 0x30195ff0
+mapPointer (QRect*)0x10163f38 -> 0x301956f0
+mapPointer (QRect*)0x101646c8 -> 0x30195630
+mapPointer (QRect*)0x101647b8 -> 0x30195378
+mapPointer (QRect*)0x101648a8 -> 0x30195078
+mapPointer (QRectF*)0x100f3720 -> 0x30194e20
+mapPointer (QBrush*)0x10164ce8 -> 0x301944a8
+mapPointer (QRect*)0x10164e58 -> 0x30194148
+mapPointer (QBrush*)0x10164cc0 -> 0x30193dd0
+mapPointer (QRect*)0x10165148 -> 0x30193ce0
+mapPointer (QRect*)0x10165338 -> 0x30193a88
+mapPointer (QRect*)0x10165178 -> 0x301932d8
+mapPointer (QRect*)0x10165920 -> 0x301931a0
+mapPointer (QRect*)0x10165a10 -> 0x30192f90
+mapPointer (QRect*)0x10165b00 -> 0x30192cf0
+mapPointer (QRectF*)0x10163ef8 -> 0x30192b28
+mapPointer (QBrush*)0x10165ee8 -> 0x30192210
+mapPointer (QRect*)0x10165db8 -> 0x30191fa0
+mapPointer (QBrush*)0x10165ec0 -> 0x30191b80
+mapPointer (QRect*)0x10166328 -> 0x30191ad8
+mapPointer (QRect*)0x10166568 -> 0x30191910
+mapPointer (QRect*)0x10166398 -> 0x30190f68
+mapPointer (QRect*)0x10166b28 -> 0x30190e78
+mapPointer (QRect*)0x10166c18 -> 0x30190cb0
+mapPointer (QRect*)0x10166d08 -> 0x30190b60
+mapPointer (QRectF*)0x10164c88 -> 0x301908d8
+mapPointer (QBrush*)0x10167030 -> 0x30190260
+mapPointer (QRect*)0x10167270 -> 0x30190038
+mapPointer (QBrush*)0x10167130 -> 0x3018fca8
+mapPointer (QRect*)0x10167560 -> 0x3018fb88
+mapPointer (QRect*)0x101677a0 -> 0x3018fa80
+mapPointer (QRect*)0x101675d0 -> 0x3018f240
+mapPointer (QRect*)0x10167d60 -> 0x3018f108
+mapPointer (QRect*)0x10167e50 -> 0x3018efd0
+mapPointer (QRect*)0x10167f40 -> 0x3018ee50
+mapPointer (QRectF*)0x10166070 -> 0x3018eaa8
+mapPointer (QBrush*)0x10168368 -> 0x3018e490
+mapPointer (QRect*)0x10168488 -> 0x3018e238
+mapPointer (QBrush*)0x101678e0 -> 0x3018df50
+mapPointer (QRect*)0x10168778 -> 0x3018dcf8
+mapPointer (QRect*)0x101689a0 -> 0x3018dc20
+mapPointer (QRect*)0x10167188 -> 0x3018d6c8
+mapPointer (QRect*)0x10168f68 -> 0x3018d620
+mapPointer (QRect*)0x10169058 -> 0x3018d560
+mapPointer (QRect*)0x10169148 -> 0x3018d320
+mapPointer (QRectF*)0x10167828 -> 0x3018cc48
+mapPointer (QBrush*)0x101694b0 -> 0x3018bee0
+mapPointer (QRect*)0x10169690 -> 0x3018bac0
+mapPointer (QBrush*)0x10168d70 -> 0x3018b598
+mapPointer (QRect*)0x10169980 -> 0x3018b3a0
+mapPointer (QRect*)0x10169c08 -> 0x3018b0a0
+mapPointer (QRect*)0x10169a38 -> 0x3018a518
+mapPointer (QRect*)0x1016a1c8 -> 0x3018a320
+mapPointer (QRect*)0x1016a2b8 -> 0x3018a170
+mapPointer (QRect*)0x1016a3a8 -> 0x30189f48
+mapPointer (QRectF*)0x101684c0 -> 0x301898d0
+mapPointer (QBrush*)0x1016a7e8 -> 0x30188f40
+mapPointer (QRect*)0x1016a958 -> 0x30188e20
+mapPointer (QBrush*)0x1016a7c0 -> 0x30188898
+mapPointer (QRect*)0x1016ac48 -> 0x30188550
+mapPointer (QRect*)0x1016ae38 -> 0x30188280
+mapPointer (QRect*)0x1016ac78 -> 0x30186e58
+mapPointer (QRect*)0x1016b420 -> 0x30186b58
+mapPointer (QRect*)0x1016b510 -> 0x30186840
+mapPointer (QRect*)0x1016b600 -> 0x30186468
+mapPointer (QRectF*)0x101699f8 -> 0x30185940
+mapPointer (QBrush*)0x1016b9e8 -> 0x301845f0
+mapPointer (QRect*)0x1016b8b8 -> 0x30183e88
+mapPointer (QBrush*)0x1016b9c0 -> 0x301839f0
+mapPointer (QRect*)0x1016be28 -> 0x301837c8
+mapPointer (QRect*)0x1016c068 -> 0x30183330
+mapPointer (QRect*)0x1016be98 -> 0x30182be0
+mapPointer (QRect*)0x1016c628 -> 0x30182a90
+mapPointer (QRect*)0x1016c718 -> 0x301828f8
+mapPointer (QRect*)0x1016c808 -> 0x30182850
+mapPointer (QRectF*)0x1016a788 -> 0x301824c0
+mapPointer (QBrush*)0x1016cb30 -> 0x30181cc8
+mapPointer (QRect*)0x1016cd70 -> 0x30181920
+mapPointer (QBrush*)0x1016cc30 -> 0x301814a0
+mapPointer (QRect*)0x1016d060 -> 0x301812c0
+mapPointer (QRect*)0x1016d2a0 -> 0x30181200
+mapPointer (QRect*)0x1016d0d0 -> 0x30180288
+mapPointer (QRect*)0x1016d860 -> 0x30180030
+mapPointer (QRect*)0x1016d950 -> 0x3017ff70
+mapPointer (QRect*)0x1016da40 -> 0x3017fec8
+mapPointer (QRectF*)0x1016bb70 -> 0x3017fd00
+mapPointer (QBrush*)0x1016de68 -> 0x3017f4f0
+mapPointer (QRect*)0x1016df88 -> 0x3017f298
+mapPointer (QBrush*)0x1016d3e0 -> 0x3017ec50
+mapPointer (QRect*)0x1016e278 -> 0x3017e5c0
+Checking for mark (QMetaObject*)0x1013bf90
+Checking for mark (QMetaObject*)0x1013e9d0
+Checking for mark (QMetaObject*)0x10142aa0
+Checking for mark (QMetaObject*)0x1013ba08
+Checking for mark (QMetaObject*)0x10143740
+Checking for mark (QMetaObject*)0x101496e8
+Checking for mark (QApplication*)0x100f81e0
+Checking for mark (QImage*)0x10148d30
+Checking for mark (QAbstractTableModel*)0x101488b8
+Checking for mark (QAction*)0x1013f768
+Checking for mark (QTableView*)0x10133980
+Checking for mark (QMainWindow*)0x101316a0
+Marking (PixelDelegate*)0x1013a7a0 -> 0x30380ab0
+Checking for mark (QAbstractItemDelegate*)0x1013a7a0
+Marking (Qt::TableView*)0x10133980 -> 0x30380e88
+Marking (Qt::Menu*)0x1013db50 -> 0x3037ef80
+Checking for mark (QMenu*)0x1013db50
+Marking (Qt::Menu*)0x10140560 -> 0x3037d618
+Checking for mark (QMenu*)0x10140560
+Checking for mark (QPainter*)0x7fff9fa0
+Checking for mark (QStyleOptionViewItem*)0x1016dc58
+Checking for mark (QModelIndex*)0x1016dce8
+Checking for mark (QStyleOptionViewItem*)0x1016c588
+Checking for mark (QRect*)0x1016da40
+Checking for mark (QRect*)0x1016d950
+Checking for mark (QRect*)0x1016e278
+Checking for mark (QPainter*)0x7fff9fa0
+Checking for mark (QRectF*)0x1016bb70
+Checking for mark (QBrush*)0x1016d3e0
+Checking for mark (QBrush*)0x1016de68
+Checking for mark (QModelIndex*)0x10152968
+Checking for mark (QPainter*)0x7fff9fa0
+Checking for mark (QStyleOptionViewItem*)0x100afb60
+Checking for mark (QRect*)0x1016df88
+Checking for mark (QModelIndex*)0x10095c50
+Checking for delete (QSize*)0x1015a738 allocated: true
+unmapPointer (QSize*)0x1015a738 -> 0x1015a7a0
+Deleting (QSize*)0x1015a738
+Checking for delete (QModelIndex*)0x1015b3a8 allocated: true
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1016d7e0 allocated: true
+Checking for delete (QModelIndex*)0x1016dbf0 allocated: true
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x1016d860 allocated: true
+unmapPointer (QRect*)0x1016d860 -> 0x1016d8b8
+Deleting (QRect*)0x1016d860
+Checking for delete (QRect*)0x1016d0d0 allocated: true
+unmapPointer (QRect*)0x1016d0d0 -> 0x1016d768
+Deleting (QRect*)0x1016d0d0
+Checking for delete (QRect*)0x1016d2a0 allocated: true
+unmapPointer (QRect*)0x1016d2a0 -> 0x1016d2f8
+Deleting (QRect*)0x1016d2a0
+Checking for delete (QRect*)0x1016d060 allocated: true
+unmapPointer (QRect*)0x1016d060 -> 0x1016d1a8
+Deleting (QRect*)0x1016d060
+Checking for delete (QBrush*)0x1016cc30 allocated: true
+unmapPointer (QBrush*)0x1016cc30 -> 0x1016d020
+Deleting (QBrush*)0x1016cc30
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x1016cd70 allocated: true
+unmapPointer (QRect*)0x1016cd70 -> 0x1016cf98
+Deleting (QRect*)0x1016cd70
+Checking for delete (QBrush*)0x1016cb30 allocated: true
+unmapPointer (QBrush*)0x1016cb30 -> 0x1016cba0
+Deleting (QBrush*)0x1016cb30
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10169390 allocated: true
+Checking for delete (QModelIndex*)0x1016c460 allocated: true
+Checking for delete (QModelIndex*)0x1016c9b8 allocated: true
+Checking for delete (QRectF*)0x1016a788 allocated: true
+unmapPointer (QRectF*)0x1016a788 -> 0x1016c960
+Deleting (QRectF*)0x1016a788
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x1016c808 allocated: true
+unmapPointer (QRect*)0x1016c808 -> 0x1016c860
+Deleting (QRect*)0x1016c808
+Checking for delete (QRect*)0x1016c718 allocated: true
+unmapPointer (QRect*)0x1016c718 -> 0x1016c770
+Deleting (QRect*)0x1016c718
+Checking for delete (QRect*)0x1016c628 allocated: true
+unmapPointer (QRect*)0x1016c628 -> 0x1016c680
+Deleting (QRect*)0x1016c628
+Checking for delete (QRect*)0x1016be98 allocated: true
+unmapPointer (QRect*)0x1016be98 -> 0x1016c530
+Deleting (QRect*)0x1016be98
+Checking for delete (QRect*)0x1016c068 allocated: true
+unmapPointer (QRect*)0x1016c068 -> 0x1016c0c0
+Deleting (QRect*)0x1016c068
+Checking for delete (QRect*)0x1016be28 allocated: true
+unmapPointer (QRect*)0x1016be28 -> 0x1016bf70
+Deleting (QRect*)0x1016be28
+Checking for delete (QBrush*)0x1016b9c0 allocated: true
+unmapPointer (QBrush*)0x1016b9c0 -> 0x1016bde8
+Deleting (QBrush*)0x1016b9c0
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x1016b8b8 allocated: true
+unmapPointer (QRect*)0x1016b8b8 -> 0x1016bd60
+Deleting (QRect*)0x1016b8b8
+Checking for delete (QBrush*)0x1016b9e8 allocated: true
+unmapPointer (QBrush*)0x1016b9e8 -> 0x1016ba88
+Deleting (QBrush*)0x1016b9e8
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1016b888 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1016b818 allocated: true
+Deleting (QStyleOptionViewItem*)0x1016b818
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x1016b1e8 allocated: true
+Checking for delete (QModelIndex*)0x1016b7b0 allocated: true
+Checking for delete (QRectF*)0x101699f8 allocated: true
+unmapPointer (QRectF*)0x101699f8 -> 0x1016b758
+Deleting (QRectF*)0x101699f8
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x1016b600 allocated: true
+unmapPointer (QRect*)0x1016b600 -> 0x1016b658
+Deleting (QRect*)0x1016b600
+Checking for delete (QRect*)0x1016b510 allocated: true
+unmapPointer (QRect*)0x1016b510 -> 0x1016b568
+Deleting (QRect*)0x1016b510
+Checking for delete (QRect*)0x1016b420 allocated: true
+unmapPointer (QRect*)0x1016b420 -> 0x1016b478
+Deleting (QRect*)0x1016b420
+Checking for delete (QRect*)0x1016ac78 allocated: true
+unmapPointer (QRect*)0x1016ac78 -> 0x1016b328
+Deleting (QRect*)0x1016ac78
+Checking for delete (QRect*)0x1016ae38 allocated: true
+unmapPointer (QRect*)0x1016ae38 -> 0x1016ae90
+Deleting (QRect*)0x1016ae38
+Checking for delete (QRect*)0x1016ac48 allocated: true
+unmapPointer (QRect*)0x1016ac48 -> 0x1016ad40
+Deleting (QRect*)0x1016ac48
+Checking for delete (QBrush*)0x1016a7c0 allocated: true
+unmapPointer (QBrush*)0x1016a7c0 -> 0x1016ab20
+Deleting (QBrush*)0x1016a7c0
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x1016a958 allocated: true
+unmapPointer (QRect*)0x1016a958 -> 0x1016ab80
+Deleting (QRect*)0x1016a958
+Checking for delete (QBrush*)0x1016a7e8 allocated: true
+unmapPointer (QBrush*)0x1016a7e8 -> 0x1016a888
+Deleting (QBrush*)0x1016a7e8
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1016a630 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1016a5c0 allocated: true
+Deleting (QStyleOptionViewItem*)0x1016a5c0
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x1016a148 allocated: true
+Checking for delete (QModelIndex*)0x1016a558 allocated: true
+Checking for delete (QRectF*)0x101684c0 allocated: true
+unmapPointer (QRectF*)0x101684c0 -> 0x1016a500
+Deleting (QRectF*)0x101684c0
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x1016a3a8 allocated: true
+unmapPointer (QRect*)0x1016a3a8 -> 0x1016a400
+Deleting (QRect*)0x1016a3a8
+Checking for delete (QRect*)0x1016a2b8 allocated: true
+unmapPointer (QRect*)0x1016a2b8 -> 0x1016a310
+Deleting (QRect*)0x1016a2b8
+Checking for delete (QRect*)0x1016a1c8 allocated: true
+unmapPointer (QRect*)0x1016a1c8 -> 0x1016a220
+Deleting (QRect*)0x1016a1c8
+Checking for delete (QRect*)0x10169a38 allocated: true
+unmapPointer (QRect*)0x10169a38 -> 0x1016a0d0
+Deleting (QRect*)0x10169a38
+Checking for delete (QRect*)0x10169c08 allocated: true
+unmapPointer (QRect*)0x10169c08 -> 0x10169c98
+Deleting (QRect*)0x10169c08
+Checking for delete (QRect*)0x10169980 allocated: true
+unmapPointer (QRect*)0x10169980 -> 0x10169b10
+Deleting (QRect*)0x10169980
+Checking for delete (QBrush*)0x10168d70 allocated: true
+unmapPointer (QBrush*)0x10168d70 -> 0x10169940
+Deleting (QBrush*)0x10168d70
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x10169690 allocated: true
+unmapPointer (QRect*)0x10169690 -> 0x101698b8
+Deleting (QRect*)0x10169690
+Checking for delete (QBrush*)0x101694b0 allocated: true
+unmapPointer (QBrush*)0x101694b0 -> 0x10169550
+Deleting (QBrush*)0x101694b0
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10168a40 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x101695a8 allocated: true
+Deleting (QStyleOptionViewItem*)0x101695a8
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x10168d90 allocated: true
+Checking for delete (QModelIndex*)0x101692f8 allocated: true
+Checking for delete (QRectF*)0x10167828 allocated: true
+unmapPointer (QRectF*)0x10167828 -> 0x101692a0
+Deleting (QRectF*)0x10167828
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x10169148 allocated: true
+unmapPointer (QRect*)0x10169148 -> 0x101691a0
+Deleting (QRect*)0x10169148
+Checking for delete (QRect*)0x10169058 allocated: true
+unmapPointer (QRect*)0x10169058 -> 0x101690b0
+Deleting (QRect*)0x10169058
+Checking for delete (QRect*)0x10168f68 allocated: true
+unmapPointer (QRect*)0x10168f68 -> 0x10168fc0
+Deleting (QRect*)0x10168f68
+Checking for delete (QRect*)0x10167188 allocated: true
+unmapPointer (QRect*)0x10167188 -> 0x10168e70
+Deleting (QRect*)0x10167188
+Checking for delete (QRect*)0x101689a0 allocated: true
+unmapPointer (QRect*)0x101689a0 -> 0x101689f8
+Deleting (QRect*)0x101689a0
+Checking for delete (QRect*)0x10168778 allocated: true
+unmapPointer (QRect*)0x10168778 -> 0x101688a8
+Deleting (QRect*)0x10168778
+Checking for delete (QBrush*)0x101678e0 allocated: true
+unmapPointer (QBrush*)0x101678e0 -> 0x10168738
+Deleting (QBrush*)0x101678e0
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x10168488 allocated: true
+unmapPointer (QRect*)0x10168488 -> 0x101686b0
+Deleting (QRect*)0x10168488
+Checking for delete (QBrush*)0x10168368 allocated: true
+unmapPointer (QBrush*)0x10168368 -> 0x10168408
+Deleting (QBrush*)0x10168368
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x101681e8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10168158 allocated: true
+Deleting (QStyleOptionViewItem*)0x10168158
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x10167ce0 allocated: true
+Checking for delete (QModelIndex*)0x101680f0 allocated: true
+Checking for delete (QRectF*)0x10166070 allocated: true
+unmapPointer (QRectF*)0x10166070 -> 0x10168098
+Deleting (QRectF*)0x10166070
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x10167f40 allocated: true
+unmapPointer (QRect*)0x10167f40 -> 0x10167f98
+Deleting (QRect*)0x10167f40
+Checking for delete (QRect*)0x10167e50 allocated: true
+unmapPointer (QRect*)0x10167e50 -> 0x10167ea8
+Deleting (QRect*)0x10167e50
+Checking for delete (QRect*)0x10167d60 allocated: true
+unmapPointer (QRect*)0x10167d60 -> 0x10167db8
+Deleting (QRect*)0x10167d60
+Checking for delete (QRect*)0x101675d0 allocated: true
+unmapPointer (QRect*)0x101675d0 -> 0x10167c68
+Deleting (QRect*)0x101675d0
+Checking for delete (QRect*)0x101677a0 allocated: true
+unmapPointer (QRect*)0x101677a0 -> 0x101677f8
+Deleting (QRect*)0x101677a0
+Checking for delete (QRect*)0x10167560 allocated: true
+unmapPointer (QRect*)0x10167560 -> 0x101676a8
+Deleting (QRect*)0x10167560
+Checking for delete (QBrush*)0x10167130 allocated: true
+unmapPointer (QBrush*)0x10167130 -> 0x10167520
+Deleting (QBrush*)0x10167130
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x10167270 allocated: true
+unmapPointer (QRect*)0x10167270 -> 0x10167498
+Deleting (QRect*)0x10167270
+Checking for delete (QBrush*)0x10167030 allocated: true
+unmapPointer (QBrush*)0x10167030 -> 0x101670a0
+Deleting (QBrush*)0x10167030
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10163950 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10166a88 allocated: true
+Deleting (QStyleOptionViewItem*)0x10166a88
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x10166960 allocated: true
+Checking for delete (QModelIndex*)0x10166eb8 allocated: true
+Checking for delete (QRectF*)0x10164c88 allocated: true
+unmapPointer (QRectF*)0x10164c88 -> 0x10166e60
+Deleting (QRectF*)0x10164c88
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x10166d08 allocated: true
+unmapPointer (QRect*)0x10166d08 -> 0x10166d60
+Deleting (QRect*)0x10166d08
+Checking for delete (QRect*)0x10166c18 allocated: true
+unmapPointer (QRect*)0x10166c18 -> 0x10166c70
+Deleting (QRect*)0x10166c18
+Checking for delete (QRect*)0x10166b28 allocated: true
+unmapPointer (QRect*)0x10166b28 -> 0x10166b80
+Deleting (QRect*)0x10166b28
+Checking for delete (QRect*)0x10166398 allocated: true
+unmapPointer (QRect*)0x10166398 -> 0x10166a30
+Deleting (QRect*)0x10166398
+Checking for delete (QRect*)0x10166568 allocated: true
+unmapPointer (QRect*)0x10166568 -> 0x101665c0
+Deleting (QRect*)0x10166568
+Checking for delete (QRect*)0x10166328 allocated: true
+unmapPointer (QRect*)0x10166328 -> 0x10166470
+Deleting (QRect*)0x10166328
+Checking for delete (QBrush*)0x10165ec0 allocated: true
+unmapPointer (QBrush*)0x10165ec0 -> 0x101662e8
+Deleting (QBrush*)0x10165ec0
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x10165db8 allocated: true
+unmapPointer (QRect*)0x10165db8 -> 0x10166260
+Deleting (QRect*)0x10165db8
+Checking for delete (QBrush*)0x10165ee8 allocated: true
+unmapPointer (QBrush*)0x10165ee8 -> 0x10165f88
+Deleting (QBrush*)0x10165ee8
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10165d88 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10165d18 allocated: true
+Deleting (QStyleOptionViewItem*)0x10165d18
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x101656e8 allocated: true
+Checking for delete (QModelIndex*)0x10165cb0 allocated: true
+Checking for delete (QRectF*)0x10163ef8 allocated: true
+unmapPointer (QRectF*)0x10163ef8 -> 0x10165c58
+Deleting (QRectF*)0x10163ef8
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x10165b00 allocated: true
+unmapPointer (QRect*)0x10165b00 -> 0x10165b58
+Deleting (QRect*)0x10165b00
+Checking for delete (QRect*)0x10165a10 allocated: true
+unmapPointer (QRect*)0x10165a10 -> 0x10165a68
+Deleting (QRect*)0x10165a10
+Checking for delete (QRect*)0x10165920 allocated: true
+unmapPointer (QRect*)0x10165920 -> 0x10165978
+Deleting (QRect*)0x10165920
+Checking for delete (QRect*)0x10165178 allocated: true
+unmapPointer (QRect*)0x10165178 -> 0x10165828
+Deleting (QRect*)0x10165178
+Checking for delete (QRect*)0x10165338 allocated: true
+unmapPointer (QRect*)0x10165338 -> 0x10165390
+Deleting (QRect*)0x10165338
+Checking for delete (QRect*)0x10165148 allocated: true
+unmapPointer (QRect*)0x10165148 -> 0x10165240
+Deleting (QRect*)0x10165148
+Checking for delete (QBrush*)0x10164cc0 allocated: true
+unmapPointer (QBrush*)0x10164cc0 -> 0x10165020
+Deleting (QBrush*)0x10164cc0
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x10164e58 allocated: true
+unmapPointer (QRect*)0x10164e58 -> 0x10165080
+Deleting (QRect*)0x10164e58
+Checking for delete (QBrush*)0x10164ce8 allocated: true
+unmapPointer (QBrush*)0x10164ce8 -> 0x10164d88
+Deleting (QBrush*)0x10164ce8
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10164b30 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10164ac0 allocated: true
+Deleting (QStyleOptionViewItem*)0x10164ac0
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x10164648 allocated: true
+Checking for delete (QModelIndex*)0x10164a58 allocated: true
+Checking for delete (QRectF*)0x100f3720 allocated: true
+unmapPointer (QRectF*)0x100f3720 -> 0x10164a00
+Deleting (QRectF*)0x100f3720
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x101648a8 allocated: true
+unmapPointer (QRect*)0x101648a8 -> 0x10164900
+Deleting (QRect*)0x101648a8
+Checking for delete (QRect*)0x101647b8 allocated: true
+unmapPointer (QRect*)0x101647b8 -> 0x10164810
+Deleting (QRect*)0x101647b8
+Checking for delete (QRect*)0x101646c8 allocated: true
+unmapPointer (QRect*)0x101646c8 -> 0x10164720
+Deleting (QRect*)0x101646c8
+Checking for delete (QRect*)0x10163f38 allocated: true
+unmapPointer (QRect*)0x10163f38 -> 0x101645d0
+Deleting (QRect*)0x10163f38
+Checking for delete (QRect*)0x10164108 allocated: true
+unmapPointer (QRect*)0x10164108 -> 0x10164160
+Deleting (QRect*)0x10164108
+Checking for delete (QRect*)0x10163ec8 allocated: true
+unmapPointer (QRect*)0x10163ec8 -> 0x10164010
+Deleting (QRect*)0x10163ec8
+Checking for delete (QBrush*)0x10163a48 allocated: true
+unmapPointer (QBrush*)0x10163a48 -> 0x10163e88
+Deleting (QBrush*)0x10163a48
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x10163be8 allocated: true
+unmapPointer (QRect*)0x10163be8 -> 0x10163e00
+Deleting (QRect*)0x10163be8
+Checking for delete (QBrush*)0x10163a70 allocated: true
+unmapPointer (QBrush*)0x10163a70 -> 0x10163b10
+Deleting (QBrush*)0x10163a70
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10163368 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x101632f8 allocated: true
+Deleting (QStyleOptionViewItem*)0x101632f8
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x10143020 allocated: true
+Checking for delete (QModelIndex*)0x10163890 allocated: true
+Checking for delete (QRectF*)0x100ed798 allocated: true
+unmapPointer (QRectF*)0x100ed798 -> 0x10163838
+Deleting (QRectF*)0x100ed798
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x101636e0 allocated: true
+unmapPointer (QRect*)0x101636e0 -> 0x10163738
+Deleting (QRect*)0x101636e0
+Checking for delete (QRect*)0x101635f0 allocated: true
+unmapPointer (QRect*)0x101635f0 -> 0x10163648
+Deleting (QRect*)0x101635f0
+Checking for delete (QRect*)0x10163500 allocated: true
+unmapPointer (QRect*)0x10163500 -> 0x10163558
+Deleting (QRect*)0x10163500
+Checking for delete (QRect*)0x1015c360 allocated: true
+unmapPointer (QRect*)0x1015c360 -> 0x10163408
+Deleting (QRect*)0x1015c360
+Checking for delete (QRect*)0x1015c540 allocated: true
+unmapPointer (QRect*)0x1015c540 -> 0x1015c598
+Deleting (QRect*)0x1015c540
+Checking for delete (QRect*)0x1006e708 allocated: true
+unmapPointer (QRect*)0x1006e708 -> 0x1015c448
+Deleting (QRect*)0x1006e708
+Checking for delete (QBrush*)0x100f5e30 allocated: true
+unmapPointer (QBrush*)0x100f5e30 -> 0x1015c280
+Deleting (QBrush*)0x100f5e30
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x100f36e8 allocated: true
+unmapPointer (QRect*)0x100f36e8 -> 0x1015c228
+Deleting (QRect*)0x100f36e8
+Checking for delete (QBrush*)0x100f35d0 allocated: true
+unmapPointer (QBrush*)0x100f35d0 -> 0x100f3670
+Deleting (QBrush*)0x100f35d0
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1013b5e8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100f37e0 allocated: true
+Deleting (QStyleOptionViewItem*)0x100f37e0
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x100f3460 allocated: true
+Checking for delete (QModelIndex*)0x100f3448 allocated: true
+Checking for delete (QRectF*)0x10143038 allocated: true
+unmapPointer (QRectF*)0x10143038 -> 0x100f33b8
+Deleting (QRectF*)0x10143038
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x100f3218 allocated: true
+unmapPointer (QRect*)0x100f3218 -> 0x100f3270
+Deleting (QRect*)0x100f3218
+Checking for delete (QRect*)0x100f5be8 allocated: true
+unmapPointer (QRect*)0x100f5be8 -> 0x100f3180
+Deleting (QRect*)0x100f5be8
+Checking for delete (QRect*)0x100f5e98 allocated: true
+unmapPointer (QRect*)0x100f5e98 -> 0x100f5ef0
+Deleting (QRect*)0x100f5e98
+Checking for delete (QRect*)0x1013b4f0 allocated: true
+unmapPointer (QRect*)0x1013b4f0 -> 0x100f5da0
+Deleting (QRect*)0x1013b4f0
+Checking for delete (QRect*)0x1013b7a0 allocated: true
+unmapPointer (QRect*)0x1013b7a0 -> 0x1013b7f8
+Deleting (QRect*)0x1013b7a0
+Checking for delete (QRect*)0x1006e5b0 allocated: true
+unmapPointer (QRect*)0x1006e5b0 -> 0x1013b698
+Deleting (QRect*)0x1006e5b0
+Checking for delete (QBrush*)0x100ed878 allocated: true
+unmapPointer (QBrush*)0x100ed878 -> 0x1013b428
+Deleting (QBrush*)0x100ed878
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x100ed760 allocated: true
+unmapPointer (QRect*)0x100ed760 -> 0x1013b488
+Deleting (QRect*)0x100ed760
+Checking for delete (QBrush*)0x100eda70 allocated: true
+unmapPointer (QBrush*)0x100eda70 -> 0x100ed6a8
+Deleting (QBrush*)0x100eda70
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100ed918 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100ed8a8 allocated: true
+Deleting (QStyleOptionViewItem*)0x100ed8a8
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x10142fa8 allocated: true
+Checking for delete (QModelIndex*)0x10142258 allocated: true
+Checking for delete (QRectF*)0x1006e7f8 allocated: true
+unmapPointer (QRectF*)0x1006e7f8 -> 0x10142200
+Deleting (QRectF*)0x1006e7f8
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x10142060 allocated: true
+unmapPointer (QRect*)0x10142060 -> 0x101420b8
+Deleting (QRect*)0x10142060
+Checking for delete (QRect*)0x10141f70 allocated: true
+unmapPointer (QRect*)0x10141f70 -> 0x10141fc8
+Deleting (QRect*)0x10141f70
+Checking for delete (QRect*)0x10141e50 allocated: true
+unmapPointer (QRect*)0x10141e50 -> 0x10141ed8
+Deleting (QRect*)0x10141e50
+Checking for delete (QRect*)0x10148aa8 allocated: true
+unmapPointer (QRect*)0x10148aa8 -> 0x101430c0
+Deleting (QRect*)0x10148aa8
+Checking for delete (QRect*)0x100ee9f8 allocated: true
+unmapPointer (QRect*)0x100ee9f8 -> 0x100eea50
+Deleting (QRect*)0x100ee9f8
+Checking for delete (QRect*)0x1006abf8 allocated: true
+unmapPointer (QRect*)0x1006abf8 -> 0x100ee900
+Deleting (QRect*)0x1006abf8
+Checking for delete (QBrush*)0x1006e7b8 allocated: true
+unmapPointer (QBrush*)0x1006e7b8 -> 0x1006e6a8
+Deleting (QBrush*)0x1006e7b8
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x1006e6c0 allocated: true
+unmapPointer (QRect*)0x1006e6c0 -> 0x100ee7e0
+Deleting (QRect*)0x1006e6c0
+Checking for delete (QBrush*)0x1006e970 allocated: true
+unmapPointer (QBrush*)0x1006e970 -> 0x1006e608
+Deleting (QBrush*)0x1006e970
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100ef250 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1006b478 allocated: true
+Deleting (QStyleOptionViewItem*)0x1006b478
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x1006ac20 allocated: true
+Checking for delete (QModelIndex*)0x1006ab60 allocated: true
+Checking for delete (QRectF*)0x101489e8 allocated: true
+unmapPointer (QRectF*)0x101489e8 -> 0x1006ab08
+Deleting (QRectF*)0x101489e8
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x1006a9b0 allocated: true
+unmapPointer (QRect*)0x1006a9b0 -> 0x1006aa08
+Deleting (QRect*)0x1006a9b0
+Checking for delete (QRect*)0x1006a8c0 allocated: true
+unmapPointer (QRect*)0x1006a8c0 -> 0x1006a918
+Deleting (QRect*)0x1006a8c0
+Checking for delete (QRect*)0x1006b518 allocated: true
+unmapPointer (QRect*)0x1006b518 -> 0x1006b570
+Deleting (QRect*)0x1006b518
+Checking for delete (QRect*)0x1013e5e8 allocated: true
+unmapPointer (QRect*)0x1013e5e8 -> 0x1006b420
+Deleting (QRect*)0x1013e5e8
+Checking for delete (QRect*)0x1013bb98 allocated: true
+unmapPointer (QRect*)0x1013bb98 -> 0x1013bbf0
+Deleting (QRect*)0x1013bb98
+Checking for delete (QRect*)0x1013e740 allocated: true
+unmapPointer (QRect*)0x1013e740 -> 0x1013baa0
+Deleting (QRect*)0x1013e740
+Checking for delete (QBrush*)0x100f3910 allocated: true
+unmapPointer (QBrush*)0x100f3910 -> 0x1013ee88
+Deleting (QBrush*)0x100f3910
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x100f3a70 allocated: true
+unmapPointer (QRect*)0x100f3a70 -> 0x1013e678
+Deleting (QRect*)0x100f3a70
+Checking for delete (QBrush*)0x100f3958 allocated: true
+unmapPointer (QBrush*)0x100f3958 -> 0x100f39f8
+Deleting (QBrush*)0x100f3958
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1013ed60 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1013ecf0 allocated: true
+Deleting (QStyleOptionViewItem*)0x1013ecf0
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x10066410 allocated: true
+Checking for delete (QModelIndex*)0x100ef1e8 allocated: true
+Checking for delete (QRectF*)0x1005edd0 allocated: true
+unmapPointer (QRectF*)0x1005edd0 -> 0x100ef190
+Deleting (QRectF*)0x1005edd0
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x100ef038 allocated: true
+unmapPointer (QRect*)0x100ef038 -> 0x100ef090
+Deleting (QRect*)0x100ef038
+Checking for delete (QRect*)0x1013eff0 allocated: true
+unmapPointer (QRect*)0x1013eff0 -> 0x100eefa0
+Deleting (QRect*)0x1013eff0
+Checking for delete (QRect*)0x1013ef00 allocated: true
+unmapPointer (QRect*)0x1013ef00 -> 0x1013ef58
+Deleting (QRect*)0x1013ef00
+Checking for delete (QRect*)0x1004e608 allocated: true
+unmapPointer (QRect*)0x1004e608 -> 0x1013ee08
+Deleting (QRect*)0x1004e608
+Checking for delete (QRect*)0x1004e828 allocated: true
+unmapPointer (QRect*)0x1004e828 -> 0x1004e880
+Deleting (QRect*)0x1004e828
+Checking for delete (QRect*)0x1004e6d8 allocated: true
+unmapPointer (QRect*)0x1004e6d8 -> 0x1004e730
+Deleting (QRect*)0x1004e6d8
+Checking for delete (QBrush*)0x10148ad0 allocated: true
+unmapPointer (QBrush*)0x10148ad0 -> 0x10148c60
+Deleting (QBrush*)0x10148ad0
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x10087dc8 allocated: true
+unmapPointer (QRect*)0x10087dc8 -> 0x10148bd8
+Deleting (QRect*)0x10087dc8
+Checking for delete (QBrush*)0x10087c70 allocated: true
+unmapPointer (QBrush*)0x10087c70 -> 0x10087d10
+Deleting (QBrush*)0x10087c70
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1006dad0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10063b68 allocated: true
+Deleting (QStyleOptionViewItem*)0x10063b68
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x1006ca88 allocated: true
+Checking for delete (QModelIndex*)0x1006da28 allocated: true
+Checking for delete (QRectF*)0x1013b170 allocated: true
+unmapPointer (QRectF*)0x1013b170 -> 0x1006d9d0
+Deleting (QRectF*)0x1013b170
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x1006d878 allocated: true
+unmapPointer (QRect*)0x1006d878 -> 0x1006d8d0
+Deleting (QRect*)0x1006d878
+Checking for delete (QRect*)0x10069cb0 allocated: true
+unmapPointer (QRect*)0x10069cb0 -> 0x10069d08
+Deleting (QRect*)0x10069cb0
+Checking for delete (QRect*)0x10069bc0 allocated: true
+unmapPointer (QRect*)0x10069bc0 -> 0x10069c18
+Deleting (QRect*)0x10069bc0
+Checking for delete (QRect*)0x10063ca0 allocated: true
+unmapPointer (QRect*)0x10063ca0 -> 0x100664a0
+Deleting (QRect*)0x10063ca0
+Checking for delete (QRect*)0x1006c9a8 allocated: true
+unmapPointer (QRect*)0x1006c9a8 -> 0x1006ca00
+Deleting (QRect*)0x1006c9a8
+Checking for delete (QRect*)0x1005eec8 allocated: true
+unmapPointer (QRect*)0x1005eec8 -> 0x10063d58
+Deleting (QRect*)0x1005eec8
+Checking for delete (QBrush*)0x1005ef48 allocated: true
+unmapPointer (QBrush*)0x1005ef48 -> 0x10063c28
+Deleting (QBrush*)0x1005ef48
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x1005ed98 allocated: true
+unmapPointer (QRect*)0x1005ed98 -> 0x1005efc0
+Deleting (QRect*)0x1005ed98
+Checking for delete (QBrush*)0x10057378 allocated: true
+unmapPointer (QBrush*)0x10057378 -> 0x10057418
+Deleting (QBrush*)0x10057378
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10050498 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100571b8 allocated: true
+Deleting (QStyleOptionViewItem*)0x100571b8
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x10051698 allocated: true
+Checking for delete (QModelIndex*)0x10057ce0 allocated: true
+Checking for delete (QRectF*)0x100798b0 allocated: true
+unmapPointer (QRectF*)0x100798b0 -> 0x10057c88
+Deleting (QRectF*)0x100798b0
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x10057b30 allocated: true
+unmapPointer (QRect*)0x10057b30 -> 0x10057b88
+Deleting (QRect*)0x10057b30
+Checking for delete (QRect*)0x100517e0 allocated: true
+unmapPointer (QRect*)0x100517e0 -> 0x10057a98
+Deleting (QRect*)0x100517e0
+Checking for delete (QRect*)0x100516f0 allocated: true
+unmapPointer (QRect*)0x100516f0 -> 0x10051748
+Deleting (QRect*)0x100516f0
+Checking for delete (QRect*)0x1013b268 allocated: true
+unmapPointer (QRect*)0x1013b268 -> 0x100515f8
+Deleting (QRect*)0x1013b268
+Checking for delete (QRect*)0x100f44f8 allocated: true
+unmapPointer (QRect*)0x100f44f8 -> 0x100f4550
+Deleting (QRect*)0x100f44f8
+Checking for delete (QRect*)0x100f05f8 allocated: true
+unmapPointer (QRect*)0x100f05f8 -> 0x100f4400
+Deleting (QRect*)0x100f05f8
+Checking for delete (QBrush*)0x1013b258 allocated: true
+unmapPointer (QBrush*)0x1013b258 -> 0x100f04a0
+Deleting (QBrush*)0x1013b258
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10149f48 allocated: true
+Checking for delete (QModelIndex*)0x1014c6c0 allocated: true
+unmapPointer (QModelIndex*)0x1014c6c0 -> 0x1014c6b0
+Checking for delete (QModelIndex*)(nil) allocated: false
+Checking for delete (QRect*)0x1013b138 allocated: true
+unmapPointer (QRect*)0x1013b138 -> 0x100f0418
+Deleting (QRect*)0x1013b138
+Checking for delete (QBrush*)0x1006dfc8 allocated: true
+unmapPointer (QBrush*)0x1006dfc8 -> 0x1013b080
+Deleting (QBrush*)0x1006dfc8
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1006de30 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10052300 allocated: true
+Deleting (QStyleOptionViewItem*)0x10052300
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x1006de08 allocated: true
+Checking for delete (QModelIndex*)0x1013e1f8 allocated: true
+Checking for delete (QRectF*)0x100733d8 allocated: true
+unmapPointer (QRectF*)0x100733d8 -> 0x1013e1a0
+Deleting (QRectF*)0x100733d8
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x1013d9a0 allocated: true
+unmapPointer (QRect*)0x1013d9a0 -> 0x1013e058
+Deleting (QRect*)0x1013d9a0
+Checking for delete (QRect*)0x1013d8b0 allocated: true
+unmapPointer (QRect*)0x1013d8b0 -> 0x1013d908
+Deleting (QRect*)0x1013d8b0
+Checking for delete (QRect*)0x10052268 allocated: true
+unmapPointer (QRect*)0x10052268 -> 0x1013d818
+Deleting (QRect*)0x10052268
+Checking for delete (QRect*)0x10146780 allocated: true
+unmapPointer (QRect*)0x10146780 -> 0x10052420
+Deleting (QRect*)0x10146780
+Checking for delete (QRect*)0x100f8028 allocated: true
+unmapPointer (QRect*)0x100f8028 -> 0x1004df88
+Deleting (QRect*)0x100f8028
+Checking for delete (QRect*)0x1006bb38 allocated: true
+unmapPointer (QRect*)0x1006bb38 -> 0x100f7f30
+Deleting (QRect*)0x1006bb38
+Checking for delete (QBrush*)0x10086638 allocated: true
+unmapPointer (QBrush*)0x10086638 -> 0x1006bce0
+Deleting (QBrush*)0x10086638
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x1006bcf0 allocated: true
+unmapPointer (QRect*)0x1006bcf0 -> 0x10146718
+Deleting (QRect*)0x1006bcf0
+Checking for delete (QBrush*)0x1006bb98 allocated: true
+unmapPointer (QBrush*)0x1006bb98 -> 0x1006bc38
+Deleting (QBrush*)0x1006bb98
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10079a50 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100799e0 allocated: true
+Deleting (QStyleOptionViewItem*)0x100799e0
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x10073330 allocated: true
+Checking for delete (QModelIndex*)0x1006bb68 allocated: true
+Checking for delete (QRectF*)0x101428c8 allocated: true
+unmapPointer (QRectF*)0x101428c8 -> 0x100eb328
+Deleting (QRectF*)0x101428c8
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x100eb1d0 allocated: true
+unmapPointer (QRect*)0x100eb1d0 -> 0x100eb228
+Deleting (QRect*)0x100eb1d0
+Checking for delete (QRect*)0x100eb6b8 allocated: true
+unmapPointer (QRect*)0x100eb6b8 -> 0x100eb138
+Deleting (QRect*)0x100eb6b8
+Checking for delete (QRect*)0x100eb5c8 allocated: true
+unmapPointer (QRect*)0x100eb5c8 -> 0x100eb620
+Deleting (QRect*)0x100eb5c8
+Checking for delete (QImage*)0x101464d8 allocated: true
+unmapPointer (QImage*)0x101464d8 -> 0x101464c8
+Deleting (QImage*)0x101464d8
+0x101464d8->~QImage()
+Checking for delete (QRect*)0x10086668 allocated: true
+unmapPointer (QRect*)0x10086668 -> 0x100eb4d0
+Deleting (QRect*)0x10086668
+Checking for delete (QRect*)0x1005e398 allocated: true
+unmapPointer (QRect*)0x1005e398 -> 0x101413d0
+Deleting (QRect*)0x1005e398
+Checking for delete (QRect*)0x10086500 allocated: true
+unmapPointer (QRect*)0x10086500 -> 0x1005e2a0
+Deleting (QRect*)0x10086500
+Checking for delete (QBrush*)0x100863f0 allocated: true
+unmapPointer (QBrush*)0x100863f0 -> 0x10085f78
+Deleting (QBrush*)0x100863f0
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x100860e0 allocated: true
+unmapPointer (QRect*)0x100860e0 -> 0x100865c8
+Deleting (QRect*)0x100860e0
+Checking for delete (QBrush*)0x100862f0 allocated: true
+unmapPointer (QBrush*)0x100862f0 -> 0x10086028
+Deleting (QBrush*)0x100862f0
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10052038 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10051fc8 allocated: true
+Deleting (QStyleOptionViewItem*)0x10051fc8
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x10085128 allocated: true
+Checking for delete (QModelIndex*)0x10085f38 allocated: true
+Checking for delete (QRectF*)0x1013ca18 allocated: true
+unmapPointer (QRectF*)0x1013ca18 -> 0x10085940
+Deleting (QRectF*)0x1013ca18
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x100857e8 allocated: true
+unmapPointer (QRect*)0x100857e8 -> 0x10085840
+Deleting (QRect*)0x100857e8
+Checking for delete (QRect*)0x10085298 allocated: true
+unmapPointer (QRect*)0x10085298 -> 0x10085750
+Deleting (QRect*)0x10085298
+Checking for delete (QRect*)0x100851a8 allocated: true
+unmapPointer (QRect*)0x100851a8 -> 0x10085200
+Deleting (QRect*)0x100851a8
+Checking for delete (QRect*)0x10149490 allocated: true
+unmapPointer (QRect*)0x10149490 -> 0x100850b0
+Deleting (QRect*)0x10149490
+Checking for delete (QRect*)0x10142a78 allocated: true
+unmapPointer (QRect*)0x10142a78 -> 0x100692d0
+Deleting (QRect*)0x10142a78
+Checking for delete (QRect*)0x100f4738 allocated: true
+unmapPointer (QRect*)0x100f4738 -> 0x10142980
+Deleting (QRect*)0x100f4738
+Checking for delete (QBrush*)0x10149568 allocated: true
+unmapPointer (QBrush*)0x10149568 -> 0x101428a8
+Deleting (QBrush*)0x10149568
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x100867f8 allocated: true
+unmapPointer (QRect*)0x100867f8 -> 0x10149438
+Deleting (QRect*)0x100867f8
+Checking for delete (QBrush*)0x1013cb00 allocated: true
+unmapPointer (QBrush*)0x1013cb00 -> 0x10086740
+Deleting (QBrush*)0x1013cb00
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10085e10 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1013c998 allocated: true
+Deleting (QStyleOptionViewItem*)0x1013c998
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x10061e30 allocated: true
+Checking for delete (QModelIndex*)0x10067f50 allocated: true
+Checking for delete (QRectF*)0x100ef730 allocated: true
+unmapPointer (QRectF*)0x100ef730 -> 0x10067ef8
+Deleting (QRectF*)0x100ef730
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x10082410 allocated: true
+unmapPointer (QRect*)0x10082410 -> 0x10082468
+Deleting (QRect*)0x10082410
+Checking for delete (QRect*)0x10082320 allocated: true
+unmapPointer (QRect*)0x10082320 -> 0x10082378
+Deleting (QRect*)0x10082320
+Checking for delete (QRect*)0x10065940 allocated: true
+unmapPointer (QRect*)0x10065940 -> 0x10082288
+Deleting (QRect*)0x10065940
+Checking for delete (QRect*)0x100631e8 allocated: true
+unmapPointer (QRect*)0x100631e8 -> 0x10065848
+Deleting (QRect*)0x100631e8
+Checking for delete (QRect*)0x1007de68 allocated: true
+unmapPointer (QRect*)0x1007de68 -> 0x1007dec0
+Deleting (QRect*)0x1007de68
+Checking for delete (QRect*)0x10146020 allocated: true
+unmapPointer (QRect*)0x10146020 -> 0x1007dd70
+Deleting (QRect*)0x10146020
+Checking for delete (QBrush*)0x10063118 allocated: true
+unmapPointer (QBrush*)0x10063118 -> 0x100f6610
+Deleting (QBrush*)0x10063118
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x10066c80 allocated: true
+unmapPointer (QRect*)0x10066c80 -> 0x10085e80
+Deleting (QRect*)0x10066c80
+Checking for delete (QAction*)0x101404f8 allocated: false
+Checking for delete (QBrush*)0x10066b68 allocated: true
+unmapPointer (QBrush*)0x10066b68 -> 0x10066c08
+Deleting (QBrush*)0x10066b68
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100f4868 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10066ad8 allocated: true
+Deleting (QStyleOptionViewItem*)0x10066ad8
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x101315d8 allocated: true
+Checking for delete (QAction*)0x101400c0 allocated: false
+Checking for delete (QModelIndex*)0x100f6578 allocated: true
+Checking for delete (QRectF*)0x10146410 allocated: true
+unmapPointer (QRectF*)0x10146410 -> 0x100f6520
+Deleting (QRectF*)0x10146410
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x100f2130 allocated: true
+unmapPointer (QRect*)0x100f2130 -> 0x100f2188
+Deleting (QRect*)0x100f2130
+Checking for delete (QRect*)0x100f2040 allocated: true
+unmapPointer (QRect*)0x100f2040 -> 0x100f2098
+Deleting (QRect*)0x100f2040
+Checking for delete (QRect*)0x100f69a8 allocated: true
+unmapPointer (QRect*)0x100f69a8 -> 0x10061f00
+Deleting (QRect*)0x100f69a8
+Checking for delete (QRect*)0x100f63a8 allocated: true
+unmapPointer (QRect*)0x100f63a8 -> 0x10061db8
+Deleting (QRect*)0x100f63a8
+Checking for delete (QRect*)0x100122c8 allocated: true
+unmapPointer (QRect*)0x100122c8 -> 0x10012320
+Deleting (QRect*)0x100122c8
+Checking for delete (QRect*)0x100f6380 allocated: true
+unmapPointer (QRect*)0x100f6380 -> 0x100f4810
+Deleting (QRect*)0x100f6380
+Checking for delete (QBrush*)0x100ef818 allocated: true
+unmapPointer (QBrush*)0x100ef818 -> 0x10073570
+Deleting (QBrush*)0x100ef818
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x100ef6f8 allocated: true
+unmapPointer (QRect*)0x100ef6f8 -> 0x100f62e0
+Deleting (QRect*)0x100ef6f8
+Checking for delete (QBrush*)0x100ee088 allocated: true
+unmapPointer (QBrush*)0x100ee088 -> 0x100ee0f8
+Deleting (QBrush*)0x100ee088
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QAction*)0x1013e3b0 allocated: false
+Checking for delete (QModelIndex*)0x101460b0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10146038 allocated: true
+Deleting (QStyleOptionViewItem*)0x10146038
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x10064530 allocated: true
+Checking for delete (QModelIndex*)0x101462b0 allocated: true
+Checking for delete (QRectF*)0x1007cf18 allocated: true
+unmapPointer (QRectF*)0x1007cf18 -> 0x10146258
+Deleting (QRectF*)0x1007cf18
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x10080830 allocated: true
+unmapPointer (QRect*)0x10080830 -> 0x10080888
+Deleting (QRect*)0x10080830
+Checking for delete (QRect*)0x100804d0 allocated: true
+unmapPointer (QRect*)0x100804d0 -> 0x10080798
+Deleting (QRect*)0x100804d0
+Checking for delete (QRect*)0x100803e0 allocated: true
+unmapPointer (QRect*)0x100803e0 -> 0x10080438
+Deleting (QRect*)0x100803e0
+Checking for delete (QRect*)0x10131450 allocated: true
+unmapPointer (QRect*)0x10131450 -> 0x10146148
+Deleting (QRect*)0x10131450
+Checking for delete (QRect*)0x1007d198 allocated: true
+unmapPointer (QRect*)0x1007d198 -> 0x1013cf50
+Deleting (QRect*)0x1007d198
+Checking for delete (QRect*)0x101315a0 allocated: true
+unmapPointer (QRect*)0x101315a0 -> 0x1013cdf8
+Deleting (QRect*)0x101315a0
+Checking for delete (QBrush*)0x10085a88 allocated: true
+unmapPointer (QBrush*)0x10085a88 -> 0x100645a8
+Deleting (QBrush*)0x10085a88
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x1005a988 allocated: true
+unmapPointer (QRect*)0x1005a988 -> 0x100644b8
+Deleting (QRect*)0x1005a988
+Checking for delete (QBrush*)0x10085bc8 allocated: true
+unmapPointer (QBrush*)0x10085bc8 -> 0x101314f8
+Deleting (QBrush*)0x10085bc8
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1007cec0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1007ce50 allocated: true
+Deleting (QStyleOptionViewItem*)0x1007ce50
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x10073610 allocated: true
+Checking for delete (QModelIndex*)0x10085a30 allocated: true
+Checking for delete (QRectF*)0x1005a608 allocated: true
+unmapPointer (QRectF*)0x1005a608 -> 0x10131ee0
+Deleting (QRectF*)0x1005a608
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x10133878 allocated: true
+unmapPointer (QRect*)0x10133878 -> 0x10131de0
+Deleting (QRect*)0x10133878
+Checking for delete (QRect*)0x101337c8 allocated: true
+unmapPointer (QRect*)0x101337c8 -> 0x10133820
+Deleting (QRect*)0x101337c8
+Checking for delete (QRect*)0x101336e8 allocated: true
+unmapPointer (QRect*)0x101336e8 -> 0x10133730
+Deleting (QRect*)0x101336e8
+Checking for delete (QRect*)0x1007a948 allocated: true
+unmapPointer (QRect*)0x1007a948 -> 0x1007cf78
+Deleting (QRect*)0x1007a948
+Checking for delete (QRect*)0x1007b3a8 allocated: true
+unmapPointer (QRect*)0x1007b3a8 -> 0x1007b438
+Deleting (QRect*)0x1007b3a8
+Checking for delete (QRect*)0x1008c5f0 allocated: true
+unmapPointer (QRect*)0x1008c5f0 -> 0x1007b2f8
+Deleting (QRect*)0x1008c5f0
+Checking for delete (QBrush*)0x10086bd8 allocated: true
+unmapPointer (QBrush*)0x10086bd8 -> 0x1007a918
+Deleting (QBrush*)0x10086bd8
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x1007aab8 allocated: true
+unmapPointer (QRect*)0x1007aab8 -> 0x1008c528
+Deleting (QRect*)0x1007aab8
+Checking for delete (QBrush*)0x1007a960 allocated: true
+unmapPointer (QBrush*)0x1007a960 -> 0x1007aa00
+Deleting (QBrush*)0x1007a960
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1007cb60 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1007cc30 allocated: true
+Deleting (QStyleOptionViewItem*)0x1007cc30
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x1004fac0 allocated: true
+Checking for delete (QModelIndex*)0x1006ed90 allocated: true
+Checking for delete (QRectF*)0x10079628 allocated: true
+unmapPointer (QRectF*)0x10079628 -> 0x1004fba0
+Deleting (QRectF*)0x10079628
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x1014d988 allocated: true
+unmapPointer (QRect*)0x1014d988 -> 0x1004fa58
+Deleting (QRect*)0x1014d988
+Checking for delete (QRect*)0x1014d898 allocated: true
+unmapPointer (QRect*)0x1014d898 -> 0x1014d8f0
+Deleting (QRect*)0x1014d898
+Checking for delete (QRect*)0x10089ff0 allocated: true
+unmapPointer (QRect*)0x10089ff0 -> 0x1008a048
+Deleting (QRect*)0x10089ff0
+Checking for delete (QRect*)0x1006c8c8 allocated: true
+unmapPointer (QRect*)0x1006c8c8 -> 0x10072fc0
+Deleting (QRect*)0x1006c8c8
+Checking for delete (QRect*)0x1006c8e0 allocated: true
+unmapPointer (QRect*)0x1006c8e0 -> 0x1006c8a8
+Deleting (QRect*)0x1006c8e0
+Checking for delete (QRect*)0x1007cb98 allocated: true
+unmapPointer (QRect*)0x1007cb98 -> 0x1007cc18
+Deleting (QRect*)0x1007cb98
+Checking for delete (QBrush*)0x1006f460 allocated: true
+unmapPointer (QBrush*)0x1006f460 -> 0x1004e3e0
+Deleting (QBrush*)0x1006f460
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x1008b238 allocated: true
+unmapPointer (QRect*)0x1008b238 -> 0x1007cad0
+Deleting (QRect*)0x1008b238
+Checking for delete (QBrush*)0x1006f4c0 allocated: true
+unmapPointer (QBrush*)0x1006f4c0 -> 0x1005a4f0
+Deleting (QBrush*)0x1006f4c0
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10081ad8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1006a560 allocated: true
+Deleting (QStyleOptionViewItem*)0x1006a560
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x10087380 allocated: true
+Checking for delete (QModelIndex*)0x1004e4f0 allocated: true
+Checking for delete (QRectF*)0x1008aca8 allocated: true
+unmapPointer (QRectF*)0x1008aca8 -> 0x1004e498
+Deleting (QRectF*)0x1008aca8
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x10140f78 allocated: true
+unmapPointer (QRect*)0x10140f78 -> 0x10140fd0
+Deleting (QRect*)0x10140f78
+Checking for delete (QRect*)0x1008a298 allocated: true
+unmapPointer (QRect*)0x1008a298 -> 0x10140ee0
+Deleting (QRect*)0x1008a298
+Checking for delete (QRect*)0x1008a230 allocated: true
+unmapPointer (QRect*)0x1008a230 -> 0x1008a288
+Deleting (QRect*)0x1008a230
+Checking for delete (QRect*)0x10086ca0 allocated: true
+unmapPointer (QRect*)0x10086ca0 -> 0x1008a138
+Deleting (QRect*)0x10086ca0
+Checking for delete (QRect*)0x1006c620 allocated: true
+unmapPointer (QRect*)0x1006c620 -> 0x1006c678
+Deleting (QRect*)0x1006c620
+Checking for delete (QRect*)0x1008ac20 allocated: true
+unmapPointer (QRect*)0x1008ac20 -> 0x1006a550
+Deleting (QRect*)0x1008ac20
+Checking for delete (QBrush*)0x1006f800 allocated: true
+unmapPointer (QBrush*)0x1006f800 -> 0x10086c70
+Deleting (QBrush*)0x1006f800
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x1006f840 allocated: true
+unmapPointer (QRect*)0x1006f840 -> 0x1006eb28
+Deleting (QRect*)0x1006f840
+Checking for delete (QBrush*)0x10086cd0 allocated: true
+unmapPointer (QBrush*)0x10086cd0 -> 0x1006f7a8
+Deleting (QBrush*)0x10086cd0
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1004db90 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10081a70 allocated: true
+Deleting (QStyleOptionViewItem*)0x10081a70
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x1007fe20 allocated: true
+Checking for delete (QModelIndex*)0x1007bfc8 allocated: true
+Checking for delete (QRectF*)0x1008acd0 allocated: true
+unmapPointer (QRectF*)0x1008acd0 -> 0x1007bfa8
+Deleting (QRectF*)0x1008acd0
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x1007ff10 allocated: true
+unmapPointer (QRect*)0x1007ff10 -> 0x1007be60
+Deleting (QRect*)0x1007ff10
+Checking for delete (QRect*)0x1007fde8 allocated: true
+unmapPointer (QRect*)0x1007fde8 -> 0x1007fe78
+Deleting (QRect*)0x1007fde8
+Checking for delete (QRect*)0x10059298 allocated: true
+unmapPointer (QRect*)0x10059298 -> 0x1008b800
+Deleting (QRect*)0x10059298
+Checking for delete (QRect*)0x1008c118 allocated: true
+unmapPointer (QRect*)0x1008c118 -> 0x1006dda0
+Deleting (QRect*)0x1008c118
+Checking for delete (QRect*)0x1004dbd0 allocated: true
+unmapPointer (QRect*)0x1004dbd0 -> 0x10079500
+Deleting (QRect*)0x1004dbd0
+Checking for delete (QRect*)0x1007db00 allocated: true
+unmapPointer (QRect*)0x1007db00 -> 0x1008c080
+Deleting (QRect*)0x1007db00
+Checking for delete (QBrush*)0x100737c8 allocated: true
+unmapPointer (QBrush*)0x100737c8 -> 0x100f1e80
+Deleting (QBrush*)0x100737c8
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x1004daa8 allocated: true
+unmapPointer (QRect*)0x1004daa8 -> 0x100f1ed0
+Deleting (QRect*)0x1004daa8
+Checking for delete (QBrush*)0x100737f0 allocated: true
+unmapPointer (QBrush*)0x100737f0 -> 0x10073890
+Deleting (QBrush*)0x100737f0
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10053f98 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10053f28 allocated: true
+Deleting (QStyleOptionViewItem*)0x10053f28
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x1008abc8 allocated: true
+Checking for delete (QModelIndex*)0x1008abb0 allocated: true
+Checking for delete (QRectF*)0x10067590 allocated: true
+unmapPointer (QRectF*)0x10067590 -> 0x10051130
+Deleting (QRectF*)0x10067590
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x1006d5c0 allocated: true
+unmapPointer (QRect*)0x1006d5c0 -> 0x10051030
+Deleting (QRect*)0x1006d5c0
+Checking for delete (QRect*)0x1006d4d0 allocated: true
+unmapPointer (QRect*)0x1006d4d0 -> 0x1006d528
+Deleting (QRect*)0x1006d4d0
+Checking for delete (QRect*)0x10056838 allocated: true
+unmapPointer (QRect*)0x10056838 -> 0x1006d438
+Deleting (QRect*)0x10056838
+Checking for delete (QRect*)0x10072dd0 allocated: true
+unmapPointer (QRect*)0x10072dd0 -> 0x10056740
+Deleting (QRect*)0x10072dd0
+Checking for delete (QRect*)0x100f4a30 allocated: true
+unmapPointer (QRect*)0x100f4a30 -> 0x100f4a88
+Deleting (QRect*)0x100f4a30
+Checking for delete (QRect*)0x10068068 allocated: true
+unmapPointer (QRect*)0x10068068 -> 0x100f4938
+Deleting (QRect*)0x10068068
+Checking for delete (QBrush*)0x100eaf20 allocated: true
+unmapPointer (QBrush*)0x100eaf20 -> 0x100681b0
+Deleting (QBrush*)0x100eaf20
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x1005e4a8 allocated: true
+unmapPointer (QRect*)0x1005e4a8 -> 0x100eaf98
+Deleting (QRect*)0x1005e4a8
+Checking for delete (QBrush*)0x10066e30 allocated: true
+unmapPointer (QBrush*)0x10066e30 -> 0x100620d8
+Deleting (QBrush*)0x10066e30
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1004f750 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1008b568 allocated: true
+Deleting (QStyleOptionViewItem*)0x1008b568
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x1005e600 allocated: true
+Checking for delete (QModelIndex*)0x100591d0 allocated: true
+Checking for delete (QRectF*)0x1008b540 allocated: true
+unmapPointer (QRectF*)0x1008b540 -> 0x10059178
+Deleting (QRectF*)0x1008b540
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x10055438 allocated: true
+unmapPointer (QRect*)0x10055438 -> 0x10055490
+Deleting (QRect*)0x10055438
+Checking for delete (QRect*)0x1004f810 allocated: true
+unmapPointer (QRect*)0x1004f810 -> 0x1004f868
+Deleting (QRect*)0x1004f810
+Checking for delete (QRect*)0x1004f6f0 allocated: true
+unmapPointer (QRect*)0x1004f6f0 -> 0x1004f778
+Deleting (QRect*)0x1004f6f0
+Checking for delete (QRect*)0x10077548 allocated: true
+unmapPointer (QRect*)0x10077548 -> 0x10066eb8
+Deleting (QRect*)0x10077548
+Checking for delete (QRect*)0x1015bef8 allocated: true
+unmapPointer (QRect*)0x1015bef8 -> 0x1015bf50
+Deleting (QRect*)0x1015bef8
+Checking for delete (QRect*)0x1004de28 allocated: true
+unmapPointer (QRect*)0x1004de28 -> 0x1004dcd8
+Deleting (QRect*)0x1004de28
+Checking for delete (QBrush*)0x1007d718 allocated: true
+unmapPointer (QBrush*)0x1007d718 -> 0x100773f0
+Deleting (QBrush*)0x1007d718
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x10087338 allocated: true
+unmapPointer (QRect*)0x10087338 -> 0x10077480
+Deleting (QRect*)0x10087338
+Checking for delete (QBrush*)0x1006b1a0 allocated: true
+unmapPointer (QBrush*)0x1006b1a0 -> 0x10087280
+Deleting (QBrush*)0x1006b1a0
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100ecb80 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1008b470 allocated: true
+Deleting (QStyleOptionViewItem*)0x1008b470
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x100676b8 allocated: true
+Checking for delete (QModelIndex*)0x1007da60 allocated: true
+Checking for delete (QRectF*)0x1013d728 allocated: true
+unmapPointer (QRectF*)0x1013d728 -> 0x1007da08
+Deleting (QRectF*)0x1013d728
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x1004f8d8 allocated: true
+unmapPointer (QRect*)0x1004f8d8 -> 0x1004f930
+Deleting (QRect*)0x1004f8d8
+Checking for delete (QRect*)0x10055c60 allocated: true
+unmapPointer (QRect*)0x10055c60 -> 0x10055cb8
+Deleting (QRect*)0x10055c60
+Checking for delete (QRect*)0x100788a0 allocated: true
+unmapPointer (QRect*)0x100788a0 -> 0x10055bc8
+Deleting (QRect*)0x100788a0
+Checking for delete (QRect*)0x100533f0 allocated: true
+unmapPointer (QRect*)0x100533f0 -> 0x100787a8
+Deleting (QRect*)0x100533f0
+Checking for delete (QRect*)0x100ecbf8 allocated: true
+unmapPointer (QRect*)0x100ecbf8 -> 0x100ecc50
+Deleting (QRect*)0x100ecbf8
+Checking for delete (QRect*)0x10074248 allocated: true
+unmapPointer (QRect*)0x10074248 -> 0x100742e8
+Deleting (QRect*)0x10074248
+Checking for delete (QBrush*)0x100f24d8 allocated: true
+unmapPointer (QBrush*)0x100f24d8 -> 0x100efee8
+Deleting (QBrush*)0x100f24d8
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x10067558 allocated: true
+unmapPointer (QRect*)0x10067558 -> 0x1006b6f8
+Deleting (QRect*)0x10067558
+Checking for delete (QBrush*)0x10062818 allocated: true
+unmapPointer (QBrush*)0x10062818 -> 0x100628b8
+Deleting (QBrush*)0x10062818
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10054820 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100547b0 allocated: true
+Deleting (QStyleOptionViewItem*)0x100547b0
+Checking for delete (QPainter*)0x7fff9fa0 allocated: false
+Checking for delete (QModelIndex*)0x100eff10 allocated: true
+Checking for delete (QRectF*)0x100dd038 allocated: true
+unmapPointer (QRectF*)0x100dd038 -> 0x100f2428
+Deleting (QRectF*)0x100dd038
+Checking for delete (QRectF*)(nil) allocated: false
+Checking for delete (QRect*)0x100792b0 allocated: true
+unmapPointer (QRect*)0x100792b0 -> 0x10079308
+Deleting (QRect*)0x100792b0
+Checking for delete (QRect*)0x1007c0d0 allocated: true
+unmapPointer (QRect*)0x1007c0d0 -> 0x1007c128
+Deleting (QRect*)0x1007c0d0
+Checking for delete (QRect*)0x1006a718 allocated: true
+unmapPointer (QRect*)0x1006a718 -> 0x1006a770
+Deleting (QRect*)0x1006a718
+Checking for delete (QRect*)0x100ec220 allocated: true
+unmapPointer (QRect*)0x100ec220 -> 0x100ec278
+Deleting (QRect*)0x100ec220
+Checking for delete (QRect*)0x10078068 allocated: true
+unmapPointer (QRect*)0x10078068 -> 0x1014c460
+Deleting (QRect*)0x10078068
+Checking for delete (QRect*)0x10085350 allocated: true
+unmapPointer (QRect*)0x10085350 -> 0x100773a0
+Deleting (QRect*)0x10085350
+Checking for delete (QBrush*)0x10130320 allocated: true
+unmapPointer (QBrush*)0x10130320 -> 0x1012d968
+Deleting (QBrush*)0x10130320
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QRect*)0x1013c170 allocated: true
+unmapPointer (QRect*)0x1013c170 -> 0x10139500
+Deleting (QRect*)0x1013c170
+Checking for delete (QBrush*)(nil) allocated: false
+Checking for delete (QBrush*)0x10159548 allocated: true
+unmapPointer (QBrush*)0x10159548 -> 0x101589d8
+Deleting (QBrush*)0x10159548
+Checking for delete (QModelIndex*)0x100afbd0 allocated: true
+Checking for delete (QModelIndex*)0x100c7170 allocated: true
+Checking for delete (QModelIndex*)0x10157e18 allocated: true
+Checking for delete (QModelIndex*)0x100e4498 allocated: true
+Checking for delete (QModelIndex*)0x101503d0 allocated: true
+Checking for delete (QModelIndex*)0x100cf750 allocated: true
+Checking for delete (QModelIndex*)0x100d0a58 allocated: true
+Checking for delete (QModelIndex*)0x1008efc8 allocated: true
+Checking for delete (QModelIndex*)0x100adfe8 allocated: true
+Checking for delete (QModelIndex*)0x10153688 allocated: true
+Checking for delete (QModelIndex*)0x100b9f70 allocated: true
+Checking for delete (QModelIndex*)0x10154ec8 allocated: true
+Checking for delete (QModelIndex*)0x100dd790 allocated: true
+Checking for delete (QModelIndex*)0x100d2d20 allocated: true
+Checking for delete (QModelIndex*)0x100cf018 allocated: true
+Checking for delete (QModelIndex*)0x10092530 allocated: true
+Checking for delete (QModelIndex*)0x1013f580 allocated: true
+Checking for delete (QModelIndex*)0x1014a868 allocated: true
+Checking for delete (QModelIndex*)0x10150b10 allocated: true
+Checking for delete (QModelIndex*)0x100e9f48 allocated: true
+Checking for delete (QModelIndex*)0x1006f1d8 allocated: true
+Checking for delete (QModelIndex*)0x1014f100 allocated: true
+Checking for delete (QModelIndex*)0x10154560 allocated: true
+Checking for delete (QModelIndex*)0x10141cb0 allocated: true
+Checking for delete (QModelIndex*)0x1006add8 allocated: true
+Checking for delete (QModelIndex*)0x10054988 allocated: true
+Checking for delete (QModelIndex*)0x10055dc0 allocated: true
+Checking for delete (QModelIndex*)0x10152350 allocated: true
+Checking for delete (QModelIndex*)0x10087480 allocated: true
+Checking for delete (QModelIndex*)0x10085668 allocated: true
+Checking for delete (QModelIndex*)0x10075680 allocated: true
+Checking for delete (QModelIndex*)0x100eedc8 allocated: true
+Checking for delete (QModelIndex*)0x10012868 allocated: true
+Checking for delete (QModelIndex*)0x1005b428 allocated: true
+Checking for delete (QModelIndex*)0x10087080 allocated: true
+Checking for delete (QModelIndex*)0x10154908 allocated: true
+Checking for delete (QModelIndex*)0x1007b1e0 allocated: true
+Checking for delete (QModelIndex*)0x1014e548 allocated: true
+Checking for delete (QModelIndex*)0x1014e758 allocated: true
+Checking for delete (QModelIndex*)0x100ce458 allocated: true
+Checking for delete (QModelIndex*)0x10155a10 allocated: true
+Checking for delete (QModelIndex*)0x101588e0 allocated: true
+Checking for delete (QModelIndex*)0x101518c0 allocated: true
+Checking for delete (QModelIndex*)0x1004f428 allocated: true
+Checking for delete (QModelIndex*)0x1006feb0 allocated: true
+Checking for delete (QModelIndex*)0x1004f370 allocated: true
+Checking for delete (QModelIndex*)0x10152d10 allocated: true
+Checking for delete (QModelIndex*)0x1006b948 allocated: true
+Checking for delete (QModelIndex*)0x100ed030 allocated: true
+Checking for delete (QModelIndex*)0x10151410 allocated: true
+Checking for delete (QModelIndex*)0x101572a8 allocated: true
+Checking for delete (QModelIndex*)0x10154ae0 allocated: true
+Checking for delete (QModelIndex*)0x1013a188 allocated: true
+Checking for delete (QModelIndex*)0x10151708 allocated: true
+Checking for delete (QModelIndex*)0x1015a6e8 allocated: true
+Checking for delete (QModelIndex*)0x10151ec8 allocated: true
+Checking for delete (QModelIndex*)0x10081210 allocated: true
+Checking for delete (QModelIndex*)0x10159100 allocated: true
+Checking for delete (QModelIndex*)0x101596a8 allocated: true
+Checking for delete (QModelIndex*)0x10140658 allocated: true
+Checking for delete (QModelIndex*)0x100599d0 allocated: true
+Checking for delete (QModelIndex*)0x100f3c88 allocated: true
+Checking for delete (QModelIndex*)0x100a0168 allocated: true
+Checking for delete (QModelIndex*)0x10156b38 allocated: true
+Checking for delete (QModelIndex*)0x1015aeb8 allocated: true
+Checking for delete (QModelIndex*)0x10156ec0 allocated: true
+Checking for delete (QModelIndex*)0x10157be8 allocated: true
+Checking for delete (QModelIndex*)0x1013c448 allocated: true
+Checking for delete (QModelIndex*)0x10153d10 allocated: true
+Checking for delete (QModelIndex*)0x101581c8 allocated: true
+Checking for delete (QModelIndex*)0x1014a4f0 allocated: true
+Checking for delete (QModelIndex*)0x10152080 allocated: true
+Checking for delete (QModelIndex*)0x1014a038 allocated: true
+Checking for delete (QModelIndex*)0x1014f818 allocated: true
+Checking for delete (QModelIndex*)0x10158718 allocated: true
+Checking for delete (QModelIndex*)0x101598b8 allocated: true
+Checking for delete (QModelIndex*)0x1015a370 allocated: true
+Checking for delete (QModelIndex*)0x10156f40 allocated: true
+Checking for delete (QModelIndex*)0x10131378 allocated: true
+Checking for delete (QModelIndex*)0x10156950 allocated: true
+Checking for delete (QModelIndex*)0x1007a500 allocated: true
+Checking for delete (QModelIndex*)0x1014f2a8 allocated: true
+Checking for delete (QModelIndex*)0x1006a3e8 allocated: true
+Checking for delete (QModelIndex*)0x10152600 allocated: true
+Checking for delete (QModelIndex*)0x10158c90 allocated: true
+Checking for delete (QModelIndex*)0x10155fa8 allocated: true
+Checking for delete (QModelIndex*)0x10041fa8 allocated: true
+Checking for delete (QModelIndex*)0x10051d78 allocated: true
+Checking for delete (QModelIndex*)0x1014b9d8 allocated: true
+Checking for delete (QModelIndex*)0x100e6578 allocated: true
+Checking for delete (QModelIndex*)0x10057ec8 allocated: true
+Checking for delete (QModelIndex*)0x1005d910 allocated: true
+Checking for delete (QModelIndex*)0x100ebbe8 allocated: true
+Checking for delete (QModelIndex*)0x100ec438 allocated: true
+Checking for delete (QModelIndex*)0x100a3c90 allocated: true
+Checking for delete (QModelIndex*)0x100a4060 allocated: true
+Checking for delete (QModelIndex*)0x10083258 allocated: true
+Checking for delete (QModelIndex*)0x1004d650 allocated: true
+Checking for delete (QModelIndex*)0x100cc550 allocated: true
+Checking for delete (QModelIndex*)0x100ec808 allocated: true
+Checking for delete (QModelIndex*)0x100c2ed8 allocated: true
+Checking for delete (QModelIndex*)0x10056f98 allocated: true
+Checking for delete (QModelIndex*)0x10094190 allocated: true
+Checking for delete (QModelIndex*)0x100932c8 allocated: true
+Checking for delete (QModelIndex*)0x100936a8 allocated: true
+Checking for delete (QModelIndex*)0x10080130 allocated: true
+Checking for delete (QModelIndex*)0x1008ae78 allocated: true
+Checking for delete (QModelIndex*)0x10081e60 allocated: true
+Checking for delete (QModelIndex*)0x100ed160 allocated: true
+Checking for delete (QModelIndex*)0x1005db40 allocated: true
+Checking for delete (QModelIndex*)0x1008a7f0 allocated: true
+Checking for delete (QModelIndex*)0x10041dd8 allocated: true
+Checking for delete (QModelIndex*)0x10042028 allocated: true
+Checking for delete (QModelIndex*)0x1004cd10 allocated: true
+Checking for delete (QModelIndex*)0x100550c8 allocated: true
+Checking for delete (QModelIndex*)0x1005cce0 allocated: true
+Checking for delete (QModelIndex*)0x100eee78 allocated: true
+Checking for delete (QModelIndex*)0x100121f8 allocated: true
+Checking for delete (QModelIndex*)0x1008bb80 allocated: true
+Checking for delete (QModelIndex*)0x1008c8d8 allocated: true
+Checking for delete (QModelIndex*)0x100ee348 allocated: true
+Checking for delete (QModelIndex*)0x1007f448 allocated: true
+Checking for delete (QModelIndex*)0x10078910 allocated: true
+Checking for delete (QModelIndex*)0x10051448 allocated: true
+Checking for delete (QModelIndex*)0x100f3e58 allocated: true
+Checking for delete (QModelIndex*)0x10159ff0 allocated: true
+Checking for delete (QModelIndex*)0x100f6738 allocated: true
+Checking for delete (QModelIndex*)0x100775f8 allocated: true
+Checking for delete (QModelIndex*)0x1007d330 allocated: true
+Checking for delete (QModelIndex*)0x10091820 allocated: true
+Checking for delete (QModelIndex*)0x100901f0 allocated: true
+Checking for delete (QModelIndex*)0x1006ba30 allocated: true
+Checking for delete (QModelIndex*)0x10089d10 allocated: true
+Checking for delete (QModelIndex*)0x1008a638 allocated: true
+Checking for delete (QModelIndex*)0x10071978 allocated: true
+Checking for delete (QModelIndex*)0x100be590 allocated: true
+Checking for delete (QModelIndex*)0x100b9bb8 allocated: true
+Checking for delete (QModelIndex*)0x1004d830 allocated: true
+Checking for delete (QModelIndex*)0x10095860 allocated: true
+Checking for delete (QModelIndex*)0x1004f1d8 allocated: true
+Checking for delete (QModelIndex*)0x1014fc38 allocated: true
+Checking for delete (QModelIndex*)0x101538e0 allocated: true
+Checking for delete (QModelIndex*)0x10091cc0 allocated: true
+Checking for delete (QModelIndex*)0x10051e48 allocated: true
+Checking for delete (QModelIndex*)0x10052130 allocated: true
+Checking for delete (QModelIndex*)0x1008c910 allocated: true
+Checking for delete (QModelIndex*)0x100f0110 allocated: true
+Checking for delete (QModelIndex*)0x100ef4c0 allocated: true
+Checking for delete (QModelIndex*)0x100891c0 allocated: true
+Checking for delete (QModelIndex*)0x100e2348 allocated: true
+Checking for delete (QModelIndex*)0x100e6908 allocated: true
+Checking for delete (QModelIndex*)0x100d7540 allocated: true
+Checking for delete (QModelIndex*)0x100ae478 allocated: true
+Checking for delete (QModelIndex*)0x10156d10 allocated: true
+Checking for delete (QModelIndex*)0x100d7910 allocated: true
+Checking for delete (QModelIndex*)0x100d7d40 allocated: true
+Checking for delete (QModelIndex*)0x1005cdf0 allocated: true
+Checking for delete (QModelIndex*)0x1005cdc0 allocated: true
+Checking for delete (QModelIndex*)0x1005da68 allocated: true
+Checking for delete (QModelIndex*)0x10041af0 allocated: true
+Checking for delete (QModelIndex*)0x100688f8 allocated: true
+Checking for delete (QModelIndex*)0x10041be0 allocated: true
+Checking for delete (QModelIndex*)0x101558a0 allocated: true
+Checking for delete (QModelIndex*)0x1004e250 allocated: true
+Checking for delete (QModelIndex*)0x100c6e00 allocated: true
+Checking for delete (QModelIndex*)0x10041ea8 allocated: true
+Checking for delete (QModelIndex*)0x1008f460 allocated: true
+Checking for delete (QSize*)0x1009f970 allocated: true
+unmapPointer (QSize*)0x1009f970 -> 0x1009f9c0
+Deleting (QSize*)0x1009f970
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100a0550 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100a04e0 allocated: true
+Deleting (QStyleOptionViewItem*)0x100a04e0
+Checking for delete (QModelIndex*)0x100a0948 allocated: true
+Checking for delete (QSize*)0x100a11d8 allocated: true
+unmapPointer (QSize*)0x100a11d8 -> 0x100a1228
+Deleting (QSize*)0x100a11d8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100a0db0 allocated: true
+Checking for delete (QModelIndex*)0x100a19d8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100a1968 allocated: true
+Deleting (QStyleOptionViewItem*)0x100a1968
+Checking for delete (QModelIndex*)0x100a1d28 allocated: true
+Checking for delete (QSize*)0x100a2970 allocated: true
+unmapPointer (QSize*)0x100a2970 -> 0x100a2530
+Deleting (QSize*)0x100a2970
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100a2150 allocated: true
+Checking for delete (QModelIndex*)0x100a78f8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100a2c60 allocated: true
+Deleting (QStyleOptionViewItem*)0x100a2c60
+Checking for delete (QModelIndex*)0x100cd1a8 allocated: true
+Checking for delete (QModelIndex*)0x100bdf70 allocated: true
+Checking for delete (QSize*)0x100a4e78 allocated: true
+unmapPointer (QSize*)0x100a4e78 -> 0x100a4780
+Deleting (QSize*)0x100a4e78
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100a4af0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100a4a80 allocated: true
+Deleting (QStyleOptionViewItem*)0x100a4a80
+Checking for delete (QModelIndex*)0x100a5270 allocated: true
+Checking for delete (QSize*)0x100a5790 allocated: true
+unmapPointer (QSize*)0x100a5790 -> 0x100a53d8
+Deleting (QSize*)0x100a5790
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100a5410 allocated: true
+Checking for delete (QModelIndex*)0x100a5f90 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100a5f20 allocated: true
+Deleting (QStyleOptionViewItem*)0x100a5f20
+Checking for delete (QModelIndex*)0x100a66c0 allocated: true
+Checking for delete (QSize*)0x100ac200 allocated: true
+unmapPointer (QSize*)0x100ac200 -> 0x100a6ae8
+Deleting (QSize*)0x100ac200
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100a6668 allocated: true
+Checking for delete (QModelIndex*)0x100ac1c0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100a6e60 allocated: true
+Deleting (QStyleOptionViewItem*)0x100a6e60
+Checking for delete (QModelIndex*)0x100b64c0 allocated: true
+Checking for delete (QModelIndex*)0x100d3590 allocated: true
+Checking for delete (QSize*)0x100a8be8 allocated: true
+unmapPointer (QSize*)0x100a8be8 -> 0x100a8808
+Deleting (QSize*)0x100a8be8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100a93e0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100a9370 allocated: true
+Deleting (QStyleOptionViewItem*)0x100a9370
+Checking for delete (QModelIndex*)0x100a9c08 allocated: true
+Checking for delete (QSize*)0x100a9ff0 allocated: true
+unmapPointer (QSize*)0x100a9ff0 -> 0x100aa058
+Deleting (QSize*)0x100a9ff0
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100a9bd8 allocated: true
+Checking for delete (QModelIndex*)0x100aa808 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100aa798 allocated: true
+Deleting (QStyleOptionViewItem*)0x100aa798
+Checking for delete (QModelIndex*)0x100aab28 allocated: true
+Checking for delete (QSize*)0x100b1b28 allocated: true
+unmapPointer (QSize*)0x100b1b28 -> 0x100ab250
+Deleting (QSize*)0x100b1b28
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100ab288 allocated: true
+Checking for delete (QModelIndex*)0x100b1ae8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100ab9e0 allocated: true
+Deleting (QStyleOptionViewItem*)0x100ab9e0
+Checking for delete (QModelIndex*)0x100b1b38 allocated: true
+Checking for delete (QModelIndex*)0x100c2088 allocated: true
+Checking for delete (QSize*)0x100ad450 allocated: true
+unmapPointer (QSize*)0x100ad450 -> 0x100ad098
+Deleting (QSize*)0x100ad450
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1009f0b0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1009f040 allocated: true
+Deleting (QStyleOptionViewItem*)0x1009f040
+Checking for delete (QModelIndex*)0x100aef90 allocated: true
+Checking for delete (QSize*)0x100afff0 allocated: true
+unmapPointer (QSize*)0x100afff0 -> 0x100af378
+Deleting (QSize*)0x100afff0
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100aef38 allocated: true
+Checking for delete (QModelIndex*)0x100af7d8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100af768 allocated: true
+Deleting (QStyleOptionViewItem*)0x100af768
+Checking for delete (QModelIndex*)0x100b03f0 allocated: true
+Checking for delete (QSize*)0x100b0c00 allocated: true
+unmapPointer (QSize*)0x100b0c00 -> 0x100b0768
+Deleting (QSize*)0x100b0c00
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100b07a0 allocated: true
+Checking for delete (QModelIndex*)0x100b1000 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100b0fa8 allocated: true
+Deleting (QStyleOptionViewItem*)0x100b0fa8
+Checking for delete (QModelIndex*)0x100b50e8 allocated: true
+Checking for delete (QModelIndex*)0x100d55a0 allocated: true
+Checking for delete (QSize*)0x100b2a80 allocated: true
+unmapPointer (QSize*)0x100b2a80 -> 0x100b2620
+Deleting (QSize*)0x100b2a80
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100b3270 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100b3200 allocated: true
+Deleting (QStyleOptionViewItem*)0x100b3200
+Checking for delete (QModelIndex*)0x100b3768 allocated: true
+Checking for delete (QSize*)0x100b3b70 allocated: true
+unmapPointer (QSize*)0x100b3b70 -> 0x100b3bd8
+Deleting (QSize*)0x100b3b70
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100b3738 allocated: true
+Checking for delete (QModelIndex*)0x100b4108 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100b4098 allocated: true
+Deleting (QStyleOptionViewItem*)0x100b4098
+Checking for delete (QModelIndex*)0x100b44c8 allocated: true
+Checking for delete (QSize*)0x100b5120 allocated: true
+unmapPointer (QSize*)0x100b5120 -> 0x100b4d48
+Deleting (QSize*)0x100b5120
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100b4d80 allocated: true
+Checking for delete (QModelIndex*)0x100b54a0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100b5430 allocated: true
+Deleting (QStyleOptionViewItem*)0x100b5430
+Checking for delete (QModelIndex*)0x100bdf48 allocated: true
+Checking for delete (QModelIndex*)0x100c9680 allocated: true
+Checking for delete (QSize*)0x100b6cd0 allocated: true
+unmapPointer (QSize*)0x100b6cd0 -> 0x100b68f8
+Deleting (QSize*)0x100b6cd0
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100b7060 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100b6ff0 allocated: true
+Deleting (QStyleOptionViewItem*)0x100b6ff0
+Checking for delete (QModelIndex*)0x100b7360 allocated: true
+Checking for delete (QSize*)0x100b7a58 allocated: true
+unmapPointer (QSize*)0x100b7a58 -> 0x100b76c0
+Deleting (QSize*)0x100b7a58
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100b76f8 allocated: true
+Checking for delete (QModelIndex*)0x100b8250 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100b81e0 allocated: true
+Deleting (QStyleOptionViewItem*)0x100b81e0
+Checking for delete (QModelIndex*)0x100b89f0 allocated: true
+Checking for delete (QSize*)0x100b9100 allocated: true
+unmapPointer (QSize*)0x100b9100 -> 0x100b8d60
+Deleting (QSize*)0x100b9100
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100b8998 allocated: true
+Checking for delete (QModelIndex*)0x100b9540 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100b94e8 allocated: true
+Deleting (QStyleOptionViewItem*)0x100b94e8
+Checking for delete (QModelIndex*)0x100d25d8 allocated: true
+Checking for delete (QModelIndex*)0x100cec10 allocated: true
+Checking for delete (QSize*)0x100bb448 allocated: true
+unmapPointer (QSize*)0x100bb448 -> 0x100bacc8
+Deleting (QSize*)0x100bb448
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100bb3e8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100bb7a8 allocated: true
+Deleting (QStyleOptionViewItem*)0x100bb7a8
+Checking for delete (QModelIndex*)0x100bbb50 allocated: true
+Checking for delete (QSize*)0x100bc2f0 allocated: true
+unmapPointer (QSize*)0x100bc2f0 -> 0x100bbf38
+Deleting (QSize*)0x100bc2f0
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100bbf70 allocated: true
+Checking for delete (QModelIndex*)0x100bc6d0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100bc660 allocated: true
+Deleting (QStyleOptionViewItem*)0x100bc660
+Checking for delete (QModelIndex*)0x100bd138 allocated: true
+Checking for delete (QSize*)0x100bd830 allocated: true
+unmapPointer (QSize*)0x100bd830 -> 0x100bd488
+Deleting (QSize*)0x100bd830
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100bd4c0 allocated: true
+Checking for delete (QModelIndex*)0x100c7578 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100bdb80 allocated: true
+Deleting (QStyleOptionViewItem*)0x100bdb80
+Checking for delete (QModelIndex*)0x100c2b78 allocated: true
+Checking for delete (QModelIndex*)0x100d16b0 allocated: true
+Checking for delete (QSize*)0x100bf580 allocated: true
+unmapPointer (QSize*)0x100bf580 -> 0x100bf1d0
+Deleting (QSize*)0x100bf580
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100bfd40 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100bfcd0 allocated: true
+Deleting (QStyleOptionViewItem*)0x100bfcd0
+Checking for delete (QModelIndex*)0x100c05a0 allocated: true
+Checking for delete (QSize*)0x100c11b8 allocated: true
+unmapPointer (QSize*)0x100c11b8 -> 0x100c09b8
+Deleting (QSize*)0x100c11b8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100c0548 allocated: true
+Checking for delete (QModelIndex*)0x100c0e08 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100c0d98 allocated: true
+Deleting (QStyleOptionViewItem*)0x100c0d98
+Checking for delete (QModelIndex*)0x100c15b8 allocated: true
+Checking for delete (QSize*)0x100c1cd8 allocated: true
+unmapPointer (QSize*)0x100c1cd8 -> 0x100c1910
+Deleting (QSize*)0x100c1cd8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100c1948 allocated: true
+Checking for delete (QModelIndex*)0x100c1ea8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100c1e50 allocated: true
+Deleting (QStyleOptionViewItem*)0x100c1e50
+Checking for delete (QModelIndex*)0x100c53f8 allocated: true
+Checking for delete (QModelIndex*)0x100e0f58 allocated: true
+Checking for delete (QSize*)0x100c4490 allocated: true
+unmapPointer (QSize*)0x100c4490 -> 0x100c3c98
+Deleting (QSize*)0x100c4490
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100c4040 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100c3fd0 allocated: true
+Deleting (QStyleOptionViewItem*)0x100c3fd0
+Checking for delete (QModelIndex*)0x100c48a8 allocated: true
+Checking for delete (QSize*)0x100c5030 allocated: true
+unmapPointer (QSize*)0x100c5030 -> 0x100c4c98
+Deleting (QSize*)0x100c5030
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100c4cd0 allocated: true
+Checking for delete (QModelIndex*)0x100c5850 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100c57e0 allocated: true
+Deleting (QStyleOptionViewItem*)0x100c57e0
+Checking for delete (QModelIndex*)0x100c5998 allocated: true
+Checking for delete (QSize*)0x100c5f98 allocated: true
+unmapPointer (QSize*)0x100c5f98 -> 0x100c5fe8
+Deleting (QSize*)0x100c5f98
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100c5b90 allocated: true
+Checking for delete (QModelIndex*)0x100c61a8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100c6138 allocated: true
+Deleting (QStyleOptionViewItem*)0x100c6138
+Checking for delete (QModelIndex*)0x100cc9d0 allocated: true
+Checking for delete (QModelIndex*)0x100eb9e8 allocated: true
+Checking for delete (QSize*)0x100c83f8 allocated: true
+unmapPointer (QSize*)0x100c83f8 -> 0x100c7988
+Deleting (QSize*)0x100c83f8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100c8398 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100c8700 allocated: true
+Deleting (QStyleOptionViewItem*)0x100c8700
+Checking for delete (QModelIndex*)0x100c8ab0 allocated: true
+Checking for delete (QSize*)0x100c9a90 allocated: true
+unmapPointer (QSize*)0x100c9a90 -> 0x100c92d8
+Deleting (QSize*)0x100c9a90
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100c9310 allocated: true
+Checking for delete (QModelIndex*)0x100c9a30 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100c9db0 allocated: true
+Deleting (QStyleOptionViewItem*)0x100c9db0
+Checking for delete (QModelIndex*)0x100ca148 allocated: true
+Checking for delete (QSize*)0x100cacd8 allocated: true
+unmapPointer (QSize*)0x100cacd8 -> 0x100ca4b0
+Deleting (QSize*)0x100cacd8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100ca4e8 allocated: true
+Checking for delete (QModelIndex*)0x100d21e8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100cac60 allocated: true
+Deleting (QStyleOptionViewItem*)0x100cac60
+Checking for delete (QModelIndex*)0x100d1688 allocated: true
+Checking for delete (QModelIndex*)0x100e6230 allocated: true
+Checking for delete (QSize*)0x100cd5c8 allocated: true
+unmapPointer (QSize*)0x100cd5c8 -> 0x100cce20
+Deleting (QSize*)0x100cd5c8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100cd568 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100cd9b8 allocated: true
+Deleting (QStyleOptionViewItem*)0x100cd9b8
+Checking for delete (QModelIndex*)0x100ce118 allocated: true
+Checking for delete (QSize*)0x100cf428 allocated: true
+unmapPointer (QSize*)0x100cf428 -> 0x100ce8a0
+Deleting (QSize*)0x100cf428
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100ce8d8 allocated: true
+Checking for delete (QModelIndex*)0x100cf3c8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100cfb78 allocated: true
+Deleting (QStyleOptionViewItem*)0x100cfb78
+Checking for delete (QModelIndex*)0x100cff68 allocated: true
+Checking for delete (QSize*)0x100d0ed8 allocated: true
+unmapPointer (QSize*)0x100d0ed8 -> 0x100d0330
+Deleting (QSize*)0x100d0ed8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100d0368 allocated: true
+Checking for delete (QModelIndex*)0x100d70e8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100d1268 allocated: true
+Deleting (QStyleOptionViewItem*)0x100d1268
+Checking for delete (QModelIndex*)0x1013fab8 allocated: true
+Checking for delete (QModelIndex*)0x10157210 allocated: true
+Checking for delete (QSize*)0x100d38e8 allocated: true
+unmapPointer (QSize*)0x100d38e8 -> 0x100d3938
+Deleting (QSize*)0x100d38e8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100d4178 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100d4108 allocated: true
+Deleting (QStyleOptionViewItem*)0x100d4108
+Checking for delete (QModelIndex*)0x100d4548 allocated: true
+Checking for delete (QSize*)0x100d4dd0 allocated: true
+unmapPointer (QSize*)0x100d4dd0 -> 0x100d4e20
+Deleting (QSize*)0x100d4dd0
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100d4998 allocated: true
+Checking for delete (QModelIndex*)0x100d5968 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100d58f8 allocated: true
+Deleting (QStyleOptionViewItem*)0x100d58f8
+Checking for delete (QModelIndex*)0x100d5d38 allocated: true
+Checking for delete (QSize*)0x100d65c0 allocated: true
+unmapPointer (QSize*)0x100d65c0 -> 0x100d6628
+Deleting (QSize*)0x100d65c0
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100d6188 allocated: true
+Checking for delete (QModelIndex*)0x100d7130 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100d6d10 allocated: true
+Deleting (QStyleOptionViewItem*)0x100d6d10
+Checking for delete (QModelIndex*)0x100dc4b0 allocated: true
+Checking for delete (QModelIndex*)0x100e7500 allocated: true
+Checking for delete (QSize*)0x100d8f88 allocated: true
+unmapPointer (QSize*)0x100d8f88 -> 0x100d87b8
+Deleting (QSize*)0x100d8f88
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100d8f28 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100d9770 allocated: true
+Deleting (QStyleOptionViewItem*)0x100d9770
+Checking for delete (QModelIndex*)0x100d9c08 allocated: true
+Checking for delete (QSize*)0x100da6c8 allocated: true
+unmapPointer (QSize*)0x100da6c8 -> 0x100d9f50
+Deleting (QSize*)0x100da6c8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100d9f88 allocated: true
+Checking for delete (QModelIndex*)0x100da668 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100dae78 allocated: true
+Deleting (QStyleOptionViewItem*)0x100dae78
+Checking for delete (QModelIndex*)0x100db658 allocated: true
+Checking for delete (QSize*)0x100dbdd8 allocated: true
+unmapPointer (QSize*)0x100dbdd8 -> 0x100db9f0
+Deleting (QSize*)0x100dbdd8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100dba28 allocated: true
+Checking for delete (QModelIndex*)0x100e1718 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100dc0f8 allocated: true
+Deleting (QStyleOptionViewItem*)0x100dc0f8
+Checking for delete (QModelIndex*)0x10152190 allocated: true
+Checking for delete (QModelIndex*)0x1005f670 allocated: true
+Checking for delete (QSize*)0x100ddef8 allocated: true
+unmapPointer (QSize*)0x100ddef8 -> 0x100ddb50
+Deleting (QSize*)0x100ddef8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100de708 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100de698 allocated: true
+Deleting (QStyleOptionViewItem*)0x100de698
+Checking for delete (QModelIndex*)0x100dee60 allocated: true
+Checking for delete (QSize*)0x100df840 allocated: true
+unmapPointer (QSize*)0x100df840 -> 0x100df248
+Deleting (QSize*)0x100df840
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100dee08 allocated: true
+Checking for delete (QModelIndex*)0x100df420 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100df3b0 allocated: true
+Deleting (QStyleOptionViewItem*)0x100df3b0
+Checking for delete (QModelIndex*)0x100dfc18 allocated: true
+Checking for delete (QSize*)0x100e03a0 allocated: true
+unmapPointer (QSize*)0x100e03a0 -> 0x100dff38
+Deleting (QSize*)0x100e03a0
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100dff70 allocated: true
+Checking for delete (QModelIndex*)0x100e0bc8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100e0b58 allocated: true
+Deleting (QStyleOptionViewItem*)0x100e0b58
+Checking for delete (QModelIndex*)0x100eba38 allocated: true
+Checking for delete (QModelIndex*)0x101404d0 allocated: true
+Checking for delete (QSize*)0x100e31a8 allocated: true
+unmapPointer (QSize*)0x100e31a8 -> 0x100e2ad0
+Deleting (QSize*)0x100e31a8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100e2e50 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100e2de0 allocated: true
+Deleting (QStyleOptionViewItem*)0x100e2de0
+Checking for delete (QModelIndex*)0x100e35a0 allocated: true
+Checking for delete (QSize*)0x100e3d28 allocated: true
+unmapPointer (QSize*)0x100e3d28 -> 0x100e3998
+Deleting (QSize*)0x100e3d28
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100e39d0 allocated: true
+Checking for delete (QModelIndex*)0x100e4878 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100e4808 allocated: true
+Deleting (QStyleOptionViewItem*)0x100e4808
+Checking for delete (QModelIndex*)0x100e4bd0 allocated: true
+Checking for delete (QSize*)0x100c7c50 allocated: true
+unmapPointer (QSize*)0x100c7c50 -> 0x100c7ca0
+Deleting (QSize*)0x100c7c50
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100e5030 allocated: true
+Checking for delete (QModelIndex*)0x100e5e20 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100e5db0 allocated: true
+Deleting (QStyleOptionViewItem*)0x100e5db0
+Checking for delete (QModelIndex*)0x100bbe48 allocated: true
+Checking for delete (QModelIndex*)0x1014f338 allocated: true
+Checking for delete (QSize*)0x100e8060 allocated: true
+unmapPointer (QSize*)0x100e8060 -> 0x100e78a8
+Deleting (QSize*)0x100e8060
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100e7c90 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100e7c20 allocated: true
+Deleting (QStyleOptionViewItem*)0x100e7c20
+Checking for delete (QModelIndex*)0x100e83d8 allocated: true
+Checking for delete (QSize*)0x100e8b38 allocated: true
+unmapPointer (QSize*)0x100e8b38 -> 0x100e8750
+Deleting (QSize*)0x100e8b38
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100e8788 allocated: true
+Checking for delete (QModelIndex*)0x100e9380 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100e9310 allocated: true
+Deleting (QStyleOptionViewItem*)0x100e9310
+Checking for delete (QModelIndex*)0x100e9ae8 allocated: true
+Checking for delete (QSize*)0x100eb088 allocated: true
+unmapPointer (QSize*)0x100eb088 -> 0x100eb0f0
+Deleting (QSize*)0x100eb088
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100e9ab8 allocated: true
+Checking for delete (QModelIndex*)0x100eb3b0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100eb430 allocated: true
+Deleting (QStyleOptionViewItem*)0x100eb430
+Checking for delete (QModelIndex*)0x1014e680 allocated: true
+Checking for delete (QModelIndex*)0x100f7060 allocated: true
+Checking for delete (QSize*)0x10158a80 allocated: true
+unmapPointer (QSize*)0x10158a80 -> 0x100ebdd0
+Deleting (QSize*)0x10158a80
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10158a10 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100f7960 allocated: true
+Deleting (QStyleOptionViewItem*)0x100f7960
+Checking for delete (QModelIndex*)0x100f77c8 allocated: true
+Checking for delete (QSize*)0x1005b570 allocated: true
+unmapPointer (QSize*)0x1005b570 -> 0x1005b5c0
+Deleting (QSize*)0x1005b570
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10060b28 allocated: true
+Checking for delete (QModelIndex*)0x1015a558 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1015a500 allocated: true
+Deleting (QStyleOptionViewItem*)0x1015a500
+Checking for delete (QModelIndex*)0x10148948 allocated: true
+Checking for delete (QSize*)0x10150530 allocated: true
+unmapPointer (QSize*)0x10150530 -> 0x10079420
+Deleting (QSize*)0x10150530
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x101438f8 allocated: true
+Checking for delete (QModelIndex*)0x1013f0d0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1008b990 allocated: true
+Deleting (QStyleOptionViewItem*)0x1008b990
+Checking for delete (QModelIndex*)0x1014ae88 allocated: true
+Checking for delete (QModelIndex*)0x101560b8 allocated: true
+Checking for delete (QSize*)0x1004d9a8 allocated: true
+unmapPointer (QSize*)0x1004d9a8 -> 0x1013cc08
+Deleting (QSize*)0x1004d9a8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10081988 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10086d90 allocated: true
+Deleting (QStyleOptionViewItem*)0x10086d90
+Checking for delete (QModelIndex*)0x10073920 allocated: true
+Checking for delete (QSize*)0x1013f1e8 allocated: true
+unmapPointer (QSize*)0x1013f1e8 -> 0x1007ab70
+Deleting (QSize*)0x1013f1e8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100738d8 allocated: true
+Checking for delete (QModelIndex*)0x1013f1a8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1008a2e0 allocated: true
+Deleting (QStyleOptionViewItem*)0x1008a2e0
+Checking for delete (QModelIndex*)0x1013fe88 allocated: true
+Checking for delete (QSize*)0x1014fa40 allocated: true
+unmapPointer (QSize*)0x1014fa40 -> 0x10150eb8
+Deleting (QSize*)0x1014fa40
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10150008 allocated: true
+Checking for delete (QModelIndex*)0x1005a710 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1005a6b8 allocated: true
+Deleting (QStyleOptionViewItem*)0x1005a6b8
+Checking for delete (QModelIndex*)0x100e8360 allocated: true
+Checking for delete (QModelIndex*)0x100cd168 allocated: true
+Checking for delete (QSize*)0x10158850 allocated: true
+unmapPointer (QSize*)0x10158850 -> 0x1014c688
+Deleting (QSize*)0x10158850
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10158810 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1014ff10 allocated: true
+Deleting (QStyleOptionViewItem*)0x1014ff10
+Checking for delete (QModelIndex*)0x1014dda0 allocated: true
+Checking for delete (QSize*)0x101533f8 allocated: true
+unmapPointer (QSize*)0x101533f8 -> 0x10153418
+Deleting (QSize*)0x101533f8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10155b68 allocated: true
+Checking for delete (QModelIndex*)0x10149da8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10153300 allocated: true
+Deleting (QStyleOptionViewItem*)0x10153300
+Checking for delete (QModelIndex*)0x101406a8 allocated: true
+Checking for delete (QSize*)0x100564f8 allocated: true
+unmapPointer (QSize*)0x100564f8 -> 0x10130030
+Deleting (QSize*)0x100564f8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1013f520 allocated: true
+Checking for delete (QModelIndex*)0x100564c8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10152d70 allocated: true
+Deleting (QStyleOptionViewItem*)0x10152d70
+Checking for delete (QModelIndex*)0x100de648 allocated: true
+Checking for delete (QModelIndex*)0x100b5080 allocated: true
+Checking for delete (QSize*)0x1005b4f8 allocated: true
+unmapPointer (QSize*)0x1005b4f8 -> 0x10080a68
+Deleting (QSize*)0x1005b4f8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1014ea58 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10150570 allocated: true
+Deleting (QStyleOptionViewItem*)0x10150570
+Checking for delete (QModelIndex*)0x10130228 allocated: true
+Checking for delete (QSize*)0x1014c7d0 allocated: true
+unmapPointer (QSize*)0x1014c7d0 -> 0x101532b8
+Deleting (QSize*)0x1014c7d0
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1014e868 allocated: true
+Checking for delete (QModelIndex*)0x100efac8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1014fa98 allocated: true
+Deleting (QStyleOptionViewItem*)0x1014fa98
+Checking for delete (QModelIndex*)0x10151b80 allocated: true
+Checking for delete (QSize*)0x10150488 allocated: true
+unmapPointer (QSize*)0x10150488 -> 0x10150200
+Deleting (QSize*)0x10150488
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10150fd0 allocated: true
+Checking for delete (QModelIndex*)0x1014f360 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1014aad0 allocated: true
+Deleting (QStyleOptionViewItem*)0x1014aad0
+Checking for delete (QModelIndex*)0x1014e8c0 allocated: true
+Checking for delete (QModelIndex*)0x100bfc80 allocated: true
+Checking for delete (QSize*)0x1015af78 allocated: true
+unmapPointer (QSize*)0x1015af78 -> 0x101587d0
+Deleting (QSize*)0x1015af78
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1014fb70 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1013a968 allocated: true
+Deleting (QStyleOptionViewItem*)0x1013a968
+Checking for delete (QModelIndex*)0x10138610 allocated: true
+Checking for delete (QSize*)0x10131c30 allocated: true
+unmapPointer (QSize*)0x10131c30 -> 0x1013f140
+Deleting (QSize*)0x10131c30
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x101410d0 allocated: true
+Checking for delete (QModelIndex*)0x10092730 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10083388 allocated: true
+Deleting (QStyleOptionViewItem*)0x10083388
+Checking for delete (QModelIndex*)0x10152c60 allocated: true
+Checking for delete (QSize*)0x100c4fe8 allocated: true
+unmapPointer (QSize*)0x100c4fe8 -> 0x1015a448
+Deleting (QSize*)0x100c4fe8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1005f7b0 allocated: true
+Checking for delete (QModelIndex*)0x100c60f0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10150c60 allocated: true
+Deleting (QStyleOptionViewItem*)0x10150c60
+Checking for delete (QModelIndex*)0x10151fc8 allocated: true
+Checking for delete (QModelIndex*)0x10096d28 allocated: true
+Checking for delete (QSize*)0x10158240 allocated: true
+unmapPointer (QSize*)0x10158240 -> 0x10155ab0
+Deleting (QSize*)0x10158240
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x101556f0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1014a3f0 allocated: true
+Deleting (QStyleOptionViewItem*)0x1014a3f0
+Checking for delete (QModelIndex*)0x10157d10 allocated: true
+Checking for delete (QSize*)0x10155500 allocated: true
+unmapPointer (QSize*)0x10155500 -> 0x10156628
+Deleting (QSize*)0x10155500
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10158e08 allocated: true
+Checking for delete (QModelIndex*)0x100e7450 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10157ff0 allocated: true
+Deleting (QStyleOptionViewItem*)0x10157ff0
+Checking for delete (QModelIndex*)0x100df368 allocated: true
+Checking for delete (QSize*)0x100cfb00 allocated: true
+unmapPointer (QSize*)0x100cfb00 -> 0x10139868
+Deleting (QSize*)0x100cfb00
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100aff30 allocated: true
+Checking for delete (QModelIndex*)0x100d6568 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1015b0c8 allocated: true
+Deleting (QStyleOptionViewItem*)0x1015b0c8
+Checking for delete (QModelIndex*)0x1014ad78 allocated: true
+Checking for delete (QModelIndex*)0x10150328 allocated: true
+Checking for delete (QSize*)0x100d7090 allocated: true
+unmapPointer (QSize*)0x100d7090 -> 0x100da630
+Deleting (QSize*)0x100d7090
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100a1518 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10153d90 allocated: true
+Deleting (QStyleOptionViewItem*)0x10153d90
+Checking for delete (QModelIndex*)0x10152538 allocated: true
+Checking for delete (QSize*)0x100ac918 allocated: true
+unmapPointer (QSize*)0x100ac918 -> 0x100968b0
+Deleting (QSize*)0x100ac918
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1004bec8 allocated: true
+Checking for delete (QModelIndex*)0x100a9b78 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10155bf8 allocated: true
+Deleting (QStyleOptionViewItem*)0x10155bf8
+Checking for delete (QModelIndex*)0x1014f1f8 allocated: true
+Checking for delete (QSize*)0x100e4088 allocated: true
+unmapPointer (QSize*)0x100e4088 -> 0x100e2700
+Deleting (QSize*)0x100e4088
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100e0330 allocated: true
+Checking for delete (QModelIndex*)0x100e47c0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10159b70 allocated: true
+Deleting (QStyleOptionViewItem*)0x10159b70
+Checking for delete (QModelIndex*)0x100a6e18 allocated: true
+Checking for delete (QModelIndex*)0x100a9788 allocated: true
+Checking for delete (QSize*)0x100d3ce0 allocated: true
+unmapPointer (QSize*)0x100d3ce0 -> 0x100d1630
+Deleting (QSize*)0x100d3ce0
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100d5ce0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x101579b0 allocated: true
+Deleting (QStyleOptionViewItem*)0x101579b0
+Checking for delete (QModelIndex*)0x100d9708 allocated: true
+Checking for delete (QSize*)0x100c1e30 allocated: true
+unmapPointer (QSize*)0x100c1e30 -> 0x100ce0b0
+Deleting (QSize*)0x100c1e30
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100dc0b0 allocated: true
+Checking for delete (QModelIndex*)0x100c2e70 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1015a9a8 allocated: true
+Deleting (QStyleOptionViewItem*)0x1015a9a8
+Checking for delete (QModelIndex*)0x100c5b08 allocated: true
+Checking for delete (QSize*)0x100bf8a0 allocated: true
+unmapPointer (QSize*)0x100bf8a0 -> 0x100ca0e8
+Deleting (QSize*)0x100bf8a0
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100c8690 allocated: true
+Checking for delete (QModelIndex*)0x100b4cd0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100f7c90 allocated: true
+Deleting (QStyleOptionViewItem*)0x100f7c90
+Checking for delete (QModelIndex*)0x100b97f8 allocated: true
+Checking for delete (QModelIndex*)0x100978d8 allocated: true
+Checking for delete (QSize*)0x100b4070 allocated: true
+unmapPointer (QSize*)0x100b4070 -> 0x100be338
+Deleting (QSize*)0x100b4070
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100a8040 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10146d40 allocated: true
+Deleting (QStyleOptionViewItem*)0x10146d40
+Checking for delete (QModelIndex*)0x100ab990 allocated: true
+Checking for delete (QSize*)0x100a6e40 allocated: true
+unmapPointer (QSize*)0x100a6e40 -> 0x100b1ac8
+Deleting (QSize*)0x100a6e40
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100aeb48 allocated: true
+Checking for delete (QModelIndex*)0x1009ece8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10151610 allocated: true
+Deleting (QStyleOptionViewItem*)0x10151610
+Checking for delete (QModelIndex*)0x10154860 allocated: true
+Checking for delete (QSize*)0x101510a0 allocated: true
+unmapPointer (QSize*)0x101510a0 -> 0x1014a7f0
+Deleting (QSize*)0x101510a0
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10153c50 allocated: true
+Checking for delete (QModelIndex*)0x10152768 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1013a8b8 allocated: true
+Deleting (QStyleOptionViewItem*)0x1013a8b8
+Checking for delete (QModelIndex*)0x10150960 allocated: true
+Checking for delete (QModelIndex*)0x100a9338 allocated: true
+Checking for delete (QSize*)0x10132f80 allocated: true
+unmapPointer (QSize*)0x10132f80 -> 0x10143880
+Deleting (QSize*)0x10132f80
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100e9a50 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1005f6a8 allocated: true
+Deleting (QStyleOptionViewItem*)0x1005f6a8
+Checking for delete (QModelIndex*)0x100e8700 allocated: true
+Checking for delete (QSize*)0x100e6550 allocated: true
+unmapPointer (QSize*)0x100e6550 -> 0x100e6cb0
+Deleting (QSize*)0x100e6550
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100e7800 allocated: true
+Checking for delete (QModelIndex*)0x100e4b68 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1005a318 allocated: true
+Deleting (QStyleOptionViewItem*)0x1005a318
+Checking for delete (QModelIndex*)0x100e3950 allocated: true
+Checking for delete (QSize*)0x100e1298 allocated: true
+unmapPointer (QSize*)0x100e1298 -> 0x100e1f20
+Deleting (QSize*)0x100e1298
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100e2a30 allocated: true
+Checking for delete (QModelIndex*)0x100e0f10 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10159ae8 allocated: true
+Deleting (QStyleOptionViewItem*)0x10159ae8
+Checking for delete (QModelIndex*)0x100c04e8 allocated: true
+Checking for delete (QModelIndex*)0x10158678 allocated: true
+Checking for delete (QSize*)0x100dc458 allocated: true
+unmapPointer (QSize*)0x100dc458 -> 0x100dcb60
+Deleting (QSize*)0x100dc458
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100db5c8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10155778 allocated: true
+Deleting (QStyleOptionViewItem*)0x10155778
+Checking for delete (QModelIndex*)0x100d9ee0 allocated: true
+Checking for delete (QSize*)0x100d74c8 allocated: true
+unmapPointer (QSize*)0x100d74c8 -> 0x100d7cd8
+Deleting (QSize*)0x100d74c8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100d8b28 allocated: true
+Checking for delete (QModelIndex*)0x100d6cc0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100e9438 allocated: true
+Deleting (QStyleOptionViewItem*)0x100e9438
+Checking for delete (QModelIndex*)0x100d54f8 allocated: true
+Checking for delete (QSize*)0x100d2180 allocated: true
+unmapPointer (QSize*)0x100d2180 -> 0x100d3118
+Deleting (QSize*)0x100d2180
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100d40c0 allocated: true
+Checking for delete (QModelIndex*)0x100d19d8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1013c6b8 allocated: true
+Deleting (QStyleOptionViewItem*)0x1013c6b8
+Checking for delete (QModelIndex*)0x10155950 allocated: true
+Checking for delete (QModelIndex*)0x10157390 allocated: true
+Checking for delete (QSize*)0x100cafc0 allocated: true
+unmapPointer (QSize*)0x100cafc0 -> 0x100ae838
+Deleting (QSize*)0x100cafc0
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100ca438 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1014ddf8 allocated: true
+Deleting (QStyleOptionViewItem*)0x1014ddf8
+Checking for delete (QModelIndex*)0x100c9258 allocated: true
+Checking for delete (QSize*)0x100c6d68 allocated: true
+unmapPointer (QSize*)0x100c6d68 -> 0x100c7500
+Deleting (QSize*)0x100c6d68
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100b5740 allocated: true
+Checking for delete (QModelIndex*)0x100c6500 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10076980 allocated: true
+Deleting (QStyleOptionViewItem*)0x10076980
+Checking for delete (QModelIndex*)0x100c5798 allocated: true
+Checking for delete (QSize*)0x100c2b00 allocated: true
+unmapPointer (QSize*)0x100c2b00 -> 0x100c37f0
+Deleting (QSize*)0x100c2b00
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100c4828 allocated: true
+Checking for delete (QModelIndex*)0x100c2770 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10148780 allocated: true
+Deleting (QStyleOptionViewItem*)0x10148780
+Checking for delete (QModelIndex*)0x100c0938 allocated: true
+Checking for delete (QModelIndex*)0x10156fe8 allocated: true
+Checking for delete (QSize*)0x100be9c8 allocated: true
+unmapPointer (QSize*)0x100be9c8 -> 0x100bf180
+Deleting (QSize*)0x100be9c8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100be4e8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10141648 allocated: true
+Deleting (QStyleOptionViewItem*)0x10141648
+Checking for delete (QModelIndex*)0x100bd440 allocated: true
+Checking for delete (QSize*)0x100bac60 allocated: true
+unmapPointer (QSize*)0x100bac60 -> 0x100bb3a8
+Deleting (QSize*)0x100bac60
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100bc248 allocated: true
+Checking for delete (QModelIndex*)0x100ba7f8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10152ec8 allocated: true
+Deleting (QStyleOptionViewItem*)0x10152ec8
+Checking for delete (QModelIndex*)0x100b9060 allocated: true
+Checking for delete (QSize*)0x100b6030 allocated: true
+unmapPointer (QSize*)0x100b6030 -> 0x100b7690
+Deleting (QSize*)0x100b6030
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100b8198 allocated: true
+Checking for delete (QModelIndex*)0x100b6c30 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10155ae8 allocated: true
+Deleting (QStyleOptionViewItem*)0x10155ae8
+Checking for delete (QModelIndex*)0x100a0108 allocated: true
+Checking for delete (QModelIndex*)0x1009e4e8 allocated: true
+Checking for delete (QSize*)0x100b2a40 allocated: true
+unmapPointer (QSize*)0x100b2a40 -> 0x100b3540
+Deleting (QSize*)0x100b2a40
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100b25d8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x101573c0 allocated: true
+Deleting (QStyleOptionViewItem*)0x101573c0
+Checking for delete (QModelIndex*)0x100b12d8 allocated: true
+Checking for delete (QSize*)0x1009f018 allocated: true
+unmapPointer (QSize*)0x1009f018 -> 0x100af2f8
+Deleting (QSize*)0x1009f018
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100b0368 allocated: true
+Checking for delete (QModelIndex*)0x100ad3e0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10153440 allocated: true
+Deleting (QStyleOptionViewItem*)0x10153440
+Checking for delete (QModelIndex*)0x100ac178 allocated: true
+Checking for delete (QSize*)0x100a9fc8 allocated: true
+unmapPointer (QSize*)0x100a9fc8 -> 0x100aa770
+Deleting (QSize*)0x100a9fc8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100ab1e0 allocated: true
+Checking for delete (QModelIndex*)0x100a8ef8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1014aa50 allocated: true
+Deleting (QStyleOptionViewItem*)0x1014aa50
+Checking for delete (QModelIndex*)0x101553b0 allocated: true
+Checking for delete (QModelIndex*)0x10152728 allocated: true
+Checking for delete (QSize*)0x100a5b78 allocated: true
+unmapPointer (QSize*)0x100a5b78 -> 0x100a6290
+Deleting (QSize*)0x100a5b78
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100a5388 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1014e7d8 allocated: true
+Deleting (QStyleOptionViewItem*)0x1014e7d8
+Checking for delete (QModelIndex*)0x100a4a38 allocated: true
+Checking for delete (QSize*)0x100a3428 allocated: true
+unmapPointer (QSize*)0x100a3428 -> 0x100a3c20
+Deleting (QSize*)0x100a3428
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100a4330 allocated: true
+Checking for delete (QModelIndex*)0x100a3048 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1013aa38 allocated: true
+Deleting (QStyleOptionViewItem*)0x1013aa38
+Checking for delete (QModelIndex*)0x100a2468 allocated: true
+Checking for delete (QSize*)0x100a0d40 allocated: true
+unmapPointer (QSize*)0x100a0d40 -> 0x100a1918
+Deleting (QSize*)0x100a0d40
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100a1cc8 allocated: true
+Checking for delete (QModelIndex*)0x100a08e8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10151f10 allocated: true
+Deleting (QStyleOptionViewItem*)0x10151f10
+Checking for delete (QModelIndex*)0x10156650 allocated: true
+Checking for delete (QModelIndex*)0x10144880 allocated: true
+Checking for delete (QSize*)0x1009d278 allocated: true
+unmapPointer (QSize*)0x1009d278 -> 0x1009da40
+Deleting (QSize*)0x1009d278
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1009cee0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1014c868 allocated: true
+Deleting (QStyleOptionViewItem*)0x1014c868
+Checking for delete (QModelIndex*)0x1009c408 allocated: true
+Checking for delete (QSize*)0x1009a848 allocated: true
+unmapPointer (QSize*)0x1009a848 -> 0x1009b0b8
+Deleting (QSize*)0x1009a848
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1009bbb8 allocated: true
+Checking for delete (QModelIndex*)0x1009a020 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10138650 allocated: true
+Deleting (QStyleOptionViewItem*)0x10138650
+Checking for delete (QModelIndex*)0x10099680 allocated: true
+Checking for delete (QSize*)0x10097e48 allocated: true
+unmapPointer (QSize*)0x10097e48 -> 0x100986d8
+Deleting (QSize*)0x10097e48
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10098f10 allocated: true
+Checking for delete (QModelIndex*)0x100974d8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10139f50 allocated: true
+Deleting (QStyleOptionViewItem*)0x10139f50
+Checking for delete (QModelIndex*)0x10080970 allocated: true
+Checking for delete (QModelIndex*)0x1015aa80 allocated: true
+Checking for delete (QSize*)0x10095810 allocated: true
+unmapPointer (QSize*)0x10095810 -> 0x10095f40
+Deleting (QSize*)0x10095810
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10094f80 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1005a260 allocated: true
+Deleting (QStyleOptionViewItem*)0x1005a260
+Checking for delete (QModelIndex*)0x10094468 allocated: true
+Checking for delete (QSize*)0x10092e10 allocated: true
+unmapPointer (QSize*)0x10092e10 -> 0x10093680
+Deleting (QSize*)0x10092e10
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10093d98 allocated: true
+Checking for delete (QModelIndex*)0x10092080 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10159c90 allocated: true
+Deleting (QStyleOptionViewItem*)0x10159c90
+Checking for delete (QModelIndex*)0x100917d0 allocated: true
+Checking for delete (QSize*)0x101405a0 allocated: true
+unmapPointer (QSize*)0x101405a0 -> 0x100734b0
+Deleting (QSize*)0x101405a0
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1008f880 allocated: true
+Checking for delete (QModelIndex*)0x1013c068 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10157118 allocated: true
+Deleting (QStyleOptionViewItem*)0x10157118
+Checking for delete (QModelIndex*)0x10143c58 allocated: true
+Checking for delete (QModelIndex*)0x10158e60 allocated: true
+Checking for delete (QSize*)0x10157d78 allocated: true
+unmapPointer (QSize*)0x10157d78 -> 0x1006dba8
+Deleting (QSize*)0x10157d78
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10154a00 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x101569a8 allocated: true
+Deleting (QStyleOptionViewItem*)0x101569a8
+Checking for delete (QModelIndex*)0x1015ae38 allocated: true
+Checking for delete (QSize*)0x10157b68 allocated: true
+unmapPointer (QSize*)0x10157b68 -> 0x10158108
+Deleting (QSize*)0x10157b68
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x101597e0 allocated: true
+Checking for delete (QModelIndex*)0x10157640 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10147db0 allocated: true
+Deleting (QStyleOptionViewItem*)0x10147db0
+Checking for delete (QModelIndex*)0x10138a10 allocated: true
+Checking for delete (QSize*)0x1013e3a0 allocated: true
+unmapPointer (QSize*)0x1013e3a0 -> 0x1015b5d0
+Deleting (QSize*)0x1013e3a0
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10158630 allocated: true
+Checking for delete (QModelIndex*)0x100f7908 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1004bf30 allocated: true
+Deleting (QStyleOptionViewItem*)0x1004bf30
+Checking for delete (QModelIndex*)0x10133420 allocated: true
+Checking for delete (QModelIndex*)0x1002f720 allocated: true
+Checking for delete (QSize*)0x101567f0 allocated: true
+unmapPointer (QSize*)0x101567f0 -> 0x10140310
+Deleting (QSize*)0x101567f0
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1014c738 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10146500 allocated: true
+Deleting (QStyleOptionViewItem*)0x10146500
+Checking for delete (QModelIndex*)0x101567d8 allocated: true
+Checking for delete (QSize*)0x100f42c0 allocated: true
+unmapPointer (QSize*)0x100f42c0 -> 0x10155f38
+Deleting (QSize*)0x100f42c0
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10158c20 allocated: true
+Checking for delete (QModelIndex*)0x10131b90 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x101537e0 allocated: true
+Deleting (QStyleOptionViewItem*)0x101537e0
+Checking for delete (QModelIndex*)0x100880c0 allocated: true
+Checking for delete (QSize*)0x1014f3b8 allocated: true
+unmapPointer (QSize*)0x1014f3b8 -> 0x1014fbf0
+Deleting (QSize*)0x1014f3b8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10152b08 allocated: true
+Checking for delete (QModelIndex*)0x10149d08 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1014f8d8 allocated: true
+Deleting (QStyleOptionViewItem*)0x1014f8d8
+Checking for delete (QModelIndex*)0x10158130 allocated: true
+Checking for delete (QModelIndex*)0x1006e3d8 allocated: true
+Checking for delete (QSize*)0x100d7688 allocated: true
+unmapPointer (QSize*)0x100d7688 -> 0x100e5d90
+Deleting (QSize*)0x100d7688
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x100e5d78 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10151d18 allocated: true
+Deleting (QStyleOptionViewItem*)0x10151d18
+Checking for delete (QModelIndex*)0x100b7120 allocated: true
+Checking for delete (QSize*)0x10155d18 allocated: true
+unmapPointer (QSize*)0x10155d18 -> 0x10155ce0
+Deleting (QSize*)0x10155d18
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1009a678 allocated: true
+Checking for delete (QModelIndex*)0x10155e08 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x101520f0 allocated: true
+Deleting (QStyleOptionViewItem*)0x101520f0
+Checking for delete (QModelIndex*)0x10095318 allocated: true
+Checking for delete (QSize*)0x1014c840 allocated: true
+unmapPointer (QSize*)0x1014c840 -> 0x101516b0
+Deleting (QSize*)0x1014c840
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1014ad08 allocated: true
+Checking for delete (QModelIndex*)0x101575f8 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1014f590 allocated: true
+Deleting (QStyleOptionViewItem*)0x1014f590
+Checking for delete (QModelIndex*)0x10015ff8 allocated: true
+Checking for delete (QModelIndex*)0x1005e410 allocated: true
+Checking for delete (QSize*)0x101498d8 allocated: true
+unmapPointer (QSize*)0x101498d8 -> 0x10139628
+Deleting (QSize*)0x101498d8
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x101524f0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10055318 allocated: true
+Deleting (QStyleOptionViewItem*)0x10055318
+Checking for delete (QModelIndex*)0x10052c08 allocated: true
+Checking for delete (QSize*)0x10147108 allocated: true
+unmapPointer (QSize*)0x10147108 -> 0x10147860
+Deleting (QSize*)0x10147108
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1014a588 allocated: true
+Checking for delete (QModelIndex*)0x1014dc38 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x100834a8 allocated: true
+Deleting (QStyleOptionViewItem*)0x100834a8
+Checking for delete (QModelIndex*)0x1014e910 allocated: true
+Checking for delete (QSize*)0x1013fa28 allocated: true
+unmapPointer (QSize*)0x1013fa28 -> 0x10140288
+Deleting (QSize*)0x1013fa28
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x1014e280 allocated: true
+Checking for delete (QModelIndex*)0x1014a9d0 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x1014e2e8 allocated: true
+Deleting (QStyleOptionViewItem*)0x1014e2e8
+Checking for delete (QModelIndex*)0x1013a010 allocated: true
+Checking for delete (QModelIndex*)0x10153ca0 allocated: true
+Checking for delete (QSize*)0x100d7e88 allocated: true
+unmapPointer (QSize*)0x100d7e88 -> 0x100c8048
+Deleting (QSize*)0x100d7e88
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10053d60 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10156038 allocated: true
+Deleting (QStyleOptionViewItem*)0x10156038
+Checking for delete (QModelIndex*)0x10055150 allocated: true
+Checking for delete (QSize*)0x10085c20 allocated: true
+unmapPointer (QSize*)0x10085c20 -> 0x1006f738
+Deleting (QSize*)0x10085c20
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10053ca0 allocated: true
+Checking for delete (QModelIndex*)0x10081140 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10154440 allocated: true
+Deleting (QStyleOptionViewItem*)0x10154440
+Checking for delete (QModelIndex*)0x1004cee0 allocated: true
+Checking for delete (QSize*)0x1015aa40 allocated: true
+unmapPointer (QSize*)0x1015aa40 -> 0x1006b040
+Deleting (QSize*)0x1015aa40
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10159570 allocated: true
+Checking for delete (QModelIndex*)0x10159348 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10156ba0 allocated: true
+Deleting (QStyleOptionViewItem*)0x10156ba0
+Checking for delete (QModelIndex*)0x10155548 allocated: true
+Checking for delete (QModelIndex*)0x1006ae18 allocated: true
+Checking for delete (QSize*)0x1005a398 allocated: true
+unmapPointer (QSize*)0x1005a398 -> 0x1005a2c0
+Deleting (QSize*)0x1005a398
+Checking for delete (QSize*)(nil) allocated: false
+Checking for delete (QModelIndex*)0x10050f68 allocated: true
+Checking for delete (QStyleOptionViewItem*)0x10158a90 allocated: true
+Deleting (QStyleOptionViewItem*)0x10158a90
+Checking for delete (QModelIndex*)0x10081d38 allocated: true
+mapPointer (QRect*)0x1016e4a0 -> 0x303e1740
+mapPointer (QRect*)0x1016cc88 -> 0x303e0a50
+mapPointer (QRect*)0x101571f8 -> 0x303e09a8
+mapPointer (QRect*)0x1007d9b0 -> 0x303e08e8
+mapPointer (QRect*)0x10158288 -> 0x303e0828
+mapPointer (QRectF*)0x1016e2f8 -> 0x303e0498
+mapPointer (QBrush*)0x100d7cd8 -> 0x303df880
+mapPointer (QRect*)0x100dedf0 -> 0x303df538
+mapPointer (QBrush*)0x100b0f88 -> 0x303dee60
+mapPointer (QRect*)0x100d4980 -> 0x303dec80
+mapPointer (QRect*)0x100c4cb8 -> 0x303de998
+mapPointer (QRect*)0x100c8380 -> 0x303de4d0
+mapPointer (QRect*)0x100a6650 -> 0x303de410
+mapPointer (QRect*)0x100a7570 -> 0x303de350
+mapPointer (QRect*)0x1009eda8 -> 0x303de290
+mapPointer (QRectF*)0x10151b58 -> 0x303de0c8
+mapPointer (QBrush*)0x100a9838 -> 0x303ddd08
+mapPointer (QRect*)0x10138110 -> 0x303ddbe8
+mapPointer (QBrush*)0x100941c0 -> 0x303dd870
+mapPointer (QRect*)0x10089168 -> 0x303dd6f0
+mapPointer (QRect*)0x1008c8c0 -> 0x303dd558
+mapPointer (QRect*)0x100f66f0 -> 0x303dce50
+mapPointer (QRect*)0x10041f60 -> 0x303dcd90
+mapPointer (QRect*)0x1007f530 -> 0x303dccb8
+mapPointer (QRect*)0x10154818 -> 0x303dc988
+mapPointer (QRectF*)0x100cff40 -> 0x303dc538
+mapPointer (QBrush*)0x1015bfa8 -> 0x303dbbd8
+mapPointer (QRect*)0x1014f0e8 -> 0x303dbab8
+mapPointer (QBrush*)0x1016c4a8 -> 0x303db8f0
+mapPointer (QRect*)0x10154ef0 -> 0x303db860
+mapPointer (QRect*)0x1005b708 -> 0x303db7b8
+mapPointer (QRect*)0x100d1dd0 -> 0x303dae28
+mapPointer (QRect*)0x10042288 -> 0x303dac48
+mapPointer (QRect*)0x1007bfe0 -> 0x303da858
+mapPointer (QRect*)0x1013cfa8 -> 0x303da6c0
+mapPointer (QRectF*)0x100a9c20 -> 0x303d9b68
+mapPointer (QBrush*)0x100986b0 -> 0x303d8e30
+mapPointer (QRect*)0x10156470 -> 0x303d87e8
+mapPointer (QBrush*)0x10091cf0 -> 0x303d82c0
+mapPointer (QRect*)0x10156840 -> 0x303d8128
+mapPointer (QRect*)0x1004d418 -> 0x303d8068
+mapPointer (QRect*)0x10158618 -> 0x303d7a08
+mapPointer (QRect*)0x100dcbe8 -> 0x303d78d0
+mapPointer (QRect*)0x100c1148 -> 0x303d76f0
+mapPointer (QRect*)0x100b7158 -> 0x303d7540
+mapPointer (QRectF*)0x1014f530 -> 0x303d7360
+mapPointer (QBrush*)0x100f7b28 -> 0x303d6370
+mapPointer (QRect*)0x1016d7c0 -> 0x303d6028
+mapPointer (QBrush*)0x100bbaf0 -> 0x303d5b60
+mapPointer (QRect*)0x100c0500 -> 0x303d5ad0
+mapPointer (QRect*)0x100d6cd8 -> 0x303d5a10
+mapPointer (QRect*)0x100e47d8 -> 0x303d5608
+mapPointer (QRect*)0x10152550 -> 0x303d5560
+mapPointer (QRect*)0x100df380 -> 0x303d54a0
+mapPointer (QRect*)0x1005f828 -> 0x303d53e0
+mapPointer (QRectF*)0x10157e38 -> 0x303d5200
+mapPointer (QBrush*)0x1016e160 -> 0x303d4b28
+mapPointer (QRect*)0x1005cc30 -> 0x303d4a20
+mapPointer (QBrush*)0x10140058 -> 0x303d4858
+mapPointer (QRect*)0x10053e08 -> 0x303d47c8
+mapPointer (QRect*)0x1015ae50 -> 0x303d4708
+mapPointer (QRect*)0x100a5208 -> 0x303d4300
+mapPointer (QRect*)0x100e3cd0 -> 0x303d4258
+mapPointer (QRect*)0x100b6898 -> 0x303d4198
+mapPointer (QRect*)0x1006aeb8 -> 0x303d40d8
+mapPointer (QRectF*)0x10012898 -> 0x303d3ef8
+mapPointer (QBrush*)0x10081f78 -> 0x303d3b50
+mapPointer (QRect*)0x100a0120 -> 0x303d3a30
+mapPointer (QBrush*)0x100a53b0 -> 0x303d3868
+mapPointer (QRect*)0x1013d4f8 -> 0x303d37d8
+mapPointer (QRect*)0x10053c38 -> 0x303d3730
+mapPointer (QRect*)0x1016d0c0 -> 0x303d3328
+mapPointer (QRect*)0x100ec8d0 -> 0x303d3268
+mapPointer (QRect*)0x1016deb0 -> 0x303d31a8
+mapPointer (QRect*)0x1013aa08 -> 0x303d30e8
+mapPointer (QRectF*)0x100acd88 -> 0x303d2f20
+mapPointer (QBrush*)0x100db630 -> 0x303d26f8
+mapPointer (QRect*)0x100e9b10 -> 0x303d22a8
+mapPointer (QBrush*)0x100e16f0 -> 0x303d1ba0
+mapPointer (QRect*)0x10012738 -> 0x303d1a08
+mapPointer (QRect*)0x101578b8 -> 0x303d1738
+mapPointer (QRect*)0x101596e8 -> 0x303d08c8
+mapPointer (QRect*)0x10055e00 -> 0x303d0688
+mapPointer (QRect*)0x1014eb50 -> 0x303d03d0
+mapPointer (QRect*)0x101306a0 -> 0x303d00b8
+mapPointer (QRectF*)0x1014dbc8 -> 0x303cfae8
+mapPointer (QBrush*)0x100b3798 -> 0x303ced38
+mapPointer (QRect*)0x1016d660 -> 0x303ce948
+mapPointer (QBrush*)0x100f4938 -> 0x303ce1e0
+mapPointer (QRect*)0x1016e088 -> 0x303ce090
+mapPointer (QRect*)0x1014a880 -> 0x303cdd78
+mapPointer (QRect*)0x101520a8 -> 0x303ccf68
+mapPointer (QRect*)0x1007b258 -> 0x303ccd40
+mapPointer (QRect*)0x10154530 -> 0x303cca70
+mapPointer (QRect*)0x1007c0a0 -> 0x303cc6f8
+mapPointer (QRectF*)0x10077388 -> 0x303cc128
+mapPointer (QBrush*)0x100df838 -> 0x303cb3d8
+mapPointer (QRect*)0x100c4880 -> 0x303caf88
+mapPointer (QBrush*)0x100b0ff0 -> 0x303ca898
+mapPointer (QRect*)0x10090240 -> 0x303ca730
+mapPointer (QRect*)0x1008aec8 -> 0x303ca3b8
+mapPointer (QRect*)0x10150b60 -> 0x303c95d8
+mapPointer (QRect*)0x100ee500 -> 0x303c9308
+mapPointer (QRect*)0x10059208 -> 0x303c90b0
+mapPointer (QRect*)0x1013cdf0 -> 0x303c8d80
+mapPointer (QRectF*)0x100c1920 -> 0x303c87c8
+mapPointer (QBrush*)0x10056fe8 -> 0x303c79a0
+mapPointer (QRect*)0x100854b0 -> 0x303c7640
+mapPointer (QBrush*)0x100cc9e8 -> 0x303c6ed8
+mapPointer (QRect*)0x1013f700 -> 0x303c6d70
+mapPointer (QRect*)0x1009ac58 -> 0x303c6a40
+mapPointer (QRect*)0x100e7bf0 -> 0x303c5c60
+mapPointer (QRect*)0x100cf380 -> 0x303c5948
+mapPointer (QRect*)0x1014fa40 -> 0x303c5750
+mapPointer (QRect*)0x100dbd58 -> 0x303c5420
+mapPointer (QRectF*)0x10055d20 -> 0x303c4d90
+mapPointer (QBrush*)0x1014a068 -> 0x303c4040
+mapPointer (QRect*)0x1013f5c0 -> 0x303c3ce0
+mapPointer (QBrush*)0x10155008 -> 0x303c3560
+mapPointer (QRect*)0x100ca4d0 -> 0x303c3428
+mapPointer (QRect*)0x10169330 -> 0x303c30e0
+mapPointer (QRect*)0x100ad068 -> 0x303c2300
+mapPointer (QRect*)0x100970c8 -> 0x303c1f88
+mapPointer (QRect*)0x1016dd68 -> 0x303c1e08
+mapPointer (QRect*)0x1009ecb8 -> 0x303c1ac0
+mapPointer (QRectF*)0x10042068 -> 0x303c1430
+mapPointer (QBrush*)0x101462f0 -> 0x303c06f8
+mapPointer (QRect*)0x10095bd0 -> 0x303c02a8
+mapPointer (QBrush*)0x1014fc90 -> 0x303bfc00
+mapPointer (QRect*)0x100b6918 -> 0x303bfac8
+mapPointer (QRect*)0x100b31d0 -> 0x303bf798
+mapPointer (QRect*)0x1013b078 -> 0x303be940
+mapPointer (QRect*)0x1016e2a8 -> 0x303be610
+mapPointer (QRect*)0x1006f7a0 -> 0x303be3d0
+mapPointer (QRect*)0x100b7eb0 -> 0x303be130
+mapPointer (QRectF*)0x100b8530 -> 0x303bdae8
+mapPointer (QBrush*)0x100e6960 -> 0x303bccc0
+mapPointer (QRect*)0x10098338 -> 0x303bc948
+mapPointer (QBrush*)0x100bdb40 -> 0x303bc2a0
+mapPointer (QRect*)0x100b03d8 -> 0x303bc090
+mapPointer (QRect*)0x10150468 -> 0x303bbe38
+mapPointer (QRect*)0x101585b8 -> 0x303baff8
+mapPointer (QRect*)0x100cd598 -> 0x303bacb0
+mapPointer (QRect*)0x100cf408 -> 0x303baa70
+mapPointer (QRect*)0x100ea080 -> 0x303ba7e8
+mapPointer (QRectF*)0x100bf1d0 -> 0x303ba0b0
+mapPointer (QBrush*)0x100bacf0 -> 0x303b9300
+mapPointer (QRect*)0x10155508 -> 0x303b8f10
+mapPointer (QBrush*)0x100ae030 -> 0x303b8958
+mapPointer (QRect*)0x10153e68 -> 0x303b8748
+mapPointer (QRect*)0x101513c0 -> 0x303b84f0
+mapPointer (QRect*)0x100ecf70 -> 0x303b75a8
+mapPointer (QRect*)0x1006d5b0 -> 0x303b7308
+mapPointer (QRect*)0x100804c0 -> 0x303b6f48
+mapPointer (QRect*)0x1016a6a8 -> 0x303b6de0
+mapPointer (QRectF*)0x1005cd20 -> 0x303b6678
+mapPointer (QBrush*)0x10081ac8 -> 0x303b59b8
+mapPointer (QRect*)0x100f2420 -> 0x303b56b8
+mapPointer (QBrush*)0x100af378 -> 0x303b5028
+mapPointer (QRect*)0x101504f0 -> 0x303b4ef0
+mapPointer (QRect*)0x1013c6e0 -> 0x303b4bc0
+mapPointer (QRect*)0x100769d0 -> 0x303af190
+mapPointer (QRect*)0x100a4ac0 -> 0x303aeed8
+mapPointer (QRect*)0x100a19c0 -> 0x303aea88
+mapPointer (QRect*)0x100566e0 -> 0x303ae7d0
+mapPointer (QRectF*)0x1007ce98 -> 0x303adea0
+mapPointer (QBrush*)0x100b90c0 -> 0x303acd90
+mapPointer (QRect*)0x10157328 -> 0x303aca18
+mapPointer (QBrush*)0x100c9698 -> 0x303ac4f0
+mapPointer (QRect*)0x1013a8f8 -> 0x303ac3d0
+mapPointer (QRect*)0x100bfce0 -> 0x303ac118
+mapPointer (QRect*)0x100a0538 -> 0x303ab488
+mapPointer (QRect*)0x10153778 -> 0x303ab1b8
+mapPointer (QRect*)0x100ec7a0 -> 0x303ab020
+mapPointer (QRect*)0x100dbdf0 -> 0x303aad98
+mapPointer (QRectF*)0x10153400 -> 0x303aa6f0
+mapPointer (QBrush*)0x100a5f20 -> 0x303a9d48
+mapPointer (QRect*)0x10166a28 -> 0x303a9868
+mapPointer (QBrush*)0x101417e0 -> 0x303a90b8
+mapPointer (QRect*)0x1014a3f0 -> 0x303a8e30
+mapPointer (QRect*)0x101669f8 -> 0x303a8c98
+mapPointer (QRect*)0x1007ffc8 -> 0x303a8440
+mapPointer (QRect*)0x1014f158 -> 0x303a82d8
+mapPointer (QRect*)0x10154170 -> 0x303a8128
+mapPointer (QRect*)0x100efec8 -> 0x303a7fc0
+mapPointer (QRectF*)0x100856b0 -> 0x303a7a80
+mapPointer (QBrush*)0x100944b0 -> 0x303a6e98
+mapPointer (QRect*)0x101512d0 -> 0x303a6b20
+mapPointer (QBrush*)0x10151768 -> 0x303a64d8
+mapPointer (QRect*)0x10153de0 -> 0x303a6370
+mapPointer (QRect*)0x10085258 -> 0x303a6220
+mapPointer (QRect*)0x100852c0 -> 0x303a5758
+mapPointer (QRect*)0x1008c4e8 -> 0x303a5470
+mapPointer (QRect*)0x10067790 -> 0x303a51a0
+mapPointer (QRect*)0x100f79a0 -> 0x303a5008
+mapPointer (QRectF*)0x1014ff28 -> 0x303a4af8
+mapPointer (QBrush*)0x100ad448 -> 0x303a3dd8
+mapPointer (QRect*)0x100a1218 -> 0x303a3b98
+mapPointer (QBrush*)0x1013e4c0 -> 0x303a3688
+mapPointer (QRect*)0x1004f738 -> 0x303a3550
+mapPointer (QRect*)0x100ebd48 -> 0x303a33e8
+mapPointer (QRect*)0x100cda08 -> 0x303a28a8
+mapPointer (QRect*)0x100dc168 -> 0x303a2758
+mapPointer (QRect*)0x100b6c88 -> 0x303a2440
+mapPointer (QRect*)0x100d9750 -> 0x303a22f0
+mapPointer (QRectF*)0x1013e510 -> 0x303a1c60
+mapPointer (QBrush*)0x100eb6f0 -> 0x303a10a8
+mapPointer (QRect*)0x100bf570 -> 0x303a0ce8
+mapPointer (QBrush*)0x1007df70 -> 0x303a0808
+mapPointer (QRect*)0x10059128 -> 0x303a0718
+mapPointer (QRect*)0x100c3c40 -> 0x303a0490
+mapPointer (QRect*)0x100e78b0 -> 0x3039f6e0
+mapPointer (QRect*)0x100e3d18 -> 0x3039f428
+mapPointer (QRect*)0x1013cb28 -> 0x3039efd8
+mapPointer (QRect*)0x10141688 -> 0x3039ee70
+mapPointer (QRectF*)0x10150f78 -> 0x3039ea80
+mapPointer (QBrush*)0x1013b698 -> 0x3039dee0
+mapPointer (QRect*)0x101576c0 -> 0x3039dca0
+mapPointer (QBrush*)0x100daeb0 -> 0x3039d4f0
+mapPointer (QRect*)0x100aba38 -> 0x3039d3b8
+mapPointer (QRect*)0x1016bb20 -> 0x3039d220
+mapPointer (QRect*)0x10163400 -> 0x3039c998
+mapPointer (QRect*)0x10164e78 -> 0x3039c830
+mapPointer (QRect*)0x101418a0 -> 0x3039c680
+mapPointer (QRect*)0x1007cf30 -> 0x3039c3c8
+mapPointer (QRectF*)0x10131da0 -> 0x3039c068
+mapPointer (QBrush*)0x10087d80 -> 0x3039b048
+mapPointer (QRect*)0x101505f8 -> 0x3039ac10
+mapPointer (QBrush*)0x100517d8 -> 0x3039a8b0
+mapPointer (QRect*)0x1005a358 -> 0x3039a628
+mapPointer (QRect*)0x10140fc8 -> 0x3039a4c0
+mapPointer (QRect*)0x100f3728 -> 0x30399440
+mapPointer (QRect*)0x1006d8a8 -> 0x303992c0
+mapPointer (QRect*)0x10142060 -> 0x30398fd8
+mapPointer (QRect*)0x10163638 -> 0x30398eb8
+mapPointer (QRectF*)0x100d2db8 -> 0x303986f0
+mapPointer (QBrush*)0x100f3718 -> 0x30397880
+mapPointer (QRect*)0x1016c768 -> 0x303974f0
+mapPointer (QBrush*)0x1016a400 -> 0x30397130
+mapPointer (QRect*)0x101693a8 -> 0x30396ff8
+mapPointer (QRect*)0x10153348 -> 0x30396d40
+mapPointer (QRect*)0x10158ad0 -> 0x30395df8
+mapPointer (QRect*)0x10141fa0 -> 0x30395b40
+mapPointer (QRect*)0x10165920 -> 0x30395990
+mapPointer (QRect*)0x10169190 -> 0x30395828
+mapPointer (QRectF*)0x10069cd8 -> 0x30395408
+mapPointer (QBrush*)0x100eb1a8 -> 0x30394b38
+mapPointer (QRect*)0x10167f90 -> 0x30394880
+mapPointer (QBrush*)0x10064468 -> 0x303944c0
+mapPointer (QRect*)0x1007d658 -> 0x30394388
+mapPointer (QRect*)0x10051700 -> 0x303941f0
+mapPointer (QRect*)0x10056850 -> 0x303932a8
+mapPointer (QRect*)0x1005ab28 -> 0x30392e70
+mapPointer (QRect*)0x100658f8 -> 0x30392b70
+mapPointer (QRect*)0x10077560 -> 0x303929f0
+mapPointer (QRectF*)0x10061ee8 -> 0x30392348
+mapPointer (QBrush*)0x100851b8 -> 0x30391a18
+mapPointer (QRect*)0x10077478 -> 0x30391658
+mapPointer (QBrush*)0x10141eb0 -> 0x303910e8
+mapPointer (QRect*)0x10168080 -> 0x30390fc8
+mapPointer (QRect*)0x10078898 -> 0x30390e30
+mapPointer (QRect*)0x1016a458 -> 0x303902a8
+mapPointer (QRect*)0x100657d0 -> 0x30390140
+mapPointer (QRect*)0x100f3330 -> 0x3038fde0
+mapPointer (QRect*)0x10158960 -> 0x3038fc30
+mapPointer (QRectF*)0x1004f858 -> 0x3038f468
+mapPointer (QBrush*)0x1006c968 -> 0x3038e5c8
+mapPointer (QRect*)0x1014ac38 -> 0x3038e208
+mapPointer (QBrush*)0x100ef078 -> 0x3038dcc8
+mapPointer (QRect*)0x100eebb0 -> 0x3038da10
+mapPointer (QRect*)0x10142a28 -> 0x3038d6e0
+mapPointer (QRect*)0x101430e8 -> 0x3038ca20
+mapPointer (QRect*)0x10164670 -> 0x3038c8a0
+mapPointer (QRect*)0x1016d890 -> 0x3038c6c0
+mapPointer (QRect*)0x1016a160 -> 0x3038c4f8
+mapPointer (QRectF*)0x10167f58 -> 0x3038c0d8
+mapPointer (QBrush*)0x100f45a8 -> 0x3038b940
+mapPointer (QRect*)0x100ecbc0 -> 0x3038b820
+mapPointer (QBrush*)0x100735a0 -> 0x3038b640
+mapPointer (QRect*)0x101465a8 -> 0x3038b598
+mapPointer (QRect*)0x10146560 -> 0x3038b4d8
+mapPointer (QRect*)0x10085958 -> 0x3038a608
+mapPointer (QRect*)0x10063b98 -> 0x3038a110
+mapPointer (QRect*)0x1016b8c8 -> 0x30389870
+mapPointer (QRect*)0x1006f2a0 -> 0x30389630
+mapPointer (QRectF*)0x10087bc8 -> 0x30389108
+mapPointer (QBrush*)0x1008a1e0 -> 0x30387fb0
+mapPointer (QRect*)0x1016ce30 -> 0x30387998
+mapPointer (QBrush*)0x10166df8 -> 0x30386ea0
+mapPointer (QRect*)0x10149430 -> 0x303867f8
+mapPointer (QRect*)0x10149560 -> 0x303863f0
+mapPointer (QRect*)0x101493c0 -> 0x303850d0
+mapPointer (QRect*)0x1008b210 -> 0x30385028
+mapPointer (QRect*)0x10054850 -> 0x30384f68
+mapPointer (QRect*)0x1007a958 -> 0x30384ec0
+mapPointer (QRectF*)0x10063d20 -> 0x30384cc8
+mapPointer (QBrush*)0x10085528 -> 0x30383978
+mapPointer (QRect*)0x100f3ab0 -> 0x30383708
+mapPointer (QBrush*)0x10073898 -> 0x30383408
+mapPointer (QRect*)0x10073808 -> 0x30383378
+mapPointer (QRect*)0x1006b4e8 -> 0x303832b8
+mapPointer (QRect*)0x100f1ec8 -> 0x30382748
+mapPointer (QRect*)0x10080428 -> 0x303823e8
+mapPointer (QRect*)0x1016b308 -> 0x30382238
+mapPointer (QRect*)0x1007de88 -> 0x30382190
+mapPointer (QRectF*)0x1008c600 -> 0x30381ef0
+mapPointer (QBrush*)0x10168ee0 -> 0x30381890
+mapPointer (QRect*)0x10146680 -> 0x30381788
+mapPointer (QBrush*)0x1013b418 -> 0x303815c0
+mapPointer (QRect*)0x1013bbd8 -> 0x30381518
+mapPointer (QRect*)0x10165388 -> 0x30381458
+mapPointer (QRect*)0x100f4548 -> 0x30380f30
+mapPointer (QRect*)0x10166b70 -> 0x30380e40
+mapPointer (QRect*)0x10166448 -> 0x30380d20
+mapPointer (QRect*)0x10062878 -> 0x30380c60
+mapPointer (QRectF*)0x1013ee78 -> 0x30380a38
+mapPointer (QBrush*)0x1015c4b8 -> 0x30380690
+mapPointer (QRect*)0x10057380 -> 0x30380570
+mapPointer (QBrush*)0x100ee7c8 -> 0x30380390
+mapPointer (QRect*)0x1006de58 -> 0x30380300
+mapPointer (QRect*)0x1006dec8 -> 0x30380228
+mapPointer (QRect*)0x1016cd90 -> 0x3037fdf0
+mapPointer (QRect*)0x100f4760 -> 0x3037fd48
+mapPointer (QRect*)0x1006dcb0 -> 0x3037fc58
+mapPointer (QRect*)0x10167b48 -> 0x3037fb98
+mapPointer (QRectF*)0x101652d8 -> 0x3037f9b8
+mapPointer (QBrush*)0x100eb298 -> 0x3037f610
+mapPointer (QRect*)0x1016d250 -> 0x3037f4f0
+mapPointer (QBrush*)0x101466d0 -> 0x3037f310
+mapPointer (QRect*)0x1016d348 -> 0x3037f250
+mapPointer (QRect*)0x1004e648 -> 0x3037f148
+mapPointer (QRect*)0x1005eec8 -> 0x3037ed40
+mapPointer (QRect*)0x10168930 -> 0x3037ec80
+mapPointer (QRect*)0x10168a20 -> 0x3037eba8
+mapPointer (QRect*)0x10149680 -> 0x3037eae8
+mapPointer (QRectF*)0x1007cbc8 -> 0x3037e908
+mapPointer (QBrush*)0x10085d40 -> 0x3037e548
+mapPointer (QRect*)0x10169c40 -> 0x3037e428
+mapPointer (QBrush*)0x100573d0 -> 0x3037e248
+mapPointer (QRect*)0x10141558 -> 0x3037e1a0
+mapPointer (QRect*)0x1006eea0 -> 0x3037e0f8
+mapPointer (QRect*)0x10069380 -> 0x3037dcd8
+mapPointer (QRect*)0x1008ad00 -> 0x3037dc18
+mapPointer (QRect*)0x100523c0 -> 0x3037db40
+mapPointer (QRect*)0x1008b480 -> 0x3037da98
+mapPointer (QRectF*)0x100f5ee8 -> 0x3037d8b8
+mapPointer (QBrush*)0x1016c0c0 -> 0x3037d480
+mapPointer (QRect*)0x1004e0f0 -> 0x3037d378
+mapPointer (QBrush*)0x1006c7e0 -> 0x3037d180
+mapPointer (QRect*)0x10164078 -> 0x3037d0f0
+mapPointer (QRect*)0x1016c090 -> 0x3037d048
+mapPointer (QRect*)0x10167748 -> 0x3037cc10
+mapPointer (QRect*)0x1006f000 -> 0x3037cb68
+mapPointer (QRect*)0x101650d8 -> 0x3037caa8
+mapPointer (QRect*)0x101651b8 -> 0x3037c9e8
+mapPointer (QRectF*)0x10166550 -> 0x3037c820
+mapPointer (QBrush*)0x10067630 -> 0x3037c460
+mapPointer (QRect*)0x10051f88 -> 0x3037c328
+mapPointer (QBrush*)0x10051f48 -> 0x3037c148
+mapPointer (QRect*)0x1013b7b0 -> 0x3037c0b8
+mapPointer (QRect*)0x10085bc0 -> 0x3037c010
+mapPointer (QRect*)0x10166fe8 -> 0x3037bbd8
+mapPointer (QRect*)0x10053368 -> 0x3037bb30
+mapPointer (QRect*)0x100867a8 -> 0x3037ba58
+mapPointer (QRect*)0x10086898 -> 0x3037b9b0
+mapPointer (QRectF*)0x100edc18 -> 0x3037b7e8
+mapPointer (QBrush*)0x100879c0 -> 0x3037b3e0
+mapPointer (QRect*)0x10066d58 -> 0x3037b2a8
+mapPointer (QBrush*)0x1006b158 -> 0x3037b0f8
+mapPointer (QRect*)0x10168888 -> 0x3037b068
+mapPointer (QRect*)0x10050228 -> 0x3037afc0
+mapPointer (QRect*)0x101687f8 -> 0x3037aa98
+mapPointer (QRect*)0x100f0618 -> 0x3037a9f0
+mapPointer (QRect*)0x10086ca0 -> 0x3037a918
+mapPointer (QRect*)0x1006a498 -> 0x3037a858
+mapPointer (QRectF*)0x10167710 -> 0x3037a690
+mapPointer (QBrush*)0x10072f58 -> 0x3037a288
+mapPointer (QRect*)0x1006f448 -> 0x3037a168
+mapPointer (QBrush*)0x1006f420 -> 0x30379fb8
+mapPointer (QRect*)0x1007d090 -> 0x30379f28
+mapPointer (QRect*)0x10089f30 -> 0x30379e80
+mapPointer (QRect*)0x1007d200 -> 0x30379a30
+mapPointer (QRect*)0x1007b3c0 -> 0x30379988
+mapPointer (QRect*)0x1007b470 -> 0x303798b0
+mapPointer (QRect*)0x1015c398 -> 0x30379808
+mapPointer (QRectF*)0x10168788 -> 0x30379628
+mapPointer (QBrush*)0x1016bd30 -> 0x30379250
+mapPointer (QRect*)0x10165ed0 -> 0x30379130
+mapPointer (QBrush*)0x1016bc28 -> 0x30378f50
+mapPointer (QRect*)0x10164eb8 -> 0x30378ec0
+mapPointer (QRect*)0x1013b148 -> 0x30378e18
+mapPointer (QRect*)0x10165020 -> 0x303789e0
+mapPointer (QRect*)0x1015c6c0 -> 0x30378938
+mapPointer (QRect*)0x1015c7e0 -> 0x30378860
+mapPointer (QRect*)0x100ed740 -> 0x303787b8
+mapPointer (QRectF*)0x10051fc0 -> 0x303785f0
+mapPointer (QBrush*)0x1006b3c0 -> 0x30378218
+mapPointer (QRect*)0x10066320 -> 0x303780e0
+mapPointer (QBrush*)0x1006d660 -> 0x301a4870
+mapPointer (QRect*)0x10142e08 -> 0x301a47e0
+mapPointer (QRect*)0x10142f88 -> 0x301a4738
+mapPointer (QRect*)0x100f6918 -> 0x301a2cf8
+mapPointer (QRect*)0x10164cd0 -> 0x301a2c38
+mapPointer (QRect*)0x101678e8 -> 0x301a2b78
+mapPointer (QRect*)0x101679d8 -> 0x301a2ad0
+mapPointer (QRectF*)0x1006b2e0 -> 0x301a28f0
+mapPointer (QBrush*)0x101660e8 -> 0x301a2500
+mapPointer (QRect*)0x10166200 -> 0x301a23f8
+mapPointer (QBrush*)0x100ed908 -> 0x301a2248
+mapPointer (QRect*)0x10169cf0 -> 0x301a21b8
+mapPointer (QRect*)0x10169ef0 -> 0x301a1f18
+mapPointer (QRect*)0x10169f68 -> 0x301a1750
+mapPointer (QRect*)0x10166910 -> 0x301a15d0
+mapPointer (QRect*)0x1016c260 -> 0x301a1408
+mapPointer (QRect*)0x1016c350 -> 0x301a1288
+mapPointer (QRectF*)0x10142e40 -> 0x301a0e50
+mapPointer (QBrush*)0x1006e6a8 -> 0x301a05b0
+mapPointer (QRect*)0x1006e800 -> 0x301a0340
+mapPointer (QBrush*)0x10168b20 -> 0x3019ff68
+mapPointer (QRect*)0x10168d50 -> 0x3019fde8
+mapPointer (QRect*)0x1016aff8 -> 0x3019fcf8
+mapPointer (QRect*)0x10168cf0 -> 0x3019f3f8
+mapPointer (QRect*)0x101672d0 -> 0x3019f338
+mapPointer (QRect*)0x101673c0 -> 0x3019f1b8
+mapPointer (QRect*)0x10168390 -> 0x3019f098
+mapPointer (QRectF*)0x1016a8f8 -> 0x3019e510
+mapPointer (QBrush*)0x100f5ae0 -> 0x3019df70
+mapPointer (QRect*)0x100f5c38 -> 0x3019de68
+mapPointer (QBrush*)0x10166788 -> 0x3019db08
+mapPointer (QRect*)0x10169658 -> 0x3019da48
+mapPointer (QRect*)0x10169770 -> 0x3019d7d8
+mapPointer (QRect*)0x101695e8 -> 0x3019cb30
+mapPointer (QRect*)0x10162730 -> 0x3019ca88
+mapPointer (QRect*)0x10162820 -> 0x3019c998
+mapPointer (QRect*)0x10162910 -> 0x3019c728
+mapPointer (QRectF*)0x10165630 -> 0x3019c320
+mapPointer (QBrush*)0x10162d60 -> 0x3019b870
+mapPointer (QRect*)0x10162ee8 -> 0x3019b378
+mapPointer (QBrush*)0x10163008 -> 0x3019af88
+mapPointer (QRect*)0x101631d8 -> 0x3019aee0
+mapPointer (QRect*)0x10170608 -> 0x3019abe0
+mapPointer (QRect*)0x101630b8 -> 0x3019a700
+mapPointer (QRect*)0x10170b90 -> 0x3019a568
+mapPointer (QRect*)0x10170c80 -> 0x3019a3d0
+mapPointer (QRect*)0x10170d70 -> 0x3019a0a0
+mapPointer (QRectF*)0x1016b180 -> 0x301999f8
+mapPointer (QBrush*)0x10171148 -> 0x301988b8
+mapPointer (QRect*)0x10171290 -> 0x30197da8
+mapPointer (QBrush*)0x101713a0 -> 0x30197760
+mapPointer (QRect*)0x10171570 -> 0x30197628
+mapPointer (QRect*)0x10171818 -> 0x301973a0
+mapPointer (QRect*)0x10171648 -> 0x301967b8
+mapPointer (QRect*)0x10171d98 -> 0x30196710
+mapPointer (QRect*)0x10171e88 -> 0x301963f8
+mapPointer (QRect*)0x10171f78 -> 0x30196260
+mapPointer (QRectF*)0x10163258 -> 0x30195e58
+mapPointer (QBrush*)0x10178b68 -> 0x30195378
+mapPointer (QRect*)0x10171b50 -> 0x30194fe8
+mapPointer (QBrush*)0x10178e38 -> 0x30194c10
+mapPointer (QRect*)0x10179050 -> 0x30194928
+mapPointer (QRect*)0x10179038 -> 0x30194880
+mapPointer (QRect*)0x10171838 -> 0x30193ff8
+mapPointer (QRect*)0x101792e0 -> 0x30193d88
+mapPointer (QRect*)0x10179368 -> 0x30193aa0
+mapPointer (QRect*)0x101797a8 -> 0x301939e0
+mapPointer (QRectF*)0x10178e48 -> 0x301935a8
+mapPointer (QBrush*)0x10179cb0 -> 0x30192c78
+mapPointer (QRect*)0x10179760 -> 0x30192b70
+mapPointer (QBrush*)0x1017a148 -> 0x30192798
+mapPointer (QRect*)0x10179ee0 -> 0x301925d0
+mapPointer (QRect*)0x10179fd8 -> 0x30192420
+mapPointer (QRect*)0x1017a6a0 -> 0x30191ad8
+mapPointer (QRect*)0x1017a0b8 -> 0x301918c8
+mapPointer (QRect*)0x1017a8d0 -> 0x301916e8
+mapPointer (QRect*)0x1017a3c8 -> 0x30191508
+mapPointer (QRectF*)0x1017abc0 -> 0x301910a0
+mapPointer (QBrush*)0x1017af78 -> 0x30190938
+mapPointer (QRect*)0x1017a9c0 -> 0x30190818
+mapPointer (QBrush*)0x1017b3b8 -> 0x30190530
+mapPointer (QRect*)0x1017b178 -> 0x301903b0
+mapPointer (QRect*)0x1017b270 -> 0x30190200
+mapPointer (QRect*)0x1017b910 -> 0x3018f918
+mapPointer (QRect*)0x1017b330 -> 0x3018f7e0
+mapPointer (QRect*)0x1017bb40 -> 0x3018f6a8
+mapPointer (QRect*)0x1017b6f0 -> 0x3018f528
+mapPointer (QRectF*)0x1017be30 -> 0x3018f198
+mapPointer (QBrush*)0x1017c1e8 -> 0x3018e910
+mapPointer (QRect*)0x1017bc30 -> 0x3018e718
+mapPointer (QBrush*)0x1017c628 -> 0x3018e4c0
+mapPointer (QRect*)0x1017c3e8 -> 0x3018e370
+mapPointer (QRect*)0x1017c4e0 -> 0x3018e208
+mapPointer (QRect*)0x1017cb80 -> 0x3018dab8
+mapPointer (QRect*)0x1017c5a0 -> 0x3018d938
+mapPointer (QRect*)0x1017cdb0 -> 0x3018d7d0
+mapPointer (QRect*)0x1017c960 -> 0x3018d728
+mapPointer (QRectF*)0x1017d0a0 -> 0x3018d4d0
+mapPointer (QBrush*)0x1017d458 -> 0x3018c498
+mapPointer (QRect*)0x1017cea0 -> 0x3018c300
+mapPointer (QBrush*)0x1017d898 -> 0x3018bc10
+mapPointer (QRect*)0x1017d658 -> 0x3018b8f8
+mapPointer (QRect*)0x1017d750 -> 0x3018b730
+mapPointer (QRect*)0x1017ddf0 -> 0x3018a8c0
+mapPointer (QRect*)0x1017d810 -> 0x3018a620
+mapPointer (QRect*)0x1017e020 -> 0x3018a560
+mapPointer (QRect*)0x1017dbd0 -> 0x3018a320
+mapPointer (QRectF*)0x1017e310 -> 0x30189db0
+mapPointer (QBrush*)0x1017e6c8 -> 0x30189228
+mapPointer (QRect*)0x1017e110 -> 0x30188f40
+mapPointer (QBrush*)0x1017eb08 -> 0x301889b8
+mapPointer (QRect*)0x1017e8c8 -> 0x301888f8
+mapPointer (QRect*)0x1017e9c0 -> 0x30188670
+mapPointer (QRect*)0x1017f060 -> 0x301871a0
+mapPointer (QRect*)0x1017ea80 -> 0x30186df8
+mapPointer (QRect*)0x1017f290 -> 0x30186990
+mapPointer (QRect*)0x1017ee40 -> 0x30186660
+mapPointer (QRectF*)0x1017f580 -> 0x301859d0
+mapPointer (QBrush*)0x1017f938 -> 0x30184668
+mapPointer (QRect*)0x1017f380 -> 0x30183e88
+mapPointer (QBrush*)0x1017fd78 -> 0x301838a0
+mapPointer (QRect*)0x1017fb38 -> 0x30183498
+mapPointer (QRect*)0x1017fc30 -> 0x301832d0
+mapPointer (QRect*)0x101802d0 -> 0x30182ac0
+mapPointer (QRect*)0x1017fcf0 -> 0x30182988
+mapPointer (QRect*)0x10180500 -> 0x30182850
+mapPointer (QRect*)0x101800b0 -> 0x30182670
+mapPointer (QRectF*)0x101807f0 -> 0x30182340
+mapPointer (QBrush*)0x10180ba8 -> 0x30181890
+mapPointer (QRect*)0x101805f0 -> 0x30181638
+mapPointer (QBrush*)0x10180fe8 -> 0x30180ff0
+mapPointer (QRect*)0x10180da8 -> 0x30180f30
+mapPointer (QRect*)0x10180ea0 -> 0x30180cc0
+mapPointer (QRect*)0x10181540 -> 0x3017feb0
+mapPointer (QRect*)0x10180f60 -> 0x3017fe08
+mapPointer (QRect*)0x10181770 -> 0x3017fce8
+mapPointer (QRect*)0x10181320 -> 0x3017fc40
+mapPointer (QRectF*)0x10181a60 -> 0x3017f3b8

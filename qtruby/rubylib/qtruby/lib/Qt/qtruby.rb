@@ -151,7 +151,7 @@ module Qt
 	# If the data arg is nil, the string is returned as the
 	# value instead. 
 	class ByteArray < DelegateClass(String)
-		attr_reader :private_data
+		attr_accessor :private_data
 		attr_reader :data
 		
 		def initialize(string, data=nil)
@@ -909,6 +909,10 @@ module Qt
 				return str.data
 			end
 			return str.private_data
+		end
+		
+		def Internal.set_qbytearray(string, data)
+			string.private_data = data
 		end
 		
 		def Internal.get_qinteger(num)

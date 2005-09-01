@@ -180,7 +180,8 @@ smokeruby_free(void * p)
 	if (	strcmp(className, "QObject") == 0
 			|| strcmp(className, "QListBoxItem") == 0
 			|| strcmp(className, "QStyleSheetItem") == 0
-			|| strcmp(className, "QSqlCursor") == 0 )
+			|| strcmp(className, "QSqlCursor") == 0
+			|| strcmp(className, "QModelIndex") == 0 )
 	{
 		// Don't delete instances of these classes for now
 		free(o);
@@ -791,6 +792,8 @@ static void marshall_QByteArray(Marshall *m) {
 						// Or a ruby String inside
 						s = new QByteArray(RSTRING(data)->len, '\0');
 						memcpy((void*)s->data(), StringValuePtr(data), RSTRING(data)->len);
+						VALUE data = Data_Wrap_Struct(rb_cObject, 0, 0, s);
+						rb_funcall(qt_internal_module, rb_intern("set_qbytearray"), 2, rv, data);
 					}
 				} else {
 					// Ordinary ruby String - use the contents of the string
@@ -816,8 +819,9 @@ static void marshall_QByteArray(Marshall *m) {
 			if(s) {
 				VALUE string = rb_str_new2("");
 				rb_str_cat(string, (const char *)s->data(), s->size());
+				VALUE data = Data_Wrap_Struct(rb_cObject, 0, 0, s);
 				result = rb_funcall(qt_internal_module, rb_intern("create_qbytearray"), 
-					2, string, Data_Wrap_Struct(rb_cObject, 0, 0, s));
+					2, string, data);
 			} else {
 				result = Qnil;
 			}
@@ -1718,6 +1722,7 @@ TypeHandler Qt_handlers[] = {
     { "void", marshall_void },
     { "QByteArray", marshall_QByteArray },
     { "QByteArray&", marshall_QByteArray },
+    { "QByteArray*", marshall_QByteArray },
     { "QList<qreal>", marshall_QListqreal },
     { "QList<int>", marshall_QListInt },
     { "QList<int>&", marshall_QListInt },
