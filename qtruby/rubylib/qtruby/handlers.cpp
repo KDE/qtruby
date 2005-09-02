@@ -876,6 +876,24 @@ static void marshall_QString(Marshall *m) {
     }
 }
 
+// The only way to convert a QChar to a QString is to
+// pass a QChar to a QString constructor. However,
+// QStrings aren't in the QtRuby api, so add this
+// convenience method 'Qt::Char.to_s' to get a ruby
+// string from a Qt::Char.
+VALUE
+qchar_to_s(VALUE self)
+{
+	smokeruby_object *o = value_obj_info(self);
+	if (o == 0 || o->ptr == 0) {
+		return Qnil;
+	}
+
+	QChar * qchar = (QChar*) o->ptr;
+	QString s(*qchar);
+	return rstringFromQString(&s);
+}
+
 static void marshall_QByteArray(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE:

@@ -67,6 +67,7 @@ extern Smoke *qt_Smoke;
 extern void init_qt_Smoke();
 extern void smokeruby_mark(void * ptr);
 extern void smokeruby_free(void * ptr);
+extern VALUE qchar_to_s(VALUE self);
 
 #ifdef DEBUG
 int do_debug = qtdb_gc;
@@ -2518,9 +2519,11 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 		klass = kde_package_to_class(package);
 	}
 
-    if (strcmp(package, "Qt::MetaObject") == 0) {
-	qt_qmetaobject_class = klass;
-    }
+	if (strcmp(package, "Qt::MetaObject") == 0) {
+		qt_qmetaobject_class = klass;
+	} else if (strcmp(package, "Qt::Char") == 0) {
+		rb_define_method(klass, "to_s", (VALUE (*) (...)) qchar_to_s, 0);
+	}
 
     return klass;
 }

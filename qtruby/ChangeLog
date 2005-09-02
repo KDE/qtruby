@@ -1,3 +1,8 @@
+2005-09-02  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added a Qt::Char.to_s method for converting a Qt::Char to a ruby
+	  string
+
 2005-08-09  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 	
 	* Caleb Tennis wrote:
