@@ -1856,9 +1856,8 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 		}
 
 		// Should never happen..
-		rb_raise(	rb_eRuntimeError, 
-					"Cannot find %s::qt_metacall() method\n", 
-					o->smoke->classes[o->classId].className );
+		rb_raise(rb_eRuntimeError, "Cannot find %s::qt_metacall() method\n", 
+			o->smoke->classes[o->classId].className );
 	}
 
     if (_c != QMetaObject::InvokeMetaMethod) {
@@ -2183,36 +2182,25 @@ make_metaObject(VALUE /*self*/, VALUE obj, VALUE stringdata_value, VALUE data_va
 	Smoke::StackItem i[1];
 	(*fn)(methodId.method, o->ptr, i);
 
-	// C++ expert needed. Is it possible to allocate a QMetaObject
-	// via 'new', without explicitely setting the d pointer? For
-	// example, in moc generated code a QMetaObject is allocated
-	// statically like this:
-	//
-	//	const QMetaObject LCDRange::staticMetaObject = {
-	//		{ &QWidget::staticMetaObject, qt_meta_stringdata_LCDRange,
-	//		qt_meta_data_LCDRange, 0 }
-	//	};
-	//
-	// Is there a C++ syntax for combining curly brackets with new
-	// to create a new instance in a similar manner to the above,
-	// without needing to refer to the d pointer to set the fields?
-	//
-	// But for now set the d pointer instead..
-	QMetaObject * meta = new QMetaObject;
-	meta->d.superdata = (QMetaObject *) i[0].s_voidp;
+	QMetaObject *superdata = (QMetaObject *) i[0].s_voidp;
+	char *stringdata = new char[RSTRING(stringdata_value)->len];
 
-	meta->d.stringdata = new char[RSTRING(stringdata_value)->len];
-	memcpy(	(void *) meta->d.stringdata, 
-			RSTRING(stringdata_value)->ptr, 
-			RSTRING(stringdata_value)->len );
-	
 	int count = RARRAY(data_value)->len;
 	uint * data = new uint[count];
 
+	memcpy(	(void *) stringdata, RSTRING(stringdata_value)->ptr, RSTRING(stringdata_value)->len );
+	
 	for (long i = 0; i < count; i++) {
 		VALUE rv = rb_ary_entry(data_value, i);
 		data[i] = NUM2UINT(rv);
 	}
+	
+	QMetaObject ob = { 
+		{ superdata, stringdata, data, 0 }
+	} ;
+
+	QMetaObject * meta = new QMetaObject;
+	*meta = ob;
 
 #ifdef DEBUG
 	printf("make_metaObject() superdata: %p\n", meta->d.superdata);
@@ -2232,9 +2220,6 @@ make_metaObject(VALUE /*self*/, VALUE obj, VALUE stringdata_value, VALUE data_va
 	}
 	printf("\n");
 #endif
-
-	meta->d.data = (const uint *) data;
-	meta->d.extradata = 0;
 
     smokeruby_object * m = (smokeruby_object *) malloc(sizeof(smokeruby_object));
     m->smoke = qt_Smoke;
