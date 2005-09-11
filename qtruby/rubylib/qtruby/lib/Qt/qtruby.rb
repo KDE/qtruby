@@ -296,7 +296,7 @@ module Qt
 			pp.text str.sub(/>$/, "\n horData=%d,\n verData=%d>" % [horData, verData])
 		end
 	end
-	
+
 	class Date < Qt::Base
 		def inspect
 			str = super
@@ -597,19 +597,17 @@ module Qt
 		# wrapped in a new ruby variable of type T_DATA
 		def Internal.try_initialize(instance, *args)
 			# If a debugger calls an inspect method with the half 
-			# constructed instance, it will fail. So prevent that by
-			# defining a dummy 'do nothing' inspect method here
+			# constructed instance, it will fail and return nil. 
+			# So prevent that by defining an inspect method here
+=begin
 			class <<instance
 				def inspect
-					return nil
-				end
-				def pretty_print(pp)
-					return nil
+					return "#<%s:0x%8.8x>" % [self.class.name, self.object_id]
 				end
 			end
-			
+=end		
 			initializer = instance.method(:initialize)
-			catch "newqt" do 
+			catch "newqt" do
 				initializer.call(*args)
 			end
 		end
@@ -1046,6 +1044,16 @@ module Kernel
 			_exec(*k)
 		else
 			method_missing(:exec, *k)
+		end
+	end
+
+	alias_method :_select, :select
+
+	def select(*k)
+		if k.length > 1 and k[0].kind_of? Array
+			_select(*k)
+		else
+			method_missing(:select, *k)
 		end
 	end
 end
