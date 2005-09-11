@@ -1228,6 +1228,16 @@ module Kernel
 			method_missing(:exec, *k)
 		end
 	end
+
+	alias_method :_select, :select
+
+	def select(*k)
+		if k.length > 1 and k[0].kind_of? Array
+			_select(*k)
+		else
+			method_missing(:select, *k)
+		end
+	end
 end
 
 class Module

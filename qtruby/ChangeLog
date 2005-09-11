@@ -1,3 +1,8 @@
+2005-09-11  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Fixed problem with Qt::SqlTableModel.select() reported by
+	  Daniel Morris as a Qt3 QtRuby bug
+
 2005-09-01  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added draganddrop/draggabletext, draggableicons, fridgemagnets, 
