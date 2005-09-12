@@ -264,27 +264,27 @@ void getDBConnections( Uic& uic, QString& s)
     for ( QStringList::Iterator it = uic.dbConnections.begin(); it != uic.dbConnections.end(); ++it ) {
         if ( !(*it).isEmpty()) {
             QString inc = (num ? QString::number(num+1) : QString::null);
-            s += "\n# Connection to database " + (*it) + "\n\n";
-            s += "DRIVER" + inc + " =\t\t'QMYSQL3'" + (inc?"":" # appropriate driver") + "\n";
-            s += "DATABASE" + inc + " =\t\t'foo'" + (inc?"":" # name of your database") + "\n";
-            s += "USER" + inc + "=\t\t'john'" + (inc?"":" # username") + "\n";
-            s += "PASSWORD" + inc + "=\t\t'ZxjGG34s'" + (inc?"":" # password for USER") + "\n";
-            s += "HOST" + inc + "=\t\t'localhost'" + (inc?"":" # host on which the database is running") + "\n";
+            s += "\n    # Connection to database " + (*it) + "\n\n";
+            s += "    DRIVER" + inc + " =\t\t'QMYSQL3'" + (inc?"":" # appropriate driver") + "\n";
+            s += "    DATABASE" + inc + " =\t\t'foo'" + (inc?"":" # name of your database") + "\n";
+            s += "    USER" + inc + "=\t\t'john'" + (inc?"":" # username") + "\n";
+            s += "    PASSWORD" + inc + "=\t\t'ZxjGG34s'" + (inc?"":" # password for USER") + "\n";
+            s += "    HOST" + inc + "=\t\t'localhost'" + (inc?"":" # host on which the database is running") + "\n";
             s += "\n";
-            s += "db" + inc + " = Qt::SqlDatabase.addDatabase( DRIVER" + inc;
+            s += "    $db" + inc + " = Qt::SqlDatabase.addDatabase( DRIVER" + inc;
             if (inc)
                 s+= ", '" + (*it) + "'";
             s += " )\n";
-            s += "   db" + inc + ".setDatabaseName( DATABASE" + inc + " )\n";
-            s += "   db" + inc + ".setUserName( USER" + inc + " )\n";
-            s += "   db" + inc + ".setPassword( PASSWORD" + inc + " )\n";
-            s += "   db" + inc + ".setHostName( HOST" + inc + " )\n";
+            s += "    $db" + inc + ".databaseName = DATABASE" + inc + "\n";
+            s += "    $db" + inc + ".userName = USER" + inc + "\n";
+            s += "    $db" + inc + ".password = PASSWORD" + inc + "\n";
+            s += "    $db" + inc + ".hostName = HOST" + inc + "\n";
             s += "\n";
-            s += "if!db" + inc + ".open() \n";
-             s += "        Qt::MessageBox.information( undef, 'Unable to open database',\n";
-            s += "                                     db" + inc + ".lastError().databaseText() . \"\\n\")\n";
+            s += "    if !$db" + inc + ".open\n";
+            s += "        Qt::MessageBox.information( nil, 'Unable to open database',\n";
+            s += "                                    $db" + inc + ".lastError().databaseText() + \"\\n\")\n";
             s += "        exit 1\n";
-            s += "end\n";
+            s += "    end\n";
             s += "\n";
             num++;
         }

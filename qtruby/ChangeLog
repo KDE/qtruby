@@ -1,3 +1,8 @@
+2005-09-12  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Fixed various problems with the rbuic code generation for database
+	  .ui forms reported by Daniel Morris
+
 2005-09-11  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Fixed problem with Qt::SqlCursor.select() reported by Daniel Morris

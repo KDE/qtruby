@@ -194,6 +194,8 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    if ( n.hasAttribute( "stdset" ) )
 		stdset = toBool( n.attribute( "stdset" ) );
 	    QString prop = n.attribute("name");
+	    if ( prop == "database" )
+		continue;
 	    QString value = setObjectProperty( objClass, objName, prop, n.firstChild().toElement(), stdset );
 	    if ( value.isEmpty() )
 		continue;

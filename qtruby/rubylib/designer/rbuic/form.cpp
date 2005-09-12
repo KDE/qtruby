@@ -857,28 +857,30 @@ void Uic::createFormImpl( const QDomElement &e )
 		QString s = getClassName( nl.item(i).toElement() );
 		if ( s == "Qt::DataTable" ) {
 		    n = nl.item(i).toElement();
-		    QString c = getObjectName( n );
+		    QString c = QString("@") + getObjectName( n );
 		    QString conn = getDatabaseInfo( n, "connection" );
 		    QString tab = getDatabaseInfo( n, "table" );
 		    if ( !( conn.isEmpty() || tab.isEmpty() ) ) {
-			out << indent << "if " << c << "" << endl;
+			out << indent << "if " << "!" << c << ".nil?" << endl;
 			++indent;
 			out << indent << "cursor = " << c << ".sqlCursor()" << endl;
 			out << endl;
-			out << indent << "if ! cursor.nil?" << endl;
+			out << indent << "if !cursor.nil?" << endl;
 			++indent;
 			if ( conn == "(default)" )
 			    out << indent << "cursor = Qt::SqlCursor.new(\"" << tab << "\")" << endl;
 			else
 			    out << indent << "cursor = Qt::SqlCursor.new(\"" << tab << "\", true, " << conn << "Connection)" << endl;
-			out << indent << indent << indent << "if " << c << ".isReadOnly() " << endl;
-			out << indent << indent << indent << indent << "cursor.setMode( Qt::SqlCursor::ReadOnly )" << endl;
-			out << indent << indent << indent << "end " << endl;
+			out << indent << "if " << c << ".readOnly? " << endl;
+			++indent;
+			out << indent << "cursor.mode = Qt::SqlCursor::ReadOnly" << endl;
+			--indent;
+			out << indent << "end " << endl;
 			out << indent << c << ".setSqlCursor(cursor, false, true)" << endl;
 			--indent;
 			out << endl;
 			out << indent << "end" << endl;
-			out << indent << "if !cursor.isActive()" << endl;
+			out << indent << "if !cursor.active?" << endl;
 			++indent;
 			out << indent << c << ".refresh(Qt::DataTable::RefreshAll)" << endl;
 			--indent;
@@ -905,7 +907,7 @@ void Uic::createFormImpl( const QDomElement &e )
 			out << indent << "if !" << obj << ".sqlCursor()" << endl;
 			++indent;
 			if ( conn == "(default)" )
-			    out << indent << "cursor = Qt::SqlCursor.new(\"" << tab << "\");" << endl;
+			    out << indent << "cursor = Qt::SqlCursor.new(\"" << tab << "\")" << endl;
 			else
 			    out << indent << "cursor = Qt::SqlCursor.new(\"" << tab << "\", true, " << conn << "Connection)" << endl;
 			out << indent << obj << ".setSqlCursor(cursor, true)" << endl;
