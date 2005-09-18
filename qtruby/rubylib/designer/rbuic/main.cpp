@@ -1,293 +1,134 @@
-/**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
-** Copyright (c) 2001 Phil Thompson <phil@river-bank.demon.co.uk>
-** Copyright (c) 2002 Germain Garand <germain@ebooksfrance.com>
+/****************************************************************************
 **
-** This file is part of Qt Designer.
+** Copyright (C) 1992-2005 Trolltech AS. All rights reserved.
 **
-** This file may be distributed and/or modified under the terms of the
-** GNU General Public License version 2 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.
+** This file is part of the tools applications of the Qt Toolkit.
+**
+** This file may be used under the terms of the GNU General Public
+** License version 2.0 as published by the Free Software Foundation
+** and appearing in the file LICENSE.GPL included in the packaging of
+** this file.  Please review the following information to ensure GNU
+** General Public Licensing requirements will be met:
+** http://www.trolltech.com/products/qt/opensource.html
+**
+** If you are unsure which license is appropriate for your use, please
+** review the following information:
+** http://www.trolltech.com/products/qt/licensing.html or contact the
+** sales department at sales@trolltech.com.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-** See http://www.trolltech.com/gpl/ for GPL licensing information.
-**
-** Contact info@trolltech.com if any conditions of this licensing are
-** not clear to you.
-**
-**********************************************************************/
-/*
-** 06/2002 : Initial release of puic, the PerlQt User Interface Compiler,
-**           a work derivated from uic (the Qt User Interface Compiler)
-**           and pyuic (the PyQt User Interface Compiler).
-**
-**           G.Garand
-**
-** 08/2003 : Initial release of rbuic, the QtRuby User Interface Compiler,
-**           a work derived from the PerlQt puic.
-**
-**           Richard Dale
-**
-**********************************************************************/
+****************************************************************************/
+
 #include "uic.h"
-#include "parser.h"
-#include "widgetdatabase.h"
-#include "domtool.h"
-#include <qapplication.h>
+#include "option.h"
+#include "driver.h"
+
 #include <qfile.h>
-#include <qstringlist.h>
-#include <qdatetime.h>
-#define NO_STATIC_COLORS
-#include <globaldefs.h>
-#include <qregexp.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <zlib.h>
-#define RBUIC_VERSION "0.9"
+#include <qtextstream.h>
+#include <qtextcodec.h>
 
-void getDBConnections( Uic& uic, QString& s);
+static const char *error = 0;
 
-int main( int argc, char * argv[] )
+void showHelp(const char *appName)
 {
-    RubyIndent indent;
-    bool execCode = false;
-    bool subcl = false;
-    bool imagecollection = false;
-    QStringList images;
-    const char *error = 0;
-    const char* fileName = 0;
-    const char* className = 0;
-    const char* outputFile = 0;
-    const char* projectName = 0;
-    const char* trmacro = 0;
-    bool nofwd = false;
-    bool useKDE = false;
-    bool fix = false;
-    QApplication app(argc, argv, false);
-    QString uicClass;
+    fprintf(stderr, "Qt user interface compiler %s.\n", QT_VERSION_STR);
+    if (error)
+        fprintf(stderr, "%s: %s\n", appName, error);
 
-
-    for ( int n = 1; n < argc && error == 0; n++ ) {
-	QCString arg = argv[n];
-	if ( arg[0] == '-' ) {			// option
-	    QCString opt = &arg[1];
-	    if ( opt[0] == 'o' ) {		// output redirection
-		if ( opt[1] == '\0' ) {
-		    if ( !(n < argc-1) ) {
-			error = "Missing output-file name";
-			break;
-		    }
-		    outputFile = argv[++n];
-		} else
-		    outputFile = &opt[1];
-	    } else if ( opt[0] == 'e' || opt == "embed" ) {
-		imagecollection = true;
-		if ( opt == "embed" || opt[1] == '\0' ) {
-		    if ( !(n < argc-1) ) {
-			error = "Missing name of project.";
-			break;
-		    }
-		    projectName = argv[++n];
-		} else
-		    projectName = &opt[1];
-	    } else if ( opt == "nofwd" ) {
-		nofwd = true;
-	    } else if ( opt == "kde" ) {
-		useKDE = true;
-	    } else if ( opt == "subimpl" ) {
-		subcl = true;
-		if ( !(n < argc-1) ) {
-		    error = "Missing class name.";
-		    break;
-		}
-		className = argv[++n];
-	    } else if ( opt == "tr" ) {
-		if ( opt == "tr" || opt[1] == '\0' ) {
-		    if ( !(n < argc-1) ) {
-			error = "Missing tr macro.";
-			break;
-		    }
-		    trmacro = argv[++n];
-		} else {
-		    trmacro = &opt[1];
-		}
-	    } else if ( opt == "version" ) {
-		fprintf( stderr,
-			 "QtRuby User Interface Compiler v%s for Qt version %s\n", RBUIC_VERSION,
-			 QT_VERSION_STR );
-		exit( 1 );
-	    } else if ( opt == "help" ) {
-		break;
-	    } else if ( opt == "fix" ) {
-		fix = true;
-	    } else if ( opt[0] == 'p' ) {
-		uint tabstop;
-		bool ok;
-
-		if ( opt[1] == '\0' ) {
-		    if ( !(n < argc-1) ) {
-			error = "Missing indent";
-			break;
-		    }
-		    tabstop = QCString(argv[++n]).toUInt(&ok);
-		} else
-		    tabstop = opt.mid(1).toUInt(&ok);
-
-		if (ok)
-		    indent.setTabStop(tabstop);
-		else
-		    error = "Invalid indent";
-	    } else if ( opt == "x" ) {
-		execCode = true;
-	    } else {
-		error = "Unrecognized option";
-	    }
-	} else {
-	    if ( imagecollection )
-		images << argv[n];
-	    else if ( fileName )		// can handle only one file
-		error	 = "Too many input files specified";
-	    else
-		fileName = argv[n];
-	}
-    }
-
-    if ( argc < 2 || error || (!fileName && !imagecollection ) ) {
-	fprintf( stderr, "QtRuby user interface compiler.\n" );
-	if ( error )
-	    fprintf( stderr, "rbuic: %s\n", error );
-
-	fprintf( stderr, "Usage: %s  [options] [mode] <uifile>\n"
-		 "\nGenerate implementation:\n"
-		 "   %s  [options] <uifile>\n"
-		 "Generate image collection:\n"
-		 "   %s  [options] -embed <project> <image1> <image2> <image3> ...\n"
-		 "\t<project>\tproject name\n"
-		 "\t<image[0..n]>\timage files\n"
-		 "Generate subclass implementation:\n"
-		 "   %s  [options] -subimpl <classname> <uifile>\n"
-		 "\t<classname>\tname of the subclass to generate\n"
-		 "Options:\n"
-		 "\t-o file\t\tWrite output to file rather than stdout\n"
-		 "\t-p indent\tSet the indent in spaces (0 to use a tab)\n"
-		 "\t-nofwd\t\tOmit imports of custom widgets\n"
-		 "\t-kde\t\tUse kde widgets, require 'Korundum' extension\n"
-		 "\t-tr func\tUse func(...) rather than trUtf8(...) for i18n\n"
-		 "\t-x\t\tGenerate extra code to test the class\n"
-		 "\t-version\tDisplay version of rbuic\n"
-		 "\t-help\t\tDisplay this information\n"
-		 , argv[0], argv[0], argv[0], argv[0]);
-	exit( 1 );
-    }
-
-    Uic::setIndent(indent);
-
-    QFile fileOut;
-    if ( outputFile ) {
-	fileOut.setName( outputFile );
-	if (!fileOut.open( IO_WriteOnly ) )
-	    qFatal( "rbuic: Could not open output file '%s'", outputFile );
-    } else {
-	fileOut.open( IO_WriteOnly, stdout );
-    }
-    QTextStream out( &fileOut );
-
-    if ( imagecollection ) {
-	out.setEncoding( QTextStream::Latin1 );
-	Uic::embed( out, projectName, images );
-	return 0;
-    }
-
-
-    out.setEncoding( QTextStream::UnicodeUTF8 );
-    QFile file( fileName );
-    if ( !file.open( IO_ReadOnly ) )
-	qFatal( "rbuic: Could not open file '%s' ", fileName );
-
-    QDomDocument doc;
-    QString errMsg;
-    int errLine;
-    if ( !doc.setContent( &file, &errMsg, &errLine ) )
-	qFatal( QString("rbuic: Failed to parse %s: ") + errMsg + QString (" in line %d\n"), fileName, errLine );
-
-    DomTool::fixDocument( doc );
-
-    if ( fix ) {
-	out << doc.toString();
-	return 0;
-    }
-
-    if ( !subcl ) {
-	out << "# Form implementation generated from reading ui file '" << fileName << "'" << endl;
-	out << "#" << endl;
-	out << "# Created: " << QDateTime::currentDateTime().toString() << endl;
-	out << "#      by: The QtRuby User Interface Compiler (rbuic)" << endl;
-	out << "#" << endl;
-	out << "# WARNING! All changes made in this file will be lost!" << endl;
-	out << endl;
-    }
-    out << endl;
-
-    Uic uic( fileName, out, doc, subcl, trmacro ? trmacro : "trUtf8", className, nofwd, uicClass, useKDE );
-
-    if (execCode) {
-    out << endl;
-	out << indent << "if $0 == __FILE__" << endl;
-	++indent;
-	if (uic.hasKDEwidget) {
-		out << indent << "about = KDE::AboutData.new(\"" << uicClass.lower() << "\", \"" << uicClass << "\", \"0.1\")" << endl;
-		out << indent << "KDE::CmdLineArgs.init(ARGV, about)" << endl;
-		out << indent << "a = KDE::Application.new" << endl;
-	} else {
-		out << indent << "a = Qt::Application.new(ARGV)" << endl;
-	}
-        QString s;
-        getDBConnections( uic, s);
-        out << s;
-	out << indent << "w = " << (subcl? QString::fromLatin1(className) : uicClass) << ".new" << endl;
-	out << indent << "a.mainWidget = w" << endl;
-	out << indent << "w.show" << endl;
-	out << indent << "a.exec" << endl;
-	--indent;
-	out << indent << "end" << endl;
-    }
-
-    return 0;
+    fprintf(stderr, "Usage: %s [OPTION]... <UIFILE>\n\n"
+            "  -h, -help                 display this help and exit\n"
+            "  -v, -version              display version\n"
+            "  -d, -dependencies         display the dependencies\n"
+            "  -o <file>                 place the output into <file>\n"
+            "  -tr <func>                use func() for i18n\n"
+            "\n", appName);
 }
 
-void getDBConnections( Uic& uic, QString& s)
+int main(int argc, char *argv[])
 {
-    int num = 0;
-    for ( QStringList::Iterator it = uic.dbConnections.begin(); it != uic.dbConnections.end(); ++it ) {
-        if ( !(*it).isEmpty()) {
-            QString inc = (num ? QString::number(num+1) : QString::null);
-            s += "\n# Connection to database " + (*it) + "\n\n";
-            s += "DRIVER" + inc + " =\t\t'QMYSQL3'" + (inc?"":" # appropriate driver") + "\n";
-            s += "DATABASE" + inc + " =\t\t'foo'" + (inc?"":" # name of your database") + "\n";
-            s += "USER" + inc + "=\t\t'john'" + (inc?"":" # username") + "\n";
-            s += "PASSWORD" + inc + "=\t\t'ZxjGG34s'" + (inc?"":" # password for USER") + "\n";
-            s += "HOST" + inc + "=\t\t'localhost'" + (inc?"":" # host on which the database is running") + "\n";
-            s += "\n";
-            s += "db" + inc + " = Qt::SqlDatabase.addDatabase( DRIVER" + inc;
-            if (inc)
-                s+= ", '" + (*it) + "'";
-            s += " )\n";
-            s += "   db" + inc + ".setDatabaseName( DATABASE" + inc + " )\n";
-            s += "   db" + inc + ".setUserName( USER" + inc + " )\n";
-            s += "   db" + inc + ".setPassword( PASSWORD" + inc + " )\n";
-            s += "   db" + inc + ".setHostName( HOST" + inc + " )\n";
-            s += "\n";
-            s += "if!db" + inc + ".open() \n";
-             s += "        Qt::MessageBox.information( undef, 'Unable to open database',\n";
-            s += "                                     db" + inc + ".lastError().databaseText() . \"\\n\")\n";
-            s += "        exit 1\n";
-            s += "end\n";
-            s += "\n";
-            num++;
+    Driver driver;
+
+    const char *fileName = 0;
+
+    int arg = 1;
+    while (arg < argc) {
+        QString opt = QString::fromUtf8(argv[arg]);
+        if (opt == QLatin1String("-h") || opt == QLatin1String("-help")) {
+            showHelp(argv[0]);
+            return 0;
+        } else if (opt == QLatin1String("-d") || opt == QLatin1String("-dependencies")) {
+            driver.option().dependencies = true;
+        } else if (opt == QLatin1String("-v") || opt == QLatin1String("-version")) {
+            fprintf(stderr, "Qt user interface compiler %s.\n", QT_VERSION_STR);
+            return 0;
+        } else if (opt == QLatin1String("-o") || opt == QLatin1String("-output")) {
+            ++arg;
+            if (!argv[arg]) {
+                showHelp(argv[0]);
+                return 1;
+            }
+            driver.option().outputFile = QFile::decodeName(argv[arg]);
+        } else if (opt == QLatin1String("-postfix")) {
+            ++arg;
+            if (!argv[arg]) {
+                showHelp(argv[0]);
+                return 1;
+            }
+            driver.option().postfix = QLatin1String(argv[arg]);
+        } else if (opt == QLatin1String("-3")) {
+            ++arg;
+            if (!argv[arg]) {
+                showHelp(argv[0]);
+                return 1;
+            }
+            driver.option().uic3 = QFile::decodeName(argv[arg]);
+        } else if (opt == QLatin1String("-tr") || opt == QLatin1String("-translate")) {
+            ++arg;
+            if (!argv[arg]) {
+                showHelp(argv[0]);
+                return 1;
+            }
+            driver.option().translateFunction = QLatin1String(argv[arg]);
+        } else if (!fileName) {
+            fileName = argv[arg];
+        } else {
+            showHelp(argv[0]);
+            return 1;
         }
+
+        ++arg;
     }
+
+    QString inputFile;
+    if (fileName)
+        inputFile = QString::fromUtf8(fileName);
+    else
+        driver.option().headerProtection = false;
+
+    if (driver.option().dependencies) {
+        return !driver.printDependencies(inputFile);
+    }
+
+    QTextStream *out = 0;
+    QFile f;
+    if (driver.option().outputFile.size()) {
+        f.setFileName(driver.option().outputFile);
+        if (!f.open(QIODevice::WriteOnly)) {
+            fprintf(stderr, "Could not create output file\n");
+            return 1;
+        }
+        out = new QTextStream(&f);
+        out->setCodec(QTextCodec::codecForName("UTF-8"));
+    }
+
+    bool rtn = driver.uic(inputFile, out);
+    if (!rtn)
+        fprintf(stderr, "File '%s' is not valid\n", inputFile.isEmpty() ? "<stdin>" : inputFile.toLocal8Bit().constData());
+
+    delete out;
+
+    return !rtn;
 }
 

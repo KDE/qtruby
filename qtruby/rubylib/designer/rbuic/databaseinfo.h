@@ -21,10 +21,37 @@
 **
 ****************************************************************************/
 
-#ifndef GLOBALDEFS_H
-#define GLOBALDEFS_H
+#ifndef DATABASEINFO_H
+#define DATABASEINFO_H
 
-enum { BOXLAYOUT_DEFAULT_MARGIN = 11 };
-enum { BOXLAYOUT_DEFAULT_SPACING = 6 };
+#include "treewalker.h"
+#include <qstringlist.h>
+#include <qmap.h>
 
-#endif
+class Driver;
+
+class DatabaseInfo : public TreeWalker
+{
+public:
+    DatabaseInfo(Driver *driver);
+
+    void acceptUI(DomUI *node);
+    void acceptWidget(DomWidget *node);
+
+    inline QStringList connections() const
+    { return m_connections; }
+
+    inline QStringList cursors(const QString &connection) const
+    { return m_cursors.value(connection); }
+
+    inline QStringList fields(const QString &connection) const
+    { return m_fields.value(connection); }
+
+private:
+    Driver *driver;
+    QStringList m_connections;
+    QMap<QString, QStringList> m_cursors;
+    QMap<QString, QStringList> m_fields;
+};
+
+#endif // DATABASEINFO_H

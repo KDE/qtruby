@@ -21,10 +21,35 @@
 **
 ****************************************************************************/
 
-#ifndef GLOBALDEFS_H
-#define GLOBALDEFS_H
+#ifndef VALIDATOR_H
+#define VALIDATOR_H
 
-enum { BOXLAYOUT_DEFAULT_MARGIN = 11 };
-enum { BOXLAYOUT_DEFAULT_SPACING = 6 };
+#include "treewalker.h"
 
-#endif
+class QTextStream;
+class Driver;
+class Uic;
+
+struct Option;
+
+struct Validator : public TreeWalker
+{
+    Validator(Uic *uic);
+
+    void acceptUI(DomUI *node);
+    void acceptWidget(DomWidget *node);
+
+    void acceptLayoutItem(DomLayoutItem *node);
+    void acceptLayout(DomLayout *node);
+
+    void acceptActionGroup(DomActionGroup *node);
+    void acceptAction(DomAction *node);
+
+private:
+    Driver *driver;
+    QTextStream &output;
+    const Option &option;
+    Uic *uic;
+};
+
+#endif // VALIDATOR_H

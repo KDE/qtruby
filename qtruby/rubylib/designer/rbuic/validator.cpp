@@ -21,10 +21,56 @@
 **
 ****************************************************************************/
 
-#ifndef GLOBALDEFS_H
-#define GLOBALDEFS_H
+#include "validator.h"
+#include "driver.h"
+#include "ui4.h"
+#include "uic.h"
 
-enum { BOXLAYOUT_DEFAULT_MARGIN = 11 };
-enum { BOXLAYOUT_DEFAULT_SPACING = 6 };
+#include <qtextstream.h>
 
-#endif
+Validator::Validator(Uic *uic)
+    : driver(uic->driver()), output(uic->output()), option(uic->option())
+{
+    this->uic = uic;
+}
+
+void Validator::acceptUI(DomUI *node)
+{
+    TreeWalker::acceptUI(node);
+}
+
+void Validator::acceptWidget(DomWidget *node)
+{
+    (void) driver->findOrInsertWidget(node);
+
+    TreeWalker::acceptWidget(node);
+}
+
+void Validator::acceptLayoutItem(DomLayoutItem *node)
+{
+    (void) driver->findOrInsertLayoutItem(node);
+
+    TreeWalker::acceptLayoutItem(node);
+}
+
+void Validator::acceptLayout(DomLayout *node)
+{
+    (void) driver->findOrInsertLayout(node);
+
+    TreeWalker::acceptLayout(node);
+}
+
+void Validator::acceptActionGroup(DomActionGroup *node)
+{
+    (void) driver->findOrInsertActionGroup(node);
+
+    TreeWalker::acceptActionGroup(node);
+}
+
+void Validator::acceptAction(DomAction *node)
+{
+    (void) driver->findOrInsertAction(node);
+
+    TreeWalker::acceptAction(node);
+}
+

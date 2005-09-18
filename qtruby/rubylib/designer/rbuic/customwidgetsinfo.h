@@ -21,10 +21,41 @@
 **
 ****************************************************************************/
 
-#ifndef GLOBALDEFS_H
-#define GLOBALDEFS_H
+#ifndef CUSTOMWIDGETSINFO_H
+#define CUSTOMWIDGETSINFO_H
 
-enum { BOXLAYOUT_DEFAULT_MARGIN = 11 };
-enum { BOXLAYOUT_DEFAULT_SPACING = 6 };
+#include "treewalker.h"
+#include <qstringlist.h>
+#include <qmap.h>
 
-#endif
+class Driver;
+
+class CustomWidgetsInfo : public TreeWalker
+{
+public:
+    CustomWidgetsInfo(Driver *driver);
+
+    void acceptUI(DomUI *node);
+
+    void acceptCustomWidgets(DomCustomWidgets *node);
+    void acceptCustomWidget(DomCustomWidget *node);
+
+    inline QStringList customWidgets() const
+    { return m_customWidgets.keys(); }
+
+    inline bool hasCustomWidget(const QString &name) const
+    { return m_customWidgets.contains(name); }
+
+    inline DomCustomWidget *customWidget(const QString &name) const
+    { return m_customWidgets.value(name); }
+
+    QString realClassName(const QString &className) const;
+
+    bool extends(const QString &className, const QString &baseClassName) const;
+
+private:
+    Driver *driver;
+    QMap<QString, DomCustomWidget*> m_customWidgets;
+};
+
+#endif // CUSTOMWIDGETSINFO_H

@@ -21,10 +21,31 @@
 **
 ****************************************************************************/
 
-#ifndef GLOBALDEFS_H
-#define GLOBALDEFS_H
+#ifndef WRITEICONDECLARATION_H
+#define WRITEICONDECLARATION_H
 
-enum { BOXLAYOUT_DEFAULT_MARGIN = 11 };
-enum { BOXLAYOUT_DEFAULT_SPACING = 6 };
+#include "treewalker.h"
 
-#endif
+class QTextStream;
+class Driver;
+class Uic;
+
+struct Option;
+
+class WriteIconDeclaration : public TreeWalker
+{
+public:
+    WriteIconDeclaration(Uic *uic);
+
+    void acceptUI(DomUI *node);
+    void acceptImages(DomImages *images);
+    void acceptImage(DomImage *image);
+
+private:
+    Uic *uic;
+    Driver *driver;
+    QTextStream &output;
+    const Option &option;
+};
+
+#endif // WRITEICONDECLARATION_H

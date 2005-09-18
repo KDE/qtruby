@@ -21,10 +21,35 @@
 **
 ****************************************************************************/
 
-#ifndef GLOBALDEFS_H
-#define GLOBALDEFS_H
+#include <qtextstream.h>
 
-enum { BOXLAYOUT_DEFAULT_MARGIN = 11 };
-enum { BOXLAYOUT_DEFAULT_SPACING = 6 };
+#include "writeicondeclaration.h"
+#include "driver.h"
+#include "ui4.h"
+#include "uic.h"
 
-#endif
+WriteIconDeclaration::WriteIconDeclaration(Uic *uic)
+    : driver(uic->driver()), output(uic->output()), option(uic->option())
+{
+}
+
+void WriteIconDeclaration::acceptUI(DomUI *node)
+{
+    TreeWalker::acceptUI(node);
+}
+
+void WriteIconDeclaration::acceptImages(DomImages *images)
+{
+    TreeWalker::acceptImages(images);
+}
+
+void WriteIconDeclaration::acceptImage(DomImage *image)
+{
+    QString name = image->attributeName();
+    if (name.isEmpty())
+        return;
+
+    driver->insertPixmap(name);
+    output << option.indent << option.indent << name << "_ID,\n";
+}
+

@@ -21,10 +21,37 @@
 **
 ****************************************************************************/
 
-#ifndef GLOBALDEFS_H
-#define GLOBALDEFS_H
+#ifndef OPTION_H
+#define OPTION_H
 
-enum { BOXLAYOUT_DEFAULT_MARGIN = 11 };
-enum { BOXLAYOUT_DEFAULT_SPACING = 6 };
+#include <qstring.h>
 
-#endif
+struct Option
+{
+    unsigned int headerProtection : 1;
+    unsigned int copyrightHeader : 1;
+    unsigned int generateImplemetation : 1;
+    unsigned int generateNamespace : 1;
+    unsigned int autoConnection : 1;
+    unsigned int dependencies : 1;
+
+    QString inputFile;
+    QString outputFile;
+    QString indent;
+    QString prefix;
+    QString postfix;
+    QString translateFunction;
+    QString uic3;
+
+    Option()
+        : headerProtection(1),
+          copyrightHeader(1),
+          generateImplemetation(0),
+          generateNamespace(1),
+          autoConnection(1),
+          dependencies(0),
+          prefix(QLatin1String("Ui_"))
+    { indent.fill(QLatin1Char(' '), 4); }
+};
+
+#endif // OPTION_H
