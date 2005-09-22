@@ -424,6 +424,15 @@ resolve_classname(Smoke* smoke, int classId, void * ptr)
 
 			meta = meta->superClass();
 		}
+	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QLayoutItem")) {
+		QLayoutItem * item = (QLayoutItem *) smoke->cast(ptr, classId, smoke->idClass("QLayoutItem"));
+		if (item->widget() != 0) {
+			return "Qt::WidgetItem";
+		} else if (item->spacerItem() != 0) {
+			return "Qt::SpacerItem";
+		} else {
+			return "Qt::Layout";
+		}
 	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QListWidgetItem")) {
 		QListWidgetItem * item = (QListWidgetItem *) smoke->cast(ptr, classId, smoke->idClass("QListWidgetItem"));
 		switch (item->type()) {

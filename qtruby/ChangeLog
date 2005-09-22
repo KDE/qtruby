@@ -1,3 +1,11 @@
+2005-09-22  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added layouts/basiclayouts, borderlayout and flowlayouts examples
+	* Either a Qt::Layout, Qt::WidgetItem or Qt::SpacerItem ruby instance
+	  is created to wrap a C++ QLayoutItem instance, using
+	  QLayoutItem::widget() and QLayoutItem::spacerItem() methods to
+	  determine the exact class.
+
 2005-09-18  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Initial checkin of the Qt4 version of the rbuic tool
