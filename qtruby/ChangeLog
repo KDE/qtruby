@@ -1,3 +1,7 @@
+2005-09-23  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added mainwindows/application, menus, recentfiles and sdi examples
+
 2005-09-22  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added layouts/basiclayouts, borderlayout and flowlayouts examples
