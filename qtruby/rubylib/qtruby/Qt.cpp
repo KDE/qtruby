@@ -106,6 +106,7 @@ VALUE ktexteditor_module = Qnil;
 VALUE qt_internal_module = Qnil;
 VALUE qt_base_class = Qnil;
 VALUE qt_qmetaobject_class = Qnil;
+VALUE qt_qtextlayout_class = Qnil;
 VALUE qt_qvariant_class = Qnil;
 VALUE kconfigskeleton_class = Qnil;
 VALUE kconfigskeleton_itemenum_class = Qnil;
@@ -2647,18 +2648,18 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 	const char *package = StringValuePtr(package_value);
 	VALUE klass;
 	
-	QString pkg = QString(package);
+	QString packageName(package);
 
-	if (pkg.startsWith("Qt::")) {
+	if (packageName.startsWith("Qt::")) {
 		klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
 		
-		if (pkg == "Qt::Application" || pkg == "Qt::CoreApplication" ) {
+		if (packageName == "Qt::Application" || packageName == "Qt::CoreApplication" ) {
 			rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qapplication, -1);
 			rb_define_method(klass, "ARGV", (VALUE (*) (...)) qapplication_argv, 0);
 		} else {
 			rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
 		}
-	} else if (pkg.startsWith("Qext::")) {
+	} else if (packageName.startsWith("Qext::")) {
 		if (qext_scintilla_module == Qnil) {
 			qext_scintilla_module = rb_define_module("Qext");
 		}
@@ -2683,10 +2684,13 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 {
 	const char *package = StringValuePtr(package_value);
 	VALUE klass;
+	QString packageName(package);
 	
-	if (QString(package).startsWith("Qt::")) {
+	if (packageName.startsWith("Qt::TextLayout::")) {
+		klass = rb_define_class_under(qt_qtextlayout_class, package+strlen("Qt::TextLayout::"), qt_base_class);
+	} else if (packageName.startsWith("Qt::")) {
 		klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
-	} else if (QString(package).startsWith("Qext::")) {
+	} else if (packageName.startsWith("Qext::")) {
 		if (qext_scintilla_module == Qnil) {
 			qext_scintilla_module = rb_define_module("Qext");
 		}
@@ -2695,11 +2699,13 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 		klass = kde_package_to_class(package);
 	}
 
-	if (strcmp(package, "Qt::MetaObject") == 0) {
+	if (packageName == "Qt::MetaObject") {
 		qt_qmetaobject_class = klass;
-	} else if (strcmp(package, "Qt::Variant") == 0) {
+	} else if (packageName == "Qt::TextLayout") {
+		qt_qtextlayout_class = klass;
+	} else if (packageName == "Qt::Variant") {
 		qt_qvariant_class = klass;
-	} else if (strcmp(package, "Qt::Char") == 0) {
+	} else if (packageName == "Qt::Char") {
 		rb_define_method(klass, "to_s", (VALUE (*) (...)) qchar_to_s, 0);
 	}
 
