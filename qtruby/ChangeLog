@@ -1,3 +1,10 @@
+2005-09-26  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Added some fixes from the Qt4 version of QtRuby
+	* There was a clash between operator methods in Kernel
+	  for '>', '>=', '<' and '<=' and the ones in the Smoke lib.
+	* Fixed a Qt::ByteArray marshalling problem
+
 2005-09-12  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Fixed various problems with the rbuic code generation for database

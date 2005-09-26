@@ -910,16 +910,18 @@ static void marshall_QByteArray(Marshall *m) {
 					Data_Get_Struct(data, QByteArray, s);
 				} else {
 					// Or a ruby String inside
-            		s = new QByteArray(RSTRING(data)->len);
-					memcpy((void*)s->data(), StringValuePtr(data), RSTRING(data)->len);
+						s = new QByteArray(RSTRING(data)->len, '\0');
+						memcpy((void*)s->data(), StringValuePtr(data), RSTRING(data)->len);
+						VALUE data = Data_Wrap_Struct(rb_cObject, 0, 0, s);
+						rb_funcall(qt_internal_module, rb_intern("set_qbytearray"), 2, rv, data);
 				}
 			} else {
 				// Ordinary ruby String - use the contents of the string
-            	s = new QByteArray(RSTRING(rv)->len);
+				s = new QByteArray(RSTRING(rv)->len, '\0');
 				memcpy((void*)s->data(), StringValuePtr(rv), RSTRING(rv)->len);
 			}
         } else {
-            s = new QByteArray(0);
+			s = new QByteArray(0, '\0');
 	    }
 	    m->item().s_voidp = s;
 	    

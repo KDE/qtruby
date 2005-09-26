@@ -83,21 +83,43 @@ module Qt
 		def |(a)
 			return Qt::|(self, a)
 		end
+
+#		Module has '<', '<=', '>' and '>=' operator instance methods, so pretend they
+#		don't exist by calling method_missing() explicitely
 		def <(a)
-			return Qt::<(self, a)
-		end
-		def <=(a)
-			return Qt::<=(self, a)
-		end
-		def >(a)
-			return Qt::>(self, a)
-		end
-		def >=(a)
-			return Qt::>=(self, a)
+			begin
+				Qt::method_missing(:<, self, a)
+			rescue
+				super(a)
+			end
 		end
 
-#		Object has an equality operator instance method, so pretend it
-#		doesn't exist by calling method_missing() explicitely
+		def <=(a)
+			begin
+				Qt::method_missing(:<=, self, a)
+			rescue
+				super(a)
+			end
+		end
+
+		def >(a)
+			begin
+				Qt::method_missing(:>, self, a)
+			rescue
+				super(a)
+			end
+		end
+
+		def >=(a)
+			begin
+				Qt::method_missing(:>=, self, a)
+			rescue
+				super(a)
+			end
+		end
+
+#		Object has a '==' operator instance method, so pretend it
+#		don't exist by calling method_missing() explicitely
 		def ==(a)
 			begin
 				Qt::method_missing(:==, self, a)
