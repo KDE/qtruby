@@ -53,7 +53,7 @@ class MainWindow < Qt::MainWindow
 	    @printAction.shortcut = Qt::KeySequence.new(tr("Ctrl+P"))
 	
 	    quitAction = fileMenu.addAction(tr("E&xit"))
-	    quitAction.shortcut = Qt::KeySequence.new(tr("Ctrl+Qt::"))
+	    quitAction.shortcut = Qt::KeySequence.new(tr("Ctrl+Q"))
 	
 	    helpMenu = Qt::Menu.new(tr("&Help"), self)
 	    aboutAction = helpMenu.addAction(tr("&About"))
