@@ -494,12 +494,14 @@ module Qt
 			return toInt()
 		end
 
-		def to_s
-			return toString()
+		def inspect
+			str = super
+			str.sub(/>$/, " typeName=%s>" % typeName)
 		end
-
-		def to_str
-			return toString()
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, " typeName=%s>" % typeName)
 		end
 	end
 	
