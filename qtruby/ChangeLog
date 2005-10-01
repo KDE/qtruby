@@ -1,3 +1,10 @@
+2005-10-01  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* The the value of a Qt::Variant can now be accessed with
+	  with to_s, to_i, to_a and to_f methods
+	* Deleted the svn:mime-type property from the qtruby.rb source
+	  so that diffs will be shown on checkin
+
 2005-09-25  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added richtext/calendar, orderform and syntaxhighlighter examples

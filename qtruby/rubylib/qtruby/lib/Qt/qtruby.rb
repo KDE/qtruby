@@ -477,6 +477,32 @@ module Qt
 		end
 	end
 	
+	class Variant < Qt::Base
+		def to_a
+			return toStringList()
+		end
+
+		def to_f
+			return toDouble()
+		end
+
+		def to_i
+			return toInt()
+		end
+
+		def to_int
+			return toInt()
+		end
+
+		def to_s
+			return toString()
+		end
+
+		def to_str
+			return toString()
+		end
+	end
+	
 	# Provides a mutable numeric class for passing to methods with
 	# C++ 'int*' or 'int&' arg types
 	class Integer
