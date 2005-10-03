@@ -21,7 +21,7 @@ end
 Params.readParamsFromFile(ARGV[0] || 'boids.properties')
 world = World.instance
 win = WorldWindow.new
-app.mainWidget = win
+# app.mainWidget = win
 
 World.instance.canvas = win.canvas
 win.show

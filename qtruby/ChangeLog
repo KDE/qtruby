@@ -1,3 +1,8 @@
+2005-10-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Ported the RuBoids OpenGL artificial life example to Qt4 and 
+	  added opengl/grabber
+
 2005-10-01  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* The the value of a Qt::Variant can now be accessed with

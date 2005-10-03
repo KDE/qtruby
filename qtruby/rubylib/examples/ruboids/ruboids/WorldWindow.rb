@@ -10,45 +10,43 @@ require 'Canvas'
 require 'CameraDialog'
 
 class WorldWindow < Qt::MainWindow
-	slots 'slotMenuActivated(int)'
-	
-    MENU_CAMERA_DIALOG = 1
+
+    slots 'slotCameraDialog()'
 
     attr_accessor :canvas
 
     def initialize
-	super
-	setCaption("Boids")
-	setupMenubar()
+        super
+        setWindowTitle("Boids")
+        setupMenubar()
 
-	@canvas = Canvas.new(self, "TheDamnCanvas")
-	setCentralWidget(@canvas)
-	setGeometry(0, 0, $PARAMS['window_width'],
-		    $PARAMS['window_height'])
+        @canvas = Canvas.new(self, "TheDamnCanvas")
+        setCentralWidget(@canvas)
+        setGeometry(0, 0, $PARAMS['window_width'],
+                    $PARAMS['window_height'])
     end
 
     def setupMenubar
+        # Create and populate file menu
+        exitAct = Qt::Action.new("E&xit", self)
+        exitAct.shortcut = Qt::KeySequence.new("Ctrl+Q")
+        connect(exitAct, SIGNAL('triggered()'), $qApp, SLOT('quit()'))
 
-	# Create and populate file menu
-    menu = Qt::PopupMenu.new(self)
-    menu.insertItem("Exit", $qApp, SLOT("quit()"), Qt::KeySequence.new(CTRL+Key_Q))
+        # Add file menu to menu bar
+        fileMenu = menuBar().addMenu("&File")
+        fileMenu.addAction(exitAct)
 
-	# Add file menu to menu bar
-	menuBar.insertItem("&File", menu)
+        # Create and populate options menu
+        cameraAct = Qt::Action.new("&Camera...", self)
+        connect(cameraAct, SIGNAL('triggered()'), self, SLOT('slotCameraDialog()'))
 
-	# Create and populate options menu
-	menu = Qt::PopupMenu.new(self)
-	menu.insertItem("&Camera...", MENU_CAMERA_DIALOG, -1)
-
-	# Add options menu to menu bar and link it to method below
-	menuBar.insertItem("&Options", menu)
-	connect(menu, SIGNAL("activated(int)"), self, SLOT('slotMenuActivated(int)'))
+        # Add options menu to menu bar and link it to method below
+        optionsMenu = menuBar().addMenu("&Options")
+        optionsMenu.addAction(cameraAct)
 
     end
 
-    def slotMenuActivated(id)
-	if id == MENU_CAMERA_DIALOG
-	    CameraDialog.new(nil).exec()
-	end
+    def slotCameraDialog()
+        CameraDialog.new(nil).exec()
     end
 end
