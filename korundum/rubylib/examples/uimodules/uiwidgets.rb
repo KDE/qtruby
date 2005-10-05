@@ -526,7 +526,7 @@ class Page7 < Qt::Object
         @p1.setGeometry(x, y + 80, 125, 20)
         @p2.setGeometry(x, y + 120, 125, 20)
 
-        @p2.setPercentageVisible(0)
+        @p2.setPercentageVisible(false)
 
         @p1.show()
         @p2.show()
