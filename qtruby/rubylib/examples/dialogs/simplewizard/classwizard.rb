@@ -343,7 +343,7 @@ class ThirdPage < Qt::Widget
         @outputDirLabel = Qt::Label.new(tr("&Output directory:"))
         @outputDirLineEdit = Qt::LineEdit.new
         @outputDirLabel.buddy = @outputDirLineEdit
-        setFocusProxy(@outputDirLineEdit)
+        self.focusProxy = @outputDirLineEdit
     
         @headerLabel = Qt::Label.new(tr("&Header file name:"))
         @headerLineEdit = Qt::LineEdit.new

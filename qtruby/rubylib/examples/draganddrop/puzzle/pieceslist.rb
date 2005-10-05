@@ -65,7 +65,7 @@ class PiecesList < Qt::ListWidget
     def addPiece(pixmap, location)
         pieceItem = Qt::ListWidgetItem.new(self)
         pieceItem.icon = Qt::Icon.new(pixmap)
-        pieceItem.setData(Qt::UserRole.to_i, qVariantFromValue(pixmap))
+        pieceItem.setData(Qt::UserRole, qVariantFromValue(pixmap))
         pieceItem.setData(Qt::UserRole.to_i + 1, Qt::Variant.new(location))
         pieceItem.setFlags( Qt::ItemIsEnabled.to_i | Qt::ItemIsSelectable.to_i |
                             Qt::ItemIsDragEnabled.to_i )

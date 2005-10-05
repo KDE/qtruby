@@ -175,13 +175,13 @@ class GLWidget < Qt::GLWidget
     
         GL.ShadeModel(GL::FLAT)
     
-        (0...2).each do |i|
+        for i in 0...2
             sign = (i == 0) ? +1.0 : -1.0
     
             GL.Normal3d(0.0, 0.0, sign)
     
             GL.Begin(GL::QUAD_STRIP)
-            (0..toothCount).each do |j|
+            for j in 0..toothCount
                 angle = 2.0 * PI * j / toothCount
                 GL.Vertex3d(r0 * cos(angle), r0 * sin(angle), sign * z)
                 GL.Vertex3d(r1 * cos(angle), r1 * sin(angle), sign * z)
@@ -192,7 +192,7 @@ class GLWidget < Qt::GLWidget
             GL.End()
     
             GL.Begin(GL::QUADS)
-            (0...toothCount).each do |j|
+            for j in 0...toothCount
                 angle = 2.0 * PI * j / toothCount
                 GL.Vertex3d(r1 * cos(angle), r1 * sin(angle), sign * z)
                 GL.Vertex3d(r2 * cos(angle + delta), r2 * sin(angle + delta),
@@ -206,8 +206,8 @@ class GLWidget < Qt::GLWidget
         end
     
         GL.Begin(GL::QUAD_STRIP)
-        (0...toothCount).each do |i|
-            (0...2).each do |j|
+        for i in 0...toothCount
+            for j in 0...2
                 angle = 2.0 * PI * (i + (j / 2.0)) / toothCount
                 s1 = r1
                 s2 = r2
@@ -232,7 +232,7 @@ class GLWidget < Qt::GLWidget
         GL.ShadeModel(GL::SMOOTH)
     
         GL.Begin(GL::QUAD_STRIP)
-        (0..toothCount).each do |i|
+        for i in 0..toothCount
             angle = i * 2.0 * PI / toothCount
             GL.Normal3d(-cos(angle), -sin(angle), 0.0)
             GL.Vertex3d(r0 * cos(angle), r0 * sin(angle), +z)

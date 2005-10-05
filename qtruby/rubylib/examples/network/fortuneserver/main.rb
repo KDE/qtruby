@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 =begin
 **
 ** Copyright (C) 2004-2005 Trolltech AS. All rights reserved.
@@ -26,9 +24,9 @@
 =end
 
 require 'Qt'
-require 'digitalclock.rb'
+require 'server.rb'
 
 app = Qt::Application.new(ARGV)
-clock = DigitalClock.new
-clock.show
-app.exec
+server = Server.new
+server.show
+server.exec

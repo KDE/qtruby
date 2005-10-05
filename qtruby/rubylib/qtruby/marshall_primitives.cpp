@@ -55,13 +55,13 @@ static VALUE primitive_to_ruby<short>(short sv)
 template <>
 static unsigned short ruby_to_primitive<unsigned short>(VALUE v)
 {
-	return (unsigned short)NUM2INT(v);
+	return (unsigned short)NUM2UINT(v);
 }
 
 template <>
 static VALUE primitive_to_ruby<unsigned short>(unsigned short sv)
 {
-	return INT2NUM(sv);
+	return UINT2NUM((unsigned int) sv);
 }
 
 template <>

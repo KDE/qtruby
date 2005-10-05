@@ -1083,8 +1083,6 @@ get_VALUEtype(VALUE ruby_value)
 	r = "n";
     else if(TYPE(ruby_value) == T_STRING)
 	r = "s";
-    else if(strcmp(classname, "Qt::ByteArray") == 0)
-	r = "b";
     else if(ruby_value == Qtrue || ruby_value == Qfalse || strcmp(classname, "Qt::Boolean") == 0)
 	r = "B";
     else if(strcmp(classname, "Qt::Enum") == 0) {
@@ -2108,10 +2106,9 @@ isEnum(VALUE /*self*/, VALUE enumName_value)
 {
     char *enumName = StringValuePtr(enumName_value);
     Smoke::Index typeId = qt_Smoke->idType(enumName);
-    Smoke::Index classId = qt_Smoke->idClass(enumName);
-	// If something is a smoke type but not a class it must be an enum.
-	// Note this is true iff this function is called from qtruby.rb/checkarg()
-	return (typeId > 0 && classId == 0 ? Qtrue : Qfalse);
+	return	typeId > 0 
+			&& (	(qt_Smoke->types[typeId].flags & Smoke::tf_elem) == Smoke::t_enum
+					|| (qt_Smoke->types[typeId].flags & Smoke::tf_elem) == Smoke::t_int ) ? Qtrue : Qfalse;
 }
 
 static VALUE

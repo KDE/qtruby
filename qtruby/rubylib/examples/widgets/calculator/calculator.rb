@@ -53,7 +53,7 @@ class Calculator < Qt::Dialog
     
         @display = Qt::LineEdit.new("0")
         @display.readOnly = true
-        @display.alignment = Qt::AlignRight.to_i
+        @display.alignment = Qt::AlignRight
         @display.maxLength = 15
         @display.installEventFilter(self)
     
@@ -119,7 +119,7 @@ class Calculator < Qt::Dialog
         mainLayout.addWidget(@setMemoryButton, 4, 0)
         mainLayout.addWidget(@addToMemoryButton, 5, 0)
     
-        (1...NumDigitButtons).each do |i|
+        for i in 1...NumDigitButtons
             row = ((9 - i) / 3) + 2
             column = ((i - 1) % 3) + 1
             mainLayout.addWidget(@digitButtons[i], row, column)

@@ -108,7 +108,7 @@ class MainWindow < Qt::MainWindow
 	end
 	
 	def printImage()
-	    if @model.rowCount(Qt::ModelIndex.new())*@model.columnCount(Qt::ModelIndex.new()) > 90000
+	    if @model.rowCount(Qt::ModelIndex.new()).model.columnCount(Qt::ModelIndex.new()) > 90000
 	        answer = Qt::MessageBox::question(self, tr("Large Image Size"),
 	            tr("The printed image may be very large. Are you sure that " +
 	               "you want to print it?"),

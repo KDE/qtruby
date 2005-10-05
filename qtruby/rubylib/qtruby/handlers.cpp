@@ -564,7 +564,8 @@ marshall_basetype(Marshall *m)
       
 		case Smoke::t_ushort:
 			marshall_it<unsigned short>(m);
-	
+		break;
+
 		case Smoke::t_int:
 			marshall_it<int>(m);
 		break;
@@ -780,71 +781,6 @@ qchar_to_s(VALUE self)
 	QChar * qchar = (QChar*) o->ptr;
 	QString s(*qchar);
 	return rstringFromQString(&s);
-}
-
-static void marshall_QByteArray(Marshall *m) {
-	switch(m->action()) {
-		case Marshall::FromVALUE:
-		{
-			VALUE rv = *(m->var());
-			QByteArray *s = 0;
-			VALUE data = Qnil;
-			
-			if(rv != Qnil) {
-				if (rb_respond_to(rv, rb_intern("data")) != 0) {
-					// Qt::ByteArray - use the contents of the 'data' instance var
-					data = rb_funcall(qt_internal_module, rb_intern("get_qbytearray"), 1, rv);
-					if (TYPE(data) == T_DATA) {
-						// A C++ QByteArray inside the Qt::ByteArray
-						Data_Get_Struct(data, QByteArray, s);
-					} else {
-						// Or a ruby String inside
-						s = new QByteArray(RSTRING(data)->len, '\0');
-						memcpy((void*)s->data(), StringValuePtr(data), RSTRING(data)->len);
-						VALUE data = Data_Wrap_Struct(rb_cObject, 0, 0, s);
-						rb_funcall(qt_internal_module, rb_intern("set_qbytearray"), 2, rv, data);
-					}
-				} else {
-					// Ordinary ruby String - use the contents of the string
-					s = new QByteArray(RSTRING(rv)->len, '\0');
-					memcpy((void*)s->data(), StringValuePtr(rv), RSTRING(rv)->len);
-				}
-			} else {
-				s = new QByteArray(0, '\0');
-			}
-			
-			m->item().s_voidp = s;
-			m->next();
-	
-			if(s && m->cleanup() && data == Qnil)
-				delete s;
-		}
-		break;
-      
-		case Marshall::ToVALUE:
-		{
-			VALUE result;
-			QByteArray *s = (QByteArray*)m->item().s_voidp;
-			if(s) {
-				VALUE string = rb_str_new2("");
-				rb_str_cat(string, (const char *)s->data(), s->size());
-				VALUE data = Data_Wrap_Struct(rb_cObject, 0, 0, s);
-				result = rb_funcall(qt_internal_module, rb_intern("create_qbytearray"), 
-					2, string, data);
-			} else {
-				result = Qnil;
-			}
-		
-			*(m->var()) = result;
-			if(m->cleanup())
-				delete s;
-		}
-		break;
-      
-		default:
-			m->unsupported();
-		break;
- 	}
 }
 
 #if 0
@@ -1720,6 +1656,7 @@ TypeHandler Qt_handlers[] = {
     { "qulonglong&", marshall_it<unsigned long long> },
     { "int&", marshall_it<int *> },
     { "int*", marshall_it<int *> },
+    { "qint32&", marshall_it<int *> },
     { "bool&", marshall_it<bool *> },
     { "bool*", marshall_it<bool *> },
     { "char*",marshall_it<char *> },
@@ -1729,9 +1666,6 @@ TypeHandler Qt_handlers[] = {
     { "QPair<int,int>&", marshall_QPairintint },
     { "void**", marshall_voidP_array },
     { "void", marshall_void },
-    { "QByteArray", marshall_QByteArray },
-    { "QByteArray&", marshall_QByteArray },
-    { "QByteArray*", marshall_QByteArray },
     { "QList<qreal>", marshall_QListqreal },
     { "QList<int>", marshall_QListInt },
     { "QList<int>&", marshall_QListInt },
