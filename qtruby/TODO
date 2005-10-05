@@ -1,0 +1,13 @@
+	* Implement the special case method in Qt::Image constructor
+	
+	* Allow 'String' and other ruby types to be used in SIGNALs/SLOTs
+	
+	* More documentation or example code - contributions welcome!
+	
+	* See the separate TODO list for the rbuic tool
+	
+	* Write a rubyeditor plugin for Qt Designer
+	
+	* Add an option to rbqtapi to show the api in ruby format, rather than C++
+	
+	* Write a graphic class browser based on rbqtapi

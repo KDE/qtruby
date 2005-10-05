@@ -1,0 +1,49 @@
+<!DOCTYPE kpartgui SYSTEM "kpartgui.dtd" ><kpartgui name="xmlmenudemo" version="1">
+<MenuBar>
+  <Menu name="file"><text>&amp;File</text>
+    <Action name="newAction"/>
+    <Action name="openAction"/>
+    <Action name="saveAction"/>
+    <Action name="saveAsAction"/>
+    <Action name="printAction"/>
+    <Action name="quitAction"/>
+    <ActionList name="recent" />
+  </Menu>
+  <Menu name="edit"><text>&amp;Edit</text>
+    <Action name="undoAction"/>
+    <Action name="redoAction"/>
+    <Action name="cutAction"/>
+    <Action name="copyAction"/>
+    <Action name="pasteAction"/>
+    <Action name="findAction"/>
+    <Action name="findNextAction"/>
+    <Action name="replaceAction"/>
+    <Action name="specialActionName"/>
+  </Menu>
+  <Menu name="demo"><text>&amp;Demo</text>
+    <Action name="toggle1Action"/>
+    <Action name="toggle2Action"/>
+    <Action name="separateAction"/>
+    <Action name="fontAction"/>
+    <Action name="fontSizeAction"/>
+    <Action name="separateAction"/>
+    <Action name="actionMenu"/>
+    <Action name="radio1"/>
+    <Action name="radio2"/>
+    <Action name="radio3"/>
+  </Menu>
+</MenuBar>
+<ToolBar name="mainToolBar">
+    <Action name="actionMenu"/>
+    <Action name="separateAction"/>
+    <Action name="separateAction"/>
+    <Action name="fontAction"/>
+    <Action name="separateAction"/>
+    <Action name="fontSizeAction" comboWidth="75"/>
+    <Action name="radio1"/>
+    <Action name="radio2"/>
+    <Action name="radio3"/>
+    <Merge/>
+</ToolBar>
+<ActionProperties />
+</kpartgui>

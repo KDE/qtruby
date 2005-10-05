@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+$VERBOSE = true; $:.unshift File.dirname($0)
+
+require 'Qt'
+
+class MyWidget < Qt::VBox
+
+def initialize()
+   super
+    quit = Qt::PushButton.new('Quit', self, 'quit')
+    quit.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
+    
+	connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
+    
+	lcd = Qt::LCDNumber.new(2, self, 'lcd')
+
+    slider = Qt::Slider.new(Horizontal, self, 'slider')
+    slider.setRange(0, 99)
+    slider.setValue(0)
+
+    connect(slider, SIGNAL('valueChanged(int)'), lcd, SLOT('display(int)'))
+end
+
+end
+
+a = Qt::Application.new(ARGV)
+
+w = MyWidget.new
+a.setMainWidget(w)
+w.show
+a.exec

@@ -1,0 +1,184 @@
+Please see kdebindings/qtruby/README
+
+KDE Specific Infomation:
+
+	- Instead of require 'Qt', use require 'Korundum' for KDE programs. 
+	
+	- The KDE K* classes such as KApplication are renamed as KDE::Application. 
+	  The other KDE classes are in the KParts::, KIO:: or DOM:: namespaces,
+	  with the same names as their C++ counterparts. 
+	
+	- Use the 'rbkdeapi' script to introspect the Korundum api from the command
+	  line. For example:
+	  
+	  	$ rbkdeapi KDE::Action
+	  
+	  Will list all the methods in the KDE::Action class. There are currently
+	  (as at KDE 3.3 beta 2) 977 classes/30841 methods in the Smoke library 
+	  runtime, so the coverage of the Qt/KDE api is pretty complete.
+
+	- DCOP Support. Here is a minimal ruby dcop slot implementation:
+	
+			require 'Korundum'
+			
+			class MyWidget < KDE::PushButton
+				k_dcop 'QPoint mySlot(int,QString)'
+	
+				def initialize(parent, name)
+					super
+				end
+			
+				def mySlot(counter,greeting)
+					return Qt::Point.new(50, 100)
+				end
+			end
+
+		This slot is passed an integer and a string, and returns a Qt::Point.
+		
+		Note that the class doesn't have to inherit from DCOPObject. If you
+		include a 'k_dcop' slots declaration a 'listener' dcop object 
+		instance is created automatically, and these four methods are added
+		to your class:
+		  
+		  	interfaces()
+			functions()
+			connectDCOPSignal()
+			disconnectDCOPSignal()
+			
+		The name of the object is always the ruby classname, and you can only
+		instantiate one instance for each ruby class that has 'k_dcop' 
+		declarations. See examples/dcop/dcopslot.rb and dcopsignal.rb for an 
+		example of the simplest approach.
+			
+		If you wish to use the full functionality of a DCOPObject, you can
+		subclass it and call all the methods, not just the four above. 
+		Additionally, you can instantiate more than one instance per class and 
+		rename the dcop object with the setObjId() method or by passing the name 
+		to the constructor. See the examples/dcop/petshop.rb code for an 
+		example of a more complex dcop object.
+	
+	- Define a dcop slot like this in one ruby program:
+
+	    k_dcop 'QPoint getPoint(QString)'
+
+	    def getPoint(msg)
+		    puts "message: #{msg}"
+		    return Qt::Point.new(50, 100)
+	    end
+
+	- Call it from another program and print the reply, like this:
+
+	    dcopRef = KDE::DCOPRef.new("dcopslot", "MyWidget")
+		
+		There are three different ways to specify a DCOP call:
+	    1) res = dcopRef.call("getPoint(QString)", "Hello from dcopsend")
+	    2) res = dcopRef.call("getPoint", "Hello from dcopsend")
+		3) res = dcopRef.getPoint("Hello from dcopsend")
+		
+	    puts "result class: #{res.class.name} x: #{res.x} y: #{res.y}"
+		
+		If the dcop slot has a 'void' or 'ASYNC' type, the result will be true
+		if the call succeeds or nil if it fails
+		
+	- DCOP Attributes
+	
+		You can set a dcop attribute like this, instead of calling 
+		'klipper.setClipboardContents("Hello there klipper")':
+		
+		klipper = DCOPRef.new("klipper", "klipper")
+		klipper.clipboardContents = "Hello there klipper"
+		
+		Amaze your friends! Do the programming equivalent of leaping
+		over tall buildings in one bound! Here with one line of quite
+		clear code, we read a file from disc and assign it the 
+		'clipboardContents' klipper attribute via dcop:
+		
+		klipper.clipboardContents = IO.readlines("myfile").to_s
+		
+	- DCOP Predicates
+		
+		Instead of:
+		
+		result = dcopRef.isFoo()
+		
+		You can use this more rubyish form:
+		
+		if dcopRef.foo?
+			puts "foo is true"
+		else
+			puts "foo? is false"
+		end
+
+		Similarly you can use foo? as an alias for methods of the form 
+		hasFoo(). 
+		See examples/dcop/dcoppredicate.rb and dcopslot.rb
+		
+	- Underscore to camel case DCOP method name conversion
+	
+		Any underscores in a method name are removed, and the following
+		character is capitalised. For example:
+		
+		res = dcopRef.get_point("Hello from dcopsend")
+		
+		Is a synonym for:
+		
+		res = dcopRef.getPoint("Hello from dcopsend")
+			
+	- Send to a DCOPRef:
+	    
+		There are two different ways to specify a DCOP send:
+		1) res = dcopRef.send("mySlot(QString)", "Hello from dcopsend")
+	    2) res = dcopRef.send("mySlot", "Hello from dcopsend")
+		
+		The result will either be true or false (but not nil for fail like the
+		DCOPRef.call() method described above).
+	
+	- When a call of the form 'dcopRef.getPoint(5, "foobar")' is made, the C++
+	  type signature is obtained from the list of those returned by 
+	  DCOPRef.functions(). However, if a method name is overloaded the ruby 
+	  argument types are used to derive a type signature, in order to resolve 
+	  the call like this:
+	  
+			String => QString
+			Float => double
+			Integer => int
+			TrueClass|FalseClass (ie 'true' or 'false') => bool
+			Qt::Widget etc => QWidget
+			KDE::URL etc => KURL
+			Array => QStringList
+			
+	  Specify the full C++ type signature using the form
+	  'dcopRef.call("getPoint(int,QString)", 5, "foobar")' if these rules fail 
+	  to pick the right method.
+	  
+	- DCOP Signals are defined like this:
+	
+	    k_dcop_signals 'void testEmitSignal(QString)'
+		
+	    def doit()
+	        emit testEmitSignal("Hello DCOP Slot")
+	    end
+	  	  
+	- Connect slot 'mySlot' to a DCOP signal like this:
+	
+	    res = slottest.connectDCOPSignal("dcopsignal", "SenderWidget", 
+		                                 "testEmitSignal(QString)", "mySlot(QString)", 
+										 true)
+
+	- Use the '-kde' option with the rbuic tool to require the 'Korundum' 
+		extension rather than the 'Qt' one. If the '-x' option is used in 
+		conjunction, it generates a KDE top level. For example:
+		
+		$ rbuic -x -kde knotifywidgetbase.ui -o knotifywidgetbase.rb
+
+		Will generate this top level code:
+
+			if $0 == __FILE__
+    			about = KDE::AboutData.new("knotifywidgetbase", "KNotifyWidgetBase", "0.1")
+    			KDE::CmdLineArgs.init(ARGV, about)
+    			a = KDE::Application.new()
+    			w = KNotifyWidgetBase.new
+    			a.setMainWidget(w)
+    			w.show
+    			a.exec
+			end

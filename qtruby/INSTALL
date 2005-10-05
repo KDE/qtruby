@@ -1,0 +1,106 @@
+Dependencies
+------------
+
+- ruby 1.8 or greater
+- automake 1.7 or greater
+- Qt 3.1 or greater 
+- KDE 3.1 or greater (for korundum)
+
+CVS Snapshot
+------------
+
+If building from a CVS snapshot, this initial make command in needed:
+
+$ make -f Makefile.cvs
+
+Configure flags needed
+----------------------
+
+In order to build korundum: (this is the default in fact, so you can just use ./configure)
+   ./configure --with-smoke="qt kde"
+in order to build just qtruby: 
+   ./configure --with-smoke="qt"
+
+Building the Qt extension without KDE build process
+---------------------------------------------------
+
+To build the Qt.so extension, provide 'extconf.rb' with the directories where
+the Qt and Smoke libraries are installed:
+
+$ cd qtruby/rubylib/qtruby
+$ ruby extconf.rb --with-smoke-dir=/opt/kde3 \
+      --with-qt-dir=/home/duke/src/kde/HEAD/qt-copy
+$ make
+$ make install
+
+Building on Mac OS X
+--------------------
+
+Automake/autoconf don't work very well on Mac OS X, and so qmake and
+exconf.rb must be used instead. You can use the native Aqua/Quartz Qt/Mac 
+version of Qt - QtRuby doesn't require X11.
+
+Build Qt/Mac and install in /Developer/qt. These configure flags work well:
+
+./configure -system-zlib -qt-gif -plugin-imgfmt-mng -thread -no-stl 
+-no-exceptions -fast
+
+Configure QtRuby and build the Smoke library:
+$ ./configure '--with-qt-dir=/Developer/qt'  '--enable-mac'
+$ cd smoke/qt
+# Generate the Smoke library sources:
+$ perl generate.pl
+# Overwrite the automake generated Makefile:
+$ qmake -makefile
+# Build the Smoke library and install into /usr/lib
+$ sudo make
+...
+
+# Build the 'Qt' extension:
+$ cd qtruby/rubylib/qtruby
+$ ruby extconf.rb --with-qt-dir=/Developer/qt --with-smoke-dir=/usr \
+      --with-smoke-include=../../../smoke
+$ make
+$ sudo make install
+...
+
+# Build the rbuic tool and install into /usr/bin
+$ cd qtruby/rubylib/designer/rbuic
+$ qmake -makefile
+$ sudo make
+...
+
+# Build the 'qui' QWidgetFactory extension
+$ cd qtruby/rubylib/designer/uilib
+$ ruby extconf.rb --with-qtruby-include=../../qtruby --with-qt-dir=/Developer/qt
+$ make
+$ sudo make install
+
+To get Mac menus to appear, when a QtRuby program is run from the command line,
+link ruby against the carbon resource lib and call it 'rubyw', see:
+
+http://www.rubygarden.org/ruby?RubyTkOnOSX
+
+"Create rubyw executable for MacOS?: the Win32 distribution of ruby includes a 
+'rubyw.exe' so I decided to attempt creating a 'rubyw' executable:
+
+On my machine, ruby is installed at /usr/local/bin/ruby, so I did sudo 
+cp /usr/local/bin/ruby /usr/local/bin/rubyw 
+Using the suggestion directly above (on this page), I then ran 
+sudo /Developer/Tools/Rez -t APPL Carbon.r -o rubyw 
+I was then able to successfully run an example RubyTk app by 
+running /usr/local/bin/rubyw ruby-1.8.0/ext/tk/sample/tkmenubutton.rb 
+Everything worked as expected, and I was able to interact with the UI without 
+any SetFrontProcess errors. "
+
+QScintilla text editing widget support
+--------------------------------------
+
+QScintilla is a text editing widget with syntax highlighting for a
+number of languages including ruby. It can be downloaded from here:
+
+http://www.riverbankcomputing.co.uk/qscintilla/download.php
+
+Use the '--enable-qscintilla=yes' configure option to build QtRuby with
+QScintilla support. The classes in a 'Qext::' module, with names such as 
+Qext::Scintilla.

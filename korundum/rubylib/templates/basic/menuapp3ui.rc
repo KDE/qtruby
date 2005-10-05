@@ -1,0 +1,24 @@
+<!DOCTYPE kpartgui>
+<kpartgui name = "menuapp3">
+<MenuBar>
+  <Menu name="file"><text>&amp;File</text>
+    <Action name ="newAction"/>
+    <Action name ="openAction"/>
+    <Action name ="saveAction"/>
+    <Action name ="saveAsAction"/>
+    <Action name ="printAction"/>
+    <Action name ="quitAction"/>
+  </Menu>
+  <Menu name = "edit"><text>&amp;Edit</text>
+    <Action name ="undoAction"/>
+    <Action name ="redoAction"/>
+    <Action name ="cutAction"/>
+    <Action name ="copyAction"/>
+    <Action name ="pasteAction"/>
+    <Action name ="findAction"/>
+    <Action name ="findNextAction"/>
+    <Action name ="replaceAction"/>
+    <Action name ="specialActionName"/>
+  </Menu>
+</MenuBar>
+</kpartgui>
