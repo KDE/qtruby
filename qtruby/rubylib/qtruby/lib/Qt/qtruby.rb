@@ -163,25 +163,6 @@ module Qt
 			return meths.uniq
 		end
 	end # Qt::Base
-			
-	require 'delegate.rb'
-	
-	# Allows a QByteArray to be wrapped in an instance which
-	# behaves just like a normal ruby String. TODO: override
-	# methods which alter the underlying string, in order to
-	# sync the QByteArray with the changed string.
-	# If the data arg is nil, the string is returned as the
-	# value instead. 
-	class ByteArray < DelegateClass(String)
-		attr_reader :private_data
-		attr_reader :data
-		
-		def initialize(string, data=nil)
-			super(string)
-			@private_data = data
-			@data = string
-		end
-	end
 	
 	# Delete the underlying C++ instance after exec returns
 	# Otherwise, rb_gc_call_finalizer_at_exit() can delete
@@ -191,6 +172,12 @@ module Qt
 			super
 			self.dispose
 			Qt::Internal.application_terminated = true
+		end
+	end
+	
+	class ByteArray < Qt::Base
+		def to_s
+			return data()
 		end
 	end
 	
@@ -355,6 +342,34 @@ module Qt
 		end
 	end
 	
+	class Variant < Qt::Base
+		def to_a
+			return toStringList()
+		end
+
+		def to_f
+			return toDouble()
+		end
+
+		def to_i
+			return toInt()
+		end
+
+		def to_int
+			return toInt()
+		end
+
+		def inspect
+			str = super
+			str.sub(/>$/, " typeName=%s>" % typeName)
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, " typeName=%s>" % typeName)
+		end
+	end
+	
 	# Provides a mutable numeric class for passing to methods with
 	# C++ 'int*' or 'int&' arg types
 	class Integer
@@ -396,6 +411,19 @@ module Qt
 			return Integer.new(@value >> n.to_i)
 		end
 		
+		def >(n) 
+			return @value > n.to_i
+		end
+		def >=(n) 
+			return @value >= n.to_i
+		end
+		def <(n) 
+			return @value < n.to_i
+		end
+		def <=(n) 
+			return @value <= n.to_i
+		end
+
 		def <=>(n)
 			if @value < n
 				return -1
@@ -515,7 +543,7 @@ module Qt
 		def Internal.checkarg(argtype, typename)
 			puts "      #{typename} (#{argtype})" if debug_level >= DebugLevel::High
 			if argtype == 'i'
-				if typename =~ /^int&?$|^signed$/
+				if typename =~ /^int&?$|^signed$|^Q_INT32&?$/
 					return 1
 				elsif typename =~ /^(?:short|ushort|uint|long|ulong|unsigned|float|double)$/
 					return 0
@@ -546,16 +574,8 @@ module Qt
 				if typename =~ /^(?:bool)[*&]?$/
 					return 0
 				end
-			elsif argtype == 'b'
-				# An argtype 'b' means a Qt::ByteArray has been passed to a C++ method expecting a QByteArray arg.
-				# In that case a Qt::ByteArray must take precedence over any String, and scores 3. Note that a
-				# ruby String would only score 2 when passed to the same QByteArray method - an alternative 
-				# method expecting a QString arg would take precedence over it with a score of 3.
-				if typename =~ /^(const )?(QByteArray[*&]?)$/
-					return 3
-				end
 			elsif argtype == 's'
-				if typename =~ /^(const )?((QByteArray|QChar)[*&]?)$/
+				if typename =~ /^(const )?((QChar)[*&]?)$/
 					return 1
 				elsif typename =~ /^(?:u?char\*|const u?char\*|(?:const )?(Q(C?)String)[*&]?)$/
 					qstring = !$1.nil?
@@ -578,7 +598,7 @@ module Qt
 				end
 			elsif argtype == 'u'
 				# Give nil matched against string types a higher score than anything else
-				if typename =~ /^(?:u?char\*|const u?char\*|(?:const )?((Q(C?)String)|QByteArray)[*&]?)$/
+				if typename =~ /^(?:u?char\*|const u?char\*|(?:const )?((Q(C?)String))[*&]?)$/
 					return 1
 				# Numerics will give a runtime conversion error, so they fail the match
 				elsif typename =~ /^(?:short|ushort|uint|long|ulong|signed|unsigned|int)$/
@@ -600,9 +620,7 @@ module Qt
 				elsif classIsa(argtype, t)
 					return 0
 				elsif isEnum(argtype) and 
-						(t =~ /int|uint|long|ulong|WFlags|WState|ProcessEventsFlags|ComparisonFlags/ or
-						t =~ /SFlags|SCFlags|WId|difference_type|ToolBarDock/ or
-						t =~ /KStyleFlags|KonqPopupFlags/)
+						(t =~ /int|Q_INT32|uint|Q_UINT32|long|ulong/ or isEnum(t))
 					return 0
 				end
 			end
@@ -618,16 +636,6 @@ module Qt
 		# Then use a throw to jump back to here with the C++ instance 
 		# wrapped in a new ruby variable of type T_DATA
 		def Internal.try_initialize(instance, *args)
-			# If a debugger calls an inspect method with the half 
-			# constructed instance, it will fail and return nil. 
-			# So prevent that by defining an inspect method here
-=begin
-			class <<instance
-				def inspect
-					return "#<%s:0x%8.8x>" % [self.class.name, self.object_id]
-				end
-			end
-=end		
 			initializer = instance.method(:initialize)
 			catch "newqt" do
 				initializer.call(*args)
@@ -773,23 +781,10 @@ module Qt
 					Qt::Internal::init_class(c)
 				end
 			end
-			# Special case QByteArray, as it's disguised as a ruby String
-			# and not in the public api.
-			@@classes['Qt::ByteArray'] = Qt::ByteArray
+
 			@@classes['Qt::Integer'] = Qt::Integer
 			@@classes['Qt::Boolean'] = Qt::Boolean
 			@@classes['Qt::Enum'] = Qt::Enum
-		end
-		
-		def Internal.create_qbytearray(string, data)
-			return Qt::ByteArray.new(string, data)
-		end
-		
-		def Internal.get_qbytearray(str)
-			if str.private_data.nil?
-				return str.data
-			end
-			return str.private_data
 		end
 		
 		def Internal.get_qinteger(num)
