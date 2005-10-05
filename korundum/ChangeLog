@@ -1,3 +1,10 @@
+2005-10-05  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Changed DCOP code now that Qt::ByteArray class is in the Smoke library
+	* Fixed some examples derived from PyKDE with 0 or 1 passed as a 
+	  boolean instead of true or false for Ruby. A bug in the overloaded
+	  method resolution meant it worked when it shouldn't have.
+
 2005-09-26  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Removed get and set methods for accessing fields on the structs

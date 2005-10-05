@@ -953,13 +953,17 @@ dcop_disconnect_signal(VALUE self, VALUE sender, VALUE senderObj, VALUE signal, 
 static VALUE
 dcop_process(VALUE /*self*/, VALUE target, VALUE slotname, VALUE args, VALUE data, VALUE replyTypeName, VALUE replyType, VALUE replyData)
 {
-	VALUE _data = rb_funcall(qt_internal_module, rb_intern("get_qbytearray"), 1, data);
-	QByteArray * dataArray = 0;
-	Data_Get_Struct(_data, QByteArray, dataArray);
+	smokeruby_object *o = value_obj_info(data);
+	if (o == 0 || o->ptr == 0) {
+		return Qfalse;
+	}
+	QByteArray * dataArray = (QByteArray*) o->ptr;
 	
-	VALUE _replyData = rb_funcall(qt_internal_module, rb_intern("get_qbytearray"), 1, replyData);
-	QByteArray * replyArray = 0;
-	Data_Get_Struct(_replyData, QByteArray, replyArray);
+	o = value_obj_info(replyData);
+	if (o == 0 || o->ptr == 0) {
+		return Qfalse;
+	}
+	QByteArray * replyArray = (QByteArray*) o->ptr;
 
 	InvokeDCOPSlot dcopSlot(target, rb_intern(StringValuePtr(slotname)), args, *dataArray, replyTypeName, replyType, *replyArray);
 	dcopSlot.next();

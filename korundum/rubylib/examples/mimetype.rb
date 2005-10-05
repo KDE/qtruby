@@ -78,7 +78,7 @@ class OfferListTab < Qt::Widget
         lv.addColumn("exec", 200)
         lv.addColumn("library", 100)
         lv.setGeometry(10, 30, 500, 300)
-        lv.setAllColumnsShowFocus(1)
+        lv.setAllColumnsShowFocus(true)
 
         # insert list items in reverse order
 
@@ -110,7 +110,7 @@ class KServiceTypeTab < Qt::Widget
         lv.addColumn("name", 150)
         lv.addColumn("desktopEntryPath", 300)
         lv.setGeometry(10, 30, 500, 300)
-        lv.setAllColumnsShowFocus(1)
+        lv.setAllColumnsShowFocus(true)
 
         slist = KDE::ServiceType.allServiceTypes()
 
@@ -138,9 +138,9 @@ class KSycocaEntryTab < Qt::Widget
         lv.addColumn("name", 150)
         lv.addColumn("entryPath", 300)
         lv.setGeometry(10, 30, 500, 300)
-        lv.setAllColumnsShowFocus(1)
+        lv.setAllColumnsShowFocus(true)
 
-        slist = grp.entries(0, 0)
+        slist = grp.entries(false, false)
 
         slist.each do |s|
             lvi = Qt::ListViewItem.new(lv, s.name(), s.entryPath())
@@ -164,7 +164,7 @@ class KServiceTab < Qt::Widget
         lv.addColumn("exec", 200)
         lv.addColumn("library", 100)
         lv.setGeometry(10, 30, 500, 300)
-        lv.setAllColumnsShowFocus(1)
+        lv.setAllColumnsShowFocus(true)
 
         slist = KDE::Service.allServices()
         slist.each do |s|

@@ -151,7 +151,7 @@ class MainWin < KDE::MainWindow
 
         radio1Action = KDE::RadioAction.new("Radio 1", KDE::Shortcut.new(0), self, SLOT('slotRadio()'), acts, "radio1")
         radio1Action.setExclusiveGroup("Radio")
-        radio1Action.setChecked(1)
+        radio1Action.setChecked(true)
         radio2Action = KDE::RadioAction.new("Radio 2", KDE::Shortcut.new(0), self, SLOT('slotRadio()'), acts, "radio2")
         radio2Action.setExclusiveGroup("Radio")
         radio3Action = KDE::RadioAction.new("Radio 3", KDE::Shortcut.new(0), self, SLOT('slotRadio()'), acts, "radio3")
