@@ -246,11 +246,11 @@ class GLWidget < Qt::GLWidget
     end
     
     def drawGear(gear, dx, dy, dz, angle)
-        GL.PushMatrix()
+        GL.PushMatrix
         GL.Translated(dx, dy, dz)
         GL.Rotated(angle, 0.0, 0.0, 1.0)
         GL.CallList(gear)
-        GL.PopMatrix()
+        GL.PopMatrix
     end
     
     def normalizeAngle(angle)
