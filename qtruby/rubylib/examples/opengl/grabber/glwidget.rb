@@ -90,7 +90,7 @@ class GLWidget < Qt::GLWidget
         end
     end
     
-    def initializeGL()
+    def initializeGL
         lightPos = [ 5.0, 5.0, 10.0, 1.0 ]
         reflectance1 = [ 0.8, 0.1, 0.0, 1.0 ]
         reflectance2 = [ 0.0, 0.8, 0.2, 1.0 ]
@@ -111,7 +111,7 @@ class GLWidget < Qt::GLWidget
     def paintGL()
         GL.Clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT)
     
-        GL.PushMatrix()
+        GL.PushMatrix
         GL.Rotated(@xRot / 16.0, 1.0, 0.0, 0.0)
         GL.Rotated(@yRot / 16.0, 0.0, 1.0, 0.0)
         GL.Rotated(@zRot / 16.0, 0.0, 0.0, 1.0)
@@ -122,7 +122,7 @@ class GLWidget < Qt::GLWidget
         GL.Rotated(+90.0, 1.0, 0.0, 0.0)
         drawGear(@gear3, -3.1, -1.8, -2.2, +2.0 * (@gear1Rot / 16.0) - 2.0)
     
-        GL.PopMatrix()
+        GL.PopMatrix
     end
     
     def resizeGL(width, height)
@@ -130,32 +130,32 @@ class GLWidget < Qt::GLWidget
         GL.Viewport((width - side) / 2, (height - side) / 2, side, side)
     
         GL.MatrixMode(GL::PROJECTION)
-        GL.LoadIdentity()
+        GL.LoadIdentity
         GL.Frustum(-1.0, +1.0, -1.0, 1.0, 5.0, 60.0)
         GL.MatrixMode(GL::MODELVIEW)
-        GL.LoadIdentity()
+        GL.LoadIdentity
         GL.Translated(0.0, 0.0, -40.0)
     end
     
     def mousePressEvent(event)
-        @lastPos = event.pos()
+        @lastPos = event.pos
     end
     
     def mouseMoveEvent(event)
-        dx = event.x() - @lastPos.x()
-        dy = event.y() - @lastPos.y()
+        dx = event.x - @lastPos.x
+        dy = event.y - @lastPos.y
     
-        if event.buttons() & Qt::LeftButton.to_i != 0
+        if event.buttons & Qt::LeftButton.to_i != 0
             setXRotation(@xRot + 8 * dy)
             setYRotation(@yRot + 8 * dx)
-        elsif event.buttons() & Qt::RightButton.to_i != 0
+        elsif event.buttons & Qt::RightButton.to_i != 0
             setXRotation(@xRot + 8 * dy)
             setZRotation(@zRot + 8 * dx)
         end
-        @lastPos = event.pos()
+        @lastPos = event.pos
     end
     
-    def advanceGears()
+    def advanceGears
         @gear1Rot += 2 * 16
         updateGL()
     end
@@ -189,7 +189,7 @@ class GLWidget < Qt::GLWidget
                 GL.Vertex3d(r1 * cos(angle + 3 * delta), r1 * sin(angle + 3 * delta),
                             sign * z)
             end
-            GL.End()
+            GL.End
     
             GL.Begin(GL::QUADS)
             for j in 0...toothCount
@@ -202,7 +202,7 @@ class GLWidget < Qt::GLWidget
                 GL.Vertex3d(r1 * cos(angle + 3 * delta), r1 * sin(angle + 3 * delta),
                             sign * z)
             end
-            GL.End()
+            GL.End
         end
     
         GL.Begin(GL::QUAD_STRIP)
@@ -227,7 +227,7 @@ class GLWidget < Qt::GLWidget
         end
         GL.Vertex3d(r1, 0.0, +z)
         GL.Vertex3d(r1, 0.0, -z)
-        GL.End()
+        GL.End
     
         GL.ShadeModel(GL::SMOOTH)
     
@@ -238,9 +238,9 @@ class GLWidget < Qt::GLWidget
             GL.Vertex3d(r0 * cos(angle), r0 * sin(angle), +z)
             GL.Vertex3d(r0 * cos(angle), r0 * sin(angle), -z)
         end
-        GL.End()
+        GL.End
     
-        GL.EndList()
+        GL.EndList
     
         return list
     end
