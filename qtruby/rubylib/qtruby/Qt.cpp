@@ -1814,6 +1814,29 @@ qbytearray_data(VALUE self)
 	return rb_str_new(dataArray->data(), (long) dataArray->size());
 }
 
+static VALUE
+qbytearray_size(VALUE self)
+{
+	smokeruby_object *o = value_obj_info(self);
+	if (o == 0 || o->ptr == 0) {
+		return Qnil;
+	}
+	QByteArray * dataArray = (QByteArray*) o->ptr;
+	return UINT2NUM(dataArray->size());
+}
+
+static VALUE
+qbytearray_setRawData(VALUE self, VALUE data)
+{
+	smokeruby_object *o = value_obj_info(self);
+	if (o == 0 || o->ptr == 0) {
+		return Qnil;
+	}
+	QByteArray * dataArray = (QByteArray*) o->ptr;
+	dataArray->setRawData(StringValuePtr(data), RSTRING(data)->len);
+	return self;
+}
+
 static void
 mocargs_free(void * ptr)
 {
@@ -2535,6 +2558,8 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 		qt_qmetaobject_class = klass;
 	} else if (strcmp(package, "Qt::ByteArray") == 0) {
 		rb_define_method(klass, "data", (VALUE (*) (...)) qbytearray_data, 0);
+		rb_define_method(klass, "size", (VALUE (*) (...)) qbytearray_size, 0);
+		rb_define_method(klass, "setRawData", (VALUE (*) (...)) qbytearray_setRawData, 1);
 	} else if (strcmp(package, "Qt::Char") == 0) {
 		rb_define_method(klass, "to_s", (VALUE (*) (...)) qchar_to_s, 0);
 	}

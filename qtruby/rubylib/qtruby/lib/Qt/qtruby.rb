@@ -179,6 +179,14 @@ module Qt
 		def to_s
 			return data()
 		end
+		
+		def length
+			return size()
+		end
+
+		def data=(data)
+			setRawData(data)
+		end
 	end
 	
 	class Color < Qt::Base
