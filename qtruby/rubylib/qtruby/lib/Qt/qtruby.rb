@@ -603,13 +603,13 @@ module Qt
 		end
 		
 		def |(n) 
-			return @value | n.to_i
+			return Enum.new(@value | n.to_i, @type)
 		end
 		def &(n) 
-			return @value & n.to_i
+			return Enum.new(@value & n.to_i, @type)
 		end
 		def ^(n) 
-			return @value ^ n.to_i
+			return Enum.new(@value ^ n.to_i, @type)
 		end
 		def ~() 
 			return ~ @value
@@ -627,10 +627,10 @@ module Qt
 			return @value >= n.to_i
 		end
 		def <<(n) 
-			return @value << n.to_i
+			return Enum.new(@value << n.to_i, @type)
 		end
 		def >>(n) 
-			return @value >> n.to_i
+			return Enum.new(@value >> n.to_i, @type)
 		end
 		
 		def ==(n) return @value == n.to_i end
@@ -704,7 +704,7 @@ module Qt
 			if argtype == 'i'
 				if typename =~ /^int&?$|^signed$|^qint32&?$/
 					return 1
-				elsif typename =~ /^(?:short|ushort|uint|long|ulong|unsigned|float|double)$/
+				elsif typename =~ /^(?:short|ushort|unsigned short int|uint|long|ulong|unsigned|float|double)$/
 					return 0
 				elsif typename =~ /^(quint|qint|qulong|qlong|qreal)/
 					return 0
