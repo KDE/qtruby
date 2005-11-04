@@ -702,9 +702,9 @@ module Qt
 		def Internal.checkarg(argtype, typename)
 			puts "      #{typename} (#{argtype})" if debug_level >= DebugLevel::High
 			if argtype == 'i'
-				if typename =~ /^int&?$|^signed$|^qint32&?$/
+				if typename =~ /^int&?$|^signed int&?$|^signed$|^qint32&?$/
 					return 1
-				elsif typename =~ /^(?:short|ushort|unsigned short int|uint|long|ulong|unsigned|float|double)$/
+				elsif typename =~ /^(?:short|ushort|unsigned short int|uint|long|ulong|unsigned long int|unsigned|float|double)$/
 					return 0
 				elsif typename =~ /^(quint|qint|qulong|qlong|qreal)/
 					return 0

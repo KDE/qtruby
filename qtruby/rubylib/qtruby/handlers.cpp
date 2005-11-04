@@ -1654,6 +1654,7 @@ TypeHandler Qt_handlers[] = {
     { "quint64&", marshall_it<unsigned long long> },
     { "qulonglong", marshall_it<unsigned long long> },
     { "qulonglong&", marshall_it<unsigned long long> },
+    { "signed int&", marshall_it<int *> },
     { "int&", marshall_it<int *> },
     { "int*", marshall_it<int *> },
     { "qint32&", marshall_it<int *> },
