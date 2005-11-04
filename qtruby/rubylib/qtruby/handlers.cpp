@@ -1855,6 +1855,7 @@ TypeHandler Qt_handlers[] = {
     { "Q_UINT64&", marshall_ulonglong },
     { "Q_ULLONG", marshall_ulonglong },
     { "Q_ULLONG&", marshall_ulonglong },
+    { "signed int&", marshall_intR },
     { "int&", marshall_intR },
     { "int*", marshall_intR },
     { "bool&", marshall_boolR },

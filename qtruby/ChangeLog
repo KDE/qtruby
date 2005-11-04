@@ -1,3 +1,7 @@
+2005-11-04  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* 'signed int&' types were not being matched or marshalled correctly
+
 2005-11-02  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* A Qt::Canvas owned by a Qt::CanvasItem is marked as in use
