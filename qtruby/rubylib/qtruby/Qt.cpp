@@ -2098,8 +2098,13 @@ dispose(VALUE self)
 {
     smokeruby_object *o = value_obj_info(self);
     if(!o || !o->ptr) { return Qnil; }
-	
+
     const char *className = o->smoke->classes[o->classId].className;
+	if(do_debug & qtdb_gc) printf("Deleting (%s*)%p\n", className, o->ptr);
+	
+	unmapPointer(o, o->classId, 0);
+	object_count--;
+
 	char *methodName = new char[strlen(className) + 2];
 	methodName[0] = '~';
 	strcpy(methodName + 1, className);
