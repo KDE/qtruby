@@ -2108,6 +2108,9 @@ isEnum(VALUE /*self*/, VALUE enumName_value)
     Smoke::Index typeId = qt_Smoke->idType(enumName);
 	return	typeId > 0 
 			&& (	(qt_Smoke->types[typeId].flags & Smoke::tf_elem) == Smoke::t_enum
+					|| (qt_Smoke->types[typeId].flags & Smoke::tf_elem) == Smoke::t_ulong
+					|| (qt_Smoke->types[typeId].flags & Smoke::tf_elem) == Smoke::t_long
+					|| (qt_Smoke->types[typeId].flags & Smoke::tf_elem) == Smoke::t_uint
 					|| (qt_Smoke->types[typeId].flags & Smoke::tf_elem) == Smoke::t_int ) ? Qtrue : Qfalse;
 }
 
@@ -2231,10 +2234,15 @@ make_metaObject(VALUE /*self*/, VALUE obj, VALUE stringdata_value, VALUE data_va
 static VALUE
 dispose(VALUE self)
 {
-	smokeruby_object *o = value_obj_info(self);
-	if(!o || !o->ptr) { return Qnil; }
+    smokeruby_object *o = value_obj_info(self);
+    if(!o || !o->ptr) { return Qnil; }
+
+    const char *className = o->smoke->classes[o->classId].className;
+	if(do_debug & qtdb_gc) printf("Deleting (%s*)%p\n", className, o->ptr);
 	
-	const char *className = o->smoke->classes[o->classId].className;
+	unmapPointer(o, o->classId, 0);
+	object_count--;
+
 	char *methodName = new char[strlen(className) + 2];
 	methodName[0] = '~';
 	strcpy(methodName + 1, className);
