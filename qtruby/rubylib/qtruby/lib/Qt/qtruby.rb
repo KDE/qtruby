@@ -637,7 +637,6 @@ module Qt
 		def to_i() return @value end
 
 		def to_f() return @value.to_f end
-		def to_i() return @value.to_i end
 		def to_s() return @value.to_s end
 		
 		def coerce(n)
