@@ -1,3 +1,13 @@
+2005-12-06  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* QtRuby didn't work with versions of ruby > 1.8.3, as it didn't call
+	  initialize methods correctly. It used the rb_respond_to() method
+	  to check it a newly created qt instance responded to :initialize.
+	  However, in newer versions of ruby rb_responds_to() ignores
+	  private methods such as initialize(). The solution was to just remove
+	  the test, as it was redundant anyway.
+	* Fixes problem reported by Hans Fugel and Caleb Tennis.
+
 2005-11-21  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* When dispose() was used to delete a ruby instance, the mapping between
