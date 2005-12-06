@@ -1705,10 +1705,7 @@ new_qt(int argc, VALUE * argv, VALUE klass)
 	}
 
 	VALUE result = rb_funcall2(qt_internal_module, rb_intern("try_initialize"), argc+1, temp_stack);
-
-	if (rb_respond_to(result, rb_intern("initialize")) != 0) {
-		rb_obj_call_init(result, argc, argv);
-	}
+	rb_obj_call_init(result, argc, argv);
 	
 	return result;
 }
