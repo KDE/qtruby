@@ -44,6 +44,18 @@ module Qt
 	end
 		
 	class Base
+		def self.signals(*signal_list)
+			meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
+			meta.add_signals(signal_list)
+			meta.changed = true
+		end
+	
+		def self.slots(*slot_list)
+			meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
+			meta.add_slots(slot_list)
+			meta.changed = true
+		end
+
 		def **(a)
 			return Qt::**(self, a)
 		end
@@ -241,6 +253,12 @@ module Qt
 		end
 	end
 	
+	class LCDNumber < Qt::Base
+		def display(item)
+			method_missing(:display, item)
+		end
+	end
+
 	class Point < Qt::Base
 		def inspect
 			str = super
@@ -252,7 +270,7 @@ module Qt
 			pp.text str.sub(/>$/, "\n x=%d,\n y=%d>" % [x, y])
 		end
 	end
-	
+
 	class MetaObject < Qt::Base
 		def inspect
 			str = super
@@ -350,6 +368,18 @@ module Qt
 		end
 	end
 	
+	class TimeEdit < Qt::Base
+		def display
+			method_missing(:display)
+		end
+	end
+	
+	class WhatsThis < Qt::Base
+		def WhatsThis.display(*k)
+			method_missing(:display, *k)
+		end
+	end
+
 	class Variant < Qt::Base
 		def to_a
 			return toStringList()
@@ -714,9 +744,7 @@ module Qt
 			if method =~ /_/ && methodIds.length == 0
 				# If the method name contains underscores, convert to camel case
 				# form and try again
-				while method =~ /([^_]*)_(.)(.*)/ 
-					method = $1 + $2.upcase + $3
-				end
+				method.gsub!(/(.)_(.)/) {$1 + $2.upcase}
 				return do_method_missing(package, method, klass, this, *args)
 			end
 
@@ -1012,11 +1040,8 @@ module Qt
 end # Qt
 
 class Object
-	# The Object.display() method conflicts with display() methods in Qt,
+	# The Object.type() method conflicts with type() methods in Qt,
 	# so remove it, and other methods with similar problems
-	alias_method :_display, :display
-	undef_method :display
-	
 	alias_method :_type, :type
 	undef_method :type
 
@@ -1084,18 +1109,6 @@ module Kernel
 end
 
 class Module
-	def signals(*signal_list)
-		meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
-		meta.add_signals(signal_list)
-		meta.changed = true
-	end
-
-	def slots(*slot_list)
-		meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
-		meta.add_slots(slot_list)
-		meta.changed = true
-	end
-
 	alias_method :_constants, :constants
 	alias_method :_instance_methods, :instance_methods
 	alias_method :_protected_instance_methods, :protected_instance_methods

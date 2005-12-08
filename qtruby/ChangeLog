@@ -1,3 +1,14 @@
+2005-12-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* The ruby display() method was clashing with a display() method in some
+	  QtRuby classes, and so it was aliased to _display(). However, this caused
+	  problems with the ruby RMagick extension. The display methods are now
+ 	  special cased in Qt::LCDNumber, Qt::WhatsThis and Qt::TimeEdit. Fixes
+	  problem reported by David Corbin.
+	* The slots and signals methods are now module methods of Qt::Base,
+	  rather than defined as ordinary methods in class Module, reducing name
+	  space pollution. Thanks to Esteban Manchado for pointing this out.
+
 2005-12-06  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* QtRuby didn't work with versions of ruby > 1.8.3, as it didn't call
