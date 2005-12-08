@@ -1,3 +1,9 @@
+2005-12-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* A marshaller was defined for 'KFileItemList' as a value type, but not for
+	  a 'KFileItemList*' pointer type. Fixes problem reported by Diego 'Flameeyes' 
+	  Pettenò 
+
 2005-10-05  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Changed DCOP code now that Qt::ByteArray class is in the Smoke library

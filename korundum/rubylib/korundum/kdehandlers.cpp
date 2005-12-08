@@ -1261,7 +1261,6 @@ void marshall_QMapQCStringDCOPRef(Marshall *m) {
 TypeHandler KDE_handlers[] = {
     { "QCStringList", marshall_QCStringList },
     { "KCmdLineOptions*", marshall_KCmdLineOptions },
-    { "KFileItemList", marshall_KFileItemList },
     { "QPtrList<KAction>", marshall_KActionList },
     { "QPtrList<KAction>&", marshall_KActionList },
     { "KMimeType::List", marshall_KMimeTypeList },
@@ -1281,6 +1280,7 @@ TypeHandler KDE_handlers[] = {
     { "KURL::List", marshall_KURLList },
     { "KURL::List&", marshall_KURLList },
     { "KFileItemList", marshall_KFileItemList },
+    { "KFileItemList*", marshall_KFileItemList },
     { "QPtrList<KMainWindow>*", marshall_KMainWindowList },
     { "QPtrList<DCOPObject>", marshall_DCOPObjectList },
     { "QPtrList<KDockWidget>&", marshall_KDockWidgetList },
