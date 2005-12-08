@@ -44,6 +44,18 @@ module Qt
 	end
 		
 	class Base
+		def self.signals(*signal_list)
+			meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
+			meta.add_signals(signal_list)
+			meta.changed = true
+		end
+	
+		def self.slots(*slot_list)
+			meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
+			meta.add_slots(slot_list)
+			meta.changed = true
+		end
+
 		def **(a)
 			return Qt::**(self, a)
 		end
@@ -240,6 +252,12 @@ module Qt
 			str = to_s
 			pp.text str.sub(/>$/, "\n family=%s,\n pointSize=%d,\n weight=%d,\n italic=%s,\n bold=%s,\n underline=%s,\n strikeOut=%s>" % 
 			[family.inspect, pointSize, weight, italic, bold, underline, strikeOut])
+		end
+	end
+	
+	class LCDNumber < Qt::Base
+		def display(item)
+			method_missing(:display, item)
 		end
 	end
 	
@@ -866,9 +884,7 @@ module Qt
 			if method =~ /_/ && methodIds.length == 0
 				# If the method name contains underscores, convert to camel case
 				# form and try again
-				while method =~ /([^_]*)_(.)(.*)/ 
-					method = $1 + $2.upcase + $3
-				end
+				method.gsub!(/(.)_(.)/) {$1 + $2.upcase}
 				return do_method_missing(package, method, klass, this, *args)
 			end
 
@@ -1273,18 +1289,6 @@ module Kernel
 end
 
 class Module
-	def signals(*signal_list)
-		meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
-		meta.add_signals(signal_list)
-		meta.changed = true
-	end
-
-	def slots(*slot_list)
-		meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
-		meta.add_slots(slot_list)
-		meta.changed = true
-	end
-
 	alias_method :_constants, :constants
 	alias_method :_instance_methods, :instance_methods
 	alias_method :_protected_instance_methods, :protected_instance_methods
