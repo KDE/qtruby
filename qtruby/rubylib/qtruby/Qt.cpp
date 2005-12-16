@@ -117,7 +117,6 @@ bool application_terminated = false;
 };
 
 #define logger logger_backend
-void logger_backend(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
 void rb_str_catf(VALUE self, const char *format, ...) __attribute__ ((format (printf, 2, 3)));
 
 static VALUE (*_new_kde)(int, VALUE *, VALUE) = 0;
@@ -823,6 +822,19 @@ public:
 		return (char *) (const char *) classname.value((int) classId).toLatin1();
     }
 };
+
+void rb_str_catf(VALUE self, const char *format, ...) 
+{
+	va_list ap;
+	va_start(ap, format);
+	char *p = 0;
+	int len;
+	if (len = vasprintf(&p, format, ap), len != -1) {
+		rb_str_cat(self, p, len);
+		free(p);
+	}
+	va_end(ap);
+}
 
 extern "C" {
 
