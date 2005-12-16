@@ -101,7 +101,7 @@ mark_qobject_children(QObject * qobject)
 		child = l.at(i);
 		obj = getPointerObject(child);
 		if (obj != Qnil) {
-			if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", child->metaObject()->className(), child, (void*)obj);
+			if(do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", child->metaObject()->className(), child, (void*)obj);
 			rb_gc_mark(obj);
 		}
 		
@@ -116,7 +116,7 @@ smokeruby_mark(void * p)
     smokeruby_object * o = (smokeruby_object *) p;
     const char *className = o->smoke->classes[o->classId].className;
 	
-	if(do_debug & qtdb_gc) printf("Checking for mark (%s*)%p\n", className, o->ptr);
+	if(do_debug & qtdb_gc) qWarning("Checking for mark (%s*)%p\n", className, o->ptr);
 		
     if(o->ptr && o->allocated) {
 /*
@@ -145,7 +145,7 @@ smokeruby_mark(void * p)
 					item = table->item(row, col);
 					obj = getPointerObject(item);
 					if (obj != Qnil) {
-						if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, item, (void*)obj);
+						if(do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", className, item, (void*)obj);
 						rb_gc_mark(obj);
 					}
 				}
@@ -167,7 +167,7 @@ smokeruby_free(void * p)
     smokeruby_object *o = (smokeruby_object*)p;
     const char *className = o->smoke->classes[o->classId].className;
 	
-	if(do_debug & qtdb_gc) printf("Checking for delete (%s*)%p allocated: %s\n", className, o->ptr, o->allocated ? "true" : "false");
+	if(do_debug & qtdb_gc) qWarning("Checking for delete (%s*)%p allocated: %s\n", className, o->ptr, o->allocated ? "true" : "false");
     
 	if(application_terminated || !o->allocated || o->ptr == 0) {
 		free(o);
@@ -236,7 +236,7 @@ smokeruby_free(void * p)
 		}
 	}
 			
-	if(do_debug & qtdb_gc) printf("Deleting (%s*)%p\n", className, o->ptr);
+	if(do_debug & qtdb_gc) qWarning("Deleting (%s*)%p\n", className, o->ptr);
 
 	char *methodName = new char[strlen(className) + 2];
 	methodName[0] = '~';

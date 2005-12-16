@@ -197,7 +197,7 @@ void unmapPointer(smokeruby_object *o, Smoke::Index classId, void *lastptr) {
 		
 		if (do_debug & qtdb_gc) {
 			const char *className = o->smoke->classes[o->classId].className;
-			logger("unmapPointer (%s*)%p -> %p", className, ptr, obj_ptr);
+			qWarning("unmapPointer (%s*)%p -> %p", className, ptr, obj_ptr);
 		}
 	    
 		pointer_map.remove(ptr);
@@ -224,7 +224,7 @@ void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *last
 		
 		if (do_debug & qtdb_gc) {
 			const char *className = o->smoke->classes[o->classId].className;
-			logger("mapPointer (%s*)%p -> %p", className, ptr, (void*)obj);
+			qWarning("mapPointer (%s*)%p -> %p", className, ptr, (void*)obj);
 		}
 	
 		pointer_map.insert(ptr, obj_ptr);
@@ -780,7 +780,7 @@ public:
 	VALUE obj = getPointerObject(ptr);
 	smokeruby_object *o = value_obj_info(obj);
 	if(do_debug & qtdb_gc) {
-	    logger("%p->~%s()", ptr, smoke->className(classId));
+	    qWarning("%p->~%s()", ptr, smoke->className(classId));
 	}
 	if(!o || !o->ptr) {
 	    return;
@@ -793,14 +793,14 @@ public:
 	VALUE obj = getPointerObject(ptr);
 	smokeruby_object *o = value_obj_info(obj);
 	if(do_debug & qtdb_virtual) 
-	    logger("virtual %p->%s::%s() called", ptr,
+	    qWarning("virtual %p->%s::%s() called", ptr,
 		    smoke->classes[smoke->methods[method].classId].className,
 		    smoke->methodNames[smoke->methods[method].name]
 		    );
 
 	if(!o) {
 	    if( do_debug & qtdb_virtual )   // if not in global destruction
-		logger("Cannot find object for virtual method %p -> %p", ptr, &obj);
+		qWarning("Cannot find object for virtual method %p -> %p", ptr, &obj);
 	    return false;
 	}
 
@@ -823,36 +823,6 @@ public:
 		return (char *) (const char *) classname.value((int) classId).toLatin1();
     }
 };
-
-void rb_str_catf(VALUE self, const char *format, ...) 
-{
-    va_list ap;
-    va_start(ap, format);
-    char *p = 0;
-    int len;
-    if (len = vasprintf(&p, format, ap), len != -1) {
-	rb_str_cat(self, p, len);
-	free(p);
-    }
-    va_end(ap);
-}
-
-void logger_backend(const char *format, ...) 
-{
-    va_list ap;
-    va_start(ap, format);
-    char *p = 0;
-    int len;
-    VALUE val_str = rb_str_new2("");
-    if (len = vasprintf(&p, format, ap), len != -1) {
-	rb_str_cat(val_str, p, len);
-	free(p);
-    }
-    // TODO - allow qtruby programs to override this fprintf with their own logging
-    fprintf(stdout, "%s\n", StringValuePtr(val_str));
-	fflush(stdout);
-    va_end(ap);
-}
 
 extern "C" {
 
@@ -1443,13 +1413,13 @@ find_cached_selector(int argc, VALUE * argv, VALUE klass, char * methodName)
 	
 	Smoke::Index *rcid = methcache.value((const char *)mcid);
 #ifdef DEBUG
-	if (do_debug & qtdb_calls) logger("method_missing mcid: %s", (const char *) mcid);
+	if (do_debug & qtdb_calls) qWarning("method_missing mcid: %s", (const char *) mcid);
 #endif
 	
 	if (rcid) {
 		// Got a hit
 #ifdef DEBUG
-		if (do_debug & qtdb_calls) logger("method_missing cache hit, mcid: %s", (const char *) mcid);
+		if (do_debug & qtdb_calls) qWarning("method_missing cache hit, mcid: %s", (const char *) mcid);
 #endif
 		_current_method = *rcid;
 	} else {
@@ -2324,12 +2294,12 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
     VALUE result = rb_ary_new();
     Smoke::Index meth = qt_Smoke->findMethod(c, name);
 #ifdef DEBUG
-    if (do_debug & qtdb_calls) logger("DAMNIT on %s::%s => %d", c, name, meth);
+    if (do_debug & qtdb_calls) qWarning("DAMNIT on %s::%s => %d", c, name, meth);
 #endif
     if(!meth) {
     	meth = qt_Smoke->findMethod("QGlobalSpace", name);
 #ifdef DEBUG
-    if (do_debug & qtdb_calls) logger("DAMNIT on QGlobalSpace::%s => %d", name, meth);
+    if (do_debug & qtdb_calls) qWarning("DAMNIT on QGlobalSpace::%s => %d", name, meth);
 #endif
 	}
 	
@@ -2352,7 +2322,7 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
 			if ((methodRef.flags & Smoke::mf_internal) == 0) {
 				rb_ary_push(result, INT2NUM(qt_Smoke->ambiguousMethodList[i]));
 #ifdef DEBUG
-				if (do_debug & qtdb_calls) logger("Ambiguous Method %s::%s => %d", c, name, qt_Smoke->ambiguousMethodList[i]);
+				if (do_debug & qtdb_calls) qWarning("Ambiguous Method %s::%s => %d", c, name, qt_Smoke->ambiguousMethodList[i]);
 #endif
 
 			}
@@ -2379,7 +2349,7 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
         if(argc > 1 && TYPE(argv[1]) == T_STRING)
             pat = StringValuePtr(argv[1]);
 #ifdef DEBUG
-	if (do_debug & qtdb_calls) logger("findAllMethods called with classid = %d, pat == %s", c, pat);
+	if (do_debug & qtdb_calls) qWarning("findAllMethods called with classid = %d, pat == %s", c, pat);
 #endif
         Smoke::Index imax = qt_Smoke->numMethodMaps;
         Smoke::Index imin = 0, icur = -1, methmin, methmax;
@@ -2485,7 +2455,7 @@ findAllMethodNames(VALUE /*self*/, VALUE result, VALUE classid, VALUE flags_valu
 			return Qnil;
 		}
 #ifdef DEBUG
-		if (do_debug & qtdb_calls) logger("findAllMethodNames called with classid = %d", c);
+		if (do_debug & qtdb_calls) qWarning("findAllMethodNames called with classid = %d", c);
 #endif
 		Smoke::Index imax = qt_Smoke->numMethodMaps;
 		Smoke::Index imin = 0, icur = -1, methmin, methmax;
