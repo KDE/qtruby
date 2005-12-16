@@ -134,7 +134,7 @@ class CannonField < Qt::Widget
         if @gameEnded
             painter.setPen( Qt::black )
             painter.setFont( Qt::Font.new( "Courier", 48, Qt::Font::Bold ) )
-            painter.drawText( rect(), AlignCenter, "Game Over" )
+            painter.drawText( rect(), Qt::AlignCenter, "Game Over" )
         end
         paintCannon(painter)
         if isShooting()
