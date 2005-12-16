@@ -1698,7 +1698,7 @@ qt_signal(int argc, VALUE * argv, VALUE self)
 }
 
 static VALUE
-qt_invoke(int argc, VALUE * argv, VALUE self)
+qt_invoke(int /*argc*/, VALUE * argv, VALUE self)
 {
     // Arguments: int id, QUObject *o
     int id = NUM2INT(argv[0]);
@@ -1722,8 +1722,22 @@ qt_invoke(int argc, VALUE * argv, VALUE self)
     bool isSignal = strcmp(rb_id2name(rb_frame_last_func()), "qt_emit") == 0;
     VALUE mocArgs = getslotinfo(self, id, slotname, index, isSignal);
     if(mocArgs == Qnil) {
-		// No ruby slot or signal found, assume the target is a C++ one
-		return rb_call_super(argc, argv);
+		// No ruby slot found, assume the target is a C++ one
+		Smoke::Index nameId = o->smoke->idMethodName("qt_invoke$?");
+		Smoke::Index meth = o->smoke->findMethod(o->classId, nameId);
+		if(meth > 0) {
+			Smoke::Method &m = o->smoke->methods[o->smoke->methodMaps[meth].method];
+			Smoke::ClassFn fn = o->smoke->classes[m.classId].classFn;
+			Smoke::StackItem i[3];
+			i[1].s_int = id;
+			i[2].s_class = _o;
+			(*fn)(m.method, o->ptr, i);
+			return i[0].s_bool == 1 ? Qtrue : Qfalse;
+		}
+
+		// Should never happen..
+		rb_raise(rb_eRuntimeError, "Cannot find %s::qt_invoke() method\n", 
+			o->smoke->classes[o->classId].className );
     }
 
     QString name(slotname);
