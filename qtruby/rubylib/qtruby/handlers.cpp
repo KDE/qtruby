@@ -84,7 +84,7 @@ mark_qobject_children(QObject * qobject)
 		++it;
 		obj = getPointerObject(child);
 		if (obj != Qnil) {
-			if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", child->className(), child, (void*)obj);
+			if(do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", child->className(), child, (void*)obj);
 			rb_gc_mark(obj);
 		}
 		
@@ -99,7 +99,7 @@ smokeruby_mark(void * p)
     smokeruby_object * o = (smokeruby_object *) p;
     const char *className = o->smoke->classes[o->classId].className;
 	
-	if(do_debug & qtdb_gc) printf("Checking for mark (%s*)%p\n", className, o->ptr);
+	if(do_debug & qtdb_gc) qWarning("Checking for mark (%s*)%p\n", className, o->ptr);
 		
     if(o->ptr && o->allocated) {
 		if (isDerivedFromByName(o->smoke, className, "QListView")) {
@@ -111,7 +111,7 @@ smokeruby_mark(void * p)
 				++it;
 				obj = getPointerObject(item);
 				if (obj != Qnil) {
-					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, item, (void*)obj);
+					if(do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", className, item, (void*)obj);
 					rb_gc_mark(obj);
 				}
 			}
@@ -127,7 +127,7 @@ smokeruby_mark(void * p)
 					item = table->item(row, col);
 					obj = getPointerObject(item);
 					if (obj != Qnil) {
-						if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, item, (void*)obj);
+						if(do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", className, item, (void*)obj);
 						rb_gc_mark(obj);
 					}
 				}
@@ -141,7 +141,7 @@ smokeruby_mark(void * p)
     		for ( QCanvasItemList::iterator it = list.begin(); it != list.end(); ++it ) {
 				obj = getPointerObject(*it);
 				if (obj != Qnil) {
-					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, *it, (void*)obj);
+					if(do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", className, *it, (void*)obj);
 					rb_gc_mark(obj);
 				}
 			}
@@ -153,7 +153,7 @@ smokeruby_mark(void * p)
 			QCanvas * canvas = item->canvas();
 			obj = getPointerObject(canvas);
 			if (obj != Qnil) {
-				if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", "QCanvas", canvas, (void*)obj);
+				if(do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", "QCanvas", canvas, (void*)obj);
 				rb_gc_mark(obj);
 			}
 			return;
@@ -173,7 +173,7 @@ smokeruby_free(void * p)
     smokeruby_object *o = (smokeruby_object*)p;
     const char *className = o->smoke->classes[o->classId].className;
 	
-	if(do_debug & qtdb_gc) printf("Checking for delete (%s*)%p allocated: %s\n", className, o->ptr, o->allocated ? "true" : "false");
+	if(do_debug & qtdb_gc) qWarning("Checking for delete (%s*)%p allocated: %s\n", className, o->ptr, o->allocated ? "true" : "false");
     
 	if(application_terminated || !o->allocated || o->ptr == 0) {
 		free(o);
@@ -241,7 +241,7 @@ smokeruby_free(void * p)
 		}
 	}
 			
-	if(do_debug & qtdb_gc) printf("Deleting (%s*)%p\n", className, o->ptr);
+	if(do_debug & qtdb_gc) qWarning("Deleting (%s*)%p\n", className, o->ptr);
 	
 	char *methodName = new char[strlen(className) + 2];
 	methodName[0] = '~';
@@ -712,7 +712,7 @@ marshall_basetype(Marshall *m)
 		
 		obj = set_obj_info(classname, o);
 		if (do_debug & qtdb_calls) {
-			printf("allocating %s %p -> %p\n", classname, o->ptr, (void*)obj);
+			qWarning("allocating %s %p -> %p\n", classname, o->ptr, (void*)obj);
 		}
 
 		if(m->type().isStack()) {
