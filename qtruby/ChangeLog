@@ -1,3 +1,8 @@
+2005-12-20  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Restored Caleb Tennis's refactored marshall_types.cpp code after
+	  accidently deleting it in August.
+
 2005-12-16  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* The logger_backend() function has been removed and replaced with 
