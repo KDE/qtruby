@@ -8,8 +8,8 @@ class KillerFilter < Qt::Object
 
 	def eventFilter( object, event )
 		if event.type() == Qt::Event::MouseButtonPress
-			if event.button() == RightButton
-				object.close(false)
+			if event.button() == Qt::RightButton
+				object.close()
 				return true
 			else
 				return false
@@ -48,7 +48,6 @@ rb.setGeometry( 120, 70, 100, 50 )
 rb.text = "Radio button"
 rb.installEventFilter(killerfilter)
 
-a.mainWidget = toplevel
 toplevel.show
 a.exec
 
