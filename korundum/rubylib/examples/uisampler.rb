@@ -20,7 +20,7 @@ $listItems = {"Dialogs" =>
                 "KDE::DialogBase" => ["KDE::DialogBaseButton", "KDE::DialogBase::SButton", "KDE::DialogBaseTile"],
                 "KDE::FontDialog" => [],
                 "KDE::KeyDialog" => [],
-                "KDE::LineEditDlg" => [],
+                "KDE::InputDialog" => [],
                 "KDE::MessageBox" => [],
                 "KDE::PasswordDialog" => [],
                 "KDE::Wizard" => []},
@@ -211,7 +211,7 @@ class MainWin < KDE::MainWindow
         @edit = nil
         @currentPageObj = nil
         current = @page.widget(2)
-        if current
+        if !current.nil?
             @page.removeWidget(current)
             current.dispose
 		end

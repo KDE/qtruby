@@ -203,18 +203,18 @@ def UIDialogs.dlgKKeyDialog(parent)
     KDE::KeyDialog.configure(keys, true)
 end
 
-def UIDialogs.dlgKLineEditDlg(parent)
-#    result, ok = KDE::LineEditDlg.getText("Enter text", "<Your input here>", parent)
-#    print "result", result
-#    print "ok", ok
+def UIDialogs.dlgKInputDialog(parent)
+	ok = Qt::Boolean.new
+    result = KDE::InputDialog.getText("Enter text", "", "<Your input here>", ok)
+#    puts "result: %s" % result
+#    puts "ok: %s" % ok
 
     # pop up another dlg to show what happened in the KDE::LineEditDlg
-#    if ok
-#        result = result.latin1()
-#        KDE::MessageBox.information(parent, "OK was pressed\nText: " + result, "KDE::LineEditDlg result")
-#    else:
-#        result = ""
-#        KDE::MessageBox.information(parent, "Cancel pressed\nText: " + result, "KDE::LineEditDlg result")
+    if !ok.nil?
+        KDE::MessageBox.information(parent, "OK was pressed\nText: " + result, "KDE::InputDialog result")
+    else
+        KDE::MessageBox.information(parent, "Cancel pressed\nText", "KDE::InputDialog result")
+	end
 end
 
 def UIDialogs.dlgKMessageBox(parent)
