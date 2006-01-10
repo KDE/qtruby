@@ -583,7 +583,7 @@ module Qt
 			if argtype == 'i'
 				if typename =~ /^int&?$|^signed int&?$|^signed$|^Q_INT32&?$/
 					return 1
-				elsif typename =~ /^(?:short|ushort|unsigned short int|uint|long|ulong|unsigned long int|unsigned|float|double)$/
+				elsif typename =~ /^(?:short|ushort|unsigned short int|uchar|uint|long|ulong|unsigned long int|unsigned|float|double)$/
 					return 0
 				else 
 					t = typename.sub(/^const\s+/, '')
