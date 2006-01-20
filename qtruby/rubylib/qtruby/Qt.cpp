@@ -262,11 +262,27 @@ public:
     bool callMethod(Smoke::Index method, void *ptr, Smoke::Stack args, bool /*isAbstract*/) {
 	VALUE obj = getPointerObject(ptr);
 	smokeruby_object *o = value_obj_info(obj);
-	if(do_debug & qtdb_virtual) 
-	    qWarning("virtual %p->%s::%s() called", ptr,
-		    smoke->classes[smoke->methods[method].classId].className,
-		    smoke->methodNames[smoke->methods[method].name]
-		    );
+
+	if (do_debug & qtdb_virtual) {
+		Smoke::Method & meth = smoke->methods[method];
+		QByteArray signature(smoke->methodNames[meth.name]);
+		signature += "(";
+
+		for (int i = 0; i < meth.numArgs; i++) {
+			if (i != 0) signature += ", ";
+			signature += smoke->types[smoke->argumentList[meth.args + i]].name;
+		}
+
+		signature += ")";
+		if (meth.flags & Smoke::mf_const) {
+			signature += " const";
+		}
+
+		qWarning(	"virtual %p->%s::%s called", 
+					ptr,
+					smoke->classes[smoke->methods[method].classId].className,
+					(const char *) signature );
+	}
 
 	if(!o) {
 	    if( do_debug & qtdb_virtual )   // if not in global destruction

@@ -1,3 +1,8 @@
+2006-01-19  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* Improved the debug logging of virtual method callbacks so that the
+	  arg types are shown too
+
 2005-12-20  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Restored Caleb Tennis's refactored marshall_types.cpp code after
