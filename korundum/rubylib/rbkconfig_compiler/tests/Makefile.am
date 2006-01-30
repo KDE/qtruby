@@ -1,5 +1,3 @@
-SUFFIXES = .rb
-
 check_PROGRAMS = test1 test2 test3 test4 test5
 
 CLEANFILES = test1.rb \
