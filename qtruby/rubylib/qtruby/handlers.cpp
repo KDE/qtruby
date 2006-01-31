@@ -189,6 +189,8 @@ smokeruby_free(void * p)
 			|| strcmp(className, "KCommand") == 0
 			|| strcmp(className, "KNamedCommand") == 0
 			|| strcmp(className, "KMacroCommand") == 0
+			|| strcmp(className, "KAboutData") == 0
+			|| strcmp(className, "KCmdLineArgs") == 0
 			|| strcmp(className, "QSqlCursor") == 0 )
 	{
 		// Don't delete instances of these classes for now
