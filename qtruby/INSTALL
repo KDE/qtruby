@@ -93,6 +93,44 @@ running /usr/local/bin/rubyw ruby-1.8.0/ext/tk/sample/tkmenubutton.rb
 Everything worked as expected, and I was able to interact with the UI without 
 any SetFrontProcess errors. "
 
+Ryutaro Amano wrote this about creating a double clickable bundle:
+
+"Thanks all, I have succeeded make rubyw.
+sample script is launched in foreground.
+And I have known the following steps to launch qt-ruby script by double clicking
+from Finder.
+
+As an example, I  take qtruby-1.0.11/qtruby/rubylib/tutorial/t14
+
+cd qtruby-1.0.11/qtruby/rubylib/tutorial/t14
+chmod 755 t14.rb
+replace first line of t14.rb with "#!/usr/local/bin/rubyw"
+mkdir -p Shoot.app/Contents/MacOS
+mv t14.rb Shoot.app/Contents/MacOS/Shoot
+cp {cannon.rb,gamebrd.rb,lcdrange.rb} Shoot.app/Contents/MacOS
+cp  Info.plist Shoot.app/Contents
+
+Info.plist is
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
+<plist version="0.9">
+<dict>
+        <key>CFBundleExecutable</key>
+        <string>Shoot</string>
+        <key>CFBundleIdentifier</key>
+        <string>jp.co.ryutaro.qtquit</string>
+        <key>CFBundlePackageType</key>
+        <string>APPL</string>
+        <key>CFBundleSignature</key>
+        <string>????</string>
+</dict>
+</plist>
+
+echo -n "APPL????" > Shoot.app/Contents/PkgInfo
+
+Double click Shoot.app, Qt-Window appears in foreground."
+
 QScintilla text editing widget support
 --------------------------------------
 
