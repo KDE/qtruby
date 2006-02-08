@@ -357,11 +357,15 @@ module KDE
 	end
 	
 	def CmdLineArgs::init(*k)
-		if k.length > 0 and k[0].kind_of?(Array)
-			# If init() is passed an array as the first argument, assume it's ARGV.
-			# Then convert to a pair of args 'ARGV.length+1, [$0]+ARGV'
-			array = k.shift
-			super(*([array.length+1] + [[$0] + array] + k))
+		if k.length > 0
+			if k[0].kind_of? Array
+				# If init() is passed an array as the first argument, assume it's ARGV.
+				# Then convert to a pair of args 'ARGV.length+1, [$0]+ARGV'
+				array = k.shift
+				super(*([array.length+1] + [[$0] + array] + k))
+			elsif k[0].kind_of? KDE::AboutData
+				super(1, [$0], k[0])
+			end
 		else
 			super
 		end
@@ -519,14 +523,14 @@ class Object
 	def I18N_NOOP2(comment, x) x end
 end
 
-class Module
-	def k_dcop_signals(*signal_list)
+class Qt::Base
+	def self.k_dcop_signals(*signal_list)
 		meta = KDE::DCOPMeta[self.name] || KDE::DCOPMetaInfo.new(self)
 		meta.add_signals(signal_list)
 		meta.changed = true
 	end
 
-	def k_dcop(*slot_list)
+	def self.k_dcop(*slot_list)
 		meta = KDE::DCOPMeta[self.name] || KDE::DCOPMetaInfo.new(self)
 		meta.add_slots(slot_list)
 		meta.changed = true

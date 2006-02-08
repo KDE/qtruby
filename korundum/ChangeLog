@@ -1,3 +1,13 @@
+2006-02-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* When KDE::CmdLineArgs.init() was called with just a single
+	  KDE::AboutData arg, it crashed. Fixes problem reported by
+	  Han Holl.
+	
+	* KDE::CmdLineArgs and KDE::AboutData instances are no longer
+	  deleted by qtruby on garbage collection. Fixes another problem
+	  reported by Han Holl.
+
 2005-12-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* A marshaller was defined for 'KFileItemList' as a value type, but not for
