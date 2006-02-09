@@ -1,3 +1,12 @@
+2006-02-09  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+
+	* The Kernel#select method was being redefined as it clashed with
+	  Qt::SqlCursor#select and Qt::SqlSelectCursor#select methods. This
+	  caused a problem when QtRuby was used with Rails ActiveRecord which
+	  also has a select method. So the methods are now defined in the Sql
+	  classes, and use method_missing() to explictly invoke the methods in
+	  the Smoke library. Fixes problem reported by Imo Sosa.
+
 2006-01-18  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Improved the debug logging of virtual method callbacks so that the

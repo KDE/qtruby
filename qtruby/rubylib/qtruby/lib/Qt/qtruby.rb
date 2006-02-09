@@ -332,6 +332,18 @@ module Qt
 		end
 	end
 
+	class SqlCursor < Qt::Base
+		def select(*k)
+			method_missing(:select, *k)
+		end
+	end
+
+	class SqlSelectCursor < Qt::Base
+		def select(*k)
+			method_missing(:select, *k)
+		end
+	end
+
 	class Date < Qt::Base
 		def inspect
 			str = super
@@ -1094,16 +1106,6 @@ module Kernel
 			_exec(*k)
 		else
 			method_missing(:exec, *k)
-		end
-	end
-
-	alias_method :_select, :select
-
-	def select(*k)
-		if k.length > 1 and k[0].kind_of? Array
-			_select(*k)
-		else
-			method_missing(:select, *k)
 		end
 	end
 end
