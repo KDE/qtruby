@@ -138,7 +138,7 @@ static void marshall_to_ruby<SmokeClassWrapper>(Marshall *m)
 		
 	obj = set_obj_info(classname, o);
 	if (do_debug & qtdb_calls) {
-		printf("allocating %s %p -> %p\n", classname, o->ptr, (void*)obj);
+		qWarning("allocating %s %p -> %p\n", classname, o->ptr, (void*)obj);
 	}
 
 	if(m->type().isStack()) {

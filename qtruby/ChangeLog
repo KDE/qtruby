@@ -1,3 +1,15 @@
+2006-02-16  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
+	
+	* In Qt4 when the type signature of a slot or signal argument type is
+	  normalized, any '&' character for a reference type is removed, along
+	  with any 'const' qualifiers. So 'const QString&' becomes 'QString'.
+	  After a 'QString' slot type has been marshalled to a Ruby string it
+	  is deleted, as it was assumed to be a temporary copy. However, this
+	  caused a crash with QString references such as in the widgets/wiggly
+	  example. Fixes a problem reported by mserms on #qtruby.
+
+	* Added the correct Qt4 libs to the extconf.rb compile command
+
 2006-01-19  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Improved the debug logging of virtual method callbacks so that the

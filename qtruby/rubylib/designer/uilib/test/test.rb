@@ -16,5 +16,7 @@ if ARGV.length == 2
 	end
     w.show()
     a.connect( a, SIGNAL('lastWindowClosed()'), a, SLOT('quit()') )
+all = a.allWidgets
+all.each { |w| p w }
     a.exec()
 end

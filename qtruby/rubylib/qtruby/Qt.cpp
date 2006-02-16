@@ -1512,27 +1512,37 @@ allocateMocArguments(VALUE /*self*/, VALUE count_value)
 static VALUE
 setMocType(VALUE /*self*/, VALUE ptr, VALUE idx_value, VALUE name_value, VALUE static_type_value)
 {
-    int idx = NUM2INT(idx_value);
-    char *name = StringValuePtr(name_value);
-    char *static_type = StringValuePtr(static_type_value);
-    Smoke::Index typeId = qt_Smoke->idType(name);
-    if(!typeId) return Qfalse;
-    MocArgument *arg = 0;
-    Data_Get_Struct(ptr, MocArgument, arg);
-    arg[idx].st.set(qt_Smoke, typeId);
-    if(strcmp(static_type, "ptr") == 0)
-	arg[idx].argType = xmoc_ptr;
-    else if(strcmp(static_type, "bool") == 0)
-	arg[idx].argType = xmoc_bool;
-    else if(strcmp(static_type, "int") == 0)
-	arg[idx].argType = xmoc_int;
-    else if(strcmp(static_type, "double") == 0)
-	arg[idx].argType = xmoc_double;
-    else if(strcmp(static_type, "char*") == 0)
-	arg[idx].argType = xmoc_charstar;
-    else if(strcmp(static_type, "QString") == 0)
-	arg[idx].argType = xmoc_QString;
-    return Qtrue;
+	int idx = NUM2INT(idx_value);
+	QByteArray name(StringValuePtr(name_value));
+	char *static_type = StringValuePtr(static_type_value);
+	MocArgument *arg = 0;
+	Data_Get_Struct(ptr, MocArgument, arg);
+
+	if (strcmp(static_type, "ptr") == 0) {
+		arg[idx].argType = xmoc_ptr;
+		if (! name.contains('*')) {
+			name += "*";
+		}
+	} else if (strcmp(static_type, "bool") == 0) {
+		arg[idx].argType = xmoc_bool;
+	} else if (strcmp(static_type, "int") == 0) {
+		arg[idx].argType = xmoc_int;
+	} else if (strcmp(static_type, "double") == 0) {
+		arg[idx].argType = xmoc_double;
+	} else if (strcmp(static_type, "char*") == 0) {
+		arg[idx].argType = xmoc_charstar;
+	} else if (strcmp(static_type, "QString") == 0) {
+		arg[idx].argType = xmoc_QString;
+		name += "*";
+	}
+
+	Smoke::Index typeId = qt_Smoke->idType((const char *) name);
+	if (typeId == 0) {
+		return Qfalse;
+	}
+
+	arg[idx].st.set(qt_Smoke, typeId);
+	return Qtrue;
 }
 
 static VALUE

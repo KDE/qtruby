@@ -14,19 +14,19 @@ require 'Qt'
 		  #
 		  # The constructor. Initializes the member variables.
 		  #
-		def initialize()
-			super
+		def initialize(parent)
+			super(parent)
 			# initialize member variables
 			@_buffer = Qt::Pixmap.new()
 			@_last = Qt::Point.new()
-			@_currentcolor = black
+			@_currentcolor = Qt::black
 			
 			# don't blank the window before repainting
-			setBackgroundMode( NoBackground )
+			setAttribute( Qt::WA_NoBackground )
 			
 			# create a pop-up menu
-			@_popupmenu = Qt::PopupMenu.new()
-			@_popupmenu.insertItem( "&Clear", self, SLOT( "slotClearArea()" ) )
+			@_popupmenu = Qt::Menu.new()
+			@_popupmenu.addAction( "&Clear", self, SLOT( "slotClearArea()" ) )
 		end
 		
 		  #
@@ -137,9 +137,9 @@ require 'Qt'
 		  #
 		def resizeEvent(event)
 			save = Qt::Pixmap.new( @_buffer )
-			@_buffer.resize( event.size() )
-			@_buffer.fill( white )
-			bitBlt( @_buffer, 0, 0, save )
+			@_buffer = save.scaled(event.size.width, event.size.height)
+			@_buffer.fill( Qt::Color.new(Qt::white) )
+			drawPixmap( @_buffer, 0, 0, save )
 		end
 	end
 
@@ -158,38 +158,35 @@ class ScribbleWindow < Qt::Widget
 		super
 		# The next lines build the menu bar. We first create the menus
 		# one by one, then add them to the menu bar. #
-		@_filemenu = Qt::PopupMenu.new()  # create a file menu
-		@_filemenu.insertItem( "&Load", self, SLOT( "slotLoad()" ) )
-		@_filemenu.insertItem( "&Save", self, SLOT( "slotSave()" ) )
-		@_filemenu.insertSeparator()
-		@_filemenu.insertItem( "&Quit", $qApp, SLOT( "quit()" ) )
+		@_menubar = Qt::MenuBar.new( self )  # create a menu bar
+
+		@_filemenu = @_menubar.addMenu( "&File" )  # create a file menu
+		@_filemenu.addAction( "&Load", self, SLOT( "slotLoad()" ) )
+		@_filemenu.addAction( "&Save", self, SLOT( "slotSave()" ) )
+		@_filemenu.addSeparator()
+		@_filemenu.addAction( "&Quit", $qApp, SLOT( "quit()" ) )
 		
-		@_colormenu = Qt::PopupMenu.new() # create a color menu
-		@_colormenu.insertItem( "B&lack", COLOR_MENU_ID_BLACK)
-		@_colormenu.insertItem( "&Red", COLOR_MENU_ID_RED)
-		@_colormenu.insertItem( "&Blue", COLOR_MENU_ID_BLUE)
-		@_colormenu.insertItem( "&Green", COLOR_MENU_ID_GREEN)
-		@_colormenu.insertItem( "&Yellow", COLOR_MENU_ID_YELLOW)
-		Qt::Object.connect( @_colormenu, SIGNAL( "activated( int )" ),
-						 self, SLOT( "slotColorMenu( int )" ) )
+		@_colormenu = @_menubar.addMenu( "&Color" ) # create a color menu
+#		@_colormenu.addAction( "B&lack", COLOR_MENU_ID_BLACK)
+#		@_colormenu.addAction( "&Red", COLOR_MENU_ID_RED)
+#		@_colormenu.addAction( "&Blue", COLOR_MENU_ID_BLUE)
+#		@_colormenu.addAction( "&Green", COLOR_MENU_ID_GREEN)
+#		@_colormenu.addAction( "&Yellow", COLOR_MENU_ID_YELLOW)
+#		Qt::Object.connect( @_colormenu, SIGNAL( "activated( int )" ),
+#						 self, SLOT( "slotColorMenu( int )" ) )
 						
-		@_helpmenu = Qt::PopupMenu.new()  # create a help menu
-		@_helpmenu.insertItem( "&About QtScribble", self, SLOT( "slotAbout()" ) )
-		@_helpmenu.insertItem( "&About Qt", self, SLOT( "slotAboutQt()" ) )
-		
-		@_menubar = Qt::MenuBar.new( self, "" )  # create a menu bar
-		@_menubar.insertItem( "&File", @_filemenu )
-		@_menubar.insertItem( "&Color", @_colormenu )
-		@_menubar.insertItem( "&Help", @_helpmenu )
+		@_helpmenu = @_menubar.addMenu( "&Help" )  # create a help menu
+		@_helpmenu.addAction( "&About QtScribble", self, SLOT( "slotAbout()" ) )
+		@_helpmenu.addAction( "&About Qt", self, SLOT( "slotAboutQt()" ) )
 		
 		 # We create a Qt::ScrollView and a ScribbleArea. The ScribbleArea will
 		 # be managed by the scroll view.#
-		@_scrollview = Qt::ScrollView.new( self )
+		@_scrollview = Qt::ScrollArea.new( self )
 		@_scrollview.setGeometry( 0, @_menubar.height(),
 		 							width(), height() - @_menubar.height() )
-		@_scribblearea = ScribbleArea.new()
+		@_scribblearea = ScribbleArea.new( @_scrollview )
 		@_scribblearea.setGeometry( 0, 0, 1000, 1000 )
-		@_scrollview.addChild( @_scribblearea )
+#		@_scrollview.addChild( @_scribblearea )
 		Qt::Object.connect( self, SIGNAL( "colorChanged(QColor)" ),
 						 @_scribblearea, SLOT( "setColor(QColor)" ) )
 		Qt::Object.connect( self, SIGNAL( "save(const QString&)" ),
@@ -269,6 +266,5 @@ myapp = Qt::Application.new(ARGV)
 mywidget = ScribbleWindow.new()
 mywidget.setGeometry(50, 500, 400, 400)
 
-myapp.setMainWidget(mywidget)
 mywidget.show()
 myapp.exec()
