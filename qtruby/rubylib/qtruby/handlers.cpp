@@ -751,8 +751,9 @@ static void marshall_QString(Marshall *m) {
 				} else {
 					*(m->var()) = rstringFromQString(s);
 				}
-				if(m->cleanup() || m->type().isStack() )
+				if(m->cleanup() || m->type().isStack() ) {
 					delete s;
+				}
 			} else {
 				*(m->var()) = Qnil;
 			}
@@ -1546,12 +1547,15 @@ void marshall_ValueListItem(Marshall *m) {
 			m->item().s_voidp = cpplist;
 			m->next();
 
-			if(m->cleanup()) {
+			if (!m->type().isConst()) {
 				rb_ary_clear(list);
 				for(int i=0; i < cpplist->size(); ++i) {
 					VALUE obj = getPointerObject((void*)&(cpplist[i]));
 					rb_ary_push(list, obj);
 				}
+			}
+
+			if (m->cleanup()) {
 				delete cpplist;
 			}
 		}

@@ -1,3 +1,12 @@
+2006-02-20  Richard Dale  <rdale@foton.es>
+
+	* After a const value based list such as QVector<QPointF> was passed
+	  to a C++ method, the correspoding Ruby Array was being updating 
+	  with the values when it didn't need to be. There is also a bug which
+	  meant the the values in the Ruby Array were being set to nil. That
+	  bug still isn't fixed. Partly fixes bug reported by akincisor on the
+	  #qtruby irc channel.
+	 
 2006-02-16  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 	
 	* In Qt4 when the type signature of a slot or signal argument type is
