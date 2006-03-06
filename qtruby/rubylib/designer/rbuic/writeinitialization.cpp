@@ -152,6 +152,9 @@ void WriteInitialization::acceptWidget(DomWidget *node)
     if (m_widgetChain.top()) {
         parentWidget = driver->findOrInsertWidget(m_widgetChain.top());
 		parentWidget = parentWidget.mid(0, 1).toLower() + parentWidget.mid(1);
+		if (m_widgetChain.count() != 2) {
+			parentWidget.prepend("@");
+		}
         parentClass = m_widgetChain.top()->attributeClass();
 	}
 
@@ -487,7 +490,10 @@ void WriteInitialization::acceptLayoutItem(DomLayoutItem *node)
 void WriteInitialization::acceptActionGroup(DomActionGroup *node)
 {
     QString actionName = QString("@") + driver->findOrInsertActionGroup(node);
-    QString varName = QString("@") + driver->findOrInsertWidget(m_widgetChain.top());
+    QString varName = driver->findOrInsertWidget(m_widgetChain.top());
+	if (m_widgetChain.count() > 2) {
+		varName.prepend("@");
+	}
 
     if (m_actionGroupChain.top())
         varName = QString("@") + driver->findOrInsertActionGroup(m_actionGroupChain.top());
@@ -506,7 +512,10 @@ void WriteInitialization::acceptAction(DomAction *node)
         return;
 
     QString actionName = QString("@") + driver->findOrInsertAction(node);
-    QString varName = QString("@") + driver->findOrInsertWidget(m_widgetChain.top());
+    QString varName = driver->findOrInsertWidget(m_widgetChain.top());
+	if (m_widgetChain.count() > 2) {
+		varName.prepend("@");
+	}
 
     if (m_actionGroupChain.top())
         varName = QString("@") + driver->findOrInsertActionGroup(m_actionGroupChain.top());
@@ -521,7 +530,10 @@ void WriteInitialization::acceptActionRef(DomActionRef *node)
     bool isSeparator = actionName == QLatin1String("@separator");
     bool isMenu = false;
 
-    QString varName = QString("@") + driver->findOrInsertWidget(m_widgetChain.top());
+    QString varName = driver->findOrInsertWidget(m_widgetChain.top());
+	if (m_widgetChain.count() > 2) {
+		varName.prepend("@");
+	}
 
     if (actionName.isEmpty() || !m_widgetChain.top()) {
         return;
@@ -536,7 +548,6 @@ void WriteInitialization::acceptActionRef(DomActionRef *node)
             return;
         }
     } else if (!(driver->actionByName(actionName.mid(1)) || isSeparator)) {
-        fprintf(stderr, "Warning: action `%s' not declared\n", actionName.toLatin1().data());
         return;
     }
 
@@ -745,7 +756,11 @@ void WriteInitialization::writeProperties(const QString &varName,
                 // ### qWarning("Deprecated: the property `objectName' is different from the variable name");
             }
 
-            if (p->elementString()->hasAttributeNotr()
+           if (propertyName == QLatin1String("shortcut")) {
+                 propertyValue = QLatin1String("Qt::KeySequence.new(") + 
+                                 trCall(p->elementString(), className) +
+                                 QLatin1String(")");
+           } else if (p->elementString()->hasAttributeNotr()
                     && toBool(p->elementString()->attributeNotr())) {
                 propertyValue = QLatin1String("")
                         + fixString(p->elementString()->text())
@@ -1156,10 +1171,8 @@ QString WriteInitialization::pixCall(DomProperty *p) const
         return QLatin1String("icon(") + s + QLatin1String("_ID)");
 
     QString pixFunc = uic->pixmapFunction();
-    if (pixFunc.isEmpty())
-        pixFunc = QLatin1String("String.new");
 
-    return type + QLatin1String("(") + pixFunc + QLatin1String("(") + fixString(s) + QLatin1String(")") + QLatin1String(")");
+    return type + QLatin1String("(") + fixString(s) + QLatin1String(")");
 }
 
 void WriteInitialization::initializeComboBox(DomWidget *w)

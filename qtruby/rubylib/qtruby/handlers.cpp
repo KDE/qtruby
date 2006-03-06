@@ -991,14 +991,17 @@ void marshall_ItemList(Marshall *m) {
 			m->item().s_voidp = cpplist;
 			m->next();
 
-			if(m->cleanup()) {
-			rb_ary_clear(list);
+			if (!m->type().isConst()) {
+				rb_ary_clear(list);
 	
 				for(int i = 0; i < cpplist->size(); ++i ) {
 					VALUE obj = getPointerObject( cpplist->at(i) );
 					rb_ary_push(list, obj);
 				}
-			delete cpplist;
+			}
+
+			if (m->cleanup()) {
+				delete cpplist;
 			}
 		}
 		break;

@@ -43,6 +43,7 @@ void showHelp(const char *appName)
             "  -d, -dependencies         display the dependencies\n"
             "  -o <file>                 place the output into <file>\n"
             "  -tr <func>                use func() for i18n\n"
+            "  -x                        generate extra code to test the class\n"
             "\n", appName);
 }
 
@@ -70,6 +71,8 @@ int main(int argc, char *argv[])
                 return 1;
             }
             driver.option().outputFile = QFile::decodeName(argv[arg]);
+        } else if (opt == QLatin1String("-x")) {
+            driver.option().execCode = 1;
         } else if (opt == QLatin1String("-postfix")) {
             ++arg;
             if (!argv[arg]) {

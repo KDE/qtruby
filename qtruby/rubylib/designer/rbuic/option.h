@@ -34,6 +34,7 @@ struct Option
     unsigned int generateNamespace : 1;
     unsigned int autoConnection : 1;
     unsigned int dependencies : 1;
+    unsigned int execCode : 1;
 
     QString inputFile;
     QString outputFile;
@@ -50,6 +51,7 @@ struct Option
           generateNamespace(1),
           autoConnection(1),
           dependencies(0),
+          execCode(0),
           prefix(QLatin1String("Ui_"))
     { indent.fill(QLatin1Char(' '), 4); }
 };

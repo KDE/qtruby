@@ -1,5 +1,16 @@
 2006-02-20  Richard Dale  <rdale@foton.es>
 
+	* Added a '-x' option to the rbuic tool to generate a ruby top level
+	  code for testing a compiled .ui file
+	* Removed spurious "Warning: action `%s' not declared\n" message
+	* Fixed bug in code generation where the top level arg name in
+	  setupUI() was being wrongly referenced as an instance variable.
+	  Fixes bug reported by Florent Ruard-Dumaine
+	* Fixed bug in const pointer lists, where the items in the ruby Array
+	  were wrongly being updated after a method call
+
+2006-02-20  Richard Dale  <rdale@foton.es>
+
 	* After a const value based list such as QVector<QPointF> was passed
 	  to a C++ method, the correspoding Ruby Array was being updating 
 	  with the values when it didn't need to be. There is also a bug which

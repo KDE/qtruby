@@ -161,7 +161,27 @@ bool Uic::write(DomUI *ui)
 //    WriteIncludes(this).acceptUI(ui);
 
     Validator(this).acceptUI(ui);
+    if (option().execCode) {
+		out << "require 'Qt'" << endl << endl;
+	}
+
     WriteDeclaration(this).acceptUI(ui);
+
+    if (option().execCode) {
+		out << "if $0 == __FILE__" << endl;
+		out << option().indent << "a = Qt::Application.new(ARGV)" << endl;
+        QString qualifiedClassName = ui->elementClass() + option().postfix;
+        QString className = qualifiedClassName;
+		out << option().indent << "u = " << option().prefix << className << ".new" << endl;
+        DomWidget*  parentWidget = ui->elementWidget();
+        QString parentClass = parentWidget->attributeClass();
+		parentClass.replace("Q", "Qt::");
+ 		out << option().indent << "w = " << parentClass << ".new" << endl;
+		out << option().indent << "u.setupUi(w)" << endl;
+		out << option().indent << "w.show" << endl;
+		out << option().indent << "a.exec" << endl;
+		out << "end" << endl;
+    }
 
     return true;
 }
