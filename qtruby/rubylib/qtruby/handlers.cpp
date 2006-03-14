@@ -866,7 +866,7 @@ void marshall_QStringList(Marshall *m) {
 				rb_ary_push(list, rstringFromQString(&(*it)));
 			}
 			
-			if (stringlist != 0 && m->type().isConst() && m->cleanup())
+			if (m->cleanup())
 				delete stringlist;
 	   
 			break;
@@ -924,12 +924,15 @@ void marshall_QByteArrayList(Marshall *m) {
 	    m->item().s_voidp = stringlist;
 	    m->next();
 
-	    if(m->cleanup()) {
-		rb_ary_clear(list);
-		for (int i = 0; i < stringlist->size(); i++) {
-		    rb_ary_push(list, rb_str_new2((const char *) stringlist->at(i)));
+		if (!m->type().isConst()) {
+			rb_ary_clear(list);
+			for (int i = 0; i < stringlist->size(); i++) {
+				rb_ary_push(list, rb_str_new2((const char *) stringlist->at(i)));
+			}
 		}
-		delete stringlist;
+
+		if(m->cleanup()) {
+			delete stringlist;
 	    }
 	    break;
       }
@@ -1074,16 +1077,19 @@ void marshall_QListInt(Marshall *m) {
 	    m->item().s_voidp = valuelist;
 	    m->next();
 
-	    if(m->cleanup()) {
-		rb_ary_clear(list);
-
-		for (	QList<int>::iterator i = valuelist->begin(); 
-				i != valuelist->end(); 
-				++i ) 
-		{
-		    rb_ary_push(list, INT2NUM((int)*i));
+		if (!m->type().isConst()) {
+			rb_ary_clear(list);
+	
+			for (	QList<int>::iterator i = valuelist->begin(); 
+					i != valuelist->end(); 
+					++i ) 
+			{
+				rb_ary_push(list, INT2NUM((int)*i));
+			}
 		}
-		delete valuelist;
+
+		if (m->cleanup()) {
+			delete valuelist;
 	    }
 	}
 	break;
@@ -1140,17 +1146,20 @@ void marshall_QListqreal(Marshall *m) {
 	    m->item().s_voidp = valuelist;
 	    m->next();
 
-	    if(m->cleanup()) {
-		rb_ary_clear(list);
-
-		for (	QList<qreal>::iterator i = valuelist->begin(); 
-				i != valuelist->end(); 
-				++i ) 
-		{
-		    rb_ary_push(list, rb_float_new((qreal)*i));
+		if (!m->type().isConst()) {
+			rb_ary_clear(list);
+	
+			for (	QList<qreal>::iterator i = valuelist->begin(); 
+					i != valuelist->end(); 
+					++i ) 
+			{
+				rb_ary_push(list, rb_float_new((qreal)*i));
+			}
 		}
-		delete valuelist;
-	    }
+
+		if (m->cleanup()) {
+			delete valuelist;
+		}
 	}
 	break;
       case Marshall::ToVALUE:
