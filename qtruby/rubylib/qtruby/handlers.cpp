@@ -1219,8 +1219,8 @@ void marshall_QStringList(Marshall *m) {
 		    	rb_ary_push(list, rstringFromQString(&(*it)));
 		}
 			
-		if (stringlist != 0 && m->type().isConst() && m->cleanup())
-		delete stringlist;
+		if (m->cleanup())
+			delete stringlist;
 	    break;
       }
       case Marshall::ToVALUE: 
@@ -1274,11 +1274,14 @@ void marshall_QStrList(Marshall *m) {
 	    m->item().s_voidp = stringlist;
 	    m->next();
 
-	    if(m->cleanup()) {
-		rb_ary_clear(list);
-		for(const char * it = stringlist->first(); it != 0; it = stringlist->next())
-		    rb_ary_push(list, rb_str_new2(it));
-		delete stringlist;
+		if (!m->type().isConst()) {
+			rb_ary_clear(list);
+			for(const char * it = stringlist->first(); it != 0; it = stringlist->next())
+				rb_ary_push(list, rb_str_new2(it));
+		}
+
+		if (m->cleanup()) {
+			delete stringlist;
 	    }
 	    break;
       }
@@ -1339,15 +1342,19 @@ void marshall_ItemList(Marshall *m) {
 	    m->item().s_voidp = cpplist;
 	    m->next();
 
-	    if(m->cleanup()) {
-		rb_ary_clear(list);
-		for(ItemListIterator it = cpplist->begin();
-		    it != cpplist->end();
-		    ++it) {
-		    VALUE obj = getPointerObject((void*)(*it));
-		    rb_ary_push(list, obj);
+		if (!m->type().isConst()) {
+			rb_ary_clear(list);
+			for(ItemListIterator it = cpplist->begin();
+				it != cpplist->end();
+				++it ) 
+			{
+				VALUE obj = getPointerObject((void*)(*it));
+				rb_ary_push(list, obj);
+			}
 		}
-		delete cpplist;
+
+		if (m->cleanup()) {
+			delete cpplist;
 	    }
 	}
 	break;
@@ -1419,13 +1426,16 @@ void marshall_QValueListInt(Marshall *m) {
 	    m->item().s_voidp = valuelist;
 	    m->next();
 
-	    if(m->cleanup()) {
-		rb_ary_clear(list);
-		for(QValueListIterator<int> it = valuelist->begin();
-		    it != valuelist->end();
-		    ++it)
-		    rb_ary_push(list, INT2NUM((int)*it));
-		delete valuelist;
+		if (!m->type().isConst()) {
+			rb_ary_clear(list);
+			for(QValueListIterator<int> it = valuelist->begin();
+				it != valuelist->end();
+				++it)
+				rb_ary_push(list, INT2NUM((int)*it));
+		}
+
+		if (m->cleanup()) {
+			delete valuelist;
 	    }
 	}
 	break;
@@ -1763,15 +1773,19 @@ void marshall_ValueItemList(Marshall *m) {
 	    m->item().s_voidp = cpplist;
 	    m->next();
 
-	    if(m->cleanup()) {
-		rb_ary_clear(list);
-		for(ItemListIterator it = cpplist->begin();
-		    it != cpplist->end();
-		    ++it) {
-		    VALUE obj = getPointerObject((void*)&(*it));
-		    rb_ary_push(list, obj);
+		if (!m->type().isConst()) {
+			rb_ary_clear(list);
+			for(ItemListIterator it = cpplist->begin();
+				it != cpplist->end();
+				++it) 
+			{
+				VALUE obj = getPointerObject((void*)&(*it));
+				rb_ary_push(list, obj);
+			}
 		}
-		delete cpplist;
+
+		if (m->cleanup()) {
+			delete cpplist;
 	    }
 	}
 	break;
