@@ -1,8 +1,0 @@
-
-A Complete Canvas Application
-
-This is a complete example program with a main window, menus and
-toolbars. The main widget is a Qt::Canvas, and this example
-demonstrates basic canvas usage. 
-    
-This example is the subject of Qt Tutorial #2
