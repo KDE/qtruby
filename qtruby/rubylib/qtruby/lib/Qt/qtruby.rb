@@ -56,6 +56,18 @@ module Qt
 			meta.changed = true
 		end
 
+		def self.q_signal(signal)
+			meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
+			meta.add_signals([signal.to_s + "()"])
+			meta.changed = true
+		end
+
+		def self.q_slot(slot)
+			meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
+			meta.add_slots([slot.to_s + "()"])
+			meta.changed = true
+		end
+
 		def **(a)
 			return Qt::**(self, a)
 		end
@@ -177,15 +189,42 @@ module Qt
 		end
 	end # Qt::Base
 	
-	# Delete the underlying C++ instance after exec returns
-	# Otherwise, rb_gc_call_finalizer_at_exit() can delete
-	# stuff that Qt::Application still needs for its cleanup.
-	
+	class AbstractSocket < Qt::Base
+		def abort(*args)
+			method_missing(:abort, *args)
+		end
+	end
+
+	class AbstractTextDocumentLayout < Qt::Base
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
 	class Application < Qt::Base
+		# Delete the underlying C++ instance after exec returns
+		# Otherwise, rb_gc_call_finalizer_at_exit() can delete
+		# stuff that Qt::Application still needs for its cleanup.
 		def exec
-			super
+			method_missing(:exec)
 			self.dispose
 			Qt::Internal.application_terminated = true
+		end
+
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class Buffer < Qt::Base
+		def open(*args)
+			method_missing(:open, *args)
+		end
+	end
+
+	class ButtonGroup < Qt::Base
+		def id(*args)
+			method_missing(:id, *args)
 		end
 	end
 	
@@ -201,6 +240,14 @@ module Qt
 		def to_f
 			return toDouble()
 		end
+
+		def chop(*args)
+			method_missing(:chop, *args)
+		end
+
+		def split(*args)
+			method_missing(:split, *args)
+		end
 	end
 	
 	class Color < Qt::Base
@@ -212,6 +259,10 @@ module Qt
 		def pretty_print(pp)
 			str = to_s
 			pp.text str.sub(/>$/, " %s>" % name)
+		end
+
+		def name(*args)
+			method_missing(:name, *args)
 		end
 	end
 	
@@ -228,6 +279,18 @@ module Qt
 				[memberName.inspect, memberType == 1 ? "SLOT" : "SIGNAL", object.inspect] )
 		end
 	end
+
+	class CoreApplication < Qt::Base
+		def exec
+			method_missing(:exec)
+			self.dispose
+			Qt::Internal.application_terminated = true
+		end
+
+		def exit(*args)
+			method_missing(:exit, *args)
+		end
+	end
 	
 	class Cursor < Qt::Base
 		def inspect
@@ -238,6 +301,82 @@ module Qt
 		def pretty_print(pp)
 			str = to_s
 			pp.text str.sub(/>$/, " shape=%d>" % shape)
+		end
+	end
+	
+	class Date < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " %s>" % toString)
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, " %s>" % toString)
+		end
+	end
+	
+	class DateTime < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " %s>" % toString)
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, " %s>" % toString)
+		end
+	end
+
+	class Dialog < Qt::Base
+		def exec(*args)
+			method_missing(:exec, *args)
+		end
+	end
+
+	class DomAttr < Qt::Base
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class DomDocumentType < Qt::Base
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class DropEvent < Qt::Base
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
+	class Event < Qt::Base
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class EventLoop < Qt::Base
+		def exec(*args)
+			method_missing(:exec, *args)
+		end
+
+		def exit(*args)
+			method_missing(:exit, *args)
+		end
+	end
+
+	class File < Qt::Base
+		def open(*args)
+			method_missing(:open, *args)
+		end
+	end
+
+	class FileIconProvider < Qt::Base
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 	
@@ -254,10 +393,224 @@ module Qt
 			[family.inspect, pointSize, weight, italic, bold, underline, strikeOut])
 		end
 	end
+
+	class Ftp < Qt::Base
+		def abort(*args)
+			method_missing(:abort, *args)
+		end
+	end
+
+	class GLContext < Qt::Base
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
+	class GLPixelBuffer < Qt::Base
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
+	class GLWidget < Qt::Base
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
+	class GenericArgument < Qt::Base
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class Gradient < Qt::Base
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class Http < Qt::Base
+		def abort(*args)
+			method_missing(:abort, *args)
+		end
+	end
+
+	class HttpRequestHeader < Qt::Base
+		def method(*args)
+			method_missing(:method, *args)
+		end
+	end
+
+	class IODevice < Qt::Base
+		def open(*args)
+			method_missing(:open, *args)
+		end
+	end
+
+	class Image < Qt::Base
+		def format(*args)
+			method_missing(:format, *args)
+		end
+
+		def load(*args)
+			method_missing(:load, *args)
+		end
+	end
+
+	class ImageIOHandler < Qt::Base
+		def format(*args)
+			method_missing(:format, *args)
+		end
+
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class ImageReader < Qt::Base
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
+	class ImageWriter < Qt::Base
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
+	class ItemSelection < Qt::Base
+		def select(*args)
+			method_missing(:select, *args)
+		end
+
+		def split(*args)
+			method_missing(:split, *args)
+		end
+	end
+
+	class ItemSelectionModel < Qt::Base
+		def select(*args)
+			method_missing(:select, *args)
+		end
+	end
 	
 	class LCDNumber < Qt::Base
 		def display(item)
 			method_missing(:display, item)
+		end
+	end
+
+	class Library < Qt::Base
+		def load(*args)
+			method_missing(:load, *args)
+		end
+	end
+
+	class ListWidgetItem < Qt::Base
+		def clone(*args)
+			method_missing(:clone, *args)
+		end
+
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class Locale < Qt::Base
+		def name(*args)
+			method_missing(:name, *args)
+		end
+
+		def system(*args)
+			method_missing(:system, *args)
+		end
+	end
+
+	class Menu < Qt::Base
+		def exec(*args)
+			method_missing(:exec, *args)
+		end
+	end
+
+	class MetaClassInfo < Qt::Base
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class MetaEnum < Qt::Base
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class MetaObject < Qt::Base
+		def method(*args)
+			method_missing(:method, *args)
+		end
+	end
+
+	class MetaProperty < Qt::Base
+		def name(*args)
+			method_missing(:name, *args)
+		end
+
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class MetaType < Qt::Base
+		def load(*args)
+			method_missing(:load, *args)
+		end
+
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class Movie < Qt::Base
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
+	class NetworkProxy < Qt::Base
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class PageSetupDialog < Qt::Base
+		def exec(*args)
+			method_missing(:exec, *args)
+		end
+	end
+
+	class Picture < Qt::Base
+		def load(*args)
+			method_missing(:load, *args)
+		end
+	end
+
+	class PictureIO < Qt::Base
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
+	class Pixmap < Qt::Base
+		def load(*args)
+			method_missing(:load, *args)
+		end
+	end
+
+	class PluginLoader < Qt::Base
+		def load(*args)
+			method_missing(:load, *args)
 		end
 	end
 	
@@ -282,6 +635,18 @@ module Qt
 		def pretty_print(pp)
 			str = to_s
 			pp.text str.sub(/>$/, "\n x=%f,\n y=%f>" % [x, y])
+		end
+	end
+
+	class PrintDialog < Qt::Base
+		def exec(*args)
+			method_missing(:exec, *args)
+		end
+	end
+
+	class Printer < Qt::Base
+		def abort(*args)
+			method_missing(:abort, *args)
 		end
 	end
 
@@ -369,7 +734,7 @@ module Qt
 			pp.text str
 		end
 	end
-	
+
 	class Line < Qt::Base
 		def inspect
 			str = super
@@ -417,6 +782,12 @@ module Qt
 			pp.text str.sub(/>$/, "\n left=%f,\n right=%f,\n top=%f,\n bottom=%f>" % [left, right, top, bottom])
 		end
 	end
+
+	class Shortcut < Qt::Base
+		def id(*args)
+			method_missing(:id, *args)
+		end
+	end
 	
 	class Size < Qt::Base
 		def inspect
@@ -453,28 +824,158 @@ module Qt
 			pp.text str.sub(/>$/, "\n horData=%d,\n verData=%d>" % [horData, verData])
 		end
 	end
-	
-	class Date < Qt::Base
-		def inspect
-			str = super
-			str.sub(/>$/, " %s>" % toString)
+
+	class SocketNotifier < Qt::Base
+		def type(*args)
+			method_missing(:type, *args)
 		end
-		
-		def pretty_print(pp)
-			str = to_s
-			pp.text str.sub(/>$/, " %s>" % toString)
+	end
+
+	class SqlDatabase < Qt::Base
+		def exec(*args)
+			method_missing(:exec, *args)
+		end
+
+		def open(*args)
+			method_missing(:open, *args)
+		end
+	end
+
+	class SqlError < Qt::Base
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class SqlField < Qt::Base
+		def name(*args)
+			method_missing(:name, *args)
+		end
+
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class SqlIndex < Qt::Base
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class SqlQuery < Qt::Base
+		def exec(*args)
+			method_missing(:exec, *args)
+		end
+	end
+
+	class SqlResult < Qt::Base
+		def exec(*args)
+			method_missing(:exec, *args)
+		end
+	end
+
+	class SqlTableModel < Qt::Base
+		def select(*k)
+			method_missing(:select, *k)
+		end
+	end
+
+	class StyleHintReturn < Qt::Base
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class StyleOption < Qt::Base
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class SyntaxHighlighter < Qt::Base
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
+	class TableWidgetItem < Qt::Base
+		def clone(*args)
+			method_missing(:clone, *args)
+		end
+
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class TemporaryFile < Qt::Base
+		def open(*args)
+			method_missing(:open, *args)
 		end
 	end
 	
-	class DateTime < Qt::Base
-		def inspect
-			str = super
-			str.sub(/>$/, " %s>" % toString)
+	class TextCursor < Qt::Base
+		def select(*k)
+			method_missing(:select, *k)
 		end
-		
-		def pretty_print(pp)
-			str = to_s
-			pp.text str.sub(/>$/, " %s>" % toString)
+	end
+
+	class TextDocument < Qt::Base
+		def clone(*args)
+			method_missing(:clone, *args)
+		end
+
+		def print(*args)
+			method_missing(:print, *args)
+		end
+	end
+
+	class TextFormat < Qt::Base
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class TextImageFormat < Qt::Base
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class TextInlineObject < Qt::Base
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
+	class TextLength < Qt::Base
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class TextList < Qt::Base
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
+	class TextObject < Qt::Base
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
+	class TextTable < Qt::Base
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
+	class TextTableCell < Qt::Base
+		def format(*args)
+			method_missing(:format, *args)
 		end
 	end
 	
@@ -487,6 +988,28 @@ module Qt
 		def pretty_print(pp)
 			str = to_s
 			pp.text str.sub(/>$/, " %s>" % toString)
+		end
+	end
+
+	class Translator < Qt::Base
+		def load(*args)
+			method_missing(:load, *args)
+		end
+	end
+
+	class TreeWidgetItem < Qt::Base
+		def clone(*args)
+			method_missing(:clone, *args)
+		end
+
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class UrlInfo < Qt::Base
+		def name(*args)
+			method_missing(:name, *args)
 		end
 	end
 	
@@ -515,6 +1038,26 @@ module Qt
 		def pretty_print(pp)
 			str = to_s
 			pp.text str.sub(/>$/, " typeName=%s>" % typeName)
+		end
+
+		def load(*args)
+			method_missing(:load, *args)
+		end
+
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class Widget < Qt::Base
+		def raise(*args)
+			method_missing(:raise, *args)
+		end
+	end
+
+	class XmlAttributes < Qt::Base
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 	
@@ -1217,75 +1760,23 @@ module Qt
 end # Qt
 
 class Object
-	# The Object.display() method conflicts with display() methods in Qt,
-	# so remove it, and other methods with similar problems
-	alias_method :_display, :display
-	undef_method :display
-	
-	alias_method :_type, :type
-	undef_method :type
-
-	alias_method :_id, :id
-
-	def id(*k)
-		if k.length == 0
-			_id
+	def SIGNAL(signal)
+		if signal.kind_of? Symbol
+			return "2" + signal.to_s + "()"
 		else
-			method_missing(:id, *k)
+			return "2" + signal
 		end
 	end
 
-	def SIGNAL(string) ; return "2" + string; end
-	def SLOT(string)   ; return "1" + string; end
+	def SLOT(slot)
+		if slot.kind_of? Symbol
+			return "1" + slot.to_s + "()"
+		else
+			return "1" + slot
+		end
+	end
+
 	def emit(signal)   ; end
-end
-
-module Kernel
-	# Kernel has a method called open() which takes a String as
-	# the first argument. When a call is made to an open() method
-	# in the Qt classes, it messes up the method_missing()
-	# logic to divert it to the Smoke library. This code
-	# fixes that problem by calling the appropriate method based
-	# on the type of the first arg.
-	alias_method :_open, :open
-	
-	def open(*k)
-		if k.length > 0 and k[0].kind_of? String
-			_open(*k)
-		else
-			method_missing(:open, *k)
-		end
-	end
-
-	alias_method :_format, :format
-
-	def format(*k)
-		if k.length > 0 and k[0].kind_of? String
-			_format(*k)
-		else
-			method_missing(:format, *k)
-		end
-	end
-
-	alias_method :_exec, :exec
-
-	def exec(*k)
-		if k.length > 0 and k[0].kind_of? String
-			_exec(*k)
-		else
-			method_missing(:exec, *k)
-		end
-	end
-
-	alias_method :_select, :select
-
-	def select(*k)
-		if k.length > 1 and k[0].kind_of? Array
-			_select(*k)
-		else
-			method_missing(:select, *k)
-		end
-	end
 end
 
 class Module

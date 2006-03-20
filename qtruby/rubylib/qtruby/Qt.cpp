@@ -2,7 +2,7 @@
                           Qt.cpp  -  description
                              -------------------
     begin                : Fri Jul 4 2003
-    copyright            : (C) 2003-2005 by Richard Dale
+    copyright            : (C) 2003-2006 by Richard Dale
     email                : Richard_Dale@tipitina.demon.co.uk
  ***************************************************************************/
 

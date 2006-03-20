@@ -1,5 +1,14 @@
 2006-03-14  Richard Dale  <rdale@foton.es>
 
+	* Added various explicit calls to method_missing() for methods which
+	  are defined in Kernel and Object, such as 'exec', 'select', 'format'
+	  etc. Otherwise, the corresponding methods in the Smoke library were 
+	  not being invoked correctly.
+	* Removed a virtual destructor compile warning
+	* Removed obsolete qtruby-only.patch and kdevelop project file
+
+2006-03-14  Richard Dale  <rdale@foton.es>
+
 	* Fixed bugs in const lists marshallers, where the items in the ruby Array
 	  were wrongly being updated after a method call
 
