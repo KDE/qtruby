@@ -1,3 +1,10 @@
+2006-03-21  Richard Dale  <rdale@foton.es>
+
+	* Added various explicit calls to method_missing() for methods which
+	  are defined in Kernel and Object, such as 'exec', 'select', 'format'
+	  etc. Otherwise, the corresponding methods in the Smoke library were 
+	  not being invoked correctly.
+
 2006-02-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* When KDE::CmdLineArgs.init() was called with just a single

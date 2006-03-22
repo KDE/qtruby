@@ -354,6 +354,10 @@ module KDE
 			str = to_s
 			pp.text str.sub(/>$/, "\n app=%s,\n obj=%s>" % [app.inspect, obj.inspect])
 		end
+
+		def type(*args)
+			method_missing(:type, *args)
+		end
 	end
 	
 	def CmdLineArgs::init(*k)
@@ -385,36 +389,7 @@ module KDE
 			n += 1
 		end
 	end
-	
-	class Application
-		def initialize(*k)
-			super
-			$kapp = self
-		end
-		
-		# Delete the underlying C++ instance after exec returns
-		# Otherwise, rb_gc_call_finalizer_at_exit() can delete
-		# stuff that KDE::Application still needs for its cleanup.
-		def exec
-			super
-			self.dispose
-			Qt::Internal.application_terminated = true
-		end
-	end
-	
-	class UniqueApplication
-		def initialize(*k)
-			super
-			$kapp = self
-		end
-		
-		def exec
-			super
-			self.dispose
-			Qt::Internal.application_terminated = true
-		end
-	end
-	
+
 	class AboutData
 		def inspect
 			str = super
@@ -469,6 +444,10 @@ module KDE
 			pp.text str.sub(/>$/, "\n emailAddress=%s,\n name=%s,\n task=%s,\n webAddress=%s>" % 
 						[emailAddress.inspect, name.inspect, task.inspect, webAddress.inspect] )
 		end
+
+		def name(*args)
+			method_missing(:name, *args)
+		end
 	end
 	
 	class AboutTranslator
@@ -483,6 +462,324 @@ module KDE
 			pp.text str.sub(/>$/, "\n emailAddress=%s,\n name=%s>" % 
 						[emailAddress.inspect, name.inspect] )
 		end
+
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class AccelShortcutList
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class ActionPtrShortcutList
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class ActionShortcutList
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+	
+	class Application
+		def initialize(*k)
+			super
+			$kapp = self
+		end
+		
+		# Delete the underlying C++ instance after exec returns
+		# Otherwise, rb_gc_call_finalizer_at_exit() can delete
+		# stuff that KDE::Application still needs for its cleanup.
+		def exec
+			method_missing(:exec)
+			self.dispose
+			Qt::Internal.application_terminated = true
+		end
+	end
+
+	class Archive
+		def open(*args)
+			method_missing(:open, *args)
+		end
+	end
+
+	class ArchiveEntry
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class BookmarkDrag
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
+	class CModule
+		def load(*args)
+			method_missing(:load, *args)
+		end
+	end
+
+	class Catalogue
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class ColorDrag
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
+	class CustomMenuEditor
+		def load(*args)
+			method_missing(:load, *args)
+		end
+	end
+
+	class FileItem
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class FileMetaInfoGroup
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class FileMetaInfoItem
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class FileTreeBranch
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class FilterDev
+		def open(*args)
+			method_missing(:open, *args)
+		end
+	end
+
+	class HTMLView
+		def print(*args)
+			method_missing(:print, *args)
+		end
+	end
+
+	class Icon
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class ImageEffect
+		def hash(*args)
+			method_missing(:hash, *args)
+		end
+	end
+
+	class ImageIO
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class MainWindowInterface
+		def raise(*args)
+			method_missing(:raise, *args)
+		end
+	end
+
+	class MdiChildView
+		def raise(*args)
+			method_missing(:raise, *args)
+		end
+	end
+
+	class MimeType
+		def load(*args)
+			method_missing(:load, *args)
+		end
+	end
+
+	class MultiTabBarButton
+		def id(*args)
+			method_missing(:id, *args)
+		end
+	end
+
+	class MultipleDrag
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
+	class NamedCommand
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class NewStuff
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class OCRDialog
+		def id(*args)
+			method_missing(:id, *args)
+		end
+	end
+
+	class Palette
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class PanelApplet
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class PanelExtension
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class Pixmap
+		def load(*args)
+			method_missing(:load, *args)
+		end
+	end
+
+	class PixmapEffect
+		def hash(*args)
+			method_missing(:hash, *args)
+		end
+	end
+
+	class PluginInfo
+		def load(*args)
+			method_missing(:load, *args)
+		end
+
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class PluginSelector
+		def load(*args)
+			method_missing(:load, *args)
+		end
+	end
+
+	class PopupFrame
+		def exec(*args)
+			method_missing(:exec, *args)
+		end
+	end
+
+	class PrintAction
+		def print(*args)
+			method_missing(:print, *args)
+		end
+	end
+
+	class Printer
+		def abort(*args)
+			method_missing(:abort, *args)
+		end
+	end
+
+	class Progress
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
+	class ProtocolInfo
+		def exec(*args)
+			method_missing(:exec, *args)
+		end
+
+		def load(*args)
+			method_missing(:load, *args)
+		end
+
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class Pty
+		def open(*args)
+			method_missing(:open, *args)
+		end
+	end
+
+	class Run
+		def abort(*args)
+			method_missing(:abort, *args)
+		end
+	end
+
+	class SSLCertDlgRet
+		def send(*args)
+			method_missing(:send, *args)
+		end
+	end
+
+	class SSLPKCS12
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class SSLPKCS7
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class SSLSettings
+		def load(*args)
+			method_missing(:load, *args)
+		end
+	end
+
+	class SaveFile
+		def abort(*args)
+			method_missing(:abort, *args)
+		end
+
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class ScanDialog
+		def id(*args)
+			method_missing(:id, *args)
+		end
 	end
 	
 	class Service
@@ -495,8 +792,149 @@ module KDE
 			str = to_s
 			pp.text str.sub(/>$/, "\n library=%s,\n type=%s,\n name=%s>" % [library.inspect, type.inspect, name.inspect])
 		end
+
+		def exec(*args)
+			method_missing(:exec, *args)
+		end
+
+		def load(*args)
+			method_missing(:load, *args)
+		end
+
+		def name(*args)
+			method_missing(:name, *args)
+		end
+
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class ServiceGroup
+		def load(*args)
+			method_missing(:load, *args)
+		end
+
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class ServiceSeparator
+		def load(*args)
+			method_missing(:load, *args)
+		end
+
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class ServiceType
+		def load(*args)
+			method_missing(:load, *args)
+		end
+
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class Socks
+		def select(*args)
+			method_missing(:select, *args)
+		end
+
+		def send(*args)
+			method_missing(:send, *args)
+		end
+	end
+
+	class StdAccel
+		def name(*args)
+			method_missing(:name, *args)
+		end
+
+		def open(*args)
+			method_missing(:open, *args)
+		end
+
+		def print(*args)
+			method_missing(:print, *args)
+		end
+	end
+
+	class StdAccel::ShortcutList
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class StdAction
+		def name(*args)
+			method_missing(:name, *args)
+		end
+
+		def open(*args)
+			method_missing(:open, *args)
+		end
+
+		def print(*args)
+			method_missing(:print, *args)
+		end
+	end
+
+	class StdGuiItem
+		def open(*args)
+			method_missing(:open, *args)
+		end
+
+		def print(*args)
+			method_missing(:print, *args)
+		end
+
+		def test(*args)
+			method_missing(:test, *args)
+		end
+	end
+
+	class TempDir
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class TempFile
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class ToolBarButton
+		def id(*args)
+			method_missing(:id, *args)
+		end
 	end
 	
+	class UniqueApplication
+		def initialize(*k)
+			super
+			$kapp = self
+		end
+		
+		def exec
+			super
+			self.dispose
+			Qt::Internal.application_terminated = true
+		end
+	end
+
+	class URIFilterPlugin
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
 	class URL
 		def inspect
 			str = super
@@ -506,6 +944,367 @@ module KDE
 		def pretty_print(pp)
 			str = to_s
 			pp.text str.sub(/>$/, "\n url=%s,\n protocol=%s,\n host=%s,\n port=%d>" % [url.inspect, protocol.inspect, host.inspect, port])
+		end
+
+		def split(*args)
+			method_missing(:split, *args)
+		end
+	end
+
+	class URLDrag
+		def format(*args)
+			method_missing(:format, *args)
+		end
+	end
+
+	class VMAllocator
+		def allocate(*args)
+			method_missing(:allocate, *args)
+		end
+	end
+
+	class WindowInfo
+		def display(*args)
+			method_missing(:display, *args)
+		end
+	end
+
+end
+
+module DOM
+	class Attr
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class DOMString
+		def split(*args)
+			method_missing(:split, *args)
+		end
+	end
+
+	class DocumentType
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class Event
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class HTMLAnchorElement
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class HTMLAnchorElement
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class HTMLAppletElement
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class HTMLButtonElement
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class HTMLButtonElement
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class HTMLElement
+		def id(*args)
+			method_missing(:id, *args)
+		end
+	end
+
+	class HTMLFormElement
+		def method(*args)
+			method_missing(:method, *args)
+		end
+	end
+
+	class HTMLFormElement
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class HTMLFrameElement
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class HTMLIFrameElement
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class HTMLImageElement
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class HTMLInputElement
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class HTMLInputElement
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class HTMLLIElement
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class HTMLLinkElement
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class HTMLMapElement
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class HTMLMetaElement
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class HTMLOListElement
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class HTMLObjectElement
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class HTMLObjectElement
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class HTMLParamElement
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class HTMLParamElement
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class HTMLScriptElement
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class HTMLSelectElement
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class HTMLSelectElement
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class HTMLStyleElement
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class HTMLTextAreaElement
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class HTMLTextAreaElement
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class HTMLUListElement
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class StyleSheet
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class CSSRule
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class Document
+		def abort(*args)
+			method_missing(:abort, *args)
+		end
+	end
+
+	class Document
+		def load(*args)
+			method_missing(:load, *args)
+		end
+	end
+
+	class HTMLDocument
+		def open(*args)
+			method_missing(:open, *args)
+		end
+	end
+
+	class HTMLInputElement
+		def select(*args)
+			method_missing(:select, *args)
+		end
+	end
+
+	class HTMLTextAreaElement
+		def select(*args)
+			method_missing(:select, *args)
+		end
+	end
+end # DOM
+
+module KIO
+	class Connection
+		def send(*args)
+			method_missing(:send, *args)
+		end
+	end
+
+	class NetRC::AutoLogin
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class Slave
+		def send(*args)
+			method_missing(:send, *args)
+		end
+	end
+
+	class SlaveBase
+		def exit(*args)
+			method_missing(:exit, *args)
+		end
+	end
+end # KIO
+
+module KNS
+	class Engine
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class Entry
+		def name(*args)
+			method_missing(:name, *args)
+		end
+
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class Provider
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class ProviderLoader
+		def load(*args)
+			method_missing(:load, *args)
+		end
+	end
+end # KNS
+
+module KParts
+	class Event
+		def test(*args)
+			method_missing(:test, *args)
+		end
+	end
+
+	class GUIActivateEvent
+		def test(*args)
+			method_missing(:test, *args)
+		end
+	end
+
+	class OpenURLEvent
+		def test(*args)
+			method_missing(:test, *args)
+		end
+	end
+
+	class PartActivateEvent
+		def test(*args)
+			method_missing(:test, *args)
+		end
+	end
+
+	class PartSelectEvent
+		def test(*args)
+			method_missing(:test, *args)
+		end
+	end
+end # KParts
+
+module Win
+	class Win::WindowInfo
+		def name(*args)
+			method_missing(:name, *args)
 		end
 	end
 end
