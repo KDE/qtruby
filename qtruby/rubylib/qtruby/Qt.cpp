@@ -103,6 +103,7 @@ VALUE kconfigskeleton_itemenum_class = Qnil;
 VALUE kconfigskeleton_itemenum_choice_class = Qnil;
 VALUE kio_udsatom_class = Qnil;
 VALUE kwin_class = Qnil;
+VALUE konsole_part_class = Qnil;
 bool application_terminated = false;
 };
 
@@ -867,6 +868,17 @@ set_obj_info(const char * className, smokeruby_object * o)
 			     rb_intern("find_class"),
 			     1,
 			     rb_str_new2(className) );
+
+	// The konsolePart class is in kdebase, and so it can't be in the Smoke library.
+	// This hack instantiates a Ruby KDE::KonsolePart instance
+	if (strcmp(className, "KParts::ReadOnlyPart") == 0) {
+		QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+		QMetaObject * meta = qobject->metaObject();
+		if (strcmp(meta->className(), "konsolePart") == 0) {
+			klass = konsole_part_class;
+		}
+	}
+
 	Smoke::Index *r = classcache.find(className);
 	if (r != 0) {
 		o->classId = (int)*r;
@@ -2492,6 +2504,9 @@ kde_package_to_class(const char * package)
 	} else if (packageName.startsWith("KParts::")) {
 		klass = rb_define_class_under(kparts_module, package+strlen("KParts::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+		if (packageName == "KParts::ReadOnlyPart") {
+			konsole_part_class = rb_define_class_under(kde_module, "KonsolePart", klass);
+		}
 	} else if (packageName.startsWith("KNS::")) {
 		klass = rb_define_class_under(kns_module, package+strlen("KNS::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
