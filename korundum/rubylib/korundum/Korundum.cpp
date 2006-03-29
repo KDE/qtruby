@@ -1070,6 +1070,26 @@ config_additem(int argc, VALUE * argv, VALUE self)
 #endif
 
 static VALUE
+konsole_part_metaobject(VALUE self)
+{
+	smokeruby_object * o = value_obj_info(self);
+	QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+	QMetaObject * meta = qobject->metaObject();
+	VALUE obj = getPointerObject(meta);
+	if (obj != Qnil) {
+		return obj;
+	}
+
+	smokeruby_object  * m = (smokeruby_object *) malloc(sizeof(smokeruby_object));
+	m->smoke = o->smoke;
+	m->classId = m->smoke->idClass("QMetaObject");
+	m->ptr = meta;
+	m->allocated = false;
+	obj = set_obj_info("Qt::MetaObject", m);
+	return obj;
+}
+
+static VALUE
 konsole_part_startprogram(VALUE self, VALUE value_program, VALUE value_args)
 {
 	smokeruby_object * o = value_obj_info(self);
@@ -1157,6 +1177,7 @@ Init_korundum()
 	rb_define_method(kconfigskeleton_class, "addItem", (VALUE (*) (...)) config_additem, -1);
 #endif
 
+	rb_define_method(konsole_part_class, "metaObject", (VALUE (*) (...)) konsole_part_metaobject, 0);
 	rb_define_method(konsole_part_class, "startProgram", (VALUE (*) (...)) konsole_part_startprogram, 2);
 	rb_define_method(konsole_part_class, "showShellInDir", (VALUE (*) (...)) konsole_part_showshellindir, 1);
 	rb_define_method(konsole_part_class, "sendInput", (VALUE (*) (...)) konsole_part_sendinput, 1);
