@@ -1,3 +1,10 @@
+2006-03-29  Richard Dale  <rdale@foton.es>
+
+        * Don't special case open() in virtual method callbacks, because all
+          the Qt classes with open methods now have explicit open() method
+          calls. So it isn't possible that Kernel.open() will be called
+          wrongly anymore.
+
 2006-03-14  Richard Dale  <rdale@foton.es>
 
 	* Added various explicit calls to method_missing() for methods which
