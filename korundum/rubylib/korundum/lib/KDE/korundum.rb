@@ -3,7 +3,7 @@
                           Korundum.rb  -  KDE specific ruby runtime, dcop etc.
                              -------------------
     begin                : Sun Sep 28 2003
-    copyright            : (C) 2003-2004 by Richard Dale
+    copyright            : (C) 2003-2006 by Richard Dale
     email                : Richard_Dale@tipitina.demon.co.uk
  ***************************************************************************/
 

@@ -1,3 +1,23 @@
+2006-03-29  Richard Dale  <rdale@foton.es>
+
+        * Added a KDE::KonsolePart class for when a konsolePart KPart is
+          dynamically loaded. It adds the five methods from the ExtTerminalInterface
+          to the KParts::ReadOnlyPart for interacting with the konsolePart.
+
+        * Example usage:
+
+                factory = KDE::LibLoader.self().factory("libkonsolepart")
+                if ! factory.nil?
+                        @konsole = factory.create(self)
+                end
+
+                @konsole.autoStartShell = true
+                @konsole.startProgram("/bin/echo", ["echo", "-n"])
+                @konsole.showShellInDir( Qt::Dir.home.path )
+                @konsole.sendInput( "puts 'hello there konsole'" )
+
+        * Fixes problem reported by Ranjan Ghosh
+
 2006-03-21  Richard Dale  <rdale@foton.es>
 
 	* Added various explicit calls to method_missing() for methods which

@@ -30,6 +30,8 @@
 #include <kconfigskeleton.h>
 #endif
 #include <kio/global.h>
+#include <kparts/browserextension.h>
+#include <kde_terminal_interface.h>
 
 #include <ruby.h>
 
@@ -43,6 +45,7 @@ extern VALUE qt_internal_module;
 extern VALUE kconfigskeleton_class;
 extern VALUE kconfigskeleton_itemenum_choice_class;
 extern VALUE kio_udsatom_class;
+extern VALUE konsole_part_class;
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
 extern void set_kde_resolve_classname(const char * (*kde_resolve_classname) (Smoke*, int, void *));
 extern const char * kde_resolve_classname(Smoke* smoke, int classId, void * ptr);
@@ -1066,6 +1069,63 @@ config_additem(int argc, VALUE * argv, VALUE self)
 
 #endif
 
+static VALUE
+konsole_part_startprogram(VALUE self, VALUE value_program, VALUE value_args)
+{
+	smokeruby_object * o = value_obj_info(self);
+	TerminalInterface * t = static_cast<TerminalInterface*>(((KParts::ReadOnlyPart*) o->ptr)->qt_cast("TerminalInterface"));
+	
+	QStrList *args = new QStrList;
+
+	if (value_args != Qnil) {
+		for (long i = 0; i < RARRAY(value_args)->len; i++) {
+			VALUE item = rb_ary_entry(value_args, i);
+			args->append(QString::fromLatin1(StringValuePtr(item), RSTRING(item)->len));
+		}
+	}
+
+	t->startProgram(QString::fromLatin1(StringValuePtr(value_program)), args);
+	return self;
+}
+
+static VALUE
+konsole_part_showshellindir(VALUE self, VALUE value_dir)
+{
+	smokeruby_object * o = value_obj_info(self);
+	TerminalInterface * t = static_cast<TerminalInterface*>(((KParts::ReadOnlyPart*) o->ptr)->qt_cast("TerminalInterface"));
+	t->showShellInDir(StringValuePtr(value_dir));
+	return self;
+}
+
+static VALUE
+konsole_part_sendinput(VALUE self, VALUE value_text)
+{
+	smokeruby_object * o = value_obj_info(self);
+	TerminalInterface * t = static_cast<TerminalInterface*>(((KParts::ReadOnlyPart*) o->ptr)->qt_cast("TerminalInterface"));
+	t->sendInput(StringValuePtr(value_text));
+	return self;
+}
+
+#if KDE_VERSION >= 0x030500
+static VALUE
+konsole_part_setautostartshell(VALUE self, VALUE enabled)
+{
+	smokeruby_object * o = value_obj_info(self);
+	ExtTerminalInterface * t = static_cast<ExtTerminalInterface*>(((KParts::ReadOnlyPart*) o->ptr)->qt_cast("ExtTerminalInterface"));
+	t->setAutoStartShell(enabled == Qtrue);
+	return self;
+}
+
+static VALUE
+konsole_part_setautodestroy(VALUE self, VALUE enabled)
+{
+	smokeruby_object * o = value_obj_info(self);
+	ExtTerminalInterface * t = static_cast<ExtTerminalInterface*>(((KParts::ReadOnlyPart*) o->ptr)->qt_cast("ExtTerminalInterface"));
+	t->setAutoDestroy(enabled == Qtrue);
+	return self;
+}
+#endif
+
 void
 Init_korundum()
 {
@@ -1095,6 +1155,16 @@ Init_korundum()
 	
 #if KDE_VERSION >= 0x030200
 	rb_define_method(kconfigskeleton_class, "addItem", (VALUE (*) (...)) config_additem, -1);
+#endif
+
+	rb_define_method(konsole_part_class, "startProgram", (VALUE (*) (...)) konsole_part_startprogram, 2);
+	rb_define_method(konsole_part_class, "showShellInDir", (VALUE (*) (...)) konsole_part_showshellindir, 1);
+	rb_define_method(konsole_part_class, "sendInput", (VALUE (*) (...)) konsole_part_sendinput, 1);
+#if KDE_VERSION >= 0x030500
+	rb_define_method(konsole_part_class, "setAutoStartShell", (VALUE (*) (...)) konsole_part_setautostartshell, 1);
+	rb_define_method(konsole_part_class, "autoStartShell=", (VALUE (*) (...)) konsole_part_setautostartshell, 1);
+	rb_define_method(konsole_part_class, "setAutoDestroy", (VALUE (*) (...)) konsole_part_setautodestroy, 1);
+	rb_define_method(konsole_part_class, "autoDestroy=", (VALUE (*) (...)) konsole_part_setautodestroy, 1);
 #endif
 	
 	rb_require("KDE/korundum.rb");
