@@ -1,4 +1,13 @@
 2006-04-03  Richard Dale  <rdale@foton.es>
+
+	* The QtRuby runtime's overloaded method resolution mechanism can't currently
+	  distinguish between Ruby Arrays containing different sort of instances.
+	  Unfortunately Qt::Painter.drawLines() and Qt::Painter.drawRects() methods can
+	  be passed a Ruby Array as an argument containing either Qt::Points or Qt::PointFs
+	  for instance. These methods need to call the correct Qt C++ methods, so special case
+	  the overload method resolution for now..
+
+2006-04-03  Richard Dale  <rdale@foton.es>
 	
 	* The models used for QTableView and QListView are the private classes
 	  QTableModel and QListModel. They are accessed as QAbstractItemModels

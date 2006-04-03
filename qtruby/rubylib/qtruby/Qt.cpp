@@ -905,7 +905,7 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	return self;
 }
 
-VALUE
+static VALUE
 qabstract_item_model_rowcount(int argc, VALUE * argv, VALUE self)
 {
     smokeruby_object *o = value_obj_info(self);
@@ -923,7 +923,7 @@ qabstract_item_model_rowcount(int argc, VALUE * argv, VALUE self)
 	rb_raise(rb_eArgError, "Invalid argument list");
 }
 
-VALUE
+static VALUE
 qabstract_item_model_columncount(int argc, VALUE * argv, VALUE self)
 {
     smokeruby_object *o = value_obj_info(self);
@@ -941,7 +941,7 @@ qabstract_item_model_columncount(int argc, VALUE * argv, VALUE self)
 	rb_raise(rb_eArgError, "Invalid argument list");
 }
 
-VALUE
+static VALUE
 qabstract_item_model_data(int argc, VALUE * argv, VALUE self)
 {
     smokeruby_object * o = value_obj_info(self);
@@ -965,7 +965,7 @@ qabstract_item_model_data(int argc, VALUE * argv, VALUE self)
 	return set_obj_info("Qt::Variant", result);
 }
 
-VALUE
+static VALUE
 qabstract_item_model_setdata(int argc, VALUE * argv, VALUE self)
 {
     smokeruby_object *o = value_obj_info(self);
@@ -988,7 +988,7 @@ qabstract_item_model_setdata(int argc, VALUE * argv, VALUE self)
 	rb_raise(rb_eArgError, "Invalid argument list");
 }
 
-VALUE
+static VALUE
 qabstract_item_model_flags(VALUE self, VALUE model_index)
 {
     smokeruby_object *o = value_obj_info(self);
@@ -998,7 +998,7 @@ qabstract_item_model_flags(VALUE self, VALUE model_index)
 	return INT2NUM((int) model->flags(*modelIndex));
 }
 
-VALUE
+static VALUE
 qabstract_item_model_insertrows(int argc, VALUE * argv, VALUE self)
 {
     smokeruby_object *o = value_obj_info(self);
@@ -1017,7 +1017,7 @@ qabstract_item_model_insertrows(int argc, VALUE * argv, VALUE self)
 	rb_raise(rb_eArgError, "Invalid argument list");
 }
 
-VALUE
+static VALUE
 qabstract_item_model_insertcolumns(int argc, VALUE * argv, VALUE self)
 {
     smokeruby_object *o = value_obj_info(self);
@@ -1036,7 +1036,7 @@ qabstract_item_model_insertcolumns(int argc, VALUE * argv, VALUE self)
 	rb_raise(rb_eArgError, "Invalid argument list");
 }
 
-VALUE
+static VALUE
 qabstract_item_model_removerows(int argc, VALUE * argv, VALUE self)
 {
     smokeruby_object *o = value_obj_info(self);
@@ -1055,7 +1055,7 @@ qabstract_item_model_removerows(int argc, VALUE * argv, VALUE self)
 	rb_raise(rb_eArgError, "Invalid argument list");
 }
 
-VALUE
+static VALUE
 qabstract_item_model_removecolumns(int argc, VALUE * argv, VALUE self)
 {
     smokeruby_object *o = value_obj_info(self);
@@ -1072,6 +1072,110 @@ qabstract_item_model_removecolumns(int argc, VALUE * argv, VALUE self)
 	}
 
 	rb_raise(rb_eArgError, "Invalid argument list");
+}
+
+// The QtRuby runtime's overloaded method resolution mechanism can't currently
+// distinguish between Ruby Arrays containing different sort of instances.
+// Unfortunately Qt::Painter.drawLines() and Qt::Painter.drawRects() methods can
+// be passed a Ruby Array as an argument containing either Qt::Points or Qt::PointFs
+// for instance. These methods need to call the correct Qt C++ methods, so special case
+// the overload method resolution for now..
+static VALUE
+qpainter_drawlines(int argc, VALUE * argv, VALUE self)
+{
+static Smoke::Index drawlines_pointf_vector = 0;
+static Smoke::Index drawlines_point_vector = 0;
+static Smoke::Index drawlines_linef_vector = 0;
+static Smoke::Index drawlines_line_vector = 0;
+
+	if (argc == 1 && TYPE(argv[0]) == T_ARRAY && RARRAY(argv[0])->len > 0) {
+		if (drawlines_point_vector == 0) {
+			Smoke::Index nameId = qt_Smoke->idMethodName("drawLines?");
+			Smoke::Index meth = qt_Smoke->findMethod(qt_Smoke->idClass("QPainter"), nameId);
+			Smoke::Index i = qt_Smoke->methodMaps[meth].method;
+			i = -i;		// turn into ambiguousMethodList index
+			while (qt_Smoke->ambiguousMethodList[i] != 0) {
+				const char * argType = qt_Smoke->types[qt_Smoke->argumentList[qt_Smoke->methods[qt_Smoke->ambiguousMethodList[i]].args]].name;
+
+				if (strcmp(argType, "const QVector<QPointF>&" ) == 0) {
+					drawlines_pointf_vector = qt_Smoke->ambiguousMethodList[i];
+				} else if (strcmp(argType, "const QVector<QPoint>&" ) == 0) {
+					drawlines_point_vector = qt_Smoke->ambiguousMethodList[i];
+				} else if (strcmp(argType, "const QVector<QLineF>&" ) == 0) {
+					drawlines_linef_vector = qt_Smoke->ambiguousMethodList[i];
+				} else if (strcmp(argType, "const QVector<QLine>&" ) == 0) {
+					drawlines_line_vector = qt_Smoke->ambiguousMethodList[i];
+				}
+
+				i++;
+			}
+		}
+
+		smokeruby_object * o = value_obj_info(rb_ary_entry(argv[0], 0));
+
+		if (strcmp(o->smoke->classes[o->classId].className, "QPointF") == 0) {
+			_current_method = drawlines_pointf_vector;
+		} else if (strcmp(o->smoke->classes[o->classId].className, "QPoint") == 0) {
+			_current_method = drawlines_point_vector;
+		} else if (strcmp(o->smoke->classes[o->classId].className, "QLineF") == 0) {
+			_current_method = drawlines_linef_vector;
+		} else if (strcmp(o->smoke->classes[o->classId].className, "QLine") == 0) {
+			_current_method = drawlines_line_vector;
+		} else {
+			rb_call_super(argc, argv);
+		}
+
+		MethodCall c(qt_Smoke, _current_method, self, argv, argc-1);
+		c.next();
+		return self;
+	}
+
+	rb_call_super(argc, argv);
+	return self;
+}
+
+static VALUE
+qpainter_drawrects(int argc, VALUE * argv, VALUE self)
+{
+static Smoke::Index drawlines_rectf_vector = 0;
+static Smoke::Index drawlines_rect_vector = 0;
+
+	if (argc == 1 && TYPE(argv[0]) == T_ARRAY && RARRAY(argv[0])->len > 0) {
+		if (drawlines_rectf_vector == 0) {
+			Smoke::Index nameId = qt_Smoke->idMethodName("drawRects?");
+			Smoke::Index meth = qt_Smoke->findMethod(qt_Smoke->idClass("QPainter"), nameId);
+			Smoke::Index i = qt_Smoke->methodMaps[meth].method;
+			i = -i;		// turn into ambiguousMethodList index
+			while (qt_Smoke->ambiguousMethodList[i] != 0) {
+				const char * argType = qt_Smoke->types[qt_Smoke->argumentList[qt_Smoke->methods[qt_Smoke->ambiguousMethodList[i]].args]].name;
+
+				if (strcmp(argType, "const QVector<QRectF>&" ) == 0) {
+					drawlines_rectf_vector = qt_Smoke->ambiguousMethodList[i];
+				} else if (strcmp(argType, "const QVector<QRect>&" ) == 0) {
+					drawlines_rect_vector = qt_Smoke->ambiguousMethodList[i];
+				}
+
+				i++;
+			}
+		}
+
+		smokeruby_object * o = value_obj_info(rb_ary_entry(argv[0], 0));
+
+		if (strcmp(o->smoke->classes[o->classId].className, "QRectF") == 0) {
+			_current_method = drawlines_rectf_vector;
+		} else if (strcmp(o->smoke->classes[o->classId].className, "QRect") == 0) {
+			_current_method = drawlines_rect_vector;
+		} else {
+			rb_call_super(argc, argv);
+		}
+
+		MethodCall c(qt_Smoke, _current_method, self, argv, argc-1);
+		c.next();
+		return self;
+	}
+
+	rb_call_super(argc, argv);
+	return self;
 }
 
 static VALUE
@@ -2397,6 +2501,9 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 		qt_qvariant_class = klass;
 	} else if (packageName == "Qt::Char") {
 		rb_define_method(klass, "to_s", (VALUE (*) (...)) qchar_to_s, 0);
+	} else if (packageName == "Qt::Painter") {
+		rb_define_method(klass, "drawLines", (VALUE (*) (...)) qpainter_drawlines, -1);
+		rb_define_method(klass, "drawRects", (VALUE (*) (...)) qpainter_drawrects, -1);
 	}
 
 	return klass;
