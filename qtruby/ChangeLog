@@ -1,3 +1,13 @@
+2006-04-03  Richard Dale  <rdale@foton.es>
+	
+	* The models used for QTableView and QListView are the private classes
+	  QTableModel and QListModel. They are accessed as QAbstractItemModels
+	  via the apis for the view classes. Unfortunately, QAbstractItemModel
+	  has pure virtual functions which don't appear in the corresponding
+	  Ruby class Qt::AbstractItemModel. So Ruby implementations of Qt::TableModel
+	  and Qt::ListModel need to be special cased, and given the missing
+	  methods in order to access the model data.
+
 2006-03-29  Richard Dale  <rdale@foton.es>
 
         * Don't special case open() in virtual method callbacks, because all

@@ -21,27 +21,28 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#include <qglobal.h>
-#include <qregexp.h>
-#include <qstring.h>
-#include <qapplication.h>
-#include <qmetaobject.h>
-#include <qvariant.h>
-#include <qcursor.h>
-#include <qobject.h>
-#include <qwidget.h>
-#include <qhash.h>
-#include <qcolor.h>			
-#include <qrect.h>			
-#include <qfont.h>			
-#include <qline.h>			
-#include <qpixmap.h>			
-#include <qpalette.h>			
-#include <qicon.h>			
-#include <qpolygon.h>			
-#include <qbitmap.h>			
-#include <qpen.h>			
-#include <qtextformat.h>			
+#include <QtCore/qglobal.h>
+#include <QtCore/qregexp.h>
+#include <QtCore/qstring.h>
+#include <QtGui/qapplication.h>
+#include <QtCore/qmetaobject.h>
+#include <QtCore/qvariant.h>
+#include <QtGui/qcursor.h>
+#include <QtCore/qobject.h>
+#include <QtGui/qwidget.h>
+#include <QtCore/qhash.h>
+#include <QtGui/qcolor.h>			
+#include <QtCore/qrect.h>			
+#include <QtGui/qfont.h>			
+#include <QtCore/qline.h>			
+#include <QtGui/qpixmap.h>			
+#include <QtGui/qpalette.h>			
+#include <QtGui/qicon.h>			
+#include <QtGui/qpolygon.h>			
+#include <QtGui/qbitmap.h>			
+#include <QtGui/qpen.h>			
+#include <QtGui/qtextformat.h>			
+#include <QtCore/qabstractitemmodel.h>			
 
 #undef DEBUG
 #ifndef __USE_POSIX
@@ -108,11 +109,14 @@ VALUE qt_base_class = Qnil;
 VALUE qt_qmetaobject_class = Qnil;
 VALUE qt_qtextlayout_class = Qnil;
 VALUE qt_qvariant_class = Qnil;
+VALUE qt_list_model_class = Qnil;
+VALUE qt_table_model_class = Qnil;
 VALUE kconfigskeleton_class = Qnil;
 VALUE kconfigskeleton_itemenum_class = Qnil;
 VALUE kconfigskeleton_itemenum_choice_class = Qnil;
 VALUE kio_udsatom_class = Qnil;
 VALUE kwin_class = Qnil;
+VALUE konsole_part_class = Qnil;
 bool application_terminated = false;
 };
 
@@ -342,7 +346,7 @@ qwarning(VALUE klass, VALUE msg)
 	qWarning("%s", StringValuePtr(msg));
 	return klass;
 }
- 
+
 // ----------------   Helpers -------------------
 
 //---------- All functions except fully qualified statics & enums ---------
@@ -354,10 +358,32 @@ set_obj_info(const char * className, smokeruby_object * o)
 			     rb_intern("find_class"),
 			     1,
 			     rb_str_new2(className) );
+
+	// The konsolePart class is in kdebase, and so it can't be in the Smoke library.
+	// This hack instantiates a Ruby KDE::KonsolePart instance
+	// Similarly, QTableModel and QListModel are private classes, and not in the
+	// Qt headers
+	if (strcmp(className, "KParts::ReadOnlyPart") == 0) {
+		QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+		const QMetaObject * meta = qobject->metaObject();
+		if (strcmp(meta->className(), "konsolePart") == 0) {
+			klass = konsole_part_class;
+		}
+	} else if (strcmp(className, "Qt::AbstractTableModel") == 0) {
+		QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+		const QMetaObject * meta = qobject->metaObject();
+		if (strcmp(meta->className(), "QTableModel") == 0) {
+			klass = qt_table_model_class;
+		} else if (strcmp(meta->className(), "QListModel") == 0) {
+			klass = qt_list_model_class;
+		}
+	}
+
 	Smoke::Index *r = classcache.value(className);
 	if (r != 0) {
 		o->classId = (int)*r;
 	}
+
     VALUE obj = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, (void *) o);
     return obj;
 }
@@ -857,14 +883,6 @@ pretty_print_qobject(VALUE self, VALUE pp)
 							.arg(qobject->metaObject()->superClass()->className()) );
 	}		
 	
-//	if (qobject->metaObject()->numSignals() > 0) {
-//		value_list.append(Q3CString().sprintf(", signalNames=Array (%d element(s))", qobject->metaObject()->numSignals()));
-//	}		
-	
-//	if (qobject->metaObject()->numSlots() > 0) {
-//		value_list.append(Q3CString().sprintf(", slotNames=Array (%d element(s))", qobject->metaObject()->numSlots()));
-//	}
-	
 	value_list.append(">,\n");
 	rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(value_list.toLatin1()));
 
@@ -885,6 +903,175 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(">"));
 	
 	return self;
+}
+
+VALUE
+qabstract_item_model_rowcount(int argc, VALUE * argv, VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QAbstractItemModel * model = (QAbstractItemModel *) o->ptr;
+	if (argc == 0) {
+		return INT2NUM(model->rowCount());
+	}
+
+	if (argc == 1) {
+		smokeruby_object * mi = value_obj_info(argv[0]);
+		QModelIndex * modelIndex = (QModelIndex *) mi->ptr;
+		return INT2NUM(model->rowCount(*modelIndex));
+	}
+
+	rb_raise(rb_eArgError, "Invalid argument list");
+}
+
+VALUE
+qabstract_item_model_columncount(int argc, VALUE * argv, VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QAbstractItemModel * model = (QAbstractItemModel *) o->ptr;
+	if (argc == 0) {
+		return INT2NUM(model->columnCount());
+	}
+
+	if (argc == 1) {
+		smokeruby_object * mi = value_obj_info(argv[0]);
+		QModelIndex * modelIndex = (QModelIndex *) mi->ptr;
+		return INT2NUM(model->columnCount(*modelIndex));
+	}
+
+	rb_raise(rb_eArgError, "Invalid argument list");
+}
+
+VALUE
+qabstract_item_model_data(int argc, VALUE * argv, VALUE self)
+{
+    smokeruby_object * o = value_obj_info(self);
+	QAbstractItemModel * model = (QAbstractItemModel *) o->ptr;
+    smokeruby_object * mi = value_obj_info(argv[0]);
+	QModelIndex * modelIndex = (QModelIndex *) mi->ptr;
+	QVariant value;
+	if (argc == 1) {
+		value = model->data(*modelIndex);
+	} else if (argc == 2) {
+		value = model->data(*modelIndex, NUM2INT(rb_funcall(argv[1], rb_intern("to_i"), 0)));
+	} else {
+		rb_raise(rb_eArgError, "Invalid argument list");
+	}
+
+	smokeruby_object  * result = (smokeruby_object *) malloc(sizeof(smokeruby_object));
+	result->smoke = o->smoke;
+	result->classId = o->smoke->idClass("QVariant");
+	result->ptr = new QVariant(value);
+	result->allocated = true;
+	return set_obj_info("Qt::Variant", result);
+}
+
+VALUE
+qabstract_item_model_setdata(int argc, VALUE * argv, VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QAbstractItemModel * model = (QAbstractItemModel *) o->ptr;
+    smokeruby_object * mi = value_obj_info(argv[0]);
+	QModelIndex * modelIndex = (QModelIndex *) mi->ptr;
+    smokeruby_object * v = value_obj_info(argv[1]);
+	QVariant * variant = (QVariant *) v->ptr;
+
+	if (argc == 2) {
+		return (model->setData(*modelIndex, *variant) ? Qtrue : Qfalse);
+	}
+
+	if (argc == 3) {
+		return (model->setData(	*modelIndex, 
+								*variant,
+								NUM2INT(rb_funcall(argv[2], rb_intern("to_i"), 0)) ) ? Qtrue : Qfalse);
+	}
+
+	rb_raise(rb_eArgError, "Invalid argument list");
+}
+
+VALUE
+qabstract_item_model_flags(VALUE self, VALUE model_index)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QAbstractItemModel * model = (QAbstractItemModel *) o->ptr;
+    smokeruby_object * mi = value_obj_info(model_index);
+	const QModelIndex * modelIndex = (const QModelIndex *) mi->ptr;
+	return INT2NUM((int) model->flags(*modelIndex));
+}
+
+VALUE
+qabstract_item_model_insertrows(int argc, VALUE * argv, VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QAbstractItemModel * model = (QAbstractItemModel *) o->ptr;
+
+	if (argc == 2) {
+		return (model->insertRows(NUM2INT(argv[0]), NUM2INT(argv[1])) ? Qtrue : Qfalse);
+	}
+
+	if (argc == 3) {
+    	smokeruby_object * mi = value_obj_info(argv[2]);
+		const QModelIndex * modelIndex = (const QModelIndex *) mi->ptr;
+		return (model->insertRows(NUM2INT(argv[0]), NUM2INT(argv[1]), *modelIndex) ? Qtrue : Qfalse);
+	}
+
+	rb_raise(rb_eArgError, "Invalid argument list");
+}
+
+VALUE
+qabstract_item_model_insertcolumns(int argc, VALUE * argv, VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QAbstractItemModel * model = (QAbstractItemModel *) o->ptr;
+
+	if (argc == 2) {
+		return (model->insertColumns(NUM2INT(argv[0]), NUM2INT(argv[1])) ? Qtrue : Qfalse);
+	}
+
+	if (argc == 3) {
+    	smokeruby_object * mi = value_obj_info(argv[2]);
+		const QModelIndex * modelIndex = (const QModelIndex *) mi->ptr;
+		return (model->insertColumns(NUM2INT(argv[0]), NUM2INT(argv[1]), *modelIndex) ? Qtrue : Qfalse);
+	}
+
+	rb_raise(rb_eArgError, "Invalid argument list");
+}
+
+VALUE
+qabstract_item_model_removerows(int argc, VALUE * argv, VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QAbstractItemModel * model = (QAbstractItemModel *) o->ptr;
+
+	if (argc == 2) {
+		return (model->removeRows(NUM2INT(argv[0]), NUM2INT(argv[1])) ? Qtrue : Qfalse);
+	}
+
+	if (argc == 3) {
+    	smokeruby_object * mi = value_obj_info(argv[2]);
+		const QModelIndex * modelIndex = (const QModelIndex *) mi->ptr;
+		return (model->removeRows(NUM2INT(argv[0]), NUM2INT(argv[1]), *modelIndex) ? Qtrue : Qfalse);
+	}
+
+	rb_raise(rb_eArgError, "Invalid argument list");
+}
+
+VALUE
+qabstract_item_model_removecolumns(int argc, VALUE * argv, VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QAbstractItemModel * model = (QAbstractItemModel *) o->ptr;
+
+	if (argc == 2) {
+		return (model->removeColumns(NUM2INT(argv[0]), NUM2INT(argv[1])) ? Qtrue : Qfalse);
+	}
+
+	if (argc == 3) {
+    	smokeruby_object * mi = value_obj_info(argv[2]);
+		const QModelIndex * modelIndex = (const QModelIndex *) mi->ptr;
+		return (model->removeRows(NUM2INT(argv[0]), NUM2INT(argv[1]), *modelIndex) ? Qtrue : Qfalse);
+	}
+
+	rb_raise(rb_eArgError, "Invalid argument list");
 }
 
 static VALUE
@@ -2094,6 +2281,9 @@ kde_package_to_class(const char * package)
 	} else if (packageName.startsWith("KParts::")) {
 		klass = rb_define_class_under(kparts_module, package+strlen("KParts::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+		if (packageName == "KParts::ReadOnlyPart") {
+			konsole_part_class = rb_define_class_under(kde_module, "KonsolePart", klass);
+		}
 	} else if (packageName.startsWith("KNS::")) {
 		klass = rb_define_class_under(kns_module, package+strlen("KNS::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
@@ -2134,6 +2324,28 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 		if (packageName == "Qt::Application" || packageName == "Qt::CoreApplication" ) {
 			rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qapplication, -1);
 			rb_define_method(klass, "ARGV", (VALUE (*) (...)) qapplication_argv, 0);
+		} else if (packageName == "Qt::AbstractTableModel") {
+			qt_table_model_class = rb_define_class_under(qt_module, "TableModel", klass);
+			rb_define_method(qt_table_model_class, "rowCount", (VALUE (*) (...)) qabstract_item_model_rowcount, -1);
+			rb_define_method(qt_table_model_class, "columnCount", (VALUE (*) (...)) qabstract_item_model_columncount, -1);
+			rb_define_method(qt_table_model_class, "data", (VALUE (*) (...)) qabstract_item_model_data, -1);
+			rb_define_method(qt_table_model_class, "setData", (VALUE (*) (...)) qabstract_item_model_setdata, -1);
+			rb_define_method(qt_table_model_class, "flags", (VALUE (*) (...)) qabstract_item_model_flags, 1);
+			rb_define_method(qt_table_model_class, "insertRows", (VALUE (*) (...)) qabstract_item_model_insertrows, -1);
+			rb_define_method(qt_table_model_class, "insertColumns", (VALUE (*) (...)) qabstract_item_model_insertcolumns, -1);
+			rb_define_method(qt_table_model_class, "removeRows", (VALUE (*) (...)) qabstract_item_model_removerows, -1);
+			rb_define_method(qt_table_model_class, "removeColumns", (VALUE (*) (...)) qabstract_item_model_removecolumns, -1);
+			
+			qt_list_model_class = rb_define_class_under(qt_module, "TableModel", klass);
+			rb_define_method(qt_list_model_class, "rowCount", (VALUE (*) (...)) qabstract_item_model_rowcount, -1);
+			rb_define_method(qt_list_model_class, "columnCount", (VALUE (*) (...)) qabstract_item_model_columncount, -1);
+			rb_define_method(qt_list_model_class, "data", (VALUE (*) (...)) qabstract_item_model_data, -1);
+			rb_define_method(qt_list_model_class, "setData", (VALUE (*) (...)) qabstract_item_model_setdata, -1);
+			rb_define_method(qt_list_model_class, "flags", (VALUE (*) (...)) qabstract_item_model_flags, 1);
+			rb_define_method(qt_list_model_class, "insertRows", (VALUE (*) (...)) qabstract_item_model_insertrows, -1);
+			rb_define_method(qt_list_model_class, "insertColumns", (VALUE (*) (...)) qabstract_item_model_insertcolumns, -1);
+			rb_define_method(qt_list_model_class, "removeRows", (VALUE (*) (...)) qabstract_item_model_removerows, -1);
+			rb_define_method(qt_list_model_class, "removeColumns", (VALUE (*) (...)) qabstract_item_model_removecolumns, -1);
 		} else {
 			rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
 		}
