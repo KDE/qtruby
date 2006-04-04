@@ -36,7 +36,7 @@ class TreeModel < Qt::AbstractItemModel
 	end
 	
 	def columnCount(parent)
-	    if parent.isValid
+	    if parent.valid?
 	        return parent.internalPointer.columnCount
 	    else
 	        return @rootItem.columnCount
@@ -44,7 +44,7 @@ class TreeModel < Qt::AbstractItemModel
 	end
 	
 	def data(index, role)
-	    if !index.isValid
+	    if !index.valid?
 	        return Qt::Variant.new
 		end
 	
@@ -57,7 +57,7 @@ class TreeModel < Qt::AbstractItemModel
 	end
 	
 	def flags(index)
-	    if !index.isValid
+	    if !index.valid?
 	        return Qt::ItemIsEnabled
 		end
 	
@@ -73,7 +73,7 @@ class TreeModel < Qt::AbstractItemModel
 	end
 	
 	def index(row, column, parent)
-	    if !parent.isValid
+	    if !parent.valid?
 	        parentItem = @rootItem
 	    else
 	        parentItem = parent.internalPointer
@@ -88,7 +88,7 @@ class TreeModel < Qt::AbstractItemModel
 	end
 	
 	def parent(index)
-	    if !index.isValid
+	    if !index.valid?
 	        return Qt::ModelIndex.new
 		end
 	
@@ -103,7 +103,7 @@ class TreeModel < Qt::AbstractItemModel
 	end
 	
 	def rowCount(parent)
-	    if !parent.isValid
+	    if !parent.valid?
 	        parentItem = @rootItem
 	    else
 	        parentItem = parent.internalPointer
