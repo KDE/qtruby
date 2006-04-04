@@ -1,3 +1,12 @@
+2006-04-04  Richard Dale  <rdale@foton.es>
+
+	* Added the itemviews/simpledommodel and itemviews/simpletreemodel
+	  examples
+
+	* Special cased the Qt::AbstractItemModel.createIndex() and 
+	  Qt::ModelIndex.internalPointer() methods so they can save
+	  and restore Ruby VALUE instances.
+
 2006-04-03  Richard Dale  <rdale@foton.es>
 
 	* The QtRuby runtime's overloaded method resolution mechanism can't currently
