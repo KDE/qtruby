@@ -58,13 +58,13 @@ module Qt
 
 		def self.q_signal(signal)
 			meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
-			meta.add_signals([signal.to_s + "()"])
+			meta.add_signals([signal])
 			meta.changed = true
 		end
 
 		def self.q_slot(slot)
 			meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
-			meta.add_slots([slot.to_s + "()"])
+			meta.add_slots([slot])
 			meta.changed = true
 		end
 
@@ -1692,6 +1692,9 @@ module Qt
 		
 		def add_signals(signal_list)
 			signal_list.each do |signal|
+				if signal.kind_of? Symbol
+					signal = signal.to_s + "()"
+				end
 				signal = Qt::MetaObject.normalizedSignature(signal).to_s
 				if signal =~ /([^\s]*)\((.*)\)/
 					@signals.push QObjectMember.new($1, signal, $2)
@@ -1717,6 +1720,9 @@ module Qt
 		
 		def add_slots(slot_list)
 			slot_list.each do |slot|
+				if slot.kind_of? Symbol
+					slot = slot.to_s + "()"
+				end
 				slot = Qt::MetaObject.normalizedSignature(slot).to_s
 				if slot =~ /([^\s]*)\((.*)\)/
 					@slots.push QObjectMember.new($1, slot, $2)

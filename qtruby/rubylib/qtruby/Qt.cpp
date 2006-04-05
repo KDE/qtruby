@@ -1122,7 +1122,7 @@ static Smoke::Index drawlines_line_vector = 0;
 		} else if (strcmp(o->smoke->classes[o->classId].className, "QLine") == 0) {
 			_current_method = drawlines_line_vector;
 		} else {
-			rb_call_super(argc, argv);
+			return rb_call_super(argc, argv);
 		}
 
 		MethodCall c(qt_Smoke, _current_method, self, argv, argc-1);
@@ -1130,8 +1130,7 @@ static Smoke::Index drawlines_line_vector = 0;
 		return self;
 	}
 
-	rb_call_super(argc, argv);
-	return self;
+	return rb_call_super(argc, argv);
 }
 
 static VALUE
@@ -1166,7 +1165,7 @@ static Smoke::Index drawlines_rect_vector = 0;
 		} else if (strcmp(o->smoke->classes[o->classId].className, "QRect") == 0) {
 			_current_method = drawlines_rect_vector;
 		} else {
-			rb_call_super(argc, argv);
+			return rb_call_super(argc, argv);
 		}
 
 		MethodCall c(qt_Smoke, _current_method, self, argv, argc-1);
@@ -1174,8 +1173,28 @@ static Smoke::Index drawlines_rect_vector = 0;
 		return self;
 	}
 
-	rb_call_super(argc, argv);
-	return self;
+	return rb_call_super(argc, argv);
+}
+
+static VALUE
+qabstractitemmodel_createindex(int argc, VALUE * argv, VALUE /* self */)
+{
+	if (argc == 3 && TYPE(argv[2]) != T_FIXNUM && TYPE(argv[2]) != T_BIGNUM) {
+		// Change the VALUE to a Ruby Integer, so it can be marshalled to a
+		// C++ int. Then look for the QAbstractItemModel::createIndex(int, int, int) 
+		// variant
+		argv[2] = UINT2NUM(argv[2]);
+	}
+
+	return rb_call_super(argc, argv);
+}
+
+static VALUE
+qmodelindex_internalpointer(VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QModelIndex * index = (QModelIndex *) o->ptr;
+	return (VALUE) index->internalPointer();
 }
 
 static VALUE
@@ -1228,7 +1247,7 @@ method_missing(int argc, VALUE * argv, VALUE self)
 	if (px.indexIn(pred) != -1) {
 		smokeruby_object *o = value_obj_info(self);
 		if(!o || !o->ptr) {
-			rb_call_super(argc, argv);
+			return rb_call_super(argc, argv);
 		}
 		
 		// Drop the trailing '?'
@@ -1275,7 +1294,7 @@ method_missing(int argc, VALUE * argv, VALUE self)
 
 				if (_current_method == -1) {
 					free(temp_stack);
-					rb_call_super(argc, argv);
+					return rb_call_super(argc, argv);
 				}
 			}
 			// Success. Cache result.
@@ -1333,7 +1352,7 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
 			free(temp_stack);
 			return result;
 		} else {
-			rb_call_super(argc, argv);
+			return rb_call_super(argc, argv);
 		}
     }
 
@@ -2453,6 +2472,10 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 		} else {
 			rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
 		}
+
+		if (packageName == "Qt::AbstractItemModel") {
+			rb_define_method(klass, "createIndex", (VALUE (*) (...)) qabstractitemmodel_createindex, -1);
+		}
 	} else if (packageName.startsWith("Qext::")) {
 		if (qext_scintilla_module == Qnil) {
 			qext_scintilla_module = rb_define_module("Qext");
@@ -2504,6 +2527,8 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 	} else if (packageName == "Qt::Painter") {
 		rb_define_method(klass, "drawLines", (VALUE (*) (...)) qpainter_drawlines, -1);
 		rb_define_method(klass, "drawRects", (VALUE (*) (...)) qpainter_drawrects, -1);
+	} else if (packageName == "Qt::ModelIndex") {
+		rb_define_method(klass, "internalPointer", (VALUE (*) (...)) qmodelindex_internalpointer, 0);
 	}
 
 	return klass;
