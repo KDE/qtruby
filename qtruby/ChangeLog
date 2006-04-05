@@ -1,4 +1,10 @@
 2006-04-05  Richard Dale  <rdale@foton.es>
+	
+	* Added the itemviews/puzzle example
+	* Added a QModelIndexList marshaller
+	* Added inspect and pretty_print methods for Qt::ModelIndex
+
+2006-04-05  Richard Dale  <rdale@foton.es>
 
 	* Added the itemviews/sortingmodel example
 

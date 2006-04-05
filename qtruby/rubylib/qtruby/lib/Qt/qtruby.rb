@@ -759,6 +759,18 @@ module Qt
 		end
 	end
 	
+	class ModelIndex < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " valid?=%s, row=%s, column=%s>" % [valid?, row, column])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n valid?=%s,\n row=%s,\n column=%s>" % [valid?, row, column])
+		end
+	end
+
 	class Rect < Qt::Base
 		def inspect
 			str = super

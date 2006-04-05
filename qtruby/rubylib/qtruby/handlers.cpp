@@ -7,38 +7,38 @@
  *                                                                         *
  ***************************************************************************/
 
-#include <qstring.h>
-#include <qregexp.h>
-#include <qapplication.h>
-#include <qpainter.h>
-#include <qpalette.h>
-#include <qlistwidget.h>
-#include <qtablewidget.h>
-#include <qtoolbar.h>
-#include <qdockwidget.h>
-#include <qurlinfo.h>
-#include <qlayout.h>
-#include <qmetaobject.h>
-#include <qlinkedlist.h>
-#include <qobject.h>
-#include <qtextcodec.h>
-#include <qhostaddress.h>
-#include <qpair.h>
-#include <qevent.h>
-#include <qpixmap.h>
-#include <qaction.h>
-#include <qtreewidget.h>
-#include <qtextobject.h>
-#include <qtextlayout.h>
-#include <qabstractbutton.h>
-#include <qlistwidget.h>
-#include <qtablewidget.h>
-#include <qpolygon.h>
-#include <qurl.h>
-#include <qdir.h>
-#include <qobject.h>
-#include <qwidget.h>
-#include <qtabbar.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qregexp.h>
+#include <QtGui/qapplication.h>
+#include <QtGui/qpainter.h>
+#include <QtGui/qpalette.h>
+#include <QtGui/qlistwidget.h>
+#include <QtGui/qtablewidget.h>
+#include <QtGui/qtoolbar.h>
+#include <QtGui/qdockwidget.h>
+#include <QtNetwork/qurlinfo.h>
+#include <QtGui/qlayout.h>
+#include <QtCore/qmetaobject.h>
+#include <QtCore/qlinkedlist.h>
+#include <QtCore/qobject.h>
+#include <QtCore/qtextcodec.h>
+#include <QtNetwork/qhostaddress.h>
+#include <QtCore/qpair.h>
+#include <QtGui/qevent.h>
+#include <QtGui/qpixmap.h>
+#include <QtGui/qaction.h>
+#include <QtGui/qtreewidget.h>
+#include <QtGui/qtextobject.h>
+#include <QtGui/qtextlayout.h>
+#include <QtGui/qabstractbutton.h>
+#include <QtGui/qlistwidget.h>
+#include <QtGui/qtablewidget.h>
+#include <QtGui/qpolygon.h>
+#include <QtCore/qurl.h>
+#include <QtCore/qdir.h>
+#include <QtCore/qobject.h>
+#include <QtGui/qwidget.h>
+#include <QtGui/qtabbar.h>
 
 
 #include "smoke.h"
@@ -1627,6 +1627,7 @@ DEF_VALUELIST_MARSHALLER( QTableWidgetSelectionRangeList, QList<QTableWidgetSele
 DEF_VALUELIST_MARSHALLER( QTextLayoutFormatRangeList, QList<QTextLayout::FormatRange>, QTextLayout::FormatRange)
 DEF_VALUELIST_MARSHALLER( QVariantList, QList<QVariant>, QVariant )
 DEF_VALUELIST_MARSHALLER( QPixmapList, QList<QPixmap>, QPixmap )
+DEF_VALUELIST_MARSHALLER( QModelIndexList, QList<QModelIndex>, QModelIndex )
 DEF_VALUELIST_MARSHALLER( QHostAddressList, QList<QHostAddress>, QHostAddress )
 DEF_VALUELIST_MARSHALLER( QPolygonFList, QList<QPolygonF>, QPolygonF )
 DEF_VALUELIST_MARSHALLER( QImageTextKeyLangList, QLinkedList<QImageTextKeyLang>, QImageTextKeyLang )
@@ -1697,6 +1698,9 @@ TypeHandler Qt_handlers[] = {
     { "QList<QVariant>", marshall_QVariantList },
     { "QList<QVariant>&", marshall_QVariantList },
     { "QList<QPixmap>", marshall_QPixmapList },
+    { "QList<QModelIndex>", marshall_QModelIndexList },
+    { "QList<QModelIndex>&", marshall_QModelIndexList },
+    { "QModelIndexList&", marshall_QModelIndexList },
     { "QValueList<QImageTextKeyLang>", marshall_QImageTextKeyLangList },
     { "QList<QUrl>", marshall_QUrlList },
     { "QList<QUrl>&", marshall_QUrlList },
