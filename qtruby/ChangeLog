@@ -1,5 +1,9 @@
 2006-04-05  Richard Dale  <rdale@foton.es>
 
+	* Added the itemviews/sortingmodel example
+
+2006-04-05  Richard Dale  <rdale@foton.es>
+
 	* Simplify the Qt::AbstractItemModel.createIndex() code
 	* Fix bug where return values from rb_call_super() were being ignored
 	* Make :foobar a synonym for 'foobar()' in SLOT()/SIGNAL() calls and
