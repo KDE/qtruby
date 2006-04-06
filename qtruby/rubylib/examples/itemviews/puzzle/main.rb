@@ -30,5 +30,4 @@ app = Qt::Application.new(ARGV)
 window = MainWindow.new
 window.openImage("example.jpg")
 window.show
-# Qt::debug_level = Qt::DebugLevel::Extensive
 app.exec

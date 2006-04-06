@@ -56,7 +56,7 @@ class PiecesModel < Qt::AbstractListModel
 	    else
 	        row = @pixmaps.size
 		end
-	
+
 	    beginInsertRows(Qt::ModelIndex.new, row, row)
 	    @pixmaps[row] = pixmap
 	    @locations[row] = location
@@ -77,12 +77,12 @@ class PiecesModel < Qt::AbstractListModel
 	        return false
 		end
 	
-	    if row >= pixmaps.size() || row + count <= 0
+	    if row >= @pixmaps.size() || row + count <= 0
 	        return false
 		end
 	
-	    int beginRow = [0, row].max
-	    int endRow = [row + count - 1, pixmaps.size() - 1].min
+	    beginRow = [0, row].max
+	    endRow = [row + count - 1, @pixmaps.size() - 1].min
 	
 	    beginRemoveRows(parent, beginRow, endRow)
 	
@@ -111,10 +111,6 @@ class PiecesModel < Qt::AbstractListModel
 	    indexes.each do |index|
 	        if index.valid?
 	            pixmap = qVariantValue(Qt::Pixmap, data(index, Qt::UserRole))
-p index
-p index.row
-p data(index, Qt::UserRole)
-p data(index, Qt::UserRole+1)
 	            location = data(index, Qt::UserRole+1).toPoint
 	            stream << pixmap << location
 	        end
