@@ -1,3 +1,15 @@
+2006-04-06  Richard Dale  <rdale@foton.es>
+
+	* Marshalling of Value lists to Ruby wasn't working at all. The
+	  bug was because the following two lines are not equivalent:
+
+	    void *p = &valuelist[i];
+	    void *p = (void *) &(valuelist->at(i));
+
+	  The first line doesn't work correctly, but the second was does.
+
+	* The marshaller for QList<QImageTextKeyLang> was defined wrongly.
+
 2006-04-05  Richard Dale  <rdale@foton.es>
 	
 	* Added the itemviews/puzzle example

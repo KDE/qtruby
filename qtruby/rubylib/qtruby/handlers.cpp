@@ -822,11 +822,15 @@ static void marshall_charP_array(Marshall *m) {
 	    argv[i] = 0;
 	    m->item().s_voidp = argv;
 	    m->next();
-	    if(m->cleanup()) {
+
 		rb_ary_clear(arglist);
-		for(i = 0; argv[i]; i++)
+		for(i = 0; argv[i]; i++) {
 		    rb_ary_push(arglist, rb_str_new2(argv[i]));
 	    }
+
+	    if (m->cleanup()) {
+			delete argv;
+		}
 	}
 	break;
       default:
@@ -866,8 +870,9 @@ void marshall_QStringList(Marshall *m) {
 				rb_ary_push(list, rstringFromQString(&(*it)));
 			}
 			
-			if (m->cleanup())
+			if (m->cleanup()) {
 				delete stringlist;
+			}
 	   
 			break;
 		}
@@ -950,10 +955,12 @@ void marshall_QByteArrayList(Marshall *m) {
 			rb_ary_push(av, rv);
 		}
 
-	    if(m->cleanup())
-		delete stringlist;
 
 	    *(m->var()) = av;
+
+		if (m->cleanup()) {
+			delete stringlist;
+		}
 	}
 	break;
       default:
@@ -1040,10 +1047,12 @@ void marshall_ItemList(Marshall *m) {
 				rb_ary_push(av, obj);
 			}
 
-			if(m->cleanup())
+			*(m->var()) = av;
+			m->next();
+
+			if (m->cleanup()) {
 				delete valuelist;
-			else
-				*(m->var()) = av;
+			}
 		}
 		break;
 
@@ -1111,9 +1120,11 @@ void marshall_QListInt(Marshall *m) {
 		}
 		
 	    *(m->var()) = av;
-		
-	    if(m->cleanup())
-		delete valuelist;
+		m->next();
+
+		if (m->cleanup()) {
+			delete valuelist;
+		}
 	}
 	break;
       default:
@@ -1180,9 +1191,11 @@ void marshall_QListqreal(Marshall *m) {
 		}
 		
 	    *(m->var()) = av;
-		
-	    if(m->cleanup())
-		delete valuelist;
+		m->next();
+
+		if (m->cleanup()) {
+			delete valuelist;
+		}
 	}
 	break;
       default:
@@ -1562,7 +1575,7 @@ void marshall_ValueListItem(Marshall *m) {
 			if (!m->type().isConst()) {
 				rb_ary_clear(list);
 				for(int i=0; i < cpplist->size(); ++i) {
-					VALUE obj = getPointerObject((void*)&(cpplist[i]));
+					VALUE obj = getPointerObject((void*)&(cpplist->at(i)));
 					rb_ary_push(list, obj);
 				}
 			}
@@ -1587,7 +1600,7 @@ void marshall_ValueListItem(Marshall *m) {
 			const char * className = m->smoke()->binding->className(ix);
 
 			for(int i=0; i < valuelist->size() ; ++i) {
-				void *p = &valuelist[i];
+				void *p = (void *) &(valuelist->at(i));
 
 				if(m->item().s_voidp == 0) {
 				*(m->var()) = Qnil;
@@ -1607,10 +1620,13 @@ void marshall_ValueListItem(Marshall *m) {
 				rb_ary_push(av, obj);
 			}
 
-			if(m->cleanup())
+			*(m->var()) = av;
+			m->next();
+
+			if (m->cleanup()) {
 				delete valuelist;
-			else
-				*(m->var()) = av;
+			}
+
 		}
 		break;
       
@@ -1630,7 +1646,7 @@ DEF_VALUELIST_MARSHALLER( QPixmapList, QList<QPixmap>, QPixmap )
 DEF_VALUELIST_MARSHALLER( QModelIndexList, QList<QModelIndex>, QModelIndex )
 DEF_VALUELIST_MARSHALLER( QHostAddressList, QList<QHostAddress>, QHostAddress )
 DEF_VALUELIST_MARSHALLER( QPolygonFList, QList<QPolygonF>, QPolygonF )
-DEF_VALUELIST_MARSHALLER( QImageTextKeyLangList, QLinkedList<QImageTextKeyLang>, QImageTextKeyLang )
+DEF_VALUELIST_MARSHALLER( QImageTextKeyLangList, QList<QImageTextKeyLang>, QImageTextKeyLang )
 DEF_VALUELIST_MARSHALLER( QUrlList, QList<QUrl>, QUrl )
 DEF_VALUELIST_MARSHALLER( QFileInfoList, QFileInfoList, QFileInfo )
 DEF_VALUELIST_MARSHALLER( QTextBlockList, QList<QTextBlock>, QTextBlock )
@@ -1701,7 +1717,7 @@ TypeHandler Qt_handlers[] = {
     { "QList<QModelIndex>", marshall_QModelIndexList },
     { "QList<QModelIndex>&", marshall_QModelIndexList },
     { "QModelIndexList&", marshall_QModelIndexList },
-    { "QValueList<QImageTextKeyLang>", marshall_QImageTextKeyLangList },
+    { "QList<QImageTextKeyLang>", marshall_QImageTextKeyLangList },
     { "QList<QUrl>", marshall_QUrlList },
     { "QList<QUrl>&", marshall_QUrlList },
     { "QVector<QPointF>", marshall_QPointFVector },
