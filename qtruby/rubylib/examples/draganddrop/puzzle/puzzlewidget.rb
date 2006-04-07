@@ -47,6 +47,14 @@ class PuzzleWidget < Qt::Widget
         @inPlace = 0
         update()
     end
+
+	def dragEnterEvent(event)
+    	if event.mimeData.hasFormat("image/x-puzzle-piece")
+        	event.accept
+    	else
+        	event.ignore
+		end
+	end
     
     def dragLeaveEvent(event)
         updateRect = @highlightedRect
@@ -152,6 +160,10 @@ class PuzzleWidget < Qt::Widget
             @piecePixmaps.insert(found, pixmap)
             @pieceRects.insert(found, square)
             update(targetSquare(event.pos()))
+
+			if (location == Qt::Point.new(square.x()/80, square.y()/80))
+				@inPlace += 1
+			end
         end
     end
     
