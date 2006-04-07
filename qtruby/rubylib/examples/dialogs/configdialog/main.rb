@@ -24,13 +24,8 @@
 =end
 
 require 'Qt'
-require 'mainwindow.rb'
+require 'configdialog.rb'
 
 app = Qt::Application.new(ARGV)
-window = MainWindow.new
-window.openImage("example.jpg")
-window.show
-GC.disable
-# Qt::Internal::setDebug Qt::QtDebugChannel::QTDB_GC
-
-app.exec
+dialog = ConfigDialog.new
+dialog.exec

@@ -1,3 +1,11 @@
+2006-04-07  Richard Dale  <rdale@foton.es>
+
+	* Added the dialogs/configdialog example
+	* Fixed bug in slot invocation marshalling where non-primitive
+	  types, apart from QStrings weren't working
+	* Fixed crash caused by recently introduced 'fix',
+	  deleting 'argv' passed to QApplication
+
 2006-04-06  Richard Dale  <rdale@foton.es>
 
 	* Marshalling of Value lists to Ruby wasn't working at all. The

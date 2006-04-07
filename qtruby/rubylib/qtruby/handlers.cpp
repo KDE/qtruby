@@ -827,10 +827,6 @@ static void marshall_charP_array(Marshall *m) {
 		for(i = 0; argv[i]; i++) {
 		    rb_ary_push(arglist, rb_str_new2(argv[i]));
 	    }
-
-	    if (m->cleanup()) {
-			delete argv;
-		}
 	}
 	break;
       default:

@@ -472,7 +472,7 @@ public:
 				break;
 				case Smoke::t_class:
 				case Smoke::t_voidp:
-				_stack[i].s_voidp = p;
+					_stack[i].s_voidp = *(void **)p;
 				break;
 				}
 			}

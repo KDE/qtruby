@@ -81,6 +81,7 @@ class MainWindow < Qt::MainWindow
 		oldModel = @piecesList.model
 		newModel = PiecesModel.new(self)
 		@piecesList.model = newModel
+		oldModel.dispose
 
 		# srand(QCursor::pos().x() ^ QCursor::pos().y());
         Kernel.srand
