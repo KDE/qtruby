@@ -1,5 +1,14 @@
 2006-04-10  Richard Dale  <rdale@foton.es>
 
+	* Added mainwindows/dockwidgets example
+
+2006-04-10  Richard Dale  <rdale@foton.es>
+
+	* Added draganddrop/dropsite example
+	* Fixed bug where non-primitive signal types weren't working
+
+2006-04-10  Richard Dale  <rdale@foton.es>
+
 	* Various fixes to the rbuic tool:
 		* Variable names were not always correct. Now they always start with
 		  a '@' if they are ruby instances variables, and all have an initial
