@@ -43,19 +43,19 @@ void WriteIconInitialization::acceptUI(DomUI *node)
 
     QString className = node->elementClass() + option.postfix;
 
-    output << option.indent << "static QPixmap " << "icon(IconID id)\n"
-           << option.indent << "{\n";
+    output << option.indent << "def self.icon(id)\n";
 
     WriteIconData(uic).acceptUI(node);
 
-    output << option.indent << "switch (id) {\n";
+    output << option.indent << option.indent << "case id\n";
 
     TreeWalker::acceptUI(node);
 
-    output << option.indent << option.indent << "default: return QPixmap();\n";
+    output << option.indent << option.indent << "else\n";
+    output << option.indent << option.indent << option.indent << "return Qt::Pixmap.new\n";
 
-    output << option.indent << "} // switch\n"
-           << option.indent << "} // icon\n\n";
+    output << option.indent << option.indent << "end\n"
+           << option.indent << "end\n\n";
 }
 
 void WriteIconInitialization::acceptImages(DomImages *images)
@@ -73,12 +73,17 @@ void WriteIconInitialization::acceptImage(DomImage *image)
     QString imageData = image->attributeName() + QLatin1String("_data");
     QString ind = option.indent + option.indent;
 
-    output << ind << "case " << imageId << ": ";
+    output << ind << "when " << imageId << "\n";
 
     if (fmt == QLatin1String("XPM.GZ")) {
-        output << "return " << "QPixmap((const char**)" << imageData << ");\n";
+        output << option.indent << option.indent << option.indent << "return " << "Qt::Pixmap.new(" << imageData << ")\n";
     } else {
-        output << " { QImage img; img.loadFromData(" << imageData << ", sizeof(" << imageData << "), " << fixString(fmt) << "); return QPixmap::fromImage(img); }\n";
+        output << option.indent << option.indent << option.indent << 
+                " img = Qt::Image.new\n";
+        output << option.indent << option.indent << option.indent << "img.loadFromData(" << imageData << ", " << 
+                "imageData.length, " << fixString(fmt) << ")\n";
+        output << option.indent << option.indent << option.indent << 
+                "return Qt::Pixmap.fromImage(img)\n";
     }
 }
 

@@ -55,7 +55,7 @@ inline QString fixString(const QString &str)
 			case '\r':
 				break;
 			case '\n':
-				result += QLatin1String("\\n\"\n\""); break;
+				result += QLatin1String("\\n\" \\\n\""); break;
 			default:
 				result += QChar(cbyte);
 			}
@@ -83,6 +83,14 @@ inline QStringList unique(const QStringList &lst)
     for (int i=0; i<lst.size(); ++i)
         h.insert(lst.at(i), true);
     return h.keys();
+}
+
+inline QString toRubyIdentifier(const QString &id)
+{
+	QString result(id);
+	result = result.mid(0, 1).toLower() + result.mid(1);
+    result.prepend("@");
+	return result;
 }
 
 #endif

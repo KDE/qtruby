@@ -1,3 +1,15 @@
+2006-04-10  Richard Dale  <rdale@foton.es>
+
+	* Various fixes to the rbuic tool:
+		* Variable names were not always correct. Now they always start with
+		  a '@' if they are ruby instances variables, and all have an initial
+		  lower case letter.
+		* The various names used in signal/slot connect statements should now
+		  be correct.
+		* Qt::SizePolicy literals were not always correct
+		* The code for embedded icons is now translated into Ruby
+		* Multiline string literals are now terminated with a '\' on each line
+
 2006-04-07  Richard Dale  <rdale@foton.es>
 
 	* Added the dialogs/configdialog example

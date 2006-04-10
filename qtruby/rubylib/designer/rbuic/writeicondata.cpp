@@ -96,10 +96,10 @@ void WriteIconData::acceptImage(DomImage *image)
         int a = 0;
         int column = 0;
         bool inQuote = false;
-        output << option.indent << "static const char* const " << img << "[] = { " << endl;
+        output << option.indent << option.indent << option.indent << img << " = [" << endl;
         while (baunzip[a] != '\"')
             a++;
-        for (; a < (int) length; a++) {
+        for (; a < (int) length - 3; a++) {
             output << baunzip[a];
             if (baunzip[a] == '\n') {
                 column = 0;
@@ -112,9 +112,9 @@ void WriteIconData::acceptImage(DomImage *image)
                 column = 1;
             }
         }
-        output << endl;
+        output << "]" << endl;
     } else {
-        output << option.indent << "static const unsigned char " << img << "[] = { \n";
+        output << option.indent << option.indent << option.indent << img << " = [\n";
         output << option.indent;
         int a ;
         for (a = 0; a < (int) (data.length()/2)-1; a++) {
@@ -125,7 +125,7 @@ void WriteIconData::acceptImage(DomImage *image)
                 output << " ";
         }
         output << "0x" << QString(data[2*a]) << QString(data[2*a+1]) << "\n";
-        output << "};\n\n";
+        output << "]\n\n";
     }
 }
 

@@ -50,6 +50,8 @@ void WriteIconDeclaration::acceptImage(DomImage *image)
         return;
 
     driver->insertPixmap(name);
-    output << option.indent << option.indent << name << "_ID,\n";
+	QString imageId = name;
+	imageId.replace("image", "");
+    output << option.indent << option.indent << name << "_ID = " << imageId << "\n";
 }
 

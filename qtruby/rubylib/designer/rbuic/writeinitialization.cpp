@@ -115,7 +115,7 @@ void WriteInitialization::acceptUI(DomUI *node)
     output << option.indent << "retranslateUi(" << varName << ")\n";
 
     if (node->elementConnections())
-        acceptConnections(node->elementConnections());
+        acceptConnections(node->elementConnections(), varName);
 
     if (option.autoConnection)
         output << "\n" << option.indent << "Qt::MetaObject.connectSlotsByName(" << varName << ")\n";
@@ -295,7 +295,8 @@ void WriteInitialization::acceptWidget(DomWidget *node)
 void WriteInitialization::acceptLayout(DomLayout *node)
 {
     QString className = node->attributeClass();
-    QString varName = QString("@") + driver->findOrInsertLayout(node);
+
+    QString varName = toRubyIdentifier(driver->findOrInsertLayout(node));
 
     QHash<QString, DomProperty*> properties = propertyMap(node->elementProperty());
 
@@ -307,7 +308,7 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 
         if (!m_layoutChain.top() && (uic->customWidgetsInfo()->extends(parentWidget, QLatin1String("Q3GroupBox"))
                         || uic->customWidgetsInfo()->extends(parentWidget, QLatin1String("Q3ButtonGroup")))) {
-            QString parent = QString("@") + driver->findOrInsertWidget(m_widgetChain.top());
+            QString parent = toRubyIdentifier(driver->findOrInsertWidget(m_widgetChain.top()));
 
             isGroupBox = true;
 
@@ -349,6 +350,9 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 
 	QString parentWidget = driver->findOrInsertWidget(m_widgetChain.top());
 	parentWidget = parentWidget.mid(0, 1).toLower() + parentWidget.mid(1);
+	if (m_widgetChain.count() != 2) {
+		parentWidget.prepend("@");
+	}
 
     if (isGroupBox) {
         output << parentWidget << ".layout()";
@@ -409,7 +413,7 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 void WriteInitialization::acceptSpacer(DomSpacer *node)
 {
     QHash<QString, DomProperty *> properties = propertyMap(node->elementProperty());
-    QString varName = QString("@") + driver->findOrInsertSpacer(node);
+    QString varName = toRubyIdentifier(driver->findOrInsertSpacer(node));
 
     DomSize *sizeHint = properties.contains(QLatin1String("sizeHint"))
         ? properties.value(QLatin1String("sizeHint"))->elementSize() : 0;
@@ -429,8 +433,11 @@ void WriteInitialization::acceptSpacer(DomSpacer *node)
     if (sizeHint)
         output << sizeHint->elementWidth() << ", " << sizeHint->elementHeight() << ", ";
 
-    if (sizeType.startsWith(QLatin1String("Qt::SizePolicy::")) == false)
+    if (sizeType.startsWith(QLatin1String("QSizePolicy::"))) {
+        sizeType.replace("QSizePolicy::", "Qt::SizePolicy::");
+	} else {
         sizeType.prepend(QLatin1String("Qt::SizePolicy::"));
+    }
 
     if (isVspacer)
         output << "Qt::SizePolicy::Minimum, " << sizeType << ")\n";
@@ -449,8 +456,9 @@ void WriteInitialization::acceptLayoutItem(DomLayoutItem *node)
     if (!layout)
         return;
 
-    QString varName = QString("@") + driver->findOrInsertLayoutItem(node);
-    QString layoutName = QString("@") + driver->findOrInsertLayout(layout);
+    QString varName = toRubyIdentifier(driver->findOrInsertLayoutItem(node));
+
+    QString layoutName = toRubyIdentifier(driver->findOrInsertLayout(layout));
 
     QString opt;
     if (layout->attributeClass() == QLatin1String("QGridLayout")) {
@@ -489,14 +497,17 @@ void WriteInitialization::acceptLayoutItem(DomLayoutItem *node)
 
 void WriteInitialization::acceptActionGroup(DomActionGroup *node)
 {
-    QString actionName = QString("@") + driver->findOrInsertActionGroup(node);
+    QString actionName = toRubyIdentifier(driver->findOrInsertActionGroup(node));
+
     QString varName = driver->findOrInsertWidget(m_widgetChain.top());
+	varName = varName.mid(0, 1).toLower() + varName.mid(1);
 	if (m_widgetChain.count() > 2) {
 		varName.prepend("@");
 	}
 
-    if (m_actionGroupChain.top())
-        varName = QString("@") + driver->findOrInsertActionGroup(m_actionGroupChain.top());
+    if (m_actionGroupChain.top()) {
+        varName = toRubyIdentifier(driver->findOrInsertActionGroup(m_actionGroupChain.top()));
+   }
 
     output << option.indent << actionName << " = Qt:ActionGroup.new(" << varName << ")\n";
     writeProperties(actionName, QLatin1String("QActionGroup"), node->elementProperty());
@@ -510,15 +521,18 @@ void WriteInitialization::acceptAction(DomAction *node)
 {
     if (node->hasAttributeMenu())
         return;
+    
+    QString actionName = toRubyIdentifier(driver->findOrInsertAction(node));
 
-    QString actionName = QString("@") + driver->findOrInsertAction(node);
     QString varName = driver->findOrInsertWidget(m_widgetChain.top());
+	varName = varName.mid(0, 1).toLower() + varName.mid(1);
 	if (m_widgetChain.count() > 2) {
 		varName.prepend("@");
 	}
 
-    if (m_actionGroupChain.top())
-        varName = QString("@") + driver->findOrInsertActionGroup(m_actionGroupChain.top());
+    if (m_actionGroupChain.top()) {
+        varName = toRubyIdentifier(driver->findOrInsertActionGroup(m_actionGroupChain.top()));
+    }
 
     output << option.indent << actionName << " = Qt::Action.new(" << varName << ")\n";
     writeProperties(actionName, QLatin1String("QAction"), node->elementProperty());
@@ -526,11 +540,13 @@ void WriteInitialization::acceptAction(DomAction *node)
 
 void WriteInitialization::acceptActionRef(DomActionRef *node)
 {
-    QString actionName = QString("@") + node->attributeName();
+    QString actionName = toRubyIdentifier(node->attributeName());
+
     bool isSeparator = actionName == QLatin1String("@separator");
     bool isMenu = false;
 
     QString varName = driver->findOrInsertWidget(m_widgetChain.top());
+	varName = varName.mid(0, 1).toLower() + varName.mid(1);
 	if (m_widgetChain.count() > 2) {
 		varName.prepend("@");
 	}
@@ -661,12 +677,11 @@ void WriteInitialization::writeProperties(const QString &varName,
             propertyValue = p->elementEnum();
             if (!propertyValue.contains(QLatin1String("::")))
                 propertyValue.prepend(className + QLatin1String(QLatin1String("::")));
-			propertyValue = driver->rubyClassName(propertyValue) + QLatin1String(".to_i");
+			propertyValue = driver->rubyClassName(propertyValue);
             break;
         case DomProperty::Set:
             propertyValue = p->elementSet();
-			propertyValue.replace("|", ".to_i|");
-			propertyValue.append(".to_i");
+			propertyValue.replace("|", "|");
             break;
         case DomProperty::Font: {
             DomFont *f = p->elementFont();
@@ -853,7 +868,7 @@ void WriteInitialization::writeColorGroup(DomColorGroup *colorGroup, const QStri
         DomColor *color = colors.at(i);
 
         output << option.indent << paletteName << ".setColor(" << group
-            << ", " << i << ".to_i"
+            << ", " << i 
             << ", " << domColor2QString(color)
             << ")\n";
     }
@@ -875,7 +890,7 @@ void WriteInitialization::acceptTabStops(DomTabStops *tabStops)
 
     QStringList l = tabStops->elementTabStop();
     for (int i=0; i<l.size(); ++i) {
-        QString name = l.at(i);
+        QString name = toRubyIdentifier(l.at(i));
 
         if (!m_registeredWidgets.contains(name)) {
             fprintf(stderr, "'%s' isn't a valid widget\n", name.toLatin1().data());
@@ -927,7 +942,8 @@ void WriteInitialization::acceptLayoutFunction(DomLayoutFunction *node)
 
 void WriteInitialization::initializeQ3ListBox(DomWidget *w)
 {
-    QString varName = QString("@") + driver->findOrInsertWidget(w);
+    QString varName = toRubyIdentifier(driver->findOrInsertWidget(w));
+
     QString className = w->attributeClass();
 
     QList<DomItem*> items = w->elementItem();
@@ -959,7 +975,8 @@ void WriteInitialization::initializeQ3ListBox(DomWidget *w)
 
 void WriteInitialization::initializeQ3IconView(DomWidget *w)
 {
-    QString varName = QString("@") + driver->findOrInsertWidget(w);
+    QString varName = toRubyIdentifier(driver->findOrInsertWidget(w));
+
     QString className = w->attributeClass();
 
     QList<DomItem*> items = w->elementItem();
@@ -994,7 +1011,8 @@ void WriteInitialization::initializeQ3IconView(DomWidget *w)
 
 void WriteInitialization::initializeQ3ListView(DomWidget *w)
 {
-    QString varName = QString("@") + driver->findOrInsertWidget(w);
+    QString varName = toRubyIdentifier(driver->findOrInsertWidget(w));
+
     QString className = w->attributeClass();
 
     // columns
@@ -1102,7 +1120,8 @@ void WriteInitialization::initializeTreeWidgetItems(const QString &className, co
 
 void WriteInitialization::initializeQ3Table(DomWidget *w)
 {
-    QString varName = QString("@") + driver->findOrInsertWidget(w);
+    QString varName = toRubyIdentifier(driver->findOrInsertWidget(w));
+
     QString className = w->attributeClass();
 
     // columns
@@ -1177,7 +1196,8 @@ QString WriteInitialization::pixCall(DomProperty *p) const
 
 void WriteInitialization::initializeComboBox(DomWidget *w)
 {
-    QString varName = QString("@") + driver->findOrInsertWidget(w);
+    QString varName = toRubyIdentifier(driver->findOrInsertWidget(w));
+
     QString className = w->attributeClass();
 
     QList<DomItem*> items = w->elementItem();
@@ -1209,7 +1229,8 @@ void WriteInitialization::initializeComboBox(DomWidget *w)
 
 void WriteInitialization::initializeListWidget(DomWidget *w)
 {
-    QString varName = QString("@") + driver->findOrInsertWidget(w);
+    QString varName = toRubyIdentifier(driver->findOrInsertWidget(w));
+
     QString className = w->attributeClass();
 
     QList<DomItem*> items = w->elementItem();
@@ -1242,7 +1263,8 @@ void WriteInitialization::initializeListWidget(DomWidget *w)
 
 void WriteInitialization::initializeTreeWidget(DomWidget *w)
 {
-    QString varName = QString("@") + driver->findOrInsertWidget(w);
+    QString varName = toRubyIdentifier(driver->findOrInsertWidget(w));
+
     QString className = w->attributeClass();
 
     // columns
@@ -1311,7 +1333,7 @@ void WriteInitialization::initializeSqlDataTable(DomWidget *w)
         return;
     }
 
-    QString varName = QString("@") + driver->findOrInsertWidget(w);
+    QString varName = toRubyIdentifier(driver->findOrInsertWidget(w));
 
     output << option.indent << "if !" << varName << ".sqlCursor().nil?\n";
 
@@ -1351,7 +1373,7 @@ void WriteInitialization::initializeSqlDataBrowser(DomWidget *w)
         return;
     }
 
-    QString varName = QString("@") + driver->findOrInsertWidget(w);
+    QString varName = toRubyIdentifier(driver->findOrInsertWidget(w));
 
     output << option.indent << "if !" << varName << ".sqlCursor().nil?\n";
 
@@ -1368,7 +1390,7 @@ void WriteInitialization::initializeSqlDataBrowser(DomWidget *w)
 
 void WriteInitialization::initializeMenu(DomWidget *w, const QString &/*parentWidget*/)
 {
-    QString menuName = QString("@") + driver->findOrInsertWidget(w);
+    QString menuName = toRubyIdentifier(driver->findOrInsertWidget(w));
     QString menuAction = menuName + QLatin1String("Action");
 
     DomAction *action = driver->actionByName(menuAction);
@@ -1382,18 +1404,30 @@ QString WriteInitialization::trCall(const DomString *str, const QString &classNa
     return trCall(toString(str), className);
 }
 
-void WriteInitialization::acceptConnection(DomConnection *connection)
+void WriteInitialization::acceptConnection(DomConnection *connection, const QString& mainVar)
 {
     if (!m_registeredWidgets.contains(connection->elementSender())
             || !m_registeredWidgets.contains(connection->elementReceiver()))
         return;
 
+    QString sender = connection->elementSender();
+    sender = sender.mid(0, 1).toLower() + sender.mid(1);
+    if (sender != mainVar) {
+		sender = toRubyIdentifier(sender);
+    }
+
+    QString receiver = connection->elementReceiver();
+    receiver = receiver.mid(0, 1).toLower() + receiver.mid(1);
+    if (receiver != mainVar) {
+		receiver = toRubyIdentifier(receiver);
+    }
+
     output << option.indent << "Qt::Object.connect("
-        << connection->elementSender()
+        << sender
         << ", "
         << "SIGNAL('" << connection->elementSignal() << "')"
         << ", "
-        << connection->elementReceiver()
+        << receiver
         << ", "
         << "SLOT('" << connection->elementSlot() << "')"
         << ")\n";

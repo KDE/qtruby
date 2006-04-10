@@ -75,7 +75,7 @@ struct WriteInitialization : public TreeWalker
 //
 // signal/slot connections
 //
-    void acceptConnection(DomConnection *connection);
+    void acceptConnection(DomConnection *connection, const QString& mainVar);
 
 //
 // images
