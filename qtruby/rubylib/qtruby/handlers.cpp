@@ -875,22 +875,24 @@ void marshall_QStringList(Marshall *m) {
 
       case Marshall::ToVALUE: 
 	{
-	    QStringList *stringlist = static_cast<QStringList *>(m->item().s_voidp);
-	    if(!stringlist) {
-		*(m->var()) = Qnil;
-		break;
-	    }
+		QStringList *stringlist = static_cast<QStringList *>(m->item().s_voidp);
+		if (!stringlist) {
+			*(m->var()) = Qnil;
+			break;
+		}
 
-	    VALUE av = rb_ary_new();
-	    for(QStringList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it) {
-		VALUE rv = rstringFromQString(&(*it));
-		rb_ary_push(av, rv);
-	    }
+		VALUE av = rb_ary_new();
+		for (QStringList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it) {
+			VALUE rv = rstringFromQString(&(*it));
+			rb_ary_push(av, rv);
+		}
 
-	    if(m->cleanup())
-		delete stringlist;
+		*(m->var()) = av;
 
-	    *(m->var()) = av;
+		if (m->cleanup()) {
+			delete stringlist;
+		}
+
 	}
 	break;
       default:

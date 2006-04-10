@@ -359,7 +359,7 @@ class EmitSignal : public SigSlotBase {
 				}
 				case Smoke::t_class:
 				case Smoke::t_voidp:
-					p = si->s_voidp;
+					p = &si->s_voidp;
 					break;
 				default:
 					p = 0;
