@@ -201,6 +201,18 @@ module Qt
 		end
 	end
 
+	class AccessibleEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class ActionEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class Application < Qt::Base
 		# Delete the underlying C++ instance after exec returns
 		# Otherwise, rb_gc_call_finalizer_at_exit() can delete
@@ -247,6 +259,18 @@ module Qt
 
 		def split(*args)
 			method_missing(:split, *args)
+		end
+	end
+
+	class ChildEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class CloseEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 	
@@ -303,6 +327,12 @@ module Qt
 			pp.text str.sub(/>$/, " shape=%d>" % shape)
 		end
 	end
+
+	class CustomEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
 	
 	class Date < Qt::Base
 		def inspect
@@ -346,9 +376,18 @@ module Qt
 		end
 	end
 
+	class DragLeaveEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class DropEvent < Qt::Base
 		def format(*args)
 			method_missing(:format, *args)
+		end
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 
@@ -374,7 +413,19 @@ module Qt
 		end
 	end
 
+	class FileOpenEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class FileIconProvider < Qt::Base
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class FocusEvent < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
 		end
@@ -430,6 +481,24 @@ module Qt
 		end
 	end
 
+	class HelpEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class HideEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class HoverEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class Http < Qt::Base
 		def abort(*args)
 			method_missing(:abort, *args)
@@ -439,6 +508,24 @@ module Qt
 	class HttpRequestHeader < Qt::Base
 		def method(*args)
 			method_missing(:method, *args)
+		end
+	end
+
+	class IconDragEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class InputEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class InputMethodEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 
@@ -572,6 +659,18 @@ module Qt
 		end
 	end
 
+	class MouseEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class MoveEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class Movie < Qt::Base
 		def format(*args)
 			method_missing(:format, *args)
@@ -587,6 +686,12 @@ module Qt
 	class PageSetupDialog < Qt::Base
 		def exec(*args)
 			method_missing(:exec, *args)
+		end
+	end
+
+	class PaintEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 
@@ -795,9 +900,27 @@ module Qt
 		end
 	end
 
+	class ResizeEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class Shortcut < Qt::Base
 		def id(*args)
 			method_missing(:id, *args)
+		end
+	end
+
+	class ShortcutEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class ShowEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 	
@@ -890,6 +1013,12 @@ module Qt
 	class SqlTableModel < Qt::Base
 		def select(*k)
 			method_missing(:select, *k)
+		end
+	end
+
+	class StatusTipEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 
@@ -1003,6 +1132,12 @@ module Qt
 		end
 	end
 
+	class TimerEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class Translator < Qt::Base
 		def load(*args)
 			method_missing(:load, *args)
@@ -1010,6 +1145,16 @@ module Qt
 	end
 
 	class TreeWidgetItem < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " parent=%s>" % parent)
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, " parent=%s>" % parent)
+		end
+
 		def clone(*args)
 			method_missing(:clone, *args)
 		end
@@ -1061,9 +1206,21 @@ module Qt
 		end
 	end
 
+	class WhatsThisClickedEvent < Qt::Base
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class Widget < Qt::Base
 		def raise(*args)
 			method_missing(:raise, *args)
+		end
+	end
+
+	class WindowStateChangeEvent < Qt::Base
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 

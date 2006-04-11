@@ -1,3 +1,14 @@
+2006-04-11  Richard Dale  <rdale@foton.es>
+
+	* Added xml/saxbookmarks, xml/dombookmarks and widgets/tooltips examples
+	* Improved garbage collection marking, Children QTreeWidgets and 
+	  QListWidgets are now marked. QObject tree instances are only marked
+	  starting at an instance which has no parent to improved efficiency,
+	  otherwise the same sub trees would be marked several times as a
+	  traversal is started for each node in the heirarchy.
+	* The 'type' method in QEvent subclasses now works correctly.
+	* Added inspect and pretty_print methods to the Qt::WidgetTreeItem class
+
 2006-04-10  Richard Dale  <rdale@foton.es>
 
 	* Added mainwindows/dockwidgets example

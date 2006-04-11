@@ -110,32 +110,47 @@ mark_qobject_children(QObject * qobject)
 }
 
 void
+mark_qtreewidgetitem_children(QTreeWidgetItem * item)
+{
+	VALUE obj;
+	QTreeWidgetItem *child;
+
+	for (int i = 0; i < item->childCount(); i++) {
+		child = item->child(i);
+		obj = getPointerObject(child);
+		if (obj != Qnil) {
+			if(do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", "QTreeWidgetItem", child, (void*)obj);
+			rb_gc_mark(obj);
+		}
+		
+		mark_qtreewidgetitem_children(child);
+	}
+}
+
+void
 smokeruby_mark(void * p)
 {
 	VALUE obj;
     smokeruby_object * o = (smokeruby_object *) p;
     const char *className = o->smoke->classes[o->classId].className;
 	
-	if(do_debug & qtdb_gc) qWarning("Checking for mark (%s*)%p\n", className, o->ptr);
+	if (do_debug & qtdb_gc) qWarning("Checking for mark (%s*)%p\n", className, o->ptr);
 		
-    if(o->ptr && o->allocated) {
-/*
+    if (o->ptr && o->allocated) {
 		if (isDerivedFromByName(o->smoke, className, "QListWidget")) {
 			QListWidget * listwidget = (QListWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QListWidget"));
-			QListViewItemIterator it(listwidget);
-			QListViewItem *item;
-
-			while ( (item = it.current()) != 0 ) {
-				++it;
+			
+			for (int i = 0; i < listwidget->count(); i++) {
+				QListWidgetItem * item = listwidget->item(i);
 				obj = getPointerObject(item);
 				if (obj != Qnil) {
-					if(do_debug & qtdb_gc) printf("Marking (%s*)%p -> %p\n", className, item, (void*)obj);
+					if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", "QListWidgetItem", item, (void*)obj);
 					rb_gc_mark(obj);
 				}
 			}
 			return;
 		}
-*/		
+	
 		if (isDerivedFromByName(o->smoke, className, "QTableWidget")) {
 			QTableWidget * table = (QTableWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTableWidget"));
 			QTableWidgetItem *item;
@@ -153,9 +168,43 @@ smokeruby_mark(void * p)
 			return;		
 		}
 
+		if (isDerivedFromByName(o->smoke, className, "QTreeWidget")) {
+			QTreeWidget * qtreewidget = (QTreeWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTreeWidget"));
+
+			for (int i = 0; i < qtreewidget->topLevelItemCount(); i++) {
+				QTreeWidgetItem * item = qtreewidget->topLevelItem(i);
+				obj = getPointerObject(item);
+				if (obj != Qnil) {
+					if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", "QTreeWidgetItem", item, (void*)obj);
+					rb_gc_mark(obj);
+				}
+				mark_qtreewidgetitem_children(item);
+			}
+			return;
+		}
+
+		if (isDerivedFromByName(o->smoke, className, "QLayout")) {
+			QLayout * qlayout = (QLayout *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayout"));
+			for (int i = 0; i < qlayout->count(); ++i) {
+				QLayoutItem * item = qlayout->itemAt(i);
+				if (item != 0) {
+					obj = getPointerObject(item);
+					if (obj != Qnil) {
+						if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", "QLayoutItem", item, (void*)obj);
+						rb_gc_mark(obj);
+					}
+				}
+			}
+			return;
+		}
+
 		if (isDerivedFromByName(o->smoke, className, "QObject")) {
 			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
-			mark_qobject_children(qobject);
+			// Only mark the QObject tree if the current item doesn't have a parent.
+			// This avoids marking parts of a tree more than once.
+			if (qobject->parent() == 0) {
+				mark_qobject_children(qobject);
+			}
 			return;
 		}
 	}
