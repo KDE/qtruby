@@ -39,7 +39,7 @@
 #include <QtCore/qobject.h>
 #include <QtGui/qwidget.h>
 #include <QtGui/qtabbar.h>
-
+#include <QtCore/qhash.h>
 
 #include "smoke.h"
 
@@ -570,7 +570,7 @@ construct_copy(smokeruby_object *o)
     return args[0].s_voidp;
 }
 
-#include "marshall_basetypes.cpp"
+#include "marshall_basetypes.h"
 
 template <class T>
 static void marshall_it(Marshall *m)
@@ -1807,7 +1807,6 @@ TypeHandler Qt_handlers[] = {
     { 0, 0 }
 };
 
-#include <qhash.h>
 QHash<QString, TypeHandler*> type_handlers;
 
 void install_handlers(TypeHandler *h) {

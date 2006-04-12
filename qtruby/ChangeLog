@@ -1,3 +1,10 @@
+2006-04-12  Richard Dale  <rdale@foton.es>
+
+	* Change source files to headers to make it easier to build the qtruby
+	  extension on Windows and Mac OS X. marshall_basetypes.cpp, marshall_complex.cpp
+	  and marshall_primitives.cpp are now all headers. marshall_types.cpp is now split
+	  into an implementation source file and a header.
+
 2006-04-11  Richard Dale  <rdale@foton.es>
 
 	* Added xml/saxbookmarks, xml/dombookmarks and widgets/tooltips examples

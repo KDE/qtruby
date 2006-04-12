@@ -1,9 +1,10 @@
 INCLUDES = -I$(top_srcdir)/smoke $(all_includes) -I$(RUBY_ARCHDIR)
 
-noinst_HEADERS = qtruby.h marshall.h smokeruby.h extconf.rb 
+noinst_HEADERS = qtruby.h marshall.h smokeruby.h extconf.rb marshall_types.h \
+		marshall_basetypes.h marshall_complex.h marshall_primitives.h
 
 noinst_LTLIBRARIES = libqtrubyinternal.la
-libqtrubyinternal_la_SOURCES = Qt.cpp handlers.cpp
+libqtrubyinternal_la_SOURCES = Qt.cpp handlers.cpp marshall_types.cpp
 libqtrubyinternal_la_METASOURCES = AUTO
 
 rubylibdir = $(RUBY_SITEARCHDIR)

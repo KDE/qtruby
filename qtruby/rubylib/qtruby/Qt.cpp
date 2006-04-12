@@ -68,6 +68,7 @@
 #include "qtruby.h"
 #include "smokeruby.h"
 #include "smoke.h"
+#include "marshall_types.h"
 
 // #define DEBUG
 
@@ -242,9 +243,6 @@ void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *last
 	return;
 }
 
-Marshall::HandlerFn getMarshallFn(const SmokeType &type);
-
-#include "marshall_types.cpp"
 
 class QtRubySmokeBinding : public SmokeBinding {
 public:
