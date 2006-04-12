@@ -1,3 +1,11 @@
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
 
 template <class T> T* smoke_ptr(Marshall *m) { return (T*) m->item().s_voidp; }
 
@@ -30,8 +38,8 @@ static void marshall_to_ruby(Marshall *m)
 	*(m->var()) = primitive_to_ruby<T>( *smoke_ptr<T>(m) ); 
 }
 
-#include "marshall_primitives.cpp"
-#include "marshall_complex.cpp"
+#include "marshall_primitives.h"
+#include "marshall_complex.h"
 
 // Special case marshallers
 
