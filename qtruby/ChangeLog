@@ -1,3 +1,7 @@
+2006-04-17  Richard Dale  <rdale@foton.es>
+
+	* Added the network/ftp, broadcastreceiver and broadcastsender examples
+
 2006-04-12  Richard Dale  <rdale@foton.es>
 
 	* Change source files to headers to make it easier to build the qtruby

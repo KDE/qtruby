@@ -1951,7 +1951,9 @@ class Object
 		end
 	end
 
-	def emit(signal)   ; end
+	def emit(signal)
+		return signal
+	end
 end
 
 class Module
