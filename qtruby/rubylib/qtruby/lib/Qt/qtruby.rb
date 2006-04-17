@@ -227,9 +227,21 @@ module Qt
 		end
 	end
 
+	class ChildEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class ClassInfo < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
+		end
+	end
+
+	class CloseEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 	
@@ -262,6 +274,12 @@ module Qt
 				[memberName.inspect, memberType == 1 ? "SLOT" : "SIGNAL", object.inspect] )
 		end
 	end
+
+	class ContextMenuEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
 	
 	class Cursor < Qt::Base
 		def inspect
@@ -272,6 +290,12 @@ module Qt
 		def pretty_print(pp)
 			str = to_s
 			pp.text str.sub(/>$/, " shape=%d>" % shape)
+		end
+	end
+ 
+	class CustomEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 
@@ -317,9 +341,19 @@ module Qt
 		end
 	end
 
+	class DragLeaveEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class DropEvent < Qt::Base
 		def format(*args)
 			method_missing(:format, *args)
+		end
+
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 
@@ -358,6 +392,12 @@ module Qt
 
 		def open(*args)
 			method_missing(:open, *args)
+		end
+	end
+ 
+	class FocusEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 	
@@ -416,6 +456,12 @@ module Qt
 			method_missing(:name, *args)
 		end
 	end
+ 
+	class HideEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
 
 	class Http < Qt::Base
 		def abort(*args)
@@ -432,6 +478,10 @@ module Qt
 	class IconDrag < Qt::Base
 		def format(*args)
 			method_missing(:format, *args)
+		end
+
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 
@@ -458,10 +508,22 @@ module Qt
 			method_missing(:format, *args)
 		end
 	end
+ 
+	class IMEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
 
 	class JisCodec < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
+		end
+	end
+ 
+	class KeyEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 	
@@ -527,10 +589,28 @@ module Qt
 			method_missing(:type, *args)
 		end
 	end
+ 
+	class MouseEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
 
+	class MoveEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+ 
 	class Object < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
+		end
+	end
+ 
+	class PaintEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 
@@ -610,6 +690,18 @@ module Qt
 		def pretty_print(pp)
 			str = to_s
 			pp.text str.sub(/>$/, "\n left=%d,\n right=%d,\n top=%d,\n bottom=%d>" % [left, right, top, bottom])
+		end
+	end
+
+	class ResizeEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class ShowEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 	
@@ -763,6 +855,12 @@ module Qt
 			method_missing(:format, *args)
 		end
 	end
+
+	class TabletEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
 	
 	class Time < Qt::Base
 		def inspect
@@ -779,6 +877,12 @@ module Qt
 	class TimeEdit < Qt::Base
 		def display
 			method_missing(:display)
+		end
+	end
+ 
+	class TimerEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 
@@ -857,6 +961,12 @@ module Qt
 	class WhatsThis < Qt::Base
 		def WhatsThis.display(*k)
 			method_missing(:display, *k)
+		end
+	end
+
+	class WheelEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 
@@ -1432,6 +1542,9 @@ module Qt
 		
 		def add_signals(signal_list)
 			signal_list.each do |signal|
+				if signal.kind_of? Symbol
+					signal = signal.to_s + "()"
+				end
 				signal = Qt::Object.normalizeSignalSlot(signal)
 				if signal =~ /([^\s]*)\((.*)\)/
 					@signals.push QObjectMember.new($1, signal, $2)
@@ -1457,6 +1570,9 @@ module Qt
 		
 		def add_slots(slot_list)
 			slot_list.each do |slot|
+				if slot.kind_of? Symbol
+					slot = slot.to_s + "()"
+				end
 				slot = Qt::Object.normalizeSignalSlot(slot)
 				if slot =~ /([^\s]*)\((.*)\)/
 					@slots.push QObjectMember.new($1, slot, $2)
@@ -1525,9 +1641,25 @@ class Object
 		end
 	end
 
-	def SIGNAL(string) ; return "2" + string; end
-	def SLOT(string)   ; return "1" + string; end
-	def emit(signal)   ; end
+	def SIGNAL(signal)
+		if signal.kind_of? Symbol
+			return "2" + signal.to_s + "()"
+		else
+			return "2" + signal
+		end
+	end
+
+	def SLOT(slot)
+		if slot.kind_of? Symbol
+			return "1" + slot.to_s + "()"
+		else
+			return "1" + slot
+		end
+	end
+
+	def emit(signal)
+		return signal
+	end
 end
 
 module Kernel

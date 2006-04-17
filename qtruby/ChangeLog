@@ -1,3 +1,9 @@
+2006-04-17  Richard Dale  <rdale@foton.es>
+
+	* Made :foobar a synonym for 'foobar()' for slots and signals
+	* Added some calls for Qt::Event.type methods to force them
+	  to go via method_missing()
+
 2006-03-29  Richard Dale  <rdale@foton.es>
 
 	* Don't special case open() in virtual method callbacks, because all
