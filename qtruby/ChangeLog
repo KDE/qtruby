@@ -2,7 +2,10 @@
 
 	* Added the network/http and loopback examples
 	* Slots with 'qint64' arg types don't yet work
-
+    * Fixed bug where qtruby failed to link on some machines
+	  such as Windows, where the 'char' type defaults to
+	  unsigned, so define them as 'signed char' instead.
+ 
 2006-04-17  Richard Dale  <rdale@foton.es>
 
 	* Added the network/ftp, broadcastreceiver and broadcastsender examples

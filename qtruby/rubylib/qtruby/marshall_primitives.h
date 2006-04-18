@@ -26,13 +26,13 @@ static VALUE primitive_to_ruby<bool>(bool sv)
 }
 
 template <>
-static char ruby_to_primitive<char>(VALUE v)
+static signed char ruby_to_primitive<signed char>(VALUE v)
 {
 	return NUM2CHR(v);
 }
 
 template <>
-static VALUE primitive_to_ruby<char>(char sv)
+static VALUE primitive_to_ruby<signed char>(signed char sv)
 {
 	return CHR2FIX(sv);
 }
