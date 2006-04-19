@@ -161,8 +161,6 @@ class HttpWindow < Qt::Dialog
 	end
 	
 	def readResponseHeader(responseHeader)
-p responseHeader
-p responseHeader.statusCode
 	    if responseHeader.statusCode != 200
 	        Qt::MessageBox.information(self, tr("HTTP"),
 	                                 tr("Download failed: %s." %

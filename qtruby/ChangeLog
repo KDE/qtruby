@@ -1,3 +1,13 @@
+2006-04-19  Richard Dale  <rdale@foton.es>
+
+	* Removed a call to vasprintf() as it didn't compile with mingw
+	  on Windows. Replaced with qvsnprintf() using a statically
+	  allocated buffer.
+	* Fixed bugs in slot/signal marshalling. The qint64 type is now
+	  marshalled correctly.
+	* Added a line to extconf.rb for the libraries needed to link the
+	  QtRuby extension on Window.
+
 2006-04-18  Richard Dale  <rdale@foton.es>
 
 	* Added the network/http and loopback examples

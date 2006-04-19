@@ -448,7 +448,11 @@ EmitSignal::emitSignal()
 			}
 			case Smoke::t_class:
 			case Smoke::t_voidp:
-				p = &si->s_voidp;
+				if (strchr(t.name(), '*') != 0) {
+					p = &si->s_voidp;
+				} else {
+					p = si->s_voidp;
+				}
 				break;
 			default:
 				p = 0;
@@ -578,7 +582,11 @@ InvokeSlot::copyArguments()
 			break;
 			case Smoke::t_class:
 			case Smoke::t_voidp:
-				_stack[i].s_voidp = *(void **)p;
+				if (strchr(t.name(), '*') != 0) {
+					_stack[i].s_voidp = *(void **)p;
+				} else {
+					_stack[i].s_voidp = p;
+				}
 			break;
 			}
 		}

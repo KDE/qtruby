@@ -311,14 +311,13 @@ public:
 
 void rb_str_catf(VALUE self, const char *format, ...) 
 {
+#define CAT_BUFFER_SIZE 2048
+static char p[CAT_BUFFER_SIZE];
 	va_list ap;
 	va_start(ap, format);
-	char *p = 0;
-	int len;
-	if (len = vasprintf(&p, format, ap), len != -1) {
-		rb_str_cat(self, p, len);
-		free(p);
-	}
+    qvsnprintf(p, CAT_BUFFER_SIZE, format, ap);
+	p[CAT_BUFFER_SIZE - 1] = '\0';
+	rb_str_cat2(self, p);
 	va_end(ap);
 }
 
@@ -804,7 +803,7 @@ inspect_qobject(VALUE self)
 	}
 		
 	value_list.append(">");
-	rb_str_cat(inspect_str, value_list.toLatin1(), strlen(value_list.toLatin1()));
+	rb_str_cat2(inspect_str, value_list.toLatin1());
 	
 	return inspect_str;
 }
@@ -1635,6 +1634,7 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 	}
 
 	QMetaMethod method = metaobject->method(id);
+
     VALUE mocArgs = rb_funcall(	qt_internal_module, 
 								rb_intern("getMocArguments"), 
 								1, 
@@ -1822,27 +1822,35 @@ setMocType(VALUE /*self*/, VALUE ptr, VALUE idx_value, VALUE name_value, VALUE s
 	char *static_type = StringValuePtr(static_type_value);
 	MocArgument *arg = 0;
 	Data_Get_Struct(ptr, MocArgument, arg);
+	Smoke::Index typeId = 0;
 
 	if (strcmp(static_type, "ptr") == 0) {
 		arg[idx].argType = xmoc_ptr;
-		if (! name.contains('*')) {
-			name += "*";
+		typeId = qt_Smoke->idType((const char *) name);
+		if (typeId == 0 && !name.contains('*')) {
+			name += "&";
+			typeId = qt_Smoke->idType((const char *) name);
 		}
 	} else if (strcmp(static_type, "bool") == 0) {
 		arg[idx].argType = xmoc_bool;
+		typeId = qt_Smoke->idType((const char *) name);
 	} else if (strcmp(static_type, "int") == 0) {
 		arg[idx].argType = xmoc_int;
+		typeId = qt_Smoke->idType((const char *) name);
 	} else if (strcmp(static_type, "double") == 0) {
 		arg[idx].argType = xmoc_double;
+		typeId = qt_Smoke->idType((const char *) name);
 	} else if (strcmp(static_type, "char*") == 0) {
 		arg[idx].argType = xmoc_charstar;
+		typeId = qt_Smoke->idType((const char *) name);
 	} else if (strcmp(static_type, "QString") == 0) {
 		arg[idx].argType = xmoc_QString;
 		name += "*";
+		typeId = qt_Smoke->idType((const char *) name);
 	}
 
-	Smoke::Index typeId = qt_Smoke->idType((const char *) name);
 	if (typeId == 0) {
+		rb_raise(rb_eArgError, "Cannot handle '%s' as slot argument\n", StringValuePtr(name_value));
 		return Qfalse;
 	}
 
