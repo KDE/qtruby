@@ -215,17 +215,32 @@ static VALUE primitive_to_ruby<int*>(int* sv)
 
 #if defined(Q_OS_WIN32)
 template <>
-static struct _PROCESS_INFORMATION* ruby_to_primitive<struct _PROCESS_INFORMATION*>(VALUE v)
+static WId ruby_to_primitive<WId>(VALUE v)
 {
 	if(v == Qnil)
 		return 0;
 	
-	return NUM2INT(v);
+	return (WId) NUM2ULONG(v);
 }
 
 template <>
-static VALUE primitive_to_ruby<struct _PROCESS_INFORMATION*>(struct _PROCESS_INFORMATION* sv)
+static VALUE primitive_to_ruby<WId>(WId sv)
 {
-	return INT2NUM(sv);
+	return ULONG2NUM((unsigned long) sv);
+}
+
+template <>
+static Q_PID ruby_to_primitive<Q_PID>(VALUE v)
+{
+	if(v == Qnil)
+		return 0;
+	
+	return (Q_PID) NUM2ULONG(v);
+}
+
+template <>
+static VALUE primitive_to_ruby<Q_PID>(Q_PID sv)
+{
+	return ULONG2NUM((unsigned long) sv);
 }
 #endif
