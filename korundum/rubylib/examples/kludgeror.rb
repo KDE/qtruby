@@ -12,11 +12,11 @@ opt =     [ [ "+[url]",      "An URL to open at startup.",         ""           
             [ "boz <file>",  "Same as above with default value",   "default.txt" ],
           ]            
 
-Qt::Internal::setDebug Qt::QtDebugChannel::QTDB_ALL
-Qt.debug_level = Qt::DebugLevel::High
+#Qt::Internal::setDebug Qt::QtDebugChannel::QTDB_ALL
+# Qt.debug_level = Qt::DebugLevel::High
 
 about = KDE::AboutData.new("kludgeror", "Kludgeror", "0.1", "A basic web browser")
-KDE::CmdLineArgs::init(ARGV.length + 1, [$0] + ARGV, about)
+KDE::CmdLineArgs::init(ARGV, about)
 KDE::CmdLineArgs::addCmdLineOptions opt
 args = KDE::CmdLineArgs::parsedArgs
 
@@ -35,7 +35,6 @@ class PartHolder < Qt::Object
     end
 
     def openURL url
-        puts "in openURL #{url}"
         @part.openURL url
         # BUG - a non existant slot emit says horrible things, nothing interesting for user.. very confusing
         # BUG - signal emitting is *very* wrong
@@ -111,11 +110,11 @@ toplevel.guiFactory.addClient doc
 
 locBar = toplevel.toolBar("locationBar");
 locBar.insertButton "back", BACK_B, SIGNAL("clicked()"), 
-                    ph, SLOT("back()"), 1, "Go back"
-locBar.insertLined url.url, LOC_ED, SIGNAL("returnPressed(const QString&)"), ph, SLOT("goToURL(const QString&)"), 1, "Location"
+                    ph, SLOT("back()"), true, "Go back"
+locBar.insertLined url.url, LOC_ED, SIGNAL("returnPressed(const QString&)"), ph, SLOT("goToURL(const QString&)"), true, "Location"
 locBar.insertButton "locationbar_erase", ERASE_B, SIGNAL("clicked()"), 
-                    locBar.getLined(LOC_ED), SLOT("clear()"), 1, "Erase the location bar's content", 2
-locBar.setItemAutoSized LOC_ED, 1
+                    locBar.getLined(LOC_ED), SLOT("clear()"), true, "Erase the location bar's content", 2
+locBar.setItemAutoSized LOC_ED, true
 locBar.getLined(LOC_ED).createPopupMenu
 comp = locBar.getLined(LOC_ED).completionObject
 comp.setCompletionMode KDE::GlobalSettings::CompletionPopupAuto
