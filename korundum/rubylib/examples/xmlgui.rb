@@ -4,7 +4,8 @@ require 'Korundum'
 require 'tempfile'
 
 about = KDE::AboutData.new("one", "two", "three")
-KDE::CmdLineArgs.init(1, ["RubberDoc"], about)
+#KDE::CmdLineArgs.init(about)
+KDE::CmdLineArgs.init(ARGV, about)
 app = KDE::Application.new()
 
 class Receiver < Qt::Object
