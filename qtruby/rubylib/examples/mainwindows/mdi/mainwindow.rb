@@ -78,7 +78,7 @@ class MainWindow < Qt::MainWindow
 	
 	def open()
 	    fileName = Qt::FileDialog.getOpenFileName(self)
-	    if !fileName.empty?
+	    if !fileName.nil?
 	        existing = findMdiChild(fileName)
 	        if !existing.nil?
 	            @workspace.activeWindow = existing

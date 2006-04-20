@@ -1433,7 +1433,7 @@ module Qt
 			if argtype == 'i'
 				if typename =~ /^int&?$|^signed int&?$|^signed$|^qint32&?$/
 					return 1
-				elsif typename =~ /^(?:short|ushort|unsigned short int|uchar|uint|long|ulong|unsigned long int|unsigned|float|double)$/
+				elsif typename =~ /^(?:short|ushort|unsigned short int|uchar|uint|long|ulong|unsigned long int|unsigned|float|double|WId|Q_PID)$/
 					return 0
 				elsif typename =~ /^(quint|qint|qulong|qlong|qreal)/
 					return 0

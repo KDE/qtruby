@@ -32,7 +32,7 @@
 //#include "writeincludes.h"
 #include "writedeclaration.h"
 
-#include <qdom.h>
+#include <QtXml/qdom.h>
 #include <qfileinfo.h>
 #include <qregexp.h>
 #include <qtextstream.h>

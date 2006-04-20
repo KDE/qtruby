@@ -22,6 +22,7 @@
 #include <QtCore/qlinkedlist.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qtextcodec.h>
+#include <QtCore/qprocess.h>
 #include <QtNetwork/qhostaddress.h>
 #include <QtCore/qpair.h>
 #include <QtGui/qevent.h>
@@ -1711,6 +1712,8 @@ DEF_VALUELIST_MARSHALLER( QRectVector, QVector<QRect>, QRect )
 DEF_VALUELIST_MARSHALLER( QRectFVector, QVector<QRectF>, QRectF )
 
 TypeHandler Qt_handlers[] = {
+    { "WId", marshall_it<WId> },
+    { "Q_PID", marshall_it<Q_PID> },
     { "QString", marshall_QString },
     { "QString&", marshall_QString },
     { "QString*", marshall_QString },

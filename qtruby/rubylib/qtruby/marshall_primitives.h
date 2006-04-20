@@ -212,3 +212,20 @@ static VALUE primitive_to_ruby<int*>(int* sv)
 	
 	return primitive_to_ruby<int>(*sv);
 }
+
+#if defined(Q_OS_WIN32)
+template <>
+static struct _PROCESS_INFORMATION* ruby_to_primitive<struct _PROCESS_INFORMATION*>(VALUE v)
+{
+	if(v == Qnil)
+		return 0;
+	
+	return NUM2INT(v);
+}
+
+template <>
+static VALUE primitive_to_ruby<struct _PROCESS_INFORMATION*>(struct _PROCESS_INFORMATION* sv)
+{
+	return INT2NUM(sv);
+}
+#endif
