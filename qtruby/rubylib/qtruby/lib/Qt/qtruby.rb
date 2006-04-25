@@ -1400,6 +1400,8 @@ module Qt
 		def Internal.normalize_classname(classname)
 			if classname =~ /^Qext/
 				now = classname.sub(/^Qext(?=[A-Z])/,'Qext::')
+			elsif classname =~ /^Qwt/
+				now = classname.sub(/^Qwt(?=[A-Z])/,'Qwt::')
 			elsif classname =~ /^Q/
 				now = classname.sub(/^Q(?=[A-Z])/,'Qt::')
 			elsif classname =~ /^(KConfigSkeleton|KWin)::/
@@ -1415,6 +1417,7 @@ module Qt
 
 		def Internal.init_class(c)
 			classname = Qt::Internal::normalize_classname(c)
+p classname
 			classId = Qt::Internal.idClass(c)
 			insert_pclassid(classname, classId)
 			@@idclass[classId] = classname
