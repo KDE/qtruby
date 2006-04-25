@@ -1,3 +1,8 @@
+2006-04-25  Richard Dale  <rdale@foton.es>
+
+	* Added a namespace of Qwt:: for use with widgets from the Qwt
+	  3D plotting library
+
 2006-04-20  Richard Dale  <rdale@foton.es>
 
 	* Added marshalling for WId and Q_PID types which will work

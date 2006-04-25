@@ -97,6 +97,7 @@ QHash<int, QString> classname;
 extern "C" {
 VALUE qt_module = Qnil;
 VALUE qext_scintilla_module = Qnil;
+VALUE qwt_module = Qnil;
 VALUE kde_module = Qnil;
 VALUE kparts_module = Qnil;
 VALUE kio_module = Qnil;
@@ -2488,6 +2489,12 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 		}
 		klass = rb_define_class_under(qext_scintilla_module, package+strlen("Qext::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
+	} else if (packageName.startsWith("Qwt::")) {
+		if (qwt_module == Qnil) {
+			qwt_module = rb_define_module("Qwt");
+		}
+		klass = rb_define_class_under(qwt_module, package+strlen("Qwt::"), qt_base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
 	} else {
 		klass = kde_package_to_class(package);
 	}
@@ -2518,6 +2525,11 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 			qext_scintilla_module = rb_define_module("Qext");
 		}
     	klass = rb_define_class_under(qext_scintilla_module, package+strlen("Qext::"), qt_base_class);
+	} else if (packageName.startsWith("Qwt::")) {
+		if (qwt_module == Qnil) {
+			qwt_module = rb_define_module("Qwt");
+		}
+    	klass = rb_define_class_under(qwt_module, package+strlen("Qwt::"), qt_base_class);
 	} else {
 		klass = kde_package_to_class(package);
 	}
