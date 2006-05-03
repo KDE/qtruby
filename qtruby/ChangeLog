@@ -1,3 +1,12 @@
+2006-05-03  Richard Dale  <rdale@foton.es>
+
+	* The qt_emit() and qt_invoke() methods are overriden by the QtRuby
+	  runtime. When they are called the runtime looks for a Ruby slot or
+	  signal matching the call, and invokes it if found. If a Ruby version
+	  wasn't found for a signal however, the qt_invoke() method was being
+	  called in the Smoke library instead of qt_emit(). This occasionally
+	  caused a crash in code using KDE::HTMLPart.
+
 2006-04-17  Richard Dale  <rdale@foton.es>
 
 	* Made :foobar a synonym for 'foobar()' for slots and signals

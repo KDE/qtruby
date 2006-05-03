@@ -1729,8 +1729,8 @@ qt_invoke(int /*argc*/, VALUE * argv, VALUE self)
     bool isSignal = strcmp(rb_id2name(rb_frame_last_func()), "qt_emit") == 0;
     VALUE mocArgs = getslotinfo(self, id, slotname, index, isSignal);
     if(mocArgs == Qnil) {
-		// No ruby slot found, assume the target is a C++ one
-		Smoke::Index nameId = o->smoke->idMethodName("qt_invoke$?");
+		// No ruby slot/signal found, assume the target is a C++ one
+		Smoke::Index nameId = o->smoke->idMethodName(isSignal ? "qt_emit$?" : "qt_invoke$?");
 		Smoke::Index meth = o->smoke->findMethod(o->classId, nameId);
 		if(meth > 0) {
 			Smoke::Method &m = o->smoke->methods[o->smoke->methodMaps[meth].method];
