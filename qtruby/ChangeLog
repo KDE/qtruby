@@ -1,3 +1,8 @@
+2006-05-04  Richard Dale  <rdale@foton.es>
+
+	* A spurious warning was be output when Qt::ContextMenuEvent.type
+	  was called. Fixes problem reported by Alessio Caiazza
+
 2006-04-25  Richard Dale  <rdale@foton.es>
 
 	* Added a namespace of Qwt:: for use with widgets from the Qwt

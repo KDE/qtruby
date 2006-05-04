@@ -304,6 +304,12 @@ module Qt
 		end
 	end
 
+	class ContextMenuEvent < Qt::Base
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class CoreApplication < Qt::Base
 		def exec
 			method_missing(:exec)
