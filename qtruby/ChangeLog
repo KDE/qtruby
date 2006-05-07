@@ -1,3 +1,8 @@
+2006-05-07  Richard Dale  <rdale@foton.es>
+
+	* An an type of Q_UINT16 wasn't working with QtRuby. Fixes problem
+	  reported by maelclerambault.
+
 2006-05-03  Richard Dale  <rdale@foton.es>
 
 	* The qt_emit() and qt_invoke() methods are overriden by the QtRuby
