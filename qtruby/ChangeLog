@@ -1,3 +1,9 @@
+2006-05-07  Richard Dale  <rdale@foton.es>
+
+	* Added a Qt3:: module for the Q3* support classes
+	* The rbuic now correctly gives Q3* classes a Qt3::
+	  module prefix.
+
 2006-05-04  Richard Dale  <rdale@foton.es>
 
 	* A spurious warning was be output when Qt::ContextMenuEvent.type

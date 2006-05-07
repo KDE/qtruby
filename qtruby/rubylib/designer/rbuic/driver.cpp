@@ -138,11 +138,13 @@ QString Driver::rubyClassName(const QString &name)
 {
     QString qname = name;
 
-    if (qname.startsWith("Q") && !qname.startsWith("Qt::"))
+    if (qname.startsWith("Q3") && !qname.startsWith("Qt3::")) {
+        qname = QString("Qt3::") + qname.mid(2);
+    } else if (qname.startsWith("Q") && !qname.startsWith("Qt::")) {
         qname = QString("Qt::") + qname.mid(1);
-
-    if (qname.startsWith("K") && !qname.startsWith("KDE::"))
+    } else if (qname.startsWith("K") && !qname.startsWith("KDE::")) {
         qname = QString("KDE::") + qname.mid(1);
+    }
 
     return qname;
 }
@@ -150,6 +152,9 @@ QString Driver::rubyClassName(const QString &name)
 QString Driver::qtify(const QString &name)
 {
     QString qname = name;
+
+    if (qname.startsWith("Qt3::"))
+        qname = qname.mid(strlen("Qt3::"));
 
     if (qname.startsWith("Qt::"))
         qname = qname.mid(strlen("Qt::"));

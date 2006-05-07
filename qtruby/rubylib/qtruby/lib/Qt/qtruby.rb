@@ -1408,6 +1408,8 @@ module Qt
 				now = classname.sub(/^Qext(?=[A-Z])/,'Qext::')
 			elsif classname =~ /^Qwt/
 				now = classname.sub(/^Qwt(?=[A-Z])/,'Qwt::')
+			elsif classname =~ /^Q3/
+				now = classname.sub(/^Q3(?=[A-Z])/,'Qt3::')
 			elsif classname =~ /^Q/
 				now = classname.sub(/^Q(?=[A-Z])/,'Qt::')
 			elsif classname =~ /^(KConfigSkeleton|KWin)::/
