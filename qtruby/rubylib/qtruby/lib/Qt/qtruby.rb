@@ -923,6 +923,16 @@ module Qt
 	end
 
 	class Variant < Qt::Base
+		def initialize(*args)
+			# In C++ the boolean constructor needs an ugly dummy int argument,
+			# so special case that here to avoid needing it in Ruby
+			if args[0] == true || args[0] == false
+				super(args[0], 0)
+			else
+				super
+			end
+		end
+
 		def to_a
 			return toStringList()
 		end
@@ -937,6 +947,77 @@ module Qt
 
 		def to_int
 			return toInt()
+		end
+
+		def to_ruby
+			case type()
+			when Qt::Variant::Bitmap
+				return toBitmap
+			when Qt::Variant::Bool
+				return toBool
+			when Qt::Variant::Brush
+				return toBrush
+			when Qt::Variant::ByteArray
+				return toByteArray
+			when Qt::Variant::Color
+				return toColor
+			when Qt::Variant::ColorGroup
+				return toColorGroup
+			when Qt::Variant::CString
+				return toCString
+			when Qt::Variant::Cursor
+				return toCursor
+			when Qt::Variant::Date
+				return toDate
+			when Qt::Variant::DateTime
+				return toDateTime
+			when Qt::Variant::Double
+				return toDouble
+			when Qt::Variant::Font
+				return toFont
+			when Qt::Variant::IconSet
+				return toIconSet
+			when Qt::Variant::Image
+				return toImage
+			when Qt::Variant::Int
+				return toInt
+			when Qt::Variant::KeySequence
+				return toKeySequence
+			when Qt::Variant::List
+				return toList
+			when Qt::Variant::LongLong
+				return toLongLong
+			when Qt::Variant::Map
+				return toMap
+			when Qt::Variant::Palette
+				return toPalette
+			when Qt::Variant::Pen
+				return toPen
+			when Qt::Variant::Pixmap
+				return toPixmap
+			when Qt::Variant::Point
+				return toPoint
+			when Qt::Variant::PointArray
+				return toPointArray
+			when Qt::Variant::Rect
+				return toRect
+			when Qt::Variant::Region
+				return toRegion
+			when Qt::Variant::Size
+				return toSize
+			when Qt::Variant::SizePolicy
+				return toSizePolicy
+			when Qt::Variant::String
+				return toString
+			when Qt::Variant::StringList
+				return toStringList
+			when Qt::Variant::Time
+				return toTime
+			when Qt::Variant::UInt
+				return toUint
+			when Qt::Variant::ULongLong
+				return toULongLong
+			end
 		end
 
 		def inspect
