@@ -206,6 +206,7 @@ smokeruby_mark(void * p)
 			if (qobject->parent() == 0) {
 				mark_qobject_children(qobject);
 			}
+
 			return;
 		}
 	}
@@ -1767,6 +1768,7 @@ TypeHandler Qt_handlers[] = {
     { "QList<QModelIndex>", marshall_QModelIndexList },
     { "QList<QModelIndex>&", marshall_QModelIndexList },
     { "QModelIndexList&", marshall_QModelIndexList },
+    { "QModelIndexList", marshall_QModelIndexList },
     { "QList<QImageTextKeyLang>", marshall_QImageTextKeyLangList },
     { "QList<QUrl>", marshall_QUrlList },
     { "QList<QUrl>&", marshall_QUrlList },

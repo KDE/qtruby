@@ -1,3 +1,8 @@
+2006-05-15  Richard Dale  <rdale@foton.es>
+
+	* Added an entry for a missing marshaller for QModelIndexLists.
+	  Thanks to Daniel Morris for the bug report and fix.
+
 2006-05-07  Richard Dale  <rdale@foton.es>
 
 	* Added a Qt3:: module for the Q3* support classes
