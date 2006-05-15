@@ -1,6 +1,12 @@
+2006-05-15  Richard Dale  <rdale@foton.es>
+
+	* Removed the customized version of Kernel.exec, Kernel.open etc
+	  as they aren't needed anymore.
+
 2006-05-14  Richard Dale  <rdale@foton.es>
+
 	* When an unknown C++ class is found, a corresponding Ruby class is now
-	  is now created. For instance, if a KPresenter KPart is loaded, a 
+	  created. For instance, if a KPresenter KPart is loaded, a 
 	  KDE::PresenterDoc class is created.
 	* It is now possible to set and get properties without needing to use
 	  Qt::Object.property() and Qt::Object.setProperty(). For instance:
@@ -9,6 +15,7 @@
 		@kpresenter = factory.create(self)
 		p @kpresenter.presentationDuration
 		@kpresenter.presentationDuration = true
+
 	* A Qt::Variant.to_ruby method has been added which returns a Ruby value
 	  corresponding to the current value of a Qt::Variant
 	* A boolean Qt::Variant can now be constructed with a Qt::Variant.new(true)

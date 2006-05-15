@@ -924,7 +924,7 @@ module Qt
 
 	class Variant < Qt::Base
 		def initialize(*args)
-			# In C++ the boolean constructor needs an ugly dummy int argument,
+			# In C++, the boolean constructor needs an ugly dummy int argument,
 			# so special case that here to avoid needing it in Ruby
 			if args[0] == true || args[0] == false
 				super(args[0], 0)
@@ -1707,21 +1707,6 @@ module Qt
 end # Qt
 
 class Object
-	# The Object.type() method conflicts with type() methods in Qt,
-	# so remove it, and other methods with similar problems
-	alias_method :_type, :type
-	undef_method :type
-
-	alias_method :_id, :id
-
-	def id(*k)
-		if k.length == 0
-			_id
-		else
-			method_missing(:id, *k)
-		end
-	end
-
 	def SIGNAL(signal)
 		if signal.kind_of? Symbol
 			return "2" + signal.to_s + "()"
@@ -1740,44 +1725,6 @@ class Object
 
 	def emit(signal)
 		return signal
-	end
-end
-
-module Kernel
-	# Kernel has a method called open() which takes a String as
-	# the first argument. When a call is made to an open() method
-	# in the Qt classes, it messes up the method_missing()
-	# logic to divert it to the Smoke library. This code
-	# fixes that problem by calling the appropriate method based
-	# on the type of the first arg.
-	alias_method :_open, :open
-	
-	def open(*k)
-		if k.length > 0 and k[0].kind_of? String
-			_open(*k)
-		else
-			method_missing(:open, *k)
-		end
-	end
-
-	alias_method :_format, :format
-
-	def format(*k)
-		if k.length > 0 and k[0].kind_of? String
-			_format(*k)
-		else
-			method_missing(:format, *k)
-		end
-	end
-
-	alias_method :_exec, :exec
-
-	def exec(*k)
-		if k.length > 0 and k[0].kind_of? String
-			_exec(*k)
-		else
-			method_missing(:exec, *k)
-		end
 	end
 end
 
