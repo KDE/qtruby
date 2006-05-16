@@ -915,15 +915,18 @@ module KDE
 			method_missing(:id, *args)
 		end
 	end
-	
+
 	class UniqueApplication
 		def initialize(*k)
 			super
 			$kapp = self
 		end
 		
+		# Delete the underlying C++ instance after exec returns
+		# Otherwise, rb_gc_call_finalizer_at_exit() can delete
+		# stuff that KDE::Application still needs for its cleanup.
 		def exec
-			super
+			method_missing(:exec)
 			self.dispose
 			Qt::Internal.application_terminated = true
 		end
