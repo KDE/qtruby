@@ -107,13 +107,14 @@ VALUE dom_module = Qnil;
 VALUE kontact_module = Qnil;
 VALUE kate_module = Qnil;
 VALUE ktexteditor_module = Qnil;
+VALUE koffice_module = Qnil;
 VALUE qt_internal_module = Qnil;
 VALUE qt_base_class = Qnil;
-VALUE qt_qmetaobject_class = Qnil;
-VALUE qt_qtextlayout_class = Qnil;
-VALUE qt_qvariant_class = Qnil;
-VALUE qt_list_model_class = Qnil;
-VALUE qt_table_model_class = Qnil;
+VALUE qmetaobject_class = Qnil;
+VALUE qvariant_class = Qnil;
+VALUE qtextlayout_class = Qnil;
+VALUE qlistmodel_class = Qnil;
+VALUE qtablemodel_class = Qnil;
 VALUE kconfigskeleton_class = Qnil;
 VALUE kconfigskeleton_itemenum_class = Qnil;
 VALUE kconfigskeleton_itemenum_choice_class = Qnil;
@@ -350,6 +351,9 @@ qwarning(VALUE klass, VALUE msg)
 
 //---------- All functions except fully qualified statics & enums ---------
 
+static VALUE qobject_metaobject(VALUE self);
+static VALUE kde_package_to_class(const char * package, VALUE base_class);
+
 VALUE
 set_obj_info(const char * className, smokeruby_object * o)
 {
@@ -358,29 +362,52 @@ set_obj_info(const char * className, smokeruby_object * o)
 			     1,
 			     rb_str_new2(className) );
 
-	// The konsolePart class is in kdebase, and so it can't be in the Smoke library.
-	// This hack instantiates a Ruby KDE::KonsolePart instance
-	// Similarly, QTableModel and QListModel are private classes, and not in the
-	// Qt headers
-	if (strcmp(className, "KParts::ReadOnlyPart") == 0) {
-		QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
-		const QMetaObject * meta = qobject->metaObject();
-		if (strcmp(meta->className(), "konsolePart") == 0) {
-			klass = konsole_part_class;
-		}
-	} else if (strcmp(className, "Qt::AbstractTableModel") == 0) {
-		QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
-		const QMetaObject * meta = qobject->metaObject();
-		if (strcmp(meta->className(), "QTableModel") == 0) {
-			klass = qt_table_model_class;
-		} else if (strcmp(meta->className(), "QListModel") == 0) {
-			klass = qt_list_model_class;
-		}
-	}
-
 	Smoke::Index *r = classcache.value(className);
 	if (r != 0) {
 		o->classId = (int)*r;
+	}
+	// If the instance is a subclass of QObject, then check to see if the
+	// className from its QMetaObject is in the Smoke library. If not then
+	// create a Ruby class for it dynamically. Remove the first letter from 
+	// any class names beginning with 'Q' or 'K' and put them under the Qt:: 
+	// or KDE:: modules respectively.
+	if (isDerivedFrom(o->smoke, o->classId, o->smoke->idClass("QObject"))) {
+		QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+		const QMetaObject * meta = qobject->metaObject();
+		int classId = o->smoke->idClass(meta->className());
+		// The class isn't in the Smoke lib..
+		if (classId == 0) {
+			VALUE new_klass = Qnil;
+			QString className(meta->className());
+
+			// The konsolePart class is in kdebase, and so it can't be in the Smoke library.
+			// This hack instantiates a Ruby KDE::KonsolePart instance
+			if (className == "konsolePart") {
+				new_klass = konsole_part_class;
+			} else if (className == "QTableModel") {
+				new_klass = qtablemodel_class;
+			} else if (className == "QListModel") {
+				new_klass = qlistmodel_class;
+			} else if (className.startsWith("Q")) {
+				className.replace("Q", "");
+				className = className.mid(0, 1).toUpper() + className.mid(1);
+    			new_klass = rb_define_class_under(qt_module, className.toLatin1(), klass);
+			} else if (kde_module == Qnil) {
+    			new_klass = rb_define_class(className.toLatin1(), klass);
+			} else {
+				new_klass = kde_package_to_class(className.toLatin1(), klass);
+			}
+
+			if (new_klass != Qnil) {
+				klass = new_klass;
+			}
+
+			// Add a Qt::Object.metaObject method which will do dynamic despatch on the
+			// metaObject() virtual method so that the true QMetaObject of the class 
+			// is returned, rather than for the one for the parent class that is in
+			// the Smoke library.
+			rb_define_method(klass, "metaObject", (VALUE (*) (...)) qobject_metaobject, 0);
+		}
 	}
 
     VALUE obj = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, (void *) o);
@@ -548,7 +575,7 @@ qvariant_from_value(VALUE /*self*/, VALUE obj)
 	} else {
 		// Assume the Qt::Variant can be created with a
 		// Qt::Variant.new(obj) call
-		return rb_funcall(qt_qvariant_class, rb_intern("new"), 1, obj);
+		return rb_funcall(qvariant_class, rb_intern("new"), 1, obj);
 	}
 
 	smokeruby_object  * vo = ALLOC(smokeruby_object);
@@ -1203,6 +1230,26 @@ metaObject(VALUE self)
     return metaObject;
 }
 
+static VALUE
+qobject_metaobject(VALUE self)
+{
+	smokeruby_object * o = value_obj_info(self);
+	QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+	QMetaObject * meta = (QMetaObject *) qobject->metaObject();
+	VALUE obj = getPointerObject(meta);
+	if (obj != Qnil) {
+		return obj;
+	}
+
+	smokeruby_object  * m = (smokeruby_object *) malloc(sizeof(smokeruby_object));
+	m->smoke = o->smoke;
+	m->classId = m->smoke->idClass("QMetaObject");
+	m->ptr = meta;
+	m->allocated = false;
+	obj = set_obj_info("Qt::MetaObject", m);
+	return obj;
+}
+
 static QByteArray
 find_cached_selector(int argc, VALUE * argv, VALUE klass, char * methodName)
 {
@@ -1241,9 +1288,8 @@ method_missing(int argc, VALUE * argv, VALUE self)
     VALUE klass = rb_funcall(self, rb_intern("class"), 0);
 
 	// Look for 'thing?' methods, and try to match isThing() or hasThing() in the Smoke runtime
-	QRegExp px("^.*[?]$");
 	QString pred(rb_id2name(SYM2ID(argv[0])));
-	if (px.indexIn(pred) != -1) {
+	if (pred.endsWith("?")) {
 		smokeruby_object *o = value_obj_info(self);
 		if(!o || !o->ptr) {
 			return rb_call_super(argc, argv);
@@ -1293,6 +1339,38 @@ method_missing(int argc, VALUE * argv, VALUE self)
 
 				if (_current_method == -1) {
 					free(temp_stack);
+
+					// Check for property getter/setter calls
+					smokeruby_object *o = value_obj_info(self);
+					if (	o != 0 
+							&& o->ptr != 0 
+							&& isDerivedFrom(o->smoke, o->classId, o->smoke->idClass("QObject")) )
+					{
+						QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+						QString prop(rb_id2name(SYM2ID(argv[0])));
+						const QMetaObject * meta = qobject->metaObject();
+						if (argc == 1) {
+							if (prop.endsWith("?")) {
+								prop.replace(0, 1, pred.at(0).toUpper());
+								prop.replace(0, 0, QString("is"));
+								if (meta->indexOfProperty(prop.toLatin1()) == -1) {
+									prop.replace(0, 2, QString("has"));
+								}
+							}
+
+							if (meta->indexOfProperty(prop.toLatin1()) != -1) {
+								VALUE qvariant = rb_funcall(self, rb_intern("property"), 1, rb_str_new2(prop.toLatin1()));
+								return rb_funcall(qvariant, rb_intern("to_ruby"), 0);
+							}
+						} else if (argc == 2 && prop.endsWith("=")) {
+							prop.replace("=", "");
+							if (meta->indexOfProperty(prop.toLatin1()) != -1) {
+								VALUE qvariant = rb_funcall(self, rb_intern("qVariantFromValue"), 1, argv[1]);
+								return rb_funcall(self, rb_intern("setProperty"), 2, rb_str_new2(prop.toLatin1()), qvariant);
+							}
+						}
+					}
+
 					return rb_call_super(argc, argv);
 				}
 			}
@@ -2019,7 +2097,7 @@ make_metaObject(VALUE /*self*/, VALUE obj, VALUE stringdata_value, VALUE data_va
     m->ptr = meta;
     m->allocated = true;
 
-    return Data_Wrap_Struct(qt_qmetaobject_class, smokeruby_mark, smokeruby_free, m);
+    return Data_Wrap_Struct(qmetaobject_class, smokeruby_mark, smokeruby_free, m);
 }
 
 static VALUE
@@ -2389,53 +2467,72 @@ getClassList(VALUE /*self*/)
 }
 
 static VALUE
-kde_package_to_class(const char * package)
+kde_package_to_class(const char * package, VALUE base_class)
 {
 	VALUE klass = Qnil;
 	QString packageName(package);
-	
+	QRegExp scope_op("^([^:]+)::([^:]+)$");
+
 	if (packageName.startsWith("KDE::ConfigSkeleton::ItemEnum::")) {
-		klass = rb_define_class_under(kconfigskeleton_itemenum_class, package+strlen("KDE::ConfigSkeleton::EnumItem::"), qt_base_class);
+		klass = rb_define_class_under(kconfigskeleton_itemenum_class, package+strlen("KDE::ConfigSkeleton::EnumItem::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 		kconfigskeleton_itemenum_choice_class = klass;
 	} else if (packageName.startsWith("KDE::ConfigSkeleton::")) {
-		klass = rb_define_class_under(kconfigskeleton_class, package+strlen("KDE::ConfigSkeleton::"), qt_base_class);
+		klass = rb_define_class_under(kconfigskeleton_class, package+strlen("KDE::ConfigSkeleton::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 		rb_define_method(klass, "immutable?", (VALUE (*) (...)) _kconfigskeletonitem_immutable, 0);
 		rb_define_method(klass, "isImmutable", (VALUE (*) (...)) _kconfigskeletonitem_immutable, 0);
 	} else if (packageName.startsWith("KDE::Win::")) {
-		klass = rb_define_class_under(kwin_class, package+strlen("KDE::Win::"), qt_base_class);
+		klass = rb_define_class_under(kwin_class, package+strlen("KDE::Win::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (packageName.startsWith("KDE::")) {
-		klass = rb_define_class_under(kde_module, package+strlen("KDE::"), qt_base_class);
+		klass = rb_define_class_under(kde_module, package+strlen("KDE::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (packageName.startsWith("KParts::")) {
-		klass = rb_define_class_under(kparts_module, package+strlen("KParts::"), qt_base_class);
+		klass = rb_define_class_under(kparts_module, package+strlen("KParts::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 		if (packageName == "KParts::ReadOnlyPart") {
 			konsole_part_class = rb_define_class_under(kde_module, "KonsolePart", klass);
 		}
 	} else if (packageName.startsWith("KNS::")) {
-		klass = rb_define_class_under(kns_module, package+strlen("KNS::"), qt_base_class);
+		klass = rb_define_class_under(kns_module, package+strlen("KNS::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (packageName.startsWith("KIO::")) {
-		klass = rb_define_class_under(kio_module, package+strlen("KIO::"), qt_base_class);
+		klass = rb_define_class_under(kio_module, package+strlen("KIO::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 		if (packageName == "KIO::UDSAtom") {
 			kio_udsatom_class = klass;
 		}
 	} else if (packageName.startsWith("DOM::")) {
-		klass = rb_define_class_under(dom_module, package+strlen("DOM::"), qt_base_class);
+		klass = rb_define_class_under(dom_module, package+strlen("DOM::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (packageName.startsWith("Kontact::")) {
-		klass = rb_define_class_under(kontact_module, package+strlen("Kontact::"), qt_base_class);
+		klass = rb_define_class_under(kontact_module, package+strlen("Kontact::"), base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (packageName.startsWith("Ko")) {
+		klass = rb_define_class_under(koffice_module, package+strlen("Ko"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (packageName.startsWith("Kate::")) {
-		klass = rb_define_class_under(kate_module, package+strlen("Kate::"), qt_base_class);
+		klass = rb_define_class_under(kate_module, package+strlen("Kate::"), base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (packageName.startsWith("Kate")) {
+		klass = rb_define_class_under(kate_module, package+strlen("Kate"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (packageName.startsWith("KTextEditor::")) {
-		klass = rb_define_class_under(ktexteditor_module, package+strlen("KTextEditor::"), qt_base_class);
+		klass = rb_define_class_under(ktexteditor_module, package+strlen("KTextEditor::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (scope_op.indexIn(packageName) != 1) {
+		// If an unrecognised classname of the form 'XXXXXX::YYYYYY' is found,
+		// then create a module XXXXXX to put the class YYYYYY under
+		VALUE module = rb_define_module(scope_op.cap(1).toLatin1());
+		klass = rb_define_class_under(module, scope_op.cap(2).toLatin1(), base_class);
+	} else if (	packageName.startsWith("K") 
+				&& packageName.mid(1, 1).contains(QRegExp("[A-Z]")) == 1 ) 
+	{
+		klass = rb_define_class_under(kde_module, package+strlen("K"), base_class);
+	} else {
+		packageName = packageName.mid(0, 1).toUpper() + packageName.mid(1);
+		klass = rb_define_class_under(kde_module, packageName.toLatin1(), base_class);
 	}
 	
 	return klass;
@@ -2456,27 +2553,27 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 			rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qapplication, -1);
 			rb_define_method(klass, "ARGV", (VALUE (*) (...)) qapplication_argv, 0);
 		} else if (packageName == "Qt::AbstractTableModel") {
-			qt_table_model_class = rb_define_class_under(qt_module, "TableModel", klass);
-			rb_define_method(qt_table_model_class, "rowCount", (VALUE (*) (...)) qabstract_item_model_rowcount, -1);
-			rb_define_method(qt_table_model_class, "columnCount", (VALUE (*) (...)) qabstract_item_model_columncount, -1);
-			rb_define_method(qt_table_model_class, "data", (VALUE (*) (...)) qabstract_item_model_data, -1);
-			rb_define_method(qt_table_model_class, "setData", (VALUE (*) (...)) qabstract_item_model_setdata, -1);
-			rb_define_method(qt_table_model_class, "flags", (VALUE (*) (...)) qabstract_item_model_flags, 1);
-			rb_define_method(qt_table_model_class, "insertRows", (VALUE (*) (...)) qabstract_item_model_insertrows, -1);
-			rb_define_method(qt_table_model_class, "insertColumns", (VALUE (*) (...)) qabstract_item_model_insertcolumns, -1);
-			rb_define_method(qt_table_model_class, "removeRows", (VALUE (*) (...)) qabstract_item_model_removerows, -1);
-			rb_define_method(qt_table_model_class, "removeColumns", (VALUE (*) (...)) qabstract_item_model_removecolumns, -1);
+			qtablemodel_class = rb_define_class_under(qt_module, "TableModel", klass);
+			rb_define_method(qtablemodel_class, "rowCount", (VALUE (*) (...)) qabstract_item_model_rowcount, -1);
+			rb_define_method(qtablemodel_class, "columnCount", (VALUE (*) (...)) qabstract_item_model_columncount, -1);
+			rb_define_method(qtablemodel_class, "data", (VALUE (*) (...)) qabstract_item_model_data, -1);
+			rb_define_method(qtablemodel_class, "setData", (VALUE (*) (...)) qabstract_item_model_setdata, -1);
+			rb_define_method(qtablemodel_class, "flags", (VALUE (*) (...)) qabstract_item_model_flags, 1);
+			rb_define_method(qtablemodel_class, "insertRows", (VALUE (*) (...)) qabstract_item_model_insertrows, -1);
+			rb_define_method(qtablemodel_class, "insertColumns", (VALUE (*) (...)) qabstract_item_model_insertcolumns, -1);
+			rb_define_method(qtablemodel_class, "removeRows", (VALUE (*) (...)) qabstract_item_model_removerows, -1);
+			rb_define_method(qtablemodel_class, "removeColumns", (VALUE (*) (...)) qabstract_item_model_removecolumns, -1);
 			
-			qt_list_model_class = rb_define_class_under(qt_module, "TableModel", klass);
-			rb_define_method(qt_list_model_class, "rowCount", (VALUE (*) (...)) qabstract_item_model_rowcount, -1);
-			rb_define_method(qt_list_model_class, "columnCount", (VALUE (*) (...)) qabstract_item_model_columncount, -1);
-			rb_define_method(qt_list_model_class, "data", (VALUE (*) (...)) qabstract_item_model_data, -1);
-			rb_define_method(qt_list_model_class, "setData", (VALUE (*) (...)) qabstract_item_model_setdata, -1);
-			rb_define_method(qt_list_model_class, "flags", (VALUE (*) (...)) qabstract_item_model_flags, 1);
-			rb_define_method(qt_list_model_class, "insertRows", (VALUE (*) (...)) qabstract_item_model_insertrows, -1);
-			rb_define_method(qt_list_model_class, "insertColumns", (VALUE (*) (...)) qabstract_item_model_insertcolumns, -1);
-			rb_define_method(qt_list_model_class, "removeRows", (VALUE (*) (...)) qabstract_item_model_removerows, -1);
-			rb_define_method(qt_list_model_class, "removeColumns", (VALUE (*) (...)) qabstract_item_model_removecolumns, -1);
+			qlistmodel_class = rb_define_class_under(qt_module, "TableModel", klass);
+			rb_define_method(qlistmodel_class, "rowCount", (VALUE (*) (...)) qabstract_item_model_rowcount, -1);
+			rb_define_method(qlistmodel_class, "columnCount", (VALUE (*) (...)) qabstract_item_model_columncount, -1);
+			rb_define_method(qlistmodel_class, "data", (VALUE (*) (...)) qabstract_item_model_data, -1);
+			rb_define_method(qlistmodel_class, "setData", (VALUE (*) (...)) qabstract_item_model_setdata, -1);
+			rb_define_method(qlistmodel_class, "flags", (VALUE (*) (...)) qabstract_item_model_flags, 1);
+			rb_define_method(qlistmodel_class, "insertRows", (VALUE (*) (...)) qabstract_item_model_insertrows, -1);
+			rb_define_method(qlistmodel_class, "insertColumns", (VALUE (*) (...)) qabstract_item_model_insertcolumns, -1);
+			rb_define_method(qlistmodel_class, "removeRows", (VALUE (*) (...)) qabstract_item_model_removerows, -1);
+			rb_define_method(qlistmodel_class, "removeColumns", (VALUE (*) (...)) qabstract_item_model_removecolumns, -1);
 		} else {
 			rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
 		}
@@ -2503,7 +2600,7 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 		klass = rb_define_class_under(qt3_module, package+strlen("Qt3::"), qt_base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
 	} else {
-		klass = kde_package_to_class(package);
+		klass = kde_package_to_class(package, qt_base_class);
 	}
 
 	rb_define_method(klass, "inspect", (VALUE (*) (...)) inspect_qobject, 0);
@@ -2524,7 +2621,7 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 	QString packageName(package);
 	
 	if (packageName.startsWith("Qt::TextLayout::")) {
-		klass = rb_define_class_under(qt_qtextlayout_class, package+strlen("Qt::TextLayout::"), qt_base_class);
+		klass = rb_define_class_under(qtextlayout_class, package+strlen("Qt::TextLayout::"), qt_base_class);
 	} else if (packageName.startsWith("Qt::")) {
 		klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
 	} else if (packageName.startsWith("Qext::")) {
@@ -2543,15 +2640,15 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 		}
     	klass = rb_define_class_under(qt3_module, package+strlen("Qt3::"), qt_base_class);
 	} else {
-		klass = kde_package_to_class(package);
+		klass = kde_package_to_class(package, qt_base_class);
 	}
 
 	if (packageName == "Qt::MetaObject") {
-		qt_qmetaobject_class = klass;
+		qmetaobject_class = klass;
 	} else if (packageName == "Qt::TextLayout") {
-		qt_qtextlayout_class = klass;
+		qtextlayout_class = klass;
 	} else if (packageName == "Qt::Variant") {
-		qt_qvariant_class = klass;
+		qvariant_class = klass;
 	} else if (packageName == "Qt::Char") {
 		rb_define_method(klass, "to_s", (VALUE (*) (...)) qchar_to_s, 0);
 	} else if (packageName == "Qt::Painter") {
@@ -2620,6 +2717,10 @@ set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE))
 	kate_module = rb_define_module("Kate");
     rb_define_singleton_method(kate_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
     rb_define_singleton_method(kate_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	koffice_module = rb_define_module("Ko");
+	rb_define_singleton_method(koffice_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(koffice_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 }
 
 void

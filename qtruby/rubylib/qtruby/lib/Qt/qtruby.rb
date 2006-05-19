@@ -778,8 +778,23 @@ module Qt
 			end
 		end
 
-		# Add two methods, 'slotNames()' and 'signalNames()' from
-		# Qt3, as they are very useful when debugging
+		# Add three methods, 'propertyNames()', 'slotNames()' and 'signalNames()'
+		# from Qt3, as they are very useful when debugging
+
+		def propertyNames(inherits = false)
+			res = []
+			if inherits
+				(0...propertyCount()).each do |p| 
+					res.push property(p).name
+				end
+			else
+				(propertyOffset()...propertyCount()).each do |p| 
+					res.push property(p).name
+				end
+			end
+			return res
+		end
+
 		def slotNames(inherits = false)
 			res = []
 			if inherits
@@ -1191,6 +1206,95 @@ module Qt
 
 		def to_int
 			return toInt()
+		end
+
+		def to_ruby
+			case type()
+			when Qt::Variant::Bitmap
+			when Qt::Variant::Bool
+				return toBool
+			when Qt::Variant::Brush
+				return qVariantValue(Qt::Brush, self)
+			when Qt::Variant::ByteArray
+				return toByteArray
+			when Qt::Variant::Char
+				return qVariantValue(Qt::Char, self)
+			when Qt::Variant::Color
+				return qVariantValue(Qt::Color, self)
+			when Qt::Variant::Cursor
+				return qVariantValue(Qt::Cursor, self)
+			when Qt::Variant::Date
+				return toDate
+			when Qt::Variant::DateTime
+				return toDateTime
+			when Qt::Variant::Double
+				return toDouble
+			when Qt::Variant::Font
+				return qVariantValue(Qt::Font, self)
+			when Qt::Variant::Icon
+				return qVariantValue(Qt::Icon, self)
+			when Qt::Variant::Image
+				return qVariantValue(Qt::Image, self)
+			when Qt::Variant::Int
+				return toInt
+			when Qt::Variant::KeySequence
+				return qVariantValue(Qt::KeySequence, self)
+			when Qt::Variant::Line
+				return toLine
+			when Qt::Variant::LineF
+				return toLineF
+			when Qt::Variant::List
+				return toList
+			when Qt::Variant::Locale
+				return qVariantValue(Qt::Locale, self)
+			when Qt::Variant::LongLong
+				return toLongLong
+			when Qt::Variant::Map
+				return toMap
+			when Qt::Variant::Palette
+				return qVariantValue(Qt::Palette, self)
+			when Qt::Variant::Pen
+				return qVariantValue(Qt::Pen, self)
+			when Qt::Variant::Pixmap
+				return qVariantValue(Qt::Pixmap, self)
+			when Qt::Variant::Point
+				return toPoint
+			when Qt::Variant::PointArray
+			when Qt::Variant::PointF
+				return toPointF
+			when Qt::Variant::Polygon
+				return qVariantValue(Qt::Polygon, self)
+			when Qt::Variant::Rect
+				return toRect
+			when Qt::Variant::RectF
+				return toRectF
+			when Qt::Variant::RegExp
+				return toRegExp
+			when Qt::Variant::Region
+				return qVariantValue(Qt::Region, self)
+			when Qt::Variant::Size
+				return toSize
+			when Qt::Variant::SizeF
+				return toSizeF
+			when Qt::Variant::SizePolicy
+				return toSizePolicy
+			when Qt::Variant::String
+				return toString
+			when Qt::Variant::StringList
+				return toStringList
+			when Qt::Variant::TextFormat
+				return qVariantValue(Qt::TextFormat, self)
+			when Qt::Variant::TextLength
+				return qVariantValue(Qt::TextLength, self)
+			when Qt::Variant::Time
+				return toTime
+			when Qt::Variant::UInt
+				return toUint
+			when Qt::Variant::ULongLong
+				return toULongLong
+			when Qt::Variant::UrL
+				return toUrl
+			end
 		end
 
 		def inspect
