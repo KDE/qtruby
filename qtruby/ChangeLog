@@ -1,3 +1,21 @@
+2006-05-19  Richard Dale  <rdale@foton.es>
+
+	* When an unknown C++ class is found, a corresponding Ruby class is now
+	  created. For instance, if a KPresenter KPart is loaded, a 
+	  KDE::PresenterDoc class is created.
+	* It is now possible to set and get properties without needing to use
+	  Qt::Object.property() and Qt::Object.setProperty(). For instance:
+
+		factory = KDE::LibLoader.self().factory("libkpresenterpart")
+		@kpresenter = factory.create(self)
+		p @kpresenter.presentationDuration
+		@kpresenter.presentationDuration = true
+
+	* A Qt::Variant.to_ruby method has been added which returns a Ruby value
+	  corresponding to the current value of a Qt::Variant
+	* Added a Qt::MetaObject.propertyNames method to return a list of property
+	  names
+
 2006-05-15  Richard Dale  <rdale@foton.es>
 
 	* Added an entry for a missing marshaller for QModelIndexLists.
