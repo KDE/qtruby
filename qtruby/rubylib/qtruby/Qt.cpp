@@ -2619,7 +2619,7 @@ kde_package_to_class(const char * package, VALUE base_class)
 	} else if (packageName.startsWith("KTextEditor::")) {
 		klass = rb_define_class_under(ktexteditor_module, package+strlen("KTextEditor::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
-	} else if (scope_op.search(packageName) != 1) {
+	} else if (scope_op.search(packageName) != -1) {
 		// If an unrecognised classname of the form 'XXXXXX::YYYYYY' is found,
 		// then create a module XXXXXX to put the class YYYYYY under
 		VALUE module = rb_define_module(scope_op.cap(1).latin1());

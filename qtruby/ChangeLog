@@ -1,3 +1,11 @@
+2006-05-20  Richard Dale  <rdale@foton.es>
+
+	* Fix regression for dynamic class creation via QMetaObject info causing
+	  a crash.
+	* A list of properties is now returned via Qt::MetaObject.propertyNames
+	  for a Qt::Object with properties for the inspect and pretty_print 
+	  methods.
+
 2006-05-15  Richard Dale  <rdale@foton.es>
 
 	* Removed the customized version of Kernel.exec, Kernel.open etc

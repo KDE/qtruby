@@ -661,6 +661,7 @@ module Qt
 			str = super
 			str.sub!(/>$/, "")
 			str << " className=%s," % className
+			str << " propertyNames=Array (%d element(s))," % numProperties unless numProperties == 0
 			str << " signalNames=Array (%d element(s))," % numSignals unless numSignals == 0
 			str << " slotNames=Array (%d element(s))," % numSlots unless numSlots == 0
 			str << " superClass=%s," % superClass.inspect unless superClass == nil
@@ -672,6 +673,7 @@ module Qt
 			str = to_s
 			str.sub!(/>$/, "")
 			str << "\n className=%s," % className
+			str << "\n propertyNames=Array (%d element(s))," % numProperties unless numProperties == 0
 			str << "\n signalNames=Array (%d element(s))," % numSignals unless numSignals == 0
 			str << "\n slotNames=Array (%d element(s))," % numSlots unless numSlots == 0
 			str << "\n superClass=%s," % superClass.inspect unless superClass == nil
