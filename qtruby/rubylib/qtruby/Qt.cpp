@@ -43,6 +43,7 @@
 #include <QtGui/qpen.h>			
 #include <QtGui/qtextformat.h>			
 #include <QtCore/qabstractitemmodel.h>			
+#include <QtGui/qitemselectionmodel.h>
 
 #undef DEBUG
 #ifndef __USE_POSIX
@@ -1221,6 +1222,28 @@ qmodelindex_internalpointer(VALUE self)
     smokeruby_object *o = value_obj_info(self);
 	QModelIndex * index = (QModelIndex *) o->ptr;
 	return (VALUE) index->internalPointer();
+}
+
+static VALUE
+qitemselection_at(VALUE self, VALUE i)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QItemSelection * item = (QItemSelection *) o->ptr;
+	QItemSelectionRange range = item->at(NUM2INT(i));
+	smokeruby_object  * result = (smokeruby_object *) malloc(sizeof(smokeruby_object));
+	result->smoke = o->smoke;
+	result->classId = o->smoke->idClass("QItemSelectionRange");
+	result->ptr = new QItemSelectionRange(range);
+	result->allocated = true;
+	return set_obj_info("Qt::ItemSelectionRange", result);
+}
+
+static VALUE
+qitemselection_count(VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QItemSelection * item = (QItemSelection *) o->ptr;
+	return INT2NUM(item->count());
 }
 
 static VALUE
@@ -2521,7 +2544,7 @@ kde_package_to_class(const char * package, VALUE base_class)
 	} else if (packageName.startsWith("KTextEditor::")) {
 		klass = rb_define_class_under(ktexteditor_module, package+strlen("KTextEditor::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
-	} else if (scope_op.indexIn(packageName) != 1) {
+	} else if (scope_op.indexIn(packageName) != -1) {
 		// If an unrecognised classname of the form 'XXXXXX::YYYYYY' is found,
 		// then create a module XXXXXX to put the class YYYYYY under
 		VALUE module = rb_define_module(scope_op.cap(1).toLatin1());
@@ -2651,6 +2674,11 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 		qvariant_class = klass;
 	} else if (packageName == "Qt::Char") {
 		rb_define_method(klass, "to_s", (VALUE (*) (...)) qchar_to_s, 0);
+	} else if (packageName == "Qt::ItemSelection") {
+		rb_define_method(klass, "[]", (VALUE (*) (...)) qitemselection_at, 1);
+		rb_define_method(klass, "at", (VALUE (*) (...)) qitemselection_at, 1);
+		rb_define_method(klass, "count", (VALUE (*) (...)) qitemselection_count, 0);
+		rb_define_method(klass, "length", (VALUE (*) (...)) qitemselection_count, 0);
 	} else if (packageName == "Qt::Painter") {
 		rb_define_method(klass, "drawLines", (VALUE (*) (...)) qpainter_drawlines, -1);
 		rb_define_method(klass, "drawRects", (VALUE (*) (...)) qpainter_drawrects, -1);

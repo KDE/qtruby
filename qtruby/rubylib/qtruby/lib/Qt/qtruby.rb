@@ -639,9 +639,101 @@ module Qt
 		end
 	end
 
+	class MetaMethod < Qt::Base
+		# Oops, name clash with the Signal module so hard code
+		# this value rather than get it from the Smoke runtime
+		Signal = 1
+	end
+
 	class MetaObject < Qt::Base
+		alias_method :_method, :method
+
 		def method(*args)
 			method_missing(:method, *args)
+		end
+
+		# Add three methods, 'propertyNames()', 'slotNames()' and 'signalNames()'
+		# from Qt3, as they are very useful when debugging
+
+		def propertyNames(inherits = false)
+			res = []
+			if inherits
+				(0...propertyCount()).each do |p| 
+					res.push property(p).name
+				end
+			else
+				(propertyOffset()...propertyCount()).each do |p| 
+					res.push property(p).name
+				end
+			end
+			return res
+		end
+
+		def slotNames(inherits = false)
+			res = []
+			if inherits
+				(0...methodCount()).each do |m| 
+					if method(m).methodType == Qt::MetaMethod::Slot 
+						res.push method(m).signature
+					end
+				end
+			else
+				(methodOffset()...methodCount()).each do |m| 
+					if method(m).methodType == Qt::MetaMethod::Slot 
+						res.push method(m).signature
+					end
+				end
+			end
+			return res
+		end
+
+		def signalNames(inherits = false)
+			res = []
+			if inherits
+				(0...methodCount()).each do |m| 
+					if method(m).methodType == Qt::MetaMethod::Signal 
+						res.push method(m).signature
+					end
+				end
+			else
+				(methodOffset()...methodCount()).each do |m| 
+					if method(m).methodType == Qt::MetaMethod::Signal 
+						res.push method(m).signature
+					end
+				end
+			end
+			return res
+		end
+
+		def inspect
+			str = super
+			str.sub!(/>$/, "")
+			str << " className=%s," % className
+			str << " propertyNames=Array (%d element(s))," % propertyNames.length unless propertyNames.length == 0
+			str << " signalNames=Array (%d element(s))," % signalNames.length unless signalNames.length == 0
+			str << " slotNames=Array (%d element(s))," % slotNames.length unless slotNames.length == 0
+			str << " superClass=%s," % superClass.inspect unless superClass == nil
+			str.chop!
+			str << ">"
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			str.sub!(/>$/, "")
+			str << "\n className=%s," % className
+			str << "\n propertyNames=Array (%d element(s))," % propertyNames.length unless propertyNames.length == 0
+			str << "\n signalNames=Array (%d element(s))," % signalNames.length unless signalNames.length == 0
+			str << "\n slotNames=Array (%d element(s))," % slotNames.length unless slotNames.length == 0
+			str << "\n superClass=%s," % superClass.inspect unless superClass == nil
+			str << "\n methodCount=%d," % methodCount
+			str << "\n methodOffset=%d," % methodOffset
+			str << "\n propertyCount=%d," % propertyCount
+			str << "\n propertyOffset=%d," % propertyOffset
+			str << "\n enumeratorCount=%d," % enumeratorCount
+			str << "\n enumeratorOffset=%d," % enumeratorOffset
+			str.chop!
+			str << ">"
+			pp.text str
 		end
 	end
 
@@ -758,106 +850,6 @@ module Qt
 	class Printer < Qt::Base
 		def abort(*args)
 			method_missing(:abort, *args)
-		end
-	end
-
-	class MetaMethod < Qt::Base
-		# Oops, name clash with the Signal module so hard code
-		# this value rather than get it from the Smoke runtime
-		Signal = 1
-	end
-
-	class MetaObject < Qt::Base
-		alias_method :_method, :method
-
-		def method(arg)
-			if arg.kind_of? Symbol
-				_method(arg)
-			else
-				method_missing(:method, arg)
-			end
-		end
-
-		# Add three methods, 'propertyNames()', 'slotNames()' and 'signalNames()'
-		# from Qt3, as they are very useful when debugging
-
-		def propertyNames(inherits = false)
-			res = []
-			if inherits
-				(0...propertyCount()).each do |p| 
-					res.push property(p).name
-				end
-			else
-				(propertyOffset()...propertyCount()).each do |p| 
-					res.push property(p).name
-				end
-			end
-			return res
-		end
-
-		def slotNames(inherits = false)
-			res = []
-			if inherits
-				(0...methodCount()).each do |m| 
-					if method(m).methodType == Qt::MetaMethod::Slot 
-						res.push method(m).signature
-					end
-				end
-			else
-				(methodOffset()...methodCount()).each do |m| 
-					if method(m).methodType == Qt::MetaMethod::Slot 
-						res.push method(m).signature
-					end
-				end
-			end
-			return res
-		end
-
-		def signalNames(inherits = false)
-			res = []
-			if inherits
-				(0...methodCount()).each do |m| 
-					if method(m).methodType == Qt::MetaMethod::Signal 
-						res.push method(m).signature
-					end
-				end
-			else
-				(methodOffset()...methodCount()).each do |m| 
-					if method(m).methodType == Qt::MetaMethod::Signal 
-						res.push method(m).signature
-					end
-				end
-			end
-			return res
-		end
-
-		def inspect
-			str = super
-			str.sub!(/>$/, "")
-			str << " className=%s," % className
-			str << " signalNames=Array (%d element(s))," % signalNames.length unless signalNames.length == 0
-			str << " slotNames=Array (%d element(s))," % slotNames.length unless slotNames.length == 0
-			str << " superClass=%s," % superClass.inspect unless superClass == nil
-			str.chop!
-			str << ">"
-		end
-		
-		def pretty_print(pp)
-			str = to_s
-			str.sub!(/>$/, "")
-			str << "\n className=%s," % className
-			str << "\n signalNames=Array (%d element(s))," % signalNames.length unless signalNames.length == 0
-			str << "\n slotNames=Array (%d element(s))," % slotNames.length unless slotNames.length == 0
-			str << "\n superClass=%s," % superClass.inspect unless superClass == nil
-			str << "\n methodCount=%d," % methodCount
-			str << "\n methodOffset=%d," % methodOffset
-			str << "\n propertyCount=%d," % propertyCount
-			str << "\n propertyOffset=%d," % propertyOffset
-			str << "\n enumeratorCount=%d," % enumeratorCount
-			str << "\n enumeratorOffset=%d," % enumeratorOffset
-			str.chop!
-			str << ">"
-			pp.text str
 		end
 	end
 

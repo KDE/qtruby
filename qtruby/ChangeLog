@@ -1,3 +1,13 @@
+2006-05-22  Richard Dale  <rdale@foton.es>
+
+	* Fix regression for dynamic class creation via QMetaObject info causing
+	  a crash.
+	* A list of properties is now returned via Qt::MetaObject.propertyNames
+	  for a Qt::Object with properties for the inspect and pretty_print 
+	  methods.
+	* Fixed a pile of errors in the itemviews/chart example
+	* Added Qt::ItemSelection.at, [], count and length methods
+
 2006-05-19  Richard Dale  <rdale@foton.es>
 
 	* When an unknown C++ class is found, a corresponding Ruby class is now
