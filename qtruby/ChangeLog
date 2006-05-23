@@ -1,3 +1,20 @@
+2006-05-23  Richard Dale  <rdale@foton.es>
+
+	* With code like the following, the QtRuby runtime was choosing
+	  an operator method which took a QByteArray and a QString and
+	  returned a QString. So the 'block' became a Ruby String, rather
+	  than staying as a Qt::ByteArray:
+
+        block = Qt::ByteArray.new
+    
+        if comment
+            block += "/*\n"
+            block += "    " + header + "\n"
+
+	  So the operator '+' for Qt::ByteArray is special cased to return
+	  a Qt::ByteArray.
+	* The example dialogs/simplewizard now works correctly
+
 2006-05-22  Richard Dale  <rdale@foton.es>
 
 	* Fix regression for dynamic class creation via QMetaObject info causing

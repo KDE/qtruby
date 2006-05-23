@@ -68,7 +68,7 @@ class ClassWizard < SimpleWizard
         header = @thirdPage.headerLineEdit.text
         implementation = @thirdPage.implementationLineEdit.text
     
-        block = ""
+        block = Qt::ByteArray.new
     
         if comment
             block += "/*\n"
@@ -128,9 +128,10 @@ class ClassWizard < SimpleWizard
                                     [   headerFile.fileName(), headerFile.errorString()] ) )
             return
         end
+
         headerFile.write(block)
     
-        block = ""
+        block = Qt::ByteArray.new
     
         if comment
             block += "/*\n"

@@ -1101,6 +1101,18 @@ qabstract_item_model_removecolumns(int argc, VALUE * argv, VALUE self)
 	rb_raise(rb_eArgError, "Invalid argument list");
 }
 
+// There is a QByteArray operator method in the Smoke lib that takes a QString
+// arg and returns a QString. This is normally the desired behaviour, so
+// special case a '+' method here.
+static VALUE
+qbytearray_append(VALUE self, VALUE str)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QByteArray * bytes = (QByteArray *) o->ptr;
+	(*bytes) += (const char *) StringValuePtr(str);
+	return self;
+}
+
 // The QtRuby runtime's overloaded method resolution mechanism can't currently
 // distinguish between Ruby Arrays containing different sort of instances.
 // Unfortunately Qt::Painter.drawLines() and Qt::Painter.drawRects() methods can
@@ -2672,6 +2684,8 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 		qtextlayout_class = klass;
 	} else if (packageName == "Qt::Variant") {
 		qvariant_class = klass;
+	} else if (packageName == "Qt::ByteArray") {
+		rb_define_method(klass, "+", (VALUE (*) (...)) qbytearray_append, 1);
 	} else if (packageName == "Qt::Char") {
 		rb_define_method(klass, "to_s", (VALUE (*) (...)) qchar_to_s, 0);
 	} else if (packageName == "Qt::ItemSelection") {
