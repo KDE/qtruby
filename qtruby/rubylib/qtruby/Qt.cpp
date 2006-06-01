@@ -45,6 +45,9 @@
 #include <QtCore/qabstractitemmodel.h>			
 #include <QtGui/qitemselectionmodel.h>
 
+extern bool qRegisterResourceData(int, const unsigned char *, const unsigned char *, const unsigned char *);
+extern bool qUnregisterResourceData(int, const unsigned char *, const unsigned char *, const unsigned char *);
+
 #undef DEBUG
 #ifndef __USE_POSIX
 #define __USE_POSIX
@@ -930,6 +933,36 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	rb_funcall(pp, rb_intern("text"), 1, rb_str_new2(">"));
 	
 	return self;
+}
+
+static VALUE
+q_register_resource_data(VALUE /*self*/, VALUE version, VALUE tree_value, VALUE name_value, VALUE data_value)
+{
+	const unsigned char * tree = (const unsigned char *) malloc(RSTRING(tree_value)->len);
+	memcpy((void *) tree, (const void *) RSTRING(tree_value)->ptr, RSTRING(tree_value)->len);
+
+	const unsigned char * name = (const unsigned char *) malloc(RSTRING(name_value)->len);
+	memcpy((void *) name, (const void *) RSTRING(name_value)->ptr, RSTRING(name_value)->len);
+
+	const unsigned char * data = (const unsigned char *) malloc(RSTRING(data_value)->len);
+	memcpy((void *) data, (const void *) RSTRING(data_value)->ptr, RSTRING(data_value)->len);
+
+	return qRegisterResourceData(NUM2INT(version), tree, name, data) ? Qtrue : Qfalse;
+}
+
+static VALUE
+q_unregister_resource_data(VALUE /*self*/, VALUE version, VALUE tree_value, VALUE name_value, VALUE data_value)
+{
+	const unsigned char * tree = (const unsigned char *) malloc(RSTRING(tree_value)->len);
+	memcpy((void *) tree, (const void *) RSTRING(tree_value)->ptr, RSTRING(tree_value)->len);
+
+	const unsigned char * name = (const unsigned char *) malloc(RSTRING(name_value)->len);
+	memcpy((void *) name, (const void *) RSTRING(name_value)->ptr, RSTRING(name_value)->len);
+
+	const unsigned char * data = (const unsigned char *) malloc(RSTRING(data_value)->len);
+	memcpy((void *) data, (const void *) RSTRING(data_value)->ptr, RSTRING(data_value)->len);
+
+	return qUnregisterResourceData(NUM2INT(version), tree, name, data) ? Qtrue : Qfalse;
 }
 
 static VALUE
@@ -2860,6 +2893,9 @@ Init_qtruby()
     
 	rb_define_module_function(qt_module, "version", (VALUE (*) (...)) version, 0);
     rb_define_module_function(qt_module, "qtruby_version", (VALUE (*) (...)) qtruby_version, 0);
+
+    rb_define_module_function(qt_module, "qRegisterResourceData", (VALUE (*) (...)) q_register_resource_data, 4);
+    rb_define_module_function(qt_module, "qUnregisterResourceData", (VALUE (*) (...)) q_unregister_resource_data, 4);
 
 	rb_require("Qt/qtruby.rb");
 

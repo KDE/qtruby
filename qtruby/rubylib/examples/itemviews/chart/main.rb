@@ -24,6 +24,7 @@
 =end
 
 require 'Qt'
+require 'qrc_chart.rb'
 require 'mainwindow.rb'
 
 app = Qt::Application.new(ARGV)

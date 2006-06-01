@@ -50,7 +50,7 @@ class MainWindow < Qt::MainWindow
 	    menuBar().addMenu(fileMenu)
 	    statusBar()
 	
-	    openFile("qtdata.cht")
+	    openFile(":/Charts/qtdata.cht")
 	
 	    setWindowTitle(tr("Chart"))
 	    resize(640, 480)
