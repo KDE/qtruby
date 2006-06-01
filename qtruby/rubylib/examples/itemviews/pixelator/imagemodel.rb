@@ -45,7 +45,7 @@ class ImageModel < Qt::AbstractTableModel
 	    elsif role == Qt::ToolTipRole
 	        return Qt::Variant.new
 		end
-	
-	    return qGray(@modelImage.pixel(index.column, index.row))
+
+	    return Qt::Variant.new(qGray(@modelImage.pixel(index.column, index.row)))
 	end
 end

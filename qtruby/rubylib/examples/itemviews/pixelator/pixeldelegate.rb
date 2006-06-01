@@ -39,13 +39,13 @@ class PixelDelegate < Qt::AbstractItemDelegate
 	    painter.drawRect(option.rect)
 	    painter.brush = Qt::Brush.new(Qt::black)
 	
-	    size = [option.rect.width(), option.rect.height()].min
-	    brightness = index.model().data(index, Qt::DisplayRole).to_i
+	    size = [option.rect.width, option.rect.height].min
+	    brightness = index.model.data(index, Qt::DisplayRole).to_i
 	    radius = (size/2.0) - (brightness/255.0 * size/2.0)
 	
 	    painter.save
-	    painter.translate(option.rect.x() + option.rect.width()/2 - radius,
-	                       option.rect.y() + option.rect.height()/2 - radius)
+	    painter.translate(option.rect.x + option.rect.width/2 - radius,
+	                       option.rect.y + option.rect.height/2 - radius)
 	    painter.drawEllipse(Qt::RectF.new(0.0, 0.0, 2*radius, 2*radius))
 	    painter.restore
 	end

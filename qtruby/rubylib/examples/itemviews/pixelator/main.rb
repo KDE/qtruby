@@ -24,10 +24,11 @@
 =end
 
 require 'Qt'
+require 'qrc_images.rb'
 require 'mainwindow.rb'
 
 app = Qt::Application.new(ARGV)
 window = MainWindow.new
-window.openImage("images/qt.png")
+window.openImage(":/images/qt.png")
 window.show
 app.exec
