@@ -1,3 +1,13 @@
+2006-06-04  Richard Dale  <rdale@foton.es>
+
+	* For Qt::QObject classes which are immediate subclasses of Qt::Base,
+	  don't add C metaObject() and qt_metacall() methods as they aren't
+	  needed. This means that a QMetaObject is no longer constructed for
+	  these classes, and the one that the corresponding C++ class has is
+	  returned instead.
+	* Bring the itemviews/pixelator example code in line with the current
+	  C++ version.
+
 2006-06-01  Richard Dale  <rdale@foton.es>
 
 	* Added a rbrcc resource compiler, a ruby version of rcc

@@ -26,31 +26,42 @@
 class PixelDelegate < Qt::AbstractItemDelegate
 
 	ItemSize = 256
-	PixelSize = 12
-	
+	slots 'pixelSize=(int)'
+	attr_accessor :pixelSize
+
 	def initialize(parent = nil)
 		super(parent)
+		@pixelSize = 12
 	end
 
 	def paint(painter, option, index)
 	    painter.renderHint = Qt::Painter::Antialiasing
-	    painter.brush = Qt::Brush.new(Qt::white)
 	    painter.pen = Qt::NoPen
+
+		if (option.state & Qt::Style::State_Selected.to_i) != 0
+			painter.brush = option.palette.highlight
+		else
+	    	painter.brush = Qt::Brush.new(Qt::white)
+		end
+
 	    painter.drawRect(option.rect)
-	    painter.brush = Qt::Brush.new(Qt::black)
+
+		if (option.state & Qt::Style::State_Selected.to_i) != 0
+			painter.brush = option.palette.highlight
+		else
+	    	painter.brush = Qt::Brush.new(Qt::black)
+		end
 	
 	    size = [option.rect.width, option.rect.height].min
 	    brightness = index.model.data(index, Qt::DisplayRole).to_i
 	    radius = (size/2.0) - (brightness/255.0 * size/2.0)
-	
-	    painter.save
-	    painter.translate(option.rect.x + option.rect.width/2 - radius,
-	                       option.rect.y + option.rect.height/2 - radius)
-	    painter.drawEllipse(Qt::RectF.new(0.0, 0.0, 2*radius, 2*radius))
-	    painter.restore
+
+    	painter.drawEllipse(Qt::RectF.new(option.rect.x + option.rect.width/2 - radius,
+                                option.rect.y + option.rect.height/2 - radius,
+                                2*radius, 2*radius))
 	end
 	
 	def sizeHint(option, index)
-	    return Qt::Size.new(PixelSize, PixelSize)
+	    return Qt::Size.new(@pixelSize, @pixelSize)
 	end
 end

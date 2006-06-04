@@ -514,11 +514,12 @@ resolve_classname(Smoke* smoke, int classId, void * ptr)
 bool
 matches_arg(Smoke *smoke, Smoke::Index meth, Smoke::Index argidx, const char *argtype)
 {
-    Smoke::Index *arg = smoke->argumentList + smoke->methods[meth].args + argidx;
-    SmokeType type = SmokeType(smoke, *arg);
-    if(type.name() && !strcmp(type.name(), argtype))
-	return true;
-    return false;
+	Smoke::Index *arg = smoke->argumentList + smoke->methods[meth].args + argidx;
+	SmokeType type = SmokeType(smoke, *arg);
+	if (type.name() && strcmp(type.name(), argtype) == 0) {
+		return true;
+	}
+	return false;
 }
 
 void *

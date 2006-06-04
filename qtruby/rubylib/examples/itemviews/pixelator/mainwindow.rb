@@ -30,19 +30,30 @@ class MainWindow < Qt::MainWindow
     
     slots   :chooseImage,
             :printImage,
-            :showAboutBox
+            :showAboutBox,
+			:updateView
     
     def initialize()
         super
         @currentPath = Qt::Dir.home.absolutePath
-        @model = nil
+        @model = ImageModel.new(Qt::Image.new, self)
     
+		centralWidget = Qt::Widget.new
+
         @view = Qt::TableView.new
-        @view.itemDelegate = PixelDelegate.new(self)
         @view.showGrid = false
         @view.horizontalHeader.hide
         @view.verticalHeader.hide
-        setCentralWidget(@view)
+
+        delegate = PixelDelegate.new(self)
+        @view.itemDelegate = delegate
+
+    	pixelSizeLabel = Qt::Label.new(tr("Pixel size:"))
+    	pixelSizeSpinBox = Qt::SpinBox.new do |s|
+    		s.minimum = 1
+    		s.maximum = 32
+    		s.value = 12
+		end
     
         fileMenu = Qt::Menu.new(tr("&File"), self)
         openAction = fileMenu.addAction(tr("&Open..."))
@@ -66,7 +77,24 @@ class MainWindow < Qt::MainWindow
         connect(@printAction, SIGNAL(:triggered), self, SLOT(:printImage))
         connect(quitAction, SIGNAL(:triggered), $qApp, SLOT(:quit))
         connect(aboutAction, SIGNAL(:triggered), self, SLOT(:showAboutBox))
-    
+    	connect(pixelSizeSpinBox, SIGNAL('valueChanged(int)'),
+            delegate, SLOT('pixelSize=(int)'))
+    	connect(pixelSizeSpinBox, SIGNAL('valueChanged(int)'),
+            self, SLOT(:updateView))
+
+		controlsLayout = Qt::HBoxLayout.new do |c|
+			c.addWidget(pixelSizeLabel)
+			c.addWidget(pixelSizeSpinBox)
+			c.addStretch(1)
+		end
+	
+		centralWidget.layout = Qt::VBoxLayout.new do |m|
+			m.addWidget(@view)
+			m.addLayout(controlsLayout)
+		end
+	
+		self.centralWidget = centralWidget
+  
         setWindowTitle(tr("Pixelator"))
         resize(640, 480)
     end
@@ -95,19 +123,8 @@ class MainWindow < Qt::MainWindow
             end
     
             @printAction.enabled = true
-    
-            rows = @model.rowCount(Qt::ModelIndex.new)
-            columns = @model.columnCount(Qt::ModelIndex.new)
-            for row in 0...rows do
-                @view.resizeRowToContents(row)
-            end
-            for column in 0...columns do
-                @view.resizeColumnToContents(column)
-            end
-    
-            return true
+    		updateView
         end
-        return false
     end
     
     def printImage()
@@ -189,4 +206,13 @@ class MainWindow < Qt::MainWindow
                "delegate can be used to produce a specialized representation\n " \
                "of data in a simple custom model."))
     end
+
+	def updateView
+        for row in 0...@model.rowCount(Qt::ModelIndex.new) do
+            @view.resizeRowToContents(row)
+        end
+        for column in 0...@model.columnCount(Qt::ModelIndex.new) do
+            @view.resizeColumnToContents(column)
+        end
+	end
 end

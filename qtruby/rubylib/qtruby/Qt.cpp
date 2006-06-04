@@ -1637,7 +1637,13 @@ static VALUE qt_signal(int argc, VALUE * argv, VALUE self);
 VALUE
 new_qobject(int argc, VALUE * argv, VALUE klass)
 {
-	if( rb_respond_to(klass, rb_intern("qt_metacall")) == 0 ) {
+	// If the new instance is a direct subclass of Qt::Base, then don't add
+	// methods for handling custom slots and signals as they aren't needed.
+	// If the new instance's class already has a qt_metacall() method, there's
+	// no need to do anything either
+	if (	rb_funcall(klass, rb_intern("superclass"), 0) != qt_base_class
+			&& rb_respond_to(klass, rb_intern("qt_metacall")) == 0 ) 
+	{
 		rb_define_method(klass, "qt_metacall", (VALUE (*) (...)) qt_metacall, -1);
 		rb_define_method(klass, "metaObject", (VALUE (*) (...)) metaObject, 0);
 		VALUE signalNames = rb_funcall(qt_internal_module, rb_intern("getSignalNames"), 1, klass);
