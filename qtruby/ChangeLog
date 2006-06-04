@@ -1,3 +1,11 @@
+2006-06-04  Richard Dale  <rdale@foton.es>
+
+	* For Qt::QObject classes which are immediate subclasses of Qt::Base,
+	  don't add C metaObject() and qt_invoke() methods as they aren't
+	  needed. This means that a QMetaObject is no longer constructed for
+	  these classes, and the one that the corresponding C++ class has is
+	  returned instead.
+
 2006-05-20  Richard Dale  <rdale@foton.es>
 
 	* Fix regression for dynamic class creation via QMetaObject info causing

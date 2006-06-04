@@ -889,7 +889,6 @@ set_obj_info(const char * className, smokeruby_object * o)
 		if (classId == 0) {
 			VALUE new_klass = Qnil;
 			QString className(meta->className());
-
 			// The konsolePart class is in kdebase, and so it can't be in the Smoke library.
 			// This hack instantiates a Ruby KDE::KonsolePart instance
 			if (className == "konsolePart") {
@@ -1669,14 +1668,21 @@ static VALUE qt_signal(int argc, VALUE * argv, VALUE self);
 VALUE
 new_qobject(int argc, VALUE * argv, VALUE klass)
 {
-	// TODO: Don't do this everytime a new instance is created, just once..
-	rb_define_method(klass, "qt_invoke", (VALUE (*) (...)) qt_invoke, -1);
-	rb_define_method(klass, "qt_emit", (VALUE (*) (...)) qt_invoke, -1);
-	rb_define_method(klass, "metaObject", (VALUE (*) (...)) metaObject, 0);
-	VALUE signalNames = rb_funcall(qt_internal_module, rb_intern("getSignalNames"), 1, klass);
-	for (long index = 0; index < RARRAY(signalNames)->len; index++) {
-	    VALUE signal = rb_ary_entry(signalNames, index);
-	    rb_define_method(klass, StringValuePtr(signal), (VALUE (*) (...)) qt_signal, -1);
+	// If the new instance is a direct subclass of Qt::Base, then don't add
+	// methods for handling custom slots and signals as they aren't needed.
+	// If the new instance's class already has a qt_metacall() method, there's
+	// no need to do anything either
+	if (	rb_funcall(klass, rb_intern("superclass"), 0) != qt_base_class
+			&& rb_respond_to(klass, rb_intern("qt_invoke")) == 0 ) 
+	{
+		rb_define_method(klass, "qt_invoke", (VALUE (*) (...)) qt_invoke, -1);
+		rb_define_method(klass, "qt_emit", (VALUE (*) (...)) qt_invoke, -1);
+		rb_define_method(klass, "metaObject", (VALUE (*) (...)) metaObject, 0);
+		VALUE signalNames = rb_funcall(qt_internal_module, rb_intern("getSignalNames"), 1, klass);
+		for (long index = 0; index < RARRAY(signalNames)->len; index++) {
+			VALUE signal = rb_ary_entry(signalNames, index);
+			rb_define_method(klass, StringValuePtr(signal), (VALUE (*) (...)) qt_signal, -1);
+		}
 	}
 
     return new_qt(argc, argv, klass);
