@@ -68,6 +68,12 @@ module Qt
 			meta.changed = true
 		end
 
+		def self.q_classinfo(key, value)
+			meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
+			meta.add_classinfo(key, value)
+			meta.changed = true
+		end
+
 		def **(a)
 			return Qt::**(self, a)
 		end
@@ -1889,7 +1895,7 @@ module Qt
 			end
 		end
 
-		def Internal.makeMetaData(classname, signals, slots)
+		def Internal.makeMetaData(classname, classinfos, dbus, signals, slots)
 			# Each entry in 'stringdata' corresponds to a string in the
 			# qt_meta_stringdata_<classname> structure.
 			# 'pack_string' is used to convert 'stringdata' into the
@@ -1902,10 +1908,16 @@ module Qt
 			# qt_meta_data_<classname> structure in the metaObject
 			data = [1, 								# revision
 					string_table.call(classname), 	# classname
-					0, 0, 							# classinfo
-					signals.length + slots.length, 10, 	# methods
+					classinfos.length, classinfos.length > 0 ? 10 : 0, 	# classinfo
+					signals.length + slots.length, 
+					10 + (2*classinfos.length), 	# methods
 					0, 0, 							# properties
 					0, 0]							# enums/sets
+
+			classinfos.each do |entry|
+				data.push string_table.call(entry[0])		# key
+				data.push string_table.call(entry[1])		# value
+			end
 
 			signals.each do |entry|
 				data.push string_table.call(entry.full_name)				# signature
@@ -1920,7 +1932,11 @@ module Qt
 				data.push string_table.call(entry.full_name.delete("^,"))	# parameters
 				data.push string_table.call("")				# type, "" means void
 				data.push string_table.call("")				# tag
-				data.push MethodSlot | AccessPublic			# flags, always public for now
+				if dbus
+					data.push MethodScriptable | MethodSlot | AccessPublic	# flags, always public for now
+				else
+					data.push MethodSlot | AccessPublic		# flags, always public for now
+				end
 			end
 
 			data.push 0		# eod
@@ -1935,7 +1951,11 @@ module Qt
 			if meta.metaobject.nil? or meta.changed
 				signals 			= meta.get_signals
 				slots 				= meta.get_slots
-				stringdata, data 	= makeMetaData(qobject.class.name, signals, slots)
+				stringdata, data 	= makeMetaData(	qobject.class.name, 
+													meta.classinfos,  
+													meta.dbus,
+													signals, 
+													slots)
 				meta.metaobject 	= make_metaObject(qobject, stringdata, data)
 				meta.changed = false
 				addSignalMethods(qobject.class, getSignalNames(qobject.class))
@@ -1956,13 +1976,15 @@ module Qt
 	QObjectMember = Struct.new :name, :full_name, :arg_types
 
 	class MetaInfo
-		attr_accessor :signals, :slots, :metaobject, :mocargs, :changed
+		attr_accessor :classinfos, :dbus, :signals, :slots, :metaobject, :mocargs, :changed
 		def initialize(klass)
 			Meta[klass.name] = self
 			@klass = klass
 			@metaobject = nil
 			@signals = []
 			@slots = []
+			@classinfos = []
+			@dbus = false
 			@changed = false
 			Internal.addMetaObjectMethods(klass)
 		end
@@ -2021,6 +2043,13 @@ module Qt
 				current = current.superclass
 			end
 			return all_slots
+		end
+
+		def add_classinfo(key, value)
+			@classinfos.push [key, value]
+			if key == 'D-Bus Interface'
+				@dbus = true
+			end
 		end
 	end # Qt::MetaInfo
 

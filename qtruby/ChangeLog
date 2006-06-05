@@ -1,5 +1,16 @@
 2006-06-05  Richard Dale  <rdale@foton.es>
 
+	* Added support for q_classinfo() attributes, equivalent to the c++
+	  Q_CLASSINFO() macro. If the key of the q_classinfo is 'D-Bus Interface'
+	  the slots in the class are marked as Q_SCRIPTABLE in the QMetaObject.
+	  For example:
+
+		class LCDRange < Qt::Widget
+			q_classinfo('D-Bus Interface', 'MyInterface')
+    		signals 'valueChanged(int)'
+    		slots 'setValue(int)'
+			...
+
 	* The metaObject methods for slots and signals are no longer added when
 	  a Qt::Object is constructed, but when slots or signals are added to
 	  a class. This means that signals as well as slots can be added to an
