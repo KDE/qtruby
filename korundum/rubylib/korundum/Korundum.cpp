@@ -888,7 +888,6 @@ extern void set_kconfigskeletonitem_immutable(VALUE (*kconfigskeletonitem_immuta
 extern void set_kde_resolve_classname(const char * (*kde_resolve_classname) (Smoke*, int, void *));
 extern const char * kde_resolve_classname(Smoke* smoke, int classId, void * ptr);
 extern VALUE new_qt(int argc, VALUE * argv, VALUE klass);
-extern VALUE new_qobject(int argc, VALUE * argv, VALUE klass);
 extern VALUE qt_module;
 extern VALUE qt_internal_module;
 extern VALUE qt_base_class;
@@ -1004,9 +1003,7 @@ dcop_send(int argc, VALUE * argv, VALUE /*self*/)
 static VALUE
 new_kde(int argc, VALUE * argv, VALUE klass)
 {
-	// Note this should really call only new_qobject if the instance is a QObject,
-	// and otherwise call new_qt().
-	VALUE instance = new_qobject(argc, argv, klass);
+	VALUE instance = new_qt(argc, argv, klass);
 	
 	if (rb_funcall(kde_module, rb_intern("hasDCOPSignals"), 1, klass) == Qtrue) {
 		VALUE signalNames = rb_funcall(kde_module, rb_intern("getDCOPSignalNames"), 1, klass);

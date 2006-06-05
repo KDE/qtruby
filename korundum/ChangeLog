@@ -1,3 +1,10 @@
+2006-06-05  Richard Dale  <rdale@foton.es>
+
+	* The metaObject methods for slots and signals are no longer added when
+	  a Qt::Object is constructed, but when slots or signals are added to
+	  a class. This means that signals as well as slots can be added to an
+	  existing instance.
+
 2006-05-16  Richard Dale  <rdale@foton.es>
 
 	* Fixed regression causing KDE::UniqueApplication.exec to not work
