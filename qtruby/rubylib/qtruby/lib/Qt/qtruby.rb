@@ -1595,6 +1595,7 @@ module Qt
 												slots.length,
 												signalTable, 
 												signals.length)
+				addSignalMethods(qobject.class, getSignalNames(qobject.class))
 				meta.changed = false
 			end
 			
@@ -1614,13 +1615,14 @@ module Qt
 
 	class MetaInfo
 		attr_accessor :signals, :slots, :metaobject, :mocargs, :changed
-		def initialize(aClass)
-			Meta[aClass.name] = self
-			@klass = aClass
+		def initialize(klass)
+			Meta[klass.name] = self
+			@klass = klass
 			@metaobject = nil
 			@signals = []
 			@slots = []
 			@changed = false
+			Internal.addMetaObjectMethods(klass)
 		end
 		
 		def add_signals(signal_list)
