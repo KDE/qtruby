@@ -1938,6 +1938,7 @@ module Qt
 				stringdata, data 	= makeMetaData(qobject.class.name, signals, slots)
 				meta.metaobject 	= make_metaObject(qobject, stringdata, data)
 				meta.changed = false
+				addSignalMethods(qobject.class, getSignalNames(qobject.class))
 			end
 			
 			meta.metaobject
@@ -1956,13 +1957,14 @@ module Qt
 
 	class MetaInfo
 		attr_accessor :signals, :slots, :metaobject, :mocargs, :changed
-		def initialize(aClass)
-			Meta[aClass.name] = self
-			@klass = aClass
+		def initialize(klass)
+			Meta[klass.name] = self
+			@klass = klass
 			@metaobject = nil
 			@signals = []
 			@slots = []
 			@changed = false
+			Internal.addMetaObjectMethods(klass)
 		end
 		
 		def add_signals(signal_list)

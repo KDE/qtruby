@@ -1631,32 +1631,6 @@ new_qt(int argc, VALUE * argv, VALUE klass)
 	return result;
 }
 
-static VALUE qt_metacall(int argc, VALUE * argv, VALUE self);
-static VALUE qt_signal(int argc, VALUE * argv, VALUE self);
-
-VALUE
-new_qobject(int argc, VALUE * argv, VALUE klass)
-{
-	// If the new instance is a direct subclass of Qt::Base, then don't add
-	// methods for handling custom slots and signals as they aren't needed.
-	// If the new instance's class already has a qt_metacall() method, there's
-	// no need to do anything either
-	if (	rb_funcall(klass, rb_intern("superclass"), 0) != qt_base_class
-			&& rb_respond_to(klass, rb_intern("qt_metacall")) == 0 ) 
-	{
-		rb_define_method(klass, "qt_metacall", (VALUE (*) (...)) qt_metacall, -1);
-		rb_define_method(klass, "metaObject", (VALUE (*) (...)) metaObject, 0);
-		VALUE signalNames = rb_funcall(qt_internal_module, rb_intern("getSignalNames"), 1, klass);
-	
-		for (long index = 0; index < RARRAY(signalNames)->len; index++) {
-			VALUE signal = rb_ary_entry(signalNames, index);
-			rb_define_method(klass, StringValuePtr(signal), (VALUE (*) (...)) qt_signal, -1);
-		}
-	}
-
-	return new_qt(argc, argv, klass);
-}
-
 static VALUE
 new_qapplication(int argc, VALUE * argv, VALUE klass)
 {
@@ -1669,10 +1643,10 @@ new_qapplication(int argc, VALUE * argv, VALUE klass)
 		rb_ary_unshift(temp, rb_gv_get("$0"));
 		local_argv[0] = INT2NUM(RARRAY(temp)->len);
 		local_argv[1] = temp;
-		result = new_qobject(2, local_argv, klass);
+		result = new_qt(2, local_argv, klass);
 		free(local_argv);
 	} else {
-		result = new_qobject(argc, argv, klass);
+		result = new_qt(argc, argv, klass);
 	}
 
 	rb_gv_set("$qApp", result);
@@ -2175,6 +2149,24 @@ make_metaObject(VALUE /*self*/, VALUE obj, VALUE stringdata_value, VALUE data_va
 }
 
 static VALUE
+add_metaobject_methods(VALUE self, VALUE klass)
+{
+	rb_define_method(klass, "qt_metacall", (VALUE (*) (...)) qt_metacall, -1);
+	rb_define_method(klass, "metaObject", (VALUE (*) (...)) metaObject, 0);
+	return self;
+}
+
+static VALUE
+add_signal_methods(VALUE self, VALUE klass, VALUE signalNames)
+{
+	for (long index = 0; index < RARRAY(signalNames)->len; index++) {
+		VALUE signal = rb_ary_entry(signalNames, index);
+		rb_define_method(klass, StringValuePtr(signal), (VALUE (*) (...)) qt_signal, -1);
+	}
+	return self;
+}
+
+static VALUE
 dispose(VALUE self)
 {
     smokeruby_object *o = value_obj_info(self);
@@ -2648,8 +2640,6 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 			rb_define_method(qlistmodel_class, "insertColumns", (VALUE (*) (...)) qabstract_item_model_insertcolumns, -1);
 			rb_define_method(qlistmodel_class, "removeRows", (VALUE (*) (...)) qabstract_item_model_removerows, -1);
 			rb_define_method(qlistmodel_class, "removeColumns", (VALUE (*) (...)) qabstract_item_model_removecolumns, -1);
-		} else {
-			rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
 		}
 
 		if (packageName == "Qt::AbstractItemModel") {
@@ -2660,19 +2650,16 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 			qext_scintilla_module = rb_define_module("Qext");
 		}
 		klass = rb_define_class_under(qext_scintilla_module, package+strlen("Qext::"), qt_base_class);
-		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
 	} else if (packageName.startsWith("Qwt::")) {
 		if (qwt_module == Qnil) {
 			qwt_module = rb_define_module("Qwt");
 		}
 		klass = rb_define_class_under(qwt_module, package+strlen("Qwt::"), qt_base_class);
-		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
 	} else if (packageName.startsWith("Qt3::")) {
 		if (qt3_module == Qnil) {
 			qt3_module = rb_define_module("Qt3");
 		}
 		klass = rb_define_class_under(qt3_module, package+strlen("Qt3::"), qt_base_class);
-		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qobject, -1);
 	} else {
 		klass = kde_package_to_class(package, qt_base_class);
 	}
@@ -2878,6 +2865,8 @@ Init_qtruby()
     rb_define_module_function(qt_internal_module, "getVALUEtype", (VALUE (*) (...)) getVALUEtype, 1);
 
     rb_define_module_function(qt_internal_module, "make_metaObject", (VALUE (*) (...)) make_metaObject, 3);
+    rb_define_module_function(qt_internal_module, "addMetaObjectMethods", (VALUE (*) (...)) add_metaobject_methods, 1);
+    rb_define_module_function(qt_internal_module, "addSignalMethods", (VALUE (*) (...)) add_signal_methods, 2);
     rb_define_module_function(qt_internal_module, "mapObject", (VALUE (*) (...)) mapObject, 1);
     // isQOjbect => isaQObject
     rb_define_module_function(qt_internal_module, "isQObject", (VALUE (*) (...)) isaQObject, 1);
