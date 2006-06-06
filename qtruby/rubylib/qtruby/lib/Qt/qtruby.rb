@@ -1924,7 +1924,11 @@ module Qt
 				data.push string_table.call(entry.full_name.delete("^,"))	# parameters
 				data.push string_table.call("")				# type, "" means void
 				data.push string_table.call("")				# tag
-				data.push MethodSignal | AccessProtected	# flags, always protected for now
+				if dbus
+					data.push MethodScriptable | MethodSignal | AccessPublic
+				else
+					data.push MethodSignal | AccessProtected	# flags, always protected for now
+				end
 			end
 
 			slots.each do |entry|
