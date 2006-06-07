@@ -1774,7 +1774,7 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 	InvokeSlot slot(self, rb_intern(name.toLatin1()), mocArgs, _o);
 	slot.next();
 	
-	return INT2NUM(id - (count - offset));
+	return INT2NUM(id - count);
 }
 
 

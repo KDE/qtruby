@@ -1,3 +1,9 @@
+2006-06-07  Richard Dale  <rdale@foton.es>
+
+	* qt_metacall() was returning an incorrect value when called with, 
+	  Ruby slots. This doesn't normally matter, but was causing D-BUS
+	  slot invocations via qt-dbus to fail.
+
 2006-06-05  Richard Dale  <rdale@foton.es>
 
 	* Added support for q_classinfo() attributes, equivalent to the c++
