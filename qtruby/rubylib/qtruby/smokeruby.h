@@ -307,7 +307,8 @@ enum MocArgumentType {
     xmoc_int,
     xmoc_double,
     xmoc_charstar,
-    xmoc_QString
+    xmoc_QString,
+    xmoc_void
 };
 
 struct MocArgument {

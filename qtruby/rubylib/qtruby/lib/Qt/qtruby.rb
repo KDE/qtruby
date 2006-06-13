@@ -1832,7 +1832,7 @@ module Qt
 			signals = Meta[qobject.class.name].get_signals
 			signals.each_with_index do |signal, i|
 				if signal.name == signal_name
-					return [signal.full_name, i]
+					return [signal.reply_type, signal.full_name, i]
 				end
 			end
 		end
@@ -1847,9 +1847,10 @@ module Qt
 			Meta[classname].get_slots[index].full_name
 		end
 	
-		def Internal.getMocArguments(member)
+		def Internal.getMocArguments(reply_type, member)
 			argStr = member.sub(/.*\(/, '').sub(/\)$/, '')
 			args = argStr.scan(/([^,]*<[^>]+>)|([^,]+)/)
+			args.unshift reply_type
 			mocargs = allocateMocArguments(args.length)
 			args.each_with_index do |arg, i|
 				arg = arg.to_s
@@ -1922,7 +1923,7 @@ module Qt
 			signals.each do |entry|
 				data.push string_table.call(entry.full_name)				# signature
 				data.push string_table.call(entry.full_name.delete("^,"))	# parameters
-				data.push string_table.call("")				# type, "" means void
+				data.push string_table.call(entry.reply_type)				# type, "" means void
 				data.push string_table.call("")				# tag
 				if dbus
 					data.push MethodScriptable | MethodSignal | AccessPublic
@@ -1934,7 +1935,7 @@ module Qt
 			slots.each do |entry|
 				data.push string_table.call(entry.full_name)				# signature
 				data.push string_table.call(entry.full_name.delete("^,"))	# parameters
-				data.push string_table.call("")				# type, "" means void
+				data.push string_table.call(entry.reply_type)				# type, "" means void
 				data.push string_table.call("")				# tag
 				if dbus
 					data.push MethodScriptable | MethodSlot | AccessPublic	# flags, always public for now
@@ -1973,11 +1974,12 @@ module Qt
 	
 	# An entry for each signal or slot
 	# Example 
-	#  foobar(QString,bool)
+	#  int foobar(QString,bool)
 	#  :name is 'foobar'
 	#  :full_name is 'foobar(QString,bool)'
 	#  :arg_types is 'QString,bool'
-	QObjectMember = Struct.new :name, :full_name, :arg_types
+	#  :reply_type is 'int'
+	QObjectMember = Struct.new :name, :full_name, :arg_types, :reply_type
 
 	class MetaInfo
 		attr_accessor :classinfos, :dbus, :signals, :slots, :metaobject, :mocargs, :changed
@@ -1999,8 +2001,8 @@ module Qt
 					signal = signal.to_s + "()"
 				end
 				signal = Qt::MetaObject.normalizedSignature(signal).to_s
-				if signal =~ /([^\s]*)\((.*)\)/
-					@signals.push QObjectMember.new($1, signal, $2)
+				if signal =~ /^(([\w,<>:]*)\s+)?([^\s]*)\((.*)\)/
+					@signals.push QObjectMember.new($3, $3 + "(" + $4 + ")", $4, ($2 == 'void' || $2.nil?) ? "" : $2)
 				else
 					qWarning( "#{@klass.name}: Invalid signal format: '#{signal}'" )
 				end
@@ -2027,8 +2029,8 @@ module Qt
 					slot = slot.to_s + "()"
 				end
 				slot = Qt::MetaObject.normalizedSignature(slot).to_s
-				if slot =~ /([^\s]*)\((.*)\)/
-					@slots.push QObjectMember.new($1, slot, $2)
+				if slot =~ /^(([\w,<>:]*)\s+)?([^\s]*)\((.*)\)/
+					@slots.push QObjectMember.new($3, $3 + "(" + $4 + ")", $4, ($2 == 'void' || $2.nil?) ? "" : $2)
 				else
 					qWarning( "#{@klass.name}: Invalid slot format: '#{slot}'" )
 				end

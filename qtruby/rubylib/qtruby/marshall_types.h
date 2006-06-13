@@ -21,6 +21,7 @@
 
 #include <QtCore/qstring.h>
 #include <QtCore/qobject.h>
+#include <QtCore/qmetaobject.h>
 
 #include "marshall.h"
 #include "qtruby.h"
@@ -69,7 +70,6 @@ public:
 private:
 	const char *classname();
 };
-
 
 class MethodCallBase : public Marshall
 {
@@ -185,8 +185,9 @@ protected:
 class EmitSignal : public SigSlotBase {
     QObject *_obj;
     int _id;
+	VALUE * _result;
  public:
-    EmitSignal(QObject *obj, int id, int items, VALUE args, VALUE *sp);
+    EmitSignal(QObject *obj, int id, int items, VALUE args, VALUE * sp, VALUE * result);
     Marshall::Action action();
     Smoke::StackItem &item();
 	const char *mytype();

@@ -1,3 +1,20 @@
+2006-06-13  Richard Dale  <rdale@foton.es>
+
+	* Slot and signals can now have return types and return values.
+	  For example:
+
+		class Foo < Qt::PushButton
+			slots 'int greeting(QString)'
+			signals 'int doit(QString)'
+		
+			def initialize
+				super
+				connect(self, SIGNAL('doit(QString)'), self, SLOT('greeting(QString)'))
+			end
+			...
+	* Added some missing marshaller types for QTreeWidgetItem and QListWidgetItem
+	  lists
+
 2006-06-07  Richard Dale  <rdale@foton.es>
 
 	* qt_metacall() was returning an incorrect value when called with, 

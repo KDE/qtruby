@@ -1682,9 +1682,10 @@ getmetainfo(VALUE self, int &offset, int &index)
     offset = metaobject->methodOffset();
 
     VALUE signalInfo = rb_funcall(qt_internal_module, rb_intern("signalInfo"), 2, self, rb_str_new2(signalname));
-    VALUE member = rb_ary_entry(signalInfo, 0);
-    index = NUM2INT(rb_ary_entry(signalInfo, 1));
-    return rb_funcall(qt_internal_module, rb_intern("getMocArguments"), 1, member);
+    VALUE reply_type = rb_ary_entry(signalInfo, 0);
+    VALUE member = rb_ary_entry(signalInfo, 1);
+    index = NUM2INT(rb_ary_entry(signalInfo, 2));
+    return rb_funcall(qt_internal_module, rb_intern("getMocArguments"), 2, reply_type, member);
 }
 
 static VALUE
@@ -1705,11 +1706,12 @@ qt_signal(int argc, VALUE * argv, VALUE self)
 
     if(args == Qnil) return Qfalse;
 
+	VALUE result = Qnil;
     // Okay, we have the signal info. *whew*
-    EmitSignal signal(qobj, offset + index, argc, args, argv);
+    EmitSignal signal(qobj, offset + index, argc, args, argv, &result);
     signal.next();
 
-    return Qtrue;
+    return result;
 }
 
 static VALUE
@@ -1765,7 +1767,8 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 
     VALUE mocArgs = rb_funcall(	qt_internal_module, 
 								rb_intern("getMocArguments"), 
-								1, 
+								2, 
+								rb_str_new2(method.typeName()),
 								rb_str_new2(method.signature()) );
 
 	QString name(method.signature());
@@ -1951,6 +1954,11 @@ setMocType(VALUE /*self*/, VALUE ptr, VALUE idx_value, VALUE name_value, VALUE s
 	MocArgument *arg = 0;
 	Data_Get_Struct(ptr, MocArgument, arg);
 	Smoke::Index typeId = 0;
+
+	if (name.isEmpty()) {
+		arg[idx].argType = xmoc_void;
+		return Qtrue;
+	}
 
 	if (strcmp(static_type, "ptr") == 0) {
 		arg[idx].argType = xmoc_ptr;

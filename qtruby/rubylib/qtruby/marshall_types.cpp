@@ -18,6 +18,183 @@
 
 #include "marshall_types.h"
 
+static void
+smokeStackToQtStack(Smoke::Stack stack, void ** o, int items, MocArgument* args)
+{
+	for (int i = 0; i < items; i++) {
+		Smoke::StackItem *si = stack + i;
+		switch(args[i].argType) {
+		case xmoc_bool:
+			o[i] = &si->s_bool;
+			break;
+		case xmoc_int:
+			o[i] = &si->s_int;
+			break;
+		case xmoc_double:
+			o[i] = &si->s_double;
+			break;
+		case xmoc_charstar:
+			o[i] = &si->s_voidp;
+			break;
+		case xmoc_QString:
+			o[i] = si->s_voidp;
+			break;
+		default:
+		{
+			const SmokeType &t = args[i].st;
+			void *p;
+			switch(t.elem()) {
+			case Smoke::t_bool:
+				p = &si->s_bool;
+				break;
+			case Smoke::t_char:
+				p = &si->s_char;
+				break;
+			case Smoke::t_uchar:
+				p = &si->s_uchar;
+				break;
+			case Smoke::t_short:
+				p = &si->s_short;
+				break;
+			case Smoke::t_ushort:
+				p = &si->s_ushort;
+				break;
+			case Smoke::t_int:
+				p = &si->s_int;
+				break;
+			case Smoke::t_uint:
+				p = &si->s_uint;
+				break;
+			case Smoke::t_long:
+				p = &si->s_long;
+				break;
+			case Smoke::t_ulong:
+				p = &si->s_ulong;
+				break;
+			case Smoke::t_float:
+				p = &si->s_float;
+				break;
+			case Smoke::t_double:
+				p = &si->s_double;
+				break;
+			case Smoke::t_enum:
+			{
+				// allocate a new enum value
+				Smoke::EnumFn fn = SmokeClass(t).enumFn();
+				if (!fn) {
+					rb_warning("Unknown enumeration %s\n", t.name());
+					p = new int((int)si->s_enum);
+					break;
+				}
+				Smoke::Index id = t.typeId();
+				(*fn)(Smoke::EnumNew, id, p, si->s_enum);
+				(*fn)(Smoke::EnumFromLong, id, p, si->s_enum);
+				// FIXME: MEMORY LEAK
+				break;
+			}
+			case Smoke::t_class:
+			case Smoke::t_voidp:
+				if (strchr(t.name(), '*') != 0) {
+					p = &si->s_voidp;
+				} else {
+					p = si->s_voidp;
+				}
+				break;
+			default:
+				p = 0;
+				break;
+			}
+			o[i] = p;
+		}
+		}
+	}
+}
+
+static void
+smokeStackFromQtStack(Smoke::Stack stack, void ** _o, int items, MocArgument* args)
+{
+	for (int i = 0; i < items; i++) {
+		void *o = _o[i];
+		switch(args[i].argType) {
+		case xmoc_bool:
+		stack[i].s_bool = *(bool*)o;
+		break;
+		case xmoc_int:
+		stack[i].s_int = *(int*)o;
+		break;
+		case xmoc_double:
+		stack[i].s_double = *(double*)o;
+		break;
+		case xmoc_charstar:
+		stack[i].s_voidp = o;
+		break;
+		case xmoc_QString:
+		stack[i].s_voidp = o;
+		break;
+		default:	// case xmoc_ptr:
+		{
+			const SmokeType &t = args[i].st;
+			void *p = o;
+			switch(t.elem()) {
+			case Smoke::t_bool:
+			stack[i].s_bool = **(bool**)o;
+			break;
+			case Smoke::t_char:
+			stack[i].s_char = **(char**)o;
+			break;
+			case Smoke::t_uchar:
+			stack[i].s_uchar = **(unsigned char**)o;
+			break;
+			case Smoke::t_short:
+			stack[i].s_short = **(short**)p;
+			break;
+			case Smoke::t_ushort:
+			stack[i].s_ushort = **(unsigned short**)p;
+			break;
+			case Smoke::t_int:
+			stack[i].s_int = **(int**)p;
+			break;
+			case Smoke::t_uint:
+			stack[i].s_uint = **(unsigned int**)p;
+			break;
+			case Smoke::t_long:
+			stack[i].s_long = **(long**)p;
+			break;
+			case Smoke::t_ulong:
+			stack[i].s_ulong = **(unsigned long**)p;
+			break;
+			case Smoke::t_float:
+			stack[i].s_float = **(float**)p;
+			break;
+			case Smoke::t_double:
+			stack[i].s_double = **(double**)p;
+			break;
+			case Smoke::t_enum:
+			{
+				Smoke::EnumFn fn = SmokeClass(t).enumFn();
+				if (!fn) {
+					rb_warning("Unknown enumeration %s\n", t.name());
+					stack[i].s_enum = **(int**)p;
+					break;
+				}
+				Smoke::Index id = t.typeId();
+				(*fn)(Smoke::EnumToLong, id, p, stack[i].s_enum);
+			}
+			break;
+			case Smoke::t_class:
+			case Smoke::t_voidp:
+				if (strchr(t.name(), '*') != 0) {
+					stack[i].s_voidp = *(void **)p;
+				} else {
+					stack[i].s_voidp = p;
+				}
+			break;
+			}
+		}
+		}
+	}
+}
+
 MethodReturnValueBase::MethodReturnValueBase(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack) :
 	_smoke(smoke), _method(meth), _stack(stack) 
 { 
@@ -284,7 +461,7 @@ SigSlotBase::SigSlotBase(VALUE args) : _cur(-1), _called(false)
 { 
 	_items = NUM2INT(rb_ary_entry(args, 0));
 	Data_Get_Struct(rb_ary_entry(args, 1), MocArgument, _args);
-	_stack = new Smoke::StackItem[_items];
+	_stack = new Smoke::StackItem[_items - 1];
 }
 
 SigSlotBase::~SigSlotBase() 
@@ -295,7 +472,7 @@ SigSlotBase::~SigSlotBase()
 const MocArgument &
 SigSlotBase::arg() 
 { 
-	return _args[_cur]; 
+	return _args[_cur + 1]; 
 }
 
 SmokeType 
@@ -334,7 +511,7 @@ SigSlotBase::next()
 	int oldcur = _cur;
 	_cur++;
 
-	while(!_called && _cur < _items) {
+	while(!_called && _cur < _items - 1) {
 		Marshall::HandlerFn fn = getMarshallFn(type());
 		(*fn)(this);
 		_cur++;
@@ -344,10 +521,54 @@ SigSlotBase::next()
 	_cur = oldcur;
 }
 
-EmitSignal::EmitSignal(QObject *obj, int id, int items, VALUE args, VALUE *sp) : SigSlotBase(args),
-    _obj(obj), _id(id) 
+/*
+	Converts a C++ value returned by a signal invocation to a Ruby 
+	reply type
+*/
+class SignalReturnValue : public Marshall {
+    MocArgument *	_replyType;
+    Smoke::Stack _stack;
+	VALUE * _result;
+public:
+	SignalReturnValue(void ** o, VALUE * result, MocArgument * replyType) 
+	{
+		_result = result;
+		_replyType = replyType;
+		_stack = new Smoke::StackItem[1];
+		smokeStackFromQtStack(_stack, o, 1, _replyType);
+		Marshall::HandlerFn fn = getMarshallFn(type());
+		(*fn)(this);
+    }
+
+    SmokeType type() { 
+		return _replyType[0].st; 
+	}
+    Marshall::Action action() { return Marshall::ToVALUE; }
+    Smoke::StackItem &item() { return _stack[0]; }
+    VALUE * var() {
+    	return _result;
+    }
+	
+	void unsupported() 
+	{
+		rb_raise(rb_eArgError, "Cannot handle '%s' as signal reply-type", type().name());
+    }
+	Smoke *smoke() { return type().smoke(); }
+    
+	void next() {}
+    
+	bool cleanup() { return false; }
+	
+	~SignalReturnValue() {
+		delete[] _stack;
+	}
+};
+
+EmitSignal::EmitSignal(QObject *obj, int id, int items, VALUE args, VALUE *sp, VALUE * result) : SigSlotBase(args),
+    _obj(obj), _id(id)
 { 
 	_sp = sp;
+	_result = result;
 }
 
 Marshall::Action 
@@ -373,97 +594,13 @@ EmitSignal::emitSignal()
 {
 	if (_called) return;
 	_called = true;
-	void ** o = new void*[_items + 1];
-
-	for (int i = 0; i < _items; i++) {
-		Smoke::StackItem *si = _stack + i;
-		switch(_args[i].argType) {
-		case xmoc_bool:
-			o[i + 1] = &si->s_bool;
-			break;
-		case xmoc_int:
-			o[i + 1] = &si->s_int;
-			break;
-		case xmoc_double:
-			o[i + 1] = &si->s_double;
-			break;
-		case xmoc_charstar:
-			o[i + 1] = &si->s_voidp;
-			break;
-		case xmoc_QString:
-			o[i + 1] = si->s_voidp;
-			break;
-		default:
-		{
-			const SmokeType &t = _args[i].st;
-			void *p;
-			switch(t.elem()) {
-			case Smoke::t_bool:
-				p = &si->s_bool;
-				break;
-			case Smoke::t_char:
-				p = &si->s_char;
-				break;
-			case Smoke::t_uchar:
-				p = &si->s_uchar;
-				break;
-			case Smoke::t_short:
-				p = &si->s_short;
-				break;
-			case Smoke::t_ushort:
-				p = &si->s_ushort;
-				break;
-			case Smoke::t_int:
-				p = &si->s_int;
-				break;
-			case Smoke::t_uint:
-				p = &si->s_uint;
-				break;
-			case Smoke::t_long:
-				p = &si->s_long;
-				break;
-			case Smoke::t_ulong:
-				p = &si->s_ulong;
-				break;
-			case Smoke::t_float:
-				p = &si->s_float;
-				break;
-			case Smoke::t_double:
-				p = &si->s_double;
-				break;
-			case Smoke::t_enum:
-			{
-				// allocate a new enum value
-				Smoke::EnumFn fn = SmokeClass(t).enumFn();
-				if (!fn) {
-					rb_warning("Unknown enumeration %s\n", t.name());
-					p = new int((int)si->s_enum);
-					break;
-				}
-				Smoke::Index id = t.typeId();
-				(*fn)(Smoke::EnumNew, id, p, si->s_enum);
-				(*fn)(Smoke::EnumFromLong, id, p, si->s_enum);
-				// FIXME: MEMORY LEAK
-				break;
-			}
-			case Smoke::t_class:
-			case Smoke::t_voidp:
-				if (strchr(t.name(), '*') != 0) {
-					p = &si->s_voidp;
-				} else {
-					p = si->s_voidp;
-				}
-				break;
-			default:
-				p = 0;
-				break;
-			}
-			o[i + 1] = p;
-		}
-		}
-	}
-
+	void ** o = new void*[_items];
+	smokeStackToQtStack(_stack, o + 1, _items - 1, _args + 1);
 	_obj->metaObject()->activate(_obj, _id, o);
+	
+	if (_args[0].argType != xmoc_void) {
+		SignalReturnValue r(o, _result, _args);
+	}
 	delete[] o;
 }
 
@@ -479,10 +616,54 @@ EmitSignal::cleanup()
 	return true; 
 }
 
+/*
+	Converts a ruby value returned by a slot invocation to a Qt slot 
+	reply type
+*/
+class SlotReturnValue : public Marshall {
+    MocArgument *	_replyType;
+    Smoke::Stack _stack;
+	VALUE * _result;
+public:
+	SlotReturnValue(void ** o, VALUE * result, MocArgument * replyType) 
+	{
+		_result = result;
+		_replyType = replyType;
+		_stack = new Smoke::StackItem[1];
+		Marshall::HandlerFn fn = getMarshallFn(type());
+		(*fn)(this);
+		smokeStackToQtStack(_stack, o, 1, _replyType);
+    }
+
+    SmokeType type() { 
+		return _replyType[0].st; 
+	}
+    Marshall::Action action() { return Marshall::FromVALUE; }
+    Smoke::StackItem &item() { return _stack[0]; }
+    VALUE * var() {
+    	return _result;
+    }
+	
+	void unsupported() 
+	{
+		rb_raise(rb_eArgError, "Cannot handle '%s' as slot reply-type", type().name());
+    }
+	Smoke *smoke() { return type().smoke(); }
+    
+	void next() {}
+    
+	bool cleanup() { return false; }
+	
+	~SlotReturnValue() {
+		// Memory leak for now..
+//		delete[] _stack;
+	}
+};
+
 InvokeSlot::InvokeSlot(VALUE obj, ID slotname, VALUE args, void ** o) : SigSlotBase(args),
     _obj(obj), _slotname(slotname), _o(o)
 {
-	_sp = (VALUE *) calloc(_items, sizeof(VALUE));
+	_sp = (VALUE *) calloc(_items - 1, sizeof(VALUE));
 	copyArguments();
 }
 
@@ -512,87 +693,7 @@ InvokeSlot::cleanup()
 void 
 InvokeSlot::copyArguments() 
 {
-	for (int i = 0; i < _items; i++) {
-		void *o = _o[i + 1];
-		switch(_args[i].argType) {
-		case xmoc_bool:
-		_stack[i].s_bool = *(bool*)o;
-		break;
-		case xmoc_int:
-		_stack[i].s_int = *(int*)o;
-		break;
-		case xmoc_double:
-		_stack[i].s_double = *(double*)o;
-		break;
-		case xmoc_charstar:
-		_stack[i].s_voidp = o;
-		break;
-		case xmoc_QString:
-		_stack[i].s_voidp = o;
-		break;
-		default:	// case xmoc_ptr:
-		{
-			const SmokeType &t = _args[i].st;
-			void *p = o;
-			switch(t.elem()) {
-			case Smoke::t_bool:
-			_stack[i].s_bool = **(bool**)o;
-			break;
-			case Smoke::t_char:
-			_stack[i].s_char = **(char**)o;
-			break;
-			case Smoke::t_uchar:
-			_stack[i].s_uchar = **(unsigned char**)o;
-			break;
-			case Smoke::t_short:
-			_stack[i].s_short = **(short**)p;
-			break;
-			case Smoke::t_ushort:
-			_stack[i].s_ushort = **(unsigned short**)p;
-			break;
-			case Smoke::t_int:
-			_stack[i].s_int = **(int**)p;
-			break;
-			case Smoke::t_uint:
-			_stack[i].s_uint = **(unsigned int**)p;
-			break;
-			case Smoke::t_long:
-			_stack[i].s_long = **(long**)p;
-			break;
-			case Smoke::t_ulong:
-			_stack[i].s_ulong = **(unsigned long**)p;
-			break;
-			case Smoke::t_float:
-			_stack[i].s_float = **(float**)p;
-			break;
-			case Smoke::t_double:
-			_stack[i].s_double = **(double**)p;
-			break;
-			case Smoke::t_enum:
-			{
-				Smoke::EnumFn fn = SmokeClass(t).enumFn();
-				if (!fn) {
-					rb_warning("Unknown enumeration %s\n", t.name());
-					_stack[i].s_enum = **(int**)p;
-					break;
-				}
-				Smoke::Index id = t.typeId();
-				(*fn)(Smoke::EnumToLong, id, p, _stack[i].s_enum);
-			}
-			break;
-			case Smoke::t_class:
-			case Smoke::t_voidp:
-				if (strchr(t.name(), '*') != 0) {
-					_stack[i].s_voidp = *(void **)p;
-				} else {
-					_stack[i].s_voidp = p;
-				}
-			break;
-			}
-		}
-		}
-	}
-
+	smokeStackFromQtStack(_stack, _o + 1, _items - 1, _args + 1);
 }
 
 void 
@@ -600,7 +701,10 @@ InvokeSlot::invokeSlot()
 {
 	if (_called) return;
 	_called = true;
-	(void) rb_funcall2(_obj, _slotname, _items, _sp);
+	VALUE result = rb_funcall2(_obj, _slotname, _items - 1, _sp);
+	if (_args[0].argType != xmoc_void) {
+		SlotReturnValue r(_o, &result, _args);
+	}
 }
 
 void 
