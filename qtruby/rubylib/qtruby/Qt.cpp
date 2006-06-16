@@ -2606,7 +2606,7 @@ kde_package_to_class(const char * package, VALUE base_class)
 	} else if (packageName.startsWith("Kontact::")) {
 		klass = rb_define_class_under(kontact_module, package+strlen("Kontact::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
-	} else if (packageName.startsWith("Ko")) {
+	} else if (packageName.startsWith("Ko") && scope_op.search(packageName) == -1) {
 		klass = rb_define_class_under(koffice_module, package+strlen("Ko"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (packageName.startsWith("Kate::")) {
