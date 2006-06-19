@@ -30,6 +30,9 @@
 
 Marshall::HandlerFn getMarshallFn(const SmokeType &type);
 
+extern void smokeStackToQtStack(Smoke::Stack stack, void ** o, int items, MocArgument* args);
+extern void smokeStackFromQtStack(Smoke::Stack stack, void ** _o, int items, MocArgument* args);
+
 class MethodReturnValueBase : public Marshall 
 {
 public:

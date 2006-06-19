@@ -1,3 +1,15 @@
+2006-06-19  Richard Dale  <rdale@foton.es>
+
+	* The 'EmitSignal' class in marshall_types.cpp was not linking against
+	  the code calling it from Qt.cpp with some versions of the gcc
+	  compiler/linker. So the code was moved to Qt.cpp so that it should
+	  build on all environments.
+	* Added a 'designer/calculatorbuilder' example using the Qt::UiBuilder
+	  class to load .ui files from a .qrc file compiled with the rbrcc
+	  resource compiler
+	* Added some extra marshallers for QList<QWidget*> and QVector<qreal>
+	  types.
+
 2006-06-13  Richard Dale  <rdale@foton.es>
 
 	* Slot and signals can now have return types and return values.

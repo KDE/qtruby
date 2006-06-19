@@ -316,6 +316,105 @@ public:
     }
 };
 
+/*
+	Converts a C++ value returned by a signal invocation to a Ruby 
+	reply type
+*/
+class SignalReturnValue : public Marshall {
+    MocArgument *	_replyType;
+    Smoke::Stack _stack;
+	VALUE * _result;
+public:
+	SignalReturnValue(void ** o, VALUE * result, MocArgument * replyType) 
+	{
+		_result = result;
+		_replyType = replyType;
+		_stack = new Smoke::StackItem[1];
+		smokeStackFromQtStack(_stack, o, 1, _replyType);
+		Marshall::HandlerFn fn = getMarshallFn(type());
+		(*fn)(this);
+    }
+
+    SmokeType type() { 
+		return _replyType[0].st; 
+	}
+    Marshall::Action action() { return Marshall::ToVALUE; }
+    Smoke::StackItem &item() { return _stack[0]; }
+    VALUE * var() {
+    	return _result;
+    }
+	
+	void unsupported() 
+	{
+		rb_raise(rb_eArgError, "Cannot handle '%s' as signal reply-type", type().name());
+    }
+	Smoke *smoke() { return type().smoke(); }
+    
+	void next() {}
+    
+	bool cleanup() { return false; }
+	
+	~SignalReturnValue() {
+		delete[] _stack;
+	}
+};
+
+/* Note that the SignalReturnValue and EmitSignal classes really belong in
+	marshall_types.cpp. However, for unknown reasons they don't link with certain
+	versions of gcc. So they were moved here in to work round that bug.
+*/
+EmitSignal::EmitSignal(QObject *obj, int id, int items, VALUE args, VALUE *sp, VALUE * result) : SigSlotBase(args),
+    _obj(obj), _id(id)
+{ 
+	_sp = sp;
+	_result = result;
+}
+
+Marshall::Action 
+EmitSignal::action() 
+{ 
+	return Marshall::FromVALUE; 
+}
+
+Smoke::StackItem &
+EmitSignal::item() 
+{ 
+	return _stack[_cur]; 
+}
+
+const char *
+EmitSignal::mytype() 
+{ 
+	return "signal"; 
+}
+
+void 
+EmitSignal::emitSignal() 
+{
+	if (_called) return;
+	_called = true;
+	void ** o = new void*[_items];
+	smokeStackToQtStack(_stack, o + 1, _items - 1, _args + 1);
+	_obj->metaObject()->activate(_obj, _id, o);
+	
+	if (_args[0].argType != xmoc_void) {
+		SignalReturnValue r(o, _result, _args);
+	}
+	delete[] o;
+}
+
+void 
+EmitSignal::mainfunction() 
+{ 
+	emitSignal(); 
+}
+
+bool 
+EmitSignal::cleanup() 
+{ 
+	return true; 
+}
+
 void rb_str_catf(VALUE self, const char *format, ...) 
 {
 #define CAT_BUFFER_SIZE 2048
@@ -2583,7 +2682,7 @@ kde_package_to_class(const char * package, VALUE base_class)
 	} else if (packageName.startsWith("Kontact::")) {
 		klass = rb_define_class_under(kontact_module, package+strlen("Kontact::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
-	} else if (packageName.startsWith("Ko")) {
+	} else if (packageName.startsWith("Ko") && scope_op.indexIn(packageName) == -1) {
 		klass = rb_define_class_under(koffice_module, package+strlen("Ko"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (packageName.startsWith("Kate::")) {

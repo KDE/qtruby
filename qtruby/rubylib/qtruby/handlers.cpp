@@ -1254,6 +1254,77 @@ void marshall_QListqreal(Marshall *m) {
     }
 }
 
+void marshall_QVectorqreal(Marshall *m) {
+    switch(m->action()) {
+      case Marshall::FromVALUE:
+	{
+	    VALUE list = *(m->var());
+	    if (TYPE(list) != T_ARRAY) {
+		m->item().s_voidp = 0;
+		break;
+	    }
+	    int count = RARRAY(list)->len;
+	    QVector<qreal> *valuelist = new QVector<qreal>;
+	    long i;
+	    for(i = 0; i < count; i++) {
+		VALUE item = rb_ary_entry(list, i);
+		if(TYPE(item) != T_FLOAT) {
+		    valuelist->append(0.0);
+		    continue;
+		}
+		valuelist->append(NUM2DBL(item));
+	    }
+
+	    m->item().s_voidp = valuelist;
+	    m->next();
+
+		if (!m->type().isConst()) {
+			rb_ary_clear(list);
+	
+			for (	QVector<qreal>::iterator i = valuelist->begin(); 
+					i != valuelist->end(); 
+					++i ) 
+			{
+				rb_ary_push(list, rb_float_new((qreal)*i));
+			}
+		}
+
+		if (m->cleanup()) {
+			delete valuelist;
+		}
+	}
+	break;
+      case Marshall::ToVALUE:
+	{
+	    QVector<qreal> *valuelist = (QVector<qreal>*)m->item().s_voidp;
+	    if(!valuelist) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+
+	    VALUE av = rb_ary_new();
+
+		for (	QVector<qreal>::iterator i = valuelist->begin(); 
+				i != valuelist->end(); 
+				++i ) 
+		{
+		    rb_ary_push(av, rb_float_new((qreal)*i));
+		}
+		
+	    *(m->var()) = av;
+		m->next();
+
+		if (m->cleanup()) {
+			delete valuelist;
+		}
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
+    }
+}
+
 void marshall_voidP(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE:
@@ -1587,6 +1658,7 @@ DEF_LIST_MARSHALLER( QTableWidgetItemList, QList<QTableWidgetItem*>, QTableWidge
 DEF_LIST_MARSHALLER( QObjectList, QList<QObject*>, QObject )
 DEF_LIST_MARSHALLER( QWidgetList, QList<QWidget*>, QWidget )
 DEF_LIST_MARSHALLER( QActionList, QList<QAction*>, QAction )
+DEF_LIST_MARSHALLER( QWidgetPtrList, QList<QWidget*>, QWidget )
 DEF_LIST_MARSHALLER( QTextFrameList, QList<QTextFrame*>, QTextFrame )
 DEF_LIST_MARSHALLER( QTreeWidgetItemList, QList<QTreeWidgetItem*>, QTreeWidgetItem )
 
@@ -1773,6 +1845,8 @@ TypeHandler Qt_handlers[] = {
     { "QList<QImageTextKeyLang>", marshall_QImageTextKeyLangList },
     { "QList<QUrl>", marshall_QUrlList },
     { "QList<QUrl>&", marshall_QUrlList },
+    { "QVector<qreal>", marshall_QVectorqreal },
+    { "QVector<qreal>&", marshall_QVectorqreal },
     { "QVector<QPointF>", marshall_QPointFVector },
     { "QVector<QPointF>&", marshall_QPointFVector },
     { "QVector<QPoint>", marshall_QPointVector },
@@ -1793,6 +1867,7 @@ TypeHandler Qt_handlers[] = {
     { "QVector<QVariant>&", marshall_QVariantVector },
     { "QVector<QTextFormat>", marshall_QTextFormatVector },
     { "QVector<QTextFormat>&", marshall_QTextFormatVector },
+    { "QVector<QTextLength>", marshall_QTextLengthVector },
     { "QVector<QTextLength>&", marshall_QTextLengthVector },
     { "QMap<int,QVariant>", marshall_QMapintQVariant },
     { "QMap<QString,QString>", marshall_QMapQStringQString },
@@ -1801,8 +1876,9 @@ TypeHandler Qt_handlers[] = {
     { "QMap<QString,QVariant>&", marshall_QMapQStringQVariant },
     { "QList<QTextFrame*>", marshall_QTextFrameList },
     { "QList<QAction*>", marshall_QActionList },
-    { "QList<QTreeWidgetItem*>", marshall_QActionList },
-    { "QList<QTreeWidgetItem*>&", marshall_QActionList },
+    { "QList<QWidget*>", marshall_QWidgetPtrList },
+    { "QList<QTreeWidgetItem*>", marshall_QTreeWidgetItemList },
+    { "QList<QTreeWidgetItem*>&", marshall_QTreeWidgetItemList },
     { "QList<QAbstractButton*>", marshall_QAbstractButtonList },
     { "QList<QListWidgetItem*>", marshall_QListWidgetItemList },
     { "QList<QListWidgetItem*>&", marshall_QListWidgetItemList },
