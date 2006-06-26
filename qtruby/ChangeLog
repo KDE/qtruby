@@ -1,3 +1,9 @@
+2006-06-26  Richard Dale  <rdale@foton.es>
+
+	* Applied a fix from Cvetoslav Ludmiloff to make 
+	  Qt::AbstractItemModel.createIndex() work without conversion errrors
+	  for large Ruby BigNum values.
+
 2006-06-19  Richard Dale  <rdale@foton.es>
 
 	* The 'EmitSignal' class in marshall_types.cpp was not linking against

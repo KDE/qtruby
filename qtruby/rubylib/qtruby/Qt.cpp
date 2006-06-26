@@ -1354,7 +1354,7 @@ qabstractitemmodel_createindex(int argc, VALUE * argv, VALUE /* self */)
 		// Change the VALUE to a Ruby Integer, so it can be marshalled to a
 		// C++ int. Then look for the QAbstractItemModel::createIndex(int, int, int) 
 		// variant
-		argv[2] = UINT2NUM(argv[2]);
+		argv[2] = INT2NUM(argv[2]);
 	}
 
 	return rb_call_super(argc, argv);
