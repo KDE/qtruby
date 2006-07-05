@@ -42,6 +42,12 @@
 #include <QtGui/qtabbar.h>
 #include <QtCore/qhash.h>
 
+#if QT_VERSION >= 0x40200
+#include <QtGui/qgraphicsitem.h>
+#include <QtGui/qstandarditemmodel.h>
+#include <QtGui/qundostack.h>
+#endif
+
 #include "smoke.h"
 
 #undef DEBUG
@@ -1662,6 +1668,12 @@ DEF_LIST_MARSHALLER( QWidgetPtrList, QList<QWidget*>, QWidget )
 DEF_LIST_MARSHALLER( QTextFrameList, QList<QTextFrame*>, QTextFrame )
 DEF_LIST_MARSHALLER( QTreeWidgetItemList, QList<QTreeWidgetItem*>, QTreeWidgetItem )
 
+#if QT_VERSION >= 0x40200
+DEF_LIST_MARSHALLER( QGraphicsItemList, QList<QGraphicsItem*>, QGraphicsItem )
+DEF_LIST_MARSHALLER( QStandardItemList, QList<QStandardItem*>, QStandardItem )
+DEF_LIST_MARSHALLER( QUndoStackList, QList<QUndoStack*>, QUndoStack )
+#endif
+
 template <class Item, class ItemList, const char *ItemSTR >
 void marshall_ValueListItem(Marshall *m) {
 	switch(m->action()) {
@@ -1889,6 +1901,14 @@ TypeHandler Qt_handlers[] = {
     { "QObjectList", marshall_QObjectList },
     { "QObjectList&", marshall_QObjectList },
     { "QFileInfoList", marshall_QFileInfoList },
+#if QT_VERSION >= 0x40200
+    { "QList<QGraphicsItem*>", marshall_QGraphicsItemList },
+    { "QList<QGraphicsItem*>&", marshall_QGraphicsItemList },
+    { "QList<QStandardItem*>", marshall_QStandardItemList },
+    { "QList<QStandardItem*>&", marshall_QStandardItemList },
+    { "QList<QUndoStack*>", marshall_QUndoStackList },
+    { "QList<QUndoStack*>&", marshall_QUndoStackList },
+#endif
     { 0, 0 }
 };
 

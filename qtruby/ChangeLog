@@ -1,3 +1,12 @@
+2006-07-05  Richard Dale  <rdale@foton.es>
+
+	* Added some marshallers for Qt 4.2, for QList<QGraphicsItem*>,
+	  QList<QStandardItem*> and QList<QUndoStack*> types.
+	* The Ruby String to 'char *' and String to 'unsigned char *' were using
+	  the pointer within the Ruby String directly which meant they were
+	  deleted when the Ruby String was gc'd. So they are copied with
+	  strdup () instead.
+
 2006-06-26  Richard Dale  <rdale@foton.es>
 
 	* Applied a fix from Cvetoslav Ludmiloff to make 

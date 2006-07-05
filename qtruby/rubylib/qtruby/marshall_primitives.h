@@ -191,7 +191,7 @@ static char* ruby_to_primitive<char *>(VALUE v)
 	if(v == Qnil)
 		return 0;
 	
-	return StringValuePtr(v);
+	return strdup(StringValuePtr(v));
 }
 
 template <>
@@ -200,7 +200,7 @@ static unsigned char* ruby_to_primitive<unsigned char *>(VALUE v)
 	if(v == Qnil)
 		return 0;
 	
-	return (unsigned char*)StringValuePtr(v);
+	return (unsigned char*) strdup(StringValuePtr(v));
 }
 
 template <>
