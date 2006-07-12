@@ -1,3 +1,10 @@
+2006-07-12  Richard Dale  <rdale@foton.es>
+
+	* The Ruby String to 'char *' and String to 'unsigned char *' were using
+	  the pointer within the Ruby String directly which meant they were
+	  deleted when the Ruby String was gc'd. So they are copied with
+	  strdup () instead.
+
 2006-06-05  Richard Dale  <rdale@foton.es>
 
 	* The metaObject methods for slots and signals are no longer added when

@@ -755,7 +755,7 @@ static void marshall_charP(Marshall *m) {
                 break;
 	    }
 		
-        m->item().s_voidp = StringValuePtr(rv);
+        m->item().s_voidp = strdup(StringValuePtr(rv));
 	}
 	break;
       case Marshall::ToVALUE:
@@ -784,7 +784,7 @@ void marshall_ucharP(Marshall *m) {
 		m->item().s_voidp = 0;
 		break;
 	    }
-        m->item().s_voidp = StringValuePtr(rv);
+        m->item().s_voidp = strdup(StringValuePtr(rv));
 	}
 	break;
       case Marshall::ToVALUE:
