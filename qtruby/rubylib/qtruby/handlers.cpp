@@ -43,6 +43,7 @@
 #include <QtCore/qhash.h>
 
 #if QT_VERSION >= 0x40200
+#include <QtGui/qgraphicsscene.h>
 #include <QtGui/qgraphicsitem.h>
 #include <QtGui/qstandarditemmodel.h>
 #include <QtGui/qundostack.h>
@@ -204,6 +205,24 @@ smokeruby_mark(void * p)
 			}
 			return;
 		}
+
+#if QT_VERSION >= 0x40200
+		if (isDerivedFromByName(o->smoke, className, "QGraphicsScene")) {
+			QGraphicsScene * scene = (QGraphicsScene *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsScene"));
+			QList<QGraphicsItem *> list = scene->items();
+			for (int i = 0; i < list.size(); i++) {
+				QGraphicsItem * item = list.at(i);
+				if (item != 0) {
+					obj = getPointerObject(item);
+					if (obj != Qnil) {
+						if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", "QGraphicsItem", item, (void*)obj);
+						rb_gc_mark(obj);
+					}
+				}
+			}			
+			return;
+		}
+#endif
 
 		if (isDerivedFromByName(o->smoke, className, "QObject")) {
 			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
@@ -466,6 +485,30 @@ resolve_classname(Smoke* smoke, int classId, void * ptr)
 		case QEvent::AccessibilityHelp:
 		case QEvent::AccessibilityDescription:
 			return "Qt::Event";
+#if QT_VERSION >= 0x40200
+		case QEvent::GraphicsSceneMouseMove:
+		case QEvent::GraphicsSceneMousePress:
+		case QEvent::GraphicsSceneMouseRelease:
+		case QEvent::GraphicsSceneMouseDoubleClick:
+			return "Qt::GraphicsSceneMouseEvent";
+		case QEvent::GraphicsSceneContextMenu:
+			return "Qt::GraphicsSceneContextMenuEvent";
+		case QEvent::GraphicsSceneHoverEnter:
+		case QEvent::GraphicsSceneHoverMove:
+		case QEvent::GraphicsSceneHoverLeave:
+			return "Qt::GraphicsSceneHoverEvent";
+		case QEvent::GraphicsSceneHelp:
+			return "Qt::GraphicsSceneHelpEvent";
+		case QEvent::GraphicsSceneDragEnter:
+		case QEvent::GraphicsSceneDragMove:
+		case QEvent::GraphicsSceneDragLeave:
+		case QEvent::GraphicsSceneDrop:
+			return "Qt::GraphicsSceneDragDropEvent";
+		case QEvent::GraphicsSceneWheel:
+			return "Qt::GraphicsSceneWheelEvent";
+		case QEvent::KeyboardLayoutChange:
+			return "Qt::Event";
+#endif
 		default:
 			break;
 		}
@@ -1839,7 +1882,6 @@ TypeHandler Qt_handlers[] = {
     { "QList<qreal>", marshall_QListqreal },
     { "QList<int>", marshall_QListInt },
     { "QList<int>&", marshall_QListInt },
-    { "QList<QVariant>", marshall_QVariantList },
     { "QList<QTableWidgetSelectionRange>", marshall_QTableWidgetSelectionRangeList },
     { "QList<QTextLayout::FormatRange>", marshall_QTextLayoutFormatRangeList },
     { "QList<QTextLayout::FormatRange>&", marshall_QTextLayoutFormatRangeList },
@@ -1849,6 +1891,7 @@ TypeHandler Qt_handlers[] = {
     { "QList<QHostAddress>&", marshall_QHostAddressList },
     { "QList<QVariant>", marshall_QVariantList },
     { "QList<QVariant>&", marshall_QVariantList },
+    { "QVariantList&", marshall_QVariantList },
     { "QList<QPixmap>", marshall_QPixmapList },
     { "QList<QModelIndex>", marshall_QModelIndexList },
     { "QList<QModelIndex>&", marshall_QModelIndexList },

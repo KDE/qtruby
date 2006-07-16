@@ -1,3 +1,13 @@
+2006-07-16  Richard Dale  <rdale@foton.es>
+
+	* Added a QVariantList marshaller
+	* The correct QGraphicsScene event class instance is instantianted from
+	  the event.type()'s
+	* The Qt::GraphicsItems in a Qt::GraphicsScene are marked so they won't
+	  won't get garbage collected prematurely
+	* Added QT_TR_NOOP() and QT_TRANSLATE_NOOP() methods for completeness
+	* Added Qt::Graphics examples: graphicsview/collidingmice and dragdroprobot
+
 2006-07-05  Richard Dale  <rdale@foton.es>
 
 	* Added some marshallers for Qt 4.2, for QList<QGraphicsItem*>,

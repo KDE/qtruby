@@ -388,6 +388,12 @@ module Qt
 		end
 	end
 
+	class DragEnterEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class DragLeaveEvent < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
@@ -484,6 +490,36 @@ module Qt
 	class GenericArgument < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
+		end
+	end
+
+	class GraphicsSceneMouseEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class GraphicsSceneContextMenuEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class GraphicsSceneHoverEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class GraphicsSceneHelpEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class GraphicsSceneWheelEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 
@@ -2097,6 +2133,9 @@ class Object
 	def emit(signal)
 		return signal
 	end
+
+	def QT_TR_NOOP(x) x end
+	def QT_TRANSLATE_NOOP(scope, x) x end
 end
 
 class Module
