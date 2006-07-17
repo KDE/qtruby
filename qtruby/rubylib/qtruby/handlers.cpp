@@ -1955,7 +1955,7 @@ TypeHandler Qt_handlers[] = {
     { 0, 0 }
 };
 
-QHash<QString, TypeHandler*> type_handlers;
+QHash<QByteArray, TypeHandler*> type_handlers;
 
 void install_handlers(TypeHandler *h) {
 	while(h->name) {

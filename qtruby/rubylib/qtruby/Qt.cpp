@@ -93,10 +93,10 @@ int do_debug = qtdb_none;
 QHash<void *, VALUE *> pointer_map;
 int object_count = 0;
 
-QHash<QString, Smoke::Index *> methcache;
-QHash<QString, Smoke::Index *> classcache;
-// Maps from a classname in the form Qt::Widget to an int id
-QHash<int, QString> classname;
+QHash<QByteArray, Smoke::Index *> methcache;
+QHash<QByteArray, Smoke::Index *> classcache;
+// Maps from an int id to classname in the form Qt::Widget
+QHash<int, QByteArray> classname;
 
 extern "C" {
 VALUE qt_module = Qnil;
@@ -255,64 +255,64 @@ class QtRubySmokeBinding : public SmokeBinding {
 public:
     QtRubySmokeBinding(Smoke *s) : SmokeBinding(s) {}
 
-    void deleted(Smoke::Index classId, void *ptr) {
-	VALUE obj = getPointerObject(ptr);
-	smokeruby_object *o = value_obj_info(obj);
-	if(do_debug & qtdb_gc) {
-	    qWarning("%p->~%s()", ptr, smoke->className(classId));
+	void deleted(Smoke::Index classId, void *ptr) {
+		VALUE obj = getPointerObject(ptr);
+		smokeruby_object *o = value_obj_info(obj);
+		if (do_debug & qtdb_gc) {
+	    	qWarning("%p->~%s()", ptr, smoke->className(classId));
+		}
+		if (!o || !o->ptr) {
+	    	return;
+		}
+		unmapPointer(o, o->classId, 0);
+		o->ptr = 0;
 	}
-	if(!o || !o->ptr) {
-	    return;
-	}
-	unmapPointer(o, o->classId, 0);
-	o->ptr = 0;
-    }
 
-    bool callMethod(Smoke::Index method, void *ptr, Smoke::Stack args, bool /*isAbstract*/) {
-	VALUE obj = getPointerObject(ptr);
-	smokeruby_object *o = value_obj_info(obj);
+	bool callMethod(Smoke::Index method, void *ptr, Smoke::Stack args, bool /*isAbstract*/) {
+		VALUE obj = getPointerObject(ptr);
+		smokeruby_object *o = value_obj_info(obj);
 
-	if (do_debug & qtdb_virtual) {
-		Smoke::Method & meth = smoke->methods[method];
-		QByteArray signature(smoke->methodNames[meth.name]);
-		signature += "(";
+		if (do_debug & qtdb_virtual) {
+			Smoke::Method & meth = smoke->methods[method];
+			QByteArray signature(smoke->methodNames[meth.name]);
+			signature += "(";
 
-		for (int i = 0; i < meth.numArgs; i++) {
-			if (i != 0) signature += ", ";
-			signature += smoke->types[smoke->argumentList[meth.args + i]].name;
+			for (int i = 0; i < meth.numArgs; i++) {
+				if (i != 0) signature += ", ";
+				signature += smoke->types[smoke->argumentList[meth.args + i]].name;
+			}
+
+			signature += ")";
+			if (meth.flags & Smoke::mf_const) {
+				signature += " const";
+			}
+
+			qWarning(	"virtual %p->%s::%s called", 
+						ptr,
+						smoke->classes[smoke->methods[method].classId].className,
+						(const char *) signature );
 		}
 
-		signature += ")";
-		if (meth.flags & Smoke::mf_const) {
-			signature += " const";
+		if (!o) {
+	    	if( do_debug & qtdb_virtual )   // if not in global destruction
+				qWarning("Cannot find object for virtual method %p -> %p", ptr, &obj);
+	    	return false;
 		}
 
-		qWarning(	"virtual %p->%s::%s called", 
-					ptr,
-					smoke->classes[smoke->methods[method].classId].className,
-					(const char *) signature );
-	}
-
-	if(!o) {
-	    if( do_debug & qtdb_virtual )   // if not in global destruction
-		qWarning("Cannot find object for virtual method %p -> %p", ptr, &obj);
-	    return false;
-	}
-
-	const char *methodName = smoke->methodNames[smoke->methods[method].name];
+		const char *methodName = smoke->methodNames[smoke->methods[method].name];
 	
-	// If the virtual method hasn't been overriden, just call the C++ one.
-	if (rb_respond_to(obj, rb_intern(methodName)) == 0) {
-	    return false;
-	}
+		// If the virtual method hasn't been overriden, just call the C++ one.
+		if (rb_respond_to(obj, rb_intern(methodName)) == 0) {
+	    	return false;
+		}
 	
-	VirtualMethodCall c(smoke, method, args, obj);
-	c.next();
-	return true;
-    }
+		VirtualMethodCall c(smoke, method, args, obj);
+		c.next();
+		return true;
+	}
 
-    char *className(Smoke::Index classId) {
-		return (char *) (const char *) classname.value((int) classId).toLatin1();
+	char *className(Smoke::Index classId) {
+		return (char *) (const char *) classname.value((int) classId);
     }
 };
 
@@ -464,6 +464,9 @@ set_obj_info(const char * className, smokeruby_object * o)
 			     rb_intern("find_class"),
 			     1,
 			     rb_str_new2(className) );
+	if (klass == Qnil) {
+		rb_raise(rb_eRuntimeError, "Class '%s' not found", className);
+	}
 
 	Smoke::Index *r = classcache.value(className);
 	if (r != 0) {
@@ -1430,7 +1433,7 @@ find_cached_selector(int argc, VALUE * argv, VALUE klass, char * methodName)
 		mcid += get_VALUEtype(argv[i]);
 	}
 	
-	Smoke::Index *rcid = methcache.value((const char *)mcid);
+	Smoke::Index *rcid = methcache.value(mcid);
 #ifdef DEBUG
 	if (do_debug & qtdb_calls) qWarning("method_missing mcid: %s", (const char *) mcid);
 #endif
@@ -1542,7 +1545,7 @@ method_missing(int argc, VALUE * argv, VALUE self)
 				}
 			}
 			// Success. Cache result.
-			methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
+			methcache.insert(mcid, new Smoke::Index(_current_method));
 		}
 	}
 	
@@ -1576,7 +1579,7 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
          Q_UNUSED(retval);
 			if (_current_method != -1) {
 				// Success. Cache result.
-				methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
+				methcache.insert(mcid, new Smoke::Index(_current_method));
 			}
 		}
 	}
@@ -1679,7 +1682,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 			retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+4, temp_stack);
 			if (_current_method != -1) {
 				// Success. Cache result.
-				methcache.insert((const char *)mcid, new Smoke::Index(_current_method));
+				methcache.insert(mcid, new Smoke::Index(_current_method));
 			}
 		}
 	}
@@ -2143,8 +2146,8 @@ insert_pclassid(VALUE self, VALUE p_value, VALUE ix_value)
 {
     char *p = StringValuePtr(p_value);
     int ix = NUM2INT(ix_value);
-    classcache.insert(p, new Smoke::Index((Smoke::Index)ix));
-    classname.insert(ix, strdup(p));
+    classcache.insert(QByteArray(p), new Smoke::Index((Smoke::Index)ix));
+    classname.insert(ix, QByteArray(p));
     return self;
 }
 
@@ -2152,31 +2155,11 @@ static VALUE
 find_pclassid(VALUE /*self*/, VALUE p_value)
 {
     char *p = StringValuePtr(p_value);
-    Smoke::Index *r = classcache.value(p);
+    Smoke::Index *r = classcache.value(QByteArray(p));
     if(r)
         return INT2NUM((int)*r);
     else
         return INT2NUM(0);
-}
-
-static VALUE
-insert_mcid(VALUE self, VALUE mcid_value, VALUE ix_value)
-{
-    char *mcid = StringValuePtr(mcid_value);
-    int ix = NUM2INT(ix_value);
-    methcache.insert(mcid, new Smoke::Index((Smoke::Index)ix));
-    return self;
-}
-
-static VALUE
-find_mcid(VALUE /*self*/, VALUE mcid_value)
-{
-    char *mcid = StringValuePtr(mcid_value);
-    Smoke::Index *r = methcache.value(mcid);
-    if(r)
-	return INT2NUM((int)*r);
-    else
-	return INT2NUM(0);
 }
 
 static VALUE
@@ -2967,8 +2950,6 @@ Init_qtruby()
     rb_define_module_function(qt_internal_module, "isEnum", (VALUE (*) (...)) isEnum, 1);
     rb_define_module_function(qt_internal_module, "insert_pclassid", (VALUE (*) (...)) insert_pclassid, 2);
     rb_define_module_function(qt_internal_module, "find_pclassid", (VALUE (*) (...)) find_pclassid, 1);
-    rb_define_module_function(qt_internal_module, "insert_mcid", (VALUE (*) (...)) insert_mcid, 2);
-    rb_define_module_function(qt_internal_module, "find_mcid", (VALUE (*) (...)) find_mcid, 1);
     rb_define_module_function(qt_internal_module, "getVALUEtype", (VALUE (*) (...)) getVALUEtype, 1);
 
     rb_define_module_function(qt_internal_module, "make_metaObject", (VALUE (*) (...)) make_metaObject, 3);

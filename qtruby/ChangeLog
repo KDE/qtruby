@@ -1,3 +1,19 @@
+2006-07-17  Richard Dale  <rdale@foton.es>
+
+	* Some QtRuby QHash based caches were defined with QStrings, and when the value
+	  was accessed the QString was converted to a QByteArray via toLatin1() and then
+	  to a 'char *'. However, the 'char *' only lasted as long as the QByteArray,
+	  and this caused memory corruption if the 'char *' was still in use after the
+	  QByteArray was freed. So the QHash's are now defined like this:
+
+		QHash<QByteArray, Smoke::Index *> methcache;
+		QHash<QByteArray, Smoke::Index *> classcache;
+		QHash<int, QByteArray> classname;
+
+	  This doesn't completely fix a crash in QtRuby though, although it does seem to
+	  improve things. Thanks to Charlton Wang for tracking down where the string was
+	  being corrupted.
+
 2006-07-16  Richard Dale  <rdale@foton.es>
 
 	* Added a QVariantList marshaller
