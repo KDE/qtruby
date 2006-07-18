@@ -8,15 +8,15 @@ INCLUDES = $(all_includes)
 
 METASOURCES = AUTO
 
-librbrcc_la_SOURCES = main.cpp rcc.cpp rcc.h
+librbrcc_la_SOURCES = rcc.cpp
 
 librbrcc_la_LIBADD  = $(LIBZ) $(LIB_QTCORE) $(LIB_QTXML) 
 
-rbrcc_SOURCES = main.cpp rcc.cpp rcc.h
+rbrcc_SOURCES = main.cpp
 rbrcc_LDADD   = librbrcc.la $(all_libraries) 
 rbrcc_LDFLAGS = 
 
-EXTRA_DIST = 
+EXTRA_DIST = rcc.cpp rcc.h
 
 messages:
 	LIST=`find . -name \*.h -o -name \*.hh -o -name \*.H -o -name \*.hxx -o -name \*.hpp -o -name \*.cpp -o -name \*.cc -o -name \*.cxx -o -name \*.ecpp -o -name \*.C`; \
