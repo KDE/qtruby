@@ -109,7 +109,7 @@ mark_qobject_children(QObject * qobject)
 		child = l.at(i);
 		obj = getPointerObject(child);
 		if (obj != Qnil) {
-			if(do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", child->metaObject()->className(), child, (void*)obj);
+			if(do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p", child->metaObject()->className(), child, (void*)obj);
 			rb_gc_mark(obj);
 		}
 		
@@ -127,7 +127,7 @@ mark_qtreewidgetitem_children(QTreeWidgetItem * item)
 		child = item->child(i);
 		obj = getPointerObject(child);
 		if (obj != Qnil) {
-			if(do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", "QTreeWidgetItem", child, (void*)obj);
+			if(do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p", "QTreeWidgetItem", child, (void*)obj);
 			rb_gc_mark(obj);
 		}
 		
@@ -142,7 +142,7 @@ smokeruby_mark(void * p)
     smokeruby_object * o = (smokeruby_object *) p;
     const char *className = o->smoke->classes[o->classId].className;
 	
-	if (do_debug & qtdb_gc) qWarning("Checking for mark (%s*)%p\n", className, o->ptr);
+	if (do_debug & qtdb_gc) qWarning("Checking for mark (%s*)%p", className, o->ptr);
 		
     if (o->ptr && o->allocated) {
 		if (isDerivedFromByName(o->smoke, className, "QListWidget")) {
@@ -152,7 +152,7 @@ smokeruby_mark(void * p)
 				QListWidgetItem * item = listwidget->item(i);
 				obj = getPointerObject(item);
 				if (obj != Qnil) {
-					if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", "QListWidgetItem", item, (void*)obj);
+					if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p", "QListWidgetItem", item, (void*)obj);
 					rb_gc_mark(obj);
 				}
 			}
@@ -168,7 +168,7 @@ smokeruby_mark(void * p)
 					item = table->item(row, col);
 					obj = getPointerObject(item);
 					if (obj != Qnil) {
-						if(do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", className, item, (void*)obj);
+						if(do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p", className, item, (void*)obj);
 						rb_gc_mark(obj);
 					}
 				}
@@ -183,7 +183,7 @@ smokeruby_mark(void * p)
 				QTreeWidgetItem * item = qtreewidget->topLevelItem(i);
 				obj = getPointerObject(item);
 				if (obj != Qnil) {
-					if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", "QTreeWidgetItem", item, (void*)obj);
+					if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p", "QTreeWidgetItem", item, (void*)obj);
 					rb_gc_mark(obj);
 				}
 				mark_qtreewidgetitem_children(item);
@@ -198,7 +198,7 @@ smokeruby_mark(void * p)
 				if (item != 0) {
 					obj = getPointerObject(item);
 					if (obj != Qnil) {
-						if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", "QLayoutItem", item, (void*)obj);
+						if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p", "QLayoutItem", item, (void*)obj);
 						rb_gc_mark(obj);
 					}
 				}
@@ -215,7 +215,7 @@ smokeruby_mark(void * p)
 				if (item != 0) {
 					obj = getPointerObject(item);
 					if (obj != Qnil) {
-						if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p\n", "QGraphicsItem", item, (void*)obj);
+						if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p", "QGraphicsItem", item, (void*)obj);
 						rb_gc_mark(obj);
 					}
 				}
@@ -243,7 +243,7 @@ smokeruby_free(void * p)
     smokeruby_object *o = (smokeruby_object*)p;
     const char *className = o->smoke->classes[o->classId].className;
 	
-	if(do_debug & qtdb_gc) qWarning("Checking for delete (%s*)%p allocated: %s\n", className, o->ptr, o->allocated ? "true" : "false");
+	if(do_debug & qtdb_gc) qWarning("Checking for delete (%s*)%p allocated: %s", className, o->ptr, o->allocated ? "true" : "false");
     
 	if(application_terminated || !o->allocated || o->ptr == 0) {
 		free(o);
@@ -312,7 +312,7 @@ smokeruby_free(void * p)
 		}
 	}
 			
-	if(do_debug & qtdb_gc) qWarning("Deleting (%s*)%p\n", className, o->ptr);
+	if(do_debug & qtdb_gc) qWarning("Deleting (%s*)%p", className, o->ptr);
 
 	char *methodName = new char[strlen(className) + 2];
 	methodName[0] = '~';

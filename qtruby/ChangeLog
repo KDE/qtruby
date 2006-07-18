@@ -1,3 +1,15 @@
+2006-07-18  Richard Dale  <rdale@foton.es>
+
+	* The code to change a Ruby 'foo?' method call to a Qt C++ 'setFoo()' was 
+	  using QStrings to change the text. However, it then converted the result
+	  to a QByteArray via toLatin() and referenced the contents of the 
+	  QByteArray via a 'const char *' cast when the QByteArray had gone out of
+	  scope and had been deleted. Thanks to Carlto Wang again for reporting 
+      this bug.
+
+	* Some of the code for debug logging of garbage collection wrote spurious
+	  newlines
+
 2006-07-17  Richard Dale  <rdale@foton.es>
 
 	* Some QtRuby QHash based caches were defined with QStrings, and when the value

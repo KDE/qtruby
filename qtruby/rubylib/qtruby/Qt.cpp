@@ -76,7 +76,7 @@ extern bool qUnregisterResourceData(int, const unsigned char *, const unsigned c
 
 // #define DEBUG
 
-#define QTRUBY_VERSION "1.4.5"
+#define QTRUBY_VERSION "1.4.6"
 
 extern Smoke *qt_Smoke;
 extern void init_qt_Smoke();
@@ -96,7 +96,7 @@ int object_count = 0;
 QHash<QByteArray, Smoke::Index *> methcache;
 QHash<QByteArray, Smoke::Index *> classcache;
 // Maps from an int id to classname in the form Qt::Widget
-QHash<int, QByteArray> classname;
+QHash<int, QByteArray*> classname;
 
 extern "C" {
 VALUE qt_module = Qnil;
@@ -312,7 +312,7 @@ public:
 	}
 
 	char *className(Smoke::Index classId) {
-		return (char *) (const char *) classname.value((int) classId);
+		return (char *) (const char *) *(classname.value((int) classId));
     }
 };
 
@@ -1458,7 +1458,7 @@ method_missing(int argc, VALUE * argv, VALUE self)
     VALUE klass = rb_funcall(self, rb_intern("class"), 0);
 
 	// Look for 'thing?' methods, and try to match isThing() or hasThing() in the Smoke runtime
-	QString pred(rb_id2name(SYM2ID(argv[0])));
+	QByteArray pred(rb_id2name(SYM2ID(argv[0])));
 	if (pred.endsWith("?")) {
 		smokeruby_object *o = value_obj_info(self);
 		if(!o || !o->ptr) {
@@ -1468,17 +1468,17 @@ method_missing(int argc, VALUE * argv, VALUE self)
 		// Drop the trailing '?'
 		pred.replace(pred.length() - 1, 1, "");
 		
-		pred.replace(0, 1, pred.at(0).toUpper());
-		pred.replace(0, 0, QString("is"));
-		Smoke::Index meth = o->smoke->findMethod(o->smoke->classes[o->classId].className, pred.toLatin1());
+		pred.replace(0, 1, pred.mid(0, 1).toUpper());
+		pred.replace(0, 0, QByteArray("is"));
+		Smoke::Index meth = o->smoke->findMethod(o->smoke->classes[o->classId].className, (const char *) pred);
 		
 		if (meth == 0) {
-			pred.replace(0, 2, QString("has"));
-			meth = o->smoke->findMethod(o->smoke->classes[o->classId].className, pred.toLatin1());
+			pred.replace(0, 2, QByteArray("has"));
+			meth = o->smoke->findMethod(o->smoke->classes[o->classId].className, pred);
 		}
 		
 		if (meth > 0) {
-			methodName = (char *) (const char *) pred.toLatin1();
+			methodName = (char *) (const char *) pred;
 		}
 	}
 		
@@ -1517,26 +1517,26 @@ method_missing(int argc, VALUE * argv, VALUE self)
 							&& isDerivedFrom(o->smoke, o->classId, o->smoke->idClass("QObject")) )
 					{
 						QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
-						QString prop(rb_id2name(SYM2ID(argv[0])));
+						QByteArray prop(rb_id2name(SYM2ID(argv[0])));
 						const QMetaObject * meta = qobject->metaObject();
 						if (argc == 1) {
 							if (prop.endsWith("?")) {
-								prop.replace(0, 1, pred.at(0).toUpper());
-								prop.replace(0, 0, QString("is"));
-								if (meta->indexOfProperty(prop.toLatin1()) == -1) {
-									prop.replace(0, 2, QString("has"));
+								prop.replace(0, 1, pred.mid(0, 1).toUpper());
+								prop.replace(0, 0, QByteArray("is"));
+								if (meta->indexOfProperty(prop) == -1) {
+									prop.replace(0, 2, QByteArray("has"));
 								}
 							}
 
-							if (meta->indexOfProperty(prop.toLatin1()) != -1) {
-								VALUE qvariant = rb_funcall(self, rb_intern("property"), 1, rb_str_new2(prop.toLatin1()));
+							if (meta->indexOfProperty(prop) != -1) {
+								VALUE qvariant = rb_funcall(self, rb_intern("property"), 1, rb_str_new2(prop));
 								return rb_funcall(qvariant, rb_intern("to_ruby"), 0);
 							}
 						} else if (argc == 2 && prop.endsWith("=")) {
 							prop.replace("=", "");
-							if (meta->indexOfProperty(prop.toLatin1()) != -1) {
+							if (meta->indexOfProperty(prop) != -1) {
 								VALUE qvariant = rb_funcall(self, rb_intern("qVariantFromValue"), 1, argv[1]);
-								return rb_funcall(self, rb_intern("setProperty"), 2, rb_str_new2(prop.toLatin1()), qvariant);
+								return rb_funcall(self, rb_intern("setProperty"), 2, rb_str_new2(prop), qvariant);
 							}
 						}
 					}
@@ -2147,7 +2147,7 @@ insert_pclassid(VALUE self, VALUE p_value, VALUE ix_value)
     char *p = StringValuePtr(p_value);
     int ix = NUM2INT(ix_value);
     classcache.insert(QByteArray(p), new Smoke::Index((Smoke::Index)ix));
-    classname.insert(ix, QByteArray(p));
+    classname.insert(ix, new QByteArray(p));
     return self;
 }
 
