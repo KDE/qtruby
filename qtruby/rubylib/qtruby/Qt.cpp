@@ -484,7 +484,7 @@ set_obj_info(const char * className, smokeruby_object * o)
 		// The class isn't in the Smoke lib..
 		if (classId == 0) {
 			VALUE new_klass = Qnil;
-			QString className(meta->className());
+			QByteArray className(meta->className());
 
 			// The konsolePart class is in kdebase, and so it can't be in the Smoke library.
 			// This hack instantiates a Ruby KDE::KonsolePart instance
@@ -497,11 +497,11 @@ set_obj_info(const char * className, smokeruby_object * o)
 			} else if (className.startsWith("Q")) {
 				className.replace("Q", "");
 				className = className.mid(0, 1).toUpper() + className.mid(1);
-    			new_klass = rb_define_class_under(qt_module, className.toLatin1(), klass);
+    			new_klass = rb_define_class_under(qt_module, className, klass);
 			} else if (kde_module == Qnil) {
-    			new_klass = rb_define_class(className.toLatin1(), klass);
+    			new_klass = rb_define_class(className, klass);
 			} else {
-				new_klass = kde_package_to_class(className.toLatin1(), klass);
+				new_klass = kde_package_to_class(className, klass);
 			}
 
 			if (new_klass != Qnil) {
@@ -616,12 +616,12 @@ qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 	} else {
 		// Assume the value of the Qt::Variant can be obtained
 		// with a call such as Qt::Variant.toPoint()
-		QString toValueMethodName(classname);
+		QByteArray toValueMethodName(classname);
 		if (toValueMethodName.startsWith("Qt::")) {
 			toValueMethodName.remove(0, strlen("Qt::"));
 		}
 		toValueMethodName.prepend("to");
-		return rb_funcall(variant_value, rb_intern(toValueMethodName.toLatin1()), 1, variant_value);
+		return rb_funcall(variant_value, rb_intern(toValueMethodName), 1, variant_value);
 	}
 
 	VALUE result = Qnil;
