@@ -47,7 +47,7 @@ class PixelDelegate < Qt::AbstractItemDelegate
 	    painter.drawRect(option.rect)
 
 		if (option.state & Qt::Style::State_Selected.to_i) != 0
-			painter.brush = option.palette.highlight
+			painter.brush = option.palette.highlightedText
 		else
 	    	painter.brush = Qt::Brush.new(Qt::black)
 		end
