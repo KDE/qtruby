@@ -191,7 +191,11 @@ static char* ruby_to_primitive<char *>(VALUE v)
 	if(v == Qnil)
 		return 0;
 	
-	return strdup(StringValuePtr(v));
+	int len = RSTRING(rv)->len;
+	char* mem = (char*) malloc(len+1);
+	memcpy(mem, StringValuePtr(rv), len);
+	mem[len] ='\0';
+	return (unsigned char*) mem;
 }
 
 template <>
@@ -200,7 +204,11 @@ static unsigned char* ruby_to_primitive<unsigned char *>(VALUE v)
 	if(v == Qnil)
 		return 0;
 	
-	return (unsigned char*) strdup(StringValuePtr(v));
+	int len = RSTRING(rv)->len;
+	char* mem = (char*) malloc(len+1);
+	memcpy(mem, StringValuePtr(rv), len);
+	mem[len] ='\0';
+	return (unsigned char*) mem;
 }
 
 template <>
