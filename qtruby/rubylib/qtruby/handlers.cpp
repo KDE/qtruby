@@ -784,7 +784,11 @@ void marshall_ucharP(Marshall *m) {
 		m->item().s_voidp = 0;
 		break;
 	    }
-        m->item().s_voidp = strdup(StringValuePtr(rv));
+        int len = RSTRING(rv)->len;
+        char* mem = (char*) malloc(len+1);
+        memcpy(mem, StringValuePtr(rv), len);
+        mem[len] ='\0';
+        m->item().s_voidp = mem;
 	}
 	break;
       case Marshall::ToVALUE:
