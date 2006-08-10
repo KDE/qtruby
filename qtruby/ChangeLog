@@ -1,3 +1,9 @@
+2006-08-10  Richard Dale  <rdale@foton.es>
+
+	* The Ruby VALUE to 'uchar *' marshaller wasn't working correctly if the
+	  Ruby string contained nulls. Fixed by Dirk Mueller (thanks) and also 
+	  applied for 'char *' types.
+
 2006-07-12  Richard Dale  <rdale@foton.es>
 
 	* The Ruby String to 'char *' and String to 'unsigned char *' were using

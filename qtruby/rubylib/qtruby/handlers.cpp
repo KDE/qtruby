@@ -747,17 +747,21 @@ static void marshall_unknown(Marshall *m) {
 
 static void marshall_charP(Marshall *m) {
     switch(m->action()) {
-      case Marshall::FromVALUE:
-	{
-	    VALUE rv = *(m->var());
-	    if(rv == Qnil) {
-                m->item().s_voidp = 0;
-                break;
-	    }
-		
-        m->item().s_voidp = strdup(StringValuePtr(rv));
-	}
-	break;
+    case Marshall::FromVALUE:
+    {
+        VALUE rv = *(m->var());
+	    if (rv == Qnil) {
+            m->item().s_voidp = 0;
+            break;
+        }
+	
+        int len = RSTRING(rv)->len;
+        char* mem = (char*) malloc(len+1);
+        memcpy(mem, StringValuePtr(rv), len);
+        mem[len] ='\0';
+        m->item().s_voidp = mem;
+    }
+        break;
       case Marshall::ToVALUE:
 	{
 	    char *p = (char*)m->item().s_voidp;
@@ -777,13 +781,13 @@ static void marshall_charP(Marshall *m) {
 
 void marshall_ucharP(Marshall *m) {
     switch(m->action()) {
-      case Marshall::FromVALUE:
-	{
-	    VALUE rv = *(m->var());
-	    if(rv == Qnil) {
-		m->item().s_voidp = 0;
-		break;
-	    }
+    case Marshall::FromVALUE:
+    {
+        VALUE rv = *(m->var());
+        if (rv == Qnil) {
+            m->item().s_voidp = 0;
+            break;
+        }
         int len = RSTRING(rv)->len;
         char* mem = (char*) malloc(len+1);
         memcpy(mem, StringValuePtr(rv), len);
@@ -1840,8 +1844,8 @@ void marshall_ValueItemList(Marshall *m) {
     }
 }
 
-#define DEF_VALUELIST_MARSHALLER(ListIdent,ItemList,Item,Itr) namespace { char ListIdent##STR[] = #Item; };  \
-        Marshall::HandlerFn marshall_##ListIdent = marshall_ValueItemList<Item,ItemList,Itr,ListIdent##STR>;
+#define DEF_VALUELIST_MARSHALLER(ListIdent,ItemList,Item,Itr) namespace dummy { char ListIdent##STR[] = #Item; };  \
+        Marshall::HandlerFn marshall_##ListIdent = marshall_ValueItemList<Item,ItemList,Itr,dummy::ListIdent##STR>;
 
 DEF_VALUELIST_MARSHALLER( QVariantList, QValueList<QVariant>, QVariant, QValueList<QVariant>::Iterator )
 DEF_VALUELIST_MARSHALLER( QPixmapList, QValueList<QPixmap>, QPixmap, QValueList<QPixmap>::Iterator )
