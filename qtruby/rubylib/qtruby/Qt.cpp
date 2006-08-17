@@ -1420,28 +1420,32 @@ qobject_metaobject(VALUE self)
 	return obj;
 }
 
-static QByteArray
+static QByteArray *
 find_cached_selector(int argc, VALUE * argv, VALUE klass, char * methodName)
 {
     // Look in the cache
-	QByteArray mcid(rb_class2name(klass));
-	mcid += ';';
-	mcid += methodName;
+static QByteArray * mcid = 0;
+	if (mcid == 0) {
+		mcid = new QByteArray();
+	}
+	*mcid = rb_class2name(klass);
+	*mcid += ';';
+	*mcid += methodName;
 	for(int i=3; i<argc ; i++)
 	{
-		mcid += ';';
-		mcid += get_VALUEtype(argv[i]);
+		*mcid += ';';
+		*mcid += get_VALUEtype(argv[i]);
 	}
 	
-	Smoke::Index *rcid = methcache.value(mcid);
+	Smoke::Index *rcid = methcache.value(*mcid);
 #ifdef DEBUG
-	if (do_debug & qtdb_calls) qWarning("method_missing mcid: %s", (const char *) mcid);
+	if (do_debug & qtdb_calls) qWarning("method_missing mcid: %s", (const char *) *mcid);
 #endif
 	
 	if (rcid) {
 		// Got a hit
 #ifdef DEBUG
-		if (do_debug & qtdb_calls) qWarning("method_missing cache hit, mcid: %s", (const char *) mcid);
+		if (do_debug & qtdb_calls) qWarning("method_missing cache hit, mcid: %s", (const char *) *mcid);
 #endif
 		_current_method = *rcid;
 	} else {
@@ -1458,27 +1462,28 @@ method_missing(int argc, VALUE * argv, VALUE self)
     VALUE klass = rb_funcall(self, rb_intern("class"), 0);
 
 	// Look for 'thing?' methods, and try to match isThing() or hasThing() in the Smoke runtime
-	QByteArray pred(rb_id2name(SYM2ID(argv[0])));
-	if (pred.endsWith("?")) {
+	QByteArray * pred = new QByteArray(rb_id2name(SYM2ID(argv[0])));
+	if (pred->endsWith("?")) {
 		smokeruby_object *o = value_obj_info(self);
 		if(!o || !o->ptr) {
+			delete pred;
 			return rb_call_super(argc, argv);
 		}
 		
 		// Drop the trailing '?'
-		pred.replace(pred.length() - 1, 1, "");
+		pred->replace(pred->length() - 1, 1, "");
 		
-		pred.replace(0, 1, pred.mid(0, 1).toUpper());
-		pred.replace(0, 0, QByteArray("is"));
-		Smoke::Index meth = o->smoke->findMethod(o->smoke->classes[o->classId].className, (const char *) pred);
+		pred->replace(0, 1, pred->mid(0, 1).toUpper());
+		pred->replace(0, 0, "is");
+		Smoke::Index meth = o->smoke->findMethod(o->smoke->classes[o->classId].className, (const char *) *pred);
 		
 		if (meth == 0) {
-			pred.replace(0, 2, QByteArray("has"));
-			meth = o->smoke->findMethod(o->smoke->classes[o->classId].className, pred);
+			pred->replace(0, 2, "has");
+			meth = o->smoke->findMethod(o->smoke->classes[o->classId].className, *pred);
 		}
 		
 		if (meth > 0) {
-			methodName = (char *) (const char *) pred;
+			methodName = (char *) (const char *) *pred;
 		}
 	}
 		
@@ -1488,22 +1493,30 @@ method_missing(int argc, VALUE * argv, VALUE self)
     temp_stack[2] = klass;
     temp_stack[3] = self;
     for (int count = 1; count < argc; count++) {
-	temp_stack[count+3] = argv[count];
+		temp_stack[count+3] = argv[count];
     }
 
 	{
-		QByteArray mcid = find_cached_selector(argc+3, temp_stack, klass, methodName);
+		QByteArray * mcid = find_cached_selector(argc+3, temp_stack, klass, methodName);
 
 		if (_current_method == -1) {
 			// Find the C++ method to call. Do that from Ruby for now
 
 			VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, temp_stack);
 			if (_current_method == -1) {
-				QRegExp rx("^[-+%/|]$");
-				QString op(rb_id2name(SYM2ID(argv[0])));
-				if (rx.indexIn(op) != -1) {
+				char * op = rb_id2name(SYM2ID(argv[0]));
+				if (	qstrcmp(op, "-") == 0
+						|| qstrcmp(op, "+") == 0
+						|| qstrcmp(op, "/") == 0
+						|| qstrcmp(op, "%") == 0
+						|| qstrcmp(op, "|") == 0 )
+				{
 					// Look for operator methods of the form 'operator+=', 'operator-=' and so on..
-					temp_stack[1] = rb_str_new2(op.append("=").toLatin1());
+					char op1[3];
+					op1[0] = op[0];
+					op1[1] = '=';
+					op1[2] = '\0';
+					temp_stack[1] = rb_str_new2(op1);
 					retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, temp_stack);
 				}
 
@@ -1517,35 +1530,42 @@ method_missing(int argc, VALUE * argv, VALUE self)
 							&& isDerivedFrom(o->smoke, o->classId, o->smoke->idClass("QObject")) )
 					{
 						QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
-						QByteArray prop(rb_id2name(SYM2ID(argv[0])));
+						QByteArray * prop = new QByteArray(rb_id2name(SYM2ID(argv[0])));
 						const QMetaObject * meta = qobject->metaObject();
 						if (argc == 1) {
-							if (prop.endsWith("?")) {
-								prop.replace(0, 1, pred.mid(0, 1).toUpper());
-								prop.replace(0, 0, QByteArray("is"));
-								if (meta->indexOfProperty(prop) == -1) {
-									prop.replace(0, 2, QByteArray("has"));
+							if (prop->endsWith("?")) {
+								prop->replace(0, 1, pred->mid(0, 1).toUpper());
+								prop->replace(0, 0, "is");
+								if (meta->indexOfProperty(*prop) == -1) {
+									prop->replace(0, 2, "has");
 								}
 							}
 
-							if (meta->indexOfProperty(prop) != -1) {
-								VALUE qvariant = rb_funcall(self, rb_intern("property"), 1, rb_str_new2(prop));
+							if (meta->indexOfProperty(*prop) != -1) {
+								VALUE qvariant = rb_funcall(self, rb_intern("property"), 1, rb_str_new2(*prop));
+								delete pred;
+								delete prop;
 								return rb_funcall(qvariant, rb_intern("to_ruby"), 0);
 							}
-						} else if (argc == 2 && prop.endsWith("=")) {
-							prop.replace("=", "");
-							if (meta->indexOfProperty(prop) != -1) {
+						} else if (argc == 2 && prop->endsWith("=")) {
+							prop->replace("=", "");
+							if (meta->indexOfProperty(*prop) != -1) {
 								VALUE qvariant = rb_funcall(self, rb_intern("qVariantFromValue"), 1, argv[1]);
-								return rb_funcall(self, rb_intern("setProperty"), 2, rb_str_new2(prop), qvariant);
+								delete pred;
+								VALUE str = rb_str_new2(*prop);
+								delete prop;
+								return rb_funcall(self, rb_intern("setProperty"), 2, str, qvariant);
 							}
 						}
+						delete prop;
 					}
-
+					
+					delete pred;
 					return rb_call_super(argc, argv);
 				}
 			}
 			// Success. Cache result.
-			methcache.insert(mcid, new Smoke::Index(_current_method));
+			methcache.insert(*mcid, new Smoke::Index(_current_method));
 		}
 	}
 	
@@ -1553,7 +1573,7 @@ method_missing(int argc, VALUE * argv, VALUE self)
     c.next();
     VALUE result = *(c.var());
 	free(temp_stack);
-	
+	delete pred;
     return result;
 }
 
@@ -1568,37 +1588,42 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
     temp_stack[2] = klass;
     temp_stack[3] = Qnil;
     for (int count = 1; count < argc; count++) {
-	temp_stack[count+3] = argv[count];
+		temp_stack[count+3] = argv[count];
     }
 
     {
-		QByteArray mcid = find_cached_selector(argc+3, temp_stack, klass, methodName);
+		QByteArray * mcid = find_cached_selector(argc+3, temp_stack, klass, methodName);
 
 		if (_current_method == -1) {
 			VALUE retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, temp_stack);
-         Q_UNUSED(retval);
+			Q_UNUSED(retval);
 			if (_current_method != -1) {
 				// Success. Cache result.
-				methcache.insert(mcid, new Smoke::Index(_current_method));
+				methcache.insert(*mcid, new Smoke::Index(_current_method));
 			}
 		}
 	}
 
     if (_current_method == -1) {
-		QRegExp rx("[a-zA-Z]+");
-		if (rx.indexIn(methodName) == -1) {
+static QRegExp * rx = 0;
+		if (rx == 0) {
+			rx = new QRegExp("[a-zA-Z]+");
+		}
+		
+		if (rx->indexIn(methodName) == -1) {
 			// If an operator method hasn't been found as an instance method,
 			// then look for a class method - after 'op(self,a)' try 'self.op(a)' 
 	    	VALUE * method_stack = (VALUE *) calloc(argc - 1, sizeof(VALUE));
 	    	method_stack[0] = argv[0];
 	    	for (int count = 1; count < argc - 1; count++) {
-			method_stack[count] = argv[count+1];
+				method_stack[count] = argv[count+1];
     		}
 			result = method_missing(argc-1, method_stack, argv[1]);
 			free(method_stack);
 			free(temp_stack);
 			return result;
 		} else {
+			free(temp_stack);
 			return rb_call_super(argc, argv);
 		}
     }
@@ -1676,13 +1701,13 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	{ 
 		// Put this in a C block so that the mcid will be de-allocated at the end of the block,
 		// rather than on f'n exit, to avoid the longjmp problem described below
-		QByteArray mcid = find_cached_selector(argc+4, temp_stack, klass, rb_class2name(klass));
+		QByteArray * mcid = find_cached_selector(argc+4, temp_stack, klass, rb_class2name(klass));
 
 		if (_current_method == -1) {
 			retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+4, temp_stack);
 			if (_current_method != -1) {
 				// Success. Cache result.
-				methcache.insert(mcid, new Smoke::Index(_current_method));
+				methcache.insert(*mcid, new Smoke::Index(_current_method));
 			}
 		}
 	}
@@ -1874,7 +1899,11 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 								rb_str_new2(method.signature()) );
 
 	QString name(method.signature());
-	name.replace(QRegExp("\\(.*"), "");
+static QRegExp * rx = 0;
+	if (rx == 0) {
+		rx = new QRegExp("\\(.*");
+	}
+	name.replace(*rx, "");
 	
 	InvokeSlot slot(self, rb_intern(name.toLatin1()), mocArgs, _o);
 	slot.next();
@@ -2627,7 +2656,11 @@ kde_package_to_class(const char * package, VALUE base_class)
 {
 	VALUE klass = Qnil;
 	QString packageName(package);
-	QRegExp scope_op("^([^:]+)::([^:]+)$");
+	
+static QRegExp * scope_op = 0;
+	if (scope_op == 0) {
+		scope_op = new QRegExp("^([^:]+)::([^:]+)$");
+	 }
 
 	if (packageName.startsWith("KDE::ConfigSkeleton::ItemEnum::")) {
 		klass = rb_define_class_under(kconfigskeleton_itemenum_class, package+strlen("KDE::ConfigSkeleton::EnumItem::"), base_class);
@@ -2665,7 +2698,7 @@ kde_package_to_class(const char * package, VALUE base_class)
 	} else if (packageName.startsWith("Kontact::")) {
 		klass = rb_define_class_under(kontact_module, package+strlen("Kontact::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
-	} else if (packageName.startsWith("Ko") && scope_op.indexIn(packageName) == -1) {
+	} else if (packageName.startsWith("Ko") && scope_op->indexIn(packageName) == -1) {
 		klass = rb_define_class_under(koffice_module, package+strlen("Ko"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (packageName.startsWith("Kate::")) {
@@ -2677,11 +2710,11 @@ kde_package_to_class(const char * package, VALUE base_class)
 	} else if (packageName.startsWith("KTextEditor::")) {
 		klass = rb_define_class_under(ktexteditor_module, package+strlen("KTextEditor::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
-	} else if (scope_op.indexIn(packageName) != -1) {
+	} else if (scope_op->indexIn(packageName) != -1) {
 		// If an unrecognised classname of the form 'XXXXXX::YYYYYY' is found,
 		// then create a module XXXXXX to put the class YYYYYY under
-		VALUE module = rb_define_module(scope_op.cap(1).toLatin1());
-		klass = rb_define_class_under(module, scope_op.cap(2).toLatin1(), base_class);
+		VALUE module = rb_define_module(scope_op->cap(1).toLatin1());
+		klass = rb_define_class_under(module, scope_op->cap(2).toLatin1(), base_class);
 	} else if (	packageName.startsWith("K") 
 				&& packageName.mid(1, 1).contains(QRegExp("[A-Z]")) == 1 ) 
 	{

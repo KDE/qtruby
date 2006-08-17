@@ -1,3 +1,9 @@
+2006-08-17  Richard Dale  <rdale@foton.es>
+
+	* Used the excellent MallocDebug tool on Mac OS X to track down and fix
+	  some memory leaks. Some QRegExps and QByteArrays are now allocated
+	  statically to minimise memory usage.
+
 2006-07-18  Richard Dale  <rdale@foton.es>
 
 	* The code to change a Ruby 'foo?' method call to a Qt C++ 'setFoo()' was 
