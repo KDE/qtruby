@@ -1,3 +1,8 @@
+2006-08-18  Richard Dale  <rdale@foton.es>
+
+	* Added a KActionPtrList marshaller. Fixes problem reported by
+	  eskatos on the #qtruby irc channel.
+
 2006-06-05  Richard Dale  <rdale@foton.es>
 
 	* The metaObject methods for slots and signals are no longer added when

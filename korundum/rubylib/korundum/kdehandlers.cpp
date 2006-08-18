@@ -1073,6 +1073,7 @@ DEF_VALUELIST_MARSHALLER( ChoicesList, QValueList<KConfigSkeleton::ItemEnum::Cho
 #endif
 DEF_VALUELIST_MARSHALLER( KAboutPersonList, QValueList<KAboutPerson>, KAboutPerson, QValueList<KAboutPerson>::Iterator )
 DEF_VALUELIST_MARSHALLER( KAboutTranslatorList, QValueList<KAboutTranslator>, KAboutTranslator, QValueList<KAboutTranslator>::Iterator )
+DEF_VALUELIST_MARSHALLER( KActionPtrList, QValueList<KAction*>, KAction*, QValueList<KAction*>::Iterator )
 DEF_VALUELIST_MARSHALLER( KIOCopyInfoList, QValueList<KIO::CopyInfo>, KIO::CopyInfo, QValueList<KIO::CopyInfo>::Iterator )
 DEF_VALUELIST_MARSHALLER( KServiceOfferList, QValueList<KServiceOffer>, KServiceOffer, QValueList<KServiceOffer>::Iterator )
 DEF_VALUELIST_MARSHALLER( UDSEntry, QValueList<KIO::UDSAtom>, KIO::UDSAtom, QValueList<KIO::UDSAtom>::Iterator )
@@ -1261,6 +1262,7 @@ void marshall_QMapQCStringDCOPRef(Marshall *m) {
 TypeHandler KDE_handlers[] = {
     { "QCStringList", marshall_QCStringList },
     { "KCmdLineOptions*", marshall_KCmdLineOptions },
+    { "KActionPtrList", marshall_KActionList },
     { "QPtrList<KAction>", marshall_KActionList },
     { "QPtrList<KAction>&", marshall_KActionList },
     { "KMimeType::List", marshall_KMimeTypeList },
@@ -1291,6 +1293,8 @@ TypeHandler KDE_handlers[] = {
     { "QPtrList<KParts::Plugin>", marshall_KPartPluginList },
     { "QPtrList<KParts::ReadOnlyPart>", marshall_KPartReadOnlyPartList },
     { "QPtrList<KServiceTypeProfile>&", marshall_KServiceTypeProfileList },
+    { "QValueList<KAction*>", marshall_KActionPtrList },
+    { "KActionPtrList", marshall_KActionPtrList },
     { "QValueList<KAboutPerson>", marshall_KAboutPersonList },
     { "QValueList<KAboutTranslator>", marshall_KAboutTranslatorList },
     { "QValueList<KIO::CopyInfo>&", marshall_KIOCopyInfoList },
