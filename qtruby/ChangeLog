@@ -1,3 +1,7 @@
+2006-08-18  Richard Dale  <rdale@foton.es>
+
+	* Some more leak fixing and minimising use of the heap
+
 2006-08-17  Richard Dale  <rdale@foton.es>
 
 	* Used the excellent MallocDebug tool on Mac OS X to track down and fix

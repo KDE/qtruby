@@ -1462,11 +1462,15 @@ method_missing(int argc, VALUE * argv, VALUE self)
     VALUE klass = rb_funcall(self, rb_intern("class"), 0);
 
 	// Look for 'thing?' methods, and try to match isThing() or hasThing() in the Smoke runtime
-	QByteArray * pred = new QByteArray(rb_id2name(SYM2ID(argv[0])));
+static QByteArray * pred = 0;
+	if (pred == 0) {
+		pred = new QByteArray();
+	}
+	
+	*pred = methodName;
 	if (pred->endsWith("?")) {
 		smokeruby_object *o = value_obj_info(self);
 		if(!o || !o->ptr) {
-			delete pred;
 			return rb_call_super(argc, argv);
 		}
 		
@@ -1530,7 +1534,12 @@ method_missing(int argc, VALUE * argv, VALUE self)
 							&& isDerivedFrom(o->smoke, o->classId, o->smoke->idClass("QObject")) )
 					{
 						QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
-						QByteArray * prop = new QByteArray(rb_id2name(SYM2ID(argv[0])));
+static QByteArray * prop = 0;
+						if (prop == 0) {
+							prop = new QByteArray();
+						}
+						
+						*prop = rb_id2name(SYM2ID(argv[0]));
 						const QMetaObject * meta = qobject->metaObject();
 						if (argc == 1) {
 							if (prop->endsWith("?")) {
@@ -1543,24 +1552,17 @@ method_missing(int argc, VALUE * argv, VALUE self)
 
 							if (meta->indexOfProperty(*prop) != -1) {
 								VALUE qvariant = rb_funcall(self, rb_intern("property"), 1, rb_str_new2(*prop));
-								delete pred;
-								delete prop;
 								return rb_funcall(qvariant, rb_intern("to_ruby"), 0);
 							}
 						} else if (argc == 2 && prop->endsWith("=")) {
 							prop->replace("=", "");
 							if (meta->indexOfProperty(*prop) != -1) {
 								VALUE qvariant = rb_funcall(self, rb_intern("qVariantFromValue"), 1, argv[1]);
-								delete pred;
-								VALUE str = rb_str_new2(*prop);
-								delete prop;
-								return rb_funcall(self, rb_intern("setProperty"), 2, str, qvariant);
+								return rb_funcall(self, rb_intern("setProperty"), 2, rb_str_new2(*prop), qvariant);
 							}
 						}
-						delete prop;
 					}
 					
-					delete pred;
 					return rb_call_super(argc, argv);
 				}
 			}
@@ -1573,7 +1575,6 @@ method_missing(int argc, VALUE * argv, VALUE self)
     c.next();
     VALUE result = *(c.var());
 	free(temp_stack);
-	delete pred;
     return result;
 }
 
@@ -2660,7 +2661,7 @@ kde_package_to_class(const char * package, VALUE base_class)
 static QRegExp * scope_op = 0;
 	if (scope_op == 0) {
 		scope_op = new QRegExp("^([^:]+)::([^:]+)$");
-	 }
+	}
 
 	if (packageName.startsWith("KDE::ConfigSkeleton::ItemEnum::")) {
 		klass = rb_define_class_under(kconfigskeleton_itemenum_class, package+strlen("KDE::ConfigSkeleton::EnumItem::"), base_class);
