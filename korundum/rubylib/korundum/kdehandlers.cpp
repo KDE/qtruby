@@ -642,6 +642,60 @@ void marshall_KPluginInfoList(Marshall *m) {
 }
 #endif
 
+void marshall_KActionPtrList(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE: 
+		{
+	    }			
+		break;
+	case Marshall::ToVALUE: 
+		{
+		KActionPtrList *valuelist = (KActionPtrList*)m->item().s_voidp;
+		if (!valuelist) {
+			*(m->var()) = Qnil;
+			break;
+	    }
+
+	    VALUE av = rb_ary_new();
+
+	    int ix = m->smoke()->idClass("KAction");
+	    const char * className = m->smoke()->binding->className(ix);
+
+		for (	KActionPtrList::Iterator it = valuelist->begin();
+				it != valuelist->end();
+				++it ) 
+		{
+			void *p = (*it);
+
+			if (m->item().s_voidp == 0) {
+		    	*(m->var()) = Qnil;
+		    	break;
+			}
+
+			VALUE obj = getPointerObject(p);
+			if (obj == Qnil) {
+				smokeruby_object  * o = ALLOC(smokeruby_object);
+				o->smoke = m->smoke();
+				o->classId = o->smoke->idClass("KAction");
+				o->ptr = p;
+				o->allocated = false;
+				obj = set_obj_info(className, o);
+			}
+			rb_ary_push(av, obj);
+		}
+
+		if (m->cleanup())
+			delete valuelist;
+		else
+			*(m->var()) = av;		
+		}
+		break;
+	default:
+		m->unsupported();
+		break;
+	}
+}
+
 void marshall_KTraderOfferList(Marshall *m) {
 	switch(m->action()) {
 	case Marshall::FromVALUE: 
@@ -1073,7 +1127,6 @@ DEF_VALUELIST_MARSHALLER( ChoicesList, QValueList<KConfigSkeleton::ItemEnum::Cho
 #endif
 DEF_VALUELIST_MARSHALLER( KAboutPersonList, QValueList<KAboutPerson>, KAboutPerson, QValueList<KAboutPerson>::Iterator )
 DEF_VALUELIST_MARSHALLER( KAboutTranslatorList, QValueList<KAboutTranslator>, KAboutTranslator, QValueList<KAboutTranslator>::Iterator )
-DEF_VALUELIST_MARSHALLER( KActionPtrList, QValueList<KAction*>, KAction*, QValueList<KAction*>::Iterator )
 DEF_VALUELIST_MARSHALLER( KIOCopyInfoList, QValueList<KIO::CopyInfo>, KIO::CopyInfo, QValueList<KIO::CopyInfo>::Iterator )
 DEF_VALUELIST_MARSHALLER( KServiceOfferList, QValueList<KServiceOffer>, KServiceOffer, QValueList<KServiceOffer>::Iterator )
 DEF_VALUELIST_MARSHALLER( UDSEntry, QValueList<KIO::UDSAtom>, KIO::UDSAtom, QValueList<KIO::UDSAtom>::Iterator )
