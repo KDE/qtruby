@@ -1,3 +1,15 @@
+2006-08-21  Richard Dale  <rdale@foton.es>
+
+	* Reimplemented the Qt::Object.findChild() and findChildren() methods
+	  using code based on the implementation in qobject.cpp. Fixes problem
+	  reported by Robert Gstoehl. It is now possible to pass a regular
+	  expression to findChildren() in the same way as the C++ original:
+
+		mywidget.findChildren(Qt::Pushbutton, /^foo/)
+
+	* Added a Qt::Object.staticMetaObject method to work round the problem
+	  of it being missing from the Smoke runtime.
+
 2006-08-18  Richard Dale  <rdale@foton.es>
 
 	* Some more leak fixing and minimising use of the heap

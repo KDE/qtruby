@@ -1400,6 +1400,24 @@ metaObject(VALUE self)
     return metaObject;
 }
 
+/* This shouldn't be needed, but kalyptus doesn't generate a staticMetaObject
+	method for QObject::staticMetaObject, although it does for all the other
+	classes, and it isn't obvious what the problem with it is. 
+	So add this as a hack to work round the bug.
+*/
+static VALUE
+qobject_staticmetaobject(VALUE /*klass*/)
+{
+	QMetaObject * meta = new QMetaObject(QObject::staticMetaObject);
+	smokeruby_object  * m = (smokeruby_object *) malloc(sizeof(smokeruby_object));
+	m->smoke = qt_Smoke;
+	m->classId = m->smoke->idClass("QMetaObject");
+	m->ptr = meta;
+	m->allocated = true;
+	VALUE obj = set_obj_info("Qt::MetaObject", m);
+	return obj;
+}
+
 static VALUE
 qobject_metaobject(VALUE self)
 {
@@ -1978,87 +1996,105 @@ inherits_qobject(int argc, VALUE * argv, VALUE /*self*/)
 	}
 }
 
-/* For a given Qt::Object obj, it will recursively search all children
-   and keep put them into arry */
-
-static VALUE
-qobject_children_recurse(VALUE obj, VALUE arry)
+/* Adapted from the internal function qt_qFindChildren() in qobject.cpp */
+static void 
+rb_qFindChildren_helper(VALUE parent, const QString &name, VALUE re,
+                         const QMetaObject &mo, VALUE list)
 {
-	VALUE my_kids = rb_funcall(obj, rb_intern("children"), 0);
-
-	if(RARRAY(my_kids)->len) {
-		for(int i=0; i < RARRAY(my_kids)->len; ++i) {
-			qobject_children_recurse(RARRAY(my_kids)->ptr[i], arry);
-		}
-	}
-
-	rb_ary_push(arry,obj);
-	return obj;
+    if (parent == Qnil || list == Qnil)
+        return;
+	VALUE children = rb_funcall(parent, rb_intern("children"), 0);
+    VALUE rv = Qnil;
+    for (int i = 0; i < RARRAY(children)->len; ++i) {
+        rv = RARRAY(children)->ptr[i];
+		smokeruby_object *o = value_obj_info(rv);
+		QObject * obj = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+		
+		// The original code had 'if (mo.cast(obj))' as a test, but it doesn't work here
+        if (obj->qt_metacast(mo.className()) != 0) {
+            if (re != Qnil) {
+				VALUE re_test = rb_funcall(re, rb_intern("=~"), 1, rb_funcall(rv, rb_intern("objectName"), 0));
+				if (re_test != Qnil && re_test != Qfalse) {
+					rb_ary_push(list, rv);
+				}
+            } else {
+                if (name.isNull() || obj->objectName() == name) {
+					rb_ary_push(list, rv);
+				}
+            }
+        }
+        rb_qFindChildren_helper(rv, name, re, mo, list);
+    }
+	return;
 }
 
 /* Should mimic Qt4's QObject::findChildren method with this syntax:
      obj.findChildren(Qt::Widget, "Optional Widget Name")
 */
-
 static VALUE
 find_qobject_children(int argc, VALUE *argv, VALUE self)
 {
-	char * name = 0;
-	if (argc == 2) name = StringValuePtr(argv[1]);
 	if (argc < 1 || argc > 2) rb_raise(rb_eArgError, "Invalid argument list");
 	Check_Type(argv[0], T_CLASS);
 
-	VALUE kids = rb_ary_new();
-	VALUE cname = rb_funcall(argv[0], rb_intern("name"), 0);
-
-	qobject_children_recurse(self, kids);
-	rb_ary_pop(kids);  // Pop self from the array as it's not a child
-
-	VALUE matching_kids = rb_ary_new();
-
-	for(int i=0;i < RARRAY(kids)->len; ++i) {
-		if ( rb_funcall(RARRAY(kids)->ptr[i], rb_intern("inherits"), 1, cname) == Qfalse) continue;
-		if ( name && 
-			rb_funcall(rb_funcall(RARRAY(kids)->ptr[i], rb_intern("objectName"), 0), rb_intern("=="), 1, argv[1]) == Qfalse) 
-			continue;
-	
-		rb_ary_push(matching_kids, RARRAY(kids)->ptr[i]);
+	QString name;
+	VALUE re = Qnil;
+	if (argc == 2) {
+		// If the second arg isn't a String, assume it's a regular expression
+		if (TYPE(argv[1]) == T_STRING) {
+			name = QString::fromLatin1(StringValuePtr(argv[1]));
+		} else {
+			re = argv[1];
+		}
 	}
-
-	return matching_kids;
+		
+	VALUE metaObject = rb_funcall(argv[0], rb_intern("staticMetaObject"), 0);
+	smokeruby_object *o = value_obj_info(metaObject);
+	QMetaObject * mo = (QMetaObject*) o->ptr;
+	VALUE result = rb_ary_new();
+	rb_qFindChildren_helper(self, name, re, *mo, result);
+	return result;
 }
 
+/* Adapted from the internal function qt_qFindChild() in qobject.cpp */
 static VALUE
-qobject_distance(VALUE parent, VALUE child, int* distance)
+rb_qFindChild_helper(VALUE parent, const QString &name, const QMetaObject &mo)
 {
-	(*distance)++;
-	VALUE childs_parent = rb_funcall(child, rb_intern("parent"), 0);
-	if( rb_funcall(parent, rb_intern("=="), 1, childs_parent) == Qfalse)
-		qobject_distance(parent, childs_parent, distance);
-
-	return child;
+    if (parent == Qnil)
+        return Qnil;
+	VALUE children = rb_funcall(parent, rb_intern("children"), 0);
+    VALUE rv;
+	int i;
+    for (i = 0; i < RARRAY(children)->len; ++i) {
+        rv = RARRAY(children)->ptr[i];
+		smokeruby_object *o = value_obj_info(rv);
+		QObject * obj = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+        if (obj->qt_metacast(mo.className()) != 0 && (name.isNull() || obj->objectName() == name))
+            return rv;
+    }
+    for (i = 0; i < RARRAY(children)->len; ++i) {
+        rv = rb_qFindChild_helper(RARRAY(children)->ptr[i], name, mo);
+        if (rv != Qnil)
+            return rv;
+    }
+    return Qnil;
 }
 
 static VALUE
 find_qobject_child(int argc, VALUE *argv, VALUE self)
 {
-	VALUE kids = find_qobject_children(argc,argv,self);
-	VALUE best_child = Qnil;
+	if (argc < 1 || argc > 2) rb_raise(rb_eArgError, "Invalid argument list");
+	Check_Type(argv[0], T_CLASS);
 
-	int best_distance = 100000;
-
-	for(int i=0;i < RARRAY(kids)->len; ++i) {
-		int distance = 0;
-		VALUE child = RARRAY(kids)->ptr[i];
-		qobject_distance(self, child, &distance);
-		if(distance == 1) return child;
-		else if(distance < best_distance) {
-			best_distance = distance;
-			best_child = child;
-		}
+	QString name;
+	if (argc == 2) {
+		name = QString::fromLatin1(StringValuePtr(argv[1]));
 	}
-
-	return best_child;
+		
+	VALUE metaObject = rb_funcall(argv[0], rb_intern("staticMetaObject"), 0);
+	smokeruby_object *o = value_obj_info(metaObject);
+	QMetaObject * mo = (QMetaObject*) o->ptr;
+	return rb_qFindChild_helper(self, name, *mo);
 }
 
 static void
@@ -2661,7 +2697,7 @@ kde_package_to_class(const char * package, VALUE base_class)
 static QRegExp * scope_op = 0;
 	if (scope_op == 0) {
 		scope_op = new QRegExp("^([^:]+)::([^:]+)$");
-	}
+	 }
 
 	if (packageName.startsWith("KDE::ConfigSkeleton::ItemEnum::")) {
 		klass = rb_define_class_under(kconfigskeleton_itemenum_class, package+strlen("KDE::ConfigSkeleton::EnumItem::"), base_class);
@@ -2742,6 +2778,8 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 		if (packageName == "Qt::Application" || packageName == "Qt::CoreApplication" ) {
 			rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qapplication, -1);
 			rb_define_method(klass, "ARGV", (VALUE (*) (...)) qapplication_argv, 0);
+		} else if (packageName == "Qt::Object") {
+			rb_define_singleton_method(klass, "staticMetaObject", (VALUE (*) (...)) qobject_staticmetaobject, 0);
 		} else if (packageName == "Qt::AbstractTableModel") {
 			qtablemodel_class = rb_define_class_under(qt_module, "TableModel", klass);
 			rb_define_method(qtablemodel_class, "rowCount", (VALUE (*) (...)) qabstract_item_model_rowcount, -1);
