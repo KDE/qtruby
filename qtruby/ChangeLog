@@ -1,3 +1,9 @@
+2006-08-25  Richard Dale  <rdale@foton.es>
+
+	* Fixed bug in the rbuic tool where a QTextEdit::AutoNone value wasn't
+	  being converted into the Qt::TextEdit::AutoNone qtruby form. Reported
+	  by #freqmod on the irc channel #kde-ruby.
+
 2006-08-21  Richard Dale  <rdale@foton.es>
 
 	* Reimplemented the Qt::Object.findChild() and findChildren() methods

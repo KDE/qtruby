@@ -681,6 +681,9 @@ void WriteInitialization::writeProperties(const QString &varName,
             break;
         case DomProperty::Set:
             propertyValue = p->elementSet();
+            if (!propertyValue.contains(QLatin1String("::")))
+                propertyValue.prepend(className + QLatin1String(QLatin1String("::")));
+			propertyValue = driver->rubyClassName(propertyValue);
 			propertyValue.replace("|", "|");
             break;
         case DomProperty::Font: {
