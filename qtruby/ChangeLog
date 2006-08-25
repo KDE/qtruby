@@ -4,6 +4,9 @@
 	  being converted into the Qt::TextEdit::AutoNone qtruby form. Reported
 	  by #freqmod on the irc channel #kde-ruby.
 
+	* Brought the rbrcc code in line with the latest Qt 4.2 version with
+	  changes to the locale handling.
+
 2006-08-21  Richard Dale  <rdale@foton.es>
 
 	* Reimplemented the Qt::Object.findChild() and findChildren() methods

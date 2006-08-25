@@ -66,9 +66,9 @@ bool RCCFileInfo::writeDataInfo(FILE *out, RCCResourceLibrary::Format format)
 {
     //some info
     if(format == RCCResourceLibrary::C_Code) {
-        if(locale != QLocale::c())
+        if(language != QLocale::C)
             fprintf(out, "  # %s [%d::%d]\n  ", resourceName().toLatin1().constData(),
-                    locale.country(), locale.language());
+                    country, language);
         else
             fprintf(out, "  # %s\n  ", resourceName().toLatin1().constData());
     }
@@ -104,10 +104,10 @@ bool RCCFileInfo::writeDataInfo(FILE *out, RCCResourceLibrary::Format format)
             fprintf(out, ",");
 
         //locale
-        qt_rcc_write_number(out, locale.country(), 2, format);
+        qt_rcc_write_number(out, country, 2, format);
         if(format == RCCResourceLibrary::C_Code)
             fprintf(out, ",");
-        qt_rcc_write_number(out, locale.language(), 2, format);
+        qt_rcc_write_number(out, country, 2, format);
         if(format == RCCResourceLibrary::C_Code)
             fprintf(out, ",");
 
@@ -241,9 +241,20 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
         for (QDomElement child = root.firstChild().toElement(); !child.isNull();
              child = child.nextSibling().toElement()) {
             if (child.tagName() == QLatin1String(TAG_RESOURCE)) {
-                QLocale lang = QLocale::c();
-                if (child.hasAttribute(ATTRIBUTE_LANG))
-                    lang = QLocale(child.attribute(ATTRIBUTE_LANG));
+                QLocale::Language language = QLocale::c().language();
+                QLocale::Country country = QLocale::c().country();
+
+                if (child.hasAttribute(ATTRIBUTE_LANG)) {
+                    QString attribute = child.attribute(ATTRIBUTE_LANG);
+                    QLocale lang = QLocale(attribute);
+                    language = lang.language();
+                    if(2 == attribute.length()) {
+                        // Language only
+                        country = QLocale::AnyCountry;
+                    } else {
+                        country = lang.country();
+                    }
+                }
 
                 QString prefix;
                 if (child.hasAttribute(ATTRIBUTE_PREFIX))
@@ -289,7 +300,7 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
                             fprintf(stderr, "RCC: Error: Cannot find file '%s'\n", fileName.toLatin1().constData());
                             return false;
                         } else if (file.isFile()) {
-                            addFile(alias, RCCFileInfo(alias.section('/', -1), file, lang,
+                            addFile(alias, RCCFileInfo(alias.section('/', -1), file, language, country,
                                                        RCCFileInfo::NoFlags, compressLevel, compressThreshold));
                         } else {
                             QDir dir;
@@ -308,7 +319,7 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString f
                                 if(children[i].fileName() != QLatin1String(".") &&
                                    children[i].fileName() != QLatin1String(".."))
                                     addFile(alias + children[i].fileName(),
-                                            RCCFileInfo(children[i].fileName(), children[i], lang,
+                                            RCCFileInfo(children[i].fileName(), children[i], language, country,
                                                         RCCFileInfo::NoFlags, compressLevel, compressThreshold));
                             }
                         }
@@ -332,14 +343,14 @@ bool RCCResourceLibrary::addFile(const QString &alias, const RCCFileInfo &file)
         return false;
     }
     if(!root)
-        root = new RCCFileInfo("", QFileInfo(), QLocale(), RCCFileInfo::Directory);
+        root = new RCCFileInfo("", QFileInfo(), QLocale::C, QLocale::AnyCountry, RCCFileInfo::Directory);
 
     RCCFileInfo *parent = root;
     const QStringList nodes = alias.split('/');
     for(int i = 1; i < nodes.size()-1; ++i) {
         const QString node = nodes.at(i);
         if(!parent->children.contains(node)) {
-            RCCFileInfo *s = new RCCFileInfo(node, QFileInfo(), QLocale(), RCCFileInfo::Directory);
+            RCCFileInfo *s = new RCCFileInfo(node, QFileInfo(), QLocale::C, QLocale::AnyCountry, RCCFileInfo::Directory);
             s->parent = parent;
             parent->children.insert(node, s);
             parent = s;
