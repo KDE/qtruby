@@ -588,6 +588,7 @@ construct_copy(smokeruby_object *o)
     Smoke::Index ccMeth = o->smoke->findMethod(o->classId, ccId);
 
     if(!ccMeth) {
+	delete[] ccArg;
 	return 0;
     }
 	Smoke::Index method = o->smoke->methodMaps[ccMeth].method;
