@@ -661,6 +661,8 @@ public:
 	~EmitDCOPSignal() 
 	{
 		delete[] _stack;
+		delete _stream;
+		delete _data;
 	}
     const MocArgument &arg() { return _args[_cur]; }
     SmokeType type() { return arg().st; }
