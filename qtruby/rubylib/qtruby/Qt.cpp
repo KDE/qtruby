@@ -2826,6 +2826,7 @@ Init_qtruby()
 
     methcache.setAutoDelete(true);
     classcache.setAutoDelete(true);
+    classname.setAutoDelete(true);
 
 	if (qt_module == Qnil) {
 		qt_module = rb_define_module("Qt");
