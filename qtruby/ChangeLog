@@ -1,3 +1,7 @@
+2006-08-29  Richard Dale  <rdale@foton.es>
+
+	* Backported some memory leak fixes from Qt4 QtRuby
+
 2006-08-10  Richard Dale  <rdale@foton.es>
 
 	* The Ruby VALUE to 'uchar *' marshaller wasn't working correctly if the
