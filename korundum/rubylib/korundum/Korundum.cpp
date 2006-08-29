@@ -880,6 +880,9 @@ public:
 	~InvokeDCOPSlot() {
 		delete[] _stack;
 		delete _stream;
+		for(int i=0;i<_items;++i) {
+			free(_sp++);
+		}
 	}
 };
 
