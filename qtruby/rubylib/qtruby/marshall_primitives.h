@@ -186,22 +186,22 @@ static VALUE primitive_to_ruby<double>(double sv)
 }
 
 template <>
-static char* ruby_to_primitive<char *>(VALUE v)
+static char* ruby_to_primitive<char *>(VALUE rv)
 {
-	if(v == Qnil)
+	if(rv == Qnil)
 		return 0;
 	
 	int len = RSTRING(rv)->len;
 	char* mem = (char*) malloc(len+1);
 	memcpy(mem, StringValuePtr(rv), len);
 	mem[len] ='\0';
-	return (unsigned char*) mem;
+	return (char*) mem;
 }
 
 template <>
-static unsigned char* ruby_to_primitive<unsigned char *>(VALUE v)
+static unsigned char* ruby_to_primitive<unsigned char *>(VALUE rv)
 {
-	if(v == Qnil)
+	if(rv == Qnil)
 		return 0;
 	
 	int len = RSTRING(rv)->len;

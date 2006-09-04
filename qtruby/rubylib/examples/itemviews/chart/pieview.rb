@@ -72,7 +72,7 @@ class PieView < Qt::AbstractItemView
     
     def indexAt(point)
         if @validItems == 0
-            return Qt::ModelIndex()
+            return Qt::ModelIndex.new
         end
     
         # Transform the view coordinates into contents widget coordinates.

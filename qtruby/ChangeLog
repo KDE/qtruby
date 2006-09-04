@@ -1,3 +1,15 @@
+2006-09-04  Richard Dale  <rdale@foton.es>
+
+	* The 'default.txt' file was missing from the itemviews/simpletreemodel
+	  example. Added it, and converted the example to use the rbrcc tool.
+
+	* Fixed a bug in the rbrcc compiler in the code generation for the
+	  qt_resource_struct.
+
+	* Fixed some bugs in the network/ftp and itemviews/chart examples
+
+	* Made marshall_primitives.h compile
+
 2006-08-25  Richard Dale  <rdale@foton.es>
 
 	* Fixed bug in the rbuic tool where a QTextEdit::AutoNone value wasn't

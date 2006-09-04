@@ -24,10 +24,11 @@
 =end
 
 require 'Qt'
+require 'qrc_simpletreemodel.rb'
 require 'treemodel.rb'
 
 app = Qt::Application.new(ARGV)
-file = Qt::File.new("default.txt")
+file = Qt::File.new(":/default.txt")
 file.open(Qt::IODevice::ReadOnly)
 model = TreeModel.new(file.readAll)
 file.close

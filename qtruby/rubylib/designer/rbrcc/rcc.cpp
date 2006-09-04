@@ -107,7 +107,7 @@ bool RCCFileInfo::writeDataInfo(FILE *out, RCCResourceLibrary::Format format)
         qt_rcc_write_number(out, country, 2, format);
         if(format == RCCResourceLibrary::C_Code)
             fprintf(out, ",");
-        qt_rcc_write_number(out, country, 2, format);
+        qt_rcc_write_number(out, language, 2, format);
         if(format == RCCResourceLibrary::C_Code)
             fprintf(out, ",");
 
