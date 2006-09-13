@@ -1930,6 +1930,21 @@ static QRegExp * rx = 0;
 	return INT2NUM(id - count);
 }
 
+static VALUE
+qobject_connect(int argc, VALUE * argv, VALUE self)
+{
+	if (rb_block_given_p()) {
+		if (argc == 2) {
+			return rb_funcall(qt_internal_module, rb_intern("connect"), 4, argv[0], argv[1], self, rb_block_proc());
+		} else if (argc == 3) {
+			return rb_funcall(qt_internal_module, rb_intern("connect"), 4, argv[0], argv[1], argv[2], rb_block_proc());
+		} else {
+			rb_raise(rb_eArgError, "Invalid argument list");
+		}
+	} else {
+		return rb_call_super(argc, argv);
+	}
+}
 
 // --------------- Ruby C functions for Qt::_internal.* helpers  ----------------
 
@@ -2832,6 +2847,8 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 	rb_define_method(klass, "inherits", (VALUE (*) (...)) inherits_qobject, -1);
 	rb_define_method(klass, "findChildren", (VALUE (*) (...)) find_qobject_children, -1);
 	rb_define_method(klass, "findChild", (VALUE (*) (...)) find_qobject_child, -1);   
+	rb_define_method(klass, "connect", (VALUE (*) (...)) qobject_connect, -1);   
+	rb_define_singleton_method(klass, "connect", (VALUE (*) (...)) qobject_connect, -1);   
 
 	return klass;
 }

@@ -1,3 +1,33 @@
+2006-09-13  Richard Dale  <rdale@foton.es>
+
+	* Blocks can now be used as slots in Qt::Object.connect() calls. There are two
+	  versions, a singleton method and an instance method. 
+
+	* Here is an example of the class method connect() call with a block as a target:
+
+		app = Qt::Application.new(ARGV)
+		quit = Qt::PushButton.new('Quit')
+		Qt::Object.connect(quit, SIGNAL('clicked()'), app) { puts 'quit clicked' }
+
+	  The block is executed in the context of the target instance, 'app' in this 
+	  case.
+
+	* And the instance method form:
+
+		class MyButton < Qt::Button
+			def initialize(text)
+				super(text)
+				connect(self, SIGNAL('clicked()')) { puts 'button clicked' }
+			end
+			...
+
+	  The block is executed in the context of self - the instance making the 
+	  connect() call.
+
+	* The Rails version of the Ruby 1.9 method Object#instance_exec was used
+	  to invoke the block. Thanks to kelko on the #kde-ruby channel for the
+	  idea and the code, and rickdangerous for further discussion.
+
 2006-09-04  Richard Dale  <rdale@foton.es>
 
 	* The 'default.txt' file was missing from the itemviews/simpletreemodel

@@ -823,6 +823,9 @@ module Qt
 		end
 	end
 
+	class Object < Qt::Base
+	end
+
 	class PageSetupDialog < Qt::Base
 		def exec(*args)
 			method_missing(:exec, *args)
@@ -1535,6 +1538,19 @@ module Qt
 			return !@value 
 		end
 	end
+
+	class BlockInvocation < Qt::Object
+		def initialize(target, block, args)
+			super(target)
+			self.class.slots "invoke(#{args})"
+			@target = target
+			@block = block
+		end
+
+		def invoke(*args)
+			@target.instance_exec(*args, &@block)
+		end
+	end
 	
 	module Internal
 		@@classes   = {}
@@ -2004,6 +2020,14 @@ module Qt
 			
 			meta.metaobject
 		end
+
+		def Internal.connect(src, signal, target, block)
+			signature = (signal =~ /\((.*)\)/) ? $1 : ""
+			return Qt::Object.connect(	src,
+										signal,
+										Qt::BlockInvocation.new(target, block, signature),
+										SLOT("invoke(#{signature})") )
+		end
 	end # Qt::Internal
 
 	Meta = {}
@@ -2136,6 +2160,28 @@ class Object
 
 	def QT_TR_NOOP(x) x end
 	def QT_TRANSLATE_NOOP(scope, x) x end
+
+	# See the discussion here: http://eigenclass.org/hiki.rb?instance_exec
+	# about implementations of the ruby 1.9 method instance_exec(). This
+	# version is the one from Rails. It isn't thread safe, but that doesn't
+	# matter for the intended use in invoking blocks as Qt slots.
+	def instance_exec(*arguments, &block)
+		block.bind(self)[*arguments]
+	end
+end
+
+class Proc 
+	# Part of the Rails Object#instance_exec implementation
+	def bind(object)
+		block, time = self, Time.now
+		(class << object; self end).class_eval do
+			method_name = "__bind_#{time.to_i}_#{time.usec}"
+			define_method(method_name, &block)
+			method = instance_method(method_name)
+			remove_method(method_name)
+			method
+		end.bind(object)
+	end
 end
 
 class Module
