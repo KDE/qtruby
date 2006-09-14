@@ -1205,6 +1205,18 @@ module Qt
 		end
 	end
 
+	class SignalBlockInvocation < Qt::Object
+		def initialize(parent, block, args)
+			super(parent)
+			self.class.slots "invoke(#{args})"
+			@block = block
+		end
+
+		def invoke(*args)
+			@block.call(*args)
+		end
+	end
+
 	class BlockInvocation < Qt::Object
 		def initialize(target, block, args)
 			super(target)
@@ -1620,6 +1632,14 @@ module Qt
 			return Qt::Object.connect(	src,
 										signal,
 										Qt::BlockInvocation.new(target, block, signature),
+										SLOT("invoke(#{signature})") )
+		end
+
+		def Internal.signal_connect(src, signal, block)
+			signature = (signal =~ /\((.*)\)/) ? $1 : ""
+			return Qt::Object.connect(	src,
+										signal,
+										Qt::SignalBlockInvocation.new(src, block, signature),
 										SLOT("invoke(#{signature})") )
 		end
 	end # Qt::Internal

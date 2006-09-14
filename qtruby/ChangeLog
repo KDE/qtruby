@@ -1,3 +1,14 @@
+2006-09-14  Richard Dale  <rdale@foton.es>
+
+	* Added a new variant of connect, which takes a SIGNAL as an argument, along with
+	  a block. For example:
+
+		quit.connect(SIGNAL(:clicked)) { puts 'quit pressed' }
+
+	  The block is called in the context of where the connect call was made, and 'self'
+	  needn't be a Qt::Object. It is similar to the signal_connect() method in
+	  ruby-gnome. This was suggested by rickdangerous on the #qtruby irc channel.
+
 2006-09-13  Richard Dale  <rdale@foton.es>
 
 	* Blocks can now be used as slots in Qt::Object.connect() calls. There are two

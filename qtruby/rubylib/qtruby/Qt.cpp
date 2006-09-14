@@ -1857,7 +1857,9 @@ static VALUE
 qobject_connect(int argc, VALUE * argv, VALUE self)
 {
 	if (rb_block_given_p()) {
-		if (argc == 2) {
+		if (argc == 1) {
+			return rb_funcall(qt_internal_module, rb_intern("signal_connect"), 3, self, argv[0], rb_block_proc());
+		} else if (argc == 2) {
 			return rb_funcall(qt_internal_module, rb_intern("connect"), 4, argv[0], argv[1], self, rb_block_proc());
 		} else if (argc == 3) {
 			return rb_funcall(qt_internal_module, rb_intern("connect"), 4, argv[0], argv[1], argv[2], rb_block_proc());
