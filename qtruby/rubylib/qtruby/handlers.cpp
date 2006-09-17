@@ -839,8 +839,9 @@ static void marshall_QString(Marshall *m) {
 				rb_str_cat2(*(m->var()), StringValuePtr(temp));
 			}
 	
-			if(s && m->type().isConst() && m->cleanup())
+			if (s != 0 && m->cleanup()) {
 				delete s;
+			}
 		}
 		break;
 
