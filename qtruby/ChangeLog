@@ -1,3 +1,8 @@
+2006-09-17  Richard Dale  <rdale@foton.es>
+
+	* Fixed bug reported by Caleb Tennis where temporary QString const arguments
+	  were only being deleting after marshalling if they weren't const types.
+
 2006-09-14  Richard Dale  <rdale@foton.es>
 
 	* Added a new variant of connect, which takes a SIGNAL as an argument, along with

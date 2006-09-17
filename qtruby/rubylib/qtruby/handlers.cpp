@@ -856,18 +856,18 @@ rstringFromQString(QString * s) {
 }
 
 static void marshall_QString(Marshall *m) {
-    switch(m->action()) {
-      case Marshall::FromVALUE:
+	switch(m->action()) {
+	case Marshall::FromVALUE:
 	{
-	    QString* s = 0;
-	    if( *(m->var()) != Qnil) {
-               s = qstringFromRString(*(m->var()));
-            } else {
-                s = new QString(QString::null);
-            }
+		QString* s = 0;
+		if ( *(m->var()) != Qnil) {
+			s = qstringFromRString(*(m->var()));
+		} else {
+			s = new QString(QString::null);
+		}
 		
-	    m->item().s_voidp = s;
-	    m->next();
+		m->item().s_voidp = s;
+		m->next();
 		
 		if (!m->type().isConst() && *(m->var()) != Qnil && s != 0 && !s->isNull()) {
 			rb_str_resize(*(m->var()), 0);
@@ -875,29 +875,31 @@ static void marshall_QString(Marshall *m) {
 			rb_str_cat2(*(m->var()), StringValuePtr(temp));
 		}
 	    
-		if(s && m->type().isConst() && m->cleanup())
-		delete s;
+		if (s != 0 && m->cleanup()) {
+			delete s;
+		}
 	}
 	break;
-      case Marshall::ToVALUE:
+	case Marshall::ToVALUE:
 	{
-	    QString *s = (QString*)m->item().s_voidp;
-	    if(s) {
-	    	if (s->isNull()) {
-                    *(m->var()) = Qnil;
-	     	} else {
-               *(m->var()) = rstringFromQString(s);
-	     	}
-	     	if(m->cleanup() || m->type().isStack())
-	     	delete s;
-         } else {
-                *(m->var()) = Qnil;
-            }
+		QString *s = (QString*)m->item().s_voidp;
+		if (s != 0) {
+			if (s->isNull()) {
+				*(m->var()) = Qnil;
+			} else {
+				*(m->var()) = rstringFromQString(s);
+			}
+			if (m->cleanup() || m->type().isStack()) {
+				delete s;
+			}
+		} else {
+			*(m->var()) = Qnil;
+		}
 	}
 	break;
-      default:
-	m->unsupported();
-	break;
+	default:
+		m->unsupported();
+		break;
     }
 }
 
