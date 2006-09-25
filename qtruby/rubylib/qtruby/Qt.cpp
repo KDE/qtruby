@@ -1396,7 +1396,14 @@ qitemselection_count(VALUE self)
 static VALUE
 metaObject(VALUE self)
 {
-    VALUE metaObject = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 1, self);
+    VALUE metaObject = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 1, CLASS_OF(self));
+    return metaObject;
+}
+
+static VALUE
+staticMetaObject(VALUE klass)
+{
+    VALUE metaObject = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 1, klass);
     return metaObject;
 }
 
@@ -1697,7 +1704,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	if (TYPE(self) == T_DATA) {
 		// If a ruby block was passed then run that now
 		if (rb_block_given_p()) {
-		rb_funcall(qt_internal_module, rb_intern("run_initializer_block"), 2, self, rb_block_proc());
+			rb_funcall(qt_internal_module, rb_intern("run_initializer_block"), 2, self, rb_block_proc());
 		}
 
 		return self;
@@ -1819,12 +1826,12 @@ VALUE
 getmetainfo(VALUE self, int &offset, int &index)
 {
     char * signalname = rb_id2name(rb_frame_last_func());
-    VALUE metaObject_value = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 1, self);
+	VALUE metaObject_value = rb_funcall(CLASS_OF(self), rb_intern("staticMetaObject"), 0);
 
     smokeruby_object *ometa = value_obj_info(metaObject_value);
     if(!ometa) return 0;
     QMetaObject *metaobject = (QMetaObject*)ometa->ptr;
-
+printf("getmetainfo className: %s\n", metaobject->className());
     offset = metaobject->methodOffset();
 
     VALUE signalInfo = rb_funcall(qt_internal_module, rb_intern("signalInfo"), 2, self, rb_str_new2(signalname));
@@ -1860,8 +1867,9 @@ qt_signal(int argc, VALUE * argv, VALUE self)
     return result;
 }
 
+
 static VALUE
-qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
+qt_metacall(int argc, VALUE * argv, VALUE self)
 {
 	// Arguments: QMetaObject::Call _c, int id, void ** _o
 	QMetaObject::Call _c = (QMetaObject::Call) NUM2INT(	rb_funcall(	qt_internal_module,
@@ -1875,14 +1883,18 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 	// it isn't an error to get a NULL value of _o here.
 	Data_Get_Struct(argv[2], void*, _o);
 	
-	VALUE metaObject_value = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 1, self);
+	VALUE metaObject_value = rb_funcall(CLASS_OF(self), rb_intern("staticMetaObject"), 0);
 	smokeruby_object *ometa = value_obj_info(metaObject_value);
 	if (!ometa) return argv[1];
 	
 	QMetaObject *metaobject = (QMetaObject*)ometa->ptr;
+
+printf("qt_metacall id: %d\n", id);	
 	
 	int count = metaobject->methodCount();
 	int offset = metaobject->methodOffset();
+
+printf("qt_metacall id: %d count: %d offset: %d\n", id, count, offset);	
 
 	if (id < offset) {
 		// Assume the target slot is a C++ one
@@ -1929,6 +1941,83 @@ static QRegExp * rx = 0;
 	
 	return INT2NUM(id - count);
 }
+
+
+/*
+static VALUE
+qt_metacall(int argc, VALUE * argv, VALUE self)
+{
+	int _id = 0;
+	// Arguments: QMetaObject::Call _c, int _id, void ** _a
+	QMetaObject::Call _c = (QMetaObject::Call) NUM2INT(	rb_funcall(	qt_internal_module,
+																	rb_intern("get_qinteger"), 
+																	1, 
+																	argv[0] ) );
+
+	int id = NUM2INT(argv[1]);
+	void ** _a = 0;
+
+	// Note that for a slot with no args and no return type,
+	// it isn't an error to get a NULL value of _o here.
+	Data_Get_Struct(argv[2], void*, _a);
+
+	smokeruby_object *o = value_obj_info(self);
+	Smoke::Index nameId = o->smoke->idMethodName("qt_metacall$$?");
+	Smoke::Index meth = o->smoke->findMethod(o->classId, nameId);
+	if(meth > 0) {
+		Smoke::Method &m = o->smoke->methods[o->smoke->methodMaps[meth].method];
+		Smoke::ClassFn fn = o->smoke->classes[m.classId].classFn;
+		Smoke::StackItem i[4];
+		i[1].s_enum = _c;
+		i[2].s_int = id;
+		i[3].s_voidp = _a;
+		(*fn)(m.method, o->ptr, i);
+		_id = i[0].s_int;
+	} else {
+		// Should never happen..
+		rb_raise(rb_eRuntimeError, "Cannot find %s::qt_metacall() method\n", 
+			o->smoke->classes[o->classId].className );
+	}
+
+printf("qt_metacall _id: %d\n", _id);	
+	if (_id < 0) {
+		return _id;
+	}
+	
+	VALUE metaObject_value = rb_funcall(CLASS_OF(self), rb_intern("staticMetaObject"), 0);
+	smokeruby_object *ometa = value_obj_info(metaObject_value);
+	if (!ometa) return argv[1];
+	
+	QMetaObject *metaobject = (QMetaObject*) ometa->ptr;
+
+    if (_c == QMetaObject::InvokeMetaMethod) {
+		int count = metaobject->methodCount();
+		int offset = metaobject->methodOffset();
+printf("qt_metacall count: %d offset: %d _id: %d\n", count, offset, _id);	
+		
+		QMetaMethod method = metaobject->method(offset + _id);
+		
+		VALUE mocArgs = rb_funcall(	qt_internal_module, 
+									rb_intern("getMocArguments"), 
+									2, 
+									rb_str_new2(method.typeName()),
+									rb_str_new2(method.signature()) );
+		
+		QString name(method.signature());
+static QRegExp * rx = 0;
+		if (rx == 0) {
+			rx = new QRegExp("\\(.*");
+		}
+		name.replace(*rx, "");
+
+		InvokeSlot slot(self, rb_intern(name.toLatin1()), mocArgs, _a);
+		slot.next();
+		_id -= count;
+	}
+	
+	return INT2NUM(_id);
+}
+*/
 
 static VALUE
 qobject_connect(int argc, VALUE * argv, VALUE self)
@@ -2252,28 +2341,13 @@ getVALUEtype(VALUE /*self*/, VALUE ruby_value)
 }
 
 static VALUE
-make_metaObject(VALUE /*self*/, VALUE obj, VALUE stringdata_value, VALUE data_value)
+make_metaObject(VALUE /*self*/, VALUE superklass, VALUE stringdata_value, VALUE data_value)
 {
-    smokeruby_object *o = value_obj_info(obj);
-    if (!o || !o->ptr) {
-    	rb_raise(rb_eRuntimeError, "Cannot create metaObject\n");
-    }
+	VALUE metaObject = rb_funcall(superklass, rb_intern("staticMetaObject"), 0);
+	smokeruby_object *o = value_obj_info(metaObject);
+	QMetaObject * superdata = (QMetaObject*) o->ptr;
+printf("superdata className: %s\n", superdata->className());
 
-	Smoke::Index nameId = o->smoke->idMethodName("metaObject");
-	Smoke::Index meth = o->smoke->findMethod(o->classId, nameId);
-	if (meth <= 0) {
-		// Should never happen..
-    	rb_raise(	rb_eRuntimeError, 
-					"Cannot find %s::metaObject() method\n", 
-					o->smoke->classes[o->classId].className );
-	}
-
-	Smoke::Method &methodId = o->smoke->methods[o->smoke->methodMaps[meth].method];
-	Smoke::ClassFn fn = o->smoke->classes[methodId.classId].classFn;
-	Smoke::StackItem i[1];
-	(*fn)(methodId.method, o->ptr, i);
-
-	QMetaObject *superdata = (QMetaObject *) i[0].s_voidp;
 	char *stringdata = new char[RSTRING(stringdata_value)->len];
 
 	int count = RARRAY(data_value)->len;
@@ -2293,7 +2367,7 @@ make_metaObject(VALUE /*self*/, VALUE obj, VALUE stringdata_value, VALUE data_va
 	QMetaObject * meta = new QMetaObject;
 	*meta = ob;
 
-#ifdef DEBUG
+//#ifdef DEBUG
 	printf("make_metaObject() superdata: %p\n", meta->d.superdata);
 	printf("stringdata: ");
 	for (int j = 0; j < RSTRING(stringdata_value)->len; j++) {
@@ -2310,7 +2384,7 @@ make_metaObject(VALUE /*self*/, VALUE obj, VALUE stringdata_value, VALUE data_va
 		printf("%d, ", data[i]);
 	}
 	printf("\n");
-#endif
+//#endif
 
     smokeruby_object * m = (smokeruby_object *) malloc(sizeof(smokeruby_object));
     m->smoke = qt_Smoke;
@@ -2326,6 +2400,7 @@ add_metaobject_methods(VALUE self, VALUE klass)
 {
 	rb_define_method(klass, "qt_metacall", (VALUE (*) (...)) qt_metacall, -1);
 	rb_define_method(klass, "metaObject", (VALUE (*) (...)) metaObject, 0);
+    rb_define_singleton_method(klass, "staticMetaObject", (VALUE (*) (...)) staticMetaObject, 0);
 	return self;
 }
 
@@ -2989,7 +3064,7 @@ set_application_terminated(VALUE /*self*/, VALUE yn)
 }
 
 void
-Init_qtruby()
+Init_qtruby4()
 {
 	if (qt_Smoke != 0L) {
 		// This function must have been called twice because both
@@ -3071,7 +3146,7 @@ Init_qtruby()
     rb_define_module_function(qt_module, "qRegisterResourceData", (VALUE (*) (...)) q_register_resource_data, 4);
     rb_define_module_function(qt_module, "qUnregisterResourceData", (VALUE (*) (...)) q_unregister_resource_data, 4);
 
-	rb_require("Qt/qtruby.rb");
+	rb_require("Qt/qtruby4.rb");
 
     // Do package initialization
     rb_funcall(qt_internal_module, rb_intern("init_all_classes"), 0);

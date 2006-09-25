@@ -8,4 +8,4 @@ $LOCAL_LIBS += '-lsmokeqt -lQtCore -lQtGui -lQtNetwork -lQtOpenGL -lQtSql -lQtXm
 # For Windows the Qt library names end in '4':
 # $LOCAL_LIBS += '-lsmokeqt -lQtCore4 -lQtGui4 -lQtNetwork4 -lQtOpenGL4 -lQtSql4 -lQtXml4 -lstdc++'
 
-create_makefile("qtruby")
+create_makefile("qtruby4")

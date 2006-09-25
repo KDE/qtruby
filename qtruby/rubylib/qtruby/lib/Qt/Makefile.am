@@ -1,2 +1,2 @@
 qtrubylibdir = $(RUBY_SITEDIR)/Qt
-qtrubylib_DATA = qtruby.rb
+qtrubylib_DATA = qtruby4.rb

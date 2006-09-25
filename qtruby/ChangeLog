@@ -1,3 +1,14 @@
+2006-09-25  Richard Dale  <rdale@foton.es>
+
+	* Renamed 'qtruby.rb' as qtruby4.rb, and qtruby.so as qtruby4.so
+
+	* Qt4.rb and Qt3.rb files are installed to allow either Qt3 or
+	  Qt4 versions of QtRuby to be used with require 'Qt4' or 
+	  require 'Qt3' statements
+
+	* A Qt.rb symbolic link is created by the install so that by default
+	  a require 'Qt' statement will use Qt4 QtRuby
+
 2006-09-17  Richard Dale  <rdale@foton.es>
 
 	* Fixed bug reported by Caleb Tennis where temporary QString const arguments
