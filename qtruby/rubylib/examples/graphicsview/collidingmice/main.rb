@@ -44,8 +44,7 @@ end
 view = Qt::GraphicsView.new(scene)
 view.renderHint = Qt::Painter::Antialiasing
 view.backgroundBrush = Qt::Brush.new(Qt::Pixmap.new(":/images/cheese.jpg"))
-# This line causes a seg fault in QtRuby so comment it out:
-#view.cacheMode = Qt::GraphicsView::CacheBackground
+view.cacheMode = Qt::GraphicsView::CacheBackground
 view.dragMode = Qt::GraphicsView::ScrollHandDrag
 view.setWindowTitle(QT_TRANSLATE_NOOP(Qt::GraphicsView, "Colliding Mice"))
 view.resize(400, 300)
