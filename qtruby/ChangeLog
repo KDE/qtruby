@@ -1,3 +1,8 @@
+2006-09-26  Richard Dale  <rdale@foton.es>
+
+	* Sym links 'rbqt3api' and 'rbqt4api' to rbqtapi created so that the Qt3
+	  and Qt4 apis can still be queried when both QtRuby versions are installed
+
 2006-09-25  Richard Dale  <rdale@foton.es>
 
 	* Renamed 'qtruby.rb' as qtruby4.rb, and qtruby.so as qtruby4.so

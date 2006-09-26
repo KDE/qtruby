@@ -9,6 +9,10 @@ getopts('r:hvimp')
 case File.basename $0
 when "rbqtapi"
    require 'Qt'
+when "rbqt3api"
+   require 'Qt3'
+when "rbqt4api"
+   require 'Qt4'
 when "rbkdeapi"
    require 'Korundum'
 end

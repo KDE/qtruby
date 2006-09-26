@@ -7,3 +7,10 @@ qtrubyinit_SOURCES = qtrubyinit.cpp
 qtrubyinit_LDADD = $(LIB_QT) $(RUBY_LIBRUBYARG) $(top_builddir)/smoke/qt/libsmokeqt.la $(top_builddir)/qtruby/rubylib/qtruby/libqtrubyinternal.la
 
 bin_SCRIPTS = rbqtapi rbqtsh
+
+install-exec-local:
+	@-rm -f $(DESTDIR)$(bindir)/rbqt3api
+	@$(LN_S) rbqtapi $(DESTDIR)$(bindir)/rbqt3api
+	@-rm -f $(DESTDIR)$(bindir)/rbqt4api
+	@$(LN_S) rbqtapi $(DESTDIR)$(bindir)/rbqt4api
+
