@@ -97,16 +97,20 @@ void WriteInitialization::acceptUI(DomUI *node)
 
     for (int i=0; i<m_buddies.size(); ++i) {
         const Buddy &b = m_buddies.at(i);
+        QString name(b.objName);
+        name.replace("@", "");
+        QString buddyName(b.buddy);
+        buddyName.replace("@", "");
 
-        if (!m_registeredWidgets.contains(b.objName)) {
-            fprintf(stderr, "'%s' isn't a valid widget\n", b.objName.toLatin1().data());
+        if (!m_registeredWidgets.contains(name) && !m_registeredWidgets.contains(name)) {
+            fprintf(stderr, "'@%s' isn't a valid widget\n", name.toLatin1().data());
             continue;
-        } else if (!m_registeredWidgets.contains(b.buddy)) {
-            fprintf(stderr, "'%s' isn't a valid widget\n", b.buddy.toLatin1().data());
+        } else if (!m_registeredWidgets.contains(b.buddy) && !m_registeredWidgets.contains(buddyName)) {
+            fprintf(stderr, "'@%s' isn't a valid widget\n", buddyName.toLatin1().data());
             continue;
         }
 
-        output << option.indent << "@" << b.objName << ".setBuddy(@" << b.buddy << ")\n";
+        output << option.indent << "@" << name << ".setBuddy(@" << buddyName << ")\n";
     }
 
     if (node->elementTabStops())
@@ -572,8 +576,9 @@ void WriteInitialization::acceptAction(DomAction *node)
 
 void WriteInitialization::acceptActionRef(DomActionRef *node)
 {
-    QString actionName = toRubyIdentifier(node->attributeName());
-    bool isSeparator = actionName == QLatin1String("@separator");
+    QString actionName = node->attributeName();
+    QString rubyActionName = toRubyIdentifier(node->attributeName());
+    bool isSeparator = actionName == QLatin1String("separator");
     bool isMenu = false;
 
     QString varName = driver->findOrInsertWidget(m_widgetChain.top());
@@ -590,7 +595,7 @@ void WriteInitialization::acceptActionRef(DomActionRef *node)
         isMenu = uic->isMenu(w->attributeClass());
         bool inQ3ToolBar = uic->customWidgetsInfo()->extends(m_widgetChain.top()->attributeClass(), QLatin1String("Q3ToolBar"));
         if (!isMenu && inQ3ToolBar) {
-            actionOut << option.indent << actionName << ".setParent(" << varName << ")\n";
+            actionOut << option.indent << rubyActionName << ".setParent(" << varName << ")\n";
             return;
         }
     } else if (!(driver->actionByName(actionName) || isSeparator)) {
@@ -605,9 +610,9 @@ void WriteInitialization::acceptActionRef(DomActionRef *node)
     }
 
     if (isMenu)
-        actionName += QLatin1String(".menuAction()");
+        rubyActionName += QLatin1String(".menuAction()");
 
-    actionOut << option.indent << varName << ".addAction(" << actionName << ")\n";
+    actionOut << option.indent << varName << ".addAction(" << rubyActionName << ")\n";
 }
 
 void WriteInitialization::writeProperties(const QString &varName,
