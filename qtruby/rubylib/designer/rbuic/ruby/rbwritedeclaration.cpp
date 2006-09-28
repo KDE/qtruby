@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
@@ -21,17 +21,19 @@
 **
 ****************************************************************************/
 
-#include "writedeclaration.h"
-#include "writeicondeclaration.h"
-#include "writeinitialization.h"
-#include "writeiconinitialization.h"
+#include "rbwritedeclaration.h"
+#include "rbwriteicondeclaration.h"
+#include "rbwriteinitialization.h"
+#include "rbwriteiconinitialization.h"
 #include "driver.h"
 #include "ui4.h"
 #include "uic.h"
 #include "databaseinfo.h"
 #include "customwidgetsinfo.h"
 
-#include <qtextstream.h>
+#include <QTextStream>
+
+namespace Ruby {
 
 WriteDeclaration::WriteDeclaration(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option())
@@ -63,7 +65,7 @@ void WriteDeclaration::acceptUI(DomUI *node)
         if (ns.isEmpty())
             continue;
 
-//        output << "include " << ns << "\n";
+//        output << "namespace " << ns << " {\n";
     }
 
     if (nsList.count())
@@ -109,7 +111,7 @@ void WriteDeclaration::acceptUI(DomUI *node)
         if (ns.isEmpty())
             continue;
 
-//        output << "# namespace " << ns << "\n";
+//        output << "} // namespace " << ns << "\n";
     }
 
     if (nsList.count())
@@ -124,10 +126,10 @@ void WriteDeclaration::acceptUI(DomUI *node)
             if (ns.isEmpty())
                 continue;
 
-//            output << "include " << ns << "\n";
+//            output << "namespace " << ns << " {\n";
         }
 
-//        output << option.indent << "class " << className << " < " << option.prefix << className << "\n";
+//        output << option.indent << "class " << exportMacro << className << ": public " << option.prefix << className << " {};\n";
 
         it.toBack();
         while (it.hasPrevious()) {
@@ -135,7 +137,7 @@ void WriteDeclaration::acceptUI(DomUI *node)
             if (ns.isEmpty())
                 continue;
 
-//            output << "# namespace " << ns << "\n";
+//            output << "} // namespace " << ns << "\n";
         }
 
         if (nsList.count())
@@ -195,3 +197,5 @@ void WriteDeclaration::acceptAction(DomAction *node)
 
     TreeWalker::acceptAction(node);
 }
+
+} // namespace Ruby

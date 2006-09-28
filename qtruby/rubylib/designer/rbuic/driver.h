@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
@@ -25,10 +25,10 @@
 #define DRIVER_H
 
 #include "option.h"
-#include <qhash.h>
-#include <qstring.h>
-#include <qstringlist.h>
-#include <qtextstream.h>
+#include <QHash>
+#include <QString>
+#include <QStringList>
+#include <QTextStream>
 
 class QTextStream;
 class DomUI;
@@ -62,12 +62,11 @@ public:
     inline void addProblem(const QString &problem) { m_problems.append(problem); }
 
     // utils
-//    static QString headerFileName(const QString &fileName);
-//    inline QString headerFileName() const
-//    { return headerFileName(m_option.outputFile.isEmpty() ? m_option.inputFile : m_option.outputFile); }
+    static QString headerFileName(const QString &fileName);
+    QString headerFileName() const;
 
+    static QString normalizedName(const QString &name);
 	QString rubyClassName(const QString &name);
-
     static QString qtify(const QString &name);
     QString unique(const QString &instanceName=QString(),
                    const QString &className=QString());

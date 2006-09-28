@@ -194,7 +194,7 @@ module Qt
 			return meths.uniq
 		end
 	end # Qt::Base
-	
+
 	class AbstractSocket < Qt::Base
 		def abort(*args)
 			method_missing(:abort, *args)
@@ -216,6 +216,20 @@ module Qt
 	class ActionEvent < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
+		end
+	end
+
+	class Action < Qt::Base 
+		def setShortcut(arg)
+			if arg.kind_of?(String)
+				return super(Qt::KeySequence.new(arg))
+			else
+				return super(arg)
+			end
+		end
+
+		def shortcut=(arg)
+			setShortcut(arg)
 		end
 	end
 
@@ -265,6 +279,20 @@ module Qt
 
 		def split(*args)
 			method_missing(:split, *args)
+		end
+	end
+	
+	class CheckBox < Qt::Base 
+		def setShortcut(arg)
+			if arg.kind_of?(String)
+				return super(Qt::KeySequence.new(arg))
+			else
+				return super(arg)
+			end
+		end
+
+		def shortcut=(arg)
+			setShortcut(arg)
 		end
 	end
 
@@ -897,6 +925,20 @@ module Qt
 			method_missing(:abort, *args)
 		end
 	end
+	
+	class PushButton < Qt::Base 
+		def setShortcut(arg)
+			if arg.kind_of?(String)
+				return super(Qt::KeySequence.new(arg))
+			else
+				return super(arg)
+			end
+		end
+
+		def shortcut=(arg)
+			setShortcut(arg)
+		end
+	end
 
 	class Line < Qt::Base
 		def inspect
@@ -931,6 +973,20 @@ module Qt
 		def pretty_print(pp)
 			str = to_s
 			pp.text str.sub(/>$/, "\n valid?=%s,\n row=%s,\n column=%s>" % [valid?, row, column])
+		end
+	end
+	
+	class RadioButton < Qt::Base 
+		def setShortcut(arg)
+			if arg.kind_of?(String)
+				return super(Qt::KeySequence.new(arg))
+			else
+				return super(arg)
+			end
+		end
+
+		def shortcut=(arg)
+			setShortcut(arg)
 		end
 	end
 
@@ -1193,6 +1249,20 @@ module Qt
 	class TimerEvent < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
+		end
+	end
+	
+	class ToolButton < Qt::Base 
+		def setShortcut(arg)
+			if arg.kind_of?(String)
+				return super(Qt::KeySequence.new(arg))
+			else
+				return super(arg)
+			end
+		end
+
+		def shortcut=(arg)
+			setShortcut(arg)
 		end
 	end
 

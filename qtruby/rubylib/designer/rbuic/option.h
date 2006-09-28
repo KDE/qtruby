@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
@@ -24,10 +24,17 @@
 #ifndef OPTION_H
 #define OPTION_H
 
-#include <qstring.h>
+#include <QString>
 
 struct Option
 {
+    enum Generator
+    {
+        CppGenerator,
+        JavaGenerator,
+        RubyGenerator
+    };
+
     unsigned int headerProtection : 1;
     unsigned int copyrightHeader : 1;
     unsigned int generateImplemetation : 1;
@@ -35,6 +42,7 @@ struct Option
     unsigned int autoConnection : 1;
     unsigned int dependencies : 1;
     unsigned int execCode : 1;
+    Generator generator;
 
     QString inputFile;
     QString outputFile;
@@ -43,6 +51,10 @@ struct Option
     QString postfix;
     QString translateFunction;
     QString uic3;
+#ifdef QT_UIC_JAVA_GENERATOR
+    QString javaPackage;
+    QString javaOutputDirectory;
+#endif
 
     Option()
         : headerProtection(1),
@@ -52,6 +64,7 @@ struct Option
           autoConnection(1),
           dependencies(0),
           execCode(0),
+          generator(CppGenerator),
           prefix(QLatin1String("Ui_"))
     { indent.fill(QLatin1Char(' '), 4); }
 };

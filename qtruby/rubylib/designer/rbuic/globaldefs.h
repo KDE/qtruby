@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
@@ -27,4 +27,4 @@
 enum { BOXLAYOUT_DEFAULT_MARGIN = 11 };
 enum { BOXLAYOUT_DEFAULT_SPACING = 6 };
 
-#endif
+#endif // GLOBALDEFS_H

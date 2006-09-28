@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
@@ -25,12 +25,12 @@
 #include "uic.h"
 #include "ui4.h"
 
-#include <qregexp.h>
-#include <qfileinfo.h>
-#include <qdebug.h>
+#include <QRegExp>
+#include <QFileInfo>
+#include <QtDebug>
 
 Driver::Driver()
-    : m_stdout(stdout, QFile::WriteOnly)
+    : m_stdout(stdout, QFile::WriteOnly | QFile::Text)
 {
     m_output = &m_stdout;
 }
@@ -102,6 +102,13 @@ QString Driver::findOrInsertName(const QString &name)
     return unique(name);
 }
 
+QString Driver::normalizedName(const QString &name)
+{
+    QString result = name;
+    result.replace(QRegExp(QLatin1String("[^a-zA-Z_0-9]")), QLatin1String("_"));
+    return result;
+}
+
 QString Driver::unique(const QString &instanceName, const QString &className)
 {
     QString name;
@@ -110,15 +117,12 @@ QString Driver::unique(const QString &instanceName, const QString &className)
     if (instanceName.size()) {
         int id = 1;
         name = instanceName;
-        name.replace(QRegExp(QLatin1String("[^a-zA-Z_0-9]")), QLatin1String("_"));
+        name = normalizedName(name);
+        QString base = name;
 
-        bool alreadyUsed = false;
-        while (true) {
-            if (!m_nameRepository.contains(name))
-                break;
-
+        while (m_nameRepository.contains(name)) {
             alreadyUsed = true;
-            name = instanceName + QString::number(id++);
+            name = base + QString::number(id++);
         }
     } else if (className.size()) {
         name = unique(qtify(className));
@@ -127,7 +131,7 @@ QString Driver::unique(const QString &instanceName, const QString &className)
     }
 
     if (alreadyUsed && className.size()) {
-        fprintf(stderr, "Warning: name %s is already used\n", instanceName.toLatin1().data());
+        fprintf(stderr, "Warning: name %s is already used\n", qPrintable(instanceName));
     }
 
     m_nameRepository.insert(name, true);
@@ -136,19 +140,25 @@ QString Driver::unique(const QString &instanceName, const QString &className)
 
 QString Driver::rubyClassName(const QString &name)
 {
-    QString qname = name;
+	QString qname = name;
 
-    if (qname.startsWith("Q3") && !qname.startsWith("Qt3::")) {
-        qname = QString("Qt3::") + qname.mid(2);
-    } else if (qname.startsWith("Qwt") && !qname.startsWith("Qwt::")) {
-        qname = QString("Qwt::") + qname.mid(3);
-    } else if (qname.startsWith("Q") && !qname.startsWith("Qt::")) {
-        qname = QString("Qt::") + qname.mid(1);
-    } else if (qname.startsWith("K") && !qname.startsWith("KDE::")) {
-        qname = QString("KDE::") + qname.mid(1);
-    }
+	if (qname.startsWith("Q3") && !qname.startsWith("Qt3::")) {
+		qname = QString("Qt3::") + qname.mid(2);
+	} else if (qname.startsWith("Qwt") && !qname.startsWith("Qwt::")) {
+		qname = QString("Qwt::") + qname.mid(3);
+	} else if (qname.startsWith("Q") && !qname.startsWith("Qt::")) {
+		qname = QString("Qt::") + qname.mid(1);
+	} else if (qname.startsWith("K") && !qname.startsWith("KDE::")) {
+		qname = QString("KDE::") + qname.mid(1);
+	}
 
-    return qname;
+	if (!qname.contains("|Qt::")) {
+    	qname.replace("|Q", "|Qt::");
+	} else if (!qname.contains("|KDE::")) {
+    	qname.replace("|K", "|KDE::");
+	}
+
+	return qname;
 }
 
 QString Driver::qtify(const QString &name)
@@ -180,14 +190,47 @@ QString Driver::qtify(const QString &name)
     return qname;
 }
 
-//QString Driver::headerFileName(const QString &fileName)
-//{
-//    if (fileName.isEmpty())
-//        return headerFileName(QLatin1String("noname"));
-//
-//    QFileInfo info(fileName);
-//    return info.baseName().toUpper() + QLatin1String("_H");
-//}
+static bool isAnsiCCharacter(const QChar& c)
+{
+    return c.toUpper() >= QLatin1Char('A') && c.toUpper() <= QLatin1Char('Z')
+           || c.isDigit() || c == QLatin1Char('_');
+}
+
+
+QString Driver::headerFileName() const
+{
+    QString name = m_option.outputFile;
+
+    if (name.isEmpty()) {
+        name = QLatin1String("ui_"); // ### use ui_ as prefix.
+        name.append(m_option.inputFile);
+    }
+
+    return headerFileName(name);
+}
+
+QString Driver::headerFileName(const QString &fileName)
+{
+    if (fileName.isEmpty())
+        return headerFileName(QLatin1String("noname"));
+
+    QFileInfo info(fileName);
+    QString baseName = info.baseName();
+    // Transform into a valid C++ identifier
+    if (!baseName.isEmpty() && baseName.at(0).isDigit())
+        baseName.prepend(QLatin1Char('_'));
+    for (int i = 0; i < baseName.size(); ++i) {
+        QChar c = baseName.at(i);
+        if (!isAnsiCCharacter(c)) {
+            // Replace character by its unicode value
+            QString hex = QString::number(c.unicode(), 16);
+            baseName.replace(i, 1, "_" + hex + "_");
+            i += hex.size() + 1;
+        }
+    }
+    return baseName.toUpper() + QLatin1String("_H");
+}
+
 
 bool Driver::printDependencies(const QString &fileName)
 {
@@ -208,7 +251,14 @@ bool Driver::uic(const QString &fileName, DomUI *ui, QTextStream *out)
     m_output = out != 0 ? out : &m_stdout;
 
     Uic tool(this);
-    bool rtn = tool.write(ui);
+    bool rtn = false;
+#ifdef QT_UIC_RUBY_GENERATOR
+    rtn = tool.rbwrite(ui);
+#else
+    Q_UNUSED(ui);
+    fprintf(stderr, "uic: option to generate ruby code not compiled in [%s:%d]\n",
+            __FILE__, __LINE__);
+#endif
 
     m_output = oldOutput;
 
@@ -234,7 +284,7 @@ bool Driver::uic(const QString &fileName, QTextStream *out)
     if (out) {
         m_output = out;
     } else {
-        m_output = new QTextStream(stdout, QIODevice::WriteOnly);
+        m_output = new QTextStream(stdout, QIODevice::WriteOnly | QFile::Text);
         deleteOutput = true;
     }
 

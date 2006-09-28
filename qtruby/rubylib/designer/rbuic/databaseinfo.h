@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
@@ -25,8 +25,8 @@
 #define DATABASEINFO_H
 
 #include "treewalker.h"
-#include <qstringlist.h>
-#include <qmap.h>
+#include <QStringList>
+#include <QMap>
 
 class Driver;
 

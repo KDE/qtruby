@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef WRITEICONDECLARATION_H
-#define WRITEICONDECLARATION_H
+#ifndef RBWRITEDECLARATION_H
+#define RBWRITEDECLARATION_H
 
 #include "treewalker.h"
 
@@ -32,14 +32,18 @@ class Uic;
 
 struct Option;
 
-class WriteIconDeclaration : public TreeWalker
+namespace Ruby {
+
+struct WriteDeclaration : public TreeWalker
 {
-public:
-    WriteIconDeclaration(Uic *uic);
+    WriteDeclaration(Uic *uic);
 
     void acceptUI(DomUI *node);
-    void acceptImages(DomImages *images);
-    void acceptImage(DomImage *image);
+    void acceptWidget(DomWidget *node);
+    void acceptLayout(DomLayout *node);
+    void acceptSpacer(DomSpacer *node);
+    void acceptActionGroup(DomActionGroup *node);
+    void acceptAction(DomAction *node);
 
 private:
     Uic *uic;
@@ -48,4 +52,6 @@ private:
     const Option &option;
 };
 
-#endif // WRITEICONDECLARATION_H
+} // namespace Ruby
+
+#endif // RBWRITEDECLARATION_H

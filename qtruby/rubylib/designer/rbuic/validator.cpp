@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
@@ -26,7 +26,7 @@
 #include "ui4.h"
 #include "uic.h"
 
-#include <qtextstream.h>
+#include <QTextStream>
 
 Validator::Validator(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option())
@@ -73,4 +73,3 @@ void Validator::acceptAction(DomAction *node)
 
     TreeWalker::acceptAction(node);
 }
-

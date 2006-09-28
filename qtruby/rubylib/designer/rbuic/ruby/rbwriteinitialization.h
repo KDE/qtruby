@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
@@ -21,19 +21,21 @@
 **
 ****************************************************************************/
 
-#ifndef WRITEINITIALIZATION_H
-#define WRITEINITIALIZATION_H
+#ifndef RBWRITEINITIALIZATION_H
+#define RBWRITEINITIALIZATION_H
 
 #include "treewalker.h"
-
-#include <qpair.h>
-#include <qhash.h>
-#include <qstack.h>
-#include <qtextstream.h>
+#include <QPair>
+#include <QHash>
+#include <QStack>
+#include <QTextStream>
 
 class Driver;
 class Uic;
+class DomBrush;
 struct Option;
+
+namespace Ruby {
 
 struct WriteInitialization : public TreeWalker
 {
@@ -86,12 +88,13 @@ private:
     static QString domColor2QString(DomColor *c);
 
     QString pixCall(DomProperty *prop) const;
-    QString trCall(const QString &str, const QString &className) const;
-    QString trCall(const DomString *str, const QString &className) const;
+    QString trCall(const QString &str, const QString &comment = QString()) const;
+    QString trCall(DomString *str) const;
 
     void writeProperties(const QString &varName, const QString &className,
                          const QList<DomProperty*> &lst);
     void writeColorGroup(DomColorGroup *colorGroup, const QString &group, const QString &paletteName);
+    void writeBrush(DomBrush *brush, const QString &brushName);
 
 //
 // special initialization
@@ -116,12 +119,14 @@ private:
 //
 // Sql
 //
-    void initializeSqlDataTable(DomWidget *w);
-    void initializeSqlDataBrowser(DomWidget *w);
+    void initializeQ3SqlDataTable(DomWidget *w);
+    void initializeQ3SqlDataBrowser(DomWidget *w);
 
+    QString findDeclaration(const QString &name);
     DomWidget *findWidget(const QString &widgetClass);
-
     DomImage *findImage(const QString &name) const;
+
+    bool isValidObject(const QString &name) const;
 
 private:
     Uic *uic;
@@ -146,6 +151,7 @@ private:
     QHash<QString, QString> m_buttonGroups;
     QHash<QString, DomWidget*> m_registeredWidgets;
     QHash<QString, DomImage*> m_registeredImages;
+    QHash<QString, DomAction*> m_registeredActions;
 
     // layout defaults
     int m_defaultMargin;
@@ -156,10 +162,18 @@ private:
     QString m_generatedClass;
 
     QString m_delayedInitialization;
+    QTextStream delayedOut;
+
+    QString m_refreshInitialization;
     QTextStream refreshOut;
 
     QString m_delayedActionInitialization;
     QTextStream actionOut;
+
+    QString m_delayedResize;
+    QTextStream resizeOut;
 };
 
-#endif // WRITEINITIALIZATION_H
+} // namespace Ruby
+
+#endif // RBWRITEINITIALIZATION_H

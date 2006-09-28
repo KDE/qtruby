@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
@@ -62,7 +62,6 @@ class DomConnections;
 class DomConnection;
 class DomConnectionHints;
 class DomConnectionHint;
-class QString;
 
 struct TreeWalker
 {
@@ -97,11 +96,10 @@ struct TreeWalker
     virtual void acceptAction(DomAction *action);
     virtual void acceptActionGroup(DomActionGroup *actionGroup);
     virtual void acceptActionRef(DomActionRef *actionRef);
-    virtual void acceptConnections(DomConnections *connections, const QString& mainVar);
-    virtual void acceptConnection(DomConnection *connection, const QString& mainVar);
+    virtual void acceptConnections(DomConnections *connections);
+    virtual void acceptConnection(DomConnection *connection);
     virtual void acceptConnectionHints(DomConnectionHints *connectionHints);
     virtual void acceptConnectionHint(DomConnectionHint *connectionHint);
 };
-
 
 #endif // TREEWALKER_H

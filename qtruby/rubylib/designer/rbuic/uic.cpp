@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
@@ -25,17 +25,28 @@
 #include "ui4.h"
 #include "driver.h"
 #include "option.h"
-
-// operations
 #include "treewalker.h"
 #include "validator.h"
-//#include "writeincludes.h"
-#include "writedeclaration.h"
 
-#include <QtXml/qdom.h>
-#include <qfileinfo.h>
-#include <qregexp.h>
-#include <qtextstream.h>
+#ifdef QT_UIC_CPP_GENERATOR
+#include "cppwriteincludes.h"
+#include "cppwritedeclaration.h"
+#endif
+
+#ifdef QT_UIC_JAVA_GENERATOR
+#include "javawriteincludes.h"
+#include "javawritedeclaration.h"
+#endif
+
+#ifdef QT_UIC_RUBY_GENERATOR
+#include "rbwritedeclaration.h"
+#endif
+
+#include <QtXml/QDomDocument>
+#include <QFileInfo>
+#include <QRegExp>
+#include <QTextStream>
+#include <QDateTime>
 
 #if defined Q_WS_WIN
 #include <qt_windows.h>
@@ -114,8 +125,31 @@ bool Uic::printDependencies()
 void Uic::writeCopyrightHeader(DomUI *ui)
 {
     QString comment = ui->elementComment();
+#ifdef QT_UIC_RUBY_GENERATOR
     if (comment.size())
-        out << "=begin\n" << comment << "\n=end\n";
+        out << "=begin\n" << comment << "\n=end\n\n";
+
+	out << "=begin\n";
+	out << "** Form generated from reading ui file '" << QFileInfo(opt.inputFile).fileName() << "'\n";
+	out << "**\n";
+	out << "** Created: " << QDateTime::currentDateTime().toString() << "\n";
+	out << "**      " << QString("by: Qt User Interface Compiler version %1\n").arg(QT_VERSION_STR);
+	out << "**\n";
+	out << "** WARNING! All changes made in this file will be lost when recompiling ui file!\n";
+	out << "=end\n\n";
+#else
+    if (comment.size())
+        out << "/*\n" << comment << "\n*/\n\n";
+
+	out << "/********************************************************************************\n";
+	out << "** Form generated from reading ui file '" << QFileInfo(opt.inputFile).fileName() << "'\n";
+	out << "**\n";
+	out << "** Created: " << QDateTime::currentDateTime().toString() << "\n";
+	out << "**      " << QString("by: Qt User Interface Compiler version %1\n").arg(QT_VERSION_STR);
+	out << "**\n";
+	out << "** WARNING! All changes made in this file will be lost when recompiling ui file!\n";
+	out << "********************************************************************************/\n\n";
+#endif
 }
 
 bool Uic::write(QIODevice *in)
@@ -123,6 +157,11 @@ bool Uic::write(QIODevice *in)
     QDomDocument doc;
     if (!doc.setContent(in))
         return false;
+
+    if (option().generator == Option::JavaGenerator) {
+         // the Java generator ignores header protection
+        opt.headerProtection = false;
+    }
 
     QDomElement root = doc.firstChild().toElement();
     DomUI *ui = new DomUI();
@@ -136,14 +175,74 @@ bool Uic::write(QIODevice *in)
         return false;
     }
 
-    bool rtn = write(ui);
+    bool rtn = false;
+
+    if (option().generator == Option::JavaGenerator) {
+#ifdef QT_UIC_JAVA_GENERATOR
+        rtn = jwrite (ui);
+#else
+        fprintf(stderr, "uic: option to generate java code not compiled in\n");
+#endif
+    } else if (option().generator == Option::RubyGenerator) {
+#ifdef QT_UIC_RUBY_GENERATOR
+        rtn = rbwrite (ui);
+#else
+        fprintf(stderr, "uic: option to generate ruby code not compiled in\n");
+#endif
+    } else {
+#ifdef QT_UIC_CPP_GENERATOR
+        rtn = write (ui);
+#else
+        fprintf(stderr, "uic: option to generate cpp code not compiled in\n");
+#endif
+    }
+
     delete ui;
 
     return rtn;
 }
 
+#ifdef QT_UIC_CPP_GENERATOR
 bool Uic::write(DomUI *ui)
 {
+    using namespace CPP;
+
+    if (!ui || !ui->elementWidget())
+        return false;
+
+    if (opt.copyrightHeader)
+        writeCopyrightHeader(ui);
+
+    if (opt.headerProtection) {
+        writeHeaderProtectionStart();
+        out << "\n";
+    }
+
+    pixFunction = ui->elementPixmapFunction();
+    if (pixFunction == QLatin1String("Qt::Pixmap::fromMimeSource"))
+        pixFunction = QLatin1String("qPixmapFromMimeSource");
+
+    externalPix = ui->elementImages() == 0;
+
+    info.acceptUI(ui);
+    cWidgetsInfo.acceptUI(ui);
+    WriteIncludes(this).acceptUI(ui);
+
+    Validator(this).acceptUI(ui);
+    WriteDeclaration(this).acceptUI(ui);
+
+    if (opt.headerProtection)
+        writeHeaderProtectionEnd();
+
+    return true;
+}
+#endif
+
+#ifdef QT_UIC_JAVA_GENERATOR
+bool Uic::jwrite(DomUI *ui)
+{
+    using namespace Java;
+
     if (!ui || !ui->elementWidget())
         return false;
 
@@ -151,7 +250,35 @@ bool Uic::write(DomUI *ui)
         writeCopyrightHeader(ui);
 
     pixFunction = ui->elementPixmapFunction();
-    if (pixFunction == QLatin1String("Qt::Pixmap.fromMimeSource"))
+    if (pixFunction == QLatin1String("QPixmap::fromMimeSource"))
+        pixFunction = QLatin1String("qPixmapFromMimeSource");
+
+    externalPix = ui->elementImages() == 0;
+
+    info.acceptUI(ui);
+    cWidgetsInfo.acceptUI(ui);
+    WriteIncludes(this).acceptUI(ui);
+
+    Validator(this).acceptUI(ui);
+    WriteDeclaration(this).acceptUI(ui);
+
+    return true;
+}
+#endif
+
+#ifdef QT_UIC_RUBY_GENERATOR
+bool Uic::rbwrite(DomUI *ui)
+{
+    using namespace Ruby;
+
+    if (!ui || !ui->elementWidget())
+        return false;
+
+    if (opt.copyrightHeader)
+        writeCopyrightHeader(ui);
+
+    pixFunction = ui->elementPixmapFunction();
+    if (pixFunction == QLatin1String("Qt::Pixmap::fromMimeSource"))
         pixFunction = QLatin1String("qPixmapFromMimeSource");
 
     externalPix = ui->elementImages() == 0;
@@ -185,19 +312,23 @@ bool Uic::write(DomUI *ui)
 
     return true;
 }
+#endif
 
-//void Uic::writeHeaderProtectionStart()
-//{
-//    QString h = drv->headerFileName();
-//    out << "#ifndef " << h << "\n"
-//        << "#define " << h << "\n";
-//}
+#ifdef QT_UIC_CPP_GENERATOR
 
-//void Uic::writeHeaderProtectionEnd()
-//{
-//    QString h = drv->headerFileName();
-//    out << "#endif // " << h << "\n";
-//}
+void Uic::writeHeaderProtectionStart()
+{
+    QString h = drv->headerFileName();
+    out << "#ifndef " << h << "\n"
+        << "#define " << h << "\n";
+}
+
+void Uic::writeHeaderProtectionEnd()
+{
+    QString h = drv->headerFileName();
+    out << "#endif // " << h << "\n";
+}
+#endif
 
 bool Uic::isMainWindow(const QString &className) const
 {

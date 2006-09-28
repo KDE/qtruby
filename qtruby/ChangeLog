@@ -1,3 +1,14 @@
+2006-09-28  Richard Dale  <rdale@foton.es>
+
+	* Redone the rbuic tool based on the Qt 4.2 code with the ruby-specific
+	  code generation in a 'ruby' subdirectory.
+
+	* The rbuic tool has been renamed 'rbuic4' so it can be used at the same
+	  time as the Qt3 one.
+
+	* Changed 'setShortcut' method calls so a string can be passed to them
+	  as well as a Qt::KeySequence to be more similar to the C++ api.
+
 2006-09-26  Richard Dale  <rdale@foton.es>
 
 	* Sym links 'rbqt3api' and 'rbqt4api' to rbqtapi created so that the Qt3

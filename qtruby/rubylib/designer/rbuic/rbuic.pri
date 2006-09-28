@@ -1,30 +1,23 @@
 
 INCLUDEPATH += $$PWD
 
-HEADERS += $$PWD/uic.h \
-           $$PWD/ui4.h \
-           $$PWD/treewalker.h \
-           $$PWD/writedeclaration.h \
-           $$PWD/writeicondeclaration.h \
-           $$PWD/option.h \
-           $$PWD/driver.h \
-           $$PWD/validator.h \
-           $$PWD/writeinitialization.h \
-           $$PWD/writeiconinitialization.h \
-           $$PWD/writeicondata.h \
-           $$PWD/databaseinfo.h \
+HEADERS += \
            $$PWD/customwidgetsinfo.h \
-           $$PWD/globaldefs.h
+           $$PWD/databaseinfo.h \
+           $$PWD/driver.h \
+           $$PWD/globaldefs.h \
+           $$PWD/option.h \
+           $$PWD/treewalker.h \
+           $$PWD/ui4.h \
+           $$PWD/uic.h \
+           $$PWD/utils.h \
+           $$PWD/validator.h
 
-SOURCES += $$PWD/uic.cpp \
-           $$PWD/treewalker.cpp \
-           $$PWD/writedeclaration.cpp \
-           $$PWD/writeicondeclaration.cpp \
-           $$PWD/driver.cpp \
-           $$PWD/validator.cpp \
-           $$PWD/writeinitialization.cpp \
-           $$PWD/writeiconinitialization.cpp \
-           $$PWD/writeicondata.cpp \
-           $$PWD/databaseinfo.cpp \
+SOURCES += \
            $$PWD/customwidgetsinfo.cpp \
-	   $$PWD/ui4.cpp
+           $$PWD/databaseinfo.cpp \
+           $$PWD/driver.cpp \
+           $$PWD/treewalker.cpp \
+           $$PWD/ui4.cpp \
+           $$PWD/uic.cpp \
+           $$PWD/validator.cpp

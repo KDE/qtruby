@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
@@ -21,12 +21,14 @@
 **
 ****************************************************************************/
 
-#include <qtextstream.h>
-
-#include "writeicondata.h"
+#include "rbwriteicondata.h"
 #include "driver.h"
 #include "ui4.h"
 #include "uic.h"
+
+#include <QTextStream>
+
+namespace Ruby {
 
 static QByteArray unzipXPM(QString data, ulong& length)
 {
@@ -61,7 +63,7 @@ static QByteArray unzipXPM(QString data, ulong& length)
 #else
     Q_UNUSED(data);
     Q_UNUSED(length);
-    return QByteArray();    
+    return QByteArray();
 #endif
 }
 
@@ -129,3 +131,4 @@ void WriteIconData::acceptImage(DomImage *image)
     }
 }
 
+} // namespace Ruby

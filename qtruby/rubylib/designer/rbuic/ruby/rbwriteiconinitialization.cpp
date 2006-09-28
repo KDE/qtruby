@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
@@ -21,14 +21,16 @@
 **
 ****************************************************************************/
 
-#include <qtextstream.h>
-
-#include "writeiconinitialization.h"
-#include "writeicondata.h"
+#include "rbwriteiconinitialization.h"
+#include "rbwriteicondata.h"
 #include "driver.h"
 #include "ui4.h"
 #include "utils.h"
 #include "uic.h"
+
+#include <QTextStream>
+
+namespace Ruby {
 
 WriteIconInitialization::WriteIconInitialization(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option())
@@ -81,9 +83,10 @@ void WriteIconInitialization::acceptImage(DomImage *image)
         output << option.indent << option.indent << option.indent << 
                 " img = Qt::Image.new\n";
         output << option.indent << option.indent << option.indent << "img.loadFromData(" << imageData << ", " << 
-                "imageData.length, " << fixString(fmt) << ")\n";
+                "imageData.length, " << fixString(fmt, ind) << ")\n";
         output << option.indent << option.indent << option.indent << 
                 "return Qt::Pixmap.fromImage(img)\n";
     }
 }
 
+} // namespace Ruby

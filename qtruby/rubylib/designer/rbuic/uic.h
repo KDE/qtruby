@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
@@ -26,11 +26,12 @@
 
 #include "databaseinfo.h"
 #include "customwidgetsinfo.h"
+#include <QString>
+#include <QStringList>
+#include <QHash>
+#include <QStack>
 
-#include <qstring.h>
-#include <qstringlist.h>
-#include <qhash.h>
-#include <qstack.h>
+#define QT_UIC_RUBY_GENERATOR
 
 class QTextStream;
 class QIODevice;
@@ -81,7 +82,18 @@ public:
     { return &cWidgetsInfo; }
 
     bool write(QIODevice *in);
+
+#ifdef QT_UIC_JAVA_GENERATOR
+    bool jwrite(DomUI *ui);
+#endif
+
+#ifdef QT_UIC_CPP_GENERATOR
     bool write(DomUI *ui);
+#endif
+
+#ifdef QT_UIC_RUBY_GENERATOR
+    bool rbwrite(DomUI *ui);
+#endif
 
     bool isMainWindow(const QString &className) const;
     bool isToolBar(const QString &className) const;
@@ -95,10 +107,16 @@ private:
     // copyright header
     void writeCopyrightHeader(DomUI *ui);
 
+#ifdef QT_UIC_CPP_GENERATOR
+    // header protection
+    void writeHeaderProtectionStart();
+    void writeHeaderProtectionEnd();
+#endif
+
 private:
     Driver *drv;
     QTextStream &out;
-    const Option &opt;
+    Option &opt;
     DatabaseInfo info;
     CustomWidgetsInfo cWidgetsInfo;
     QString pixFunction;

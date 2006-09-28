@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
@@ -21,37 +21,34 @@
 **
 ****************************************************************************/
 
-#include <qtextstream.h>
+#ifndef RBWRITEICONDATA_H
+#define RBWRITEICONDATA_H
 
-#include "writeicondeclaration.h"
-#include "driver.h"
-#include "ui4.h"
-#include "uic.h"
+#include "treewalker.h"
 
-WriteIconDeclaration::WriteIconDeclaration(Uic *uic)
-    : driver(uic->driver()), output(uic->output()), option(uic->option())
+class QTextStream;
+class Driver;
+class Uic;
+
+struct Option;
+
+namespace Ruby {
+
+class WriteIconData : public TreeWalker
 {
-}
+public:
+    WriteIconData(Uic *uic);
 
-void WriteIconDeclaration::acceptUI(DomUI *node)
-{
-    TreeWalker::acceptUI(node);
-}
+    void acceptUI(DomUI *node);
+    void acceptImages(DomImages *images);
+    void acceptImage(DomImage *image);
 
-void WriteIconDeclaration::acceptImages(DomImages *images)
-{
-    TreeWalker::acceptImages(images);
-}
+private:
+    Driver *driver;
+    QTextStream &output;
+    const Option &option;
+};
 
-void WriteIconDeclaration::acceptImage(DomImage *image)
-{
-    QString name = image->attributeName();
-    if (name.isEmpty())
-        return;
+} // namespace Ruby
 
-    driver->insertPixmap(name);
-	QString imageId = name;
-	imageId.replace("image", "");
-    output << option.indent << option.indent << name << "_ID = " << imageId << "\n";
-}
-
+#endif // RBWRITEICONDATA_H

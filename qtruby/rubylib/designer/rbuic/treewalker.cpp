@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
@@ -173,15 +173,21 @@ void TreeWalker::acceptProperty(DomProperty *property)
         case DomProperty::IconSet:
         case DomProperty::Palette:
         case DomProperty::Point:
+        case DomProperty::PointF:
         case DomProperty::Rect:
+        case DomProperty::RectF:
         case DomProperty::Set:
         case DomProperty::SizePolicy:
         case DomProperty::Size:
+        case DomProperty::SizeF:
         case DomProperty::String:
         case DomProperty::Number:
+        case DomProperty::LongLong:
+        case DomProperty::Char:
         case DomProperty::Date:
         case DomProperty::Time:
         case DomProperty::DateTime:
+        case DomProperty::Url:
         case DomProperty::Unknown:
         case DomProperty::StringList:
         case DomProperty::Float:
@@ -242,13 +248,13 @@ void TreeWalker::acceptInclude(DomInclude *incl)
     Q_UNUSED(incl);
 }
 
-void TreeWalker::acceptConnections(DomConnections *connections, const QString& mainVar)
+void TreeWalker::acceptConnections(DomConnections *connections)
 {
     for (int i=0; i<connections->elementConnection().size(); ++i)
-        acceptConnection(connections->elementConnection().at(i), mainVar);
+        acceptConnection(connections->elementConnection().at(i));
 }
 
-void TreeWalker::acceptConnection(DomConnection *connection, const QString& mainVar)
+void TreeWalker::acceptConnection(DomConnection *connection)
 {
     acceptConnectionHints(connection->elementHints());
 }
