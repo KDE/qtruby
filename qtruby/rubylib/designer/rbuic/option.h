@@ -64,7 +64,7 @@ struct Option
           autoConnection(1),
           dependencies(0),
           execCode(0),
-          generator(CppGenerator),
+          generator(RubyGenerator),
           prefix(QLatin1String("Ui_"))
     { indent.fill(QLatin1Char(' '), 4); }
 };
