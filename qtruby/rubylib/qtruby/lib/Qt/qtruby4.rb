@@ -398,6 +398,12 @@ module Qt
 		end
 	end
 
+	class DBusMessage < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class Dialog < Qt::Base
 		def exec(*args)
 			method_missing(:exec, *args)
