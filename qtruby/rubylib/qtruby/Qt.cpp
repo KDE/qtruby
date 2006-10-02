@@ -641,7 +641,13 @@ qvariant_from_value(VALUE /*self*/, VALUE obj)
 	char * classname = rb_obj_classname(obj);
     smokeruby_object *o = value_obj_info(obj);
 	if (o == 0 || o->ptr == 0) {
-		return Qnil;
+		// Assume the Qt::Variant can be created with a
+		// Qt::Variant.new(obj) call
+		if (strcmp(classname, "Qt::Enum") == 0) {
+			return rb_funcall(qvariant_class, rb_intern("new"), 1, rb_funcall(obj, rb_intern("to_i"), 0));
+		} else {
+			return rb_funcall(qvariant_class, rb_intern("new"), 1, obj);
+		}
 	}
 
 	QVariant * v = 0;

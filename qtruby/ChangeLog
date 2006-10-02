@@ -1,3 +1,8 @@
+2006-10-02  Richard Dale  <rdale@foton.es>
+
+	* qVariantFromValue() wasn't working with non-Qt classes as arguments,
+	  such as Ruby Strings and Integers
+
 2006-10-01  Richard Dale  <rdale@foton.es>
 
 	* The Qt::DBusMessage.type method now works. Fixes problem reported by 
