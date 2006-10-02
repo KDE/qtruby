@@ -3,6 +3,25 @@
 	* qVariantFromValue() wasn't working with non-Qt classes as arguments,
 	  such as Ruby Strings and Integers
 
+	* The rbuic4 tool was not setting up slot/signal connections.
+
+	* It is now possible to call on a Qt::DBusInterface instance directly like
+	  this:
+
+		app = Qt::Application.new(ARGV)
+		bus = Qt::DBusConnection.sessionBus()
+		proxy = Qt::DBusInterface.new(  "org.freedesktop.DBus", 
+		                                "/org/freedesktop/DBus", 
+		                                "org.freedesktop.DBus", 
+		                                bus )
+		
+		result = proxy.ListNames()
+
+		# result is ["org.freedesktop.DBus", ":1.0", "com.trolltech.Assistant", ":1.15"]
+
+	* Fixed bugs in Qt::Variant where some constants were missing, and the one for 'String'
+		gave a warning
+
 2006-10-01  Richard Dale  <rdale@foton.es>
 
 	* The Qt::DBusMessage.type method now works. Fixes problem reported by 

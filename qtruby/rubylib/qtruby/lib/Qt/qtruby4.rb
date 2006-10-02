@@ -398,6 +398,26 @@ module Qt
 		end
 	end
 
+	class DBusInterface < Qt::Base 
+		def method_missing(id, *args)
+			begin
+				# First look for a method in the Smoke runtime
+				# If not found, then throw an exception and try dbus.
+				super(id, *args)
+			rescue
+				if args.length == 0
+					qdbusMessage = call(id.to_s)
+				else
+					# create an Array 'dbusArgs' of Qt::Variants from '*args'
+					qdbusArgs = args.collect {|arg| qVariantFromValue(arg)}
+					qdbusMessage = call(id.to_s, *dbusArgs)
+				end
+				reply = qdbusMessage.arguments
+				return reply.length > 0 ? reply[0].to_ruby : nil
+			end
+		end
+	end
+
 	class DBusMessage < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
@@ -1305,6 +1325,8 @@ module Qt
 	end
 	
 	class Variant < Qt::Base
+		String = 10
+
 		def to_a
 			return toStringList()
 		end
@@ -1372,7 +1394,6 @@ module Qt
 				return qVariantValue(Qt::Pixmap, self)
 			when Qt::Variant::Point
 				return toPoint
-			when Qt::Variant::PointArray
 			when Qt::Variant::PointF
 				return toPointF
 			when Qt::Variant::Polygon
@@ -1405,7 +1426,7 @@ module Qt
 				return toUint
 			when Qt::Variant::ULongLong
 				return toULongLong
-			when Qt::Variant::UrL
+			when Qt::Variant::Url
 				return toUrl
 			end
 		end
