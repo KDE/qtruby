@@ -77,7 +77,7 @@ struct WriteInitialization : public TreeWalker
 //
 // signal/slot connections
 //
-    void acceptConnection(DomConnection *connection, const QString& mainVar);
+    void acceptConnection(DomConnection *connection);
 
 //
 // images
@@ -172,6 +172,8 @@ private:
 
     QString m_delayedResize;
     QTextStream resizeOut;
+
+    QString m_mainWidget;
 };
 
 } // namespace Ruby

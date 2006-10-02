@@ -73,14 +73,14 @@ void WriteInitialization::acceptUI(DomUI *node)
     QString className = node->elementClass() + option.postfix;
     m_generatedClass = className;
 
-    QString varName = driver->findOrInsertWidget(node->elementWidget());
-    m_registeredWidgets.insert(varName, node->elementWidget()); // register the main widget
+    m_mainWidget = driver->findOrInsertWidget(node->elementWidget());
+    m_registeredWidgets.insert(m_mainWidget, node->elementWidget()); // register the main widget
 
-	varName = varName.mid(0, 1).toLower() + varName.mid(1);
+	m_mainWidget = m_mainWidget.mid(0, 1).toLower() + m_mainWidget.mid(1);
 
     QString widgetClassName = node->elementWidget()->attributeClass();
 
-    output << option.indent << "def " << "setupUi(" << varName << ")\n";
+    output << option.indent << "def " << "setupUi(" << m_mainWidget << ")\n";
 
     QStringList connections = uic->databaseInfo()->connections();
     for (int i=0; i<connections.size(); ++i) {
@@ -119,7 +119,7 @@ void WriteInitialization::acceptUI(DomUI *node)
     if (m_delayedActionInitialization.size())
         output << "\n" << m_delayedActionInitialization;
 
-    output << "\n" << option.indent << "retranslateUi(" << varName << ");\n";
+    output << "\n" << option.indent << "retranslateUi(" << m_mainWidget << ");\n";
 
     if (!m_delayedResize.isEmpty())
         output << "\n" << m_delayedResize << "\n";
@@ -131,7 +131,7 @@ void WriteInitialization::acceptUI(DomUI *node)
         output << "\n" << m_delayedInitialization << "\n";
 
     if (option.autoConnection)
-        output << "\n" << option.indent << "Qt::MetaObject.connectSlotsByName(" << varName << ")\n";
+        output << "\n" << option.indent << "Qt::MetaObject.connectSlotsByName(" << m_mainWidget << ")\n";
 
     output << option.indent << "end # setupUi\n\n";
 
@@ -139,7 +139,7 @@ void WriteInitialization::acceptUI(DomUI *node)
 //        m_refreshInitialization += option.indent + QLatin1String("Q_UNUSED(") + varName + QLatin1String(");\n");
 //    }
 
-    output << option.indent << "def " << "retranslateUi(" << varName << ")\n"
+    output << option.indent << "def " << "retranslateUi(" << m_mainWidget << ")\n"
            << m_refreshInitialization
            << option.indent << "end # retranslateUi\n\n";
 
@@ -1734,17 +1734,17 @@ QString WriteInitialization::findDeclaration(const QString &name)
     return QString();
 }
 
-void WriteInitialization::acceptConnection(DomConnection *connection, const QString& mainVar)
+void WriteInitialization::acceptConnection(DomConnection *connection)
 {
     QString sender = findDeclaration(connection->elementSender());
     sender = sender.mid(0, 1).toLower() + sender.mid(1);
-    if (sender != mainVar) {
+    if (sender != m_mainWidget) {
 		sender = toRubyIdentifier(sender);
     }
 
     QString receiver = findDeclaration(connection->elementReceiver());
     receiver = receiver.mid(0, 1).toLower() + receiver.mid(1);
-    if (receiver != mainVar) {
+    if (receiver != m_mainWidget) {
 		receiver = toRubyIdentifier(receiver);
     }
 
