@@ -400,15 +400,15 @@ module Qt
 
 	class DBusConnectionInterface < Qt::Base
 		def serviceOwner(name)
-    		return internalConstCall(Qt::DBus::AutoDetect, "GetNameOwner", [Qt::Variant.new(name)]).value
+    		return Qt::DBusReply.new(internalConstCall(Qt::DBus::AutoDetect, "GetNameOwner", [Qt::Variant.new(name)]))
 		end
 
 		def registeredServiceNames
-			return internalConstCall(Qt::DBus::AutoDetect, "ListNames").value
+			return Qt::DBusReply.new(internalConstCall(Qt::DBus::AutoDetect, "ListNames"))
 		end
 
 		def isServiceRegistered(serviceName)
-    		return internalConstCall(Qt::DBus::AutoDetect, "NameHasOwner", [Qt::Variant.new(serviceName)]).value
+    		return Qt::DBusReply.new(internalConstCall(Qt::DBus::AutoDetect, "NameHasOwner", [Qt::Variant.new(serviceName)]))
 		end
 
 		def serviceRegistered?(serviceName)
@@ -416,11 +416,11 @@ module Qt
 		end
 
 		def servicePid(serviceName)
-    		return internalConstCall(Qt::DBus::AutoDetect, "GetConnectionUnixProcessID", [Qt::Variant.new(serviceName)]).value
+    		return Qt::DBusReply.new(internalConstCall(Qt::DBus::AutoDetect, "GetConnectionUnixProcessID", [Qt::Variant.new(serviceName)]))
 		end
 
 		def serviceUid(serviceName)
-    		return internalConstCall(Qt::DBus::AutoDetect, "GetConnectionUnixUser", [Qt::Variant.new(serviceName)]).value
+    		return Qt::DBusReply.new(internalConstCall(Qt::DBus::AutoDetect, "GetConnectionUnixUser", [Qt::Variant.new(serviceName)]))
 		end
 
 		def startService(name)
@@ -440,7 +440,7 @@ module Qt
 				else
 					# create an Array 'dbusArgs' of Qt::Variants from '*args'
 					qdbusArgs = args.collect {|arg| qVariantFromValue(arg)}
-					return qdbusMessage = call(id.to_s, *dbusArgs).value
+					return call(id.to_s, *dbusArgs).value
 				end
 			end
 		end
@@ -458,6 +458,43 @@ module Qt
 			else
 				return nil
 			end
+		end
+	end
+
+	class DBusReply
+		def initialize(reply)
+			@error = Qt::DBusError.new(reply)
+
+			if @error.valid?
+				@data = Qt::Variant.new
+				return
+			end
+
+			if reply.arguments.length >= 1
+				@data = reply.arguments[0]
+				return
+			end
+			
+			# error
+			@error = Qt::DBusError.new(	Qt::DBusError::InvalidSignature, 
+										"Unexpected reply signature" )
+			@data = Qt::Variant.new      # clear it
+		end
+
+		def isValid
+			return !@error.isValid
+		end
+
+		def valid?
+			return !@error.isValid
+		end
+
+		def value
+			return @data.to_ruby
+		end
+
+		def error
+			return @error
 		end
 	end
 

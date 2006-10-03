@@ -9,6 +9,10 @@
 
 	* Fixed incorrect Qt::Variant.toUInt() method name
 
+	* Added a ruby version of the Qt::DBusReply class
+
+	* Converted the qdbus/listnames example to Ruby
+
 2006-10-02  Richard Dale  <rdale@foton.es>
 
 	* qVariantFromValue() wasn't working with non-Qt classes as arguments,
