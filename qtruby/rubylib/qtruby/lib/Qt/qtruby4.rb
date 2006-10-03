@@ -411,6 +411,10 @@ module Qt
     		return internalConstCall(Qt::DBus::AutoDetect, "NameHasOwner", [Qt::Variant.new(serviceName)]).value
 		end
 
+		def serviceRegistered?(serviceName)
+    		return isServiceRegistered(serviceName)
+		end
+
 		def servicePid(serviceName)
     		return internalConstCall(Qt::DBus::AutoDetect, "GetConnectionUnixProcessID", [Qt::Variant.new(serviceName)]).value
 		end
