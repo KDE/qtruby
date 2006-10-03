@@ -1,3 +1,14 @@
+2006-10-03  Richard Dale  <rdale@foton.es>
+
+	* Added ruby implementations of Qt::DBusConnectionInterface.serviceOwner(), 
+	  registeredServiceNames(), isServiceRegistered(), servicePid(), serviceUid()
+	  and startService()
+
+	* Added a Qt::DBusMessage.value() method to return the Ruby value of the Qt::Variant
+	  at the beginning of the arguments array, or nil if the message wasn't a ReplyMessage.
+
+	* Fixed incorrect Qt::Variant.toUInt() method name
+
 2006-10-02  Richard Dale  <rdale@foton.es>
 
 	* qVariantFromValue() wasn't working with non-Qt classes as arguments,

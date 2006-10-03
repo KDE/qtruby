@@ -398,6 +398,32 @@ module Qt
 		end
 	end
 
+	class DBusConnectionInterface < Qt::Base
+		def serviceOwner(name)
+    		return internalConstCall(Qt::DBus::AutoDetect, "GetNameOwner", [Qt::Variant.new(name)]).value
+		end
+
+		def registeredServiceNames
+			return internalConstCall(Qt::DBus::AutoDetect, "ListNames").value
+		end
+
+		def isServiceRegistered(serviceName)
+    		return internalConstCall(Qt::DBus::AutoDetect, "NameHasOwner", [Qt::Variant.new(serviceName)]).value
+		end
+
+		def servicePid(serviceName)
+    		return internalConstCall(Qt::DBus::AutoDetect, "GetConnectionUnixProcessID", [Qt::Variant.new(serviceName)]).value
+		end
+
+		def serviceUid(serviceName)
+    		return internalConstCall(Qt::DBus::AutoDetect, "GetConnectionUnixUser", [Qt::Variant.new(serviceName)]).value
+		end
+
+		def startService(name)
+    		return call("StartServiceByName", Qt::Variant.new(name), Qt::Variant.new(0)).value
+		end
+	end
+
 	class DBusInterface < Qt::Base 
 		def method_missing(id, *args)
 			begin
@@ -406,14 +432,12 @@ module Qt
 				super(id, *args)
 			rescue
 				if args.length == 0
-					qdbusMessage = call(id.to_s)
+					return call(id.to_s).value
 				else
 					# create an Array 'dbusArgs' of Qt::Variants from '*args'
 					qdbusArgs = args.collect {|arg| qVariantFromValue(arg)}
-					qdbusMessage = call(id.to_s, *dbusArgs)
+					return qdbusMessage = call(id.to_s, *dbusArgs).value
 				end
-				reply = qdbusMessage.arguments
-				return reply.length > 0 ? reply[0].to_ruby : nil
 			end
 		end
 	end
@@ -421,6 +445,15 @@ module Qt
 	class DBusMessage < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
+		end
+
+		def value
+			if type() == Qt::DBusMessage::ReplyMessage
+				reply = arguments()
+				return reply.length > 0 ? reply[0].to_ruby : nil
+			else
+				return nil
+			end
 		end
 	end
 
@@ -1423,7 +1456,7 @@ module Qt
 			when Qt::Variant::Time
 				return toTime
 			when Qt::Variant::UInt
-				return toUint
+				return toUInt
 			when Qt::Variant::ULongLong
 				return toULongLong
 			when Qt::Variant::Url
