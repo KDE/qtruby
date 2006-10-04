@@ -1,3 +1,9 @@
+2006-10-04  Richard Dale  <rdale@foton.es>
+
+	* Added the QtDBus remote contoller car example
+
+	* Fixed warning messsage caused be the Qt::Variant::Time value
+
 2006-10-03  Richard Dale  <rdale@foton.es>
 
 	* Added ruby implementations of Qt::DBusConnectionInterface.serviceOwner(), 

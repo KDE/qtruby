@@ -1400,6 +1400,7 @@ module Qt
 	
 	class Variant < Qt::Base
 		String = 10
+		Time = 15
 
 		def to_a
 			return toStringList()
