@@ -398,6 +398,12 @@ module Qt
 		end
 	end
 
+	class DBusConnection < Qt::Base
+		def send(*args)
+			method_missing(:send, *args)
+		end
+	end
+
 	class DBusConnectionInterface < Qt::Base
 		def serviceOwner(name)
     		return Qt::DBusReply.new(internalConstCall(Qt::DBus::AutoDetect, "GetNameOwner", [Qt::Variant.new(name)]))
@@ -457,6 +463,14 @@ module Qt
 				return reply.length > 0 ? reply[0].to_ruby : nil
 			else
 				return nil
+			end
+		end
+
+		def <<(a)
+			if a.kind_of?(Qt::Variant)
+				return super(a)
+			else
+				return super(qVariantFromValue(a))
 			end
 		end
 	end

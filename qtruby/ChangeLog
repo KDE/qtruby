@@ -3,6 +3,11 @@
 	* Each rbuic generated class is now wrapped in a Ui module so that as 
 	  well as class 'Ui_Foobar' there is a 'Ui::Foobar' version.
 
+	* Added the QtDBus chat example
+
+	* Made the Qt::DBusMessage '<<' create a Qt::Variant if the arg passed
+	  to it wasn't already a Qt::Variant
+
 2006-10-04  Richard Dale  <rdale@foton.es>
 
 	* Added the QtDBus remote contoller car example
