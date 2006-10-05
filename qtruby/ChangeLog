@@ -1,3 +1,8 @@
+2006-10-05  Richard Dale  <rdale@foton.es>
+
+	* Each rbuic generated class is now wrapped in a Ui module so that as 
+	  well as class 'Ui_Foobar' there is a 'Ui::Foobar' version.
+
 2006-10-04  Richard Dale  <rdale@foton.es>
 
 	* Added the QtDBus remote contoller car example

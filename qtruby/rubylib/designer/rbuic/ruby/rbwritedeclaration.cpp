@@ -126,10 +126,11 @@ void WriteDeclaration::acceptUI(DomUI *node)
             if (ns.isEmpty())
                 continue;
 
-//            output << "namespace " << ns << " {\n";
+            output << "module " << ns << "\n";
         }
 
-//        output << option.indent << "class " << exportMacro << className << ": public " << option.prefix << className << " {};\n";
+        output << option.indent << "class "  << className << " < " << option.prefix << className << "\n";
+        output << option.indent << "end\n";
 
         it.toBack();
         while (it.hasPrevious()) {
@@ -137,7 +138,7 @@ void WriteDeclaration::acceptUI(DomUI *node)
             if (ns.isEmpty())
                 continue;
 
-//            output << "} // namespace " << ns << "\n";
+            output << "end  # module " << ns << "\n";
         }
 
         if (nsList.count())
