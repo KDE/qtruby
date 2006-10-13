@@ -1,4 +1,9 @@
-2006-10-056  Richard Dale  <rdale@foton.es>
+2006-10-13  Richard Dale  <rdale@foton.es>
+
+	* Added marshallers for QList<QPair<QString,QString> > and QGradiantStops
+	  (QPair<qreal,QColor>) types
+
+2006-10-06  Richard Dale  <rdale@foton.es>
 
 	* Added the QtDBus pingpong example
 

@@ -1661,36 +1661,178 @@ void marshall_QRgb_array(Marshall *m) {
     }
 }
 
-void marshall_QPairintint(Marshall *m) {
-    switch(m->action()) {
-      case Marshall::FromVALUE:
+void marshall_QPairQStringQStringList(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE: 
 	{
-	    VALUE list = *(m->var());
-	    if (TYPE(list) != T_ARRAY || RARRAY(list)->len != 2) {
-		m->item().s_voidp = 0;
+		VALUE list = *(m->var());
+		if (TYPE(list) != T_ARRAY) {
+			m->item().s_voidp = 0;
+			break;
+	    }
+
+		QList<QPair<QString,QString> > * pairlist = new QList<QPair<QString,QString> >();
+		int count = RARRAY(list)->len;
+
+		for (long i = 0; i < count; i++) {
+			VALUE item = rb_ary_entry(list, i);
+			if (TYPE(item) != T_ARRAY || RARRAY(item)->len != 2) {
+				continue;
+			}
+			VALUE s1 = rb_ary_entry(item, 0);
+			VALUE s2 = rb_ary_entry(item, 1);
+			QPair<QString,QString> * qpair = new QPair<QString,QString>(*(qstringFromRString(s1)),*(qstringFromRString(s2)));
+			pairlist->append(*qpair);
+		}
+
+		m->item().s_voidp = pairlist;
+		m->next();
+			
+		if (m->cleanup()) {
+			delete pairlist;
+		}
+	   
 		break;
+	}
+
+	case Marshall::ToVALUE: 
+	{
+		QList<QPair<QString,QString> > *pairlist = static_cast<QList<QPair<QString,QString> > * >(m->item().s_voidp);
+		if (pairlist == 0) {
+			*(m->var()) = Qnil;
+			break;
+		}
+
+		VALUE av = rb_ary_new();
+		for (QList<QPair<QString,QString> >::Iterator it = pairlist->begin(); it != pairlist->end(); ++it) {
+			QPair<QString,QString> * pair = &(*it);
+			VALUE rv1 = rstringFromQString(&(pair->first));
+			VALUE rv2 = rstringFromQString(&(pair->second));
+			VALUE pv = rb_ary_new();
+			rb_ary_push(pv, rv1);
+			rb_ary_push(pv, rv2);
+			rb_ary_push(av, pv);
+		}
+
+		*(m->var()) = av;
+
+		if (m->cleanup()) {
+			delete pairlist;
+		}
+
+	}
+	break;
+	default:
+		m->unsupported();
+		break;
+    }
+}
+
+void marshall_QPairqrealQColor(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE:
+	{
+		VALUE list = *(m->var());
+		if (TYPE(list) != T_ARRAY || RARRAY(list)->len != 2) {
+			m->item().s_voidp = 0;
+			break;
+	    }
+
+		qreal real;
+		VALUE item1 = rb_ary_entry(list, 0);
+		if (TYPE(item1) != T_FLOAT) {
+		    real = 0;
+		} else {
+			real = NUM2DBL(item1);
+		}
+		
+		VALUE item2 = rb_ary_entry(list, 1);
+
+		smokeruby_object *o = value_obj_info(item2);
+		if (o == 0 || o->ptr == 0) {
+			m->item().s_voidp = 0;
+			break;
+		}
+		
+		QPair<qreal,QColor> * qpair = new QPair<qreal,QColor>(real, *((QColor *) o->ptr));
+		m->item().s_voidp = qpair;
+		m->next();
+
+		if (m->cleanup()) {
+			delete qpair;
+		}
+	}
+	break;
+	case Marshall::ToVALUE:
+	{
+		QPair<qreal,QColor> * qpair = static_cast<QPair<qreal,QColor> * >(m->item().s_voidp); 
+		if (qpair == 0) {
+			*(m->var()) = Qnil;
+			break;
+		}
+
+		VALUE rv1 = rb_float_new(qpair->first);
+
+		void *p = (void *) &(qpair->second);
+		VALUE rv2 = getPointerObject(p);
+		if(rv2 == Qnil) {
+			smokeruby_object  * o = ALLOC(smokeruby_object);
+			o->smoke = m->smoke();
+			o->classId = o->smoke->idClass("QColor");
+			o->ptr = p;
+			o->allocated = false;
+			rv2 = set_obj_info("Qt::Color", o);
+		}
+
+		VALUE av = rb_ary_new();
+		rb_ary_push(av, rv1);
+		rb_ary_push(av, rv2);
+		*(m->var()) = av;
+
+		if (m->cleanup()) {
+//			delete qpair;
+		}
+	}
+		break;
+	default:
+		m->unsupported();
+		break;
+    }
+}
+
+void marshall_QPairintint(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE:
+	{
+		VALUE list = *(m->var());
+		if (TYPE(list) != T_ARRAY || RARRAY(list)->len != 2) {
+			m->item().s_voidp = 0;
+			break;
 	    }
 		int int0;
 		int int1;
 		VALUE item = rb_ary_entry(list, 0);
-		if(TYPE(item) != T_FIXNUM && TYPE(item) != T_BIGNUM) {
+		if (TYPE(item) != T_FIXNUM && TYPE(item) != T_BIGNUM) {
 		    int0 = 0;
 		} else {
 			int0 = NUM2INT(item);
 		}
 		
 		item = rb_ary_entry(list, 1);
-		if(TYPE(item) != T_FIXNUM && TYPE(item) != T_BIGNUM) {
+
+		if (TYPE(item) != T_FIXNUM && TYPE(item) != T_BIGNUM) {
 		    int1 = 0;
 		} else {
 			int1 = NUM2INT(item);
 		}
 		
 		QPair<int,int> * qpair = new QPair<int,int>(int0,int1);
-	    m->item().s_voidp = qpair;
-	    m->next();
-	    if(m->cleanup())
-		delete qpair;
+		m->item().s_voidp = qpair;
+		m->next();
+
+		if (m->cleanup()) {
+			delete qpair;
+		}
 	}
 	break;
       case Marshall::ToVALUE:
@@ -1878,6 +2020,10 @@ TypeHandler Qt_handlers[] = {
     { "char**", marshall_charP_array },
     { "uchar*", marshall_ucharP },
     { "QRgb*", marshall_QRgb_array },
+    { "QList<QPair<QString,QString> >", marshall_QPairQStringQStringList },
+    { "QList<QPair<QString,QString> >&", marshall_QPairQStringQStringList },
+    { "QGradiantStops", marshall_QPairqrealQColor },
+    { "QGradiantStops&", marshall_QPairqrealQColor },
     { "QPair<int,int>&", marshall_QPairintint },
     { "void**", marshall_voidP_array },
     { "void", marshall_void },
