@@ -1,6 +1,6 @@
 =begin
 **
-** Copyright (C) 2004-2005 Trolltech AS. All rights reserved.
+** Copyright (C) 2004-2006 Trolltech AS. All rights reserved.
 **
 ** This file is part of the example classes of the Qt Toolkit.
 **
@@ -25,7 +25,7 @@
     
 class Server < Qt::Dialog
     
-    slots    'sendFortune()'
+    slots :sendFortune
     
     def initialize(parent = nil)
         super(parent)
@@ -53,24 +53,25 @@ class Server < Qt::Dialog
                  tr("You cannot kill time without injuring eternity.") <<
                  tr("Computers are not intelligent. They only think they are.")
     
-        connect(@quitButton, SIGNAL('clicked()'), self, SLOT('close()'))
-        connect(@tcpServer, SIGNAL('newConnection()'), self, SLOT('sendFortune()'))
+        connect(@quitButton, SIGNAL(:clicked), self, SLOT(:close))
+        connect(@tcpServer, SIGNAL(:newConnection), self, SLOT(:sendFortune))
     
-        buttonLayout = Qt::HBoxLayout.new
-        buttonLayout.addStretch(1)
-        buttonLayout.addWidget(@quitButton)
+        buttonLayout = Qt::HBoxLayout.new do |b|
+            b.addStretch(1)
+            b.addWidget(@quitButton)
+        end
+
+        self.layout = Qt::VBoxLayout.new do |m|
+            m.addWidget(@statusLabel)
+            m.addLayout(buttonLayout)
+        end
     
-        mainLayout = Qt::VBoxLayout.new
-        mainLayout.addWidget(@statusLabel)
-        mainLayout.addLayout(buttonLayout)
-        setLayout(mainLayout)
-    
-        setWindowTitle(tr("Fortune Server"))
+        self.windowTitle = tr("Fortune Server")
     end
     
     def sendFortune
         block = Qt::ByteArray.new
-        outf = Qt::DataStream.new(block, Qt::IODevice::WriteOnly.to_i)
+        outf = Qt::DataStream.new(block, Qt::IODevice::WriteOnly)
         outf.version = Qt::DataStream::Qt_4_0
         outf << 0  # Write a 4 byte integer
         outf << @fortunes[rand(@fortunes.length)]
@@ -78,8 +79,8 @@ class Server < Qt::Dialog
         outf << (block.length - 4)  # 4 bytes is the size of an integer
     
         clientConnection = @tcpServer.nextPendingConnection()
-        connect(clientConnection, SIGNAL('disconnected()'),
-                clientConnection, SLOT('deleteLater()'))
+        connect(clientConnection, SIGNAL(:disconnected),
+                clientConnection, SLOT(:deleteLater))
     
         clientConnection.write(block)
         clientConnection.disconnectFromHost
