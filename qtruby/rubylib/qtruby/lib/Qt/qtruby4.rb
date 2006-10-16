@@ -435,6 +435,18 @@ module Qt
 	end
 
 	class DBusInterface < Qt::Base 
+
+		def call(method_name, *args)
+			if args.length == 0
+				return super(method_name.to_sym)
+			else
+				# If the method is Qt::DBusInterface.call(), create an Array 
+				# 'dbusArgs' of Qt::Variants from '*args'
+				qdbusArgs = args.collect {|arg| qVariantFromValue(arg)}
+				return super(method_name, *qdbusArgs)
+			end
+		end
+
 		def method_missing(id, *args)
 			begin
 				# First look for a method in the Smoke runtime
@@ -444,9 +456,7 @@ module Qt
 				if args.length == 0
 					return call(id.to_s).value
 				else
-					# create an Array 'dbusArgs' of Qt::Variants from '*args'
-					qdbusArgs = args.collect {|arg| qVariantFromValue(arg)}
-					return call(id.to_s, *dbusArgs).value
+					return call(id.to_s, *args).value
 				end
 			end
 		end

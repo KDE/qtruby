@@ -1,3 +1,10 @@
+2006-10-16  Richard Dale  <rdale@foton.es>
+
+	* Fixed Qt::DBusInterface.call() so it automatically wraps the arguments
+	  as Qt::Variants. Thanks to prullmann for testing and finding problems.
+
+	* Improved the pingpong example to be more like the C++ version.
+
 2006-10-13  Richard Dale  <rdale@foton.es>
 
 	* Added marshallers for QList<QPair<QString,QString> > and QGradiantStops

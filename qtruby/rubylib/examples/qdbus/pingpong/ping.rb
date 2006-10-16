@@ -37,13 +37,14 @@ end
 	
 iface = Qt::DBusInterface.new(SERVICE_NAME, "/", "", Qt::DBusConnection.sessionBus)
 if iface.valid?
-	reply = iface.ping(ARGV.length > 0 ? ARGV[0] : "")
+	message = iface.call("ping", ARGV.length > 0 ? ARGV[0] : "")
+	reply = Qt::DBusReply.new(message)
 	if reply.valid?
 		puts("Reply was: %s\n" % reply.value)
 		exit(0)
 	end
 	
-	$stderr.puts("Call failed: %s\n", reply.error.message)
+	$stderr.puts("Call failed: %s\n" % reply.error.message)
 	exit(1)
 end
 	
