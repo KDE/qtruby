@@ -613,6 +613,10 @@ qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 	} else if (strcmp(classname, "Qt::TextFormat") == 0) {
 		QTextFormat v = qVariantValue<QTextFormat>(*variant);
 		value_ptr = (void *) new QTextFormat(v);
+	} else if (	strcmp(classname, "Qt::DBusArgument") == 0 
+				&& qstrcmp(variant->typeName(), "QDBusArgument") == 0 ) 
+	{
+		value_ptr = (void *) variant->constData();
 	} else {
 		// Assume the value of the Qt::Variant can be obtained
 		// with a call such as Qt::Variant.toPoint()
