@@ -102,6 +102,9 @@ static void marshall_from_ruby<SmokeClassWrapper>(Marshall *m)
 	void *ptr = o->ptr;
 	if(!m->cleanup() && m->type().isStack()) {
 		ptr = construct_copy(o);
+		if (do_debug & qtdb_gc) {
+			qWarning("copying %s %p to %p\n", resolve_classname(o->smoke, o->classId, o->ptr), o->ptr, ptr);
+		}
 	}
 		
 	const Smoke::Class &cl = m->smoke()->classes[m->type().classId()];
@@ -135,6 +138,10 @@ static void marshall_to_ruby<SmokeClassWrapper>(Marshall *m)
 	const char * classname = resolve_classname(o->smoke, o->classId, o->ptr);
 	if(m->type().isConst() && m->type().isRef()) {
 		p = construct_copy( o );
+		if (do_debug & qtdb_gc) {
+			qWarning("copying %s %p to %p\n", classname, o->ptr, p);
+		}
+
 		if(p) {
 			o->ptr = p;
 			o->allocated = true;
@@ -142,16 +149,18 @@ static void marshall_to_ruby<SmokeClassWrapper>(Marshall *m)
 	}
 		
 	obj = set_obj_info(classname, o);
-	if (do_debug & qtdb_calls) {
+	if (do_debug & qtdb_gc) {
 		qWarning("allocating %s %p -> %p\n", classname, o->ptr, (void*)obj);
 	}
 
+/*
 	if(m->type().isStack()) {
 		o->allocated = true;
 		// Keep a mapping of the pointer so that it is only wrapped once as a ruby VALUE
 		mapPointer(obj, o, o->classId, 0);
 	}
-			
+*/			
+
 	*(m->var()) = obj;
 }
 

@@ -142,7 +142,8 @@ void install_handlers(TypeHandler *);
 smokeruby_object * 
 alloc_smokeruby_object(bool allocated, Smoke * smoke, int classId, void * ptr)
 {
-    smokeruby_object * o = (smokeruby_object *) malloc(sizeof(smokeruby_object));
+    smokeruby_object * o = ALLOC(smokeruby_object);
+//    smokeruby_object * o = (smokeruby_object *) malloc(sizeof(smokeruby_object));
 	o->classId = classId;
 	o->smoke = smoke;
 	o->ptr = ptr;
@@ -153,7 +154,7 @@ alloc_smokeruby_object(bool allocated, Smoke * smoke, int classId, void * ptr)
 void
 free_smokeruby_object(smokeruby_object * o)
 {
-	free(o);
+	xfree(o);
 	return;
 }
 
@@ -210,9 +211,15 @@ bool isDerivedFromByName(Smoke *smoke, const char *className, const char *baseCl
 }
 
 VALUE getPointerObject(void *ptr) {
-	if (pointer_map[ptr] == 0) {
+	if (!pointer_map.contains(ptr)) {
+		if (do_debug & qtdb_gc) {
+			qWarning("getPointerObject %p -> nil", ptr);
+		}
 	    return Qnil;
 	} else {
+		if (do_debug & qtdb_gc) {
+			qWarning("getPointerObject %p -> %p", ptr, (void *) *(pointer_map[ptr]));
+		}
 		return *(pointer_map[ptr]);
 	}
 }
@@ -221,16 +228,16 @@ void unmapPointer(smokeruby_object *o, Smoke::Index classId, void *lastptr) {
     void *ptr = o->smoke->cast(o->ptr, o->classId, classId);
     if(ptr != lastptr) {
 	lastptr = ptr;
-	if (pointer_map[ptr] != 0) {
+	if (pointer_map.contains(ptr)) {
 		VALUE * obj_ptr = pointer_map[ptr];
 		
 		if (do_debug & qtdb_gc) {
 			const char *className = o->smoke->classes[o->classId].className;
-			qWarning("unmapPointer (%s*)%p -> %p", className, ptr, obj_ptr);
+			qWarning("unmapPointer (%s*)%p -> %p size: %d", className, ptr, obj_ptr, pointer_map.size() - 1);
 		}
 	    
 		pointer_map.remove(ptr);
-		free((void*) obj_ptr);
+		xfree((void*) obj_ptr);
 	}
     }
     for(Smoke::Index *i = o->smoke->inheritanceList + o->smoke->classes[classId].parents;
@@ -248,12 +255,13 @@ void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *last
 	
     if (ptr != lastptr) {
 		lastptr = ptr;
-		VALUE * obj_ptr = (VALUE *) malloc(sizeof(VALUE));
+		VALUE * obj_ptr = ALLOC(VALUE);
+//		VALUE * obj_ptr = (VALUE *) malloc(sizeof(VALUE));
 		memcpy(obj_ptr, &obj, sizeof(VALUE));
 		
 		if (do_debug & qtdb_gc) {
 			const char *className = o->smoke->classes[o->classId].className;
-			qWarning("mapPointer (%s*)%p -> %p", className, ptr, (void*)obj);
+			qWarning("mapPointer (%s*)%p -> %p size: %d", className, ptr, (void*)obj, pointer_map.size() + 1);
 		}
 	
 		pointer_map.insert(ptr, obj_ptr);
@@ -1527,7 +1535,7 @@ static QByteArray * pred = 0;
 		}
 	}
 		
-	VALUE * temp_stack = (VALUE *) calloc(argc+3, sizeof(VALUE));
+	VALUE * temp_stack = ALLOCA_N(VALUE, argc+3);
     temp_stack[0] = rb_str_new2("Qt");
     temp_stack[1] = rb_str_new2(methodName);
     temp_stack[2] = klass;
@@ -1561,7 +1569,6 @@ static QByteArray * pred = 0;
 				}
 
 				if (_current_method == -1) {
-					free(temp_stack);
 
 					// Check for property getter/setter calls
 					smokeruby_object *o = value_obj_info(self);
@@ -1610,7 +1617,6 @@ static QByteArray * prop = 0;
     MethodCall c(qt_Smoke, _current_method, self, temp_stack+4, argc-1);
     c.next();
     VALUE result = *(c.var());
-	free(temp_stack);
     return result;
 }
 
@@ -1619,7 +1625,7 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
 {
 	VALUE result = Qnil;
 	char * methodName = rb_id2name(SYM2ID(argv[0]));
-	VALUE * temp_stack = (VALUE *) calloc(argc+3, sizeof(VALUE));
+	VALUE * temp_stack = ALLOCA_N(VALUE, argc+3);
     temp_stack[0] = rb_str_new2("Qt");
     temp_stack[1] = rb_str_new2(methodName);
     temp_stack[2] = klass;
@@ -1650,17 +1656,14 @@ static QRegExp * rx = 0;
 		if (rx->indexIn(methodName) == -1) {
 			// If an operator method hasn't been found as an instance method,
 			// then look for a class method - after 'op(self,a)' try 'self.op(a)' 
-	    	VALUE * method_stack = (VALUE *) calloc(argc - 1, sizeof(VALUE));
+	    	VALUE * method_stack = ALLOCA_N(VALUE, argc - 1);
 	    	method_stack[0] = argv[0];
 	    	for (int count = 1; count < argc - 1; count++) {
 				method_stack[count] = argv[count+1];
     		}
 			result = method_missing(argc-1, method_stack, argv[1]);
-			free(method_stack);
-			free(temp_stack);
 			return result;
 		} else {
-			free(temp_stack);
 			return rb_call_super(argc, argv);
 		}
     }
@@ -1668,7 +1671,6 @@ static QRegExp * rx = 0;
     MethodCall c(qt_Smoke, _current_method, Qnil, temp_stack+4, argc-1);
     c.next();
     result = *(c.var());
-	free(temp_stack);
     return result;
 }
 
@@ -1724,7 +1726,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
 	VALUE constructor_name = rb_str_new2("new");
 
-	VALUE * temp_stack = (VALUE *) calloc(argc+4, sizeof(VALUE));
+	VALUE * temp_stack = ALLOCA_N(VALUE, argc+4);
 
 	temp_stack[0] = rb_str_new2("Qt");
 	temp_stack[1] = constructor_name;
@@ -1750,7 +1752,6 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	}
 
 	if (_current_method == -1) {
-		free(temp_stack);
 		// Another longjmp here..
 		rb_raise(rb_eArgError, "unresolved constructor call %s\n", rb_class2name(klass));
 	}
@@ -1773,7 +1774,6 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	p->ptr = 0;
 	p->allocated = false;
 
-	free(temp_stack);
 	VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, o);
 	mapObject(result, result);
 	// Off with a longjmp, never to return..
@@ -1785,7 +1785,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 VALUE
 new_qt(int argc, VALUE * argv, VALUE klass)
 {
-    VALUE * temp_stack = (VALUE *) calloc(argc + 1, sizeof(VALUE));
+    VALUE * temp_stack = ALLOCA_N(VALUE, argc + 1);
 	temp_stack[0] = rb_obj_alloc(klass);
 
 	for (int count = 0; count < argc; count++) {
@@ -1795,7 +1795,6 @@ new_qt(int argc, VALUE * argv, VALUE klass)
 	VALUE result = rb_funcall2(qt_internal_module, rb_intern("try_initialize"), argc+1, temp_stack);
 	rb_obj_call_init(result, argc, argv);
 	
-	free(temp_stack);
 	return result;
 }
 
@@ -1806,13 +1805,12 @@ new_qapplication(int argc, VALUE * argv, VALUE klass)
 
 	if (argc == 1 && TYPE(argv[0]) == T_ARRAY) {
 		// Convert '(ARGV)' to '(NUM, [$0]+ARGV)'
-		VALUE * local_argv = (VALUE *) calloc(argc + 1, sizeof(VALUE));
+		VALUE * local_argv = ALLOCA_N(VALUE, argc + 1);
 		VALUE temp = rb_ary_dup(argv[0]);
 		rb_ary_unshift(temp, rb_gv_get("$0"));
 		local_argv[0] = INT2NUM(RARRAY(temp)->len);
 		local_argv[1] = temp;
 		result = new_qt(2, local_argv, klass);
-		free(local_argv);
 	} else {
 		result = new_qt(argc, argv, klass);
 	}

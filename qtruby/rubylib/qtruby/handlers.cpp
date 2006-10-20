@@ -143,7 +143,7 @@ smokeruby_mark(void * p)
     const char *className = o->smoke->classes[o->classId].className;
 	
 	if (do_debug & qtdb_gc) qWarning("Checking for mark (%s*)%p", className, o->ptr);
-		
+
     if (o->ptr && o->allocated) {
 		if (isDerivedFromByName(o->smoke, className, "QListWidget")) {
 			QListWidget * listwidget = (QListWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QListWidget"));

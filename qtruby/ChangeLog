@@ -6,6 +6,13 @@
 	  some with malloc(). Now they are all created with malloc().
 	* Removed a call to ALLOC_N and replaced it will calloc().
 
+	* Reversed the decision to get rid of ALLOC, and replaced all mallocs
+	  with ALLOC and all callocs with ALLOCA_N
+	* Commented out some code that mapped an instance which was allocated
+	  in the C++ world onto the corresponding ruby instance. It doesn't
+	  work if the C++ address is reused and the Ruby side doesn't know
+	  about it.
+
 2006-10-19  Richard Dale  <rdale@foton.es>
 
 	* A Qt::DBusArgument can be obtained via a call to qVariantValue(), like
