@@ -129,11 +129,8 @@ static void marshall_to_ruby<SmokeClassWrapper>(Marshall *m)
 		*(m->var()) = obj;
 		return ;
 	}
-	smokeruby_object  * o = (smokeruby_object *) malloc(sizeof(smokeruby_object));
-	o->smoke = m->smoke();
-	o->classId = m->type().classId();
-	o->ptr = p;
-	o->allocated = false;
+
+	smokeruby_object  * o = alloc_smokeruby_object(false, m->smoke(), m->type().classId(), p);
 
 	const char * classname = resolve_classname(o->smoke, o->classId, o->ptr);
 	if(m->type().isConst() && m->type().isRef()) {
