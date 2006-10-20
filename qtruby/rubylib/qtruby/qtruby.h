@@ -27,6 +27,13 @@ struct smokeruby_object {
     void *ptr;
 };
 
+extern smokeruby_object * alloc_smokeruby_object(	bool allocated, 
+													Smoke * smoke, 
+													int classId, 
+													void * ptr );
+
+extern void free_smokeruby_object(smokeruby_object * o);
+
 struct TypeHandler {
     const char *name;
     Marshall::HandlerFn fn;

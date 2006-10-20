@@ -1,3 +1,11 @@
+2006-10-20  Richard Dale  <rdale@foton.es>
+
+	* All allocs and frees for the smokeruby_object struct now go through
+	  two methods alloc_smokeruby_object() and free_smokeruby_object().
+	  Before some instances were being allocated with Ruby's ALLOC, and
+	  some with malloc(). Now they are all created with malloc().
+	* Removed a call to ALLOC_N and replaced it will calloc().
+
 2006-10-19  Richard Dale  <rdale@foton.es>
 
 	* A Qt::DBusArgument can be obtained via a call to qVariantValue(), like

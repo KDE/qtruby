@@ -246,7 +246,7 @@ smokeruby_free(void * p)
 	if(do_debug & qtdb_gc) qWarning("Checking for delete (%s*)%p allocated: %s", className, o->ptr, o->allocated ? "true" : "false");
     
 	if(application_terminated || !o->allocated || o->ptr == 0) {
-		free(o);
+		free_smokeruby_object(o);
 		return;
 	}
 	
@@ -260,54 +260,54 @@ smokeruby_free(void * p)
 			|| strcmp(className, "QModelIndex") == 0 )
 	{
 		// Don't delete instances of these classes for now
-		free(o);
+		free_smokeruby_object(o);
 		return;
 	} else if (isDerivedFromByName(o->smoke, className, "QLayoutItem")) {
 		QLayoutItem * item = (QLayoutItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayoutItem"));
 		if (item->layout() != 0 || item->widget() != 0 || item->spacerItem() != 0) {
-			free(o);
+			free_smokeruby_object(o);
 			return;
 		}
 //	} else if (strcmp(className, "QIconViewItem") == 0) {
 //		Q3IconViewItem * item = (Q3IconViewItem *) o->ptr;
 //		if (item->iconView() != 0) {
-//			free(o);
+//			free_smokeruby_object(o);
 //			return;
 //		}
 //	} else if (strcmp(className, "QCheckListItem") == 0) {
 //		Q3CheckListItem * item = (Q3CheckListItem *) o->ptr;
 //		if (item->parent() != 0 || item->listView() != 0) {
-//			free(o);
+//			free_smokeruby_object(o);
 //			return;
 //		}
 	} else if (strcmp(className, "QListWidgetItem") == 0) {
 		QListWidgetItem * item = (QListWidgetItem *) o->ptr;
 		if (item->listWidget() != 0) {
-			free(o);
+			free_smokeruby_object(o);
 			return;
 		}
 	} else if (isDerivedFromByName(o->smoke, className, "QTableWidgetItem")) {
 		QTableWidgetItem * item = (QTableWidgetItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTableWidgetItem"));
 		if (item->tableWidget() != 0) {
-			free(o);
+			free_smokeruby_object(o);
 			return;
 		}
 //	} else if (strcmp(className, "QPopupMenu") == 0) {
 //		Q3PopupMenu * item = (Q3PopupMenu *) o->ptr;
 //		if (item->parentWidget(false) != 0) {
-//			free(o);
+//			free_smokeruby_object(o);
 //			return;
 //		}
 	} else if (isDerivedFromByName(o->smoke, className, "QWidget")) {
 		QWidget * qwidget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget"));
 		if (qwidget->parentWidget() != 0) {
-			free(o);
+			free_smokeruby_object(o);
 			return;
 		}
 	} else if (isDerivedFromByName(o->smoke, className, "QObject")) {
 		QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
 		if (qobject->parent() != 0) {
-			free(o);
+			free_smokeruby_object(o);
 			return;
 		}
 	}
@@ -326,7 +326,7 @@ smokeruby_free(void * p)
 		(*fn)(m.method, o->ptr, i);
 	}
 	delete[] methodName;
-	free(o);
+	free_smokeruby_object(o);
 	
     return;
 }
@@ -1127,21 +1127,21 @@ void marshall_ItemList(Marshall *m) {
 
 			VALUE av = rb_ary_new();
 
-			for(int i=0;i<valuelist->size();++i) {
+			for (int i=0;i<valuelist->size();++i) {
 				void *p = valuelist->at(i);
 
-				if(m->item().s_voidp == 0) {
+				if (m->item().s_voidp == 0) {
 					*(m->var()) = Qnil;
 					break;
 				}
 
 				VALUE obj = getPointerObject(p);
-				if(obj == Qnil) {
-					smokeruby_object  * o = ALLOC(smokeruby_object);
-					o->smoke = m->smoke();
-					o->classId = m->smoke()->idClass(ItemSTR);
-					o->ptr = p;
-					o->allocated = false;
+				if (obj == Qnil) {
+					smokeruby_object  * o = alloc_smokeruby_object(	false, 
+																	m->smoke(), 
+																	m->smoke()->idClass(ItemSTR), 
+																	p );
+
 					obj = set_obj_info(resolve_classname(o->smoke, o->classId, o->ptr), o);
 				}
 			
@@ -1505,11 +1505,10 @@ void marshall_QMapQStringQVariant(Marshall *m) {
 			VALUE obj = getPointerObject(p);
 				
 			if (obj == Qnil) {
-				smokeruby_object  * o = ALLOC(smokeruby_object);
-				o->classId = m->smoke()->idClass("QVariant");
-				o->smoke = m->smoke();
-				o->ptr = p;
-				o->allocated = true;
+				smokeruby_object  * o = alloc_smokeruby_object(	true, 
+																m->smoke(), 
+																m->smoke()->idClass("QVariant"), 
+																p );
 				obj = set_obj_info("Qt::Variant", o);
 			}
 			
@@ -1580,11 +1579,10 @@ void marshall_QMapintQVariant(Marshall *m) {
 			VALUE obj = getPointerObject(p);
 				
 			if (obj == Qnil) {
-				smokeruby_object  * o = ALLOC(smokeruby_object);
-				o->classId = m->smoke()->idClass("QVariant");
-				o->smoke = m->smoke();
-				o->ptr = p;
-				o->allocated = true;
+				smokeruby_object  * o = alloc_smokeruby_object(	true, 
+																m->smoke(), 
+																m->smoke()->idClass("QVariant"), 
+																p );
 				obj = set_obj_info("Qt::Variant", o);
 			}
 			
@@ -1775,12 +1773,11 @@ void marshall_QPairqrealQColor(Marshall *m) {
 
 		void *p = (void *) &(qpair->second);
 		VALUE rv2 = getPointerObject(p);
-		if(rv2 == Qnil) {
-			smokeruby_object  * o = ALLOC(smokeruby_object);
-			o->smoke = m->smoke();
-			o->classId = o->smoke->idClass("QColor");
-			o->ptr = p;
-			o->allocated = false;
+		if (rv2 == Qnil) {
+			smokeruby_object  * o = alloc_smokeruby_object(	false, 
+															m->smoke(), 
+															m->smoke()->idClass("QColor"), 
+															p );
 			rv2 = set_obj_info("Qt::Color", o);
 		}
 
@@ -1930,11 +1927,10 @@ void marshall_ValueListItem(Marshall *m) {
 
 				VALUE obj = getPointerObject(p);
 				if(obj == Qnil) {
-					smokeruby_object  * o = ALLOC(smokeruby_object);
-					o->smoke = m->smoke();
-					o->classId = o->smoke->idClass(ItemSTR);
-					o->ptr = p;
-					o->allocated = false;
+					smokeruby_object  * o = alloc_smokeruby_object(	false, 
+																	m->smoke(), 
+																	m->smoke()->idClass(ItemSTR), 
+																	p );
 					obj = set_obj_info(className, o);
 				}
 		

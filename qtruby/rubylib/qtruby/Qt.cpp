@@ -139,6 +139,24 @@ Smoke::Index _current_method = 0;
 extern TypeHandler Qt_handlers[];
 void install_handlers(TypeHandler *);
 
+smokeruby_object * 
+alloc_smokeruby_object(bool allocated, Smoke * smoke, int classId, void * ptr)
+{
+    smokeruby_object * o = (smokeruby_object *) malloc(sizeof(smokeruby_object));
+	o->classId = classId;
+	o->smoke = smoke;
+	o->ptr = ptr;
+	o->allocated = allocated;
+	return o;
+}
+
+void
+free_smokeruby_object(smokeruby_object * o)
+{
+	free(o);
+	return;
+}
+
 smokeruby_object *value_obj_info(VALUE ruby_value) {  // ptr on success, null on fail
     if (TYPE(ruby_value) != T_DATA) {
 	return 0;
@@ -534,14 +552,10 @@ cast_object_to(VALUE /*self*/, VALUE object, VALUE new_klass)
 		rb_raise(rb_eArgError, "unable to find class \"%s\" to cast to\n", StringValuePtr(new_klassname));
 	}
 
-    smokeruby_object *o_cast = (smokeruby_object *) malloc(sizeof(smokeruby_object));
-    memcpy(o_cast, o, sizeof(smokeruby_object));
-
-    o_cast->allocated = o->allocated;
-    o->allocated = false;
-
-    o_cast->classId = (int) *cast_to_id;
-    o_cast->ptr = o->smoke->cast(o->ptr, o->classId, o_cast->classId);
+	smokeruby_object * o_cast = alloc_smokeruby_object(	o->allocated, 
+														o->smoke, 
+														(int) *cast_to_id, 
+														o->smoke->cast(o->ptr, o->classId, (int) *cast_to_id) );
 
     VALUE obj = Data_Wrap_Struct(new_klass, smokeruby_mark, smokeruby_free, (void *) o_cast);
     mapPointer(obj, o_cast, o_cast->classId, 0);
@@ -629,11 +643,7 @@ qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 	}
 
 	VALUE result = Qnil;
-	smokeruby_object  * vo = ALLOC(smokeruby_object);
-	vo->smoke = o->smoke;
-	vo->classId = *value_class_id;
-	vo->ptr = value_ptr;
-	vo->allocated = true;
+	smokeruby_object * vo = alloc_smokeruby_object(true, o->smoke, *value_class_id, value_ptr);
 	result = set_obj_info(classname, vo);
 
 	return result;
@@ -694,11 +704,7 @@ qvariant_from_value(VALUE /*self*/, VALUE obj)
 		return rb_funcall(qvariant_class, rb_intern("new"), 1, obj);
 	}
 
-	smokeruby_object  * vo = ALLOC(smokeruby_object);
-	vo->smoke = o->smoke;
-	vo->classId = o->smoke->idClass("QVariant");
-	vo->ptr = v;
-	vo->allocated = true;
+	smokeruby_object * vo = alloc_smokeruby_object(true, o->smoke, o->smoke->idClass("QVariant"), v);
 	VALUE result = set_obj_info("Qt::Variant", vo);
 
 	return result;
@@ -1129,11 +1135,11 @@ qabstract_item_model_data(int argc, VALUE * argv, VALUE self)
 		rb_raise(rb_eArgError, "Invalid argument list");
 	}
 
-	smokeruby_object  * result = (smokeruby_object *) malloc(sizeof(smokeruby_object));
-	result->smoke = o->smoke;
-	result->classId = o->smoke->idClass("QVariant");
-	result->ptr = new QVariant(value);
-	result->allocated = true;
+
+	smokeruby_object  * result = alloc_smokeruby_object(	true, 
+															o->smoke, 
+															o->smoke->idClass("QVariant"), 
+															new QVariant(value) );
 	return set_obj_info("Qt::Variant", result);
 }
 
@@ -1387,11 +1393,12 @@ qitemselection_at(VALUE self, VALUE i)
     smokeruby_object *o = value_obj_info(self);
 	QItemSelection * item = (QItemSelection *) o->ptr;
 	QItemSelectionRange range = item->at(NUM2INT(i));
-	smokeruby_object  * result = (smokeruby_object *) malloc(sizeof(smokeruby_object));
-	result->smoke = o->smoke;
-	result->classId = o->smoke->idClass("QItemSelectionRange");
-	result->ptr = new QItemSelectionRange(range);
-	result->allocated = true;
+
+	smokeruby_object  * result = alloc_smokeruby_object(	true, 
+															o->smoke, 
+															o->smoke->idClass("QItemSelectionRange"), 
+															new QItemSelectionRange(range) );
+
 	return set_obj_info("Qt::ItemSelectionRange", result);
 }
 
@@ -1419,11 +1426,12 @@ static VALUE
 qobject_staticmetaobject(VALUE /*klass*/)
 {
 	QMetaObject * meta = new QMetaObject(QObject::staticMetaObject);
-	smokeruby_object  * m = (smokeruby_object *) malloc(sizeof(smokeruby_object));
-	m->smoke = qt_Smoke;
-	m->classId = m->smoke->idClass("QMetaObject");
-	m->ptr = meta;
-	m->allocated = true;
+
+	smokeruby_object  * m = alloc_smokeruby_object(	true, 
+													qt_Smoke, 
+													qt_Smoke->idClass("QMetaObject"), 
+													meta );
+
 	VALUE obj = set_obj_info("Qt::MetaObject", m);
 	return obj;
 }
@@ -1439,11 +1447,11 @@ qobject_metaobject(VALUE self)
 		return obj;
 	}
 
-	smokeruby_object  * m = (smokeruby_object *) malloc(sizeof(smokeruby_object));
-	m->smoke = o->smoke;
-	m->classId = m->smoke->idClass("QMetaObject");
-	m->ptr = meta;
-	m->allocated = false;
+	smokeruby_object  * m = alloc_smokeruby_object(	false, 
+													o->smoke, 
+													o->smoke->idClass("QMetaObject"), 
+													meta );
+
 	obj = set_obj_info("Qt::MetaObject", m);
 	return obj;
 }
@@ -1757,11 +1765,14 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	
 	smokeruby_object * p = 0;
 	Data_Get_Struct(temp_obj, smokeruby_object, p);
-	smokeruby_object  * o = (smokeruby_object *) malloc(sizeof(smokeruby_object));
-	memcpy(o, p, sizeof(smokeruby_object));
+
+	smokeruby_object  * o = alloc_smokeruby_object(	true, 
+													p->smoke, 
+													p->classId, 
+													p->ptr );
 	p->ptr = 0;
 	p->allocated = false;
-	o->allocated = true;
+
 	free(temp_stack);
 	VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, o);
 	mapObject(result, result);
@@ -1774,7 +1785,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 VALUE
 new_qt(int argc, VALUE * argv, VALUE klass)
 {
-	VALUE * temp_stack = ALLOCA_N(VALUE, argc + 1);
+    VALUE * temp_stack = (VALUE *) calloc(argc + 1, sizeof(VALUE));
 	temp_stack[0] = rb_obj_alloc(klass);
 
 	for (int count = 0; count < argc; count++) {
@@ -1784,6 +1795,7 @@ new_qt(int argc, VALUE * argv, VALUE klass)
 	VALUE result = rb_funcall2(qt_internal_module, rb_intern("try_initialize"), argc+1, temp_stack);
 	rb_obj_call_init(result, argc, argv);
 	
+	free(temp_stack);
 	return result;
 }
 
@@ -2321,12 +2333,10 @@ make_metaObject(VALUE /*self*/, VALUE obj, VALUE stringdata_value, VALUE data_va
 	}
 	printf("\n");
 #endif
-
-    smokeruby_object * m = (smokeruby_object *) malloc(sizeof(smokeruby_object));
-    m->smoke = qt_Smoke;
-    m->classId = qt_Smoke->idClass("QMetaObject");
-    m->ptr = meta;
-    m->allocated = true;
+	smokeruby_object  * m = alloc_smokeruby_object(	true, 
+													qt_Smoke, 
+													qt_Smoke->idClass("QMetaObject"), 
+													meta );
 
     return Data_Wrap_Struct(qmetaobject_class, smokeruby_mark, smokeruby_free, m);
 }
