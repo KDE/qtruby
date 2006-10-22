@@ -518,6 +518,14 @@ public:
 			for (QValueListIterator<QCString> it = propertyList.begin(); it != propertyList.end(); ++it) {
 				rb_ary_push(_result, rb_str_new2((const char *) *it));
 			}
+		} else if (replyType == "QValueList<int>") {
+			// And special case this type too 
+			QValueList<int> propertyList;
+			ds >> propertyList;
+			_result = rb_ary_new();
+			for (QValueListIterator<int> it = propertyList.begin(); it != propertyList.end(); ++it) {
+				rb_ary_push(_result, INT2NUM(*it));
+			}
 		} else if (replyType == "QMap<QString,DCOPRef>") {
 			// And another.. 
 			QMap<QString,DCOPRef>	actionMap;
