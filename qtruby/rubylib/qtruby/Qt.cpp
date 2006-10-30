@@ -76,7 +76,7 @@ extern bool qUnregisterResourceData(int, const unsigned char *, const unsigned c
 
 // #define DEBUG
 
-#define QTRUBY_VERSION "1.4.6"
+#define QTRUBY_VERSION "1.4.7"
 
 extern Smoke *qt_Smoke;
 extern void init_qt_Smoke();
@@ -143,7 +143,6 @@ smokeruby_object *
 alloc_smokeruby_object(bool allocated, Smoke * smoke, int classId, void * ptr)
 {
     smokeruby_object * o = ALLOC(smokeruby_object);
-//    smokeruby_object * o = (smokeruby_object *) malloc(sizeof(smokeruby_object));
 	o->classId = classId;
 	o->smoke = smoke;
 	o->ptr = ptr;
@@ -256,7 +255,6 @@ void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *last
     if (ptr != lastptr) {
 		lastptr = ptr;
 		VALUE * obj_ptr = ALLOC(VALUE);
-//		VALUE * obj_ptr = (VALUE *) malloc(sizeof(VALUE));
 		memcpy(obj_ptr, &obj, sizeof(VALUE));
 		
 		if (do_debug & qtdb_gc) {

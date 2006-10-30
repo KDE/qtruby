@@ -1,3 +1,7 @@
+2006-10-30  Richard Dale  <rdale@foton.es>
+
+	* Upped the QtRuby version to 1.4.7 for the RubyForge release
+
 2006-10-20  Richard Dale  <rdale@foton.es>
 
 	* All allocs and frees for the smokeruby_object struct now go through
