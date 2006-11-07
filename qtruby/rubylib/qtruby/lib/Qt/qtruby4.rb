@@ -2210,7 +2210,12 @@ module Qt
 		end
 		
 		def Internal.getMetaObject(qobject)
-			meta = Meta[qobject.class.name]
+			klass = qobject.class
+			begin
+				meta = Meta[klass.name]
+				klass = klass.superclass
+			end while meta.nil? and klass != Object
+
 			return nil if meta.nil?
 	
 			if meta.metaobject.nil? or meta.changed
