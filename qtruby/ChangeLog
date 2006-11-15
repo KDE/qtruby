@@ -1,3 +1,9 @@
+2006-11-15  Richard Dale  <rdale@foton.es>
+
+	* When Qt::DBusInterface.call() was called with a single argument,
+	  it was failing with a method_missing() error. Fixes problem
+	  reported by Carsten Niehaus.
+
 2006-11-07  Richard Dale  <rdale@foton.es>
 
 	* Fixed a crash when a slot was inherited by a subclass, and the

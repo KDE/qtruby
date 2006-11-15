@@ -438,7 +438,7 @@ module Qt
 
 		def call(method_name, *args)
 			if args.length == 0
-				return super(method_name.to_sym)
+				return super(method_name)
 			else
 				# If the method is Qt::DBusInterface.call(), create an Array 
 				# 'dbusArgs' of Qt::Variants from '*args'
@@ -1424,7 +1424,9 @@ module Qt
 	
 	class Variant < Qt::Base
 		String = 10
+		Date = 14
 		Time = 15
+		DateTime = 16
 
 		def to_a
 			return toStringList()
