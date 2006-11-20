@@ -195,6 +195,18 @@ module Qt
 		end
 	end
 
+	class BoxLayout < Qt::Base
+		include Enumerable
+
+		def each
+			it = iterator()
+			while it.current
+				yield it.current
+				it += 1
+			end
+		end
+	end
+
 	class Buffer < Qt::Base
 		def open(*args)
 			method_missing(:open, *args)
@@ -451,6 +463,30 @@ module Qt
 		end
 	end
 
+	class GridLayout < Qt::Base
+		include Enumerable
+
+		def each
+			it = iterator()
+			while it.current
+				yield it.current
+				it += 1
+			end
+		end
+	end
+
+	class HBoxLayout < Qt::Base
+		include Enumerable
+
+		def each
+			it = iterator()
+			while it.current
+				yield it.current
+				it += 1
+			end
+		end
+	end
+
 	class HebrewCodec < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
@@ -539,9 +575,61 @@ module Qt
 		end
 	end
 
+	class LayoutIterator < Qt::Base
+		def +(a)
+			for i in 1..a
+				send("operator++".to_sym)
+			end
+            return self
+		end
+	end
+
 	class Library < Qt::Base
 		def load(*args)
 			method_missing(:load, *args)
+		end
+	end
+
+	class ListView < Qt::Base
+		include Enumerable
+
+		def each
+			it = Qt::ListViewItemIterator.new(self)
+			while it.current
+				yield it.current
+				it += 1
+			end
+		end
+	end
+
+	class ListViewItem < Qt::Base
+		include Enumerable
+
+		def each
+			it = Qt::ListViewItemIterator.new(self)
+			while it.current
+				yield it.current
+				it += 1
+			end
+		end
+
+		def inspect
+			str = super
+			str.sub!(/>$/, "")
+			for i in 0..(listView.columns - 1)
+				str << " text%d=%s," % [i, self.text(i)]
+			end
+			str.sub!(/,?$/, ">")
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			str.sub!(/>$/, "")
+			for i in 0..(listView.columns - 1)
+				str << " text%d=%s," % [i, self.text(i)]
+			end
+			str.sub!(/,?$/, ">")
+			pp.text str
 		end
 	end
 
@@ -1038,6 +1126,18 @@ module Qt
 
 		def type(*args)
 			method_missing(:type, *args)
+		end
+	end
+
+	class VBoxLayout < Qt::Base
+		include Enumerable
+
+		def each
+			it = iterator()
+			while it.current
+				yield it.current
+				it += 1
+			end
 		end
 	end
 	
@@ -1562,13 +1662,21 @@ module Qt
 		end
 	
 		def Internal.signalAt(qobject, index)
-			classname = qobject.class.name
-			Meta[classname].get_signals[index].full_name
+			klass = qobject.class
+			begin
+				meta = Meta[klass.name]
+				klass = klass.superclass
+			end while meta.nil? and klass != Object
+			meta.get_signals[index].full_name
 		end
 	
 		def Internal.slotAt(qobject, index)
-			classname = qobject.class.name
-			Meta[classname].get_slots[index].full_name
+			klass = qobject.class
+			begin
+				meta = Meta[klass.name]
+				klass = klass.superclass
+			end while meta.nil? and klass != Object
+			meta.get_slots[index].full_name
 		end
 	
 		def Internal.getMocArguments(member)

@@ -1,3 +1,24 @@
+2006-11-20  Richard Dale  <rdale@foton.es>
+
+	* Made Qt::ListView, Qt::ListViewItem, Qt::BoxLayout, Qt::HBoxLayout,
+	  Qt::VBoxLayout and Qt::GridLayout Enumerable with implementations
+	  of each() so they don't need to use the Qt External iterators like
+	  Qt::LayoutIterator anymore. For instance:
+
+		lv = Qt::ListView.new do
+			["one", "two", "three", "four"].each do |label|
+				Qt::ListViewItem.new(self, label, "zzz")
+			end
+		end
+
+		lv.each do |item|
+			p item.inspect
+			pp item.inspect
+		end
+
+	* Add inspect() and pretty_print() methods to Qt::ListViewItem so that
+	  they show the text of their columns
+
 2006-09-19  Richard Dale  <rdale@foton.es>
 
 	* Upped the QtRuby version to 1.0.13 for the KDE 3.5.5 release
