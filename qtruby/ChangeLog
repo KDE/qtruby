@@ -1,3 +1,9 @@
+2006-11-21  Richard Dale  <rdale@foton.es>
+
+	* The rbuic and rbrcc tools were being built with a .app extension
+	  on Mac OS X when using qmake. Fixed the .pro files so this doesn't
+	  happen. Thanks to Hans Fugel for reporting the problem.
+
 2006-11-15  Richard Dale  <rdale@foton.es>
 
 	* When Qt::DBusInterface.call() was called with a single argument,

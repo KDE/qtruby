@@ -3,6 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
+CONFIG -= app_bundle
 TARGET += 
 DEPENDPATH += .
 INCLUDEPATH += .
