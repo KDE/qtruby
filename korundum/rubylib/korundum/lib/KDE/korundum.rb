@@ -598,6 +598,49 @@ module KDE
 		end
 	end
 
+	class ListView
+		include Enumerable
+
+		def each
+			it = Qt::ListViewItemIterator.new(self)
+			while it.current
+				yield it.current
+				it += 1
+			end
+		end
+	end
+
+	class ListViewItem
+		include Enumerable
+
+		def each
+			it = Qt::ListViewItemIterator.new(self)
+			while it.current
+				yield it.current
+				it += 1
+			end
+		end
+
+		def inspect
+			str = super
+			str.sub!(/>$/, "")
+			for i in 0..(listView.columns - 1)
+				str << " text%d=%s," % [i, self.text(i)]
+			end
+			str.sub!(/,?$/, ">")
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			str.sub!(/>$/, "")
+			for i in 0..(listView.columns - 1)
+				str << " text%d=%s," % [i, self.text(i)]
+			end
+			str.sub!(/,?$/, ">")
+			pp.text str
+		end
+	end
+
 	class MainWindowInterface
 		def raise(*args)
 			method_missing(:raise, *args)

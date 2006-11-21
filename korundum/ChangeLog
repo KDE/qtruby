@@ -1,3 +1,23 @@
+2006-11-21  Richard Dale  <rdale@foton.es>
+
+	* Made KDE::ListView, KDE::ListViewItem Enumerable with implementations
+	  of each() so they don't need to use the Qt External iterators like
+	  Qt::ListViewItemIterator anymore. For instance:
+
+		lv = KDE::ListView.new do
+			["one", "two", "three", "four"].each do |label|
+				KDE::ListViewItem.new(self, label, "zzz")
+			end
+		end
+
+		lv.each do |item|
+			p item.inspect
+			pp item.inspect
+		end
+
+	* Add inspect() and pretty_print() methods to KDE::ListViewItem so that
+	  they show the text of their columns
+
 2006-10-22  Richard Dale  <rdale@foton.es>
 
 	* Special case QValueList<int> as a DCOPRef return type. Fixes problem
