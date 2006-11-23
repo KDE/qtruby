@@ -1,3 +1,14 @@
+2006-11-23  Richard Dale  <rdale@foton.es>
+
+	* Made Qt::TreeWidgetItem and Qt::TreeWidget Enumerable
+	* Added a Qt::TreeWidgetItemIterator.current() method to get the
+	  current value of the iterator without needing to use 'operator*'
+	* Added inspect() and pretty_print() methods to Qt::TreeWidgetItem,
+	  Qt::ListWidgetItem and Qt::TableWidgetItem
+	* Removed instructions for creating a 'rubyw' executable in Mac OS X
+	  as it isn't needed anymore with Qt 4.x. Thanks to Hans Fugal for 
+	  pointing that out.
+
 2006-11-21  Richard Dale  <rdale@foton.es>
 
 	* The rbuic and rbrcc tools were being built with a .app extension

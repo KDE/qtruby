@@ -803,6 +803,16 @@ module Qt
 		def type(*args)
 			method_missing(:type, *args)
 		end
+
+		def inspect
+			str = super
+			str.sub(/>$/, " text=%s>" % text)
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, " text=%s>" % text)
+		end
 	end
 
 	class Locale < Qt::Base
@@ -1286,6 +1296,16 @@ module Qt
 		def type(*args)
 			method_missing(:type, *args)
 		end
+
+		def inspect
+			str = super
+			str.sub(/>$/, " text=%s>" % text)
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, " text=%s>" % text)
+		end
 	end
 
 	class TemporaryFile < Qt::Base
@@ -1396,15 +1416,40 @@ module Qt
 		end
 	end
 
+	class TreeWidget < Qt::Base
+		include Enumerable
+
+		def each
+			it = Qt::TreeWidgetItemIterator.new(self)
+			while it.current
+				yield it.current
+				it += 1
+			end
+		end
+	end
+
 	class TreeWidgetItem < Qt::Base
+		include Enumerable
+
 		def inspect
 			str = super
-			str.sub(/>$/, " parent=%s>" % parent)
+			str.sub!(/>$/, "")
+			str << " parent=%s," % parent unless parent.nil?
+			for i in 0..(columnCount - 1)
+				str << " text%d=%s," % [i, self.text(i)]
+			end
+			str.sub!(/,?$/, ">")
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, " parent=%s>" % parent)
+			str.sub!(/>$/, "")
+			str << " parent=%s," % parent unless parent.nil?
+			for i in 0..(columnCount - 1)
+				str << " text%d=%s," % [i, self.text(i)]
+			end
+			str.sub!(/,?$/, ">")
+			pp.text str
 		end
 
 		def clone(*args)
@@ -1413,6 +1458,20 @@ module Qt
 
 		def type(*args)
 			method_missing(:type, *args)
+		end
+
+		def each
+			it = Qt::TreeWidgetItemIterator.new(self)
+			while it.current
+				yield it.current
+				it += 1
+			end
+		end
+	end
+
+	class TreeWidgetItemIterator < Qt::Base
+		def current
+			return send("operator*".to_sym)
 		end
 	end
 

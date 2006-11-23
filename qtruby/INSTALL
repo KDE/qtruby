@@ -76,23 +76,6 @@ $ ruby extconf.rb --with-qtruby-include=../../qtruby --with-qt-dir=/Developer/qt
 $ make
 $ sudo make install
 
-To get Mac menus to appear, when a QtRuby program is run from the command line,
-link ruby against the carbon resource lib and call it 'rubyw', see:
-
-http://www.rubygarden.org/ruby?RubyTkOnOSX
-
-"Create rubyw executable for MacOS?: the Win32 distribution of ruby includes a 
-'rubyw.exe' so I decided to attempt creating a 'rubyw' executable:
-
-On my machine, ruby is installed at /usr/local/bin/ruby, so I did sudo 
-cp /usr/local/bin/ruby /usr/local/bin/rubyw 
-Using the suggestion directly above (on this page), I then ran 
-sudo /Developer/Tools/Rez -t APPL Carbon.r -o rubyw 
-I was then able to successfully run an example RubyTk app by 
-running /usr/local/bin/rubyw ruby-1.8.0/ext/tk/sample/tkmenubutton.rb 
-Everything worked as expected, and I was able to interact with the UI without 
-any SetFrontProcess errors. "
-
 Ryutaro Amano wrote this about creating a double clickable bundle:
 
 "Thanks all, I have succeeded make rubyw.
