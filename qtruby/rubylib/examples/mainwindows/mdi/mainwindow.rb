@@ -348,6 +348,6 @@ class MainWindow < Qt::MainWindow
 	            return mdiChild
 			end
 	    end
-	    return 0
+	    return nil
 	end
 end

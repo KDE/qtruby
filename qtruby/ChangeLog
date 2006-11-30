@@ -1,3 +1,15 @@
+2006-11-30  Richard Dale  <rdale@foton.es>
+
+	* The Qt::KeySequence constructor wasn't working when passed a
+	  Qt::Key enum type and it needed to be cast to an Integer via 
+	  a to_i() call.
+	* When a Qt::DBusInterface.call() method was invoked without using
+	  the call() method, but by calling the method directly, and the method
+	  returned a QVariant Qt::DBusArgument value, the QVariant return
+	  value was converted to nil.
+	* Fixed some errors in the mainwindows/mdi example, thanks to shirk
+	  and |Vargas| for pointing them out.
+	  
 2006-11-23  Richard Dale  <rdale@foton.es>
 
 	* Made Qt::TreeWidgetItem and Qt::TreeWidget Enumerable

@@ -783,6 +783,15 @@ module Qt
 		end
 	end
 	
+	class KeySequence < Qt::Base
+		def initialize(*args)
+			if args.length == 1 && args[0].kind_of?(Qt::Enum) && args[0].type == "Qt::Key"
+				return super(args[0].to_i)
+			end
+			return super(*args)
+		end
+	end
+
 	class LCDNumber < Qt::Base
 		def display(item)
 			method_missing(:display, item)
@@ -1589,6 +1598,11 @@ module Qt
 			when Qt::Variant::Url
 				return toUrl
 			end
+
+            case typeName()
+            when "QDBusArgument"
+				return qVariantValue(Qt::DBusArgument, self)
+            end
 		end
 
 		def inspect

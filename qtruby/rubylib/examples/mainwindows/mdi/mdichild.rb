@@ -57,7 +57,7 @@ class MdiChild < Qt::TextEdit
 	    end
 	
 	    inf = Qt::TextStream.new(file)
-	    Qt::Application.setOverrideCursor(Qt::WaitCursor)
+	    Qt::Application.overrideCursor = Qt::Cursor.new(Qt::WaitCursor)
 	    setPlainText(inf.readAll())
 	    Qt::Application.restoreOverrideCursor()
 	
