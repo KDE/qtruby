@@ -434,6 +434,12 @@ module Qt
 		end
 	end
 
+	class DBusError < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class DBusInterface < Qt::Base 
 
 		def call(method_name, *args)
@@ -537,6 +543,10 @@ module Qt
 	class DomDocumentType < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
+		end
+
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 
@@ -645,6 +655,60 @@ module Qt
 		end
 	end
 
+	class Gradient < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class QGraphicsEllipseItem < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class QGraphicsItem < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class QGraphicsItemGroup < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class QGraphicsLineItem < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class QGraphicsPathItem < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class QGraphicsPixmapItem < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class QGraphicsPolygonItem < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class QGraphicsRectItem < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class GraphicsSceneMouseEvent < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
@@ -675,7 +739,13 @@ module Qt
 		end
 	end
 
-	class Gradient < Qt::Base
+	class QGraphicsSimpleTextItem < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class QGraphicsTextItem < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
 		end
@@ -1107,6 +1177,12 @@ module Qt
 		end
 	end
 	
+	class MetaType < Qt::Base
+		def self.type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class ModelIndex < Qt::Base
 		def inspect
 			str = super
@@ -1270,6 +1346,18 @@ module Qt
 	class SqlTableModel < Qt::Base
 		def select(*k)
 			method_missing(:select, *k)
+		end
+	end
+
+	class StandardItem < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class StandardItemModel < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
 		end
 	end
 
