@@ -175,7 +175,7 @@ void *value_to_ptr(VALUE ruby_value) {  // ptr on success, null on fail
 VALUE getPointerObject(void *ptr);
 
 bool isQObject(Smoke *smoke, Smoke::Index classId) {
-	if (strcmp(smoke->classes[classId].className, "QObject") == 0) {
+	if (qstrcmp(smoke->classes[classId].className, "QObject") == 0) {
 		return true;
 	}
 
@@ -589,52 +589,52 @@ qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 	VALUE result = Qnil;
 	smokeruby_object * vo = 0;
 
-	if (strcmp(classname, "Qt::Pixmap") == 0) {
+	if (qstrcmp(classname, "Qt::Pixmap") == 0) {
 		QPixmap v = qVariantValue<QPixmap>(*variant);
 		value_ptr = (void *) new QPixmap(v);
-	} else if (strcmp(classname, "Qt::Font") == 0) {
+	} else if (qstrcmp(classname, "Qt::Font") == 0) {
 		QFont v = qVariantValue<QFont>(*variant);
 		value_ptr = (void *) new QFont(v);
-	} else if (strcmp(classname, "Qt::Brush") == 0) {
+	} else if (qstrcmp(classname, "Qt::Brush") == 0) {
 		QBrush v = qVariantValue<QBrush>(*variant);
 		value_ptr = (void *) new QBrush(v);
-	} else if (strcmp(classname, "Qt::Color") == 0) {
+	} else if (qstrcmp(classname, "Qt::Color") == 0) {
 		QColor v = qVariantValue<QColor>(*variant);
 		value_ptr = (void *) new QColor(v);
-	} else if (strcmp(classname, "Qt::Palette") == 0) {
+	} else if (qstrcmp(classname, "Qt::Palette") == 0) {
 		QPalette v = qVariantValue<QPalette>(*variant);
 		value_ptr = (void *) new QPalette(v);
-	} else if (strcmp(classname, "Qt::Icon") == 0) {
+	} else if (qstrcmp(classname, "Qt::Icon") == 0) {
 		QIcon v = qVariantValue<QIcon>(*variant);
 		value_ptr = (void *) new QIcon(v);
-	} else if (strcmp(classname, "Qt::Image") == 0) {
+	} else if (qstrcmp(classname, "Qt::Image") == 0) {
 		QImage v = qVariantValue<QImage>(*variant);
 		value_ptr = (void *) new QImage(v);
-	} else if (strcmp(classname, "Qt::Polygon") == 0) {
+	} else if (qstrcmp(classname, "Qt::Polygon") == 0) {
 		QPolygon v = qVariantValue<QPolygon>(*variant);
 		value_ptr = (void *) new QPolygon(v);
-	} else if (strcmp(classname, "Qt::Region") == 0) {
+	} else if (qstrcmp(classname, "Qt::Region") == 0) {
 		QRegion v = qVariantValue<QRegion>(*variant);
 		value_ptr = (void *) new QRegion(v);
-	} else if (strcmp(classname, "Qt::Bitmap") == 0) {
+	} else if (qstrcmp(classname, "Qt::Bitmap") == 0) {
 		QBitmap v = qVariantValue<QBitmap>(*variant);
 		value_ptr = (void *) new QBitmap(v);
-	} else if (strcmp(classname, "Qt::Cursor") == 0) {
+	} else if (qstrcmp(classname, "Qt::Cursor") == 0) {
 		QCursor v = qVariantValue<QCursor>(*variant);
 		value_ptr = (void *) new QCursor(v);
-	} else if (strcmp(classname, "Qt::SizePolicy") == 0) {
+	} else if (qstrcmp(classname, "Qt::SizePolicy") == 0) {
 		QSizePolicy v = qVariantValue<QSizePolicy>(*variant);
 		value_ptr = (void *) new QSizePolicy(v);
-	} else if (strcmp(classname, "Qt::KeySequence") == 0) {
+	} else if (qstrcmp(classname, "Qt::KeySequence") == 0) {
 		QKeySequence v = qVariantValue<QKeySequence>(*variant);
 		value_ptr = (void *) new QKeySequence(v);
-	} else if (strcmp(classname, "Qt::Pen") == 0) {
+	} else if (qstrcmp(classname, "Qt::Pen") == 0) {
 		QPen v = qVariantValue<QPen>(*variant);
 		value_ptr = (void *) new QPen(v);
-	} else if (strcmp(classname, "Qt::TextLength") == 0) {
+	} else if (qstrcmp(classname, "Qt::TextLength") == 0) {
 		QTextLength v = qVariantValue<QTextLength>(*variant);
 		value_ptr = (void *) new QTextLength(v);
-	} else if (strcmp(classname, "Qt::TextFormat") == 0) {
+	} else if (qstrcmp(classname, "Qt::TextFormat") == 0) {
 		QTextFormat v = qVariantValue<QTextFormat>(*variant);
 		value_ptr = (void *) new QTextFormat(v);
 	} else if (variant->type() >= QVariant::UserType) { 
@@ -657,60 +657,87 @@ qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 }
 
 VALUE
-qvariant_from_value(VALUE /*self*/, VALUE obj)
+qvariant_from_value(int argc, VALUE * argv, VALUE self)
 {
-	char * classname = rb_obj_classname(obj);
-    smokeruby_object *o = value_obj_info(obj);
+	if (argc == 2) {
+		Smoke::Index nameId = 0;
+		if (TYPE(argv[0]) == T_DATA) {
+			nameId = qt_Smoke->idMethodName("QVariant#");
+		} else if (TYPE(argv[0]) == T_ARRAY || TYPE(argv[0]) == T_ARRAY) {
+			nameId = qt_Smoke->idMethodName("QVariant?");
+		} else {
+			nameId = qt_Smoke->idMethodName("QVariant$");
+		}
+
+		Smoke::Index meth = qt_Smoke->findMethod(qt_Smoke->idClass("QVariant"), nameId);
+		Smoke::Index i = qt_Smoke->methodMaps[meth].method;
+		i = -i;		// turn into ambiguousMethodList index
+		while (qt_Smoke->ambiguousMethodList[i] != 0) {
+			if (	qstrcmp(	qt_Smoke->types[qt_Smoke->argumentList[qt_Smoke->methods[qt_Smoke->ambiguousMethodList[i]].args]].name,
+								StringValuePtr(argv[1]) ) == 0 )
+			{
+				_current_method = qt_Smoke->ambiguousMethodList[i];
+				MethodCall c(qt_Smoke, _current_method, self, argv, 0);
+				c.next();
+				return *(c.var());
+			}
+
+			i++;
+		}
+	}
+
+	char * classname = rb_obj_classname(argv[0]);
+    smokeruby_object *o = value_obj_info(argv[0]);
 	if (o == 0 || o->ptr == 0) {
 		// Assume the Qt::Variant can be created with a
 		// Qt::Variant.new(obj) call
-		if (strcmp(classname, "Qt::Enum") == 0) {
-			return rb_funcall(qvariant_class, rb_intern("new"), 1, rb_funcall(obj, rb_intern("to_i"), 0));
+		if (qstrcmp(classname, "Qt::Enum") == 0) {
+			return rb_funcall(qvariant_class, rb_intern("new"), 1, rb_funcall(argv[0], rb_intern("to_i"), 0));
 		} else {
-			return rb_funcall(qvariant_class, rb_intern("new"), 1, obj);
+			return rb_funcall(qvariant_class, rb_intern("new"), 1, argv[0]);
 		}
 	}
 
 	QVariant * v = 0;
 
-	if (strcmp(classname, "Qt::Pixmap") == 0) {
+	if (qstrcmp(classname, "Qt::Pixmap") == 0) {
 		v = new QVariant(qVariantFromValue(*(QPixmap*) o->ptr));
-	} else if (strcmp(classname, "Qt::Font") == 0) {
+	} else if (qstrcmp(classname, "Qt::Font") == 0) {
 		v = new QVariant(qVariantFromValue(*(QFont*) o->ptr));
-	} else if (strcmp(classname, "Qt::Brush") == 0) {
+	} else if (qstrcmp(classname, "Qt::Brush") == 0) {
 		v = new QVariant(qVariantFromValue(*(QBrush*) o->ptr));
-	} else if (strcmp(classname, "Qt::Color") == 0) {
+	} else if (qstrcmp(classname, "Qt::Color") == 0) {
 		v = new QVariant(qVariantFromValue(*(QColor*) o->ptr));
-	} else if (strcmp(classname, "Qt::Palette") == 0) {
+	} else if (qstrcmp(classname, "Qt::Palette") == 0) {
 		v = new QVariant(qVariantFromValue(*(QPalette*) o->ptr));
-	} else if (strcmp(classname, "Qt::Icon") == 0) {
+	} else if (qstrcmp(classname, "Qt::Icon") == 0) {
 		v = new QVariant(qVariantFromValue(*(QIcon*) o->ptr));
-	} else if (strcmp(classname, "Qt::Image") == 0) {
+	} else if (qstrcmp(classname, "Qt::Image") == 0) {
 		v = new QVariant(qVariantFromValue(*(QImage*) o->ptr));
-	} else if (strcmp(classname, "Qt::Polygon") == 0) {
+	} else if (qstrcmp(classname, "Qt::Polygon") == 0) {
 		v = new QVariant(qVariantFromValue(*(QPolygon*) o->ptr));
-	} else if (strcmp(classname, "Qt::Region") == 0) {
+	} else if (qstrcmp(classname, "Qt::Region") == 0) {
 		v = new QVariant(qVariantFromValue(*(QRegion*) o->ptr));
-	} else if (strcmp(classname, "Qt::Bitmap") == 0) {
+	} else if (qstrcmp(classname, "Qt::Bitmap") == 0) {
 		v = new QVariant(qVariantFromValue(*(QBitmap*) o->ptr));
-	} else if (strcmp(classname, "Qt::Cursor") == 0) {
+	} else if (qstrcmp(classname, "Qt::Cursor") == 0) {
 		v = new QVariant(qVariantFromValue(*(QCursor*) o->ptr));
-	} else if (strcmp(classname, "Qt::SizePolicy") == 0) {
+	} else if (qstrcmp(classname, "Qt::SizePolicy") == 0) {
 		v = new QVariant(qVariantFromValue(*(QSizePolicy*) o->ptr));
-	} else if (strcmp(classname, "Qt::KeySequence") == 0) {
+	} else if (qstrcmp(classname, "Qt::KeySequence") == 0) {
 		v = new QVariant(qVariantFromValue(*(QKeySequence*) o->ptr));
-	} else if (strcmp(classname, "Qt::Pen") == 0) {
+	} else if (qstrcmp(classname, "Qt::Pen") == 0) {
 		v = new QVariant(qVariantFromValue(*(QPen*) o->ptr));
-	} else if (strcmp(classname, "Qt::TextLength") == 0) {
+	} else if (qstrcmp(classname, "Qt::TextLength") == 0) {
 		v = new QVariant(qVariantFromValue(*(QTextLength*) o->ptr));
-	} else if (strcmp(classname, "Qt::TextFormat") == 0) {
+	} else if (qstrcmp(classname, "Qt::TextFormat") == 0) {
 		v = new QVariant(qVariantFromValue(*(QTextFormat*) o->ptr));
 	} else if (QVariant::nameToType(o->smoke->classes[o->classId].className) >= QVariant::UserType) {
 		v = new QVariant(QVariant::nameToType(o->smoke->classes[o->classId].className), o->ptr);
 	} else {
 		// Assume the Qt::Variant can be created with a
 		// Qt::Variant.new(obj) call
-		return rb_funcall(qvariant_class, rb_intern("new"), 1, obj);
+		return rb_funcall(qvariant_class, rb_intern("new"), 1, argv[0]);
 	}
 
 	smokeruby_object * vo = alloc_smokeruby_object(true, o->smoke, o->smoke->idClass("QVariant"), v);
@@ -726,15 +753,15 @@ get_VALUEtype(VALUE ruby_value)
     const char *r = "";
     if(ruby_value == Qnil)
 	r = "u";
-    else if(TYPE(ruby_value) == T_FIXNUM || TYPE(ruby_value) == T_BIGNUM || strcmp(classname, "Qt::Integer") == 0)
+    else if(TYPE(ruby_value) == T_FIXNUM || TYPE(ruby_value) == T_BIGNUM || qstrcmp(classname, "Qt::Integer") == 0)
 	r = "i";
     else if(TYPE(ruby_value) == T_FLOAT)
 	r = "n";
     else if(TYPE(ruby_value) == T_STRING)
 	r = "s";
-    else if(ruby_value == Qtrue || ruby_value == Qfalse || strcmp(classname, "Qt::Boolean") == 0)
+    else if(ruby_value == Qtrue || ruby_value == Qfalse || qstrcmp(classname, "Qt::Boolean") == 0)
 	r = "B";
-    else if(strcmp(classname, "Qt::Enum") == 0) {
+    else if(qstrcmp(classname, "Qt::Enum") == 0) {
 	VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qenum_type"), 1, ruby_value);
 	r = StringValuePtr(temp);
     } else if(TYPE(ruby_value) == T_DATA) {
@@ -1296,13 +1323,13 @@ static Smoke::Index drawlines_line_vector = 0;
 			while (qt_Smoke->ambiguousMethodList[i] != 0) {
 				const char * argType = qt_Smoke->types[qt_Smoke->argumentList[qt_Smoke->methods[qt_Smoke->ambiguousMethodList[i]].args]].name;
 
-				if (strcmp(argType, "const QVector<QPointF>&" ) == 0) {
+				if (qstrcmp(argType, "const QVector<QPointF>&" ) == 0) {
 					drawlines_pointf_vector = qt_Smoke->ambiguousMethodList[i];
-				} else if (strcmp(argType, "const QVector<QPoint>&" ) == 0) {
+				} else if (qstrcmp(argType, "const QVector<QPoint>&" ) == 0) {
 					drawlines_point_vector = qt_Smoke->ambiguousMethodList[i];
-				} else if (strcmp(argType, "const QVector<QLineF>&" ) == 0) {
+				} else if (qstrcmp(argType, "const QVector<QLineF>&" ) == 0) {
 					drawlines_linef_vector = qt_Smoke->ambiguousMethodList[i];
-				} else if (strcmp(argType, "const QVector<QLine>&" ) == 0) {
+				} else if (qstrcmp(argType, "const QVector<QLine>&" ) == 0) {
 					drawlines_line_vector = qt_Smoke->ambiguousMethodList[i];
 				}
 
@@ -1312,13 +1339,13 @@ static Smoke::Index drawlines_line_vector = 0;
 
 		smokeruby_object * o = value_obj_info(rb_ary_entry(argv[0], 0));
 
-		if (strcmp(o->smoke->classes[o->classId].className, "QPointF") == 0) {
+		if (qstrcmp(o->smoke->classes[o->classId].className, "QPointF") == 0) {
 			_current_method = drawlines_pointf_vector;
-		} else if (strcmp(o->smoke->classes[o->classId].className, "QPoint") == 0) {
+		} else if (qstrcmp(o->smoke->classes[o->classId].className, "QPoint") == 0) {
 			_current_method = drawlines_point_vector;
-		} else if (strcmp(o->smoke->classes[o->classId].className, "QLineF") == 0) {
+		} else if (qstrcmp(o->smoke->classes[o->classId].className, "QLineF") == 0) {
 			_current_method = drawlines_linef_vector;
-		} else if (strcmp(o->smoke->classes[o->classId].className, "QLine") == 0) {
+		} else if (qstrcmp(o->smoke->classes[o->classId].className, "QLine") == 0) {
 			_current_method = drawlines_line_vector;
 		} else {
 			return rb_call_super(argc, argv);
@@ -1347,9 +1374,9 @@ static Smoke::Index drawlines_rect_vector = 0;
 			while (qt_Smoke->ambiguousMethodList[i] != 0) {
 				const char * argType = qt_Smoke->types[qt_Smoke->argumentList[qt_Smoke->methods[qt_Smoke->ambiguousMethodList[i]].args]].name;
 
-				if (strcmp(argType, "const QVector<QRectF>&" ) == 0) {
+				if (qstrcmp(argType, "const QVector<QRectF>&" ) == 0) {
 					drawlines_rectf_vector = qt_Smoke->ambiguousMethodList[i];
-				} else if (strcmp(argType, "const QVector<QRect>&" ) == 0) {
+				} else if (qstrcmp(argType, "const QVector<QRect>&" ) == 0) {
 					drawlines_rect_vector = qt_Smoke->ambiguousMethodList[i];
 				}
 
@@ -1359,9 +1386,9 @@ static Smoke::Index drawlines_rect_vector = 0;
 
 		smokeruby_object * o = value_obj_info(rb_ary_entry(argv[0], 0));
 
-		if (strcmp(o->smoke->classes[o->classId].className, "QRectF") == 0) {
+		if (qstrcmp(o->smoke->classes[o->classId].className, "QRectF") == 0) {
 			_current_method = drawlines_rectf_vector;
-		} else if (strcmp(o->smoke->classes[o->classId].className, "QRect") == 0) {
+		} else if (qstrcmp(o->smoke->classes[o->classId].className, "QRect") == 0) {
 			_current_method = drawlines_rect_vector;
 		} else {
 			return rb_call_super(argc, argv);
@@ -1501,9 +1528,9 @@ static Smoke::Index new_qvariant_qmap = 0;
 		while (qt_Smoke->ambiguousMethodList[i] != 0) {
 			const char * argType = qt_Smoke->types[qt_Smoke->argumentList[qt_Smoke->methods[qt_Smoke->ambiguousMethodList[i]].args]].name;
 
-			if (strcmp(argType, "const QList<QVariant>&" ) == 0) {
+			if (qstrcmp(argType, "const QList<QVariant>&" ) == 0) {
 				new_qvariant_qlist = qt_Smoke->ambiguousMethodList[i];
-			} else if (strcmp(argType, "const QMap<QString,QVariant>&" ) == 0) {
+			} else if (qstrcmp(argType, "const QMap<QString,QVariant>&" ) == 0) {
 				new_qvariant_qmap = qt_Smoke->ambiguousMethodList[i];
 			}
 
@@ -2229,26 +2256,26 @@ setMocType(VALUE /*self*/, VALUE ptr, VALUE idx_value, VALUE name_value, VALUE s
 		return Qtrue;
 	}
 
-	if (strcmp(static_type, "ptr") == 0) {
+	if (qstrcmp(static_type, "ptr") == 0) {
 		arg[idx].argType = xmoc_ptr;
 		typeId = qt_Smoke->idType((const char *) name);
 		if (typeId == 0 && !name.contains('*')) {
 			name += "&";
 			typeId = qt_Smoke->idType((const char *) name);
 		}
-	} else if (strcmp(static_type, "bool") == 0) {
+	} else if (qstrcmp(static_type, "bool") == 0) {
 		arg[idx].argType = xmoc_bool;
 		typeId = qt_Smoke->idType((const char *) name);
-	} else if (strcmp(static_type, "int") == 0) {
+	} else if (qstrcmp(static_type, "int") == 0) {
 		arg[idx].argType = xmoc_int;
 		typeId = qt_Smoke->idType((const char *) name);
-	} else if (strcmp(static_type, "double") == 0) {
+	} else if (qstrcmp(static_type, "double") == 0) {
 		arg[idx].argType = xmoc_double;
 		typeId = qt_Smoke->idType((const char *) name);
-	} else if (strcmp(static_type, "char*") == 0) {
+	} else if (qstrcmp(static_type, "char*") == 0) {
 		arg[idx].argType = xmoc_charstar;
 		typeId = qt_Smoke->idType((const char *) name);
-	} else if (strcmp(static_type, "QString") == 0) {
+	} else if (qstrcmp(static_type, "QString") == 0) {
 		arg[idx].argType = xmoc_QString;
 		name += "*";
 		typeId = qt_Smoke->idType((const char *) name);
@@ -2973,7 +3000,7 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 		qtextlayout_class = klass;
 	} else if (packageName == "Qt::Variant") {
 		qvariant_class = klass;
-		rb_define_singleton_method(qvariant_class, "fromValue", (VALUE (*) (...)) qvariant_from_value, 1);
+		rb_define_singleton_method(qvariant_class, "fromValue", (VALUE (*) (...)) qvariant_from_value, -1);
     	rb_define_singleton_method(qvariant_class, "new", (VALUE (*) (...)) new_qvariant, -1);
 	} else if (packageName == "Qt::ByteArray") {
 		rb_define_method(klass, "+", (VALUE (*) (...)) qbytearray_append, 1);
@@ -3108,7 +3135,7 @@ Init_qtruby4()
     rb_define_method(qt_base_class, "disposed?", (VALUE (*) (...)) is_disposed, 0);
 
 	rb_define_method(qt_base_class, "qVariantValue", (VALUE (*) (...)) qvariant_value, 2);
-	rb_define_method(qt_base_class, "qVariantFromValue", (VALUE (*) (...)) qvariant_from_value, 1);
+	rb_define_method(qt_base_class, "qVariantFromValue", (VALUE (*) (...)) qvariant_from_value, -1);
     
 	rb_define_method(rb_cObject, "qDebug", (VALUE (*) (...)) qdebug, 1);
 	rb_define_method(rb_cObject, "qFatal", (VALUE (*) (...)) qfatal, 1);

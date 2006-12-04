@@ -16,7 +16,15 @@
 		v = Qt::Variant.new([1, 2, 3])
 
 	  The Qt::Variant v will contain a list of 3 QVariants with typeName 'int'
- 
+
+	* Add an option extra argument to Qt::Variant.fromValue() and qVariantFromValue
+	  to specify a type string, for use with QtDBus args. For example:
+
+		v = Qt::Variant.fromValue(5, "uint")
+
+	  Will force the Qt::Variant to be a specific type
+	* Change all instances of strcmp() to qstrcmp()
+
 2006-11-30  Richard Dale  <rdale@foton.es>
 
 	* The Qt::KeySequence constructor wasn't working when passed a
