@@ -1517,16 +1517,14 @@ static Smoke::Index new_qvariant_qmap = 0;
 		c.next();
     	return *(c.var());
 	} else if (	argc == 1 
-				&& TYPE(argv[0]) == T_ARRAY 
-				&& RARRAY(argv[0])->len > 0 ) 
+				&& TYPE(argv[0]) == T_ARRAY
+				&& RARRAY(argv[0])->len > 0
+				&& TYPE(rb_ary_entry(argv[0], 0)) != T_STRING )
 	{
-		smokeruby_object * o = value_obj_info(rb_ary_entry(argv[0], 0));
-		if (o != 0 && strcmp(o->smoke->classes[o->classId].className, "QVariant") == 0) {
-			_current_method = new_qvariant_qlist;
-			MethodCall c(qt_Smoke, _current_method, self, argv, argc-1);
-			c.next();
-			return *(c.var());
-		}
+		_current_method = new_qvariant_qlist;
+		MethodCall c(qt_Smoke, _current_method, self, argv, argc-1);
+		c.next();
+		return *(c.var());
 	}
 
 	return rb_call_super(argc, argv);

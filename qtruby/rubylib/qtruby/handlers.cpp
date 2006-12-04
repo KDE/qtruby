@@ -1960,7 +1960,21 @@ void marshall_ValueListItem(Marshall *m) {
 				VALUE item = rb_ary_entry(list, i);
 				// TODO do type checking!
 				smokeruby_object *o = value_obj_info(item);
-				if(!o || !o->ptr)
+
+				// Special case for the QList<QVariant> type
+				if (	qstrcmp(ItemSTR, "QVariant") == 0 
+						&& (!o || !o->ptr || o->classId != o->smoke->idClass("QVariant")) ) 
+				{
+					// If the value isn't a Qt::Variant, then try and construct
+					// a Qt::Variant from it
+					item = rb_funcall(qvariant_class, rb_intern("fromValue"), 1, item);
+					if (item == Qnil) {
+						continue;
+					}
+					o = value_obj_info(item);
+				}
+
+				if (!o || !o->ptr)
 					continue;
 				
 				void *ptr = o->ptr;

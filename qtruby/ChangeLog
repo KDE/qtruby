@@ -9,7 +9,14 @@
 	  can be used to construct Qt::Variant via the QMetaType::constructor() call
 	* Fixed a bug in Qt::AbstractItemModel.createIndex() which meant it wouldn't
 	  work on 64 bit machines
+	* When marshalling QList<QVariant> types from Ruby to C++, if any elements
+	  aren't Ruby Qt::Variants, they are automatically converted. Hence, the
+	  following will work:
 
+		v = Qt::Variant.new([1, 2, 3])
+
+	  The Qt::Variant v will contain a list of 3 QVariants with typeName 'int'
+ 
 2006-11-30  Richard Dale  <rdale@foton.es>
 
 	* The Qt::KeySequence constructor wasn't working when passed a
