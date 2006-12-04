@@ -1693,6 +1693,10 @@ module Qt
             end
 		end
 
+		def value
+			return to_ruby
+		end
+
 		def inspect
 			str = super
 			str.sub(/>$/, " typeName=%s>" % typeName)

@@ -158,9 +158,9 @@ free_smokeruby_object(smokeruby_object * o)
 }
 
 smokeruby_object *value_obj_info(VALUE ruby_value) {  // ptr on success, null on fail
-    if (TYPE(ruby_value) != T_DATA) {
-	return 0;
-    }
+	if (TYPE(ruby_value) != T_DATA) {
+		return 0;
+	}
 
     smokeruby_object * o = 0;
     Data_Get_Struct(ruby_value, smokeruby_object, o);
@@ -175,35 +175,40 @@ void *value_to_ptr(VALUE ruby_value) {  // ptr on success, null on fail
 VALUE getPointerObject(void *ptr);
 
 bool isQObject(Smoke *smoke, Smoke::Index classId) {
-	if(strcmp(smoke->classes[classId].className, "QObject") == 0)
+	if (strcmp(smoke->classes[classId].className, "QObject") == 0) {
 		return true;
-	
-	for(Smoke::Index *p = smoke->inheritanceList + smoke->classes[classId].parents;
-	*p;
-	p++) {
-	if(isQObject(smoke, *p))
-	    return true;
+	}
+
+	for (Smoke::Index *p = smoke->inheritanceList + smoke->classes[classId].parents; *p; p++) {
+		if (isQObject(smoke, *p)) {
+			return true;
+		}
     }
+
     return false;
 }
 
 bool isDerivedFrom(Smoke *smoke, Smoke::Index classId, Smoke::Index baseId) {
-    if(classId == 0 && baseId == 0)
-	return false;
-    if(classId == baseId)
-	return true;
-    for(Smoke::Index *p = smoke->inheritanceList + smoke->classes[classId].parents;
-	*p;
-	p++) {
-	if(isDerivedFrom(smoke, *p, baseId))
-	    return true;
+	if (classId == 0 && baseId == 0) {
+		return false;
+	}
+
+    if (classId == baseId) {
+		return true;
+	}
+
+	for(Smoke::Index *p = smoke->inheritanceList + smoke->classes[classId].parents; *p; p++) {
+		if (isDerivedFrom(smoke, *p, baseId)) {
+			return true;
+		}
     }
     return false;
 }
 
 bool isDerivedFromByName(Smoke *smoke, const char *className, const char *baseClassName) {
-    if(!smoke || !className || !baseClassName)
-	return false;
+	if (!smoke || !className || !baseClassName) {
+		return false;
+	}
     Smoke::Index idClass = smoke->idClass(className);
     Smoke::Index idBase = smoke->idClass(baseClassName);
     return isDerivedFrom(smoke, idClass, idBase);
@@ -224,26 +229,25 @@ VALUE getPointerObject(void *ptr) {
 }
 
 void unmapPointer(smokeruby_object *o, Smoke::Index classId, void *lastptr) {
-    void *ptr = o->smoke->cast(o->ptr, o->classId, classId);
-    if(ptr != lastptr) {
-	lastptr = ptr;
-	if (pointer_map.contains(ptr)) {
-		VALUE * obj_ptr = pointer_map[ptr];
+	void *ptr = o->smoke->cast(o->ptr, o->classId, classId);
+	if (ptr != lastptr) {
+		lastptr = ptr;
+		if (pointer_map.contains(ptr)) {
+			VALUE * obj_ptr = pointer_map[ptr];
 		
-		if (do_debug & qtdb_gc) {
-			const char *className = o->smoke->classes[o->classId].className;
-			qWarning("unmapPointer (%s*)%p -> %p size: %d", className, ptr, obj_ptr, pointer_map.size() - 1);
-		}
+			if (do_debug & qtdb_gc) {
+				const char *className = o->smoke->classes[o->classId].className;
+				qWarning("unmapPointer (%s*)%p -> %p size: %d", className, ptr, obj_ptr, pointer_map.size() - 1);
+			}
 	    
-		pointer_map.remove(ptr);
-		xfree((void*) obj_ptr);
+			pointer_map.remove(ptr);
+			xfree((void*) obj_ptr);
+		}
+    }
+
+	for (Smoke::Index *i = o->smoke->inheritanceList + o->smoke->classes[classId].parents; *i; i++) {
+		unmapPointer(o, *i, lastptr);
 	}
-    }
-    for(Smoke::Index *i = o->smoke->inheritanceList + o->smoke->classes[classId].parents;
-	*i;
-	i++) {
-	unmapPointer(o, *i, lastptr);
-    }
 }
 
 // Store pointer in pointer_map hash : "pointer_to_Qt_object" => weak ref to associated Ruby object
@@ -265,11 +269,9 @@ void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *last
 		pointer_map.insert(ptr, obj_ptr);
     }
 	
-    for(Smoke::Index *i = o->smoke->inheritanceList + o->smoke->classes[classId].parents;
-	*i;
-	i++) {
-	mapPointer(obj, o, *i, lastptr);
-    }
+	for (Smoke::Index *i = o->smoke->inheritanceList + o->smoke->classes[classId].parents; *i; i++) {
+		mapPointer(obj, o, *i, lastptr);
+	}
 	
 	return;
 }
@@ -584,6 +586,8 @@ qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 
 	QVariant * variant = (QVariant*) o->ptr;
 	void * value_ptr = 0;
+	VALUE result = Qnil;
+	smokeruby_object * vo = 0;
 
 	if (strcmp(classname, "Qt::Pixmap") == 0) {
 		QPixmap v = qVariantValue<QPixmap>(*variant);
@@ -633,10 +637,8 @@ qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 	} else if (strcmp(classname, "Qt::TextFormat") == 0) {
 		QTextFormat v = qVariantValue<QTextFormat>(*variant);
 		value_ptr = (void *) new QTextFormat(v);
-	} else if (	strcmp(classname, "Qt::DBusArgument") == 0 
-				&& qstrcmp(variant->typeName(), "QDBusArgument") == 0 ) 
-	{
-		value_ptr = (void *) variant->constData();
+	} else if (variant->type() >= QVariant::UserType) { 
+		value_ptr = QMetaType::construct(QMetaType::type(variant->typeName()), (void *) variant->constData());
 	} else {
 		// Assume the value of the Qt::Variant can be obtained
 		// with a call such as Qt::Variant.toPoint()
@@ -648,8 +650,7 @@ qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 		return rb_funcall(variant_value, rb_intern(toValueMethodName), 1, variant_value);
 	}
 
-	VALUE result = Qnil;
-	smokeruby_object * vo = alloc_smokeruby_object(true, o->smoke, *value_class_id, value_ptr);
+	vo = alloc_smokeruby_object(true, o->smoke, *value_class_id, value_ptr);
 	result = set_obj_info(classname, vo);
 
 	return result;
@@ -704,6 +705,8 @@ qvariant_from_value(VALUE /*self*/, VALUE obj)
 		v = new QVariant(qVariantFromValue(*(QTextLength*) o->ptr));
 	} else if (strcmp(classname, "Qt::TextFormat") == 0) {
 		v = new QVariant(qVariantFromValue(*(QTextFormat*) o->ptr));
+	} else if (QVariant::nameToType(o->smoke->classes[o->classId].className) >= QVariant::UserType) {
+		v = new QVariant(QVariant::nameToType(o->smoke->classes[o->classId].className), o->ptr);
 	} else {
 		// Assume the Qt::Variant can be created with a
 		// Qt::Variant.new(obj) call
@@ -1373,13 +1376,35 @@ static Smoke::Index drawlines_rect_vector = 0;
 }
 
 static VALUE
-qabstractitemmodel_createindex(int argc, VALUE * argv, VALUE /* self */)
+qabstractitemmodel_createindex(int argc, VALUE * argv, VALUE self)
 {
-	if (argc == 3 && TYPE(argv[2]) != T_FIXNUM && TYPE(argv[2]) != T_BIGNUM) {
-		// Change the VALUE to a Ruby Integer, so it can be marshalled to a
-		// C++ int. Then look for the QAbstractItemModel::createIndex(int, int, int) 
-		// variant
-		argv[2] = INT2NUM(argv[2]);
+	if (argc == 3) {
+		smokeruby_object * o = value_obj_info(self);
+		Smoke::Index nameId = o->smoke->idMethodName("createIndex$$$");
+		Smoke::Index meth = o->smoke->findMethod(qt_Smoke->idClass("QAbstractItemModel"), nameId);
+		Smoke::Index i = o->smoke->methodMaps[meth].method;
+		i = -i;		// turn into ambiguousMethodList index
+		while (o->smoke->ambiguousMethodList[i] != 0) {
+			if (	strcmp(	o->smoke->types[o->smoke->argumentList[o->smoke->methods[o->smoke->ambiguousMethodList[i]].args + 2]].name,
+							"void*" ) == 0 )
+			{
+	    		Smoke::Method &m = o->smoke->methods[o->smoke->ambiguousMethodList[i]];
+				Smoke::ClassFn fn = o->smoke->classes[m.classId].classFn;
+				Smoke::StackItem stack[4];
+				stack[1].s_int = NUM2INT(argv[0]);
+				stack[2].s_int = NUM2INT(argv[1]);
+				stack[3].s_voidp = (void*) argv[2];
+				(*fn)(m.method, o->ptr, stack);
+				smokeruby_object  * result = alloc_smokeruby_object(	true, 
+																		o->smoke, 
+																		o->smoke->idClass("QModelIndex"), 
+																		new QModelIndex(*((QModelIndex*) stack[0].s_voidp)) );
+
+				return set_obj_info("Qt::ModelIndex", result);
+			}
+
+			i++;
+		}
 	}
 
 	return rb_call_super(argc, argv);
@@ -1460,6 +1485,51 @@ qobject_metaobject(VALUE self)
 
 	obj = set_obj_info("Qt::MetaObject", m);
 	return obj;
+}
+
+static VALUE
+new_qvariant(int argc, VALUE * argv, VALUE self)
+{
+static Smoke::Index new_qvariant_qlist = 0;
+static Smoke::Index new_qvariant_qmap = 0;
+
+	if (new_qvariant_qlist == 0) {
+		Smoke::Index nameId = qt_Smoke->idMethodName("QVariant?");
+		Smoke::Index meth = qt_Smoke->findMethod(qt_Smoke->idClass("QVariant"), nameId);
+		Smoke::Index i = qt_Smoke->methodMaps[meth].method;
+		i = -i;		// turn into ambiguousMethodList index
+		while (qt_Smoke->ambiguousMethodList[i] != 0) {
+			const char * argType = qt_Smoke->types[qt_Smoke->argumentList[qt_Smoke->methods[qt_Smoke->ambiguousMethodList[i]].args]].name;
+
+			if (strcmp(argType, "const QList<QVariant>&" ) == 0) {
+				new_qvariant_qlist = qt_Smoke->ambiguousMethodList[i];
+			} else if (strcmp(argType, "const QMap<QString,QVariant>&" ) == 0) {
+				new_qvariant_qmap = qt_Smoke->ambiguousMethodList[i];
+			}
+
+			i++;
+		}
+	}
+
+	if (argc == 1 && TYPE(argv[0]) == T_HASH) {
+		_current_method = new_qvariant_qmap;
+		MethodCall c(qt_Smoke, _current_method, self, argv, argc-1);
+		c.next();
+    	return *(c.var());
+	} else if (	argc == 1 
+				&& TYPE(argv[0]) == T_ARRAY 
+				&& RARRAY(argv[0])->len > 0 ) 
+	{
+		smokeruby_object * o = value_obj_info(rb_ary_entry(argv[0], 0));
+		if (o != 0 && strcmp(o->smoke->classes[o->classId].className, "QVariant") == 0) {
+			_current_method = new_qvariant_qlist;
+			MethodCall c(qt_Smoke, _current_method, self, argv, argc-1);
+			c.next();
+			return *(c.var());
+		}
+	}
+
+	return rb_call_super(argc, argv);
 }
 
 static QByteArray *
@@ -1715,7 +1785,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	if (TYPE(self) == T_DATA) {
 		// If a ruby block was passed then run that now
 		if (rb_block_given_p()) {
-		rb_funcall(qt_internal_module, rb_intern("run_initializer_block"), 2, self, rb_block_proc());
+			rb_funcall(qt_internal_module, rb_intern("run_initializer_block"), 2, self, rb_block_proc());
 		}
 
 		return self;
@@ -1736,8 +1806,6 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	}
 
 	{ 
-		// Put this in a C block so that the mcid will be de-allocated at the end of the block,
-		// rather than on f'n exit, to avoid the longjmp problem described below
 		QByteArray * mcid = find_cached_selector(argc+4, temp_stack, klass, rb_class2name(klass));
 
 		if (_current_method == -1) {
@@ -2907,6 +2975,8 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 		qtextlayout_class = klass;
 	} else if (packageName == "Qt::Variant") {
 		qvariant_class = klass;
+		rb_define_singleton_method(qvariant_class, "fromValue", (VALUE (*) (...)) qvariant_from_value, 1);
+    	rb_define_singleton_method(qvariant_class, "new", (VALUE (*) (...)) new_qvariant, -1);
 	} else if (packageName == "Qt::ByteArray") {
 		rb_define_method(klass, "+", (VALUE (*) (...)) qbytearray_append, 1);
 	} else if (packageName == "Qt::Char") {
@@ -3038,6 +3108,7 @@ Init_qtruby4()
     rb_define_method(qt_base_class, "dispose", (VALUE (*) (...)) dispose, 0);
     rb_define_method(qt_base_class, "isDisposed", (VALUE (*) (...)) is_disposed, 0);
     rb_define_method(qt_base_class, "disposed?", (VALUE (*) (...)) is_disposed, 0);
+
 	rb_define_method(qt_base_class, "qVariantValue", (VALUE (*) (...)) qvariant_value, 2);
 	rb_define_method(qt_base_class, "qVariantFromValue", (VALUE (*) (...)) qvariant_from_value, 1);
     

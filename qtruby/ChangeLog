@@ -1,3 +1,15 @@
+2006-12-04  Richard Dale  <rdale@foton.es>
+
+	* Add a QMap<int,QVariant> marshaller
+	* When marhalling QMap types with QVariant values, if the Ruby value isn't
+	  a Qt::Variant then one is created
+	* Qt::Variants can now be constructed with Hash's of String/Qt::Variant
+	  pairs, and from Arrays of Qt::Variants
+	* Custom types know to the QMetaType system, such as some QtDBus types,
+	  can be used to construct Qt::Variant via the QMetaType::constructor() call
+	* Fixed a bug in Qt::AbstractItemModel.createIndex() which meant it wouldn't
+	  work on 64 bit machines
+
 2006-11-30  Richard Dale  <rdale@foton.es>
 
 	* The Qt::KeySequence constructor wasn't working when passed a
