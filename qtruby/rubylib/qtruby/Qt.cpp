@@ -1412,7 +1412,7 @@ qabstractitemmodel_createindex(int argc, VALUE * argv, VALUE self)
 		Smoke::Index i = o->smoke->methodMaps[meth].method;
 		i = -i;		// turn into ambiguousMethodList index
 		while (o->smoke->ambiguousMethodList[i] != 0) {
-			if (	strcmp(	o->smoke->types[o->smoke->argumentList[o->smoke->methods[o->smoke->ambiguousMethodList[i]].args + 2]].name,
+			if (	qstrcmp(	o->smoke->types[o->smoke->argumentList[o->smoke->methods[o->smoke->ambiguousMethodList[i]].args + 2]].name,
 							"void*" ) == 0 )
 			{
 	    		Smoke::Method &m = o->smoke->methods[o->smoke->ambiguousMethodList[i]];

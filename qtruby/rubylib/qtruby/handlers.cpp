@@ -254,11 +254,11 @@ smokeruby_free(void * p)
 	unmapPointer(o, o->classId, 0);
 	object_count --;
 	
-	if (	strcmp(className, "QObject") == 0
-			|| strcmp(className, "QListBoxItem") == 0
-			|| strcmp(className, "QStyleSheetItem") == 0
-			|| strcmp(className, "QSqlCursor") == 0
-			|| strcmp(className, "QModelIndex") == 0 )
+	if (	qstrcmp(className, "QObject") == 0
+			|| qstrcmp(className, "QListBoxItem") == 0
+			|| qstrcmp(className, "QStyleSheetItem") == 0
+			|| qstrcmp(className, "QSqlCursor") == 0
+			|| qstrcmp(className, "QModelIndex") == 0 )
 	{
 		// Don't delete instances of these classes for now
 		free_smokeruby_object(o);
@@ -269,19 +269,19 @@ smokeruby_free(void * p)
 			free_smokeruby_object(o);
 			return;
 		}
-//	} else if (strcmp(className, "QIconViewItem") == 0) {
+//	} else if (qstrcmp(className, "QIconViewItem") == 0) {
 //		Q3IconViewItem * item = (Q3IconViewItem *) o->ptr;
 //		if (item->iconView() != 0) {
 //			free_smokeruby_object(o);
 //			return;
 //		}
-//	} else if (strcmp(className, "QCheckListItem") == 0) {
+//	} else if (qstrcmp(className, "QCheckListItem") == 0) {
 //		Q3CheckListItem * item = (Q3CheckListItem *) o->ptr;
 //		if (item->parent() != 0 || item->listView() != 0) {
 //			free_smokeruby_object(o);
 //			return;
 //		}
-	} else if (strcmp(className, "QListWidgetItem") == 0) {
+	} else if (qstrcmp(className, "QListWidgetItem") == 0) {
 		QListWidgetItem * item = (QListWidgetItem *) o->ptr;
 		if (item->listWidget() != 0) {
 			free_smokeruby_object(o);
@@ -293,7 +293,7 @@ smokeruby_free(void * p)
 			free_smokeruby_object(o);
 			return;
 		}
-//	} else if (strcmp(className, "QPopupMenu") == 0) {
+//	} else if (qstrcmp(className, "QPopupMenu") == 0) {
 //		Q3PopupMenu * item = (Q3PopupMenu *) o->ptr;
 //		if (item->parentWidget(false) != 0) {
 //			free_smokeruby_object(o);
@@ -566,7 +566,7 @@ matches_arg(Smoke *smoke, Smoke::Index meth, Smoke::Index argidx, const char *ar
 {
 	Smoke::Index *arg = smoke->argumentList + smoke->methods[meth].args + argidx;
 	SmokeType type = SmokeType(smoke, *arg);
-	if (type.name() && strcmp(type.name(), argtype) == 0) {
+	if (type.name() && qstrcmp(type.name(), argtype) == 0) {
 		return true;
 	}
 	return false;
@@ -777,9 +777,9 @@ static void
 init_codec() {
 	VALUE temp = rb_gv_get("$KCODE");
 	KCODE = StringValuePtr(temp);
-	if (strcmp(KCODE, "EUC") == 0) {
+	if (qstrcmp(KCODE, "EUC") == 0) {
 		codec = QTextCodec::codecForName("eucJP");
-	} else if (strcmp(KCODE, "SJIS") == 0) {
+	} else if (qstrcmp(KCODE, "SJIS") == 0) {
 		codec = QTextCodec::codecForName("Shift-JIS");
 	}
 }
@@ -790,13 +790,13 @@ qstringFromRString(VALUE rstring) {
 		init_codec();
 	}
 	
-	if (strcmp(KCODE, "UTF8") == 0)
+	if (qstrcmp(KCODE, "UTF8") == 0)
 		return new QString(QString::fromUtf8(StringValuePtr(rstring), RSTRING(rstring)->len));
-	else if (strcmp(KCODE, "EUC") == 0)
+	else if (qstrcmp(KCODE, "EUC") == 0)
 		return new QString(codec->toUnicode(StringValuePtr(rstring)));
-	else if (strcmp(KCODE, "SJIS") == 0)
+	else if (qstrcmp(KCODE, "SJIS") == 0)
 		return new QString(codec->toUnicode(StringValuePtr(rstring)));
-	else if(strcmp(KCODE, "NONE") == 0)
+	else if(qstrcmp(KCODE, "NONE") == 0)
 		return new QString(QString::fromLatin1(StringValuePtr(rstring)));
 
 	return new QString(QString::fromLocal8Bit(StringValuePtr(rstring), RSTRING(rstring)->len));
@@ -808,13 +808,13 @@ rstringFromQString(QString * s) {
 		init_codec();
 	}
 	
-	if (strcmp(KCODE, "UTF8") == 0)
+	if (qstrcmp(KCODE, "UTF8") == 0)
 		return rb_str_new2(s->toUtf8());
-	else if (strcmp(KCODE, "EUC") == 0)
+	else if (qstrcmp(KCODE, "EUC") == 0)
 		return rb_str_new2(codec->fromUnicode(*s));
-	else if (strcmp(KCODE, "SJIS") == 0)
+	else if (qstrcmp(KCODE, "SJIS") == 0)
 		return rb_str_new2(codec->fromUnicode(*s));
-	else if (strcmp(KCODE, "NONE") == 0)
+	else if (qstrcmp(KCODE, "NONE") == 0)
 		return rb_str_new2(s->toLatin1());
 	else
 		return rb_str_new2(s->toLocal8Bit());

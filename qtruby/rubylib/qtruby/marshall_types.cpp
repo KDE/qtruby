@@ -287,7 +287,7 @@ MethodReturnValue::action()
 const char *
 MethodReturnValue::classname() 
 { 
-	return strcmp(MethodReturnValueBase::classname(), "QGlobalSpace") == 0 ? "" : MethodReturnValueBase::classname(); 
+	return qstrcmp(MethodReturnValueBase::classname(), "QGlobalSpace") == 0 ? "" : MethodReturnValueBase::classname(); 
 }
 
 
@@ -454,7 +454,7 @@ MethodCall::cleanup()
 const char *
 MethodCall::classname() 
 { 
-	return strcmp(MethodCallBase::classname(), "QGlobalSpace") == 0 ? "" : MethodCallBase::classname(); 
+	return qstrcmp(MethodCallBase::classname(), "QGlobalSpace") == 0 ? "" : MethodCallBase::classname(); 
 }
 
 SigSlotBase::SigSlotBase(VALUE args) : _cur(-1), _called(false) 
