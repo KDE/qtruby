@@ -15,6 +15,8 @@
 #endif
 #include "ruby.h"
 
+#include <qcstring.h>
+
 #include "qtruby.h"
 #include "marshall.h"
 
