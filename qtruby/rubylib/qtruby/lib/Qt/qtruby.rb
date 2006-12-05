@@ -1016,7 +1016,7 @@ module Qt
 		String = 3
 		Date = 26
 		Time = 27
-		DateTime = 27
+		DateTime = 28
 
 		def initialize(*args)
 			# In C++, the boolean constructor needs an ugly dummy int argument,
