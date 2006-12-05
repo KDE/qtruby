@@ -1013,6 +1013,11 @@ module Qt
 	end
 
 	class Variant < Qt::Base
+		String = 3
+		Date = 26
+		Time = 27
+		DateTime = 27
+
 		def initialize(*args)
 			# In C++, the boolean constructor needs an ugly dummy int argument,
 			# so special case that here to avoid needing it in Ruby

@@ -64,7 +64,7 @@ public:
     bool operator ==(const SmokeType &b) const {
 	const SmokeType &a = *this;
 	if(a.name() == b.name()) return true;
-	if(a.name() && b.name() && !strcmp(a.name(), b.name()))
+	if(a.name() && b.name() && qstrcmp(a.name(), b.name()) == 0)
 	    return true;
 	return false;
     }
@@ -98,7 +98,7 @@ public:
     bool operator ==(const SmokeClass &b) const {
 	const SmokeClass &a = *this;
 	if(a.className() == b.className()) return true;
-	if(a.className() && b.className() && !strcmp(a.className(), b.className()))
+	if(a.className() && b.className() && qstrcmp(a.className(), b.className()) == 0)
 	    return true;
 	return false;
     }

@@ -138,7 +138,7 @@ void *value_to_ptr(VALUE ruby_value) {  // ptr on success, null on fail
 VALUE getPointerObject(void *ptr);
 
 bool isQObject(Smoke *smoke, Smoke::Index classId) {
-    if(strcmp(smoke->classes[classId].className, "QObject") == 0)
+    if(qstrcmp(smoke->classes[classId].className, "QObject") == 0)
 	return true;
     for(Smoke::Index *p = smoke->inheritanceList + smoke->classes[classId].parents;
 	*p;
@@ -346,7 +346,7 @@ public:
     void unsupported() {
 	rb_raise(rb_eArgError, "Cannot handle '%s' as return-type of %s::%s",
 		type().name(),
-		strcmp(_smoke->className(method().classId), "QGlobalSpace") == 0 ? "" : _smoke->className(method().classId),
+		qstrcmp(_smoke->className(method().classId), "QGlobalSpace") == 0 ? "" : _smoke->className(method().classId),
 		_smoke->methodNames[method().name]);
     }
     Smoke *smoke() { return _smoke; }
@@ -411,7 +411,7 @@ public:
     }
 
     void unsupported() {
-    	if (strcmp(_smoke->className(method().classId), "QGlobalSpace") == 0) {
+    	if (qstrcmp(_smoke->className(method().classId), "QGlobalSpace") == 0) {
 			rb_raise(rb_eArgError, "Cannot handle '%s' as argument to %s",
 				type().name(),
 				_smoke->methodNames[method().name]);
@@ -954,15 +954,15 @@ get_VALUEtype(VALUE ruby_value)
     const char *r = "";
     if(ruby_value == Qnil)
 	r = "u";
-    else if(TYPE(ruby_value) == T_FIXNUM || TYPE(ruby_value) == T_BIGNUM || strcmp(classname, "Qt::Integer") == 0)
+    else if(TYPE(ruby_value) == T_FIXNUM || TYPE(ruby_value) == T_BIGNUM || qstrcmp(classname, "Qt::Integer") == 0)
 	r = "i";
     else if(TYPE(ruby_value) == T_FLOAT)
 	r = "n";
     else if(TYPE(ruby_value) == T_STRING)
 	r = "s";
-    else if(ruby_value == Qtrue || ruby_value == Qfalse || strcmp(classname, "Qt::Boolean") == 0)
+    else if(ruby_value == Qtrue || ruby_value == Qfalse || qstrcmp(classname, "Qt::Boolean") == 0)
 	r = "B";
-    else if(strcmp(classname, "Qt::Enum") == 0) {
+    else if(qstrcmp(classname, "Qt::Enum") == 0) {
 	VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qenum_type"), 1, ruby_value);
 	r = StringValuePtr(temp);
     } else if(TYPE(ruby_value) == T_DATA) {
@@ -1349,6 +1349,49 @@ qobject_metaobject(VALUE self)
 	m->allocated = false;
 	obj = set_obj_info("Qt::MetaObject", m);
 	return obj;
+}
+
+static VALUE
+new_qvariant(int argc, VALUE * argv, VALUE self)
+{
+static Smoke::Index new_qvariant_qlist = 0;
+static Smoke::Index new_qvariant_qmap = 0;
+
+	if (new_qvariant_qlist == 0) {
+		Smoke::Index nameId = qt_Smoke->idMethodName("QVariant?");
+		Smoke::Index meth = qt_Smoke->findMethod(qt_Smoke->idClass("QVariant"), nameId);
+		Smoke::Index i = qt_Smoke->methodMaps[meth].method;
+		i = -i;		// turn into ambiguousMethodList index
+		while (qt_Smoke->ambiguousMethodList[i] != 0) {
+			const char * argType = qt_Smoke->types[qt_Smoke->argumentList[qt_Smoke->methods[qt_Smoke->ambiguousMethodList[i]].args]].name;
+
+			if (qstrcmp(argType, "const QValueList<QVariant>&" ) == 0) {
+				new_qvariant_qlist = qt_Smoke->ambiguousMethodList[i];
+			} else if (qstrcmp(argType, "const QMap<QString,QVariant>&" ) == 0) {
+				new_qvariant_qmap = qt_Smoke->ambiguousMethodList[i];
+			}
+
+			i++;
+		}
+	}
+
+	if (argc == 1 && TYPE(argv[0]) == T_HASH) {
+		_current_method = new_qvariant_qmap;
+		MethodCall c(qt_Smoke, _current_method, self, argv, argc-1);
+		c.next();
+    	return *(c.var());
+	} else if (	argc == 1 
+				&& TYPE(argv[0]) == T_ARRAY
+				&& RARRAY(argv[0])->len > 0
+				&& TYPE(rb_ary_entry(argv[0], 0)) != T_STRING )
+	{
+		_current_method = new_qvariant_qlist;
+		MethodCall c(qt_Smoke, _current_method, self, argv, argc-1);
+		c.next();
+		return *(c.var());
+	}
+
+	return rb_call_super(argc, argv);
 }
 
 static QCString *
@@ -1819,7 +1862,7 @@ qt_invoke(int /*argc*/, VALUE * argv, VALUE self)
     // Now, I need to find out if this means me
     int index;
     char *slotname;
-    bool isSignal = strcmp(rb_id2name(rb_frame_last_func()), "qt_emit") == 0;
+    bool isSignal = qstrcmp(rb_id2name(rb_frame_last_func()), "qt_emit") == 0;
     VALUE mocArgs = getslotinfo(self, id, slotname, index, isSignal);
     if(mocArgs == Qnil) {
 		// No ruby slot/signal found, assume the target is a C++ one
@@ -1997,17 +2040,17 @@ setMocType(VALUE /*self*/, VALUE ptr, VALUE idx_value, VALUE name_value, VALUE s
     MocArgument *arg = 0;
     Data_Get_Struct(ptr, MocArgument, arg);
     arg[idx].st.set(qt_Smoke, typeId);
-    if(strcmp(static_type, "ptr") == 0)
+    if(qstrcmp(static_type, "ptr") == 0)
 	arg[idx].argType = xmoc_ptr;
-    else if(strcmp(static_type, "bool") == 0)
+    else if(qstrcmp(static_type, "bool") == 0)
 	arg[idx].argType = xmoc_bool;
-    else if(strcmp(static_type, "int") == 0)
+    else if(qstrcmp(static_type, "int") == 0)
 	arg[idx].argType = xmoc_int;
-    else if(strcmp(static_type, "double") == 0)
+    else if(qstrcmp(static_type, "double") == 0)
 	arg[idx].argType = xmoc_double;
-    else if(strcmp(static_type, "char*") == 0)
+    else if(qstrcmp(static_type, "char*") == 0)
 	arg[idx].argType = xmoc_charstar;
-    else if(strcmp(static_type, "QString") == 0)
+    else if(qstrcmp(static_type, "QString") == 0)
 	arg[idx].argType = xmoc_QString;
     return Qtrue;
 }
@@ -2113,16 +2156,16 @@ make_QUParameter(VALUE /*self*/, VALUE name_value, VALUE type_value, VALUE /*ext
     QUParameter *p = new QUParameter;
     p->name = new char[strlen(name) + 1];
     strcpy((char*)p->name, name);
-    if(strcmp(type, "bool") == 0)
+    if(qstrcmp(type, "bool") == 0)
 	p->type = &static_QUType_bool;
-    else if(strcmp(type, "int") == 0)
+    else if(qstrcmp(type, "int") == 0)
 	p->type = &static_QUType_int;
-    else if(strcmp(type, "double") == 0)
+    else if(qstrcmp(type, "double") == 0)
 	p->type = &static_QUType_double;
-    else if(strcmp(type, "char*") == 0 || strcmp(type, "const char*") == 0)
+    else if(qstrcmp(type, "char*") == 0 || qstrcmp(type, "const char*") == 0)
 	p->type = &static_QUType_charstar;
-    else if(strcmp(type, "QString") == 0 || strcmp(type, "QString&") == 0 ||
-	    strcmp(type, "const QString") == 0 || strcmp(type, "const QString&") == 0)
+    else if(qstrcmp(type, "QString") == 0 || qstrcmp(type, "QString&") == 0 ||
+	    qstrcmp(type, "const QString") == 0 || qstrcmp(type, "const QString&") == 0)
 	p->type = &static_QUType_QString;
     else
 	p->type = &static_QUType_ptr;
@@ -2424,7 +2467,7 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
         if(!icmp) {
             for(Smoke::Index i=methmin ; i <= methmax ; i++) {
                 Smoke::Index m = qt_Smoke->methodMaps[i].name;
-                if(!pat || !strncmp(qt_Smoke->methodNames[m], pat, strlen(pat))) {
+                if(!pat || !qstrncmp(qt_Smoke->methodNames[m], pat, strlen(pat))) {
                     Smoke::Index ix= qt_Smoke->methodMaps[i].method;
 		    VALUE meths = rb_ary_new();
                     if(ix >= 0) {	// single match
@@ -2460,11 +2503,11 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
 
 #define PUSH_QTRUBY_METHOD		\
 		if (	(methodRef.flags & (Smoke::mf_internal|Smoke::mf_ctor|Smoke::mf_dtor)) == 0 \
-				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator=") != 0 \
-				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator!=") != 0 \
-				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator--") != 0 \
-				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator++") != 0 \
-				&& strncmp(qt_Smoke->methodNames[methodRef.name], "operator ", strlen("operator ")) != 0 \
+				&& qstrcmp(qt_Smoke->methodNames[methodRef.name], "operator=") != 0 \
+				&& qstrcmp(qt_Smoke->methodNames[methodRef.name], "operator!=") != 0 \
+				&& qstrcmp(qt_Smoke->methodNames[methodRef.name], "operator--") != 0 \
+				&& qstrcmp(qt_Smoke->methodNames[methodRef.name], "operator++") != 0 \
+				&& qstrncmp(qt_Smoke->methodNames[methodRef.name], "operator ", strlen("operator ")) != 0 \
 				&& (	(flags == 0 && (methodRef.flags & (Smoke::mf_static|Smoke::mf_enum|Smoke::mf_protected)) == 0) \
 						|| (	flags == Smoke::mf_static \
 								&& (methodRef.flags & Smoke::mf_enum) == 0 \
@@ -2473,7 +2516,7 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
 						|| (	flags == Smoke::mf_protected \
 								&& (methodRef.flags & Smoke::mf_static) == 0 \
 								&& (methodRef.flags & Smoke::mf_protected) == Smoke::mf_protected ) ) ) { \
-			if (strncmp(qt_Smoke->methodNames[methodRef.name], "operator", strlen("operator")) == 0) { \
+			if (qstrncmp(qt_Smoke->methodNames[methodRef.name], "operator", strlen("operator")) == 0) { \
 				if (op_re.search(qt_Smoke->methodNames[methodRef.name]) != -1) { \
 					rb_ary_push(result, rb_str_new2(op_re.cap(1) + op_re.cap(2))); \
 				} else { \
@@ -2694,7 +2737,7 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 	
 	if (QString(package).startsWith("Qt::")) {
     	klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
-		if (strcmp(package, "Qt::Application") == 0) {
+		if (qstrcmp(package, "Qt::Application") == 0) {
 			rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qapplication, -1);
 			rb_define_method(klass, "ARGV", (VALUE (*) (...)) qapplication_argv, 0);
 		}
@@ -2735,15 +2778,16 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 		klass = kde_package_to_class(package, qt_base_class);
 	}
 
-	if (strcmp(package, "Qt::MetaObject") == 0) {
+	if (qstrcmp(package, "Qt::MetaObject") == 0) {
 		qmetaobject_class = klass;
-	} else if (strcmp(package, "Qt::Variant") == 0) {
+	} else if (qstrcmp(package, "Qt::Variant") == 0) {
 		qvariant_class = klass;
-	} else if (strcmp(package, "Qt::ByteArray") == 0) {
+    	rb_define_singleton_method(qvariant_class, "new", (VALUE (*) (...)) new_qvariant, -1);
+	} else if (qstrcmp(package, "Qt::ByteArray") == 0) {
 		rb_define_method(klass, "data", (VALUE (*) (...)) qbytearray_data, 0);
 		rb_define_method(klass, "size", (VALUE (*) (...)) qbytearray_size, 0);
 		rb_define_method(klass, "setRawData", (VALUE (*) (...)) qbytearray_setRawData, 1);
-	} else if (strcmp(package, "Qt::Char") == 0) {
+	} else if (qstrcmp(package, "Qt::Char") == 0) {
 		rb_define_method(klass, "to_s", (VALUE (*) (...)) qchar_to_s, 0);
 	}
 

@@ -50,6 +50,7 @@
 extern "C" {
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
 extern VALUE qt_internal_module;
+extern VALUE qvariant_class;
 extern bool application_terminated;
 };
 
@@ -183,15 +184,15 @@ smokeruby_free(void * p)
 	unmapPointer(o, o->classId, 0);
 	object_count --;
 	
-	if (	strcmp(className, "QObject") == 0
-			|| strcmp(className, "QListBoxItem") == 0
-			|| strcmp(className, "QStyleSheetItem") == 0
-			|| strcmp(className, "KCommand") == 0
-			|| strcmp(className, "KNamedCommand") == 0
-			|| strcmp(className, "KMacroCommand") == 0
-			|| strcmp(className, "KAboutData") == 0
-			|| strcmp(className, "KCmdLineArgs") == 0
-			|| strcmp(className, "QSqlCursor") == 0 )
+	if (	qstrcmp(className, "QObject") == 0
+			|| qstrcmp(className, "QListBoxItem") == 0
+			|| qstrcmp(className, "QStyleSheetItem") == 0
+			|| qstrcmp(className, "KCommand") == 0
+			|| qstrcmp(className, "KNamedCommand") == 0
+			|| qstrcmp(className, "KMacroCommand") == 0
+			|| qstrcmp(className, "KAboutData") == 0
+			|| qstrcmp(className, "KCmdLineArgs") == 0
+			|| qstrcmp(className, "QSqlCursor") == 0 )
 	{
 		// Don't delete instances of these classes for now
 		free(o);
@@ -202,19 +203,19 @@ smokeruby_free(void * p)
 			free(o);
 			return;
 		}
-	} else if (strcmp(className, "QIconViewItem") == 0) {
+	} else if (qstrcmp(className, "QIconViewItem") == 0) {
 		QIconViewItem * item = (QIconViewItem *) o->ptr;
 		if (item->iconView() != 0) {
 			free(o);
 			return;
 		}
-	} else if (strcmp(className, "QCheckListItem") == 0) {
+	} else if (qstrcmp(className, "QCheckListItem") == 0) {
 		QCheckListItem * item = (QCheckListItem *) o->ptr;
 		if (item->parent() != 0 || item->listView() != 0) {
 			free(o);
 			return;
 		}
-	} else if (strcmp(className, "QListViewItem") == 0) {
+	} else if (qstrcmp(className, "QListViewItem") == 0) {
 		QListViewItem * item = (QListViewItem *) o->ptr;
 		if (item->parent() != 0 || item->listView() != 0) {
 			free(o);
@@ -226,7 +227,7 @@ smokeruby_free(void * p)
 			free(o);
 			return;
 		}
-	} else if (strcmp(className, "QPopupMenu") == 0) {
+	} else if (qstrcmp(className, "QPopupMenu") == 0) {
 		QPopupMenu * item = (QPopupMenu *) o->ptr;
 		if (item->parentWidget(false) != 0) {
 			free(o);
@@ -400,9 +401,7 @@ matches_arg(Smoke *smoke, Smoke::Index meth, Smoke::Index argidx, const char *ar
 {
     Smoke::Index *arg = smoke->argumentList + smoke->methods[meth].args + argidx;
     SmokeType type = SmokeType(smoke, *arg);
-    if(type.name() && !strcmp(type.name(), argtype))
-	return true;
-    return false;
+    return type.name() && qstrcmp(type.name(), argtype) == 0;
 }
 
 void *
@@ -810,9 +809,9 @@ static void
 init_codec() {
 	VALUE temp = rb_gv_get("$KCODE");
 	KCODE = StringValuePtr(temp);
-	if (strcmp(KCODE, "EUC") == 0) {
+	if (qstrcmp(KCODE, "EUC") == 0) {
 		codec = QTextCodec::codecForName("eucJP");
-	} else if (strcmp(KCODE, "SJIS") == 0) {
+	} else if (qstrcmp(KCODE, "SJIS") == 0) {
 		codec = QTextCodec::codecForName("Shift-JIS");
 	}
 }
@@ -824,13 +823,13 @@ qstringFromRString(VALUE rstring) {
 	}
 	
 	QString *	s;
-	if (strcmp(KCODE, "UTF8") == 0)
+	if (qstrcmp(KCODE, "UTF8") == 0)
 		s = new QString(QString::fromUtf8(StringValuePtr(rstring), RSTRING(rstring)->len));
-	else if (strcmp(KCODE, "EUC") == 0)
+	else if (qstrcmp(KCODE, "EUC") == 0)
 		s = new QString(codec->toUnicode(StringValuePtr(rstring)));
-	else if (strcmp(KCODE, "SJIS") == 0)
+	else if (qstrcmp(KCODE, "SJIS") == 0)
 		s = new QString(codec->toUnicode(StringValuePtr(rstring)));
-	else if(strcmp(KCODE, "NONE") == 0)
+	else if(qstrcmp(KCODE, "NONE") == 0)
 		s = new QString(QString::fromLatin1(StringValuePtr(rstring)));
 	else
 		s = new QString(QString::fromLocal8Bit(StringValuePtr(rstring), RSTRING(rstring)->len));
@@ -843,13 +842,13 @@ rstringFromQString(QString * s) {
 		init_codec();
 	}
 	
-	if (strcmp(KCODE, "UTF8") == 0)
+	if (qstrcmp(KCODE, "UTF8") == 0)
 		return rb_str_new2(s->utf8());
-	else if (strcmp(KCODE, "EUC") == 0)
+	else if (qstrcmp(KCODE, "EUC") == 0)
 		return rb_str_new2(codec->fromUnicode(*s));
-	else if (strcmp(KCODE, "SJIS") == 0)
+	else if (qstrcmp(KCODE, "SJIS") == 0)
 		return rb_str_new2(codec->fromUnicode(*s));
-	else if (strcmp(KCODE, "NONE") == 0)
+	else if (qstrcmp(KCODE, "NONE") == 0)
 		return rb_str_new2(s->latin1());
 	else
 		return rb_str_new2(s->local8Bit());
@@ -1575,8 +1574,16 @@ void marshall_QMapQStringQVariant(Marshall *m) {
 			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
 			
 			smokeruby_object *o = value_obj_info(value);
-			if( !o || !o->ptr)
-                   continue;
+			if (!o || !o->ptr || o->classId != o->smoke->idClass("QVariant")) {
+				// If the value isn't a Qt::Variant, then try and construct
+				// a Qt::Variant from it
+				value = rb_funcall(qvariant_class, rb_intern("new"), 1, value);
+				if (value == Qnil) {
+					continue;
+				}
+				o = value_obj_info(value);
+			}
+
 			void * ptr = o->ptr;
 			ptr = o->smoke->cast(ptr, o->classId, o->smoke->idClass("QVariant"));
 			
@@ -1770,6 +1777,20 @@ void marshall_ValueItemList(Marshall *m) {
 		VALUE item = rb_ary_entry(list, i);
                 // TODO do type checking!
 		smokeruby_object *o = value_obj_info(item);
+
+		// Special case for the QValueList<QVariant> type
+		if (	qstrcmp(ItemSTR, "QVariant") == 0 
+				&& (!o || !o->ptr || o->classId != o->smoke->idClass("QVariant")) ) 
+		{
+			// If the value isn't a Qt::Variant, then try and construct
+			// a Qt::Variant from it
+			item = rb_funcall(qvariant_class, rb_intern("new"), 1, item);
+			if (item == Qnil) {
+				continue;
+			}
+			o = value_obj_info(item);
+		}
+
 		if(!o || !o->ptr)
                     continue;
 		void *ptr = o->ptr;
