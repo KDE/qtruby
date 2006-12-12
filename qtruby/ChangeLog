@@ -1,3 +1,8 @@
+2006-12-12  Richard Dale  <rdale@foton.es>
+
+	* Removed the qtrubyinit program as it's a pita to build, and isn't very
+	  useful
+
 2006-12-04  Richard Dale  <rdale@foton.es>
 
 	* Add a QMap<int,QVariant> marshaller
