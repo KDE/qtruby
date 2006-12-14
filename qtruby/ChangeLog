@@ -1,3 +1,7 @@
+2006-12-14  Richard Dale  <rdale@foton.es>
+
+	* Added the painting/svgviewer example
+
 2006-12-12  Richard Dale  <rdale@foton.es>
 
 	* Removed the qtrubyinit program as it's a pita to build, and isn't very
