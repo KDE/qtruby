@@ -806,6 +806,10 @@ module Qt
 	end
 
 	class Image < Qt::Base
+		def fromImage(image)
+			send("operator=".to_sym, image)
+		end
+
 		def format(*args)
 			method_missing(:format, *args)
 		end
@@ -1970,9 +1974,9 @@ module Qt
 		def Internal.checkarg(argtype, typename)
 			puts "      #{typename} (#{argtype})" if debug_level >= DebugLevel::High
 			if argtype == 'i'
-				if typename =~ /^int&?$|^signed int&?$|^signed$|^qint32&?$/
+				if typename =~ /^int&?$|^signed int&?$|^signed$|^qint32&?$|^quint32&?$/
 					return 1
-				elsif typename =~ /^(?:short|ushort|unsigned short int|uchar|uint|long|ulong|unsigned long int|unsigned|float|double|WId|Q_PID)$/
+				elsif typename =~ /^(?:short|ushort|unsigned short int|uchar|uint|long|ulong|unsigned long int|unsigned|float|double|WId|Q_PID|^quint16&?$|^qint16&?$)$/
 					return 0
 				elsif typename =~ /^(quint|qint|qulong|qlong|qreal)/
 					return 0
@@ -2105,7 +2109,7 @@ module Qt
 			end
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
 			# Change foobar= to setFoobar()					
-			method = 'set' + method[0,1].upcase + method[1,method.length].sub("=", "") if method =~ /.*[^-+%\/|=]=$/
+			method = 'set' + method[0,1].upcase + method[1,method.length].sub("=", "") if method =~ /.*[^-+%\/|=]=$/ && method != 'operator='
 
 			methods = []
 			methods << method.dup

@@ -1,6 +1,12 @@
 2006-12-14  Richard Dale  <rdale@foton.es>
 
 	* Added the painting/svgviewer example
+	* Added the painting/imagecomposition example
+	* Added a convenience method Qt::Image.fromImage() to assign one image
+	  from another. This is because the C++ QImage::operator=(const QImage&)
+	  method isn't easily called from QtRuby
+	* Fixed do_method_missing() so that 'operator=' methods don't get 
+	  transformed into setOperator() methods
 
 2006-12-12  Richard Dale  <rdale@foton.es>
 
