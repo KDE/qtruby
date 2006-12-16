@@ -1532,6 +1532,19 @@ module Qt
 	class TreeWidgetItem < Qt::Base
 		include Enumerable
 
+		def initialize(*args)
+			# There is not way to distinguish between the copy constructor
+			# QTreeWidgetItem (const QTreeWidgetItem & other) 
+			# and
+			# QTreeWidgetItem (QTreeWidgetItem * parent, const QStringList & strings, int type = Type)
+			# when the latter has a single argument. So force the second variant to be called
+			if args.length == 1 && args[0].kind_of?(Qt::TreeWidgetItem)
+				super(args[0], Qt::TreeWidgetItem::Type)
+			else
+				super(*args)
+			end
+		end
+
 		def inspect
 			str = super
 			str.sub!(/>$/, "")

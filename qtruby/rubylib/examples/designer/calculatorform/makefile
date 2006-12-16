@@ -1,3 +1,3 @@
 ui_calculatorform.rb: calculatorform.ui
-	rbuic calculatorform.ui -o ui_calculatorform.rb
+	rbuic4 calculatorform.ui -o ui_calculatorform.rb
 
