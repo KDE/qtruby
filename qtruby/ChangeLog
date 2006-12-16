@@ -1,12 +1,13 @@
 2006-12-16  Richard Dale  <rdale@foton.es>
 
 	* Added the painting/fontsampler example
-	* There is no way to distinguish between the two copy constructors:
+	* There is no way to distinguish between the two constructors:
 	 	 QTreeWidgetItem (const QTreeWidgetItem & other) 
 		 QTreeWidgetItem (QTreeWidgetItem * parent, const QStringList & 
            strings, int type = Type)
 	  when the latter has a single argument. So force the second variant to 
       be called
+	* Added the desktop/screenshot example
 
 2006-12-14  Richard Dale  <rdale@foton.es>
 
