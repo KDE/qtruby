@@ -1,0 +1,50 @@
+
+add_subdirectory( lib )
+
+include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_PATH} )
+
+
+set(qtruby_LIB_SRCS 
+   Qt.cpp 
+   handlers.cpp 
+   marshall_types.cpp
+   )
+
+kde4_automoc(${qtruby_LIB_SRCS})
+
+kde4_add_library(qtruby SHARED ${qtruby_LIB_SRCS})
+
+target_link_libraries(qtruby ${KDE4_KDECORE_LIBS} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} )
+
+set_target_properties(qtruby PROPERTIES VERSION 0.0.0 SOVERSION 0 )
+install(TARGETS qtruby  DESTINATION ${LIB_INSTALL_DIR} )
+
+
+########### next target ###############
+
+
+########### install files ###############
+
+
+
+
+#original Makefile.am contents follow:
+
+#INCLUDES = -I$(top_srcdir)/smoke $(all_includes) -I$(RUBY_ARCHDIR)
+#
+#noinst_HEADERS = qtruby.h marshall.h smokeruby.h extconf.rb marshall_types.h \
+#		marshall_basetypes.h marshall_complex.h marshall_primitives.h
+#
+#noinst_LTLIBRARIES = libqtrubyinternal.la
+#libqtrubyinternal_la_SOURCES = Qt.cpp handlers.cpp marshall_types.cpp
+#libqtrubyinternal_la_METASOURCES = AUTO
+#
+#rubylibdir = $(RUBY_SITEARCHDIR)
+#rubylib_LTLIBRARIES = qtruby4.la
+#qtruby4_la_SOURCES = 
+#qtruby4_la_LDFLAGS = -module $(all_libraries) -version-info 0:0:0
+#qtruby4_la_LIBADD = libqtrubyinternal.la $(LIB_QTCORE) $(LIB_QTGUI) $(LIB_QTNETWORK) \
+#						$(LIB_QTOPENGL) $(LIB_QTSQL) $(LIB_QTCORE) $(LIB_QTXML) \
+# 						$(top_builddir)/smoke/qt/libsmokeqt.la
+#
+#SUBDIRS = lib 
