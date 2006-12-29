@@ -14,7 +14,7 @@ kde4_automoc(${qtruby_LIB_SRCS})
 
 kde4_add_library(qtruby SHARED ${qtruby_LIB_SRCS})
 
-target_link_libraries(qtruby ${KDE4_KDECORE_LIBS} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} )
+target_link_libraries(qtruby ${KDE4_KDECORE_LIBS} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokeqt )
 
 set_target_properties(qtruby PROPERTIES VERSION 0.0.0 SOVERSION 0 )
 install(TARGETS qtruby  DESTINATION ${LIB_INSTALL_DIR} )
