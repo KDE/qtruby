@@ -289,7 +289,7 @@ bool Uic::rbwrite(DomUI *ui)
 
     Validator(this).acceptUI(ui);
     if (option().execCode) {
-		out << "require 'Qt'" << endl << endl;
+		out << "require 'Qt4'" << endl << endl;
 	}
 
     WriteDeclaration(this).acceptUI(ui);
