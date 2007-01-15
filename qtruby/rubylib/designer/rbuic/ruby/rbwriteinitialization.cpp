@@ -119,7 +119,7 @@ void WriteInitialization::acceptUI(DomUI *node)
     if (m_delayedActionInitialization.size())
         output << "\n" << m_delayedActionInitialization;
 
-    output << "\n" << option.indent << "retranslateUi(" << m_mainWidget << ");\n";
+    output << "\n" << option.indent << "retranslateUi(" << m_mainWidget << ")\n";
 
     if (!m_delayedResize.isEmpty())
         output << "\n" << m_delayedResize << "\n";
@@ -135,6 +135,10 @@ void WriteInitialization::acceptUI(DomUI *node)
 
     output << option.indent << "end # setupUi\n\n";
 
+    output << option.indent << "def " << "setup_ui(" << m_mainWidget << ")\n";
+    output << option.indent << "    setupUi(" << m_mainWidget << ")\n";
+    output << option.indent << "end\n\n";
+
 //    if (m_delayedActionInitialization.isEmpty()) {
 //        m_refreshInitialization += option.indent + QLatin1String("Q_UNUSED(") + varName + QLatin1String(");\n");
 //    }
@@ -142,6 +146,10 @@ void WriteInitialization::acceptUI(DomUI *node)
     output << option.indent << "def " << "retranslateUi(" << m_mainWidget << ")\n"
            << m_refreshInitialization
            << option.indent << "end # retranslateUi\n\n";
+
+    output << option.indent << "def " << "retranslate_ui(" << m_mainWidget << ")\n";
+    output << option.indent << "    retranslateUi(" << m_mainWidget << ")\n";
+    output << option.indent << "end\n\n";
 
     m_layoutChain.pop();
     m_widgetChain.pop();

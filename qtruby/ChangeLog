@@ -2,6 +2,8 @@
 
 	* Code generated with the rbuic tool '-x' option has a require 'Qt4'
 	  option. Fixes problem reported by Sylvain Joyeux
+	* Add setup_ui() and retranslate_ui() methods as aliases for the camel
+	  case ones as suggested by Sylvain Joyeux
 
 2006-12-16  Richard Dale  <rdale@foton.es>
 
