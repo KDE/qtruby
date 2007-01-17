@@ -356,16 +356,15 @@ MethodCallBase::classname()
 }
 
 
-VirtualMethodCall::VirtualMethodCall(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack, VALUE obj) :
-	MethodCallBase(smoke,meth,stack), _obj(obj) 
+VirtualMethodCall::VirtualMethodCall(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack, VALUE obj, VALUE *sp) :
+	MethodCallBase(smoke,meth,stack), _obj(obj)
 {		
-	_sp = (VALUE *) calloc(method().numArgs, sizeof(VALUE));
+	_sp = sp;
 	_args = _smoke->argumentList + method().args;
 }
 
 VirtualMethodCall::~VirtualMethodCall() 
 {
-	free(_sp);
 }
 
 Marshall::Action 
@@ -541,7 +540,7 @@ public:
 		// qt_metacall()
 		void * ptr = o[0];
 		smokeStackToQtStack(_stack, o, 1, _replyType);
-		// Only if the zeroth element of the arrary of 'void*'s passed to qt_metacall()
+		// Only if the zeroth element of the array of 'void*'s passed to qt_metacall()
 		// contains an address, is the return value of the slot needed.
 		if (ptr != 0) {
 			*(void**)ptr = *(void**)(o[0]);
@@ -575,13 +574,13 @@ public:
 InvokeSlot::InvokeSlot(VALUE obj, ID slotname, VALUE args, void ** o) : SigSlotBase(args),
     _obj(obj), _slotname(slotname), _o(o)
 {
-	_sp = (VALUE *) calloc(_items - 1, sizeof(VALUE));
+	_sp = (VALUE *) ALLOC_N(VALUE, _items - 1);
 	copyArguments();
 }
 
 InvokeSlot::~InvokeSlot() 
 { 
-	free(_sp);	
+	xfree(_sp);	
 }
 
 Marshall::Action 

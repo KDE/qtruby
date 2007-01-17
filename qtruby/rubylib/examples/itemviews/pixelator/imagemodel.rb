@@ -22,30 +22,30 @@
 
 ** Translated to QtRuby by Richard Dale
 =end
-	
+    
 
 class ImageModel < Qt::AbstractTableModel
-	
-	def initialize(image, parent = nil)
-	    super(parent)
-	    @modelImage = Qt::Image.new(image)
-	end
-	
-	def rowCount(parent)
-	    return @modelImage.height
-	end
-	
-	def columnCount(parent)
-	    return @modelImage.width
-	end
-	
-	def data(index, role)
-	    if !index.valid?
-	        return Qt::Variant.new
-	    elsif role == Qt::ToolTipRole
-	        return Qt::Variant.new
-		end
+    
+    def initialize(image, parent = nil)
+        super(parent)
+        @modelImage = Qt::Image.new(image)
+    end
+    
+    def rowCount(parent)
+        return @modelImage.height
+    end
+    
+    def columnCount(parent)
+        return @modelImage.width
+    end
+    
+    def data(index, role)
+        if !index.valid?
+            return Qt::Variant.new
+        elsif role == Qt::ToolTipRole
+            return Qt::Variant.new
+        end
 
-	    return Qt::Variant.new(qGray(@modelImage.pixel(index.column, index.row)))
-	end
+        return Qt::Variant.new(qGray(@modelImage.pixel(index.column, index.row)))
+    end
 end

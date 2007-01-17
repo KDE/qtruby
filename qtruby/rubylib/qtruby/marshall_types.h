@@ -102,7 +102,7 @@ protected:
 
 class VirtualMethodCall : public MethodCallBase {
 public:
-	VirtualMethodCall(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack, VALUE obj);
+	VirtualMethodCall(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack, VALUE obj, VALUE *sp);
 	~VirtualMethodCall();
 	Marshall::Action action();
 	VALUE * var();

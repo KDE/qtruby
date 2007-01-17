@@ -22,46 +22,46 @@
 
 ** Translated to QtRuby by Richard Dale
 =end
-	
+    
 class PixelDelegate < Qt::AbstractItemDelegate
 
-	ItemSize = 256
-	slots 'pixelSize=(int)'
-	attr_accessor :pixelSize
+    ItemSize = 256
+    slots 'pixelSize=(int)'
+    attr_accessor :pixelSize
 
-	def initialize(parent = nil)
-		super(parent)
-		@pixelSize = 12
-	end
+    def initialize(parent = nil)
+        super(parent)
+        @pixelSize = 12
+    end
 
-	def paint(painter, option, index)
-	    painter.renderHint = Qt::Painter::Antialiasing
-	    painter.pen = Qt::NoPen
+    def paint(painter, option, index)
+        painter.renderHint = Qt::Painter::Antialiasing
+        painter.pen = Qt::NoPen
 
-		if (option.state & Qt::Style::State_Selected.to_i) != 0
-			painter.brush = option.palette.highlight
-		else
-	    	painter.brush = Qt::Brush.new(Qt::white)
-		end
+        if (option.state & Qt::Style::State_Selected.to_i) != 0
+            painter.brush = option.palette.highlight
+        else
+            painter.brush = Qt::Brush.new(Qt::white)
+        end
 
-	    painter.drawRect(option.rect)
+        painter.drawRect(option.rect)
 
-		if (option.state & Qt::Style::State_Selected.to_i) != 0
-			painter.brush = option.palette.highlightedText
-		else
-	    	painter.brush = Qt::Brush.new(Qt::black)
-		end
-	
-	    size = [option.rect.width, option.rect.height].min
-	    brightness = index.model.data(index, Qt::DisplayRole).to_i
-	    radius = (size/2.0) - (brightness/255.0 * size/2.0)
+        if (option.state & Qt::Style::State_Selected.to_i) != 0
+            painter.brush = option.palette.highlightedText
+        else
+            painter.brush = Qt::Brush.new(Qt::black)
+        end
+    
+        size = [option.rect.width, option.rect.height].min
+        brightness = index.model.data(index, Qt::DisplayRole).to_i
+        radius = (size/2.0) - (brightness/255.0 * size/2.0)
 
-    	painter.drawEllipse(Qt::RectF.new(option.rect.x + option.rect.width/2 - radius,
+        painter.drawEllipse(Qt::RectF.new(option.rect.x + option.rect.width/2 - radius,
                                 option.rect.y + option.rect.height/2 - radius,
                                 2*radius, 2*radius))
-	end
-	
-	def sizeHint(option, index)
-	    return Qt::Size.new(@pixelSize, @pixelSize)
-	end
+    end
+    
+    def sizeHint(option, index)
+        return Qt::Size.new(@pixelSize, @pixelSize)
+    end
 end

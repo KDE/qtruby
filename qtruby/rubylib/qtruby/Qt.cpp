@@ -331,8 +331,8 @@ public:
 		if (rb_respond_to(obj, rb_intern(methodName)) == 0) {
 	    	return false;
 		}
-	
-		VirtualMethodCall c(smoke, method, args, obj);
+
+		VirtualMethodCall c(smoke, method, args, obj, ALLOCA_N(VALUE, smoke->methods[method].numArgs));
 		c.next();
 		return true;
 	}
