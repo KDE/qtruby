@@ -9,6 +9,7 @@ class CannonField < Qt::Widget
         @ang = 45
         @f = 0
         setPalette( Qt::Palette.new( Qt::Color.new( 250, 250, 200) ) )
+        setAutoFillBackground(true)
     end
 
     def setAngle( degrees )

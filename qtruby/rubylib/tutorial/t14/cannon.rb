@@ -22,6 +22,7 @@ class CannonField < Qt::Widget
         @gameEnded = false
         @barrelPressed = false
         setPalette( Qt::Palette.new( Qt::Color.new( 250, 250, 200) ) )
+        setAutoFillBackground(true)
         newTarget()
         @barrelRect = Qt::Rect.new(33, -4, 15, 8)
     end
