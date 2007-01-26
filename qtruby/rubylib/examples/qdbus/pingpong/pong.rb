@@ -45,7 +45,7 @@ if !Qt::DBusConnection::sessionBus.connected?
 end
 	
 if !Qt::DBusConnection.sessionBus.registerService(SERVICE_NAME)
-	$stderr.puts(stderr, "%s\n", Qt::DBusConnection.sessionBus.lastError.message)
+	$stderr.puts("%s\n" %  Qt::DBusConnection.sessionBus.lastError.message)
 	exit(1)
 end
 	
