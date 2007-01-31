@@ -902,6 +902,63 @@ static const char *not_ascii(const char *s, uint &len)
 }
 #endif
 
+void marshall_QDBusVariant(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE: 
+	{
+		VALUE v = *(m->var());
+		if (v == Qnil) {
+			m->item().s_voidp = 0;
+			break;
+		}
+
+		smokeruby_object *o = value_obj_info(v);
+		if (!o || !o->ptr) {
+			if (m->type().isRef()) {
+				m->unsupported();
+			}
+		    m->item().s_class = 0;
+		    break;
+		}
+		m->item().s_class = o->ptr;
+		break;
+	}
+
+	case Marshall::ToVALUE: 
+	{
+		if (m->item().s_voidp == 0) {
+			*(m->var()) = Qnil;
+		    break;
+		}
+
+		void *p = m->item().s_voidp;
+		VALUE obj = getPointerObject(p);
+		if(obj != Qnil) {
+			*(m->var()) = obj;
+		    break;
+		}
+		smokeruby_object * o = alloc_smokeruby_object(false, m->smoke(), m->smoke()->idClass("QVariant"), p);
+		
+		obj = set_obj_info("Qt::DBusVariant", o);
+		if (do_debug & qtdb_calls) {
+			printf("allocating %s %p -> %p\n", "Qt::DBusVariant", o->ptr, (void*)obj);
+		}
+
+		if (m->type().isStack()) {
+		    o->allocated = true;
+			// Keep a mapping of the pointer so that it is only wrapped once
+		    mapPointer(obj, o, o->classId, 0);
+		}
+		
+		*(m->var()) = obj;
+	}
+	
+	default:
+		m->unsupported();
+		break;
+    }
+}
+
 static void marshall_charP_array(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE:
@@ -2113,6 +2170,8 @@ TypeHandler Qt_handlers[] = {
     { "bool*", marshall_it<bool *> },
     { "char*",marshall_it<char *> },
     { "char**", marshall_charP_array },
+    { "QDBusVariant", marshall_QDBusVariant },
+    { "QDBusVariant&", marshall_QDBusVariant },
     { "uchar*", marshall_ucharP },
     { "QRgb*", marshall_QRgb_array },
     { "QList<QPair<QString,QString> >", marshall_QPairQStringQStringList },

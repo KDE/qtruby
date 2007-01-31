@@ -1,3 +1,7 @@
+2007-01-31  Richard Dale  <rdale@foton.es>
+
+	* Added a Qt::DBusVariant class and a marshaller for it
+
 2007-01-17  Richard Dale  <rdale@foton.es>
 
 	* QtRuby was crashing in virtual method callbacks with a memory corruption
