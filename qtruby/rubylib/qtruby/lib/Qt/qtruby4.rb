@@ -528,23 +528,6 @@ module Qt
 		end
 	end
 
-	class DBusVariant < Qt::Variant
-		def initialize(variant)
-			super(variant)
-		end
-
-		def setVariant(variant)
-		end
-
-		def variant=(variant)
-			setVariant(variant)
-		end
-
-		def variant()
-			return self
-		end
-	end
-
 	class Dialog < Qt::Base
 		def exec(*args)
 			method_missing(:exec, *args)
@@ -1747,6 +1730,23 @@ module Qt
 
 		def type(*args)
 			method_missing(:type, *args)
+		end
+	end
+
+	class DBusVariant < Variant
+		def initialize(variant)
+			super(variant)
+		end
+
+		def setVariant(variant)
+		end
+
+		def variant=(variant)
+			setVariant(variant)
+		end
+
+		def variant()
+			return self
 		end
 	end
 
