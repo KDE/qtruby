@@ -1,3 +1,9 @@
+2007-02-01  Richard Dale  <rdale@foton.es>
+
+	* Added the qdbus/complexpingpong example
+	* Qt::DBusVariant have to be passed Qt::Variants, and a suitable
+	  Qt::Variant will be created
+
 2007-01-31  Richard Dale  <rdale@foton.es>
 
 	* Added a Qt::DBusVariant class and a marshaller for it

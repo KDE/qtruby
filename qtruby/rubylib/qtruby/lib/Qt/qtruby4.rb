@@ -493,6 +493,7 @@ module Qt
 
 	class DBusReply
 		def initialize(reply)
+p reply
 			@error = Qt::DBusError.new(reply)
 
 			if @error.valid?
@@ -1734,8 +1735,12 @@ module Qt
 	end
 
 	class DBusVariant < Variant
-		def initialize(variant)
-			super(variant)
+		def initialize(value)
+			if value.kind_of? Qt::Variant
+				super(value)
+			else 
+				super(Qt::Variant.new(value))
+			end
 		end
 
 		def setVariant(variant)
