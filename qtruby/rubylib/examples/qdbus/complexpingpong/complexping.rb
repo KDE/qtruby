@@ -38,8 +38,7 @@ class Ping < Qt::Object
         iface = Qt::DBusInterface.new(SERVICE_NAME, "/", "com.trolltech.QtDBus.ComplexPong.Pong",
                                    Qt::DBusConnection.sessionBus, self)
         if !iface.valid?
-            $stderr.puts("%s\n",
-                    Qt::DBusConnection.sessionBus.lastError.message)
+            $stderr.puts("%s" % Qt::DBusConnection.sessionBus.lastError.message)
             Qt::CoreApplication.instance.quit
         end
     
@@ -58,11 +57,11 @@ class Ping < Qt::Object
                     puts("value = %s" % reply)
                 end
             elsif line =~ /^value=/
-                iface.value = line.mid(6)
+                iface.value = line[6, line.length]
             else
                 reply = Qt::DBusReply.new(iface.call("query", Qt::Variant.new(line)))
                 if reply.valid?
-                    puts("Reply was: %s" % reply.value)
+                    puts("Reply was: %s" % reply.value.value)
                 end
             end
     

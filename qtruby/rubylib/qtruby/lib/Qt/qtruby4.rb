@@ -493,7 +493,6 @@ module Qt
 
 	class DBusReply
 		def initialize(reply)
-p reply
 			@error = Qt::DBusError.new(reply)
 
 			if @error.valid?
@@ -1708,6 +1707,8 @@ p reply
             case typeName()
             when "QDBusArgument"
 				return qVariantValue(Qt::DBusArgument, self)
+            when "QDBusVariant"
+				return qVariantValue(Qt::Variant, self)
             end
 		end
 

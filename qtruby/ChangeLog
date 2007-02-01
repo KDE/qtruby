@@ -3,6 +3,8 @@
 	* Added the qdbus/complexpingpong example
 	* Qt::DBusVariant have to be passed Qt::Variants, and a suitable
 	  Qt::Variant will be created
+	* Improved the format of debugging info for the contents of a QMetaObject
+	* A Qt::Variant can now be obtained when contained in a Qt::DBusVariant
 
 2007-01-31  Richard Dale  <rdale@foton.es>
 

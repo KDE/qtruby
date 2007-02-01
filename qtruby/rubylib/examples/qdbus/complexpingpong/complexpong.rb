@@ -32,8 +32,8 @@ class Pong < Qt::DBusAbstractAdaptor
     q_classinfo("D-Bus Interface", "com.trolltech.QtDBus.ComplexPong.Pong")
 
     signals :aboutToQuit
-    slots 'QDBusVariant query(const QString&)', :quit,
-			:value, 'setValue(const QString&)'
+    slots 'QDBusVariant query(QString)', :quit,
+			:value, 'setValue(QString)'
     
     # the property
     def value()

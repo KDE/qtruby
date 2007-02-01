@@ -579,12 +579,13 @@ qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 		return Qnil;
 	}
 
+	QVariant * variant = (QVariant*) o->ptr;
+
     Smoke::Index * value_class_id = classcache.value(classname);
 	if (value_class_id == 0) {
 		return Qnil;
 	}
 
-	QVariant * variant = (QVariant*) o->ptr;
 	void * value_ptr = 0;
 	VALUE result = Qnil;
 	smokeruby_object * vo = 0;
@@ -637,6 +638,8 @@ qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 	} else if (qstrcmp(classname, "Qt::TextFormat") == 0) {
 		QTextFormat v = qVariantValue<QTextFormat>(*variant);
 		value_ptr = (void *) new QTextFormat(v);
+	} else if (qstrcmp(classname, "Qt::Variant") == 0) {
+		value_ptr = (void *) new QVariant(*((QVariant *) variant->constData()));
 	} else if (variant->type() >= QVariant::UserType) { 
 		value_ptr = QMetaType::construct(QMetaType::type(variant->typeName()), (void *) variant->constData());
 	} else {
@@ -2405,22 +2408,73 @@ make_metaObject(VALUE /*self*/, VALUE obj, VALUE stringdata_value, VALUE data_va
 	*meta = ob;
 
 #ifdef DEBUG
-	printf("make_metaObject() superdata: %p\n", meta->d.superdata);
-	printf("stringdata: ");
+	printf("make_metaObject() superdata: %p %s\n", meta->d.superdata, superdata->className());
+	
+	printf(
+	" // content:\n"
+	"       %d,       // revision\n"
+	"       %d,       // classname\n"
+	"       %d,   %d, // classinfo\n"
+	"       %d,   %d, // methods\n"
+	"       %d,   %d, // properties\n"
+	"       %d,   %d, // enums/sets\n",
+	data[0], data[1], data[2], data[3], 
+	data[4], data[5], data[6], data[7], data[8], data[9]);
+
+	printf(
+	"\n // classinfo: key, value\n"
+	"      %d,    %d\n",
+	data[10], data[11]);
+
+	int s = 12;
+	bool signal_headings = true;
+	bool slot_headings = true;
+
+	for (uint j = 0; j < data[4]; j++) {
+		if (signal_headings && (data[s + (j * 5) + 4] & 0x04)) {
+			printf("\n // signals: signature, parameters, type, tag, flags\n");
+			signal_headings = false;
+		} 
+
+		if (slot_headings && (data[s + (j * 5) + 4] & 0x08)) {
+			printf("\n // slots: signature, parameters, type, tag, flags\n");
+			slot_headings = false;
+		}
+
+		printf("      %d,   %d,   %d,   %d, 0x%2.2x\n", 
+			data[s + (j * 5)], data[s + (j * 5) + 1], data[s + (j * 5) + 2], 
+			data[s + (j * 5) + 3], data[s + (j * 5) + 4]);
+	}
+
+	s += (data[4] * 5);
+	for (uint j = 0; j < data[6]; j++) {
+		printf("\n // properties: name, type, flags\n");
+		printf("      %d,   %d,   0x%8.8x\n", 
+			data[s + (j * 3)], data[s + (j * 3) + 1], data[s + (j * 3) + 2]);
+	}
+
+	s += (data[6] * 3);
+	for (int i = s; i < count; i++) {
+		printf("\n       %d        // eod\n", data[i]);
+	}
+
+	printf("\nqt_meta_stringdata:\n    \"");
+
+    int strlength = 0;
 	for (int j = 0; j < RSTRING(stringdata_value)->len; j++) {
+        strlength++;
 		if (meta->d.stringdata[j] == 0) {
 			printf("\\0");
+			if (strlength > 40) {
+				printf("\"\n    \"");
+				strlength = 0;
+			}
 		} else {
 			printf("%c", meta->d.stringdata[j]);
 		}
 	}
-	printf("\n");
-	
-	printf("data: ");
-	for (long i = 0; i < count; i++) {
-		printf("%d, ", data[i]);
-	}
-	printf("\n");
+	printf("\"\n");
+
 #endif
 	smokeruby_object  * m = alloc_smokeruby_object(	true, 
 													qt_Smoke, 
