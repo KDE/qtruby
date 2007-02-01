@@ -476,7 +476,7 @@ module Qt
 		def value
 			if type() == Qt::DBusMessage::ReplyMessage
 				reply = arguments()
-				return reply.length > 0 ? reply[0].to_ruby : nil
+				return reply.length > 0 ? reply[0].value : nil
 			else
 				return nil
 			end
@@ -520,7 +520,7 @@ module Qt
 		end
 
 		def value
-			return @data.to_ruby
+			return @data.value
 		end
 
 		def error
@@ -1617,7 +1617,7 @@ module Qt
 			return toInt()
 		end
 
-		def to_ruby
+		def value
 			case type()
 			when Qt::Variant::Bitmap
 			when Qt::Variant::Bool
@@ -1710,10 +1710,6 @@ module Qt
             when "QDBusVariant"
 				return qVariantValue(Qt::Variant, self)
             end
-		end
-
-		def value
-			return to_ruby
 		end
 
 		def inspect

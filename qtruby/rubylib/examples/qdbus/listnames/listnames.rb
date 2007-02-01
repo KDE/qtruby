@@ -43,7 +43,7 @@ def method2()
     dbus_iface = Qt::DBusInterface.new("org.freedesktop.DBus", "/org/freedesktop/DBus", 
                                        "org.freedesktop.DBus", bus)
         
-    qDebug(dbus_iface.call("ListNames").arguments[0].to_ruby.inspect)
+    qDebug(dbus_iface.call("ListNames").arguments[0].value.inspect)
 end
     
 def method3()
