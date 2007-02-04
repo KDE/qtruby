@@ -2421,10 +2421,7 @@ make_metaObject(VALUE /*self*/, VALUE obj, VALUE stringdata_value, VALUE data_va
 	data[0], data[1], data[2], data[3], 
 	data[4], data[5], data[6], data[7], data[8], data[9]);
 
-	printf(
-	"\n // classinfo: key, value\n"
-	"      %d,    %d\n",
-	data[10], data[11]);
+	printf("\n // classinfo: key, value\n      %d,    %d\n", data[10], data[11]);
 
 	int s = 12;
 	bool signal_headings = true;
@@ -2972,7 +2969,7 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 			rb_define_method(qtablemodel_class, "removeRows", (VALUE (*) (...)) qabstract_item_model_removerows, -1);
 			rb_define_method(qtablemodel_class, "removeColumns", (VALUE (*) (...)) qabstract_item_model_removecolumns, -1);
 			
-			qlistmodel_class = rb_define_class_under(qt_module, "TableModel", klass);
+			qlistmodel_class = rb_define_class_under(qt_module, "ListModel", klass);
 			rb_define_method(qlistmodel_class, "rowCount", (VALUE (*) (...)) qabstract_item_model_rowcount, -1);
 			rb_define_method(qlistmodel_class, "columnCount", (VALUE (*) (...)) qabstract_item_model_columncount, -1);
 			rb_define_method(qlistmodel_class, "data", (VALUE (*) (...)) qabstract_item_model_data, -1);
