@@ -1,10 +1,7 @@
 
 add_subdirectory( Qt )
 
-#Laurent verify it
-install( FILES  Qt4.rb Qt3.rb DESTINATION ${LIB_INSTALL_DIR} )
-
-
+install( FILES  Qt.rb Qt4.rb Qt3.rb DESTINATION ${RUBY_SITE_LIB_DIR} )
 
 #original Makefile.am contents follow:
 

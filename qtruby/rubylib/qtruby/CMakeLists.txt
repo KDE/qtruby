@@ -10,14 +10,12 @@ set(qtruby_LIB_SRCS
    marshall_types.cpp
    )
 
-kde4_automoc(${qtruby_LIB_SRCS})
+kde4_add_library(qtruby4 SHARED ${qtruby_LIB_SRCS})
 
-kde4_add_library(qtruby SHARED ${qtruby_LIB_SRCS})
+target_link_libraries(qtruby4 ${KDE4_KDECORE_LIBS} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokeqt )
 
-target_link_libraries(qtruby ${KDE4_KDECORE_LIBS} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokeqt )
-
-set_target_properties(qtruby PROPERTIES VERSION 0.0.0 SOVERSION 0 )
-install(TARGETS qtruby  DESTINATION ${LIB_INSTALL_DIR} )
+set_target_properties(qtruby4 PROPERTIES VERSION 0.0.0 SOVERSION 0 PREFIX "")
+install(TARGETS qtruby4  DESTINATION ${RUBY_SITE_ARCH_DIR} )
 
 
 ########### next target ###############

@@ -1,5 +1,5 @@
-#Laurent Verify it!
-install( FILES  qtruby4.rb DESTINATION ${LIB_INSTALL_DIR} )
+
+install( FILES  qtruby4.rb DESTINATION ${RUBY_SITE_LIB_DIR}/Qt )
 
 
 
