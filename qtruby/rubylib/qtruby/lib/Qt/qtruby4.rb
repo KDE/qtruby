@@ -1939,9 +1939,11 @@ module Qt
 	end
 
 	class SignalBlockInvocation < Qt::Object
-		def initialize(parent, block, args)
+		def initialize(parent, block, signature)
 			super(parent)
-			self.class.slots "invoke(#{args})"
+			if metaObject.indexOfSlot(signature) == -1
+				self.class.slots signature
+			end
 			@block = block
 		end
 
@@ -1951,9 +1953,11 @@ module Qt
 	end
 
 	class BlockInvocation < Qt::Object
-		def initialize(target, block, args)
+		def initialize(target, block, signature)
 			super(target)
-			self.class.slots "invoke(#{args})"
+			if metaObject.indexOfSlot(signature) == -1
+				self.class.slots signature
+			end
 			@target = target
 			@block = block
 		end
@@ -2438,19 +2442,21 @@ module Qt
 		end
 
 		def Internal.connect(src, signal, target, block)
-			signature = (signal =~ /\((.*)\)/) ? $1 : ""
+			args = (signal =~ /\((.*)\)/) ? $1 : ""
+			signature = Qt::MetaObject.normalizedSignature("invoke(%s)" % args).to_s
 			return Qt::Object.connect(	src,
 										signal,
 										Qt::BlockInvocation.new(target, block, signature),
-										SLOT("invoke(#{signature})") )
+										SLOT(signature) )
 		end
 
 		def Internal.signal_connect(src, signal, block)
-			signature = (signal =~ /\((.*)\)/) ? $1 : ""
+			args = (signal =~ /\((.*)\)/) ? $1 : ""
+			signature = Qt::MetaObject.normalizedSignature("invoke(%s)" % args).to_s
 			return Qt::Object.connect(	src,
 										signal,
 										Qt::SignalBlockInvocation.new(src, block, signature),
-										SLOT("invoke(#{signature})") )
+										SLOT(signature) )
 		end
 	end # Qt::Internal
 

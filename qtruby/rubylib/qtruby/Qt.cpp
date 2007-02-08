@@ -2421,19 +2421,26 @@ make_metaObject(VALUE /*self*/, VALUE obj, VALUE stringdata_value, VALUE data_va
 	data[0], data[1], data[2], data[3], 
 	data[4], data[5], data[6], data[7], data[8], data[9]);
 
-	printf("\n // classinfo: key, value\n      %d,    %d\n", data[10], data[11]);
+	int s = data[3];
 
-	int s = 12;
+	if (data[2] > 0) {
+		printf("\n // classinfo: key, value\n");
+		for (uint j = 0; j < data[2]; j++) {
+			printf("      %d,    %d\n", data[s + (j * 2)], data[s + (j * 2) + 1]);
+		}
+	}
+
+	s = data[5];
 	bool signal_headings = true;
 	bool slot_headings = true;
 
 	for (uint j = 0; j < data[4]; j++) {
-		if (signal_headings && (data[s + (j * 5) + 4] & 0x04)) {
+		if (signal_headings && (data[s + (j * 5) + 4] & 0x04) != 0) {
 			printf("\n // signals: signature, parameters, type, tag, flags\n");
 			signal_headings = false;
 		} 
 
-		if (slot_headings && (data[s + (j * 5) + 4] & 0x08)) {
+		if (slot_headings && (data[s + (j * 5) + 4] & 0x08) != 0) {
 			printf("\n // slots: signature, parameters, type, tag, flags\n");
 			slot_headings = false;
 		}

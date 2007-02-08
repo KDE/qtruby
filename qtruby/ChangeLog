@@ -1,4 +1,12 @@
-2007-04-01  Richard Dale  <rdale@foton.es>
+2007-02-08  Richard Dale  <rdale@foton.es>
+
+	* Fixed bugs in the debug dump of QMetaObjects created at runtime
+	* When a block was used as a slot, a new entry was being added to
+	  the QMetaObject object every time they were connected. A new
+	  entry is now only created if a slot with the same signature didn't
+	  already exist.
+
+2007-02-04  Richard Dale  <rdale@foton.es>
 
 	* The ListModel internal class was being wrongly named as TableModel
 
