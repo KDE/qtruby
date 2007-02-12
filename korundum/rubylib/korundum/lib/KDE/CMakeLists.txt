@@ -1,9 +1,3 @@
-
-include_directories( ${KDE4_INCLUDE_DIR} ${QT_INCLUDES}  )
-
-
-########### install files ###############
-
 install( FILES  korundum.rb DESTINATION  )
 install( FILES  Korundum.rb DESTINATION  )
 
