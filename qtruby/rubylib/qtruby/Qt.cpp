@@ -73,13 +73,13 @@ extern bool qUnregisterResourceData(int, const unsigned char *, const unsigned c
 #include "smokeruby.h"
 #include "smoke.h"
 #include "marshall_types.h"
-
+#include <kdemacros.h>
 // #define DEBUG
 
 #define QTRUBY_VERSION "1.4.7"
 
-extern Smoke *qt_Smoke;
-extern void init_qt_Smoke();
+extern KDE_EXPORT Smoke *qt_Smoke;
+extern KDE_EXPORT void init_qt_Smoke();
 extern void smokeruby_mark(void * ptr);
 extern void smokeruby_free(void * ptr);
 extern VALUE qchar_to_s(VALUE self);
