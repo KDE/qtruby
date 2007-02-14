@@ -2951,7 +2951,7 @@ static QRegExp * scope_op = 0;
 static VALUE
 create_qobject_class(VALUE /*self*/, VALUE package_value)
 {
-	const char *package = StringValuePtr(package_value);
+	const char *package = strdup(StringValuePtr(package_value));
 	VALUE klass;
 	
 	QString packageName(package);
@@ -3019,13 +3019,14 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 	rb_define_method(klass, "connect", (VALUE (*) (...)) qobject_connect, -1);   
 	rb_define_singleton_method(klass, "connect", (VALUE (*) (...)) qobject_connect, -1);   
 
+	free((void *) package);
 	return klass;
 }
 
 static VALUE
 create_qt_class(VALUE /*self*/, VALUE package_value)
 {
-	const char *package = StringValuePtr(package_value);
+	const char *package = strdup(StringValuePtr(package_value));
 	VALUE klass;
 	QString packageName(package);
 	
@@ -3076,6 +3077,7 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 		rb_define_method(klass, "internalPointer", (VALUE (*) (...)) qmodelindex_internalpointer, 0);
 	}
 
+	free((void *) package);
 	return klass;
 }
 
