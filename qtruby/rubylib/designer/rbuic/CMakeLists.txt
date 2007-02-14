@@ -24,6 +24,7 @@ set(rbuic4_bin_SRCS
 
 add_executable(rbuic4_bin ${rbuic4_bin_SRCS})
 set_target_properties(rbuic4_bin PROPERTIES OUTPUT_NAME rbuic4)
+set_target_properties(rbuic4_bin PROPERTIES COMPILE_FLAGS -DQT_UIC_RB_GENERATOR)
 
 target_link_libraries(rbuic4_bin  ${QT_QTCORE_LIBRARY} ${QT_QTXML_LIBRARY} )
 
