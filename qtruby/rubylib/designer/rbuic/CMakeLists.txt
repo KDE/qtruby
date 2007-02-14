@@ -1,5 +1,10 @@
 
 include_directories( ${CMAKE_SOURCE_DIR}/qtruby/rubylib/designer/rbuic/ruby/ )
+
+# find Qt4
+FIND_PACKAGE (Qt4 REQUIRED)
+INCLUDE_DIRECTORIES (${QT_INCLUDES})
+
 ########### next target ###############
 
 set(rbuic4_bin_SRCS 
@@ -17,14 +22,12 @@ set(rbuic4_bin_SRCS
    ruby/rbwriteinitialization.cpp 
    main.cpp )
 
-kde4_automoc(${rbuic4_bin_SRCS})
-
-kde4_add_executable(rbuic4_bin ${rbuic4_bin_SRCS})
+add_executable(rbuic4_bin ${rbuic4_bin_SRCS})
 set_target_properties(rbuic4_bin PROPERTIES OUTPUT_NAME rbuic4)
 
-target_link_libraries(rbuic4_bin  ${KDE4_KDECORE_LIBS} )
+target_link_libraries(rbuic4_bin  ${QT_QTCORE_LIBRARY} ${QT_QTXML_LIBRARY} )
 
-install(TARGETS rbuic4_bin DESTINATION ${BIN_INSTALL_DIR})
+install(TARGETS rbuic4_bin DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 
 ########### next target ###############
