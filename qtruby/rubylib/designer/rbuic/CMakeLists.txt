@@ -1,10 +1,6 @@
 
 include_directories( ${CMAKE_SOURCE_DIR}/qtruby/rubylib/designer/rbuic/ruby/ )
 
-# find Qt4
-FIND_PACKAGE (Qt4 REQUIRED)
-INCLUDE_DIRECTORIES (${QT_INCLUDES})
-
 ########### next target ###############
 
 set(rbuic4_bin_SRCS 
