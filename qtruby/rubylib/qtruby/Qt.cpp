@@ -3159,7 +3159,7 @@ set_application_terminated(VALUE /*self*/, VALUE yn)
 	return Qnil;
 }
 
-void
+extern KDE_EXPORT void
 Init_qtruby4()
 {
 	if (qt_Smoke != 0L) {
