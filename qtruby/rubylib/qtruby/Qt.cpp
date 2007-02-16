@@ -45,6 +45,10 @@
 #include <QtCore/qabstractitemmodel.h>			
 #include <QtGui/qitemselectionmodel.h>
 
+#ifdef QT_QTDBUS
+#include <QtDBus/qdbusargument.h>
+#endif
+
 extern bool qRegisterResourceData(int, const unsigned char *, const unsigned char *, const unsigned char *);
 extern bool qUnregisterResourceData(int, const unsigned char *, const unsigned char *, const unsigned char *);
 
@@ -437,6 +441,60 @@ EmitSignal::mainfunction()
 
 bool 
 EmitSignal::cleanup() 
+{ 
+	return true; 
+}
+
+InvokeNativeSlot::InvokeNativeSlot(QObject *obj, int id, int items, VALUE args, VALUE *sp, VALUE * result) : SigSlotBase(args),
+    _obj(obj), _id(id)
+{ 
+	_sp = sp;
+	_result = result;
+}
+
+Marshall::Action 
+InvokeNativeSlot::action() 
+{ 
+	return Marshall::FromVALUE; 
+}
+
+Smoke::StackItem &
+InvokeNativeSlot::item() 
+{ 
+	return _stack[_cur]; 
+}
+
+const char *
+InvokeNativeSlot::mytype() 
+{ 
+	return "slot"; 
+}
+
+void 
+InvokeNativeSlot::invokeSlot() 
+{
+	if (_called) return;
+	_called = true;
+	void ** o = new void*[_items];
+	smokeStackToQtStack(_stack, o + 1, _items - 1, _args + 1);
+	void * ptr;
+	o[0] = &ptr;
+	_obj->qt_metacall(QMetaObject::InvokeMetaMethod, _id, o);
+	
+	if (_args[0].argType != xmoc_void) {
+		SignalReturnValue r(o, _result, _args);
+	}
+	delete[] o;
+}
+
+void 
+InvokeNativeSlot::mainfunction() 
+{ 
+	invokeSlot(); 
+}
+
+bool 
+InvokeNativeSlot::cleanup() 
 { 
 	return true; 
 }
@@ -1303,6 +1361,44 @@ qbytearray_append(VALUE self, VALUE str)
 	return self;
 }
 
+#ifdef QT_QTDBUS 
+static VALUE
+qdbusargument_endarraywrite(VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QDBusArgument * arg = (QDBusArgument *) o->ptr;
+	arg->endArray();
+	return self;
+}
+
+static VALUE
+qdbusargument_endmapwrite(VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QDBusArgument * arg = (QDBusArgument *) o->ptr;
+	arg->endMap();
+	return self;
+}
+
+static VALUE
+qdbusargument_endmapentrywrite(VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QDBusArgument * arg = (QDBusArgument *) o->ptr;
+	arg->endMapEntry();
+	return self;
+}
+
+static VALUE
+qdbusargument_endstructurewrite(VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QDBusArgument * arg = (QDBusArgument *) o->ptr;
+	arg->endStructure();
+	return self;
+}
+#endif
+
 // The QtRuby runtime's overloaded method resolution mechanism can't currently
 // distinguish between Ruby Arrays containing different sort of instances.
 // Unfortunately Qt::Painter.drawLines() and Qt::Painter.drawRects() methods can
@@ -1665,39 +1761,69 @@ static QByteArray * pred = 0;
 				}
 
 				if (_current_method == -1) {
-
-					// Check for property getter/setter calls
+					// Check for property getter/setter calls, and for slots in QObject classes
+					// not in the smoke library
 					smokeruby_object *o = value_obj_info(self);
 					if (	o != 0 
 							&& o->ptr != 0 
 							&& isDerivedFrom(o->smoke, o->classId, o->smoke->idClass("QObject")) )
 					{
 						QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
-static QByteArray * prop = 0;
-						if (prop == 0) {
-							prop = new QByteArray();
+static QByteArray * name = 0;
+						if (name == 0) {
+							name = new QByteArray();
 						}
 						
-						*prop = rb_id2name(SYM2ID(argv[0]));
+						*name = rb_id2name(SYM2ID(argv[0]));
 						const QMetaObject * meta = qobject->metaObject();
 						if (argc == 1) {
-							if (prop->endsWith("?")) {
-								prop->replace(0, 1, pred->mid(0, 1).toUpper());
-								prop->replace(0, 0, "is");
-								if (meta->indexOfProperty(*prop) == -1) {
-									prop->replace(0, 2, "has");
+							if (name->endsWith("?")) {
+								name->replace(0, 1, pred->mid(0, 1).toUpper());
+								name->replace(0, 0, "is");
+								if (meta->indexOfProperty(*name) == -1) {
+									name->replace(0, 2, "has");
 								}
 							}
 
-							if (meta->indexOfProperty(*prop) != -1) {
-								VALUE qvariant = rb_funcall(self, rb_intern("property"), 1, rb_str_new2(*prop));
-								return rb_funcall(qvariant, rb_intern("to_ruby"), 0);
+							if (meta->indexOfProperty(*name) != -1) {
+								VALUE qvariant = rb_funcall(self, rb_intern("property"), 1, rb_str_new2(*name));
+								return rb_funcall(qvariant, rb_intern("value"), 0);
 							}
-						} else if (argc == 2 && prop->endsWith("=")) {
-							prop->replace("=", "");
-							if (meta->indexOfProperty(*prop) != -1) {
+						} else if (argc == 2 && name->endsWith("=")) {
+							name->replace("=", "");
+							if (meta->indexOfProperty(*name) != -1) {
 								VALUE qvariant = rb_funcall(self, rb_intern("qVariantFromValue"), 1, argv[1]);
-								return rb_funcall(self, rb_intern("setProperty"), 2, rb_str_new2(*prop), qvariant);
+								return rb_funcall(self, rb_intern("setProperty"), 2, rb_str_new2(*name), qvariant);
+							}
+						} else {
+							int classId = o->smoke->idClass(meta->className());
+							// The class isn't in the Smoke lib..
+							while (classId == 0) {
+								// Assume the QObject has slots which aren't in the Smoke library, so try
+								// and call the slot directly
+								for (int id = meta->methodOffset(); id < meta->methodCount(); id++) {
+									if (meta->method(id).methodType() == QMetaMethod::Slot) {
+										QByteArray signature(meta->method(id).signature());
+										QByteArray methodName = signature.mid(0, signature.indexOf('('));
+	
+										// Don't check that the types of the ruby args match the c++ ones for now,
+										// only that the name and arg count is the same.
+										if (*name == methodName && signature.count(',') == (argc - 2)) {
+											VALUE args = rb_funcall(	qt_internal_module, 
+																		rb_intern("getMocArguments"), 
+																		2, 
+																		rb_str_new2(meta->method(id).typeName()), 
+																		rb_str_new2(meta->method(id).signature()) );
+										
+											VALUE result = Qnil;
+											InvokeNativeSlot slot(qobject, id, argc - 1, args, argv + 1, &result);
+											slot.next();
+											return result;
+										}
+									}
+								}
+								meta = meta->superClass();
+								classId = o->smoke->idClass(meta->className());
 							}
 						}
 					}
@@ -3075,6 +3201,13 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 		rb_define_method(klass, "drawRects", (VALUE (*) (...)) qpainter_drawrects, -1);
 	} else if (packageName == "Qt::ModelIndex") {
 		rb_define_method(klass, "internalPointer", (VALUE (*) (...)) qmodelindex_internalpointer, 0);
+#ifdef QT_QTDBUS
+	} else if (packageName == "Qt::DBusArgument") {
+		rb_define_method(klass, "endArrayWrite", (VALUE (*) (...)) qdbusargument_endarraywrite, 0);
+		rb_define_method(klass, "endMapEntryWrite", (VALUE (*) (...)) qdbusargument_endmapentrywrite, 0);
+		rb_define_method(klass, "endMapWrite", (VALUE (*) (...)) qdbusargument_endmapwrite, 0);
+		rb_define_method(klass, "endStructureWrite", (VALUE (*) (...)) qdbusargument_endstructurewrite, 0);
+#endif
 	}
 
 	free((void *) package);

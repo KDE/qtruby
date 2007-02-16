@@ -1,3 +1,18 @@
+2007-02-16  Richard Dale  <rdale@foton.es>
+
+	* Thomas Moenicke fixed the qtruby cmake build so it works on
+	  all machines by adding a KDE_EXPORT macro to Init_qtruby4()
+	  Big thanks to Thomas and Guillaume Laurent for getting it all working.
+	* Added calling slots directly in custom C++ QObject classes.
+	  If a method isn't found in the Smoke library, and the instance is
+	  a kind of QObject with a class not in the Smoke library, then look
+	  for a slot matching the method name and invoke it. Thanks to Eric Landuy
+	  for the idea and discussion leading to implementing it.
+	* Added a check for QtDBus in the qtruby cmake file and set a define
+	  of -DQT_QTDBUS if the library was found
+	* Changed the ADD_LIBRARY line in the qtruby cmake file to use MODULE
+	  so that a bundle should be built on Mac OS X.
+
 2007-02-08  Richard Dale  <rdale@foton.es>
 
 	* Fixed bugs in the debug dump of QMetaObjects created at runtime

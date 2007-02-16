@@ -1,7 +1,12 @@
 
 add_subdirectory( lib )
 
+IF(QT_QTDBUS_FOUND)
+    ADD_DEFINITIONS (-DQT_QTDBUS)
+ENDIF(QT_QTDBUS_FOUND)
+
 include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_PATH} )
+INCLUDE_DIRECTORIES (${QT_INCLUDES})
 
 
 set(qtruby_LIB_SRCS 
@@ -10,13 +15,16 @@ set(qtruby_LIB_SRCS
    marshall_types.cpp
    )
 
-kde4_add_library(qtruby4 SHARED ${qtruby_LIB_SRCS})
+# Use 'MODULE' instead of 'SHARED' so that qtruby will be built as a bundle on Mac OS X
+# instead of a dyld. But is this correct (rjd)? It needs testing.
+add_library(qtruby4 MODULE ${qtruby_LIB_SRCS})
+#add_library(qtruby4 SHARED ${qtruby_LIB_SRCS})
 
-target_link_libraries(qtruby4 ${KDE4_KDECORE_LIBS} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokeqt)
+target_link_libraries(qtruby4 ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokeqt)
 
 set_target_properties(qtruby4 PROPERTIES VERSION 0.0.0 SOVERSION 0 PREFIX "")
-install(TARGETS qtruby4  DESTINATION ${RUBY_SITE_ARCH_DIR} )
 
+install(TARGETS qtruby4  DESTINATION ${RUBY_SITE_ARCH_DIR} )
 
 ########### next target ###############
 

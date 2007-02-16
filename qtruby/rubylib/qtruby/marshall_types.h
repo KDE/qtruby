@@ -199,6 +199,19 @@ class EmitSignal : public SigSlotBase {
 	bool cleanup();
 };
 
+class InvokeNativeSlot : public SigSlotBase {
+    QObject *_obj;
+    int _id;
+	VALUE * _result;
+ public:
+    InvokeNativeSlot(QObject *obj, int id, int items, VALUE args, VALUE * sp, VALUE * result);
+    Marshall::Action action();
+    Smoke::StackItem &item();
+	const char *mytype();
+	void invokeSlot();
+	void mainfunction();
+	bool cleanup();
+};
 
 class InvokeSlot : public SigSlotBase {
     VALUE _obj;
