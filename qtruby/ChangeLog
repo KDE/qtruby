@@ -1,3 +1,31 @@
+2007-02-17  Richard Dale  <rdale@foton.es>
+
+	* If a new Ruby class is created for a custom C++ QObject derived class,
+	  then create Ruby constants in the class for any enums defined via 
+	  Q_ENUMS which are in the same scope as the new class. For instance:
+
+		class TestObject : public QObject
+		{
+			Q_OBJECT
+			Q_ENUMS(Priority)
+			public:
+				enum Priority { High, Low, VeryHigh, VeryLow };
+
+		...
+
+		irb(main):001:0> app = Qt::Application.new(ARGV)
+		=> #<Qt::Application:0xb6aaaf58 objectName="irb">
+		irb(main):002:0> require 'testqobject'
+		=> true
+		irb(main):003:0> test = app.findChild(Qt::Object, "QtRuby TestObject")
+		=> #<TestObject:0xb6aa5184 objectName="QtRuby TestObject">
+		irb(main):004:0> TestObject::High
+		=> 0
+		irb(main):005:0> TestObject::Low
+		=> 1
+		irb(main):006:0> TestObject::VeryHigh
+		=> 2
+
 2007-02-16  Richard Dale  <rdale@foton.es>
 
 	* Thomas Moenicke fixed the qtruby cmake build so it works on

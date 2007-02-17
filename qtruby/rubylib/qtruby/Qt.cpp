@@ -590,6 +590,18 @@ set_obj_info(const char * className, smokeruby_object * o)
 
 			if (new_klass != Qnil) {
 				klass = new_klass;
+
+				for (int id = meta->enumeratorOffset(); id < meta->enumeratorCount(); id++) {
+					// If there are any enum keys with the same scope as the new class then
+					// add them
+					if (qstrcmp(meta->className(), meta->enumerator(id).scope()) == 0) {
+						for (int i = 0; i < meta->enumerator(id).keyCount(); i++) {
+							rb_define_const(	klass, 
+												meta->enumerator(id).key(i), 
+												INT2NUM(meta->enumerator(id).value(i)) );
+						}
+					}
+				}
 			}
 
 			// Add a Qt::Object.metaObject method which will do dynamic despatch on the
@@ -1789,42 +1801,43 @@ static QByteArray * name = 0;
 								VALUE qvariant = rb_funcall(self, rb_intern("property"), 1, rb_str_new2(*name));
 								return rb_funcall(qvariant, rb_intern("value"), 0);
 							}
-						} else if (argc == 2 && name->endsWith("=")) {
+						}
+
+						if (argc == 2 && name->endsWith("=")) {
 							name->replace("=", "");
 							if (meta->indexOfProperty(*name) != -1) {
 								VALUE qvariant = rb_funcall(self, rb_intern("qVariantFromValue"), 1, argv[1]);
 								return rb_funcall(self, rb_intern("setProperty"), 2, rb_str_new2(*name), qvariant);
 							}
-						} else {
-							int classId = o->smoke->idClass(meta->className());
-							// The class isn't in the Smoke lib..
-							while (classId == 0) {
-								// Assume the QObject has slots which aren't in the Smoke library, so try
-								// and call the slot directly
-								for (int id = meta->methodOffset(); id < meta->methodCount(); id++) {
-									if (meta->method(id).methodType() == QMetaMethod::Slot) {
-										QByteArray signature(meta->method(id).signature());
-										QByteArray methodName = signature.mid(0, signature.indexOf('('));
-	
-										// Don't check that the types of the ruby args match the c++ ones for now,
-										// only that the name and arg count is the same.
-										if (*name == methodName && signature.count(',') == (argc - 2)) {
-											VALUE args = rb_funcall(	qt_internal_module, 
-																		rb_intern("getMocArguments"), 
-																		2, 
-																		rb_str_new2(meta->method(id).typeName()), 
-																		rb_str_new2(meta->method(id).signature()) );
-										
-											VALUE result = Qnil;
-											InvokeNativeSlot slot(qobject, id, argc - 1, args, argv + 1, &result);
-											slot.next();
-											return result;
-										}
+						}
+
+						int classId = o->smoke->idClass(meta->className());
+						// The class isn't in the Smoke lib..
+						while (classId == 0) {
+							// Assume the QObject has slots which aren't in the Smoke library, so try
+							// and call the slot directly
+							for (int id = meta->methodOffset(); id < meta->methodCount(); id++) {
+								if (meta->method(id).methodType() == QMetaMethod::Slot) {
+									QByteArray signature(meta->method(id).signature());
+									QByteArray methodName = signature.mid(0, signature.indexOf('('));
+
+									// Don't check that the types of the ruby args match the c++ ones for now,
+									// only that the name and arg count is the same.
+									if (*name == methodName && signature.count(',') == (argc - 2)) {
+										VALUE args = rb_funcall(	qt_internal_module, 
+																	rb_intern("getMocArguments"), 
+																	2, 
+																	rb_str_new2(meta->method(id).typeName()), 
+																	rb_str_new2(meta->method(id).signature()) );									
+										VALUE result = Qnil;
+										InvokeNativeSlot slot(qobject, id, argc - 1, args, argv + 1, &result);
+										slot.next();
+										return result;
 									}
 								}
-								meta = meta->superClass();
-								classId = o->smoke->idClass(meta->className());
 							}
+							meta = meta->superClass();
+							classId = o->smoke->idClass(meta->className());
 						}
 					}
 					
