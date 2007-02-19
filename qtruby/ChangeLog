@@ -1,3 +1,7 @@
+2007-02-19  Richard Dale  <rdale@foton.es>
+
+	* Added inspect and pp methods for Qt::MetaEnums
+
 2007-02-17  Richard Dale  <rdale@foton.es>
 
 	* If a new Ruby class is created for a custom C++ QObject derived class,

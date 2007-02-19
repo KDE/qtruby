@@ -924,6 +924,28 @@ module Qt
 		def name(*args)
 			method_missing(:name, *args)
 		end
+
+		def keyValues()
+			res = []
+			for i in 0...keyCount()
+				if flag?
+					res.push "%s=0x%x" % [key(i), value(i)]
+				else
+					res.push "%s=%d" % [key(i), value(i)]
+				end
+			end
+			return res
+		end
+
+		def inspect
+			str = super
+			str.sub(/>$/, " scope=%s, name=%s, keyValues=Array (%d element(s))>" % [scope, name, keyValues.length])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, " scope=%s, name=%s, keyValues=Array (%d element(s))>" % [scope, name, keyValues.length])
+		end
 	end
 
 	class MetaMethod < Qt::Base
@@ -945,11 +967,11 @@ module Qt
 		def propertyNames(inherits = false)
 			res = []
 			if inherits
-				(0...propertyCount()).each do |p| 
+				for p in 0...propertyCount() 
 					res.push property(p).name
 				end
 			else
-				(propertyOffset()...propertyCount()).each do |p| 
+				for p in propertyOffset()...propertyCount()
 					res.push property(p).name
 				end
 			end
@@ -959,15 +981,17 @@ module Qt
 		def slotNames(inherits = false)
 			res = []
 			if inherits
-				(0...methodCount()).each do |m| 
+				for m in 0...methodCount()
 					if method(m).methodType == Qt::MetaMethod::Slot 
-						res.push method(m).signature
+						res.push "%s %s" % [method(m).typeName == "" ? "void" : method(m).typeName, 
+											method(m).signature]
 					end
 				end
 			else
-				(methodOffset()...methodCount()).each do |m| 
+				for m in methodOffset()...methodCount()
 					if method(m).methodType == Qt::MetaMethod::Slot 
-						res.push method(m).signature
+						res.push "%s %s" % [method(m).typeName == "" ? "void" : method(m).typeName, 
+											method(m).signature]
 					end
 				end
 			end
@@ -977,16 +1001,32 @@ module Qt
 		def signalNames(inherits = false)
 			res = []
 			if inherits
-				(0...methodCount()).each do |m| 
+				for m in 0...methodCount()
 					if method(m).methodType == Qt::MetaMethod::Signal 
-						res.push method(m).signature
+						res.push "%s %s" % [method(m).typeName == "" ? "void" : method(m).typeName, 
+											method(m).signature]
 					end
 				end
 			else
-				(methodOffset()...methodCount()).each do |m| 
+				for m in methodOffset()...methodCount()
 					if method(m).methodType == Qt::MetaMethod::Signal 
-						res.push method(m).signature
+						res.push "%s %s" % [method(m).typeName == "" ? "void" : method(m).typeName, 
+											method(m).signature]
 					end
+				end
+			end
+			return res
+		end
+
+		def enumerators(inherits = false)
+			res = []
+			if inherits
+				for e in 0...enumeratorCount()
+					res.push enumerator(e)
+				end
+			else
+				for e in enumeratorOffset()...enumeratorCount()
+					res.push enumerator(e)
 				end
 			end
 			return res
@@ -999,6 +1039,7 @@ module Qt
 			str << " propertyNames=Array (%d element(s))," % propertyNames.length unless propertyNames.length == 0
 			str << " signalNames=Array (%d element(s))," % signalNames.length unless signalNames.length == 0
 			str << " slotNames=Array (%d element(s))," % slotNames.length unless slotNames.length == 0
+			str << " enumerators=Array (%d element(s))," % enumerators.length unless enumerators.length == 0
 			str << " superClass=%s," % superClass.inspect unless superClass == nil
 			str.chop!
 			str << ">"
@@ -1011,6 +1052,7 @@ module Qt
 			str << "\n propertyNames=Array (%d element(s))," % propertyNames.length unless propertyNames.length == 0
 			str << "\n signalNames=Array (%d element(s))," % signalNames.length unless signalNames.length == 0
 			str << "\n slotNames=Array (%d element(s))," % slotNames.length unless slotNames.length == 0
+			str << "\n enumerators=Array (%d element(s))," % enumerators.length unless enumerators.length == 0
 			str << "\n superClass=%s," % superClass.inspect unless superClass == nil
 			str << "\n methodCount=%d," % methodCount
 			str << "\n methodOffset=%d," % methodOffset
