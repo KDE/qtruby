@@ -1,3 +1,10 @@
+2007-02-19  Richard Dale  <rdale@foton.es>
+
+	* Fixed a bug where the sort method of KDE::ListView and KDE::ListViewItem
+	  was no longer working, as the classes are 'Enumerable' and ruby was
+	  calling the ruby sort method instead. Thanks to kelko for reporting it
+	  on #kde-ruby.
+
 2006-11-21  Richard Dale  <rdale@foton.es>
 
 	* Made KDE::ListView, KDE::ListViewItem Enumerable with implementations
