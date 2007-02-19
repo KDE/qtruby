@@ -1,6 +1,11 @@
 2007-02-19  Richard Dale  <rdale@foton.es>
 
 	* Added inspect and pp methods for Qt::MetaEnums
+	* Qt::Variants can be constructed from ruby Dates, Times and DateTimes.
+	  Qt::Dates, Qt::Times and Qt::DateTimes can also be constructed from
+	  their ruby equivalents as a single arg. This makes it easier to
+	  intregrate Qt::AbstractItemModels with Rails ActiveRecord and 
+	  ActiveResource
 
 2007-02-17  Richard Dale  <rdale@foton.es>
 

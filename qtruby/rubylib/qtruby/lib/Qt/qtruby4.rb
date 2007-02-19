@@ -375,6 +375,15 @@ module Qt
 	end
 	
 	class Date < Qt::Base
+
+		def initialize(*args)
+			if args.size == 1 && args[0].class.name == "Date"
+				return super(args[0].year, args[0].month, args[0].day)
+			else
+				return super(*args)
+			end
+		end
+
 		def inspect
 			str = super
 			str.sub(/>$/, " %s>" % toString)
@@ -387,6 +396,15 @@ module Qt
 	end
 	
 	class DateTime < Qt::Base
+		def initialize(*args)
+			if args.size == 1 && args[0].class.name == "DateTime"
+				return super(	Qt::Date.new(args[0].year, args[0].month, args[0].day), 
+								Qt::Time.new(args[0].hour, args[0].min, args[0].sec) )
+			else
+				return super(*args)
+			end
+		end
+
 		def inspect
 			str = super
 			str.sub(/>$/, " %s>" % toString)
@@ -1522,6 +1540,14 @@ module Qt
 	end
 	
 	class Time < Qt::Base
+		def initialize(*args)
+			if args.size == 1 && args[0].class.name == "Time"
+				return super(args[0].hour, args[0].min, args[0].sec)
+			else
+				return super(*args)
+			end
+		end
+
 		def inspect
 			str = super
 			str.sub(/>$/, " %s>" % toString)
@@ -1642,6 +1668,19 @@ module Qt
 		Date = 14
 		Time = 15
 		DateTime = 16
+
+		def initialize(*args)
+			if args.size == 1 && args[0].class.name == "Date"
+				return super(Qt::Date.new(args[0]))
+			elsif args.size == 1 && args[0].class.name == "DateTime"
+				return super(Qt::DateTime.new(	Qt::Date.new(args[0].year, args[0].month, args[0].day), 
+												Qt::Time.new(args[0].hour, args[0].min, args[0].sec) ) )
+			elsif args.size == 1 && args[0].class.name == "Time"
+				return super(Qt::Time.new(args[0]))
+			else
+				return super(*args)
+			end
+		end
 
 		def to_a
 			return toStringList()
