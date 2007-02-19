@@ -600,6 +600,10 @@ module Qt
 				it += 1
 			end
 		end
+
+		def sort(*args)
+			method_missing(:sort, *args)
+		end
 	end
 
 	class ListViewItem < Qt::Base
@@ -611,6 +615,10 @@ module Qt
 				yield it.current
 				it += 1
 			end
+		end
+
+		def sort(*args)
+			method_missing(:sort, *args)
 		end
 
 		def inspect
