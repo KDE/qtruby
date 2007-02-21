@@ -1,5 +1,6 @@
 
 include_directories( ${CMAKE_SOURCE_DIR}/qtruby/rubylib/designer/rbuic/ruby/ )
+include_directories( ${CMAKE_SOURCE_DIR}/qtruby/rubylib/designer/rbuic/ )
 
 ########### next target ###############
 
