@@ -1670,7 +1670,9 @@ module Qt
 		DateTime = 16
 
 		def initialize(*args)
-			if args.size == 1 && args[0].class.name == "Date"
+			if args.size == 1 && args[0].nil?
+				return super()
+			elsif args.size == 1 && args[0].class.name == "Date"
 				return super(Qt::Date.new(args[0]))
 			elsif args.size == 1 && args[0].class.name == "DateTime"
 				return super(Qt::DateTime.new(	Qt::Date.new(args[0].year, args[0].month, args[0].day), 
