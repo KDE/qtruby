@@ -1,3 +1,10 @@
+2007-02-27  Richard Dale  <rdale@foton.es>
+
+	* Added marshallers for QwtArray<double> and QwtArray<int> 
+	  (ie QVector<int>)
+	* Added a fix from Knut Franke to make the QVector<double> marshaller
+	  work with any sort of Ruby number. Thanks Knut..
+
 2007-02-22  Richard Dale  <rdale@foton.es>
 
 	* Made 'Qt::Variant.new(nil)' a synonym for 'Qt::Variant.new'
@@ -8,7 +15,7 @@
 	* Qt::Variants can be constructed from ruby Dates, Times and DateTimes.
 	  Qt::Dates, Qt::Times and Qt::DateTimes can also be constructed from
 	  their ruby equivalents as a single arg. This makes it easier to
-	  intregrate Qt::AbstractItemModels with Rails ActiveRecord and 
+	  integrate Qt::AbstractItemModels with Rails ActiveRecord and 
 	  ActiveResource
 
 2007-02-17  Richard Dale  <rdale@foton.es>

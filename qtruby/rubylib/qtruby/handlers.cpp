@@ -746,6 +746,7 @@ static void marshall_charP(Marshall *m) {
     }
 }
 */
+
 void marshall_ucharP(Marshall *m) {
   marshall_it<unsigned char *>(m);
 }
@@ -1364,28 +1365,26 @@ void marshall_QListqreal(Marshall *m) {
 }
 
 void marshall_QVectorqreal(Marshall *m) {
-    switch(m->action()) {
-      case Marshall::FromVALUE:
+	switch(m->action()) {
+	case Marshall::FromVALUE:
 	{
-	    VALUE list = *(m->var());
-	    if (TYPE(list) != T_ARRAY) {
-		m->item().s_voidp = 0;
-		break;
-	    }
-	    int count = RARRAY(list)->len;
-	    QVector<qreal> *valuelist = new QVector<qreal>;
-	    long i;
-	    for(i = 0; i < count; i++) {
-		VALUE item = rb_ary_entry(list, i);
-		if(TYPE(item) != T_FLOAT) {
-		    valuelist->append(0.0);
-		    continue;
-		}
-		valuelist->append(NUM2DBL(item));
-	    }
+		VALUE list = *(m->var());
 
-	    m->item().s_voidp = valuelist;
-	    m->next();
+		list = rb_check_array_type(*(m->var()));
+		if (NIL_P(list)) {
+			m->item().s_voidp = 0;
+			break;
+		}
+
+		int count = RARRAY(list)->len;
+		QVector<qreal> *valuelist = new QVector<qreal>;
+		long i;
+		for (i = 0; i < count; i++) {
+			valuelist->append(NUM2DBL(rb_ary_entry(list, i)));
+		}
+
+		m->item().s_voidp = valuelist;
+		m->next();
 
 		if (!m->type().isConst()) {
 			rb_ary_clear(list);
@@ -1403,7 +1402,7 @@ void marshall_QVectorqreal(Marshall *m) {
 		}
 	}
 	break;
-      case Marshall::ToVALUE:
+	case Marshall::ToVALUE:
 	{
 	    QVector<qreal> *valuelist = (QVector<qreal>*)m->item().s_voidp;
 	    if(!valuelist) {
@@ -1418,6 +1417,75 @@ void marshall_QVectorqreal(Marshall *m) {
 				++i ) 
 		{
 		    rb_ary_push(av, rb_float_new((qreal)*i));
+		}
+		
+	    *(m->var()) = av;
+		m->next();
+
+		if (m->cleanup()) {
+			delete valuelist;
+		}
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
+    }
+}
+
+void marshall_QVectorint(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE:
+	{
+		VALUE list = *(m->var());
+
+		list = rb_check_array_type(*(m->var()));
+		if (NIL_P(list)) {
+			m->item().s_voidp = 0;
+			break;
+		}
+
+		int count = RARRAY(list)->len;
+		QVector<int> *valuelist = new QVector<int>;
+		long i;
+		for (i = 0; i < count; i++) {
+			valuelist->append(NUM2INT(rb_ary_entry(list, i)));
+		}
+
+		m->item().s_voidp = valuelist;
+		m->next();
+
+		if (!m->type().isConst()) {
+			rb_ary_clear(list);
+	
+			for (	QVector<int>::iterator i = valuelist->begin(); 
+					i != valuelist->end(); 
+					++i ) 
+			{
+				rb_ary_push(list, INT2NUM((int)*i));
+			}
+		}
+
+		if (m->cleanup()) {
+			delete valuelist;
+		}
+	}
+	break;
+	case Marshall::ToVALUE:
+	{
+	    QVector<int> *valuelist = (QVector<int>*)m->item().s_voidp;
+	    if(!valuelist) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+
+	    VALUE av = rb_ary_new();
+
+		for (	QVector<int>::iterator i = valuelist->begin(); 
+				i != valuelist->end(); 
+				++i ) 
+		{
+		    rb_ary_push(av, INT2NUM((int)*i));
 		}
 		
 	    *(m->var()) = av;
@@ -2165,6 +2233,10 @@ TypeHandler Qt_handlers[] = {
     { "signed int&", marshall_it<int *> },
     { "int&", marshall_it<int *> },
     { "int*", marshall_it<int *> },
+    { "double&", marshall_it<double *> },
+    { "double*", marshall_it<double *> },
+    { "qreal&", marshall_it<double *> },
+    { "qreal*", marshall_it<double *> },
     { "qint32&", marshall_it<int *> },
     { "bool&", marshall_it<bool *> },
     { "bool*", marshall_it<bool *> },
@@ -2204,6 +2276,12 @@ TypeHandler Qt_handlers[] = {
     { "QList<QUrl>&", marshall_QUrlList },
     { "QVector<qreal>", marshall_QVectorqreal },
     { "QVector<qreal>&", marshall_QVectorqreal },
+    { "QwtArray<double>", marshall_QVectorqreal },
+    { "QwtArray<double>&", marshall_QVectorqreal },
+    { "QVector<int>", marshall_QVectorint },
+    { "QVector<int>&", marshall_QVectorint },
+    { "QwtArray<int>", marshall_QVectorint },
+    { "QwtArray<int>&", marshall_QVectorint },
     { "QVector<QPointF>", marshall_QPointFVector },
     { "QVector<QPointF>&", marshall_QPointFVector },
     { "QVector<QPoint>", marshall_QPointVector },
