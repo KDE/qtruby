@@ -1536,7 +1536,7 @@ qabstractitemmodel_createindex(int argc, VALUE * argv, VALUE self)
 				smokeruby_object  * result = alloc_smokeruby_object(	true, 
 																		o->smoke, 
 																		o->smoke->idClass("QModelIndex"), 
-																		new QModelIndex(*((QModelIndex*) stack[0].s_voidp)) );
+																		stack[0].s_voidp );
 
 				return set_obj_info("Qt::ModelIndex", result);
 			}
