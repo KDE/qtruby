@@ -1,3 +1,10 @@
+2007-03-06  Richard Dale  <rdale@foton.es>
+
+	* Call rb_gc_mark() on the internalPointer VALUE within a Qt::ModelIndex 
+	  to prevent it being GC'd too early
+	* Added 'double&' and 'double*' marshallers
+	* Fixed memory leak when creating new Qt::ModelIndexes
+
 2007-02-27  Richard Dale  <rdale@foton.es>
 
 	* Added marshallers for QwtArray<double> and QwtArray<int> 

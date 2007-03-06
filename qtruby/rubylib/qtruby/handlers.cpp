@@ -225,6 +225,14 @@ smokeruby_mark(void * p)
 		}
 #endif
 
+		if (qstrcmp(className, "QModelIndex") == 0) {
+			QModelIndex * qmodelindex = (QModelIndex *) o->ptr;
+			obj = (VALUE) qmodelindex->internalPointer();
+			rb_gc_mark(obj);
+
+			return;
+		}
+
 		if (isDerivedFromByName(o->smoke, className, "QObject")) {
 			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
 			// Only mark the QObject tree if the current item doesn't have a parent.
@@ -770,6 +778,42 @@ void marshall_ucharP(Marshall *m) {
     }
 }
 */
+static void marshall_doubleR(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE:
+	{
+		VALUE rv = *(m->var());
+		double * d = new double;
+		*d = NUM2DBL(rv);
+		m->item().s_voidp = d;
+		m->next();
+		if (m->cleanup() && m->type().isConst()) {
+			delete d;
+		} else {
+			m->item().s_voidp = new double((double)NUM2DBL(rv));
+		}
+	}
+	break;
+	case Marshall::ToVALUE:
+	{
+		double *dp = (double*)m->item().s_voidp;
+	    VALUE rv = *(m->var());
+		if (dp == 0) {
+			rv = Qnil;
+			break;
+		}
+		*(m->var()) = rb_float_new(*dp);
+		m->next();
+		if (!m->type().isConst()) {
+			*dp = NUM2DBL(*(m->var()));
+		}
+	}
+	break;
+	default:
+		m->unsupported();
+		break;
+	}
+}
 
 static const char * KCODE = 0;
 static QTextCodec *codec = 0;
@@ -2233,10 +2277,10 @@ TypeHandler Qt_handlers[] = {
     { "signed int&", marshall_it<int *> },
     { "int&", marshall_it<int *> },
     { "int*", marshall_it<int *> },
-    { "double&", marshall_it<double *> },
-    { "double*", marshall_it<double *> },
-    { "qreal&", marshall_it<double *> },
-    { "qreal*", marshall_it<double *> },
+    { "double&", marshall_doubleR },
+    { "double*", marshall_doubleR },
+    { "qreal&", marshall_doubleR },
+    { "qreal*", marshall_doubleR },
     { "qint32&", marshall_it<int *> },
     { "bool&", marshall_it<bool *> },
     { "bool*", marshall_it<bool *> },
