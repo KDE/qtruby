@@ -190,12 +190,8 @@ static char* ruby_to_primitive<char *>(VALUE rv)
 {
 	if(rv == Qnil)
 		return 0;
-	
-	int len = RSTRING(rv)->len;
-	char* mem = (char*) malloc(len+1);
-	memcpy(mem, StringValuePtr(rv), len);
-	mem[len] ='\0';
-	return (char*) mem;
+
+	return StringValuePtr(rv);
 }
 
 template <>

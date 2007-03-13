@@ -1,3 +1,15 @@
+2007-03-13  Richard Dale  <rdale@foton.es>
+
+	* When a ruby string was converted to a 'char *' arg, a copy was malloc'd
+	  and then never freed. This behaviour was added to fix a problem with the
+	  small number of methods that 'took ownership' of the string and expected
+	  it to stay around after the method call. However, it introduces a 
+	  memory leak for the 95% of methods that don't need it, and also means
+	  that if the 'char *' is changed during the method call, the changes 
+	  aren't reflected in the ruby string. Thanks to Jan Wedekind for the
+	  discussion leading up to changing the code. Any methods where this 
+	  behaviour is wrong will now need to be special cased.
+
 2007-03-06  Richard Dale  <rdale@foton.es>
 
 	* Call rb_gc_mark() on the internalPointer VALUE within a Qt::ModelIndex 

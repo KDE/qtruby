@@ -46,8 +46,7 @@ static void marshall_to_ruby(Marshall *m)
 template <> 
 static void marshall_from_ruby<char *>(Marshall *m) 
 {
-	VALUE obj = *(m->var());
-	m->item().s_voidp = ruby_to_primitive<char*>(obj);
+	m->item().s_voidp = ruby_to_primitive<char*>(*(m->var()));
 }
 
 template <>

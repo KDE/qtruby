@@ -721,63 +721,10 @@ static void marshall_unknown(Marshall *m) {
     m->unsupported();
 }
 
-static void marshall_charP(Marshall *m) {
-  marshall_it<char *>(m);
-}
-/*
-	switch(m->action()) {
-      case Marshall::FromVALUE:
-	{
-	    VALUE rv = *(m->var());
-	    if(rv == Qnil) {
-                m->item().s_voidp = 0;
-                break;
-	    }
-		
-        m->item().s_voidp = StringValuePtr(rv);
-	}
-	break;
-      case Marshall::ToVALUE:
-	{
-	    char *p = (char*)m->item().s_voidp;
-	    if(p)
-                *(m->var()) = rb_str_new2(p);
-	    else
-                *(m->var()) = Qnil;
-	    if(m->cleanup())
-		delete[] p;
-	}
-	break;
-      default:
-	m->unsupported();
-	break;
-    }
-}
-*/
-
 void marshall_ucharP(Marshall *m) {
   marshall_it<unsigned char *>(m);
 }
-/*
 
-    switch(m->action()) {
-      case Marshall::FromVALUE:
-	{
-	    VALUE rv = *(m->var());
-	    if(rv == Qnil) {
-		m->item().s_voidp = 0;
-		break;
-	    }
-        m->item().s_voidp = StringValuePtr(rv);
-	}
-	break;
-      case Marshall::ToVALUE:
-      default:
-	m->unsupported();
-	break;
-    }
-}
-*/
 static void marshall_doubleR(Marshall *m) {
 	switch(m->action()) {
 	case Marshall::FromVALUE:
@@ -932,20 +879,6 @@ qchar_to_s(VALUE self)
 	QString s(*qchar);
 	return rstringFromQString(&s);
 }
-
-#if 0
-static const char *not_ascii(const char *s, uint &len)
-{
-    bool r = false;
-    for(; *s ; s++, len--)
-      if((uint)*s > 0x7F)
-      {
-        r = true;
-        break;
-      }
-    return r ? s : 0L;
-}
-#endif
 
 void marshall_QDBusVariant(Marshall *m) {
 	switch(m->action()) {
