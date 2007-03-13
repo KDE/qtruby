@@ -211,7 +211,7 @@ module KDE
 				
 				# Get the functions() for this dcop ref and 
 				# cache method_name => full_type_signature in a hash
-				if @functions.nil?
+				if !defined(@functions) || @functions.nil?
 					@functions = {}
 					funcs = call("functions()")
 					if funcs.nil?
