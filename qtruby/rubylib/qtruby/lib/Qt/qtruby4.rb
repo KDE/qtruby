@@ -679,49 +679,49 @@ module Qt
 		end
 	end
 
-	class QGraphicsEllipseItem < Qt::Base 
+	class GraphicsEllipseItem < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
 		end
 	end
 
-	class QGraphicsItem < Qt::Base 
+	class GraphicsItem < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
 		end
 	end
 
-	class QGraphicsItemGroup < Qt::Base 
+	class GraphicsItemGroup < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
 		end
 	end
 
-	class QGraphicsLineItem < Qt::Base 
+	class GraphicsLineItem < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
 		end
 	end
 
-	class QGraphicsPathItem < Qt::Base 
+	class GraphicsPathItem < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
 		end
 	end
 
-	class QGraphicsPixmapItem < Qt::Base 
+	class GraphicsPixmapItem < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
 		end
 	end
 
-	class QGraphicsPolygonItem < Qt::Base 
+	class GraphicsPolygonItem < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
 		end
 	end
 
-	class QGraphicsRectItem < Qt::Base 
+	class GraphicsRectItem < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
 		end
@@ -757,13 +757,13 @@ module Qt
 		end
 	end
 
-	class QGraphicsSimpleTextItem < Qt::Base 
+	class GraphicsSimpleTextItem < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
 		end
 	end
 
-	class QGraphicsTextItem < Qt::Base 
+	class GraphicsTextItem < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
 		end

@@ -1,3 +1,9 @@
+2007-03-17  Richard Dale  <rdale@foton.es>
+
+	* The code to allow the type() method to be used for Qt::GraphicsItem 
+	  classes had the wrong names for the classes
+	* Improved the resolution of QGraphicsItem classes in resolve_classname()
+
 2007-03-13  Richard Dale  <rdale@foton.es>
 
 	* When a ruby string was converted to a 'char *' arg, a copy was malloc'd

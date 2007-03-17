@@ -533,6 +533,32 @@ resolve_classname(Smoke* smoke, int classId, void * ptr)
 
 			meta = meta->superClass();
 		}
+	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QGraphicsItem")) {
+		QGraphicsItem * item = (QGraphicsItem *) smoke->cast(ptr, classId, smoke->idClass("QGraphicsItem"));
+		switch (item->type()) {
+		case 1:
+			return "Qt::QGraphicsItem";
+		case 2:
+			return "Qt::QGraphicsPathItem";
+		case 3:
+			return "Qt::QGraphicsRectItem";
+		case 4:
+			return "Qt::QGraphicsEllipseItem";
+		case 5:
+			return "Qt::QGraphicsPolygonItem";
+		case 6:
+			return "Qt::QGraphicsLineItem";
+		case 7:
+			return "Qt::QGraphicsPixmapItem";
+		case 8:
+			return "Qt::QGraphicsTextItem";
+		case 9:
+			return "Qt::QGraphicsSimpleTextItem";
+		case 10:
+			return "Qt::QGraphicsItemGroup";
+		default:
+			return "Qt::QGraphicsItem";
+		}
 	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QLayoutItem")) {
 		QLayoutItem * item = (QLayoutItem *) smoke->cast(ptr, classId, smoke->idClass("QLayoutItem"));
 		if (item->widget() != 0) {
