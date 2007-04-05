@@ -24,7 +24,7 @@ class CannonField < Qt::Widget
         setPalette( Qt::Palette.new( Qt::Color.new( 250, 250, 200) ) )
         setAutoFillBackground(true)
         newTarget()
-        @barrelRect = Qt::Rect.new(33, -4, 15, 8)
+        @barrelRect = Qt::Rect.new(30, -5, 20, 10)
     end
 
     def angle() 
@@ -71,7 +71,7 @@ class CannonField < Qt::Widget
         @timerCount = 0
         @shootAngle = @currentAngle
         @shootForce = @currentForce
-        @autoShootTimer.start( 50 )
+        @autoShootTimer.start( 25 )
         emit canShoot( false )
     end
 

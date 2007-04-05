@@ -12,21 +12,24 @@ class LCDRange < Qt::Widget
     
     def init
         lcd = Qt::LCDNumber.new(2)
-        @slider = Qt::Slider.new(Qt::Horizontal)
-        @slider.setRange(0, 99)
-        @slider.value = 0
+        @slider = Qt::Slider.new(Qt::Horizontal) do |s|
+            s.setRange(0, 99)
+            s.value = 0
+        end
         
-        @label = Qt::Label.new
-        @label.alignment = Qt::AlignHCenter.to_i | Qt::AlignTop.to_i
-        @label.setSizePolicy(Qt::SizePolicy::Preferred, Qt::SizePolicy::Fixed)
+        @label = Qt::Label.new do |l|
+            l.alignment = Qt::AlignHCenter.to_i | Qt::AlignTop.to_i
+            l.setSizePolicy(Qt::SizePolicy::Preferred, Qt::SizePolicy::Fixed)
+        end
             
         connect(@slider, SIGNAL('valueChanged(int)'), lcd, SLOT('display(int)'))
         connect(@slider, SIGNAL('valueChanged(int)'), SIGNAL('valueChanged(int)'))
         
-        layout = Qt::VBoxLayout.new
-        layout.addWidget(lcd)
-        layout.addWidget(@slider)
-        setLayout(layout)
+        self.layout = Qt::VBoxLayout.new do |l|
+            l.addWidget(lcd)
+            l.addWidget(@slider)
+            l.addWidget(@label)
+        end
         
         setFocusProxy(@slider)
     end

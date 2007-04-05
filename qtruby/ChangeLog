@@ -1,3 +1,9 @@
+2007-04-05  Richard Dale  <rdale@foton.es>
+
+	* Add some marshallers for the QVector types in the new Qt 4.3 QXmlStream*
+	  classes
+	* Improved the cannon game t14 code
+
 2007-03-17  Richard Dale  <rdale@foton.es>
 
 	* The code to allow the type() method to be used for Qt::GraphicsItem 

@@ -72,11 +72,15 @@ class GameBoard < Qt::Widget
         leftLayout.addWidget( angle )
         leftLayout.addWidget( force )
 
+        cannonLayout = Qt::VBoxLayout.new
+        cannonLayout.addWidget(@cannonField)
+        cannonBox.layout = cannonLayout
+
         gridLayout = Qt::GridLayout.new
         gridLayout.addWidget( quit, 0, 0 )
         gridLayout.addLayout(topLayout, 0, 1)
         gridLayout.addLayout(leftLayout, 1, 0)
-        gridLayout.addWidget( @cannonField, 1, 1, 2, 1 )
+        gridLayout.addWidget( cannonBox, 1, 1, 2, 1 )
         gridLayout.setColumnStretch( 1, 10 )
 		setLayout(gridLayout)
     
