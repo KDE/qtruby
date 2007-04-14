@@ -1,4 +1,5 @@
 
-add_subdirectory( rubylib )
+add_subdirectory( src )
+add_subdirectory( tools )
 add_subdirectory( bin )
 
