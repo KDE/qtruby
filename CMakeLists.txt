@@ -1,10 +1,15 @@
+macro_optional_find_package(RUBY)
+
+#####################################################################
+# QtRuby
+
+if(RUBY_EXECUTABLE)
+   add_subdirectory( qtruby )
+   #add_subdirectory( korundum )
+endif(RUBY_EXECUTABLE)
+
 #####################################################################
 # Kross Ruby
-#
-# Install examples:
-#   cmake -DCMAKE_INSTALL_PREFIX=/opt/kde4/ ..
-#   cmake -DCMAKE_INSTALL_PREFIX=/opt/kde4/ -DENABLE_KROSSRUBY=off
-#   cmake -DCMAKE_INSTALL_PREFIX=/opt/kde4/ -DCMAKE_BUILD_TYPE=debugfull -DKOFFICE_ENABLE_SCRIPTING=y -DRUBY_INCLUDE_PATH=/usr/lib/ruby/1.8/i486-linux/ -DRUBY_LIBRARY=/usr/lib/libruby1.8.so ..
 
 OPTION(ENABLE_KROSSRUBY "build Ruby scripting library (Kross)" ON)
 #OPTION(ENABLE_KROSSRUBY "build Ruby scripting library (Kross)" OFF)
