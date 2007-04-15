@@ -1,22 +1,34 @@
 macro_optional_find_package(RUBY)
 
 #####################################################################
-# QtRuby
+# QtRuby/Korundum
 
+OPTION(ENABLE_QTRUBY "build QtRuby" ON)
+OPTION(ENABLE_KORUNDUM "build Korundum" OFF)
+
+set(QTRUBY_ENABLED "no")
+set(KORUNDUM_ENABLED "no")
 if(RUBY_EXECUTABLE)
-   add_subdirectory( qtruby )
-   #add_subdirectory( korundum )
+    if(ENABLE_QTRUBY)
+        add_subdirectory( qtruby )
+        set(QTRUBY_ENABLED "yes")
+    endif(ENABLE_QTRUBY)
+    if(ENABLE_KORUNDUM)
+        add_subdirectory( korundum )
+        set(KORUNDUM_ENABLED "yes")
+    endif(ENABLE_KORUNDUM)
 endif(RUBY_EXECUTABLE)
+message(STATUS "Build QtRuby... " ${QTRUBY_ENABLED})
+message(STATUS "Build Korundum... " ${KORUNDUM_ENABLED})
 
 #####################################################################
 # Kross Ruby
 
-OPTION(ENABLE_KROSSRUBY "build Ruby scripting library (Kross)" ON)
-#OPTION(ENABLE_KROSSRUBY "build Ruby scripting library (Kross)" OFF)
+OPTION(ENABLE_KROSSRUBY "build Kross Ruby scripting library" ON)
+#OPTION(ENABLE_KROSSRUBY "build Kross Ruby scripting library" OFF)
 
 set(KROSSRUBY_ENABLED "no")
 if(ENABLE_KROSSRUBY)
-    macro_optional_find_package(RUBY)
     if (RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_PATH)
         EXECUTE_PROCESS(COMMAND ${RUBY_EXECUTABLE} -r mkmf -e "exit(have_func('rb_hash_foreach') ? 0 : 1)" RESULT_VARIABLE RUBY_HASH_FOREACH OUTPUT_QUIET)
         if (RUBY_HASH_FOREACH EQUAL 0)
@@ -39,4 +51,4 @@ if(ENABLE_KROSSRUBY)
     message(STATUS "Ruby Libraries: " ${RUBY_LIBRARY})
     message(STATUS "Ruby Include Path: " ${RUBY_INCLUDE_PATH})
 endif(ENABLE_KROSSRUBY)
-message(STATUS "Compile Kross Ruby... " ${KROSSRUBY_ENABLED})
+message(STATUS "Build Kross Ruby... " ${KROSSRUBY_ENABLED})
