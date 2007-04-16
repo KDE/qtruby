@@ -215,6 +215,23 @@ smokeruby_mark(void * p)
 			return;
 		}
 
+		if (isDerivedFromByName(o->smoke, className, "QStandardItemModel")) {
+			QStandardItemModel * model = (QStandardItemModel *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QStandardItemModel"));
+			for (int row = 0; row < model->rowCount(); row++) {
+				for (int column = 0; column < model->columnCount(); column++) {
+					QStandardItem * item = model->item(row, column);
+					if (item != 0) {
+						obj = getPointerObject(item);
+						if (obj != Qnil) {
+							if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p", "QStandardItem", item, (void*)obj);
+							rb_gc_mark(obj);
+						}
+					}
+				}
+			}
+			return;
+		}
+
 #if QT_VERSION >= 0x40200
 		if (isDerivedFromByName(o->smoke, className, "QGraphicsScene")) {
 			QGraphicsScene * scene = (QGraphicsScene *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsScene"));
