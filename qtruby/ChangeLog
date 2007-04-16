@@ -10,6 +10,11 @@
 	  classes had the wrong names for the classes
 	* Improved the resolution of QGraphicsItem classes in resolve_classname()
 
+2007-04-16  Richard Dale  <rdale@foton.es>
+
+	* Added some marshallers for Qt 4.3 classes
+	* Fixed bug in deleting Qt::StandardItems when they had a parent or model
+
 2007-03-13  Richard Dale  <rdale@foton.es>
 
 	* When a ruby string was converted to a 'char *' arg, a copy was malloc'd

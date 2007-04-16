@@ -51,6 +51,10 @@
 
 #if QT_VERSION >= 0x40300
 #include <QtXml/qxmlstream.h>
+#include <QtGui/qmdisubwindow.h>
+#include <QtNetwork/qsslcertificate.h>
+#include <QtNetwork/qsslerror.h>
+#include <QtNetwork/qsslcipher.h>
 #endif
 
 #include "smoke.h"
@@ -281,18 +285,12 @@ smokeruby_free(void * p)
 			free_smokeruby_object(o);
 			return;
 		}
-//	} else if (qstrcmp(className, "QIconViewItem") == 0) {
-//		Q3IconViewItem * item = (Q3IconViewItem *) o->ptr;
-//		if (item->iconView() != 0) {
-//			free_smokeruby_object(o);
-//			return;
-//		}
-//	} else if (qstrcmp(className, "QCheckListItem") == 0) {
-//		Q3CheckListItem * item = (Q3CheckListItem *) o->ptr;
-//		if (item->parent() != 0 || item->listView() != 0) {
-//			free_smokeruby_object(o);
-//			return;
-//		}
+	} else if (isDerivedFromByName(o->smoke, className, "QStandardItem")) {
+		QStandardItem * item = (QStandardItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QStandardItem"));
+		if (item->model() != 0 || item->parent() != 0) {
+			free_smokeruby_object(o);
+			return;
+		}
 	} else if (qstrcmp(className, "QListWidgetItem") == 0) {
 		QListWidgetItem * item = (QListWidgetItem *) o->ptr;
 		if (item->listWidget() != 0) {
@@ -2075,6 +2073,10 @@ DEF_LIST_MARSHALLER( QStandardItemList, QList<QStandardItem*>, QStandardItem )
 DEF_LIST_MARSHALLER( QUndoStackList, QList<QUndoStack*>, QUndoStack )
 #endif
 
+#if QT_VERSION >= 0x40300
+DEF_LIST_MARSHALLER( QMdiSubWindowList, QList<QMdiSubWindow*>, QMdiSubWindow )
+#endif
+
 template <class Item, class ItemList, const char *ItemSTR >
 void marshall_ValueListItem(Marshall *m) {
 	switch(m->action()) {
@@ -2215,6 +2217,9 @@ DEF_VALUELIST_MARSHALLER( QRectFVector, QVector<QRectF>, QRectF )
 DEF_VALUELIST_MARSHALLER( QXmlStreamEntityDeclarations, QVector<QXmlStreamEntityDeclaration>, QXmlStreamEntityDeclaration )
 DEF_VALUELIST_MARSHALLER( QXmlStreamNamespaceDeclarations, QVector<QXmlStreamNamespaceDeclaration>, QXmlStreamNamespaceDeclaration )
 DEF_VALUELIST_MARSHALLER( QXmlStreamNotationDeclarations, QVector<QXmlStreamNotationDeclaration>, QXmlStreamNotationDeclaration )
+DEF_VALUELIST_MARSHALLER( QSslCertificateList, QList<QSslCertificate>, QSslCertificate )
+DEF_VALUELIST_MARSHALLER( QSslCipherList, QList<QSslCipher>, QSslCipher )
+DEF_VALUELIST_MARSHALLER( QSslErrorList, QList<QSslError>, QSslError )
 #endif
 
 TypeHandler Qt_handlers[] = {
@@ -2351,6 +2356,12 @@ TypeHandler Qt_handlers[] = {
     { "QXmlStreamEntityDeclarations", marshall_QXmlStreamEntityDeclarations },
     { "QXmlStreamNamespaceDeclarations", marshall_QXmlStreamNamespaceDeclarations },
     { "QXmlStreamNotationDeclarations", marshall_QXmlStreamNotationDeclarations },
+    { "QList<QMdiSubWindow*>", marshall_QMdiSubWindowList },
+    { "QList<QSslCertificate>", marshall_QSslCertificateList },
+    { "QList<QSslCertificate>&", marshall_QSslCertificateList },
+    { "QList<QSslCipher>", marshall_QSslCipherList },
+    { "QList<QSslCipher>&", marshall_QSslCipherList },
+    { "QList<QSslError>&", marshall_QSslErrorList },
 #endif
     { 0, 0 }
 };
