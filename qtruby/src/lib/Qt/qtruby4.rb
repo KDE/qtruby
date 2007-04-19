@@ -795,7 +795,11 @@ module Qt
 
 	class HttpRequestHeader < Qt::Base
 		def method(*args)
-			method_missing(:method, *args)
+			if args.length == 1
+				super(*args)
+			else
+				method_missing(:method, *args)
+			end
 		end
 	end
 
@@ -973,10 +977,12 @@ module Qt
 	end
 
 	class MetaObject < Qt::Base
-		alias_method :_method, :method
-
 		def method(*args)
-			method_missing(:method, *args)
+            if args.length == 1 && args[0].kind_of?(Symbol)
+				super(*args)
+			else
+				method_missing(:method, *args)
+			end
 		end
 
 		# Add three methods, 'propertyNames()', 'slotNames()' and 'signalNames()'
@@ -2094,11 +2100,11 @@ module Qt
 			puts "      #{typename} (#{argtype})" if debug_level >= DebugLevel::High
 			if argtype == 'i'
 				if typename =~ /^int&?$|^signed int&?$|^signed$|^qint32&?$|^quint32&?$/
-					return 1
+					return 2
 				elsif typename =~ /^(?:short|ushort|unsigned short int|uchar|uint|long|ulong|unsigned long int|unsigned|float|double|WId|Q_PID|^quint16&?$|^qint16&?$)$/
-					return 0
+					return 1
 				elsif typename =~ /^(quint|qint|qulong|qlong|qreal)/
-					return 0
+					return 1
 				else 
 					t = typename.sub(/^const\s+/, '')
 					t.sub!(/[&*]$/, '')

@@ -145,6 +145,28 @@ mark_qtreewidgetitem_children(QTreeWidgetItem * item)
 }
 
 void
+mark_qstandarditem_children(QStandardItem * item)
+{
+	VALUE obj;
+
+	for (int row = 0; row < item->rowCount(); row++) {
+		for (int column = 0; column < item->columnCount(); column++) {
+			QStandardItem * child = item->child(row, column);
+			if (child != 0) {
+				if (child->hasChildren()) {
+					mark_qstandarditem_children(child);
+				}
+				obj = getPointerObject(child);
+				if (obj != Qnil) {
+					if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p", "QStandardItem", item, (void*)obj);
+					rb_gc_mark(obj);
+				}
+			}
+		}
+	}
+}
+
+void
 smokeruby_mark(void * p)
 {
 	VALUE obj;
@@ -221,6 +243,9 @@ smokeruby_mark(void * p)
 				for (int column = 0; column < model->columnCount(); column++) {
 					QStandardItem * item = model->item(row, column);
 					if (item != 0) {
+						if (item->hasChildren()) {
+							mark_qstandarditem_children(item);
+						}
 						obj = getPointerObject(item);
 						if (obj != Qnil) {
 							if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p", "QStandardItem", item, (void*)obj);

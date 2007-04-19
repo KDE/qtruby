@@ -151,7 +151,7 @@ class HttpWindow < Qt::Dialog
 	                                 tr("Download failed: %s." %
 	                                    @http.errorString))
 	    else
-	        fileName = Qt::FileInfo(Qt::Url.new(@urlLineEdit.text).path).fileName
+	        fileName = Qt::FileInfo.new(Qt::Url.new(@urlLineEdit.text).path).fileName
 	        @statusLabel.text = tr("Downloaded %s to current directory." % fileName)
 	    end
 	
