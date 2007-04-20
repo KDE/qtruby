@@ -2077,7 +2077,7 @@ module Qt
 			else
 				now = classname
 			end
-			# puts "normalize_classname = was::#{classname}, now::#{now}"
+#			puts "normalize_classname = was::#{classname}, now::#{now}"
 			now
 		end
 

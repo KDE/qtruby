@@ -2740,14 +2740,14 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
     char *name = StringValuePtr(name_value);
     VALUE result = rb_ary_new();
     Smoke::Index meth = qt_Smoke->findMethod(c, name);
-#ifdef DEBUG
+//#ifdef DEBUG
     if (do_debug & qtdb_calls) qWarning("DAMNIT on %s::%s => %d", c, name, meth);
-#endif
+//#endif
     if(!meth) {
     	meth = qt_Smoke->findMethod("QGlobalSpace", name);
-#ifdef DEBUG
+//#ifdef DEBUG
     if (do_debug & qtdb_calls) qWarning("DAMNIT on QGlobalSpace::%s => %d", name, meth);
-#endif
+//#endif
 	}
 	
     if(!meth) {
@@ -2768,9 +2768,9 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
 	    	Smoke::Method &methodRef = qt_Smoke->methods[qt_Smoke->ambiguousMethodList[i]];
 			if ((methodRef.flags & Smoke::mf_internal) == 0) {
 				rb_ary_push(result, INT2NUM(qt_Smoke->ambiguousMethodList[i]));
-#ifdef DEBUG
+//#ifdef DEBUG
 				if (do_debug & qtdb_calls) qWarning("Ambiguous Method %s::%s => %d", c, name, qt_Smoke->ambiguousMethodList[i]);
-#endif
+//#endif
 
 			}
 		i++;

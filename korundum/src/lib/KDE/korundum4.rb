@@ -18,20 +18,23 @@
 =end
 
 module KDE
-	
- 	class CmdLineArgs
-		def self.init(*k)
-			if k.length > 0 and k[0].kind_of?(Array)
+	class CmdLineArgs < Qt::Base
+	def CmdLineArgs.init(*k)
+		if k.length > 0
+			if k[0].kind_of? Array
 				# If init() is passed an array as the first argument, assume it's ARGV.
 				# Then convert to a pair of args 'ARGV.length+1, [$0]+ARGV'
 				array = k.shift
 				super(*([array.length+1] + [[$0] + array] + k))
-			else
-				super
+			elsif k[0].kind_of? KDE::AboutData
+				super(1, [$0], k[0])
 			end
+		else
+			super
 		end
 	end
-	
+	end
+
 	class MainWindow
 		# A sane alternative to the strange looking C++ template version,
 		# this takes a variable number of ruby args as classes to restore
