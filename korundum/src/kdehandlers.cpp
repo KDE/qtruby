@@ -34,16 +34,19 @@
 #include <kparts/plugin.h>
 #include <kaboutdata.h>
 #include <karchive.h>
-#if KDE_VERSION >= 0x030200
 #include <kconfigskeleton.h>
 #include <kplugininfo.h>
 #include <kmountpoint.h>
-#endif
 #include <kio/jobclasses.h>
 #include <dom/dom_node.h>
 #include <dom/dom_element.h>
 #include <dom/dom_string.h>
-#include <dom/html_element.h>
+
+#include <kmultitabbar.h>
+#include <kdatatool.h>
+#include <kuser.h>
+#include <ktoolbar.h>
+#include <kio/copyjob.h>
 
 extern "C" {
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
@@ -878,214 +881,221 @@ void marshall_UDSEntryList(Marshall *m) {
 }
 */
 
-// Some time saving magic from Alex Kellett here..
 template <class Item, class ItemList, const char *ItemSTR >
 void marshall_ItemList(Marshall *m) {
-    switch(m->action()) {
-      case Marshall::FromVALUE:
-	{
-	    VALUE list = *(m->var());
-	    if (TYPE(list) != T_ARRAY) {
-		m->item().s_voidp = 0;
+	switch(m->action()) {
+		case Marshall::FromVALUE:
+		{
+			VALUE list = *(m->var());
+			if (TYPE(list) != T_ARRAY) {
+				m->item().s_voidp = 0;
+				break;
+			}
+
+			int count = RARRAY(list)->len;
+			ItemList *cpplist = new ItemList;
+			long i;
+			for(i = 0; i < count; i++) {
+				VALUE item = rb_ary_entry(list, i);
+				// TODO do type checking!
+				smokeruby_object *o = value_obj_info(item);
+				if(!o || !o->ptr)
+					continue;
+				void *ptr = o->ptr;
+				ptr = o->smoke->cast(
+					ptr,				// pointer
+					o->classId,				// from
+		    		o->smoke->idClass(ItemSTR)	// to
+				);
+				cpplist->append((Item*)ptr);
+			}
+
+			m->item().s_voidp = cpplist;
+			m->next();
+
+			if (!m->type().isConst()) {
+				rb_ary_clear(list);
+	
+				for(int i = 0; i < cpplist->size(); ++i ) {
+					VALUE obj = getPointerObject( cpplist->at(i) );
+					rb_ary_push(list, obj);
+				}
+			}
+
+			if (m->cleanup()) {
+				delete cpplist;
+			}
+		}
 		break;
-	    }
-	    int count = RARRAY(list)->len;
-	    ItemList *cpplist = new ItemList;
-	    long i;
-	    for(i = 0; i < count; i++) {
-		VALUE item = rb_ary_entry(list, i);
-                // TODO do type checking!
-		smokeruby_object *o = value_obj_info(item);
-		if(!o || !o->ptr)
-                    continue;
-		void *ptr = o->ptr;
-		ptr = o->smoke->cast(
-		    ptr,				// pointer
-		    o->classId,				// from
-		    o->smoke->idClass(ItemSTR)	        // to
-		);
-		cpplist->append((Item*)ptr);
-	    }
+      
+		case Marshall::ToVALUE:
+		{
+			ItemList *valuelist = (ItemList*)m->item().s_voidp;
+			if(!valuelist) {
+				*(m->var()) = Qnil;
+				break;
+			}
 
-	    m->item().s_voidp = cpplist;
-	    m->next();
+			VALUE av = rb_ary_new();
 
-	    if(m->cleanup()) {
-		rb_ary_clear(list);
-		for( Item * it = cpplist->first();
-		    it != 0;
-		    it = cpplist->next()) {
-		    VALUE obj = getPointerObject((void*)it);
-		    rb_ary_push(list, obj);
+			for (int i=0;i<valuelist->size();++i) {
+				void *p = valuelist->at(i);
+
+				if (m->item().s_voidp == 0) {
+					*(m->var()) = Qnil;
+					break;
+				}
+
+				VALUE obj = getPointerObject(p);
+				if (obj == Qnil) {
+					smokeruby_object  * o = alloc_smokeruby_object(	false, 
+																	m->smoke(), 
+																	m->smoke()->idClass(ItemSTR), 
+																	p );
+
+					obj = set_obj_info(kde_resolve_classname(o->smoke, o->classId, o->ptr), o);
+				}
+			
+				rb_ary_push(av, obj);
+			}
+
+			*(m->var()) = av;
+			m->next();
+
+			if (m->cleanup()) {
+				delete valuelist;
+			}
 		}
-		delete cpplist;
-	    }
-	}
-	break;
-      case Marshall::ToVALUE:
-	{
-	    ItemList *valuelist = (ItemList*)m->item().s_voidp;
-	    if(!valuelist) {
-		*(m->var()) = Qnil;
 		break;
-	    }
 
-	    VALUE av = rb_ary_new();
-
-	    int ix = m->smoke()->idClass(ItemSTR);
-	    const char * className = m->smoke()->binding->className(ix);
-
-	    for(Item * it = valuelist->first();
-		it != 0;
-		it = valuelist->next()) {
-		void *p = it;
-
-		if(m->item().s_voidp == 0) {
-		    *(m->var()) = Qnil;
-		    break;
-		}
-
-		VALUE obj = getPointerObject(p);
-		if(obj == Qnil) {
-		    smokeruby_object  * o = ALLOC(smokeruby_object);
-		    o->smoke = m->smoke();
-		    o->classId = o->smoke->idClass(ItemSTR);
-		    o->ptr = p;
-		    o->allocated = false;
-		    obj = set_obj_info(className, o);
-		}
-		rb_ary_push(av, obj);
-            }
-
-	    if(m->cleanup())
-		delete valuelist;
-	    else
-	        *(m->var()) = av;
-	}
-	break;
-      default:
-	m->unsupported();
-	break;
-    }
+		default:
+			m->unsupported();
+		break;
+   }
 }
 
 #define DEF_LIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; };  \
         Marshall::HandlerFn marshall_##ListIdent = marshall_ItemList<Item,ItemList,ListIdent##STR>;
 
-/*
-DEF_LIST_MARSHALLER( KFileItemList, Q3PtrList<KFileItem>, KFileItem )
-DEF_LIST_MARSHALLER( KMainWindowList, Q3PtrList<KMainWindow>, KMainWindow )
-DEF_LIST_MARSHALLER( KActionList, Q3PtrList<KAction>, KAction )
-DEF_LIST_MARSHALLER( KDockWidgetList, Q3PtrList<KDockWidget>, KDockWidget )
-DEF_LIST_MARSHALLER( KFileTreeBranch, Q3PtrList<KFileTreeBranch>, KFileTreeBranch )
-DEF_LIST_MARSHALLER( KFileTreeViewItem, Q3PtrList<KFileTreeViewItem>, KFileTreeViewItem )
-DEF_LIST_MARSHALLER( KPartList, Q3PtrList<KParts::Part>, KParts::Part )
-DEF_LIST_MARSHALLER( KPartPluginList, Q3PtrList<KParts::Plugin>, KParts::Plugin )
-DEF_LIST_MARSHALLER( KPartReadOnlyPartList, Q3PtrList<KParts::ReadOnlyPart>, KParts::ReadOnlyPart )
-DEF_LIST_MARSHALLER( KServiceTypeProfileList, Q3PtrList<KServiceTypeProfile>, KServiceTypeProfile )
-*/
+DEF_LIST_MARSHALLER( KActionList, QList<KAction*>, KAction )
+DEF_LIST_MARSHALLER( KActionCollectionList, QList<KActionCollection*>, KActionCollection )
+DEF_LIST_MARSHALLER( KJobList, QList<KJob*>, KJob )
+DEF_LIST_MARSHALLER( KMainWindowList, QList<KMainWindow*>, KMainWindow )
+DEF_LIST_MARSHALLER( KMultiTabBarButtonList, QList<KMultiTabBarButton*>, KMultiTabBarButton )
+DEF_LIST_MARSHALLER( KMultiTabBarTabList, QList<KMultiTabBarTab*>, KMultiTabBarTab )
+DEF_LIST_MARSHALLER( KPartsPartList, QList<KParts::Part*>, KParts::Part )
+DEF_LIST_MARSHALLER( KPartsPluginList, QList<KParts::Plugin*>, KParts::Plugin )
+DEF_LIST_MARSHALLER( KPartsReadOnlyPartList, QList<KParts::ReadOnlyPart*>, KParts::ReadOnlyPart )
+DEF_LIST_MARSHALLER( KPluginInfoList, QList<KPluginInfo*>, KPluginInfo )
+DEF_LIST_MARSHALLER( KToolBarList, QList<KToolBar*>, KToolBar )
+DEF_LIST_MARSHALLER( KXMLGUIClientList, QList<KXMLGUIClient*>, KXMLGUIClient )
 
-template <class Item, class ItemList, class ItemListIterator, const char *ItemSTR >
-void marshall_ValueItemList(Marshall *m) {
-    switch(m->action()) {
-      case Marshall::FromVALUE:
-	{
-	    VALUE list = *(m->var());
-	    if (TYPE(list) != T_ARRAY) {
-		m->item().s_voidp = 0;
+template <class Item, class ItemList, const char *ItemSTR >
+void marshall_ValueListItem(Marshall *m) {
+	switch(m->action()) {
+		case Marshall::FromVALUE:
+		{
+			VALUE list = *(m->var());
+			if (TYPE(list) != T_ARRAY) {
+				m->item().s_voidp = 0;
+				break;
+			}
+			int count = RARRAY(list)->len;
+			ItemList *cpplist = new ItemList;
+			long i;
+			for(i = 0; i < count; i++) {
+				VALUE item = rb_ary_entry(list, i);
+				// TODO do type checking!
+				smokeruby_object *o = value_obj_info(item);
+
+				if (!o || !o->ptr)
+					continue;
+				
+				void *ptr = o->ptr;
+				ptr = o->smoke->cast(
+					ptr,				// pointer
+					o->classId,				// from
+					o->smoke->idClass(ItemSTR)	        // to
+				);
+				cpplist->append(*(Item*)ptr);
+			}
+
+			m->item().s_voidp = cpplist;
+			m->next();
+
+			if (!m->type().isConst()) {
+				rb_ary_clear(list);
+				for(int i=0; i < cpplist->size(); ++i) {
+					VALUE obj = getPointerObject((void*)&(cpplist->at(i)));
+					rb_ary_push(list, obj);
+				}
+			}
+
+			if (m->cleanup()) {
+				delete cpplist;
+			}
+		}
 		break;
-	    }
-	    int count = RARRAY(list)->len;
-	    ItemList *cpplist = new ItemList;
-	    long i;
-	    for(i = 0; i < count; i++) {
-		VALUE item = rb_ary_entry(list, i);
-                // TODO do type checking!
-		smokeruby_object *o = value_obj_info(item);
-		if(!o || !o->ptr)
-                    continue;
-		void *ptr = o->ptr;
-		ptr = o->smoke->cast(
-		    ptr,				// pointer
-		    o->classId,				// from
-		    o->smoke->idClass(ItemSTR)	        // to
-		);
-		cpplist->append(*(Item*)ptr);
-	    }
+      
+		case Marshall::ToVALUE:
+		{
+			ItemList *valuelist = (ItemList*)m->item().s_voidp;
+			if(!valuelist) {
+				*(m->var()) = Qnil;
+				break;
+			}
 
-	    m->item().s_voidp = cpplist;
-	    m->next();
+			VALUE av = rb_ary_new();
 
-	    if(m->cleanup()) {
-		rb_ary_clear(list);
-		for(ItemListIterator it = cpplist->begin();
-		    it != cpplist->end();
-		    ++it) {
-		    VALUE obj = getPointerObject((void*)&(*it));
-		    rb_ary_push(list, obj);
+			int ix = m->smoke()->idClass(ItemSTR);
+			const char * className = m->smoke()->binding->className(ix);
+
+			for(int i=0; i < valuelist->size() ; ++i) {
+				void *p = (void *) &(valuelist->at(i));
+
+				if(m->item().s_voidp == 0) {
+				*(m->var()) = Qnil;
+				break;
+				}
+
+				VALUE obj = getPointerObject(p);
+				if(obj == Qnil) {
+					smokeruby_object  * o = alloc_smokeruby_object(	false, 
+																	m->smoke(), 
+																	m->smoke()->idClass(ItemSTR), 
+																	p );
+					obj = set_obj_info(className, o);
+				}
+		
+				rb_ary_push(av, obj);
+			}
+
+			*(m->var()) = av;
+			m->next();
+
+			if (m->cleanup()) {
+				delete valuelist;
+			}
+
 		}
-		delete cpplist;
-	    }
-	}
-	break;
-      case Marshall::ToVALUE:
-	{
-	    ItemList *valuelist = (ItemList*)m->item().s_voidp;
-	    if(!valuelist) {
-		*(m->var()) = Qnil;
 		break;
-	    }
-
-	    VALUE av = rb_ary_new();
-
-	    int ix = m->smoke()->idClass(ItemSTR);
-	    const char * className = m->smoke()->binding->className(ix);
-
-	    for(ItemListIterator it = valuelist->begin();
-		it != valuelist->end();
-		++it) {
-		void *p = &(*it);
-
-		if(m->item().s_voidp == 0) {
-		    *(m->var()) = Qnil;
-		    break;
-		}
-
-		VALUE obj = getPointerObject(p);
-		if(obj == Qnil) {
-		    smokeruby_object  * o = ALLOC(smokeruby_object);
-		    o->smoke = m->smoke();
-		    o->classId = o->smoke->idClass(ItemSTR);
-		    o->ptr = p;
-		    o->allocated = false;
-		    obj = set_obj_info(className, o);
-		}
-		rb_ary_push(av, obj);
-            }
-
-	    if(m->cleanup())
-		delete valuelist;
-	    else
-	        *(m->var()) = av;
+      
+		default:
+			m->unsupported();
+		break;
 	}
-	break;
-      default:
-	m->unsupported();
-	break;
-    }
 }
 
-#define DEF_VALUELIST_MARSHALLER(ListIdent,ItemList,Item,Itr) namespace { char ListIdent##STR[] = #Item; };  \
-        Marshall::HandlerFn marshall_##ListIdent = marshall_ValueItemList<Item,ItemList,Itr,ListIdent##STR>;
+#define DEF_VALUELIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; };  \
+        Marshall::HandlerFn marshall_##ListIdent = marshall_ValueListItem<Item,ItemList,ListIdent##STR>;
 
-/*
-DEF_VALUELIST_MARSHALLER( ChoicesList, Q3ValueList<KConfigSkeleton::ItemEnum::Choice>, KConfigSkeleton::ItemEnum::Choice, Q3ValueList<KConfigSkeleton::ItemEnum::Choice>::Iterator )
-DEF_VALUELIST_MARSHALLER( KAboutPersonList, Q3ValueList<KAboutPerson>, KAboutPerson, Q3ValueList<KAboutPerson>::Iterator )
-DEF_VALUELIST_MARSHALLER( KAboutTranslatorList, Q3ValueList<KAboutTranslator>, KAboutTranslator, Q3ValueList<KAboutTranslator>::Iterator )
-DEF_VALUELIST_MARSHALLER( KIOCopyInfoList, Q3ValueList<KIO::CopyInfo>, KIO::CopyInfo, Q3ValueList<KIO::CopyInfo>::Iterator )
-DEF_VALUELIST_MARSHALLER( KServiceOfferList, Q3ValueList<KServiceOffer>, KServiceOffer, Q3ValueList<KServiceOffer>::Iterator )
-DEF_VALUELIST_MARSHALLER( UDSEntry, Q3ValueList<KIO::UDSAtom>, KIO::UDSAtom, Q3ValueList<KIO::UDSAtom>::Iterator )
-*/
+DEF_VALUELIST_MARSHALLER( KAboutPersonList, QList<KAboutPerson>, KAboutPerson )
+DEF_VALUELIST_MARSHALLER( KAboutTranslatorList, QList<KAboutTranslator>, KAboutTranslator )
+DEF_VALUELIST_MARSHALLER( ChoicesList, QList<KConfigSkeleton::ItemEnum::Choice>, KConfigSkeleton::ItemEnum::Choice )
+DEF_VALUELIST_MARSHALLER( KDataToolInfoList, QList<KDataToolInfo>, KDataToolInfo )
+DEF_VALUELIST_MARSHALLER( KIOCopyInfoList, QList<KIO::CopyInfo>, KIO::CopyInfo )
+DEF_VALUELIST_MARSHALLER( KPartsPluginPluginInfoList, QList<KParts::Plugin::PluginInfo>, KParts::Plugin::PluginInfo )DEF_VALUELIST_MARSHALLER( KUserList, QList<KUser>, KUser )
+DEF_VALUELIST_MARSHALLER( KUserGroupList, QList<KUserGroup>, KUserGroup )
 
 /*
 template <class Qt::Key, class Value, class ItemMapIterator, const char *KeySTR, const char *ValueSTR >
@@ -1194,124 +1204,37 @@ void marshall_Map(Marshall *m) {
 
 DEF_MAP_MARSHALLER( QMapKEntryKeyKEntry, KEntryKey, KEntry )
 
-void marshall_QMapQCStringDCOPRef(Marshall *m) {
-    switch(m->action()) {
-      case Marshall::FromVALUE:
-	{
-	    VALUE hash = *(m->var());
-	    if (TYPE(hash) != T_HASH) {
-		m->item().s_voidp = 0;
-		break;
-	    }
-		
-		QMap<Q3CString,DCOPRef> * map = new QMap<Q3CString,DCOPRef>;
-		
-		// Convert the ruby hash to an array of key/value arrays
-		VALUE temp = rb_funcall(hash, rb_intern("to_a"), 0);
-
-		for (long i = 0; i < RARRAY(temp)->len; i++) {
-			VALUE key = rb_ary_entry(rb_ary_entry(temp, i), 0);
-			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
-			
-			smokeruby_object *o = value_obj_info(value);
-			if( !o || !o->ptr)
-                   continue;
-			void * ptr = o->ptr;
-			ptr = o->smoke->cast(ptr, o->classId, o->smoke->idClass("DCOPRef"));
-			
-			(*map)[Q3CString(StringValuePtr(key))] = (DCOPRef)*(DCOPRef*)ptr;
-		}
-	    
-		m->item().s_voidp = map;
-		m->next();
-		
-	    if(m->cleanup())
-		delete map;
-	}
-	break;
-      case Marshall::ToVALUE:
-	{
-	    QMap<Q3CString,DCOPRef> *map = (QMap<Q3CString,DCOPRef>*)m->item().s_voidp;
-	    if(!map) {
-		*(m->var()) = Qnil;
-		break;
-	    }
-		
-	    VALUE hv = rb_hash_new();
-			
-		QMap<Q3CString,DCOPRef>::Iterator it;
-		for (it = map->begin(); it != map->end(); ++it) {
-			void *p = new DCOPRef(it.data());
-			VALUE obj = getPointerObject(p);
-				
-			if (obj == Qnil) {
-				smokeruby_object  * o = ALLOC(smokeruby_object);
-				o->classId = m->smoke()->idClass("DCOPRef");
-				o->smoke = m->smoke();
-				o->ptr = p;
-				o->allocated = true;
-				obj = set_obj_info("KDE::DCOPRef", o);
-			}
-			
-			rb_hash_aset(hv, rb_str_new2((const char *) it.key()), obj);
-        }
-		
-		*(m->var()) = hv;
-		m->next();
-		
-	    if(m->cleanup())
-		delete map;
-	}
-	break;
-      default:
-	m->unsupported();
-	break;
-    }
-}
 */
 
 TypeHandler KDE_handlers[] = {
-//    { "QCStringList", marshall_QCStringList },
     { "KCmdLineOptions*", marshall_KCmdLineOptions },
-//    { "KFileItemList", marshall_KFileItemList },
-//    { "QPtrList<KAction>", marshall_KActionList },
-//    { "QPtrList<KAction>&", marshall_KActionList },
-//    { "KMimeType::List", marshall_KMimeTypeList },
-//    { "KMimeType::Ptr", marshall_KMimeTypePtr },
     { "KService::Ptr", marshall_KServicePtr },
     { "KService::List", marshall_KServiceList },
-//    { "KServiceGroup::List", marshall_KServiceGroupList },
-//    { "KServiceGroup::Ptr", marshall_KServiceGroupPtr },
-/*
-    { "KMountPoint::List", marshall_KMountPointList },
-    { "KPluginInfo::List", marshall_KPluginInfoList },
-    { "QValueList<KConfigSkeleton::ItemEnum::Choice>", marshall_ChoicesList },
-    { "QValueList<KConfigSkeleton::ItemEnum::Choice>&", marshall_ChoicesList },
-    { "KServiceType::List", marshall_KServiceTypeList },
-    { "KTrader::OfferList", marshall_KTraderOfferList },
-    { "KURL::List", marshall_KURLList },
-    { "KURL::List&", marshall_KURLList },
-    { "KFileItemList", marshall_KFileItemList },
-    { "QPtrList<KMainWindow>*", marshall_KMainWindowList },
-    { "QPtrList<DCOPObject>", marshall_DCOPObjectList },
-    { "QPtrList<KDockWidget>&", marshall_KDockWidgetList },
-    { "QPtrList<KDockWidget>*", marshall_KDockWidgetList },
-    { "KFileTreeBranchList&", marshall_KFileTreeBranch },
-    { "KFileTreeViewItemList&", marshall_KFileTreeViewItem },
-    { "QPtrList<KParts::Part>*", marshall_KPartList },
-    { "QPtrList<KParts::Plugin>", marshall_KPartPluginList },
-    { "QPtrList<KParts::ReadOnlyPart>", marshall_KPartReadOnlyPartList },
-    { "QPtrList<KServiceTypeProfile>&", marshall_KServiceTypeProfileList },
-    { "QValueList<KAboutPerson>", marshall_KAboutPersonList },
-    { "QValueList<KAboutTranslator>", marshall_KAboutTranslatorList },
-    { "QValueList<KIO::CopyInfo>&", marshall_KIOCopyInfoList },
-	{ "KIO::UDSEntry&", marshall_UDSEntry },
-    { "KIO::UDSEntryList&", marshall_UDSEntryList },
-    { "KServiceTypeProfile::OfferList", marshall_KServiceOfferList },
-*/
-//    { "KEntryMap", marshall_QMapKEntryKeyKEntry },
-//    { "KEntryMap&", marshall_QMapKEntryKeyKEntry },
-//    { "KEntryMap*", marshall_QMapKEntryKeyKEntry },
-//    { "QMap<QCString,DCOPRef>", marshall_QMapQCStringDCOPRef },
+
+    { "QList<KAboutPerson>", marshall_KAboutPersonList },
+    { "QList<KAboutTranslator>", marshall_KAboutTranslatorList },
+    { "QList<KAction*>", marshall_KActionList },
+    { "QList<KActionCollection*>&", marshall_KActionCollectionList },
+    { "QList<KConfigSkeleton::ItemEnum::Choice>", marshall_ChoicesList },
+    { "QList<KConfigSkeleton::ItemEnum::Choice>&", marshall_ChoicesList },
+    { "QList<KDataToolInfo>", marshall_KDataToolInfoList },
+    { "QList<KDataToolInfo>&", marshall_KDataToolInfoList },
+    { "QList<KIO::CopyInfo>&", marshall_KIOCopyInfoList },
+    { "QList<KJob*>&", marshall_KJobList },
+    { "QList<KMainWindow*>&", marshall_KMainWindowList },
+    { "QList<KMultiTabBarButton*>", marshall_KMultiTabBarButtonList },
+    { "QList<KMultiTabBarTab*>", marshall_KMultiTabBarTabList },
+    { "QList<KParts::Part*>", marshall_KPartsPartList },
+    { "QList<KParts::Plugin*>", marshall_KPartsPluginList },
+    { "QList<KParts::Plugin::PluginInfo>", marshall_KPartsPluginPluginInfoList },
+    { "QList<KParts::Plugin::PluginInfo>&", marshall_KPartsPluginPluginInfoList },
+    { "QList<KParts::ReadOnlyPart*>", marshall_KPartsReadOnlyPartList },
+    { "QList<KPluginInfo*>&", marshall_KPluginInfoList },
+//    { "QList<KService::Ptr>&", marshall_KServicePtrList },
+    { "QList<KToolBar*>", marshall_KToolBarList },
+    { "QList<KUser>", marshall_KUserList },
+    { "QList<KUser>&", marshall_KUserList },
+    { "QList<KUserGroup>", marshall_KUserGroupList },
+    { "QList<KXMLGUIClient*>&", marshall_KXMLGUIClientList },
     { 0, 0 }
 };

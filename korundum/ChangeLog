@@ -2,6 +2,7 @@
 
 	* Korundum now builds with KDE4, renamed the extension 'korundum4' for 
 	  now
+	* Added some KDE4 list type marshallers
 
 2005-07-29  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
