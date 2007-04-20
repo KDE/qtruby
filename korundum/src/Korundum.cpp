@@ -51,6 +51,7 @@ static VALUE kde_internal_module;
 Marshall::HandlerFn getMarshallFn(const SmokeType &type);
 
 extern "C" {
+extern Q_DECL_EXPORT void Init_korundum4();
 extern void Init_qtruby4();
 extern void set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE));
 extern void set_kconfigskeletonitem_immutable(VALUE (*kconfigskeletonitem_immutable) (VALUE));
@@ -220,7 +221,7 @@ set_udsatom_uds(VALUE self, VALUE uds)
 */
 
 void
-Init_korundum()
+Init_korundum4()
 {
 	if (qt_internal_module != Qnil) {
 		rb_fatal("require 'Korundum' must not follow require 'Qt'\n");
@@ -259,7 +260,7 @@ Init_korundum()
 	rb_define_method(kio_udsatom_class, "m_long=", (VALUE (*) (...)) set_udsatom_long, 1);
 	rb_define_method(kio_udsatom_class, "m_uds=", (VALUE (*) (...)) set_udsatom_uds, 1);
 */	
-	rb_require("KDE/korundum.rb");
+	rb_require("KDE/korundum4.rb");
 }
 
 };

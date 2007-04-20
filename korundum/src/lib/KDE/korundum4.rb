@@ -19,32 +19,36 @@
 
 module KDE
 	
-	def CmdLineArgs::init(*k)
-		if k.length > 0 and k[0].kind_of?(Array)
-			# If init() is passed an array as the first argument, assume it's ARGV.
-			# Then convert to a pair of args 'ARGV.length+1, [$0]+ARGV'
-			array = k.shift
-			super(*([array.length+1] + [[$0] + array] + k))
-		else
-			super
-		end
-	end
-	
-	# A sane alternative to the strange looking C++ template version,
-	# this takes a variable number of ruby args as classes to restore
-	def MainWindow::kRestoreMainWindows(*k)
-		n = 1
-		while MainWindow.canBeRestored(n)
-			className = MainWindow.classNameOfToplevel(n)
-			k.each do |klass|
-				if klass.name == className
-					klass.new.restore(n)
-				end
+ 	class CmdLineArgs
+		def self.init(*k)
+			if k.length > 0 and k[0].kind_of?(Array)
+				# If init() is passed an array as the first argument, assume it's ARGV.
+				# Then convert to a pair of args 'ARGV.length+1, [$0]+ARGV'
+				array = k.shift
+				super(*([array.length+1] + [[$0] + array] + k))
+			else
+				super
 			end
-			n += 1
 		end
 	end
 	
+	class MainWindow
+		# A sane alternative to the strange looking C++ template version,
+		# this takes a variable number of ruby args as classes to restore
+		def self.kRestoreMainWindows(*k)
+			n = 1
+			while MainWindow.canBeRestored(n)
+				className = MainWindow.classNameOfToplevel(n)
+				k.each do |klass|
+					if klass.name == className
+						klass.new.restore(n)
+					end
+				end
+				n += 1
+			end
+		end
+	end
+
 	class Application
 		def initialize(*k)
 			super
