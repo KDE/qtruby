@@ -26,6 +26,9 @@ add_library(qtruby4 MODULE ${qtruby_LIB_SRCS})
 
 target_link_libraries(qtruby4 ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokeqt)
 
+add_library(qtrubyinternal STATIC ${qtruby_LIB_SRCS})
+target_link_libraries(qtrubyinternal ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokeqt)
+
 set_target_properties(qtruby4 PROPERTIES VERSION 0.0.0 SOVERSION 0 PREFIX "")
 
 install(TARGETS qtruby4  DESTINATION ${RUBY_SITE_ARCH_DIR} )

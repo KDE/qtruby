@@ -16,16 +16,9 @@
  ***************************************************************************/
 
 #include <qtruby.h>
-//Added by qt3to4:
-#include <Q3ValueList>
-#include <Q3CString>
 #include <smokeruby.h>
 
 #include <kdeversion.h>
-#include <dcopclient.h>
-#include <dcopobject.h>
-#include <dcopref.h>
-#include <q3ptrlist.h>
 #include <ktrader.h>
 #include <kservicegroup.h>
 #include <kservice.h>
@@ -36,12 +29,9 @@
 #include <kurl.h>
 #include <kcmdlineargs.h>
 #include <kaction.h>
-#include <kdockwidget.h>
 #include <kfiletreebranch.h>
-#include <kfiletreeviewitem.h>
 #include <khtml_part.h>
 #include <kparts/plugin.h>
-#include <kuserprofile.h>
 #include <kaboutdata.h>
 #include <karchive.h>
 #if KDE_VERSION >= 0x030200
@@ -240,6 +230,7 @@ void marshall_KCmdLineOptions(Marshall *m) {
 	}
 }
 
+/*
 void marshall_KMimeTypeList(Marshall *m) {
 	switch(m->action()) {
 	case Marshall::FromVALUE: 
@@ -321,6 +312,7 @@ void marshall_KMimeTypePtr(Marshall *m) {
 		break;
 	}
 }
+*/
 
 void marshall_KServicePtr(Marshall *m) {
 	switch(m->action()) {
@@ -405,6 +397,7 @@ void marshall_KServiceList(Marshall *m) {
 	}
 }
 
+/*
 void marshall_KServiceGroupPtr(Marshall *m) {
 	switch(m->action()) {
 	case Marshall::FromVALUE: 
@@ -441,6 +434,7 @@ void marshall_KServiceGroupPtr(Marshall *m) {
 		break;
 	}
 }
+
 
 void marshall_KServiceTypeList(Marshall *m) {
 	switch(m->action()) {
@@ -486,6 +480,7 @@ void marshall_KServiceTypeList(Marshall *m) {
 		break;
 	}
 }
+
 
 void marshall_KServiceGroupList(Marshall *m) {
 	switch(m->action()) {
@@ -546,7 +541,9 @@ void marshall_KServiceGroupList(Marshall *m) {
 		break;
 	}
 }
+*/
 
+/*
 #if KDE_VERSION >= 0x030200
 void marshall_KMountPointList(Marshall *m) {
 	switch(m->action()) {
@@ -592,6 +589,7 @@ void marshall_KMountPointList(Marshall *m) {
 		break;
 	}
 }
+
 
 void marshall_KPluginInfoList(Marshall *m) {
 	switch(m->action()) {
@@ -646,7 +644,9 @@ void marshall_KPluginInfoList(Marshall *m) {
 	}
 }
 #endif
+*/
 
+/*
 void marshall_KTraderOfferList(Marshall *m) {
 	switch(m->action()) {
 	case Marshall::FromVALUE: 
@@ -692,7 +692,9 @@ void marshall_KTraderOfferList(Marshall *m) {
 		break;
 	}
 }
+*/
 
+/*
 void marshall_KURLList(Marshall *m) {
 	switch(m->action()) {
 	case Marshall::FromVALUE: 
@@ -790,7 +792,9 @@ void marshall_KURLList(Marshall *m) {
 		break;
 	}
 }
+*/
 
+/*
 void marshall_UDSEntryList(Marshall *m) {
 	switch(m->action()) {
 	case Marshall::FromVALUE:
@@ -872,7 +876,7 @@ void marshall_UDSEntryList(Marshall *m) {
 		break;
 	}
 }
-
+*/
 
 // Some time saving magic from Alex Kellett here..
 template <class Item, class ItemList, const char *ItemSTR >
@@ -968,10 +972,10 @@ void marshall_ItemList(Marshall *m) {
 #define DEF_LIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; };  \
         Marshall::HandlerFn marshall_##ListIdent = marshall_ItemList<Item,ItemList,ListIdent##STR>;
 
+/*
 DEF_LIST_MARSHALLER( KFileItemList, Q3PtrList<KFileItem>, KFileItem )
 DEF_LIST_MARSHALLER( KMainWindowList, Q3PtrList<KMainWindow>, KMainWindow )
 DEF_LIST_MARSHALLER( KActionList, Q3PtrList<KAction>, KAction )
-DEF_LIST_MARSHALLER( DCOPObjectList, Q3PtrList<DCOPObject>, DCOPObject )
 DEF_LIST_MARSHALLER( KDockWidgetList, Q3PtrList<KDockWidget>, KDockWidget )
 DEF_LIST_MARSHALLER( KFileTreeBranch, Q3PtrList<KFileTreeBranch>, KFileTreeBranch )
 DEF_LIST_MARSHALLER( KFileTreeViewItem, Q3PtrList<KFileTreeViewItem>, KFileTreeViewItem )
@@ -979,6 +983,7 @@ DEF_LIST_MARSHALLER( KPartList, Q3PtrList<KParts::Part>, KParts::Part )
 DEF_LIST_MARSHALLER( KPartPluginList, Q3PtrList<KParts::Plugin>, KParts::Plugin )
 DEF_LIST_MARSHALLER( KPartReadOnlyPartList, Q3PtrList<KParts::ReadOnlyPart>, KParts::ReadOnlyPart )
 DEF_LIST_MARSHALLER( KServiceTypeProfileList, Q3PtrList<KServiceTypeProfile>, KServiceTypeProfile )
+*/
 
 template <class Item, class ItemList, class ItemListIterator, const char *ItemSTR >
 void marshall_ValueItemList(Marshall *m) {
@@ -1073,14 +1078,14 @@ void marshall_ValueItemList(Marshall *m) {
 #define DEF_VALUELIST_MARSHALLER(ListIdent,ItemList,Item,Itr) namespace { char ListIdent##STR[] = #Item; };  \
         Marshall::HandlerFn marshall_##ListIdent = marshall_ValueItemList<Item,ItemList,Itr,ListIdent##STR>;
 
-#if KDE_VERSION >= 0x030200
+/*
 DEF_VALUELIST_MARSHALLER( ChoicesList, Q3ValueList<KConfigSkeleton::ItemEnum::Choice>, KConfigSkeleton::ItemEnum::Choice, Q3ValueList<KConfigSkeleton::ItemEnum::Choice>::Iterator )
-#endif
 DEF_VALUELIST_MARSHALLER( KAboutPersonList, Q3ValueList<KAboutPerson>, KAboutPerson, Q3ValueList<KAboutPerson>::Iterator )
 DEF_VALUELIST_MARSHALLER( KAboutTranslatorList, Q3ValueList<KAboutTranslator>, KAboutTranslator, Q3ValueList<KAboutTranslator>::Iterator )
 DEF_VALUELIST_MARSHALLER( KIOCopyInfoList, Q3ValueList<KIO::CopyInfo>, KIO::CopyInfo, Q3ValueList<KIO::CopyInfo>::Iterator )
 DEF_VALUELIST_MARSHALLER( KServiceOfferList, Q3ValueList<KServiceOffer>, KServiceOffer, Q3ValueList<KServiceOffer>::Iterator )
 DEF_VALUELIST_MARSHALLER( UDSEntry, Q3ValueList<KIO::UDSAtom>, KIO::UDSAtom, Q3ValueList<KIO::UDSAtom>::Iterator )
+*/
 
 /*
 template <class Qt::Key, class Value, class ItemMapIterator, const char *KeySTR, const char *ValueSTR >
@@ -1268,21 +1273,20 @@ void marshall_QMapQCStringDCOPRef(Marshall *m) {
 TypeHandler KDE_handlers[] = {
 //    { "QCStringList", marshall_QCStringList },
     { "KCmdLineOptions*", marshall_KCmdLineOptions },
-    { "KFileItemList", marshall_KFileItemList },
-    { "QPtrList<KAction>", marshall_KActionList },
-    { "QPtrList<KAction>&", marshall_KActionList },
-    { "KMimeType::List", marshall_KMimeTypeList },
-    { "KMimeType::Ptr", marshall_KMimeTypePtr },
+//    { "KFileItemList", marshall_KFileItemList },
+//    { "QPtrList<KAction>", marshall_KActionList },
+//    { "QPtrList<KAction>&", marshall_KActionList },
+//    { "KMimeType::List", marshall_KMimeTypeList },
+//    { "KMimeType::Ptr", marshall_KMimeTypePtr },
     { "KService::Ptr", marshall_KServicePtr },
     { "KService::List", marshall_KServiceList },
-    { "KServiceGroup::List", marshall_KServiceGroupList },
-    { "KServiceGroup::Ptr", marshall_KServiceGroupPtr },
-#if KDE_VERSION >= 0x030200
+//    { "KServiceGroup::List", marshall_KServiceGroupList },
+//    { "KServiceGroup::Ptr", marshall_KServiceGroupPtr },
+/*
     { "KMountPoint::List", marshall_KMountPointList },
     { "KPluginInfo::List", marshall_KPluginInfoList },
     { "QValueList<KConfigSkeleton::ItemEnum::Choice>", marshall_ChoicesList },
     { "QValueList<KConfigSkeleton::ItemEnum::Choice>&", marshall_ChoicesList },
-#endif
     { "KServiceType::List", marshall_KServiceTypeList },
     { "KTrader::OfferList", marshall_KTraderOfferList },
     { "KURL::List", marshall_KURLList },
@@ -1304,6 +1308,7 @@ TypeHandler KDE_handlers[] = {
 	{ "KIO::UDSEntry&", marshall_UDSEntry },
     { "KIO::UDSEntryList&", marshall_UDSEntryList },
     { "KServiceTypeProfile::OfferList", marshall_KServiceOfferList },
+*/
 //    { "KEntryMap", marshall_QMapKEntryKeyKEntry },
 //    { "KEntryMap&", marshall_QMapKEntryKeyKEntry },
 //    { "KEntryMap*", marshall_QMapKEntryKeyKEntry },
