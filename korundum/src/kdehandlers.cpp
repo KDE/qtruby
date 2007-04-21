@@ -22,9 +22,11 @@
 #include <ktrader.h>
 #include <kservicegroup.h>
 #include <kservice.h>
+#include <kserviceoffer.h>
 #include <ksycocatype.h>
 #include <kmainwindow.h>
 #include <kfile.h>
+#include <kfileitem.h>
 #include <kfileview.h>
 #include <kurl.h>
 #include <kcmdlineargs.h>
@@ -107,67 +109,6 @@ kde_resolve_classname(Smoke * smoke, int classId, void * ptr)
 }
 
 };
-
-/*
-void marshall_QCStringList(Marshall *m) {
-    switch(m->action()) {
-      case Marshall::FromVALUE: 
-	{
-	    VALUE list = *(m->var());
-	    if (TYPE(list) != T_ARRAY) {
-		m->item().s_voidp = 0;
-		break;
-	    }
-
-	    int count = RARRAY(list)->len;
-	    QCStringList *stringlist = new QCStringList;
-
-	    for(long i = 0; i < count; i++) {
-		VALUE item = rb_ary_entry(list, i);
-		if(TYPE(item) != T_STRING) {
-		    stringlist->append(Q3CString());
-		    continue;
-		}
-		stringlist->append(Q3CString(StringValuePtr(item), RSTRING(item)->len + 1));
-	    }
-
-	    m->item().s_voidp = stringlist;
-	    m->next();
-
-	    if(m->cleanup()) {
-		rb_ary_clear(list);
-		for(QCStringList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it)
-		    rb_ary_push(list, rb_str_new2(static_cast<const char *>(*it)));
-		delete stringlist;
-	    }
-	    break;
-      }
-      case Marshall::ToVALUE: 
-	{
-	    QCStringList *stringlist = static_cast<QCStringList *>(m->item().s_voidp);
-	    if(!stringlist) {
-		*(m->var()) = Qnil;
-		break;
-	    }
-
-	    VALUE av = rb_ary_new();
-	    for(QCStringList::Iterator it = stringlist->begin(); it != stringlist->end(); ++it) {
-		VALUE rv = rb_str_new2(static_cast<const char *>((*it)));
-		rb_ary_push(av, rv);
-	    }
-
-	    if(m->cleanup())
-		delete stringlist;
-
-	    *(m->var()) = av;
-	}
-	break;
-      default:
-	m->unsupported();
-	break;
-    }
-}
-*/
 
 #if defined (__i386__) && defined (__GNUC__) && __GNUC__ >= 2
 #  define BREAKPOINT { __asm__ __volatile__ ("int $03"); }
@@ -547,7 +488,6 @@ void marshall_KServiceGroupList(Marshall *m) {
 */
 
 /*
-#if KDE_VERSION >= 0x030200
 void marshall_KMountPointList(Marshall *m) {
 	switch(m->action()) {
 	case Marshall::FromVALUE: 
@@ -646,156 +586,8 @@ void marshall_KPluginInfoList(Marshall *m) {
 		break;
 	}
 }
-#endif
 */
 
-/*
-void marshall_KTraderOfferList(Marshall *m) {
-	switch(m->action()) {
-	case Marshall::FromVALUE: 
-		{
-		}
-		break;
-	case Marshall::ToVALUE: 
-		{
-	    KTrader::OfferList *offerList = (KTrader::OfferList*)m->item().s_voidp;
-	    if(!offerList) {
-		*(m->var()) = Qnil;
-		break;
-	    }
-
-	    VALUE av = rb_ary_new();
-
-	    for(KTrader::OfferList::Iterator it = offerList->begin();
-		it != offerList->end();
-		++it) {
-		KSharedPtr<KService> *ptr = new KSharedPtr<KService>(*it);
-		KService * currentOffer = ptr->data();
-
-		VALUE obj = getPointerObject(currentOffer);
-		if(obj == Qnil) {
-		    smokeruby_object  * o = ALLOC(smokeruby_object);
-		    o->smoke = m->smoke();
-		    o->classId = m->smoke()->idClass("KService");
-		    o->ptr = currentOffer;
-		    o->allocated = false;
-		    obj = set_obj_info("KDE::Service", o);
-		}
-		rb_ary_push(av, obj);
-            }
-
-	    *(m->var()) = av;		
-	    
-		if(m->cleanup())
-		delete offerList;
-		}
-		break;
-	default:
-		m->unsupported();
-		break;
-	}
-}
-*/
-
-/*
-void marshall_KURLList(Marshall *m) {
-	switch(m->action()) {
-	case Marshall::FromVALUE: 
-		{
-			VALUE list = *(m->var());
-			if (TYPE(list) != T_ARRAY) {
-				m->item().s_voidp = 0;
-				break;
-			}
-			int count = RARRAY(list)->len;
-			KURL::List *kurllist = new KURL::List;
-			long i;
-			for(i = 0; i < count; i++) {
-				VALUE item = rb_ary_entry(list, i);
-                // TODO do type checking!
-				smokeruby_object *o = value_obj_info(item);
-				if(!o || !o->ptr)
-					continue;
-				void *ptr = o->ptr;
-				ptr = o->smoke->cast(
-					ptr,				// pointer
-					o->classId,				// from
-					o->smoke->idClass("KURL")	        // to
-					);
-				kurllist->append((KURL&)*(KURL*)ptr);
-			}
-
-			m->item().s_voidp = kurllist;
-			m->next();
-
-			rb_ary_clear(list);
-	    	int ix = m->smoke()->idClass("KURL");
-	    	const char * className = m->smoke()->binding->className(ix);
-			for (	KURL::List::Iterator it = kurllist->begin();
-					it != kurllist->end();
-					++it ) 
-			{
-				void *p = new KURL(*it);
-				VALUE obj = getPointerObject(p);
-				if(obj == Qnil) {
-					smokeruby_object  * o = ALLOC(smokeruby_object);
-					o->smoke = m->smoke();
-					o->classId = ix;
-					o->ptr = p;
-					o->allocated = true;
-					obj = set_obj_info(className, o);
-				}
-				rb_ary_push(list, obj);
-			}
-			
-			if(m->cleanup()) {
-				delete kurllist;
-			}
-	    }			
-		break;
-	case Marshall::ToVALUE: 
-		{
-	    KURL::List *kurllist = (KURL::List*)m->item().s_voidp;
-	    if(!kurllist) {
-		*(m->var()) = Qnil;
-		break;
-	    }
-
-	    VALUE av = rb_ary_new();
-
-	    int ix = m->smoke()->idClass("KURL");
-	    const char * className = m->smoke()->binding->className(ix);
-
-	    for(KURL::List::Iterator it = kurllist->begin();
-		it != kurllist->end();
-		++it) {
-		void *p = new KURL(*it);
-
-		VALUE obj = getPointerObject(p);
-		if(obj == Qnil) {
-		    smokeruby_object  * o = ALLOC(smokeruby_object);
-		    o->smoke = m->smoke();
-		    o->classId = ix;
-		    o->ptr = p;
-		    o->allocated = true;
-		    obj = set_obj_info(className, o);
-		}
-		rb_ary_push(av, obj);
-            }
-
-	    *(m->var()) = av;
-				
-	    if(m->cleanup()) {
-			delete kurllist;
-		}
-		}
-		break;
-	default:
-		m->unsupported();
-		break;
-	}
-}
-*/
 
 /*
 void marshall_UDSEntryList(Marshall *m) {
@@ -989,6 +781,7 @@ DEF_LIST_MARSHALLER( KPartsReadOnlyPartList, QList<KParts::ReadOnlyPart*>, KPart
 DEF_LIST_MARSHALLER( KPluginInfoList, QList<KPluginInfo*>, KPluginInfo )
 DEF_LIST_MARSHALLER( KToolBarList, QList<KToolBar*>, KToolBar )
 DEF_LIST_MARSHALLER( KXMLGUIClientList, QList<KXMLGUIClient*>, KXMLGUIClient )
+DEF_LIST_MARSHALLER( KFileItemList, QList<KFileItem*>, KFileItem )
 
 template <class Item, class ItemList, const char *ItemSTR >
 void marshall_ValueListItem(Marshall *m) {
@@ -1096,6 +889,8 @@ DEF_VALUELIST_MARSHALLER( KDataToolInfoList, QList<KDataToolInfo>, KDataToolInfo
 DEF_VALUELIST_MARSHALLER( KIOCopyInfoList, QList<KIO::CopyInfo>, KIO::CopyInfo )
 DEF_VALUELIST_MARSHALLER( KPartsPluginPluginInfoList, QList<KParts::Plugin::PluginInfo>, KParts::Plugin::PluginInfo )DEF_VALUELIST_MARSHALLER( KUserList, QList<KUser>, KUser )
 DEF_VALUELIST_MARSHALLER( KUserGroupList, QList<KUserGroup>, KUserGroup )
+DEF_VALUELIST_MARSHALLER( KServiceOfferList, QList<KServiceOffer>, KServiceOffer )
+DEF_VALUELIST_MARSHALLER( KUrlList, QList<KUrl>, KUrl )
 
 /*
 template <class Qt::Key, class Value, class ItemMapIterator, const char *KeySTR, const char *ValueSTR >
@@ -1230,11 +1025,17 @@ TypeHandler KDE_handlers[] = {
     { "QList<KParts::Plugin::PluginInfo>&", marshall_KPartsPluginPluginInfoList },
     { "QList<KParts::ReadOnlyPart*>", marshall_KPartsReadOnlyPartList },
     { "QList<KPluginInfo*>&", marshall_KPluginInfoList },
-//    { "QList<KService::Ptr>&", marshall_KServicePtrList },
+    { "QList<KServiceOffer>&", marshall_KServiceOfferList },
+    { "KServiceOfferList", marshall_KServiceOfferList },
     { "QList<KToolBar*>", marshall_KToolBarList },
     { "QList<KUser>", marshall_KUserList },
     { "QList<KUser>&", marshall_KUserList },
     { "QList<KUserGroup>", marshall_KUserGroupList },
     { "QList<KXMLGUIClient*>&", marshall_KXMLGUIClientList },
+    { "KFileItemList", marshall_KFileItemList },
+    { "KFileItemList&", marshall_KFileItemList },
+    { "KFileItemList*", marshall_KFileItemList },
+    { "KUrlList", marshall_KUrlList },
+    { "KUrlList&", marshall_KUrlList },
     { 0, 0 }
 };
