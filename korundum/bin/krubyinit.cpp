@@ -1,7 +1,7 @@
 #include <ruby.h>
 
 /***************************************************************************
-       krubyinit  -  makes use of kdeinit_wrapper possible for ruby programs
+       krubyinit  -  makes use of kdeinit4_wrapper possible for ruby programs
                              -------------------
     begin                : Wed Jan 7 2004
     copyright            : (C) 2004 by Alexander Kellett
