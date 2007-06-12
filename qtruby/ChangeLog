@@ -1,3 +1,8 @@
+2007-06-12  Richard Dale  <rdale@foton.es>
+
+	* Added some missing list marshallers
+	* Fixed a bug in the resolution of QGraphicsItem subclass names
+
 2007-04-19  Richard Dale  <rdale@foton.es>
 
 	* Fixed a bug in resolving overloaded methods where an enum passed as an
