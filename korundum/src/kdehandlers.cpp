@@ -22,7 +22,6 @@
 #include <ktrader.h>
 #include <kservicegroup.h>
 #include <kservice.h>
-#include <kserviceoffer.h>
 #include <ksycocatype.h>
 #include <kmainwindow.h>
 #include <kfile.h>
@@ -889,7 +888,6 @@ DEF_VALUELIST_MARSHALLER( KDataToolInfoList, QList<KDataToolInfo>, KDataToolInfo
 DEF_VALUELIST_MARSHALLER( KIOCopyInfoList, QList<KIO::CopyInfo>, KIO::CopyInfo )
 DEF_VALUELIST_MARSHALLER( KPartsPluginPluginInfoList, QList<KParts::Plugin::PluginInfo>, KParts::Plugin::PluginInfo )DEF_VALUELIST_MARSHALLER( KUserList, QList<KUser>, KUser )
 DEF_VALUELIST_MARSHALLER( KUserGroupList, QList<KUserGroup>, KUserGroup )
-DEF_VALUELIST_MARSHALLER( KServiceOfferList, QList<KServiceOffer>, KServiceOffer )
 DEF_VALUELIST_MARSHALLER( KUrlList, QList<KUrl>, KUrl )
 
 /*
@@ -1025,8 +1023,6 @@ TypeHandler KDE_handlers[] = {
     { "QList<KParts::Plugin::PluginInfo>&", marshall_KPartsPluginPluginInfoList },
     { "QList<KParts::ReadOnlyPart*>", marshall_KPartsReadOnlyPartList },
     { "QList<KPluginInfo*>&", marshall_KPluginInfoList },
-    { "QList<KServiceOffer>&", marshall_KServiceOfferList },
-    { "KServiceOfferList", marshall_KServiceOfferList },
     { "QList<KToolBar*>", marshall_KToolBarList },
     { "QList<KUser>", marshall_KUserList },
     { "QList<KUser>&", marshall_KUserList },

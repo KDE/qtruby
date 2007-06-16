@@ -4,7 +4,7 @@ macro_optional_find_package(RUBY)
 # QtRuby/Korundum
 
 OPTION(ENABLE_QTRUBY "build QtRuby" ON)
-OPTION(ENABLE_KORUNDUM "build Korundum" OFF)
+OPTION(ENABLE_KORUNDUM "build Korundum" ON)
 
 set(QTRUBY_ENABLED "no")
 set(KORUNDUM_ENABLED "no")
