@@ -2170,7 +2170,7 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 		QMetaMethod method = metaobject->method(id);
 
 		if (method.methodType() == QMetaMethod::Signal) {
-			metaobject->activate(qobj, _id, (void**) _o);
+			metaobject->activate(qobj, id, (void**) _o);
 			return INT2NUM(id - count);
 		}
 

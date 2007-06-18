@@ -5,6 +5,11 @@
 	  hack was used where a Qt::MetaObject containing all the slots and
 	  signal of its superclass too, was constructed for the twice sub-classed
 	  class. Fixes problems reported by Caleb Tennis amoungst several others.
+	* When a signal is defined, and Ruby method is created to call it. Before
+	  the signal methods were only being created when the Qt::MetaObject for
+	  a class was created. This caused problems if the signal was emitted
+	  before the Qt::MetaObject was created. Fixes problem reported for Qt3
+	  QtRuby by Gadi Aleksandrowicz on the Korundum Rubyforge help forum.
 
 2007-06-12  Richard Dale  <rdale@foton.es>
 

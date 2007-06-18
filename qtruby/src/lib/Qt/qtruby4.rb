@@ -2375,15 +2375,6 @@ module Qt
 			end
 		end
 	
-		def Internal.getSignalNames(klass)
-			meta = Meta[klass.name] || MetaInfo.new(klass)
-			signal_names = []
-			meta.get_signals.each do |signal|
-				signal_names.push signal.name
-			end
-			return signal_names 
-		end
-	
 		def Internal.signalInfo(qobject, signal_name)
 			signals = Meta[qobject.class.name].get_signals
 			signals.each_with_index do |signal, i|
@@ -2518,7 +2509,6 @@ module Qt
 													meta.slots )
 				meta.metaobject = make_metaObject(qobject, parentMeta, stringdata, data)
 				meta.changed = false
-				addSignalMethods(qobject.class, getSignalNames(qobject.class))
 			end
 			
 			meta.metaobject
@@ -2570,6 +2560,7 @@ module Qt
 		end
 		
 		def add_signals(signal_list)
+			signal_names = []
 			signal_list.each do |signal|
 				if signal.kind_of? Symbol
 					signal = signal.to_s + "()"
@@ -2577,10 +2568,12 @@ module Qt
 				signal = Qt::MetaObject.normalizedSignature(signal).to_s
 				if signal =~ /^(([\w,<>:]*)\s+)?([^\s]*)\((.*)\)/
 					@signals.push QObjectMember.new($3, $3 + "(" + $4 + ")", $4, ($2 == 'void' || $2.nil?) ? "" : $2)
+					signal_names << $3
 				else
 					qWarning( "#{@klass.name}: Invalid signal format: '#{signal}'" )
 				end
 			end
+			Internal.addSignalMethods(@klass, signal_names)
 		end
 		
 		# Return a list of signals, including inherited ones
