@@ -1,3 +1,11 @@
+2007-06-18  Richard Dale  <rdale@foton.es>
+
+	* When a Qt::Object is subclassed more than once, a Qt::MetaObject is
+	  now correctly constructed for each subclass. Before a half-working
+	  hack was used where a Qt::MetaObject containing all the slots and
+	  signal of its superclass too, was constructed for the twice sub-classed
+	  class. Fixes problems reported by Caleb Tennis amoungst several others.
+
 2007-06-12  Richard Dale  <rdale@foton.es>
 
 	* Added some missing list marshallers

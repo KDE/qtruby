@@ -2393,16 +2393,6 @@ module Qt
 			end
 		end
 	
-		def Internal.signalAt(qobject, index)
-			classname = qobject.class.name
-			Meta[classname].get_signals[index].full_name
-		end
-	
-		def Internal.slotAt(qobject, index)
-			classname = qobject.class.name
-			Meta[classname].get_slots[index].full_name
-		end
-	
 		def Internal.getMocArguments(reply_type, member)
 			argStr = member.sub(/.*\(/, '').sub(/\)$/, '')
 			args = argStr.scan(/([^,]*<[^>]+>)|([^,]+)/)
@@ -2505,24 +2495,28 @@ module Qt
 			return [stringdata.pack(pack_string), data]
 		end
 		
-		def Internal.getMetaObject(qobject)
-			klass = qobject.class
-			begin
-				meta = Meta[klass.name]
-				klass = klass.superclass
-			end while meta.nil? and klass != Object
+		def Internal.getMetaObject(klass, qobject)
+			if klass.nil?
+				klass = qobject.class
+			end
 
-			return nil if meta.nil?
-	
+			parentMeta = nil
+			if @@cpp_names[klass.superclass.name].nil?
+				parentMeta = getMetaObject(klass.superclass, qobject)
+			end
+
+			meta = Meta[klass.name]
+			if meta.nil?
+				meta = Qt::MetaInfo.new(klass) 
+			end
+
 			if meta.metaobject.nil? or meta.changed
-				signals 			= meta.get_signals
-				slots 				= meta.get_slots
-				stringdata, data 	= makeMetaData(	qobject.class.name, 
+				stringdata, data = makeMetaData(	qobject.class.name,
 													meta.classinfos,  
 													meta.dbus,
-													signals, 
-													slots)
-				meta.metaobject 	= make_metaObject(qobject, stringdata, data)
+													meta.signals, 
+													meta.slots )
+				meta.metaobject = make_metaObject(qobject, parentMeta, stringdata, data)
 				meta.changed = false
 				addSignalMethods(qobject.class, getSignalNames(qobject.class))
 			end
@@ -2562,6 +2556,7 @@ module Qt
 
 	class MetaInfo
 		attr_accessor :classinfos, :dbus, :signals, :slots, :metaobject, :mocargs, :changed
+
 		def initialize(klass)
 			Meta[klass.name] = self
 			@klass = klass
@@ -2614,20 +2609,6 @@ module Qt
 					qWarning( "#{@klass.name}: Invalid slot format: '#{slot}'" )
 				end
 			end
-		end
-		
-		# Return a list of slots, including inherited ones
-		def get_slots
-			all_slots = []
-			current = @klass
-			while current != Qt::Base
-				meta = Meta[current.name]
-				if !meta.nil?
-					all_slots.concat meta.slots
-				end
-				current = current.superclass
-			end
-			return all_slots
 		end
 
 		def add_classinfo(key, value)
