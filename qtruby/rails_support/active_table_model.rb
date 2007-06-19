@@ -1,9 +1,21 @@
+=begin
+This table model allows an ActiveRecord or ActiveResource to be used as a
+basis for a Qt::AbstractTableModel for viewing in a Qt::TableView. Example
+usage:
+
+app = Qt::Application.new(ARGV)
+agencies = TravelAgency.find(:all, :conditions => [:name => 'Another Agency'])
+model = ActiveTableModel.new(agencies)
+table = Qt::TableView.new
+table.model = model
+table.show
+app.exec
+
+Written by Richard Dale and Silvio Fonseca
+
+=end
+
 require 'Qt'
-
-#require "active_record"
-#require "active_support"
-#require "active_resource"
-
 require 'date'
 
 class ActiveTableModel < Qt::AbstractTableModel

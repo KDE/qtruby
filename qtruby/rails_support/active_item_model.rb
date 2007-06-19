@@ -1,3 +1,20 @@
+=begin
+This table model allows an ActiveRecord or ActiveResource to be used as a
+basis for a Qt::AbstractItemModel for viewing in a Qt::TreeView. Example
+usage:
+
+app = Qt::Application.new(ARGV)
+agencies = TravelAgency.find(:all)
+model = ActiveItemModel.new(agencies)
+tree = Qt::TreeView.new
+tree.model = model
+tree.show
+app.exec
+
+Written by Richard Dale and Silvio Fonseca
+
+=end
+
 require 'Qt'
 
 #require "active_record"
