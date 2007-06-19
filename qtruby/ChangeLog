@@ -1,3 +1,12 @@
+2007-06-19  Richard Dale  <rdale@foton.es>
+
+	* Released Qt4 QtRuby 1.4.8 on Rubyforge
+	* Fixed an error in the QGraphicsPixmapItem class which made it impossible
+	  to instantiate
+	* Building QtRuby against Qt 4.2 failed because of a reference to 
+	  the Qt 4.3 QMdiSubWindow class not being #ifdef'd correctly. Thanks to
+	  mhlmi on #qtruby irc for reporting these two bugs.
+
 2007-06-18  Richard Dale  <rdale@foton.es>
 
 	* When a Qt::Object is subclassed more than once, a Qt::MetaObject is

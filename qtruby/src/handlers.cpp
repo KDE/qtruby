@@ -592,7 +592,7 @@ resolve_classname(Smoke* smoke, int classId, void * ptr)
 		case 6:
 			return "Qt::GraphicsLineItem";
 		case 7:
-			return "Qt:GraphicsPixmapItem";
+			return "Qt::GraphicsPixmapItem";
 		case 8:
 			return "Qt::GraphicsTextItem";
 		case 9:
@@ -2306,7 +2306,6 @@ TypeHandler Qt_handlers[] = {
     { "QList<QKeySequence>&", marshall_QKeySequenceList },
     { "QList<QListWidgetItem*>", marshall_QListWidgetItemList },
     { "QList<QListWidgetItem*>&", marshall_QListWidgetItemList },
-    { "QList<QMdiSubWindow*>", marshall_QMdiSubWindowList },
     { "QList<QModelIndex>", marshall_QModelIndexList },
     { "QList<QModelIndex>&", marshall_QModelIndexList },
     { "QList<QNetworkAddressEntry>", marshall_QNetworkAddressEntryList },
