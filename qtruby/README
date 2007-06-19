@@ -1,5 +1,5 @@
 /***************************************************************************
- * 	(C) 2003 Richard Dale All rights reserved.                             *
+ * 	(C) 2003-2007 Richard Dale All rights reserved.                        *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as               *
@@ -38,11 +38,10 @@ Here is 'Hello World' in QtRuby:
 require 'Qt'
 
 a = Qt::Application.new(ARGV)
-hello = Qt::PushButton.new("Hello World!", nil)
+hello = Qt::PushButton.new("Hello World!")
 hello.resize(100, 30)
-a.setMainWidget(hello)
-hello.show()
-a.exec()
+hello.show
+a.exec
 
 Ruby 1.8 is unfortunately implicitly required as with 1.6.x it is not possible to:
 
@@ -85,6 +84,12 @@ QtRuby features a very complete coverage of the Qt api:
 			slots 'setColor(QColor)', 'slotLoad(const QString&)'..
 			signals 'clicked()'..
 			
+		If the slots or signal have no arguments they can also be declared as
+			Symbols:
+
+			slots :click, :toggle
+			signals :clicked
+
 		Currently C++ type signatures must be used, a future version of QtRuby
 			will allow ruby type signatures instead.
 		
@@ -194,54 +199,52 @@ QtRuby features a very complete coverage of the Qt api:
 	  will need to set $KCODE='u' or use the -Ku command line option.
  	
 	- Qt Designer
-		A 'rbuic' tool is included in qtruby/rubylib/designer/rbuic to compile
+		A 'rbuic4' tool is included in tools/rbuic to compile
 		.ui files into ruby code. As described above, Qt Designer uses UTF-8.
 		In addition to the options in the original uic C++ utility an '-x' flag
 		has been added. This will generate a top level stub in the code:
 		
-		$ rbuic mainform.ui -x -o mainform.rb
+		$ rbuic4 mainwindowbase.ui -x -o mainwindowbase.rb
 		
 		Will add this to the end of the generated code:
 
-	        if $0 == __FILE__
-                a = Qt::Application.new(ARGV)
-                w = MainForm.new
-                a.setMainWidget(w)
-                w.show
-                a.exec
-            end
+			if $0 == __FILE__
+				a = Qt::Application.new(ARGV)
+				u = Ui_MainWindowBase.new
+				w = Qt::MainWindow.new
+				u.setupUi(w)
+				w.show
+				a.exec
+			end
 			
 		Then you can test the example code straight away:
 			
-		$ ruby mainform.rb
+		$ ruby mainwindowbase.rb
 
-	- Loading .ui files at runtime with QWidgetFactory
-		You can load a Qt Designer .ui file at runtime with the qui extension,
+	- Loading .ui files at runtime with Qt::UiLoader
+		You can load a Qt Designer .ui file at runtime with Qt::UiLoader,
 		for example:
 		
 			require 'Qt'
-			require 'qui'
+			...
 
-			a = Qt::Application.new(ARGV)
-			if ARGV.length == 0
-				exit
+			loader = Qt::UiLoader.new
+			
+			file = Qt::File.new(":/forms/calculatorform.ui")
+			file.open(Qt::File::ReadOnly)
+			formWidget = loader.load(file, self)
+			file.close
+			
+			@ui_inputSpinBox1 = findChild(Qt::SpinBox, "inputSpinBox1")
+			@ui_inputSpinBox2 = findChild(Qt::SpinBox, "inputSpinBox2")
+			@ui_outputWidget = findChild(Qt::Label, "outputWidget")
+			
+			Qt::MetaObject.connectSlotsByName(self)
+			
+			self.layout = Qt::VBoxLayout.new do |l|
+				l.addWidget(formWidget)
 			end
 
-			if ARGV.length == 2
-				QUI::WidgetFactory.loadImages( ARGV[ 0 ] )
-    			w = QUI::WidgetFactory.create( ARGV[ 1 ] )
-    			if w.nil?
-					exit
-				end
-    			w.show()
-    			a.connect( a, SIGNAL('lastWindowClosed()'), a, SLOT('quit()') )
-    			a.exec()
-			end
-			
-	- QtRuby shell
-		You can use the QtRuby shell in bin/rbqtsh to create widgets 
-		interactively from the command line.
-			
 	- API reference
 		Use the bin/rbqtapi tool to discover which methods are available in
 		the QtRuby api.
@@ -249,10 +252,12 @@ QtRuby features a very complete coverage of the Qt api:
 	- Example programs
 		The best way to start programming QtRuby is to look at some existing
 		code and start messing with it.. 
-		The are various samples under qtruby/rubylib/examples.
+		The are various samples under qtruby/examples.
 
 	- Optional QScintilla text editing widget support
 		Great for building your own ruby IDE..
+
+	- Optional Qwt scientific plotting library support
 
 Have Fun!
 

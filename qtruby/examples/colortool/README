@@ -1,8 +1,0 @@
-This is the Qt Designer Tutorial 'Creating Dialogs' translated into QtRuby. It
-shows how you can combine ruby code generated from .ui files with the rbuic
-tool, with your own code.
-
-The .ui files and images are identical to the original C++ versions.
-
-It features a simple Makefile to run rbuic when you change the .ui files, and
-regenerate the ruby sources.
