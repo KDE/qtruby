@@ -28,7 +28,6 @@
 #include <kfileitem.h>
 #include <kfileview.h>
 #include <kurl.h>
-#include <kcmdlineargs.h>
 #include <kaction.h>
 #include <kfiletreebranch.h>
 #include <khtml_part.h>
@@ -114,64 +113,6 @@ kde_resolve_classname(Smoke * smoke, int classId, void * ptr)
 #else
 #  define BREAKPOINT { fprintf(stderr, "hit ctrl-c\n"); int b = 0; while (b == 0) { ; } }
 #endif
-
-void marshall_KCmdLineOptions(Marshall *m) {
-	switch(m->action()) {
-	case Marshall::FromVALUE: 
-		{
-			VALUE optionslist = *(m->var());
-			if (optionslist == Qnil
-			|| TYPE(optionslist) != T_ARRAY
-			|| RARRAY(optionslist)->len == 0 )
-			{
-					m->item().s_voidp = 0;
-					break;
-			}
-
-			// Allocate 'length + 1' entries, to include an all NULLs last entry
-			KCmdLineOptions *cmdLineOptions = (KCmdLineOptions *) calloc(	RARRAY(optionslist)->len + 1, 
-																			sizeof(struct KCmdLineOptions) );
-			
-			VALUE options;
-			long i;
-			for(i = 0; i < RARRAY(optionslist)->len; i++) {
-				options = rb_ary_entry(optionslist, i);
-				VALUE temp = rb_ary_entry(options, 0);
-				cmdLineOptions[i].name = StringValuePtr(temp);
-				temp = rb_ary_entry(options, 1);
-				cmdLineOptions[i].description = StringValuePtr(temp);
-				temp = rb_ary_entry(options, 2);
-				cmdLineOptions[i].def = StringValuePtr(temp);
-			}
-			cmdLineOptions[i].name = 0;
-			cmdLineOptions[i].description = 0;
-			cmdLineOptions[i].def = 0;
-
-			
-			m->item().s_voidp = cmdLineOptions;
-			m->next();
-         /*
-			if(m->cleanup()) {
-			rb_ary_clear(optionslist);
-			for(i = 0; cmdLineOptions[i].name; i++)
-				options = rb_ary_new();
-				rb_ary_push(options, rb_str_new2(cmdLineOptions[i].name));
-				rb_ary_push(options, rb_str_new2(cmdLineOptions[i].description));
-				rb_ary_push(options, rb_str_new2(cmdLineOptions[i].def));
-				rb_ary_push(optionslist, options);
-			}		
-         */
-		}
-		break;
-	case Marshall::ToVALUE: 
-		{
-		}
-		break;
-	default:
-		m->unsupported();
-		break;
-	}
-}
 
 /*
 void marshall_KMimeTypeList(Marshall *m) {
@@ -882,7 +823,6 @@ void marshall_ValueListItem(Marshall *m) {
         Marshall::HandlerFn marshall_##ListIdent = marshall_ValueListItem<Item,ItemList,ListIdent##STR>;
 
 DEF_VALUELIST_MARSHALLER( KAboutPersonList, QList<KAboutPerson>, KAboutPerson )
-DEF_VALUELIST_MARSHALLER( KAboutTranslatorList, QList<KAboutTranslator>, KAboutTranslator )
 DEF_VALUELIST_MARSHALLER( ChoicesList, QList<KConfigSkeleton::ItemEnum::Choice>, KConfigSkeleton::ItemEnum::Choice )
 DEF_VALUELIST_MARSHALLER( KDataToolInfoList, QList<KDataToolInfo>, KDataToolInfo )
 DEF_VALUELIST_MARSHALLER( KIOCopyInfoList, QList<KIO::CopyInfo>, KIO::CopyInfo )
@@ -1000,12 +940,10 @@ DEF_MAP_MARSHALLER( QMapKEntryKeyKEntry, KEntryKey, KEntry )
 */
 
 TypeHandler KDE_handlers[] = {
-    { "KCmdLineOptions*", marshall_KCmdLineOptions },
     { "KService::Ptr", marshall_KServicePtr },
     { "KService::List", marshall_KServiceList },
 
     { "QList<KAboutPerson>", marshall_KAboutPersonList },
-    { "QList<KAboutTranslator>", marshall_KAboutTranslatorList },
     { "QList<KAction*>", marshall_KActionList },
     { "QList<KActionCollection*>&", marshall_KActionCollectionList },
     { "QList<KConfigSkeleton::ItemEnum::Choice>", marshall_ChoicesList },
