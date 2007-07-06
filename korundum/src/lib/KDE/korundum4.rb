@@ -62,7 +62,7 @@ module KDE
 		# Otherwise, rb_gc_call_finalizer_at_exit() can delete
 		# stuff that KDE::Application still needs for its cleanup.
 		def exec
-			super
+			method_missing(:exec)
 			self.dispose
 			Qt::Internal.application_terminated = true
 		end
