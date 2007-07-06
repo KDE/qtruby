@@ -1,3 +1,7 @@
+2007-07-06  Richard Dale  <rdale@foton.es>
+
+	* The KDE::Application.exec method wasn't being called correctly
+
 2007-07-03  Richard Dale  <rdale@foton.es>
 
 	* Made korundum build with the current kdelibs classes
