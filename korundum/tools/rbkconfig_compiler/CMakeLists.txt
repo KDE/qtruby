@@ -8,8 +8,6 @@ include_directories( ${KDE4_INCLUDE_DIR} ${QT_INCLUDES}  )
 
 set(rbkconfig_compiler_SRCS rbkconfig_compiler.cpp )
 
-kde4_automoc(${rbkconfig_compiler_SRCS})
-
 kde4_add_executable(rbkconfig_compiler ${rbkconfig_compiler_SRCS})
 
 target_link_libraries(rbkconfig_compiler  ${KDE4_KDECORE_LIBS} )
