@@ -79,7 +79,7 @@ extern bool qUnregisterResourceData(int, const unsigned char *, const unsigned c
 #include "marshall_types.h"
 // #define DEBUG
 
-#define QTRUBY_VERSION "1.4.7"
+#define QTRUBY_VERSION "1.4.9"
 
 // Don't use kdemacros.h/KDE_EXPORT here as it needs to be free of KDE dependencies
 extern Q_DECL_EXPORT Smoke *qt_Smoke;
@@ -115,6 +115,7 @@ VALUE dom_module = Qnil;
 VALUE kontact_module = Qnil;
 VALUE kate_module = Qnil;
 VALUE ktexteditor_module = Qnil;
+VALUE plasma_module = Qnil;
 VALUE koffice_module = Qnil;
 VALUE qt_internal_module = Qnil;
 VALUE qt_base_class = Qnil;
@@ -3091,6 +3092,9 @@ static QRegExp * scope_op = 0;
 	} else if (packageName.startsWith("KTextEditor::")) {
 		klass = rb_define_class_under(ktexteditor_module, package+strlen("KTextEditor::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (packageName.startsWith("Plasma::")) {
+		klass = rb_define_class_under(plasma_module, package+strlen("Plasma::"), base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (scope_op->indexIn(packageName) != -1) {
 		// If an unrecognised classname of the form 'XXXXXX::YYYYYY' is found,
 		// then create a module XXXXXX to put the class YYYYYY under
@@ -3298,6 +3302,10 @@ set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE))
 	ktexteditor_module = rb_define_module("KTextEditor");
     rb_define_singleton_method(ktexteditor_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
     rb_define_singleton_method(ktexteditor_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	plasma_module = rb_define_module("Plasma");
+    rb_define_singleton_method(plasma_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+    rb_define_singleton_method(plasma_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 
 	kwin_class = rb_define_class_under(kde_module, "Win", qt_base_class);
 
