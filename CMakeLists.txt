@@ -5,6 +5,7 @@ macro_optional_find_package(RUBY)
 
 OPTION(ENABLE_QTRUBY "build QtRuby" ON)
 OPTION(ENABLE_KORUNDUM "build Korundum" ON)
+OPTION(ENABLE_PLASMA "build Plasma" ON)
 
 set(QTRUBY_ENABLED "no")
 set(KORUNDUM_ENABLED "no")
@@ -17,9 +18,14 @@ if(RUBY_EXECUTABLE)
         add_subdirectory( korundum )
         set(KORUNDUM_ENABLED "yes")
     endif(ENABLE_KORUNDUM)
+    if(ENABLE_PLASMA)
+        add_subdirectory( plasma )
+        set(PLASMA_ENABLED "yes")
+    endif(ENABLE_PLASMA)
 endif(RUBY_EXECUTABLE)
 message(STATUS "Build QtRuby... " ${QTRUBY_ENABLED})
 message(STATUS "Build Korundum... " ${KORUNDUM_ENABLED})
+message(STATUS "Build Plasma... " ${PLASMA_ENABLED})
 
 #####################################################################
 # Kross Ruby

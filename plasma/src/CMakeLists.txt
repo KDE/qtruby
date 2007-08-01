@@ -1,0 +1,14 @@
+
+include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src ${KDE4_INCLUDE_DIR} ${QT_INCLUDES}  )
+
+set(plasma_applet_LIB_SRCS 
+   plasma.cpp 
+   kdehandlers.cpp 
+   )
+
+kde4_add_library(plasma_applet SHARED ${plasma_applet_LIB_SRCS})
+
+target_link_libraries(plasma_applet ${KDE4_KDECORE_LIBS} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokeplasma qtrubyinternal )
+
+set_target_properties(plasma_applet PROPERTIES VERSION 0.0.0 SOVERSION 0 PREFIX "")
+install(TARGETS plasma_applet  DESTINATION ${RUBY_SITE_ARCH_DIR} )
