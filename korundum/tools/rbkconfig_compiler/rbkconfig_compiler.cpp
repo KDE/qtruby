@@ -457,7 +457,7 @@ CfgEntry *parseEntry( const QString &group, const QDomElement &element )
 
   if ( nameIsEmpty ) {
     name = key;
-    name.replace( " ", QString::null );
+    name.replace( ' ', QString::null );	//krazy:exclude=nullstrassign for old broken gcc
   } else if ( name.contains( ' ' ) ) {
     kdWarning()<<"Entry '"<<name<<"' contains spaces! <name> elements can't contain speces!"<<endl;
     name.remove( ' ' );
@@ -490,11 +490,11 @@ CfgEntry *parseEntry( const QString &group, const QDomElement &element )
   {
     // Adjust name
     paramName = name;
-    name.replace("$("+param+")", QString::null);
+    name.replace("$("+param+")", QString::null);	//krazy:exclude=nullstrassign for old broken gcc
     // Lookup defaults for indexed entries
     for(int i = 0; i <= paramMax; i++)
     {
-      paramDefaultValues.append(QString::null);
+      paramDefaultValues.append(QString::null);	//krazy:exclude=nullstrassign for old broken gcc
     }
 
     QDomNode n;
@@ -682,7 +682,7 @@ static QString itemVar(const CfgEntry *e)
 }
 
 QString newItem( const QString &type, const QString &name, const QString &key,
-                 const QString &defaultValue, const QString &param = QString::null)
+                 const QString &defaultValue, const QString &param = QString::null)	//krazy:exclude=nullstrassign for old broken gcc
 {
   QString t = "Item" + itemType( type ) +
               ".new( currentGroup(), " + key + ", " + varName( name ) + param;
@@ -707,8 +707,8 @@ QString newItem( const QString &type, const QString &name, const QString &key,
 }
 
 QString addItem( const QString &type, const QString &name, const QString &key,
-                 const QString &defaultValue, const QString &param = QString::null,
-                 const QString &paramName = QString::null )
+                 const QString &defaultValue, const QString &param = QString::null,	//krazy:exclude=nullstrassign for old broken gcc
+                 const QString &paramName = QString::null )	//krazy:exclude=nullstrassign for old broken gcc
 {
   QString t = "addItem" + itemType( type ) +
               "( " + key + ", " + varName( name ) + param;
@@ -779,7 +779,7 @@ QString paramString(const QString &group, const QStringList &parameters)
 }
 
 /* int i is the value of the parameter */
-QString userTextsFunctions( CfgEntry *e, QString itemVarStr=QString::null, QString i=QString::null )
+QString userTextsFunctions( CfgEntry *e, QString itemVarStr=QString::null, QString i=QString::null )	//krazy:exclude=nullstrassign for old broken gcc
 {
   QString txt;
   if (itemVarStr.isNull()) itemVarStr=itemVar(e);
@@ -1230,7 +1230,7 @@ int main( int argc, char **argv )
   rb << endl;
 
 
-  group = QString::null;
+  group = QString();
   for( e = entries.first(); e; e = entries.next() ) {
     if ( e->group() != group ) {
       if ( !group.isEmpty() ) rb << endl;
