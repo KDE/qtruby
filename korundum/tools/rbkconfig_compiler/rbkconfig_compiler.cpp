@@ -457,7 +457,7 @@ CfgEntry *parseEntry( const QString &group, const QDomElement &element )
 
   if ( nameIsEmpty ) {
     name = key;
-    name.replace( ' ', QString::null );	//krazy:exclude=nullstrassign for old broken gcc
+    name.replace( ' ', QString() );
   } else if ( name.contains( ' ' ) ) {
     kdWarning()<<"Entry '"<<name<<"' contains spaces! <name> elements can't contain speces!"<<endl;
     name.remove( ' ' );
@@ -490,7 +490,7 @@ CfgEntry *parseEntry( const QString &group, const QDomElement &element )
   {
     // Adjust name
     paramName = name;
-    name.replace("$("+param+")", QString::null);	//krazy:exclude=nullstrassign for old broken gcc
+    name.replace("$("+param+")", QString());
     // Lookup defaults for indexed entries
     for(int i = 0; i <= paramMax; i++)
     {
@@ -682,7 +682,7 @@ static QString itemVar(const CfgEntry *e)
 }
 
 QString newItem( const QString &type, const QString &name, const QString &key,
-                 const QString &defaultValue, const QString &param = QString::null)	//krazy:exclude=nullstrassign for old broken gcc
+                 const QString &defaultValue, const QString &param = QString())
 {
   QString t = "Item" + itemType( type ) +
               ".new( currentGroup(), " + key + ", " + varName( name ) + param;
@@ -707,8 +707,8 @@ QString newItem( const QString &type, const QString &name, const QString &key,
 }
 
 QString addItem( const QString &type, const QString &name, const QString &key,
-                 const QString &defaultValue, const QString &param = QString::null,	//krazy:exclude=nullstrassign for old broken gcc
-                 const QString &paramName = QString::null )	//krazy:exclude=nullstrassign for old broken gcc
+                 const QString &defaultValue, const QString &param = QString(),
+                 const QString &paramName = QString() )
 {
   QString t = "addItem" + itemType( type ) +
               "( " + key + ", " + varName( name ) + param;
@@ -779,7 +779,7 @@ QString paramString(const QString &group, const QStringList &parameters)
 }
 
 /* int i is the value of the parameter */
-QString userTextsFunctions( CfgEntry *e, QString itemVarStr=QString::null, QString i=QString::null )	//krazy:exclude=nullstrassign for old broken gcc
+QString userTextsFunctions( CfgEntry *e, QString itemVarStr=QString(), QString i=QString() )
 {
   QString txt;
   if (itemVarStr.isNull()) itemVarStr=itemVar(e);
