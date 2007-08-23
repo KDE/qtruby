@@ -38,8 +38,19 @@ if(ENABLE_KROSSRUBY)
     if (RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_PATH)
         EXECUTE_PROCESS(COMMAND ${RUBY_EXECUTABLE} -r mkmf -e "exit(have_func('rb_hash_foreach') ? 0 : 1)" RESULT_VARIABLE RUBY_HASH_FOREACH OUTPUT_QUIET)
         if (RUBY_HASH_FOREACH EQUAL 0)
-            add_subdirectory(krossruby)
-            set(KROSSRUBY_ENABLED "yes")
+
+            set(CMAKE_REQUIRED_INCLUDES ${RUBY_INCLUDE_PATH})
+            set(CMAKE_REQUIRED_LIBRARIES ${RUBY_LIBRARY})
+            CHECK_CXX_SOURCE_COMPILES("
+                #include <ruby.h>
+                int main() { ruby_init(); return 0; }" RubyCompiles)
+            if(RubyCompiles)
+                add_subdirectory(krossruby)
+                set(KROSSRUBY_ENABLED "yes")
+            else(RubyCompiles)
+                message(STATUS "Failed to compile a C++ program that embeds ruby.")
+            endif(RubyCompiles)
+
         else (RUBY_HASH_FOREACH EQUAL 0)
 
             # 2007-02-12 sebsauer; this is a workaround for the case we failed to load
