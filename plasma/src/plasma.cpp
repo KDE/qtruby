@@ -51,7 +51,7 @@ Marshall::HandlerFn getMarshallFn(const SmokeType &type);
 extern "C" {
 extern Q_DECL_EXPORT void Init_plasma_applet();
 extern void Init_qtruby4();
-extern Q_DECL_EXPORT KLibFactory * rb_plasma_applet_factory(const char * factory);
+extern Q_DECL_EXPORT KPluginFactory * rb_plasma_applet_factory(const char * factory);
 extern void set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE));
 extern void set_kde_resolve_classname(const char * (*kde_resolve_classname) (Smoke*, int, void *));
 extern const char * kde_resolve_classname(Smoke* smoke, int classId, void * ptr);
@@ -74,7 +74,7 @@ new_kde(int argc, VALUE * argv, VALUE klass)
 	return instance;
 }
 
-KLibFactory *
+KPluginFactory *
 rb_plasma_applet_factory(const char * factory)
 {
 printf("ENTER rb_plasma_applet_factory %s\n", factory);
@@ -91,7 +91,7 @@ printf("rb_plasma_applet_factory factory value nil\n");
 	}
 
     smokeruby_object * o = value_obj_info(factory_value);
-	return (KLibFactory *) o->ptr;
+	return (KPluginFactory *) o->ptr;
 }
 
 void
