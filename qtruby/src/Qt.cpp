@@ -641,6 +641,26 @@ cast_object_to(VALUE /*self*/, VALUE object, VALUE new_klass)
     return obj;
 }
 
+VALUE 
+kross2smoke(VALUE /*self*/, VALUE krobject, VALUE new_klass)
+{
+  VALUE new_klassname = rb_funcall(new_klass, rb_intern("name"), 0);
+  
+  Smoke::Index * cast_to_id = classcache.value(StringValuePtr(new_klassname));
+  if (cast_to_id == 0) {
+    rb_raise(rb_eArgError, "unable to find class \"%s\" to cast to\n", StringValuePtr(new_klassname));
+  }
+  
+  void* o;
+  Data_Get_Struct(krobject, void, o);
+  
+  smokeruby_object * o_cast = alloc_smokeruby_object(false, qt_Smoke, (int) *cast_to_id, o);
+  
+  VALUE obj = Data_Wrap_Struct(new_klass, smokeruby_mark, smokeruby_free, (void *) o_cast);
+  mapPointer(obj, o_cast, o_cast->classId, 0);
+  return obj;
+}
+
 VALUE
 qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 {
@@ -2128,7 +2148,6 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 	// Note that for a slot with no args and no return type,
 	// it isn't an error to get a NULL value of _o here.
 	Data_Get_Struct(argv[2], void*, _o);
-	
 	// Assume the target slot is a C++ one
 	smokeruby_object *o = value_obj_info(self);
 	Smoke::Index nameId = o->smoke->idMethodName("qt_metacall$$?");
@@ -2187,7 +2206,6 @@ static QRegExp * rx = 0;
 			rx = new QRegExp("\\(.*");
 		}
 		name.replace(*rx, "");
-	
 		InvokeSlot slot(self, rb_intern(name.toLatin1()), mocArgs, _o);
 		slot.next();
 	}
@@ -3410,6 +3428,7 @@ Init_qtruby4()
     rb_define_module_function(qt_internal_module, "create_qt_class", (VALUE (*) (...)) create_qt_class, 1);
     rb_define_module_function(qt_internal_module, "create_qobject_class", (VALUE (*) (...)) create_qobject_class, 1);
     rb_define_module_function(qt_internal_module, "cast_object_to", (VALUE (*) (...)) cast_object_to, 2);
+    rb_define_module_function(qt_internal_module, "kross2smoke", (VALUE (*) (...)) kross2smoke, 2);
     rb_define_module_function(qt_internal_module, "application_terminated=", (VALUE (*) (...)) set_application_terminated, 1);
     
 	rb_define_module_function(qt_module, "version", (VALUE (*) (...)) version, 0);

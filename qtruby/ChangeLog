@@ -1,3 +1,11 @@
+2007-09-07  Richard Dale  <rdale@foton.es>
+
+	* Added a kross2qtruby method from Cyrille Berger to convert from a kross 
+	  instance to a qtruby instance
+	* Fixed bug in overloaded method resolution where a quint32 was being given
+	  equal priority to a qint32 type. Thanks to joseph/vista on #qtruby for
+	  reporting the bug
+
 2007-07-28  Richard Dale  <rdale@foton.es>
 
 	* Up the version to 1.4.9
