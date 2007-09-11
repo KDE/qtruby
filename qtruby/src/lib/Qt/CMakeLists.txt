@@ -1,5 +1,5 @@
 
-install( FILES  qtruby4.rb DESTINATION ${RUBY_SITE_LIB_DIR}/Qt )
+install( FILES  qtruby4.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/Qt )
 
 
 

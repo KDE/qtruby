@@ -31,10 +31,10 @@ target_link_libraries(qtrubyinternal ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} ${QT_Q
 
 set_target_properties(qtruby4 PROPERTIES VERSION 0.0.0 SOVERSION 0 PREFIX "")
 
-install(TARGETS qtruby4  DESTINATION ${RUBY_SITE_ARCH_DIR} )
+install(TARGETS qtruby4  DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR} )
 
 if (Q_WS_MAC)
-    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${RUBY_SITE_ARCH_DIR}/qtruby4.so\"  \"${RUBY_SITE_ARCH_DIR}/qtruby4.bundle\" )" )
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CUSTOM_RUBY_SITE_ARCH_DIR}/qtruby4.so\"  \"${CUSTOM_RUBY_SITE_ARCH_DIR}/qtruby4.bundle\" )" )
 endif (Q_WS_MAC)
 
 ########### next target ###############
