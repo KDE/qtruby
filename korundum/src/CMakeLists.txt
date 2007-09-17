@@ -8,9 +8,17 @@ set(korundum_LIB_SRCS
    kdehandlers.cpp 
    )
 
+set(factory_SRCS
+    krubypluginfactory.cpp)
+
 kde4_add_library(korundum4 SHARED ${korundum_LIB_SRCS})
 
 target_link_libraries(korundum4 ${KDE4_KDECORE_LIBS} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokekde qtrubyinternal )
 
 set_target_properties(korundum4 PROPERTIES VERSION 0.0.0 SOVERSION 0 PREFIX "")
+
+kde4_add_plugin(krubypluginfactory ${factory_SRCS})
+target_link_libraries(krubypluginfactory ${KDE4_KDECORE_LIBS} ${RUBY_LIBRARY})
+
 install(TARGETS korundum4  DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR} )
+install(TARGETS krubypluginfactory DESTINATION ${PLUGIN_INSTALL_DIR})
