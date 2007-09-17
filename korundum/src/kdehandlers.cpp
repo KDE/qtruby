@@ -823,6 +823,7 @@ void marshall_ValueListItem(Marshall *m) {
         Marshall::HandlerFn marshall_##ListIdent = marshall_ValueListItem<Item,ItemList,ListIdent##STR>;
 
 DEF_VALUELIST_MARSHALLER( KAboutPersonList, QList<KAboutPerson>, KAboutPerson )
+DEF_VALUELIST_MARSHALLER( QColorList, QList<QColor>, QColor )
 DEF_VALUELIST_MARSHALLER( ChoicesList, QList<KConfigSkeleton::ItemEnum::Choice>, KConfigSkeleton::ItemEnum::Choice )
 DEF_VALUELIST_MARSHALLER( KDataToolInfoList, QList<KDataToolInfo>, KDataToolInfo )
 DEF_VALUELIST_MARSHALLER( KIOCopyInfoList, QList<KIO::CopyInfo>, KIO::CopyInfo )
@@ -946,6 +947,8 @@ TypeHandler KDE_handlers[] = {
     { "QList<KAboutPerson>", marshall_KAboutPersonList },
     { "QList<KAction*>", marshall_KActionList },
     { "QList<KActionCollection*>&", marshall_KActionCollectionList },
+    { "QList<QColor>", marshall_QColorList },
+    { "QList<QColor>&", marshall_QColorList },
     { "QList<KConfigSkeleton::ItemEnum::Choice>", marshall_ChoicesList },
     { "QList<KConfigSkeleton::ItemEnum::Choice>&", marshall_ChoicesList },
     { "QList<KDataToolInfo>", marshall_KDataToolInfoList },
