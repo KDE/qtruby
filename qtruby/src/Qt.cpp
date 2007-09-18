@@ -662,6 +662,15 @@ kross2smoke(VALUE /*self*/, VALUE krobject, VALUE new_klass)
 }
 
 VALUE
+smoke2kross(VALUE /* self*/, VALUE sobj)
+{
+  smokeruby_object * o;
+  Data_Get_Struct(sobj, smokeruby_object, o);	
+  
+  return Data_Wrap_Struct(rb_cObject, 0, 0, o->ptr );
+}
+
+VALUE
 qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 {
 	char * classname = rb_class2name(variant_value_klass);
@@ -3429,6 +3438,7 @@ Init_qtruby4()
     rb_define_module_function(qt_internal_module, "create_qobject_class", (VALUE (*) (...)) create_qobject_class, 1);
     rb_define_module_function(qt_internal_module, "cast_object_to", (VALUE (*) (...)) cast_object_to, 2);
     rb_define_module_function(qt_internal_module, "kross2smoke", (VALUE (*) (...)) kross2smoke, 2);
+    rb_define_module_function(qt_internal_module, "smoke2kross", (VALUE (*) (...)) smoke2kross, 1);
     rb_define_module_function(qt_internal_module, "application_terminated=", (VALUE (*) (...)) set_application_terminated, 1);
     
 	rb_define_module_function(qt_module, "version", (VALUE (*) (...)) version, 0);
