@@ -74,7 +74,6 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
     ruby_init();
     ruby_script(QFile::encodeName(program.fileName()));
     ruby_init_loadpath();
-    //rb_require("plasma_applet");
 
     ruby_incpush(QFile::encodeName(program.path()));
 
@@ -94,7 +93,18 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
         return 0;
     }
 
-    VALUE plugin_value = rb_funcall(plugin_class, rb_intern("new"), 0); // TODO pass parent and args
+    VALUE av = rb_ary_new();
+    for (int i = 0; i < args.size(); ++i) {
+        if (args.at(i).type() == QVariant::String) {
+            rb_ary_push(av, rb_str_new2(args.at(i).toByteArray()));
+        } else if (args.at(i).type() == QVariant::Int) {
+            rb_ary_push(av, INT2NUM(args.at(i).toInt()));
+        } else if (args.at(i).type() == QVariant::Bool) {
+            rb_ary_push(av, args.at(i).toBool() ? Qtrue : Qfalse);
+        }
+    }
+
+    VALUE plugin_value = rb_funcall(plugin_class, rb_intern("new"), 2, Qnil, av);
     if (plugin_value == Qnil) {
         kWarning() << "failed to create instance of plugin class";
         return 0;
