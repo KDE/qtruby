@@ -102,5 +102,7 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
 
     smokeruby_object *o = 0;
     Data_Get_Struct(plugin_value, smokeruby_object, o);
-    return reinterpret_cast<QObject *>(o->ptr);
+    QObject * createdInstance = reinterpret_cast<QObject *>(o->ptr);
+    createdInstance->setParent(parent);
+    return createdInstance;
 }
