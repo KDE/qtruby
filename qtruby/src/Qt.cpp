@@ -3453,4 +3453,4 @@ Init_qtruby4()
     rb_funcall(qt_internal_module, rb_intern("init_all_classes"), 0);
 }
 
-};
+}
