@@ -131,7 +131,7 @@ VALUE kio_udsatom_class = Qnil;
 VALUE kwin_class = Qnil;
 VALUE konsole_part_class = Qnil;
 bool application_terminated = false;
-};
+}
 
 #define logger logger_backend
 void rb_str_catf(VALUE self, const char *format, ...) __attribute__ ((format (printf, 2, 3)));
