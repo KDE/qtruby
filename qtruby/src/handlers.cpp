@@ -2230,7 +2230,7 @@ void marshall_ValueListItem(Marshall *m) {
 	}
 }
 
-#define DEF_VALUELIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; };  \
+#define DEF_VALUELIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; }  \
         Marshall::HandlerFn marshall_##ListIdent = marshall_ValueListItem<Item,ItemList,ListIdent##STR>;
 
 DEF_VALUELIST_MARSHALLER( QColorVector, QVector<QColor>, QColor )
