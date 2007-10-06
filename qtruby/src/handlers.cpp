@@ -83,7 +83,7 @@ extern VALUE set_obj_info(const char * className, smokeruby_object * o);
 extern VALUE qt_internal_module;
 extern VALUE qvariant_class;
 extern bool application_terminated;
-};
+}
 
 extern bool isDerivedFromByName(Smoke *smoke, const char *className, const char *baseClassName);
 extern void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *lastptr);
@@ -98,7 +98,7 @@ set_kde_resolve_classname(const char * (*kde_resolve_classname) (Smoke*, int, vo
 	_kde_resolve_classname = kde_resolve_classname;
 }
 
-};
+}
 
 void
 mark_qobject_children(QObject * qobject)
@@ -2095,7 +2095,7 @@ void marshall_QPairintint(Marshall *m) {
     }
 }
 
-#define DEF_LIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; };  \
+#define DEF_LIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; }  \
         Marshall::HandlerFn marshall_##ListIdent = marshall_ItemList<Item,ItemList,ListIdent##STR>;
 
 DEF_LIST_MARSHALLER( QAbstractButtonList, QList<QAbstractButton*>, QAbstractButton )
