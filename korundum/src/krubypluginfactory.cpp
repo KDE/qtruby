@@ -26,9 +26,10 @@
 
 #include <KStandardDirs>
 #include <klibloader.h>
+#include <kdebug.h>
 
 /*
-    Duplication the definition of this struct, to avoid linking directly
+    Duplicate the definition of this struct, to avoid linking directly
     against the QtRuby libs
 */
 struct smokeruby_object {
@@ -57,8 +58,6 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
 {
     Q_UNUSED(iface);
     Q_UNUSED(parentWidget);
-    Q_UNUSED(parent);
-    Q_UNUSED(args);
 
     // suggestion for script lookup:
     //KStandardDirs::locate("data", QString::fromLatin1(iface) + QLatin1Char('/') + keyword);
@@ -93,6 +92,7 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
         return 0;
     }
 
+    // Assume the args list only contains strings, ints and booleans
     VALUE av = rb_ary_new();
     for (int i = 0; i < args.size(); ++i) {
         if (args.at(i).type() == QVariant::String) {
