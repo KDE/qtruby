@@ -103,33 +103,40 @@ QHash<QByteArray, Smoke::Index *> classcache;
 QHash<int, QByteArray*> classname;
 
 extern "C" {
-VALUE qt_module = Qnil;
-VALUE qext_scintilla_module = Qnil;
-VALUE qwt_module = Qnil;
-VALUE qt3_module = Qnil;
-VALUE kde_module = Qnil;
-VALUE kparts_module = Qnil;
-VALUE kio_module = Qnil;
-VALUE kns_module = Qnil;
 VALUE dom_module = Qnil;
-VALUE kontact_module = Qnil;
 VALUE kate_module = Qnil;
-VALUE ktexteditor_module = Qnil;
-VALUE plasma_module = Qnil;
+VALUE kde_module = Qnil;
+VALUE kio_module = Qnil;
+VALUE kmediaplayer_module = Qnil;
+VALUE kns_module = Qnil;
 VALUE koffice_module = Qnil;
+VALUE kontact_module = Qnil;
+VALUE kparts_module = Qnil;
+VALUE ktexteditor_module = Qnil;
+VALUE kwallet_module = Qnil;
+VALUE plasma_module = Qnil;
+VALUE qext_scintilla_module = Qnil;
+VALUE qt3_module = Qnil;
 VALUE qt_internal_module = Qnil;
-VALUE qt_base_class = Qnil;
-VALUE qmetaobject_class = Qnil;
-VALUE qvariant_class = Qnil;
-VALUE qtextlayout_class = Qnil;
-VALUE qlistmodel_class = Qnil;
-VALUE qtablemodel_class = Qnil;
+VALUE qt_module = Qnil;
+VALUE qwt_module = Qnil;
+VALUE safesite_module = Qnil;
+VALUE sonnet_module = Qnil;
+
+
 VALUE kconfigskeleton_class = Qnil;
-VALUE kconfigskeleton_itemenum_class = Qnil;
 VALUE kconfigskeleton_itemenum_choice_class = Qnil;
+VALUE kconfigskeleton_itemenum_class = Qnil;
 VALUE kio_udsatom_class = Qnil;
-VALUE kwin_class = Qnil;
 VALUE konsole_part_class = Qnil;
+VALUE kwin_class = Qnil;
+VALUE qlistmodel_class = Qnil;
+VALUE qmetaobject_class = Qnil;
+VALUE qtablemodel_class = Qnil;
+VALUE qt_base_class = Qnil;
+VALUE qtextlayout_class = Qnil;
+VALUE qvariant_class = Qnil;
+
 bool application_terminated = false;
 }
 
@@ -3116,11 +3123,23 @@ static QRegExp * scope_op = 0;
 	} else if (packageName.startsWith("Kate")) {
 		klass = rb_define_class_under(kate_module, package+strlen("Kate"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (packageName.startsWith("KMediaPlayer::")) {
+		klass = rb_define_class_under(kmediaplayer_module, package+strlen("KMediaPlayer::"), base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (packageName.startsWith("KTextEditor::")) {
 		klass = rb_define_class_under(ktexteditor_module, package+strlen("KTextEditor::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (packageName.startsWith("KWallet::")) {
+		klass = rb_define_class_under(kwallet_module, package+strlen("KWallet::"), base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (packageName.startsWith("Plasma::")) {
 		klass = rb_define_class_under(plasma_module, package+strlen("Plasma::"), base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (packageName.startsWith("SafeSite::")) {
+		klass = rb_define_class_under(safesite_module, package+strlen("SafeSite::"), base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (packageName.startsWith("Sonnet::")) {
+		klass = rb_define_class_under(sonnet_module, package+strlen("Sonnet::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (scope_op->indexIn(packageName) != -1) {
 		// If an unrecognised classname of the form 'XXXXXX::YYYYYY' is found,
@@ -3340,9 +3359,25 @@ set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE))
     rb_define_singleton_method(kate_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
     rb_define_singleton_method(kate_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 
+	kmediaplayer_module = rb_define_module("KMediaPlayer");
+	rb_define_singleton_method(kmediaplayer_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(kmediaplayer_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
 	koffice_module = rb_define_module("Ko");
 	rb_define_singleton_method(koffice_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 	rb_define_singleton_method(koffice_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	kwallet_module = rb_define_module("KWallet");
+	rb_define_singleton_method(kwallet_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(kwallet_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	safesite_module = rb_define_module("SafeSite");
+	rb_define_singleton_method(safesite_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(safesite_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	sonnet_module = rb_define_module("Sonnet");
+	rb_define_singleton_method(sonnet_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(sonnet_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 }
 
 void

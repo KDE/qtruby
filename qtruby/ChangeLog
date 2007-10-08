@@ -1,3 +1,7 @@
+2007-10-08  Richard Dale  <rdale@foton.es>
+
+	* Added some missing modules for namespaces in the KDE4 classes
+
 2007-09-07  Richard Dale  <rdale@foton.es>
 
 	* Added a kross2qtruby method from Cyrille Berger to convert from a kross 

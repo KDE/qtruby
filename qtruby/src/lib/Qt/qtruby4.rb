@@ -2232,7 +2232,7 @@ module Qt
 			
 			if method == "new"
 				method = classname.dup 
-				method.gsub!(/^(QTextLayout|KParts|KIO|KNS|DOM|Kontact|Kate|KTextEditor|KConfigSkeleton::ItemEnum|KConfigSkeleton|KWin|Plasma)::/,"")
+				method.gsub!(/^(Qt::TextEdit|Qt::TextBlock|Qt::TextLayout|Qt::TextFrame|KBookmark|KParts|KMediaPlayer|KIO|KNS|DOM|Kontact|Kate|KSettings|KTimeZone|KTextEditor|KConfigSkeleton::ItemEnum|KConfigSkeleton|KWin|KWallet|Plasma|SafeSite|Sonnet)::/,"")
 			end
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
 			# Change foobar= to setFoobar()					
