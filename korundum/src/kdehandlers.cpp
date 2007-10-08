@@ -50,7 +50,7 @@
 
 extern "C" {
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
-};
+}
 
 extern bool isDerivedFromByName(Smoke *smoke, const char *className, const char *baseClassName);
 
@@ -106,7 +106,7 @@ kde_resolve_classname(Smoke * smoke, int classId, void * ptr)
 	return smoke->binding->className(classId);
 }
 
-};
+}
 
 #if defined (__i386__) && defined (__GNUC__) && __GNUC__ >= 2
 #  define BREAKPOINT { __asm__ __volatile__ ("int $03"); }
@@ -706,7 +706,7 @@ void marshall_ItemList(Marshall *m) {
    }
 }
 
-#define DEF_LIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; };  \
+#define DEF_LIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; }  \
         Marshall::HandlerFn marshall_##ListIdent = marshall_ItemList<Item,ItemList,ListIdent##STR>;
 
 DEF_LIST_MARSHALLER( KActionList, QList<KAction*>, KAction )
@@ -819,7 +819,7 @@ void marshall_ValueListItem(Marshall *m) {
 	}
 }
 
-#define DEF_VALUELIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; };  \
+#define DEF_VALUELIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; }  \
         Marshall::HandlerFn marshall_##ListIdent = marshall_ValueListItem<Item,ItemList,ListIdent##STR>;
 
 DEF_VALUELIST_MARSHALLER( KAboutPersonList, QList<KAboutPerson>, KAboutPerson )
@@ -933,7 +933,7 @@ void marshall_Map(Marshall *m) {
     }
 }
 
-#define DEF_MAP_MARSHALLER(MapIdent,Qt::Key,Value) namespace { char KeyIdent##STR[] = #Qt::Key; char ValueIdent##STR[] = #Value; };  \
+#define DEF_MAP_MARSHALLER(MapIdent,Qt::Key,Value) namespace { char KeyIdent##STR[] = #Qt::Key; char ValueIdent##STR[] = #Value; }  \
         Marshall::HandlerFn marshall_##MapIdent = marshall_Map<Qt::Key, Value,QMap<Qt::Key,Value>::Iterator,KeyIdent##STR, ValueIdent##STR>;
 
 DEF_MAP_MARSHALLER( QMapKEntryKeyKEntry, KEntryKey, KEntry )
