@@ -39,7 +39,7 @@ extern VALUE qt_internal_module;
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
 extern void set_kde_resolve_classname(const char * (*kde_resolve_classname) (Smoke*, int, void *));
 extern const char * kde_resolve_classname(Smoke* smoke, int classId, void * ptr);
-};
+}
 
 extern TypeHandler KDE_handlers[];
 extern void install_handlers(TypeHandler *);
@@ -118,4 +118,4 @@ Init_plasma_applet()
 //	rb_require("KDE/plasma.rb");
 }
 
-};
+}
