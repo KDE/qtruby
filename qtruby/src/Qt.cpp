@@ -3201,11 +3201,11 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 		if (packageName == "Qt::AbstractItemModel") {
 			rb_define_method(klass, "createIndex", (VALUE (*) (...)) qabstractitemmodel_createindex, -1);
 		}
-	} else if (packageName.startsWith("Qext::")) {
+	} else if (packageName.startsWith("Qsci::")) {
 		if (qext_scintilla_module == Qnil) {
-			qext_scintilla_module = rb_define_module("Qext");
+			qext_scintilla_module = rb_define_module("Qsci");
 		}
-		klass = rb_define_class_under(qext_scintilla_module, package+strlen("Qext::"), qt_base_class);
+		klass = rb_define_class_under(qext_scintilla_module, package+strlen("Qsci::"), qt_base_class);
 	} else if (packageName.startsWith("Qwt::")) {
 		if (qwt_module == Qnil) {
 			qwt_module = rb_define_module("Qwt");
@@ -3244,11 +3244,11 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 		klass = rb_define_class_under(qtextlayout_class, package+strlen("Qt::TextLayout::"), qt_base_class);
 	} else if (packageName.startsWith("Qt::")) {
 		klass = rb_define_class_under(qt_module, package+strlen("Qt::"), qt_base_class);
-	} else if (packageName.startsWith("Qext::")) {
+	} else if (packageName.startsWith("Qsci::")) {
 		if (qext_scintilla_module == Qnil) {
-			qext_scintilla_module = rb_define_module("Qext");
+			qext_scintilla_module = rb_define_module("Qsci");
 		}
-    	klass = rb_define_class_under(qext_scintilla_module, package+strlen("Qext::"), qt_base_class);
+    	klass = rb_define_class_under(qext_scintilla_module, package+strlen("Qsci::"), qt_base_class);
 	} else if (packageName.startsWith("Qwt::")) {
 		if (qwt_module == Qnil) {
 			qwt_module = rb_define_module("Qwt");

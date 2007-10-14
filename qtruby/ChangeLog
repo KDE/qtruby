@@ -1,3 +1,9 @@
+2007-10-14  Richard Dale  <rdale@foton.es>
+
+	* The QScintilla class names now all start with Qsci instead of Qext,
+	  so change the QtRuby module name from Qext:: to Qsci::
+	* Fixes a seg fault pointed out by Adreas Pakulat
+
 2007-10-08  Richard Dale  <rdale@foton.es>
 
 	* Added some missing modules for namespaces in the KDE4 classes
