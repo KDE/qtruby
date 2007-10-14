@@ -2082,7 +2082,6 @@ module Qt
 		end
 
 		def Internal.init_class(c)
-puts c
 			classname = Qt::Internal::normalize_classname(c)
 			classId = Qt::Internal.idClass(c)
 			insert_pclassid(classname, classId)
