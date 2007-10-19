@@ -2377,15 +2377,6 @@ module Qt
 			end
 		end
 	
-		def Internal.signalInfo(qobject, signal_name)
-			signals = Meta[qobject.class.name].get_signals
-			signals.each_with_index do |signal, i|
-				if signal.name == signal_name
-					return [signal.reply_type, signal.full_name, i]
-				end
-			end
-		end
-	
 		def Internal.getMocArguments(reply_type, member)
 			argStr = member.sub(/.*\(/, '').sub(/\)$/, '')
 			args = argStr.scan(/([^,]*<[^>]+>)|([^,]+)/)

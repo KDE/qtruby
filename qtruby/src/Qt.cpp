@@ -434,7 +434,7 @@ EmitSignal::emitSignal()
 	void ** o = new void*[_items];
 	smokeStackToQtStack(_stack, o + 1, _items - 1, _args + 1);
 	_obj->metaObject()->activate(_obj, _id, o);
-	
+
 	if (_args[0].argType != xmoc_void) {
 		SignalReturnValue r(o, _result, _args);
 	}
@@ -2105,49 +2105,56 @@ qapplication_argv(VALUE /*self*/)
 //----------------- Sig/Slot ------------------
 
 
-VALUE
-getmetainfo(VALUE self, int &offset, int &index)
-{
-    char * signalname = rb_id2name(rb_frame_last_func());
-    VALUE metaObject_value = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 2, Qnil, self);
-
-    smokeruby_object *ometa = value_obj_info(metaObject_value);
-    if(!ometa) return 0;
-    QMetaObject *metaobject = (QMetaObject*)ometa->ptr;
-
-    offset = metaobject->methodOffset();
-
-    VALUE signalInfo = rb_funcall(qt_internal_module, rb_intern("signalInfo"), 2, self, rb_str_new2(signalname));
-    VALUE reply_type = rb_ary_entry(signalInfo, 0);
-    VALUE member = rb_ary_entry(signalInfo, 1);
-    index = NUM2INT(rb_ary_entry(signalInfo, 2));
-    return rb_funcall(qt_internal_module, rb_intern("getMocArguments"), 2, reply_type, member);
-}
-
 static VALUE
 qt_signal(int argc, VALUE * argv, VALUE self)
 {
 	smokeruby_object *o = value_obj_info(self);
-    QObject *qobj = (QObject*)o->smoke->cast(
-	o->ptr,
-	o->classId,
-	o->smoke->idClass("QObject")
-    );
-    if(qobj->signalsBlocked()) return Qfalse;
+	QObject *qobj = (QObject*)o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+    if (qobj->signalsBlocked()) {
+		return Qfalse;
+	}
 
-    int offset;
-    int index;
+	QLatin1String signalname(rb_id2name(rb_frame_last_func()));
+	VALUE metaObject_value = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 2, Qnil, self);
 
-    VALUE args = getmetainfo(self, offset, index);
+	smokeruby_object *ometa = value_obj_info(metaObject_value);
+	if (ometa == 0) {
+		return Qnil;
+	}
 
-    if(args == Qnil) return Qfalse;
+    int i = -1;
+	const QMetaObject * m = (QMetaObject*) ometa->ptr;
+    for (i = m->methodCount() - 1; i > -1; i--) {
+		if (m->method(i).methodType() == QMetaMethod::Signal) {
+			QString name(m->method(i).signature());
+static QRegExp * rx = 0;
+			if (rx == 0) {
+				rx = new QRegExp("\\(.*");
+			}
+			name.replace(*rx, "");
+
+			if (name == signalname) {
+				break;
+			}
+		}
+    }
+
+	if (i == -1) {
+		return Qnil;
+	}
+
+	VALUE args = rb_funcall(	qt_internal_module, 
+								rb_intern("getMocArguments"), 
+								2, 
+								rb_str_new2(m->method(i).typeName()),
+								rb_str_new2(m->method(i).signature()) );
 
 	VALUE result = Qnil;
-    // Okay, we have the signal info. *whew*
-    EmitSignal signal(qobj, offset + index, argc, args, argv, &result);
-    signal.next();
+	// Okay, we have the signal info. *whew*
+	EmitSignal signal(qobj, i, argc, args, argv, &result);
+	signal.next();
 
-    return result;
+	return result;
 }
 
 static VALUE

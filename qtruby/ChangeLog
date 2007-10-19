@@ -1,3 +1,9 @@
+2007-10-19  Richard Dale  <rdale@foton.es>
+
+	* Ruby signal declared in superclasses were not being inherited by
+	  subclasses correctly. Fixed bug reported by cheiron on the #qtruby
+	  irc channel - thanks for the report and test program.
+
 2007-10-14  Richard Dale  <rdale@foton.es>
 
 	* The QScintilla class names now all start with Qsci instead of Qext,
