@@ -8,7 +8,7 @@
  ***************************************************************************/
 
 template <>
-static void marshall_from_ruby<long long>(Marshall *m) 
+void marshall_from_ruby<long long>(Marshall *m) 
 {
 	VALUE obj = *(m->var());
 	m->item().s_voidp = new long long;
@@ -22,7 +22,7 @@ static void marshall_from_ruby<long long>(Marshall *m)
 }
 
 template <>
-static void marshall_from_ruby<unsigned long long>(Marshall *m) 
+void marshall_from_ruby<unsigned long long>(Marshall *m) 
 {
 	VALUE obj = *(m->var());
 	m->item().s_voidp = new unsigned long long;
@@ -36,7 +36,7 @@ static void marshall_from_ruby<unsigned long long>(Marshall *m)
 }
 
 template <>
-static void marshall_from_ruby<int *>(Marshall *m) 
+void marshall_from_ruby<int *>(Marshall *m) 
 {
 	VALUE rv = *(m->var());
 	int *i = new int;
@@ -63,7 +63,7 @@ static void marshall_from_ruby<int *>(Marshall *m)
 }
 
 template <>
-static void marshall_to_ruby<int *>(Marshall *m)
+void marshall_to_ruby<int *>(Marshall *m)
 {
 	int *ip = (int*)m->item().s_voidp;
 	VALUE rv = *(m->var());
@@ -79,7 +79,7 @@ static void marshall_to_ruby<int *>(Marshall *m)
 }
 
 template <>
-static void marshall_from_ruby<bool *>(Marshall *m) 
+void marshall_from_ruby<bool *>(Marshall *m) 
 {
    VALUE rv = *(m->var());
 	bool * b = new bool;
@@ -103,7 +103,7 @@ static void marshall_from_ruby<bool *>(Marshall *m)
 }
 
 template <>
-static void marshall_to_ruby<bool *>(Marshall *m)
+void marshall_to_ruby<bool *>(Marshall *m)
 {
 	bool *ip = (bool*)m->item().s_voidp;
 	if(!ip) {
