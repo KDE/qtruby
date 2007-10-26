@@ -44,13 +44,13 @@ static void marshall_to_ruby(Marshall *m)
 // Special case marshallers
 
 template <> 
-static void marshall_from_ruby<char *>(Marshall *m) 
+void marshall_from_ruby<char *>(Marshall *m) 
 {
 	m->item().s_voidp = ruby_to_primitive<char*>(*(m->var()));
 }
 
 template <>
-static void marshall_from_ruby<SmokeEnumWrapper>(Marshall *m)
+void marshall_from_ruby<SmokeEnumWrapper>(Marshall *m)
 {
 	VALUE v = *(m->var());
 
@@ -65,7 +65,7 @@ static void marshall_from_ruby<SmokeEnumWrapper>(Marshall *m)
 }
 
 template <>
-static void marshall_to_ruby<SmokeEnumWrapper>(Marshall *m)
+void marshall_to_ruby<SmokeEnumWrapper>(Marshall *m)
 {
 	long val = m->item().s_enum;
 	*(m->var()) = rb_funcall(qt_internal_module, rb_intern("create_qenum"), 
@@ -73,7 +73,7 @@ static void marshall_to_ruby<SmokeEnumWrapper>(Marshall *m)
 }
 
 template <>
-static void marshall_from_ruby<SmokeClassWrapper>(Marshall *m)
+void marshall_from_ruby<SmokeClassWrapper>(Marshall *m)
 {
 	VALUE v = *(m->var());
 
@@ -119,7 +119,7 @@ static void marshall_from_ruby<SmokeClassWrapper>(Marshall *m)
 }
 
 template <>
-static void marshall_to_ruby<SmokeClassWrapper>(Marshall *m)
+void marshall_to_ruby<SmokeClassWrapper>(Marshall *m)
 {
 	if(m->item().s_voidp == 0) {
 		*(m->var()) = Qnil;
@@ -164,7 +164,7 @@ static void marshall_to_ruby<SmokeClassWrapper>(Marshall *m)
 }
 
 template <>
-static void marshall_to_ruby<char *>(Marshall *m)
+void marshall_to_ruby<char *>(Marshall *m)
 {
 	char *sv = (char*)m->item().s_voidp;
 	VALUE obj;
@@ -180,7 +180,7 @@ static void marshall_to_ruby<char *>(Marshall *m)
 }
 
 template <>
-static void marshall_to_ruby<unsigned char *>(Marshall *m)
+void marshall_to_ruby<unsigned char *>(Marshall *m)
 {
 	m->unsupported();
 }
