@@ -1,3 +1,8 @@
+2007-10-30  Richard Dale  <rdale@foton.es>
+
+	* The Qt::KeyEvent#type method wasn't working. Fixes problem reported
+	  by Magicloud Magiclouds
+
 2007-10-19  Richard Dale  <rdale@foton.es>
 
 	* Ruby signal declared in superclasses were not being inherited by

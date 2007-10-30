@@ -879,6 +879,12 @@ module Qt
 		end
 	end
 	
+	class KeyEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class KeySequence < Qt::Base
 		def initialize(*args)
 			if args.length == 1 && args[0].kind_of?(Qt::Enum) && args[0].type == "Qt::Key"
