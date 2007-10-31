@@ -6,6 +6,9 @@ include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_PATH} ${CMAKE_SOUR
 set(korundum_LIB_SRCS 
    Korundum.cpp 
    kdehandlers.cpp 
+   ${CMAKE_SOURCE_DIR}/ruby/qtruby/src/Qt.cpp
+   ${CMAKE_SOURCE_DIR}/ruby/qtruby/src/handlers.cpp
+   ${CMAKE_SOURCE_DIR}/ruby/qtruby/src/marshall_types.cpp
    )
 
 set(factory_SRCS
@@ -13,7 +16,7 @@ set(factory_SRCS
 
 kde4_add_library(korundum4 SHARED ${korundum_LIB_SRCS})
 
-target_link_libraries(korundum4 ${KDE4_KDECORE_LIBS} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokekde qtrubyinternal )
+target_link_libraries(korundum4 ${KDE4_KDECORE_LIBS} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokekde )
 
 set_target_properties(korundum4 PROPERTIES PREFIX "")
 
