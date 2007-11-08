@@ -122,7 +122,7 @@ class MdiChild < Qt::TextEdit
 	
 	def maybeSave()
 	    if document().isModified()
-	        int ret = Qt::MessageBox::warning(self, tr("MDI"),
+	        ret = Qt::MessageBox::warning(self, tr("MDI"),
 	                     tr("'%s' has been modified.\n" \
 	                        "Do you want to save your changes?" % 
                               userFriendlyCurrentFile()),
