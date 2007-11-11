@@ -1,3 +1,12 @@
+2007-11-11  Richard Dale  <rdale@foton.es>
+
+	* Fixed a regression introduced when slots were made directly callable.
+	  It broke the code to invoke remote QtDBus methods because the 
+	  remote methods become slots in the QMetaObject of the QDBusInterface
+	  being used as a proxy. The code was trying to invoke those slots
+	  directly which didn't work. So special case any QMetaObjects which
+	  have classNames of "local::Merge" as it means they are remote.
+
 2007-10-31  Richard Dale  <rdale@foton.es>
 
 	* Don't build the qtrubyinternal library anymore as it gave trouble on

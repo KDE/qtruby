@@ -124,10 +124,10 @@ VALUE safesite_module = Qnil;
 VALUE sonnet_module = Qnil;
 
 
+VALUE kconfiggroup_class = Qnil;
 VALUE kconfigskeleton_class = Qnil;
 VALUE kconfigskeleton_itemenum_choice_class = Qnil;
 VALUE kconfigskeleton_itemenum_class = Qnil;
-VALUE kio_udsatom_class = Qnil;
 VALUE konsole_part_class = Qnil;
 VALUE kwin_class = Qnil;
 VALUE qlistmodel_class = Qnil;
@@ -338,7 +338,10 @@ public:
 		}
 
 		const char *methodName = smoke->methodNames[smoke->methods[method].name];
-	
+		if (qstrncmp(methodName, "operator", sizeof("operator") - 1) == 0) {
+			methodName += (sizeof("operator") - 1);
+		}
+
 		// If the virtual method hasn't been overriden, just call the C++ one.
 		if (rb_respond_to(obj, rb_intern(methodName)) == 0) {
 	    	return false;
@@ -1825,6 +1828,7 @@ static QByteArray * name = 0;
 						
 						*name = rb_id2name(SYM2ID(argv[0]));
 						const QMetaObject * meta = qobject->metaObject();
+
 						if (argc == 1) {
 							if (name->endsWith("?")) {
 								name->replace(0, 1, pred->mid(0, 1).toUpper());
@@ -1849,8 +1853,11 @@ static QByteArray * name = 0;
 						}
 
 						int classId = o->smoke->idClass(meta->className());
-						// The class isn't in the Smoke lib..
-						while (classId == 0) {
+
+						// The class isn't in the Smoke lib. But if it is called 'local::Merged'
+						// it is from a QDBusInterface and the slots are remote, so don't try to
+						// those.
+						while (classId == 0 && qstrcmp(meta->className(), "local::Merged") != 0) {
 							// Assume the QObject has slots which aren't in the Smoke library, so try
 							// and call the slot directly
 							for (int id = meta->methodOffset(); id < meta->methodCount(); id++) {
@@ -3112,9 +3119,6 @@ static QRegExp * scope_op = 0;
 	} else if (packageName.startsWith("KIO::")) {
 		klass = rb_define_class_under(kio_module, package+strlen("KIO::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
-		if (packageName == "KIO::UDSAtom") {
-			kio_udsatom_class = klass;
-		}
 	} else if (packageName.startsWith("DOM::")) {
 		klass = rb_define_class_under(dom_module, package+strlen("DOM::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
@@ -3157,6 +3161,9 @@ static QRegExp * scope_op = 0;
 				&& packageName.mid(1, 1).contains(QRegExp("[A-Z]")) == 1 ) 
 	{
 		klass = rb_define_class_under(kde_module, package+strlen("K"), base_class);
+		if (packageName == QLatin1String("KConfigGroup")) {
+			kconfiggroup_class = klass;
+		}
 	} else {
 		packageName = packageName.mid(0, 1).toUpper() + packageName.mid(1);
 		klass = rb_define_class_under(kde_module, packageName.toLatin1(), base_class);
