@@ -1,3 +1,3 @@
 #!/usr/bin/bash
  
-dcop p6 BookMarkList add "http://www.kde.org"
+qdbus org.kde.BookMarkList "/" add "http://www.kde.org"

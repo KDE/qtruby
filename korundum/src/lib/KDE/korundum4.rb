@@ -75,13 +75,56 @@ module KDE
 		end
 		
 		def exec
-			super
+			method_missing(:exec)
 			self.dispose
 			Qt::Internal.application_terminated = true
 		end
 	end
 	
 	class AboutData
+		def initialize(*args)
+			sargs = []
+
+			arg = args.shift
+			sargs << (arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg) unless arg.nil?
+
+			arg = args.shift
+			sargs << (arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg) unless arg.nil?
+
+			sargs << args.shift unless args.empty?
+
+			arg = args.shift
+			sargs << (arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg) unless arg.nil?
+
+			sargs << args.shift unless args.empty?
+			sargs << args.shift unless args.empty?
+			sargs << args.shift unless args.empty?
+			sargs << args.shift unless args.empty?
+
+			arg = args.shift
+			sargs << (arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg) unless arg.nil?
+
+			arg = args.shift
+			sargs << (arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg) unless arg.nil?
+
+			super(*sargs)
+		end
+
+		def addAuthor(*args)
+			sargs = []
+
+			sargs << args.shift unless args.empty?
+			sargs << args.shift unless args.empty?
+
+			arg = args.shift
+			sargs << (arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg) unless arg.nil?
+
+			arg = args.shift
+			sargs << (arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg) unless arg.nil?
+
+			super(*sargs)
+		end
+
 		def inspect
 			str = super
 			str.sub!(/>$/, " appName=%s, copyrightStatement=%s, programName=%s, version=%s, shortDescription=%s, homepage=%s, bugAddress=%s>" %
@@ -162,7 +205,7 @@ module KDE
 			pp.text str.sub(/>$/, "\n library=%s,\n type=%s,\n name=%s>" % [library.inspect, type.inspect, name.inspect])
 		end
 	end
-	
+=begin
 	class URL
 		def inspect
 			str = super
@@ -174,6 +217,7 @@ module KDE
 			pp.text str.sub(/>$/, "\n url=%s,\n protocol=%s,\n host=%s,\n port=%d>" % [url.inspect, protocol.inspect, host.inspect, port])
 		end
 	end
+=end
 end
 
 class Object
