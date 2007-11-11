@@ -1,14 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE kpartgui SYSTEM "kpartgui.dtd" >
-<kpartgui name="p9" version="1">
+<gui name="p9" version="1">
 <MenuBar>
   <Menu name="file"><text>&amp;File</text>
     <Action name="set_default_page"/>
   </Menu>
 </MenuBar>
 <ToolBar fullWidth="true" name="mainToolBar">
-  <Action name="add_to_bookmarks"/>
-  <Action name="back"/>
+  <text>Main Toolbar</text>
+  <Action name="bookmark_add"/>
+  <Action name="go_back"/>
   <Separator/>
   <Action name="file_quit"/>
 </ToolBar>
-</kpartgui>
+</gui>
+
+
