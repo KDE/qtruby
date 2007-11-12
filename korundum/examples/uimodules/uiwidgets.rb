@@ -2,8 +2,6 @@
 This is a ruby version of Jim Bublitz's pykde program, translated by Richard Dale
 =end
 
-require 'Korundum'
-
 module UIWidgets
 
 class Page1 < Qt::Object
@@ -28,7 +26,7 @@ class Page1 < Qt::Object
         parent.edit = KDE::TextEdit.new(page)
         parent.edit.setGeometry(x, y + 20, 300, 100)
 		textList.each do |line|
-			parent.edit.insert(line)
+			parent.edit.insertPlainText(line)
 		end
         parent.edit.show()
 
@@ -68,7 +66,8 @@ class Page1 < Qt::Object
 #        intNum.setSuffix(" GB")
 #        intNum.setPrefix("hdc    ")
         intNum.setLabel("Capacity")
-        intNum.setRange(0, 10, 1, true)
+        intNum.setRange(0, 10)
+#        intNum.setRange(0, 10, 1, true)
         intNum.show()
 
         y = y + 50
@@ -81,7 +80,8 @@ class Page1 < Qt::Object
         dblNum.setValue(2.5)
         dblNum.setGeometry(x + 195, y + 100, 175, 50)
         dblNum.setLabel("Variable")
-        dblNum.setRange(0.0, 10.0, 0.5, true)
+#        dblNum.setRange(0.0, 10.0, 0.5, true)
+        dblNum.setRange(0.0, 10.0)
         dblNum.show()
 
         restricteditLbl   = Qt::Label.new("KRestrictedLine", page)
@@ -100,14 +100,17 @@ class Page1 < Qt::Object
         @validLbl.setGeometry(x, y + 50, 250, 20)
         @validLbl.show()
 
-        grp = Qt::ButtonGroup.new(n, Qt::Vertical, "Select valid chars", page, "button grp")
+#        grp = KDE::ButtonGroup.new(n, Qt::Vertical, "Select valid chars", page)
+        grp = KDE::ButtonGroup.new(page)
         grp.setGeometry(x, y + 75, 150, 5+30*n)
 		
 		(0...n).each { |i| Qt::RadioButton.new(buttons[i], grp) }
 
         connect(grp, SIGNAL("clicked(int)"), SLOT('restrict(int)'))
 
-        grp.find(0).setChecked(true)
+#        grp.find(0).setChecked(true)
+#        box = grp.find(0)
+#        box.setChecked(true)
         restrict(0)
 
         grp.show()
@@ -126,7 +129,7 @@ class Page1 < Qt::Object
 
         squeeze = KDE::SqueezedTextLabel.new("This text is too long to fit in the label below", page)
         squeeze.setGeometry(x + 125, y + 20, 125, 20)
-        squeeze.setBackgroundMode(Qt::Widget::PaletteBase)
+#        squeeze.setBackgroundMode(Qt::Widget::PaletteBase)
         squeeze.show()
 	end
 
@@ -151,7 +154,7 @@ class Page2
         cbLbl.show()
 
         combo = KDE::ComboBox.new(page)
-        combo.insertStringList(["One", "Two", "Three"])
+        combo.addItems(["One", "Two", "Three"])
         combo.setGeometry(x1, y1 + 20, 100, 25)
         combo.show()
 
@@ -168,13 +171,13 @@ class Page2
         editListBox.insertStringList(["One", "Two", "Three"])
         editListBox.show()
 
-        lbLbl = Qt::Label.new("KListBox", page)
+        lbLbl = Qt::Label.new("KListWidget", page)
         lbLbl.setGeometry(x2, y2, 100, 20)
         lbLbl.show()
 
-        listBox = KDE::ListBox.new(page)
+        listBox = KDE::ListWidget.new(page)
         listBox.setGeometry(x2, y2 + 20, 100, 100)
-        listBox.insertStringList(["One", "Two", "Three"])
+        listBox.addItems(["One", "Two", "Three"])
         listBox.show()
 	end
 end
@@ -251,14 +254,6 @@ class Page4
         x = 10
         y = y + 50
 
-        dcLbl   = Qt::Label.new("KDualColorButton", page)
-        dcLbl.setGeometry(x, y, 105, 20)
-        dcLbl.show()
-
-        dc = KDE::DualColorButton.new(Qt::Color.new(255, 0, 0), Qt::Color.new(0, 0, 0), page)
-        dc.setGeometry(x, y + 20, 40, 40)
-        dc.show()
-
         gsLbl   = Qt::Label.new("KGradientSelector", page)
         gsLbl.setGeometry(x + 80, y + 30, 110, 20)
         gsLbl.show()
@@ -270,24 +265,24 @@ class Page4
 
         y = y + 80
 
-        hsLbl   = Qt::Label.new("KHSSelector", page)
+        hsLbl   = Qt::Label.new("KHueSaturationSelector", page)
         hsLbl.setGeometry(x, y, 95, 20)
         hsLbl.show()
 
-        hs = KDE::HSSelector.new(page)
+        hs = KDE::HueSaturationSelector.new(page)
         hs.setGeometry(x, y + 20, 350, 80)
         hs.show()
 
         y = y + 110
 
-        ptLbl   = Qt::Label.new("KPaletteTable", page)
-        ptLbl.setGeometry(x, y, 95, 20)
-        ptLbl.show()
+#        ptLbl   = Qt::Label.new("KColorTable", page)
+#        ptLbl.setGeometry(x, y, 95, 20)
+#        ptLbl.show()
 
-        pt = KDE::PaletteTable.new(page, 340, 24)
-        pt.setPalette("Royal")
-        pt.setGeometry(x, y + 20, 340, 40)
-        pt.show()
+#        pt = KDE::ColorTable.new(page, 340, 24)
+#        pt.setPalette("Royal")
+#        pt.setGeometry(x, y + 20, 340, 40)
+#        pt.show()
 	end
 end
 
@@ -298,29 +293,30 @@ class Page5
         x = 10
         y = 10
 
-        rpLbl   = Qt::Label.new("KRootPermsIcon", page)
-        rpLbl.setGeometry(x, y, 95, 20)
-        rpLbl.show()
+#        rpLbl   = Qt::Label.new("KRootPermsIcon", page)
+#        rpLbl.setGeometry(x, y, 95, 20)
+#        rpLbl.show()
 
-        rp = KDE::RootPermsIcon.new(page)
-        rp.setGeometry(x, y + 20, 32, 32)
-        rp.show()
+#        rp = KDE::RootPermsIcon.new(page)
+#        rp.setGeometry(x, y + 20, 32, 32)
+#        rp.show()
 
-        wpLbl   = Qt::Label.new("KWritePermsIcon", page)
-        wpLbl.setGeometry(x + 125, y, 95, 20)
-        wpLbl.show()
+#        wpLbl   = Qt::Label.new("KWritePermsIcon", page)
+#        wpLbl.setGeometry(x + 125, y, 95, 20)
+#        wpLbl.show()
 
-        wp = KDE::WritePermsIcon.new("/usr/bin/gcc", page)
-        wp.setGeometry(x + 125, y + 20, 32, 32)
-        wp.show()
+#        wp = KDE::WritePermsIcon.new("/usr/bin/gcc", page)
+#        wp.setGeometry(x + 125, y + 20, 32, 32)
+#        wp.show()
 
         y = y + 75
 
-        pw1Lbl = Qt::Label.new("KPasswordEdit - echo *", page)
+        pw1Lbl = Qt::Label.new("KLineEdit - echo *", page)
         pw1Lbl.setGeometry(x, y, 150, 20)
         pw1Lbl.show()
 
-        pw1 = KDE::PasswordEdit.new(KDE::PasswordEdit::OneStar, page, "")
+        pw1 = KDE::LineEdit.new("", page)
+        pw1.passwordMode = true
         pw1.setGeometry(x, y + 20, 100, 20)
         pw1.show()
 
@@ -330,7 +326,8 @@ class Page5
         pw2Lbl.setGeometry(x, y, 150, 20)
         pw2Lbl.show()
 
-        pw2 = KDE::PasswordEdit.new(KDE::PasswordEdit::ThreeStars, page, "")
+        pw2 = KDE::LineEdit.new("", page)
+        pw2.passwordMode = true
         pw2.setGeometry(x, y + 20, 100, 20)
         pw2.show()
 
@@ -340,17 +337,18 @@ class Page5
         pw3Lbl.setGeometry(x, y, 150, 20)
         pw3Lbl.show()
 
-        pw3 = KDE::PasswordEdit.new(KDE::PasswordEdit::NoEcho, page, "")
+        pw3 = KDE::LineEdit.new("", page)
+        pw3.passwordMode = true
         pw3.setGeometry(x, y + 20, 100, 20)
         pw3.show()
 
         y = y + 50
 
-        urlLbl = Qt::Label.new("KURLLabel", page)
+        urlLbl = Qt::Label.new("KUrlLabel", page)
         urlLbl.setGeometry(x, y, 100, 20)
         urlLbl.show()
 
-        url = KDE::URLLabel.new("http://developer.kde.org/language-bindings/ruby/", "Korundum", page)
+        url = KDE::UrlLabel.new("http://developer.kde.org/language-bindings/ruby/", "Korundum", page)
         url.setGeometry(x, y + 20, 100, 20)
         url.setUseTips(true)
         url.setTipText("http://developer.kde.org/language-bindings/ruby/")
@@ -359,15 +357,15 @@ class Page5
         x = 70
         y = y + 50
 
-        bbLbl   = Qt::Label.new("KButtonBox", page)
+        bbLbl   = Qt::Label.new("KDialogButtonBox", page)
         bbLbl.setGeometry(x, y, 75, 20)
         bbLbl.show()
 
-        bbox = KDE::ButtonBox.new(page, Qt::Horizontal)
+        bbox = KDE::DialogButtonBox.new(page, Qt::Horizontal)
         bbox.setGeometry(x, y + 20, 300, 22)
-        bbox.addButton("Button 1")
-        bbox.addButton("Button 2")
-        bbox.addButton("Button 3")
+        bbox.addButton("Button 1", Qt::DialogButtonBox::AcceptRole)
+        bbox.addButton("Button 2", Qt::DialogButtonBox::AcceptRole)
+        bbox.addButton("Button 3", Qt::DialogButtonBox::AcceptRole)
         bbox.show()
 
         y = y + 50
@@ -489,6 +487,7 @@ class Page7 < Qt::Object
         x = 10
         y = 10
 
+=begin
         tabLbl   = Qt::Label.new("KTabCtl", page)
         tabLbl.setGeometry(x, y, 95, 20)
         tabLbl.show()
@@ -510,10 +509,10 @@ class Page7 < Qt::Object
         tab.addTab(page2, "Tab 2")
         tab.addTab(page3, "Tab 3")
         tab.show()
-
+=end
         x = 10
         y = 150
-
+=begin
         progLbl   = Qt::Label.new("KProgress", page)
         progLbl.setGeometry(x, y + 50, 95, 20)
         progLbl.show()
@@ -530,7 +529,7 @@ class Page7 < Qt::Object
 
         @p1.show()
         @p2.show()
-
+=end
         @total = 0
 
         y = y + 150
@@ -553,8 +552,8 @@ class Page7 < Qt::Object
 
     def add1()
         @total = @total + 1
-        @p1.advance(1)
-        @p2.advance(1)
+#        @p1.advance(1)
+#        @p2.advance(1)
 
         if @total == 26
 			@timer.stop
@@ -596,7 +595,7 @@ class PageThisApp
         x = 10
         y = 10
 
-        taLbl   = Qt::Label.new("This application uses KMainWindow as its top level widget\n and KListView in the"\
+        taLbl   = Qt::Label.new("This application uses KMainWindow as its top level widget\n and KTreeView in the"\
                           " left-hand panel", page)
         taLbl.setGeometry(x, y, 300, 60)
         taLbl.show()
@@ -619,8 +618,8 @@ end
 class CSDlg < KDE::Dialog
 	slots 'closeClicked()'
 	
-    def initialize(parent, name = "char select dlg", modal = false)
-        super(parent, name, modal)
+    def initialize(parent)
+        super(parent)
 
         setGeometry(150, 50, 700, 320)
         x = 10
@@ -629,7 +628,7 @@ class CSDlg < KDE::Dialog
         csLbl   = Qt::Label.new("KCharSelect", self)
         csLbl.setGeometry(x, y, 95, 20)
         csLbl.show()
-        cs = KDE::CharSelect.new(self, "chselect", nil, Qt::Char.new(0), 0)
+        cs = KDE::CharSelect.new(self)
         cs.setGeometry(x, y + 20, 680, 250)
         cs.show()
 
@@ -722,7 +721,7 @@ def UIWidgets.widKFontChooser(parent)
     parent.currentPageObj = Page3.new(parent)
 end
 
-def UIWidgets.widKHSSelector(parent)
+def UIWidgets.widKHueSaturationSelector(parent)
     parent.currentPageObj = Page4.new(parent)
 end
 
@@ -753,7 +752,7 @@ def UIWidgets.widKListBox(parent)
     parent.currentPageObj = Page2.new(parent)
 end
 
-def UIWidgets.widKListView(parent)
+def UIWidgets.widKTreeWidget(parent)
     parent.currentPageObj = PageThisApp.new(parent)
 end
 
@@ -761,7 +760,7 @@ def UIWidgets.widKNumInput(parent)
     parent.currentPageObj = Page1.new(parent)
 end
 
-def UIWidgets.widKPaletteTable(parent)
+def UIWidgets.widKColorTable(parent)
     parent.currentPageObj = Page4.new(parent)
 end
 
@@ -813,7 +812,7 @@ def UIWidgets.widKTextBrowser(parent)
     parent.currentPageObj = PageNotImpl.new(parent)
 end
 
-def UIWidgets.widKURLLabel(parent)
+def UIWidgets.widKUrlLabel(parent)
     parent.currentPageObj = Page5.new(parent)
 end
 

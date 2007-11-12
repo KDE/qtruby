@@ -2,8 +2,6 @@
 This is a ruby version of Jim Bublitz's pykde program, translated by Richard Dale
 =end
 
-require 'Korundum'
-
 module UIMisc
 
 class Page3 < Qt::Object

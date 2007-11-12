@@ -2,16 +2,14 @@
 This is a ruby version of Jim Bublitz's pykde program, translated by Richard Dale
 =end
 
-require 'Korundum'
-
 module UIDialogs
 
 class CustomDlg < KDE::Dialog
 
 	slots 'dlgClicked()', 'okClicked()', 'cancelClicked()'
 	
-    def initialize(parent, name = "custom dlg", modal = false)
-        super(parent, name, modal)
+    def initialize(parent)
+        super(parent)
 
         x = 20
         y = 10
@@ -48,7 +46,7 @@ class CustomDlg < KDE::Dialog
         # get some(numerical) color values from the original dialog
         red   = @rEd.text().to_i
         green = @gEd.text().to_i
-        blue  = @bEd.text().to_I
+        blue  = @bEd.text().to_i
 
         # convert the numbers to a Qt::Color
         color = Qt::Color.new(red, green, blue)
@@ -81,19 +79,25 @@ class MessageDlg < KDE::Dialog
 
 	slots 'launch(int)'
 	
-    def initialize(parent, name = "message dlg", modal = false)
-        super(parent, name, modal)
+    def initialize(parent)
+        super(parent)
 
         buttons = ["QuestionYesNo", "WarningYesNo", "WarningContinueCancel", "WarningYesNoCancel",
                    "Information", "SSLMessageBox", "Sorry", "Error", "QuestionYesNoCancel"]
 
-        n = buttons.length
+        setGeometry(10, 10, 500, 65 * buttons.length)
 
-        grp = Qt::ButtonGroup.new(n, Qt::Vertical, "MessageBoxes", self, "button grp")
-        grp.setGeometry(10, 10, 200, 30*n)
-		(0...n).each { |i| Qt::RadioButton.new(buttons[i], grp) }
-
-        connect(grp, SIGNAL("clicked(int)"), SLOT('launch(int)'))
+        grp = Qt::ButtonGroup.new(self)
+        widget = Qt::GroupBox.new("MessageBoxes", self)
+        widget.setGeometry(10, 10, 260, 60 * buttons.length)
+        vlayout = Qt::VBoxLayout.new(widget)
+		buttons.each_index do |i|
+            button = Qt::RadioButton.new(buttons[i])
+            grp.addButton(button, i)
+            vlayout.addWidget(button)
+        end
+        widget.show
+        connect(grp, SIGNAL("buttonClicked(int)"), SLOT('launch(int)'))
 	end
 
     def launch(which)
@@ -132,7 +136,7 @@ end
 
 
 def UIDialogs.dlgKAboutDialog(parent)
-    dlg = KDE::AboutDialog.new(parent, 'about dialog', false)
+    dlg = KDE::AboutApplicationDialog.new(parent, 'about dialog', false)
     dlg.setLogo(Qt::Pixmap.new("rbtestimage.png"))
     dlg.setTitle("UISampler for Korundum")
     dlg.setAuthor("Jim Bublitz", "jbublitz@nwinternet.com", "http://www.riverbankcomputing.co.uk",
@@ -150,13 +154,14 @@ def UIDialogs.dlgKBugReport(parent)
     dlg.exec()
 end
 
-def UIDialogs.dlgKAboutKDE(parent)
-    dlg = KDE::AboutKDE.new(parent, "about kde", false)
+def UIDialogs.dlgKAboutApplicationDialog(parent)
+    about = KDE::AboutData.new("uisampler", "UI Sampler", KDE.ki18n("KDE UI Widgets Sampler"), "0.1")
+    dlg = KDE::AboutApplicationDialog.new(about, parent)
     dlg.show()
 end
 
 def UIDialogs.dlgKColorDialog(parent)
-    dlg = KDE::ColorDialog.new(parent, "color dlg", false)
+    dlg = KDE::ColorDialog.new(parent, false)
     dlg.show()
 end
 
@@ -168,7 +173,7 @@ end
 def UIDialogs.dlgKDialogBase(parent)
     caption = "KDialogBase sample"
     text_ = "This is a KDialogBase example"
-    dlg =   KDE::DialogBase.new(parent, "sample_dialog", false, caption,
+    dlg =   KDE::DialogBase.new(parent, false, caption,
             KDE::DialogBase::Ok | KDE::DialogBase::Cancel, KDE::DialogBase::Ok, true )
 
     page  = dlg.makeVBoxMainWidget();
@@ -195,12 +200,13 @@ def UIDialogs.dlgKFontDialog(parent)
     dlg.show()
 end
 
-def UIDialogs.dlgKKeyDialog(parent)
+def UIDialogs.dlgKShortcutsDialog(parent)
     # This really doesn't do anything except pop up the dlg
-    keys = KDE::Accel.new(parent)
+#    keys = KDE::Accel.new(parent)
 #    keys.insertItem( i18n( "Zoom in" ), "Zoom in", "+" )
-    keys.readSettings();
-    KDE::KeyDialog.configure(keys, true)
+#    keys.readSettings();
+    dlg = KDE::ShortcutsDialog.new
+    dlg.show()
 end
 
 def UIDialogs.dlgKLineEditDlg(parent)

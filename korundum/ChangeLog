@@ -1,3 +1,7 @@
+2007-11-12  Richard Dale  <rdale@foton.es>
+
+	* Make a start with converting the UISampler example app to KDE4
+
 2007-11-11  Richard Dale  <rdale@foton.es>
 
 	* Ported the tutorial examples p1-p9 to KDE4 and DBus

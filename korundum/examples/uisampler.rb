@@ -2,7 +2,7 @@
 This is a ruby version of Jim Bublitz's pykde program, translated by Richard Dale
 =end
 
-require 'Korundum'
+require 'korundum4'
 
 require 'uimodules/uiwidgets.rb'
 require 'uimodules/uidialogs.rb'
@@ -13,13 +13,13 @@ require 'uimodules/uixml.rb'
 $listItems = {"Dialogs" =>
                 {"KDE::AboutDialog" => ["KDE::AboutApplication", "KDE::AboutContainer", "KDE::ImageTrackLabel",
                                   "KDE::AboutContainerBase", "KDE::AboutContributor", "KDE::AboutWidget"],
-                "KDE::AboutKDE" => [],
+                "KDE::AboutApplicationDialog" => [],
                 "KDE::BugReport" => [],
                 "KDE::ColorDialog" => [],
                 "KDE::Dialog" => [],
                 "KDE::DialogBase" => ["KDE::DialogBaseButton", "KDE::DialogBase::SButton", "KDE::DialogBaseTile"],
                 "KDE::FontDialog" => [],
-                "KDE::KeyDialog" => [],
+                "KDE::ShortcutsDialog" => [],
                 "KDE::LineEditDlg" => [],
                 "KDE::MessageBox" => [],
                 "KDE::PasswordDialog" => [],
@@ -33,27 +33,25 @@ $listItems = {"Dialogs" =>
                  "KDE::ColorCells" => [],
                  "KDE::ColorCombo" => [],
                  "KDE::ColorPatch" => [],
+                 "KDE::ColorTable" => [],
                  "KDE::ComboBox" => [],
                  "KDE::CompletionBox" => [],
                  "KDE::ContainerLayout" => ["KDE::ContainerLayout::KContainerLayoutItem"],
                  "KDE::Cursor" => [],
                  "KDE::DatePicker" => ["KDE::DateInternalMonthPicker", "KDE::DateInternalYearSelector"],
                  "KDE::DateTable" => [],
-                 "KDE::DualColorButton" => [],
                  "KDE::EditListBox" => [],
                  "KDE::FontChooser" => [],
-                 "KDE::HSSelector" => [],
+                 "KDE::HueSaturationSelector" => [],
                  "KDE::IconView" => [],
                  "KDE::JanusWidget" => ["KDE::JanusWidget::IconListBox"],
                  "KDE::KeyChooser" => [],
                  "KDE::Led" => [],
                  "KDE::LineEdit" => [],
                  "KDE::ListBox" => [],
-                 "KDE::ListView" => [],
+                 "KDE::TreeWidget" => [],
                  "KDE::NumInput" => ["KDE::DoubleNumInput", "KDE::IntNumInput"],
-                 "KDE::PaletteTable" => [],
                  "KDE::PasswordEdit" => [],
-                 "KDE::Progress" => [],
                  "KDE::RootPixmap" => [],
                  "KDE::MainWindow" => [],
                  "KDE::RestrictedLine" => [],
@@ -61,10 +59,9 @@ $listItems = {"Dialogs" =>
                  "KDE::Selector" => ["KDE::GradientSelector", "KDE::ValueSelector", "KDE::HSSelector", "KDE::XYSelector"],
                  "KDE::Separator" => [],
                  "KDE::SqueezedTextLabel" => [],
-                 "KDE::TabCtl" => [],
                  "KDE::TextBrowser" => [],
                  "KDE::TextEdit" => ["KDE::EdFind", "KDE::EdGotoLine", "KDE::EdReplace"],
-                 "KDE::URLLabel" => []},
+                 "KDE::UrlLabel" => []},
             "XML" =>
                 {"KDE::ActionCollection" => [],
                  "KDE::EditToolbar" => [],
@@ -123,7 +120,7 @@ END_OF_STRING
 class MainWin < KDE::MainWindow
 	TREE_WIDTH = 220
 		 
-	slots 'lvClicked(QListViewItem*)'
+	slots 'lvClicked(QTreeWidgetItem*)'
 	
 	attr_accessor :edit, :currentPageObj
 	
@@ -137,30 +134,30 @@ class MainWin < KDE::MainWindow
 
         # create the main view - list view on the left and an
         # area to display frames on the right
-        @mainView  = Qt::Splitter.new(self, "main view")
-        @tree      = KDE::ListView.new(@mainView, "tree")
-        @page      = Qt::WidgetStack.new(@mainView, "page")
-        blankPage = Qt::Widget.new(@page, "blank")
+        @mainView  = Qt::Splitter.new(self)
+        @tree      = Qt::TreeWidget.new(@mainView)
+        @page      = Qt::StackedWidget.new(@mainView)
+        blankPage = Qt::Widget.new(@page)
         blankPage.setGeometry(0, 0, 375, 390)
-        blankPage.setBackgroundMode(Qt::Widget::PaletteBase)
+#        blankPage.setBackgroundMode(Qt::Widget::PaletteBase)
 
         blankLbl = Qt::Label.new(BLANK_MSG, blankPage)
         blankLbl.setGeometry(40, 10, 380, 150)
-        blankLbl.setBackgroundMode(Qt::Widget::PaletteBase)
+#        blankLbl.setBackgroundMode(Qt::Widget::PaletteBase)
 
         blankPM = Qt::Pixmap.new("rbtestimage.png")
         pmLbl   = Qt::Label.new("", blankPage)
         pmLbl.setPixmap(blankPM)
         pmLbl.setGeometry(40, 160, 300, 200)
-        pmLbl.setBackgroundMode(Qt::Widget::PaletteBase)
+#        pmLbl.setBackgroundMode(Qt::Widget::PaletteBase)
 
-        @page.addWidget(blankPage, 1)
-        @page.raiseWidget(1)
+        @page.insertWidget(1, blankPage)
+#        @page.raiseWidget(1)
 
         setCentralWidget(@mainView)
 
-        initListView()
-        connect(@tree, SIGNAL("clicked(QListViewItem*)"), self, SLOT('lvClicked(QListViewItem*)'))
+        initTreeWidget()
+        connect(@tree, SIGNAL("itemClicked(QTreeWidgetItem*,int)"), self, SLOT('lvClicked(QTreeWidgetItem*)'))
 
         @edit = nil
         @currentPageObj = nil
@@ -168,20 +165,23 @@ class MainWin < KDE::MainWindow
 					 "Menus/Toolbars" => "UIMenus::menu", "Other" => "UIMisc::misc"}
 	end
 
-    def initListView()
-        @tree.addColumn("Category", TREE_WIDTH - 21)
+    def initTreeWidget()
+        @tree.columnCount = 1
+        @tree.headerLabels = ["Category"]
+
+#        @tree.addColumn("Category", TREE_WIDTH - 21)
 #        tree.setMaximumWidth(treeWidth)
         @mainView.setSizes([TREE_WIDTH, 375])
         @tree.setRootIsDecorated(true)
-        @tree.setVScrollBarMode(Qt::ScrollView::AlwaysOn)
+#        @tree.setVScrollBarMode(Qt::ScrollArea::AlwaysOn)
         topLevel = $listItems.keys()
 		topLevel.each do |item_1|
-            parent = Qt::ListViewItem.new(@tree, String.new(item_1))
+            parent = Qt::TreeWidgetItem.new(@tree, [item_1])
             secondLevel = $listItems[item_1].keys()
 			secondLevel.each do |item_2|
-                child = Qt::ListViewItem.new(parent, String.new(item_2))
+                child = Qt::TreeWidgetItem.new(parent, [item_2])
 				$listItems[item_1][item_2].each do |item_3|
-                    Qt::ListViewItem.new(child, String.new(item_3))
+                    Qt::TreeWidgetItem.new(child, [item_3])
 				end
 			end
 		end
@@ -191,7 +191,7 @@ class MainWin < KDE::MainWindow
         if lvItem.nil?
             return
 		end
-
+puts "In lvClicked: %s" % lvItem.text(0)
         if $listItems.keys().include?(lvItem.text(0))
             return
 		end
@@ -219,20 +219,20 @@ class MainWin < KDE::MainWindow
         newPage = Qt::Widget.new(@page)
         newPage.setGeometry(0, 0, 375, 390)
 #        newPage.setBackgroundMode(QWidget.PaletteBase)
-        @page.addWidget(newPage, 2)
-        @page.raiseWidget(2)
+        @page.insertWidget(2, newPage)
+        @page.currentWidget = newPage
 
         return newPage
 	end
 end
 
 #-------------------- main ------------------------------------------------
-
+# Qt::debug_level = Qt::DebugLevel::High
 appName = "UISampler"
-about = KDE::AboutData.new("uisampler", appName, "0.1")
+about = KDE::AboutData.new("uisampler", appName, KDE.ki18n("KDE UI Widgets Sampler"), "0.1")
 KDE::CmdLineArgs.init(ARGV, about)
-app = KDE::Application.new()
-mainWindow = MainWin.new(nil, "main window")
+app = KDE::Application.new
+mainWindow = MainWin.new(nil)
 mainWindow.show
 app.exec
 
