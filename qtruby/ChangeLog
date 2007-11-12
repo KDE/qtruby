@@ -1,3 +1,9 @@
+2007-11-12  Richard Dale  <rdale@foton.es>
+
+	* If QModelIndex.internalPointer() is zero, return Qnil
+	* Don't attempt to mark a zero internalPointer() for the garbage
+	  collector. Thanks to cheiron for reporting the bug.
+
 2007-11-11  Richard Dale  <rdale@foton.es>
 
 	* Fixed a regression introduced when slots were made directly callable.

@@ -1556,7 +1556,7 @@ static Smoke::Index drawlines_rect_vector = 0;
 static VALUE
 qabstractitemmodel_createindex(int argc, VALUE * argv, VALUE self)
 {
-	if (argc == 3) {
+	if (argc == 2 || argc == 3) {
 		smokeruby_object * o = value_obj_info(self);
 		Smoke::Index nameId = o->smoke->idMethodName("createIndex$$$");
 		Smoke::Index meth = o->smoke->findMethod(qt_Smoke->idClass("QAbstractItemModel"), nameId);
@@ -1571,7 +1571,11 @@ qabstractitemmodel_createindex(int argc, VALUE * argv, VALUE self)
 				Smoke::StackItem stack[4];
 				stack[1].s_int = NUM2INT(argv[0]);
 				stack[2].s_int = NUM2INT(argv[1]);
-				stack[3].s_voidp = (void*) argv[2];
+				if (argc == 2) {
+					stack[3].s_voidp = (void*) Qnil;
+				} else {
+					stack[3].s_voidp = (void*) argv[2];
+				}
 				(*fn)(m.method, o->ptr, stack);
 				smokeruby_object  * result = alloc_smokeruby_object(	true, 
 																		o->smoke, 
@@ -1593,7 +1597,8 @@ qmodelindex_internalpointer(VALUE self)
 {
     smokeruby_object *o = value_obj_info(self);
 	QModelIndex * index = (QModelIndex *) o->ptr;
-	return (VALUE) index->internalPointer();
+	void * ptr = index->internalPointer();
+	return ptr == 0 ? (VALUE) ptr : Qnil;
 }
 
 static VALUE

@@ -276,8 +276,10 @@ smokeruby_mark(void * p)
 
 		if (qstrcmp(className, "QModelIndex") == 0) {
 			QModelIndex * qmodelindex = (QModelIndex *) o->ptr;
-			obj = (VALUE) qmodelindex->internalPointer();
-			rb_gc_mark(obj);
+			void * ptr = qmodelindex->internalPointer();
+			if (ptr != 0 && ptr != (void *) Qnil) {
+				rb_gc_mark((VALUE) ptr);
+			}
 
 			return;
 		}
