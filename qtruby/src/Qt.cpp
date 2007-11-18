@@ -1449,6 +1449,26 @@ qdbusargument_endstructurewrite(VALUE self)
 	arg->endStructure();
 	return self;
 }
+
+static VALUE
+qvariant_qdbusobjectpath_value(VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QVariant * arg = (QVariant *) o->ptr;
+	QString s = qVariantValue<QDBusObjectPath>(*arg).path();
+	return rb_str_new2(s.toLatin1());
+}
+
+static VALUE
+qvariant_qdbussignature_value(VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QVariant * arg = (QVariant *) o->ptr;
+	QString s = qVariantValue<QDBusSignature>(*arg).signature();
+	return rb_str_new2(s.toLatin1());
+}
+
+
 #endif
 
 // The QtRuby runtime's overloaded method resolution mechanism can't currently
@@ -2816,12 +2836,12 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
     VALUE result = rb_ary_new();
     Smoke::Index meth = qt_Smoke->findMethod(c, name);
 //#ifdef DEBUG
-    if (do_debug & qtdb_calls) qWarning("DAMNIT on %s::%s => %d", c, name, meth);
+    if (do_debug & qtdb_calls) qWarning("Found method %s::%s => %d", c, name, meth);
 //#endif
     if(!meth) {
     	meth = qt_Smoke->findMethod("QGlobalSpace", name);
 //#ifdef DEBUG
-    if (do_debug & qtdb_calls) qWarning("DAMNIT on QGlobalSpace::%s => %d", name, meth);
+    if (do_debug & qtdb_calls) qWarning("Found method QGlobalSpace::%s => %d", name, meth);
 //#endif
 	}
 	
@@ -3290,6 +3310,10 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 		qvariant_class = klass;
 		rb_define_singleton_method(qvariant_class, "fromValue", (VALUE (*) (...)) qvariant_from_value, -1);
     	rb_define_singleton_method(qvariant_class, "new", (VALUE (*) (...)) new_qvariant, -1);
+#ifdef QT_QTDBUS 
+		rb_define_method(klass, "qdbusobjectpath_value", (VALUE (*) (...)) qvariant_qdbusobjectpath_value, 1);
+		rb_define_method(klass, "qdbussignature_value", (VALUE (*) (...)) qvariant_qdbussignature_value, 1);
+#endif
 	} else if (packageName == "Qt::ByteArray") {
 		rb_define_method(klass, "+", (VALUE (*) (...)) qbytearray_append, 1);
 	} else if (packageName == "Qt::Char") {

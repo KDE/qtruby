@@ -400,8 +400,23 @@ module Qt
 			if args.size == 1 && args[0].class.name == "DateTime"
 				return super(	Qt::Date.new(args[0].year, args[0].month, args[0].day), 
 								Qt::Time.new(args[0].hour, args[0].min, args[0].sec) )
+			elsif args.size == 1 && args[0].class.name == "Time"
+				result = super(	Qt::Date.new(args[0].year, args[0].month, args[0].day), 
+								Qt::Time.new(args[0].hour, args[0].min, args[0].sec, args[0].usec / 1000) )
+				result.timeSpec = (args[0].utc? ? Qt::UTC : Qt::LocalTime)
+				return result
 			else
 				return super(*args)
+			end
+		end
+
+		def to_time
+			if timeSpec == Qt::UTC
+				return ::Time.utc(	date.year, date.month, date.day,
+									time.hour, time.minute, time.second, time.msec * 1000 )
+			else
+				return ::Time.local(	date.year, date.month, date.day,
+										time.hour, time.minute, time.second, time.msec * 1000 )
 			end
 		end
 
@@ -1804,6 +1819,10 @@ module Qt
 				return qVariantValue(Qt::DBusArgument, self)
             when "QDBusVariant"
 				return qVariantValue(Qt::Variant, self)
+            when "QDBusObjectPath"
+				return qdbusobjectpath_value(self)
+            when "QDBusSignature"
+				return qdbussignature_value(self)
             end
 		end
 

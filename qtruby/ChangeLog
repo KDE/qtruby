@@ -1,3 +1,12 @@
+2007-11-18  Richard Dale  <rdale@foton.es>
+
+	* At the suggestion of Vincent Fourmond added a Qt::DateTime.to_time
+	  method which returns a Ruby time. Also enhanced the Qt::DateTime
+	  constructor so that it can be passed a Ruby Time.
+	* Qt::Variants containing either QDBusObjectPaths or QDBusSignatures
+	  can now be converted to Ruby Strings with a Qt::Variant.value call.
+	  Fixes bug reported by maniel on the #qtruby IRC channel.
+
 2007-11-12  Richard Dale  <rdale@foton.es>
 
 	* If QModelIndex.internalPointer() is zero, return Qnil
