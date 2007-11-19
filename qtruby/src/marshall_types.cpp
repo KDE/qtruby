@@ -30,6 +30,15 @@ smokeStackToQtStack(Smoke::Stack stack, void ** o, int items, MocArgument* args)
 		case xmoc_int:
 			o[i] = &si->s_int;
 			break;
+		case xmoc_uint:
+			o[i] = &si->s_uint;
+			break;
+		case xmoc_long:
+			o[i] = &si->s_long;
+			break;
+		case xmoc_ulong:
+			o[i] = &si->s_ulong;
+			break;
 		case xmoc_double:
 			o[i] = &si->s_double;
 			break;
@@ -117,20 +126,29 @@ smokeStackFromQtStack(Smoke::Stack stack, void ** _o, int items, MocArgument* ar
 		void *o = _o[i];
 		switch(args[i].argType) {
 		case xmoc_bool:
-		stack[i].s_bool = *(bool*)o;
-		break;
+			stack[i].s_bool = *(bool*)o;
+			break;
 		case xmoc_int:
-		stack[i].s_int = *(int*)o;
-		break;
+			stack[i].s_int = *(int*)o;
+			break;
+		case xmoc_uint:
+			stack[i].s_uint = *(uint*)o;
+			break;
+		case xmoc_long:
+			stack[i].s_long = *(long*)o;
+			break;
+		case xmoc_ulong:
+			stack[i].s_ulong = *(ulong*)o;
+			break;
 		case xmoc_double:
-		stack[i].s_double = *(double*)o;
-		break;
+			stack[i].s_double = *(double*)o;
+			break;
 		case xmoc_charstar:
-		stack[i].s_voidp = o;
-		break;
+			stack[i].s_voidp = o;
+			break;
 		case xmoc_QString:
-		stack[i].s_voidp = o;
-		break;
+			stack[i].s_voidp = o;
+			break;
 		default:	// case xmoc_ptr:
 		{
 			const SmokeType &t = args[i].st;

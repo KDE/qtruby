@@ -2410,7 +2410,7 @@ module Qt
 			args.each_with_index do |arg, i|
 				arg = arg.to_s
 				a = arg.sub(/^const\s+/, '')
-				a = (a =~ /^(bool|int|double|char\*|QString)&?$/) ? $1 : 'ptr'
+				a = (a =~ /^(bool|int|uint|long|ulong|double|char\*|QString)&?$/) ? $1 : 'ptr'
 				valid = setMocType(mocargs, i, arg, a)
 			end
 			result = []

@@ -2496,6 +2496,15 @@ setMocType(VALUE /*self*/, VALUE ptr, VALUE idx_value, VALUE name_value, VALUE s
 	} else if (qstrcmp(static_type, "int") == 0) {
 		arg[idx].argType = xmoc_int;
 		typeId = qt_Smoke->idType((const char *) name);
+	} else if (qstrcmp(static_type, "uint") == 0) {
+		arg[idx].argType = xmoc_uint;
+		typeId = qt_Smoke->idType((const char *) name);
+	} else if (qstrcmp(static_type, "long") == 0) {
+		arg[idx].argType = xmoc_long;
+		typeId = qt_Smoke->idType((const char *) name);
+	} else if (qstrcmp(static_type, "ulong") == 0) {
+		arg[idx].argType = xmoc_ulong;
+		typeId = qt_Smoke->idType((const char *) name);
 	} else if (qstrcmp(static_type, "double") == 0) {
 		arg[idx].argType = xmoc_double;
 		typeId = qt_Smoke->idType((const char *) name);

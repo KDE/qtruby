@@ -1,3 +1,8 @@
+2007-11-19  Richard Dale  <rdale@foton.es>
+
+	* Slot arguments types of 'uint', 'long' and 'ulong' weren't working.
+	  Thanks to maniel for the bug report.
+
 2007-11-18  Richard Dale  <rdale@foton.es>
 
 	* At the suggestion of Vincent Fourmond added a Qt::DateTime.to_time
