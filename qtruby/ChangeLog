@@ -2,6 +2,12 @@
 
 	* Slot arguments types of 'uint', 'long' and 'ulong' weren't working.
 	  Thanks to maniel for the bug report.
+	* When calling a slot directly, it wouldn't work when then slot had no
+	  arguments
+	* Special case any classes which are sub classes of QDBusAbstractInterface
+	  when calling slots directly as the slots will be remote.
+	* When there is more than one return value in a Qt::DBusMessage the value
+	  method now will return a Ruby Array
 
 2007-11-18  Richard Dale  <rdale@foton.es>
 

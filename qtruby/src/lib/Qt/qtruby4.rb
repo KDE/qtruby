@@ -509,7 +509,13 @@ module Qt
 		def value
 			if type() == Qt::DBusMessage::ReplyMessage
 				reply = arguments()
-				return reply.length > 0 ? reply[0].value : nil
+				if reply.length == 0
+					return nil
+				elsif reply.length == 1
+					return reply[0].value
+				else
+					return reply.collect {|v| v.value}
+				end
 			else
 				return nil
 			end

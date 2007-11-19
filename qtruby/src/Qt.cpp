@@ -1882,7 +1882,10 @@ static QByteArray * name = 0;
 						// The class isn't in the Smoke lib. But if it is called 'local::Merged'
 						// it is from a QDBusInterface and the slots are remote, so don't try to
 						// those.
-						while (classId == 0 && qstrcmp(meta->className(), "local::Merged") != 0) {
+						while (	classId == 0 
+								&& qstrcmp(meta->className(), "local::Merged") != 0
+								&& qstrcmp(meta->superClass()->className(), "QDBusAbstractInterface") != 0 ) 
+						{
 							// Assume the QObject has slots which aren't in the Smoke library, so try
 							// and call the slot directly
 							for (int id = meta->methodOffset(); id < meta->methodCount(); id++) {
@@ -1892,7 +1895,7 @@ static QByteArray * name = 0;
 
 									// Don't check that the types of the ruby args match the c++ ones for now,
 									// only that the name and arg count is the same.
-									if (*name == methodName && signature.count(',') == (argc - 2)) {
+									if (*name == methodName && meta->method(id).parameterTypes().count() == (argc - 1)) {
 										VALUE args = rb_funcall(	qt_internal_module, 
 																	rb_intern("getMocArguments"), 
 																	2, 
