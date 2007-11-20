@@ -5,7 +5,7 @@ macro_optional_find_package(RUBY)
 
 OPTION(ENABLE_QTRUBY "build QtRuby" ON)
 OPTION(ENABLE_KORUNDUM "build Korundum" ON)
-OPTION(ENABLE_PLASMA "build Plasma" ON)
+OPTION(ENABLE_PLASMA "build Plasma" OFF)
 
 SET(CUSTOM_RUBY_SITE_ARCH_DIR ${RUBY_SITE_ARCH_DIR} CACHE DIR "custom installation directory for ruby binary extension" )
 SET(CUSTOM_RUBY_SITE_LIB_DIR ${RUBY_SITE_LIB_DIR} CACHE DIR "custom installation directory for ruby extension" )
