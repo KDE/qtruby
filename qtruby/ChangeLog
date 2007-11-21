@@ -1,4 +1,4 @@
-2007-11-19  Sebastian Sauer <mail@dipe.org>
+2007-11-21  Sebastian Sauer <mail@dipe.org>
 
 	* Fixed crash on shutdown of Ruby cause of a partly destroyed
 	  pointer_map QHash.
