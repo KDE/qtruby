@@ -1,3 +1,8 @@
+2007-11-19  Sebastian Sauer <mail@dipe.org>
+
+	* Fixed crash on shutdown of Ruby cause of a partly destroyed
+	  pointer_map QHash.
+
 2007-11-19  Richard Dale  <rdale@foton.es>
 
 	* Slot arguments types of 'uint', 'long' and 'ulong' weren't working.
