@@ -26,7 +26,6 @@
 #include <kmainwindow.h>
 #include <kfile.h>
 #include <kfileitem.h>
-#include <kfileview.h>
 #include <kurl.h>
 #include <kaction.h>
 #include <kfiletreebranch.h>
