@@ -1,3 +1,17 @@
+2007-12-19  Richard Dale  <rdale@foton.es>
+
+	* The Qt::Polygon and Qt::PolygonF classes had no means of getting
+	  the array of Qt::Points that they hold. Added count() and size()
+	  methods and made the classes Enumerable, so this is now possible:
+
+	  irb(main):002:0> poly = Qt::Polygon.new([Qt::Point.new(1,2), Qt::Point.new(3,4)])
+	  => #<Qt::Polygon:0xb5ee3094>
+	  irb(main):003:0> poly.each {|t| p t}
+	  #<Qt::Point:0xb5ee0510 x=1, y=2>
+	  #<Qt::Point:0xb5ee018c x=3, y=4>
+
+	* Thanks to Sylvain Sauvage for reporting the problem on the Korundum help forum
+
 2007-11-21  Sebastian Sauer <mail@dipe.org>
 
 	* Fixed crash on shutdown of Ruby cause of a partly destroyed

@@ -1649,6 +1649,22 @@ qitemselection_count(VALUE self)
 }
 
 static VALUE
+qpolygon_count(VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QPolygon * item = (QPolygon *) o->ptr;
+	return INT2NUM(item->count());
+}
+
+static VALUE
+qpolygonf_count(VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QPolygonF * item = (QPolygonF *) o->ptr;
+	return INT2NUM(item->count());
+}
+
+static VALUE
 metaObject(VALUE self)
 {
     VALUE metaObject = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 2, Qnil, self);
@@ -3342,6 +3358,12 @@ create_qt_class(VALUE /*self*/, VALUE package_value)
 	} else if (packageName == "Qt::Painter") {
 		rb_define_method(klass, "drawLines", (VALUE (*) (...)) qpainter_drawlines, -1);
 		rb_define_method(klass, "drawRects", (VALUE (*) (...)) qpainter_drawrects, -1);
+	} else if (packageName == "Qt::Polygon") {
+		rb_define_method(klass, "size", (VALUE (*) (...)) qpolygon_count, 0);
+		rb_define_method(klass, "count", (VALUE (*) (...)) qpolygon_count, 0);
+	} else if (packageName == "Qt::PolygonF") {
+		rb_define_method(klass, "size", (VALUE (*) (...)) qpolygonf_count, 0);
+		rb_define_method(klass, "count", (VALUE (*) (...)) qpolygonf_count, 0);
 	} else if (packageName == "Qt::ModelIndex") {
 		rb_define_method(klass, "internalPointer", (VALUE (*) (...)) qmodelindex_internalpointer, 0);
 #ifdef QT_QTDBUS

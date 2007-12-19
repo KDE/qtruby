@@ -1224,6 +1224,28 @@ module Qt
 		end
 	end
 
+	class Polygon < Qt::Base
+		include Enumerable
+
+		def each
+			for i in 0...count
+				yield point(i)
+			end
+			return self
+		end
+	end
+
+	class PolygonF < Qt::Base
+		include Enumerable
+
+		def each
+			for i in 0...count
+				yield point(i)
+			end
+			return self
+		end
+	end
+
 	class PrintDialog < Qt::Base
 		def exec(*args)
 			method_missing(:exec, *args)
