@@ -56,6 +56,11 @@
 #include <QtXml/qxmlstream.h>
 #endif
 
+#if QT_VERSION >= 0x040400
+#include <QtWebKit/qwebframe.h>
+#include <QtWebKit/qwebhistory.h>
+#endif
+
 #include "smoke.h"
 
 #undef DEBUG
@@ -2123,6 +2128,10 @@ DEF_LIST_MARSHALLER( QUndoStackList, QList<QUndoStack*>, QUndoStack )
 DEF_LIST_MARSHALLER( QMdiSubWindowList, QList<QMdiSubWindow*>, QMdiSubWindow )
 #endif
 
+#if QT_VERSION >= 0x40400
+DEF_LIST_MARSHALLER( QWebFrameList, QList<QWebFrame*>, QWebFrame )
+#endif
+
 template <class Item, class ItemList, const char *ItemSTR >
 void marshall_ValueListItem(Marshall *m) {
 	switch(m->action()) {
@@ -2269,6 +2278,10 @@ DEF_VALUELIST_MARSHALLER( QSslErrorList, QList<QSslError>, QSslError )
 DEF_VALUELIST_MARSHALLER( QXmlStreamEntityDeclarations, QVector<QXmlStreamEntityDeclaration>, QXmlStreamEntityDeclaration )
 DEF_VALUELIST_MARSHALLER( QXmlStreamNamespaceDeclarations, QVector<QXmlStreamNamespaceDeclaration>, QXmlStreamNamespaceDeclaration )
 DEF_VALUELIST_MARSHALLER( QXmlStreamNotationDeclarations, QVector<QXmlStreamNotationDeclaration>, QXmlStreamNotationDeclaration )
+#endif
+
+#if QT_VERSION >= 0x40400
+DEF_VALUELIST_MARSHALLER( QWebHistoryItemList, QList<QWebHistoryItem>, QWebHistoryItem )
 #endif
 
 TypeHandler Qt_handlers[] = {
@@ -2424,6 +2437,10 @@ TypeHandler Qt_handlers[] = {
     { "QXmlStreamEntityDeclarations", marshall_QXmlStreamEntityDeclarations },
     { "QXmlStreamNamespaceDeclarations", marshall_QXmlStreamNamespaceDeclarations },
     { "QXmlStreamNotationDeclarations", marshall_QXmlStreamNotationDeclarations },
+#endif
+#if QT_VERSION >= 0x040400
+    { "QList<QWebFrame*>", marshall_QWebFrameList },
+    { "QList<QWebHistoryItem>", marshall_QWebHistoryItemList },
 #endif
     { 0, 0 }
 };

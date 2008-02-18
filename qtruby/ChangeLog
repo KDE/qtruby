@@ -1,6 +1,7 @@
 2008-02-18  Richard Dale  <rdale@foton.es>
 
 	* Ignore the WebCore:: and std:: namespaces when loading classes
+	* Added marshallers for the WebKit QList types
 
 2007-12-19  Richard Dale  <rdale@foton.es>
 
