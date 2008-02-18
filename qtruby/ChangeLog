@@ -1,3 +1,7 @@
+2008-02-18  Richard Dale  <rdale@foton.es>
+
+	* Ignore the WebCore:: and std:: namespaces when loading classes
+
 2007-12-19  Richard Dale  <rdale@foton.es>
 
 	* The Qt::Polygon and Qt::PolygonF classes had no means of getting

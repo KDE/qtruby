@@ -2135,6 +2135,9 @@ module Qt
 		end
 
 		def Internal.init_class(c)
+			if c == "WebCore" || c == "std"
+				return
+			end
 			classname = Qt::Internal::normalize_classname(c)
 			classId = Qt::Internal.idClass(c)
 			insert_pclassid(classname, classId)
@@ -2285,7 +2288,7 @@ module Qt
 			
 			if method == "new"
 				method = classname.dup 
-				method.gsub!(/^(Qt::TextEdit|Qt::TextBlock|Qt::TextLayout|Qt::TextFrame|KBookmark|KParts|KMediaPlayer|KIO|KNS|DOM|Kontact|Kate|KSettings|KTimeZone|KTextEditor|KConfigSkeleton::ItemEnum|KConfigSkeleton|KWin|KWallet|Plasma|SafeSite|Sonnet)::/,"")
+				method.gsub!(/^(Qt::TextEdit|Qt::TextBlock|Qt::TextLayout|Qt::TextFrame|WebCore|KBookmark|KParts|KMediaPlayer|KIO|KNS|DOM|Kontact|Kate|KSettings|KTimeZone|KTextEditor|KConfigSkeleton::ItemEnum|KConfigSkeleton|KWin|KWallet|Plasma|SafeSite|Sonnet)::/,"")
 			end
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
 			# Change foobar= to setFoobar()					
