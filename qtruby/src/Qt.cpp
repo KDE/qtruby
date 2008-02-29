@@ -95,7 +95,7 @@ int do_debug = qtdb_none;
 #endif
 
 typedef QHash<void *, VALUE *> PointerMap;
-Q_GLOBAL_STATIC(PointerMap, pointer_map);
+Q_GLOBAL_STATIC(PointerMap, pointer_map)
 int object_count = 0;
 
 QHash<QByteArray, Smoke::Index *> methcache;
