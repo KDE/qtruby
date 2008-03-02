@@ -1,3 +1,9 @@
+2008-03-02  Richard Dale  <rdale@foton.es>
+
+	* The QModelIndex::internalPointer() method was returning nil, as
+	  as result of the code change attempting to return nil if the C++
+	  pointer is 0. Thanks to CyrilleB for reportin the error
+
 2008-02-18  Richard Dale  <rdale@foton.es>
 
 	* Ignore the WebCore:: and std:: namespaces when loading classes

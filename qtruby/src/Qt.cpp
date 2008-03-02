@@ -1619,10 +1619,11 @@ qabstractitemmodel_createindex(int argc, VALUE * argv, VALUE self)
 static VALUE
 qmodelindex_internalpointer(VALUE self)
 {
+
     smokeruby_object *o = value_obj_info(self);
 	QModelIndex * index = (QModelIndex *) o->ptr;
 	void * ptr = index->internalPointer();
-	return ptr == 0 ? (VALUE) ptr : Qnil;
+	return ptr != 0 ? (VALUE) ptr : Qnil;
 }
 
 static VALUE
