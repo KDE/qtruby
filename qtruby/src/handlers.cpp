@@ -57,8 +57,10 @@
 #endif
 
 #if QT_VERSION >= 0x040400
+#include <QtGui/qprinterinfo.h>
 #include <QtWebKit/qwebframe.h>
 #include <QtWebKit/qwebhistory.h>
+#include <QtNetwork/qnetworkcookie.h>
 #endif
 
 #include "smoke.h"
@@ -2281,6 +2283,8 @@ DEF_VALUELIST_MARSHALLER( QXmlStreamNotationDeclarations, QVector<QXmlStreamNota
 #endif
 
 #if QT_VERSION >= 0x40400
+DEF_VALUELIST_MARSHALLER( QNetworkCookieList, QList<QNetworkCookie>, QNetworkCookie )
+DEF_VALUELIST_MARSHALLER( QPrinterInfoList, QList<QPrinterInfo>, QPrinterInfo )
 DEF_VALUELIST_MARSHALLER( QWebHistoryItemList, QList<QWebHistoryItem>, QWebHistoryItem )
 #endif
 
@@ -2433,12 +2437,16 @@ TypeHandler Qt_handlers[] = {
     { "QList<QSslCertificate>&", marshall_QSslCertificateList },
     { "QList<QSslCipher>", marshall_QSslCipherList },
     { "QList<QSslCipher>&", marshall_QSslCipherList },
+    { "QList<QSslError>", marshall_QSslErrorList },
     { "QList<QSslError>&", marshall_QSslErrorList },
     { "QXmlStreamEntityDeclarations", marshall_QXmlStreamEntityDeclarations },
     { "QXmlStreamNamespaceDeclarations", marshall_QXmlStreamNamespaceDeclarations },
     { "QXmlStreamNotationDeclarations", marshall_QXmlStreamNotationDeclarations },
 #endif
 #if QT_VERSION >= 0x040400
+    { "QList<QNetworkCookie>", marshall_QNetworkCookieList },
+    { "QList<QNetworkCookie>&", marshall_QNetworkCookieList },
+    { "QList<QPrinterInfo>", marshall_QPrinterInfoList },
     { "QList<QWebFrame*>", marshall_QWebFrameList },
     { "QList<QWebHistoryItem>", marshall_QWebHistoryItemList },
 #endif

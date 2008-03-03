@@ -1,3 +1,7 @@
+2008-03-03  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Added some marshallers for new Qt 4.4 QList types
+
 2008-03-02  Richard Dale  <rdale@foton.es>
 
 	* The QModelIndex::internalPointer() method was returning nil, as
