@@ -1,3 +1,8 @@
+2008-03-04  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Make symbolic links to rbqtapi as rbqt3api, rbqt4api, rbkdeapi 
+	  and rbkde4api
+
 2008-03-03  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Added some marshallers for new Qt 4.4 QList types

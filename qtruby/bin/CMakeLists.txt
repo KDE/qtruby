@@ -1,2 +1,7 @@
-MESSAGE( STATUS "Fix $(LN_S) rbqtapi $(DESTDIR)$(bindir)/rbqt3api and $(LN_S) rbqtapi $(DESTDIR)$(bindir)/rbqt4api")
-install( PROGRAMS  rbqtapi rbqtsh DESTINATION ${CMAKE_INSTALL_PREFIX}/bin )
+install( PROGRAMS rbqtapi DESTINATION ${CMAKE_INSTALL_PREFIX}/bin )
+
+install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CMAKE_INSTALL_PREFIX}/bin/rbqtapi\"  \"${CMAKE_INSTALL_PREFIX}/bin/rbqt3api\" )" )
+install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CMAKE_INSTALL_PREFIX}/bin/rbqtapi\"  \"${CMAKE_INSTALL_PREFIX}/bin/rbqt4api\" )" )
+install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CMAKE_INSTALL_PREFIX}/bin/rbqtapi\"  \"${CMAKE_INSTALL_PREFIX}/bin/rbkdeapi\" )" )
+install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CMAKE_INSTALL_PREFIX}/bin/rbqtapi\"  \"${CMAKE_INSTALL_PREFIX}/bin/rbkde4api\" )" )
+
