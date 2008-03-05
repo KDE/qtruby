@@ -235,6 +235,70 @@ void marshall_KCmdLineOptions(Marshall *m) {
 	}
 }
 
+void marshall_WIdList(Marshall *m) {
+    switch(m->action()) {
+      case Marshall::FromVALUE:
+	{
+	    VALUE list = *(m->var());
+	    if (TYPE(list) != T_ARRAY) {
+		m->item().s_voidp = 0;
+		break;
+	    }
+	    int count = RARRAY(list)->len;
+	    QValueList<WId> *valuelist = new QValueList<WId>;
+	    long i;
+	    for(i = 0; i < count; i++) {
+		VALUE item = rb_ary_entry(list, i);
+		if(TYPE(item) != T_FIXNUM && TYPE(item) != T_BIGNUM) {
+		    valuelist->append(0);
+		    continue;
+		}
+		valuelist->append(NUM2LONG(item));
+	    }
+
+	    m->item().s_voidp = valuelist;
+	    m->next();
+
+		if (!m->type().isConst()) {
+			rb_ary_clear(list);
+			for(QValueListIterator<WId> it = valuelist->begin();
+				it != valuelist->end();
+				++it)
+				rb_ary_push(list, LONG2NUM((int)*it));
+		}
+
+		if (m->cleanup()) {
+			delete valuelist;
+	    }
+	}
+	break;
+      case Marshall::ToVALUE:
+	{
+	    QValueList<WId> *valuelist = (QValueList<WId>*)m->item().s_voidp;
+	    if(!valuelist) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+
+	    VALUE av = rb_ary_new();
+
+	    for(QValueListIterator<WId> it = valuelist->begin();
+		it != valuelist->end();
+		++it)
+		rb_ary_push(av, LONG2NUM(*it));
+		
+	    *(m->var()) = av;
+		
+	    if(m->cleanup())
+		delete valuelist;
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
+    }
+}
+
 void marshall_KMimeTypeList(Marshall *m) {
 	switch(m->action()) {
 	case Marshall::FromVALUE: 
@@ -1358,5 +1422,7 @@ TypeHandler KDE_handlers[] = {
     { "KEntryMap&", marshall_QMapKEntryKeyKEntry },
     { "KEntryMap*", marshall_QMapKEntryKeyKEntry },
     { "QMap<QCString,DCOPRef>", marshall_QMapQCStringDCOPRef },
+    { "QValueList<WId>&", marshall_WIdList },
+    { "QValueList<WId>", marshall_WIdList },
     { 0, 0 }
 };

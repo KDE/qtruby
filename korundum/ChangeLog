@@ -1,3 +1,7 @@
+2007-03-05  Richard Dale  <rdale@foton.es>
+
+	* Added a marshaller for QValueList<WId>& as requested by volty on #qtruby
+
 2007-07-06  Richard Dale  <rdale@foton.es>
 
 	* Fixed bug in DCOPRef's reported by Han Holl, but how has it ever worked?
