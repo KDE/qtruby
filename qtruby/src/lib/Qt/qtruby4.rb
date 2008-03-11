@@ -2319,7 +2319,7 @@ module Qt
 			methodIds = []
 			methods.collect { |meth| methodIds.concat( findMethod(classname, meth) ) }
 			
-			if method =~ /_/ && methodIds.length == 0
+			if method =~ /._./ && methodIds.length == 0
 				# If the method name contains underscores, convert to camel case
 				# form and try again
 				method.gsub!(/(.)_(.)/) {$1 + $2.upcase}
