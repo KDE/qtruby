@@ -141,7 +141,7 @@ slots   'open()',
 		connect(@printAct, SIGNAL('triggered()'), self, SLOT('print()'))
 	
 		@exitAct = Qt::Action.new(tr("E&xit"), self)
-		@exitAct.shortcut = Qt::KeySequence.new(tr("Ctrl+Qt::"))
+		@exitAct.shortcut = Qt::KeySequence.new(tr("Ctrl+Q"))
 		connect(@exitAct, SIGNAL('triggered()'), self, SLOT('close()'))
 	
 		@zoomInAct = Qt::Action.new(tr("Zoom &In (25%)"), self)

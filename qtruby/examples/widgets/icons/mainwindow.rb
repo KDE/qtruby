@@ -284,7 +284,7 @@ class MainWindow < Qt::MainWindow
                 self, SLOT('removeAllImages()'))
     
         @exitAct = Qt::Action.new(tr("&Quit"), self)
-        @exitAct.shortcut = Qt::KeySequence.new(tr("Ctrl+Qt::"))
+        @exitAct.shortcut = Qt::KeySequence.new(tr("Ctrl+Q"))
         connect(@exitAct, SIGNAL('triggered()'), self, SLOT('close()'))
     
         @styleActionGroup = Qt::ActionGroup.new(self)

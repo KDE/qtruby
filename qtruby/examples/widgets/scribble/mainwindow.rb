@@ -118,7 +118,7 @@ class MainWindow < Qt::MainWindow
         end
     
         @exitAct = Qt::Action.new(tr("E&xit"), self)
-        @exitAct.shortcut = Qt::KeySequence.new(tr("Ctrl+Qt::"))
+        @exitAct.shortcut = Qt::KeySequence.new(tr("Ctrl+Q"))
         connect(@exitAct, SIGNAL('triggered()'), self, SLOT('close()'))
     
         @penColorAct = Qt::Action.new(tr("&Pen Color..."), self)

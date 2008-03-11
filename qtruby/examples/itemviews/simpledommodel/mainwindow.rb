@@ -34,7 +34,7 @@ class MainWindow < Qt::MainWindow
         @fileMenu.addAction(tr("&Open..."), self, SLOT('openFile()'),
                             Qt::KeySequence.new(tr("Ctrl+O")))
         @fileMenu.addAction(tr("E&xit"), self, SLOT('close()'),
-                            Qt::KeySequence.new(tr("Ctrl+Qt::")))
+                            Qt::KeySequence.new(tr("Ctrl+Q")))
     
         @model = DomModel.new(Qt::DomDocument.new, self)
         @view = Qt::TreeView.new(self)

@@ -108,7 +108,7 @@ class MainWindow < Qt::MainWindow
         openAction.shortcut = Qt::KeySequence.new(tr("Ctrl+O"))
     
         exitAction = fileMenu.addAction(tr("E&xit"))
-        exitAction.shortcut = Qt::KeySequence.new(tr("Ctrl+Qt::"))
+        exitAction.shortcut = Qt::KeySequence.new(tr("Ctrl+Q"))
     
         gameMenu = menuBar().addMenu(tr("&Game"))
     
