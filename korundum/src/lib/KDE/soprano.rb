@@ -1,5 +1,9 @@
 module Soprano
   class Node
+    def type(*args)
+      method_missing(:type, *args)
+    end
+
     def self.unmarshall(arg)
       arg.beginStructure
         type = Qt::Integer.new
@@ -8,11 +12,12 @@ module Soprano
         dataTypeUri = ""
         arg >> type >> value >> language >> dataTypeUri
 
-        if type == Soprano::Node::LiteralNode
-          node = Soprano::Node.new(Soprano::LiteralValue.fromString(value, dataTypeUri), language)
-        elsif type == Soprano::Node::ResourceNode
+        case type.to_i
+        when Soprano::Node::LiteralNode:
+          node = Soprano::Node.new(Soprano::LiteralValue.fromString(value, Qt::Url.new(dataTypeUri)), language)
+        when Soprano::Node::ResourceNode:
           node = Soprano::Node.new(Qt::Url.new(value))
-        elsif type == Soprano::Node::BlankNode
+        when Soprano::Node::BlankNode:
           node = Soprano::Node.new(value)
         else
           node = Soprano::Node.new
