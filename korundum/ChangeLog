@@ -1,3 +1,35 @@
+2008-03-14  Richard Dale  <rdale@foton.es>
+
+	* Added support for communicating with the Soprano server over DBus
+	  For example:
+
+		client = Soprano::Client::DBusClient.new
+		model = client.createModel("NewModel")
+
+		statements = model.listStatements(Soprano::Statement.new(Soprano::Node.new, Soprano::Node.new, Soprano::Node.new))
+		statements.each do |statement|
+  			p statement.subject
+  			p statement.predicate
+  			p statement.object
+		end
+
+		query = <<EOS
+		PREFIX xls: <http://www.w3.org/2001/XMLSchema#>
+
+		SELECT ?person
+		WHERE {
+    		?person <http://www.w3.org/2000/01/rdf-schema#comment> "Another Class"^^xls:string .
+		}
+		EOS
+
+		results = model.executeQuery(query, Soprano::Query::QueryLanguageSparql)
+		results.each do |result|
+  			p result[:person]
+		end
+
+	* Note that where a C++ iterator would have been returned, a Ruby Enumerable instance
+	  is returned.
+
 2007-11-12  Richard Dale  <rdale@foton.es>
 
 	* Make a start with converting the UISampler example app to KDE4

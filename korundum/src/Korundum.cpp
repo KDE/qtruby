@@ -20,6 +20,15 @@
 #include <qmap.h>
 #include <qdatastream.h>
 
+#include <QtCore/qdebug.h>
+#include <QtCore/qtextcodec.h>
+#include <QtCore/qtextstream.h>
+#include <QtDBus/qdbusmetatype.h>
+
+#include <soprano/node.h>
+#include <soprano/statement.h>
+#include <soprano/bindingset.h>
+
 #include <kdeversion.h>
 #include <kapplication.h>
 #include <kurl.h>
@@ -37,7 +46,7 @@ extern "C" {
 extern VALUE qt_internal_module;
 extern VALUE kconfigskeleton_class;
 extern VALUE kconfigskeleton_itemenum_choice_class;
-extern VALUE kio_udsatom_class;
+extern VALUE kconfiggroup_class;
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
 extern void set_kde_resolve_classname(const char * (*kde_resolve_classname) (Smoke*, int, void *));
 extern const char * kde_resolve_classname(Smoke* smoke, int classId, void * ptr);
@@ -49,6 +58,95 @@ extern Smoke *qt_Smoke;
 
 static VALUE kde_internal_module;
 Marshall::HandlerFn getMarshallFn(const SmokeType &type);
+
+/* 
+ * These QDBusArgument operators are copied from kdesupport/soprano/server/dbus/dbusoperators.cpp
+ */
+Q_DECLARE_METATYPE(Soprano::Statement)
+Q_DECLARE_METATYPE(Soprano::Node)
+Q_DECLARE_METATYPE(Soprano::BindingSet)
+
+QDBusArgument& operator<<( QDBusArgument& arg, const Soprano::Node& node )
+{
+    arg.beginStructure();
+    arg << ( int )node.type() << node.toString() << node.language() << node.dataType().toString();
+    arg.endStructure();
+    return arg;
+}
+
+const QDBusArgument& operator>>( const QDBusArgument& arg, Soprano::Node& node )
+{
+    arg.beginStructure();
+    int type;
+    QString value, language, dataTypeUri;
+    arg >> type >> value >> language >> dataTypeUri;
+    if ( type == Soprano::Node::LiteralNode ) {
+        node = Soprano::Node( Soprano::LiteralValue::fromString( value, dataTypeUri ), language );
+    }
+    else if ( type == Soprano::Node::ResourceNode ) {
+        node = Soprano::Node( QUrl( value ) );
+    }
+    else if ( type == Soprano::Node::BlankNode ) {
+        node = Soprano::Node( value );
+    }
+    else {
+        node = Soprano::Node();
+    }
+    arg.endStructure();
+    return arg;
+}
+
+QDBusArgument& operator<<( QDBusArgument& arg, const Soprano::Statement& statement )
+{
+    arg.beginStructure();
+    arg << statement.subject() << statement.predicate() << statement.object() << statement.context();
+    arg.endStructure();
+    return arg;
+}
+
+const QDBusArgument& operator>>( const QDBusArgument& arg, Soprano::Statement& statement )
+{
+    arg.beginStructure();
+    Soprano::Node subject, predicate, object, context;
+    arg >> subject >> predicate >> object >> context;
+    statement = Soprano::Statement( subject, predicate, object, context );
+    arg.endStructure();
+    return arg;
+}
+
+QDBusArgument& operator<<( QDBusArgument& arg, const Soprano::BindingSet& set )
+{
+    arg.beginStructure();
+    arg.beginMap( QVariant::String, qMetaTypeId<Soprano::Node>() );
+    QStringList names = set.bindingNames();
+    for ( int i = 0; i < names.count(); ++i ) {
+        arg.beginMapEntry();
+        arg << names[i] << set[ names[i] ];
+        arg.endMapEntry();
+    }
+    arg.endMap();
+    arg.endStructure();
+    return arg;
+}
+
+const QDBusArgument& operator>>( const QDBusArgument& arg, Soprano::BindingSet& set )
+{
+    arg.beginStructure();
+    arg.beginMap();
+    while ( !arg.atEnd() ) {
+        QString name;
+        Soprano::Node val;
+        arg.beginMapEntry();
+        arg >> name >> val;
+        arg.endMapEntry();
+        set.insert( name, val );
+    }
+
+    arg.endMap();
+    arg.endStructure();
+    return arg;
+}
+
 
 extern "C" {
 extern Q_DECL_EXPORT void Init_korundum4();
@@ -76,6 +174,17 @@ new_kde(int argc, VALUE * argv, VALUE klass)
 	return instance;
 }
 
+static VALUE
+kconfiggroup_read_entry(int argc, VALUE * argv, VALUE self)
+{
+	return Qnil;
+}
+
+static VALUE
+kconfiggroup_write_entry(int argc, VALUE * argv, VALUE self)
+{
+	return Qnil;
+}
 
 static VALUE
 kconfigskeletonitem_immutable(VALUE self)
@@ -162,64 +271,6 @@ set_choice_whatsthis(VALUE self, VALUE whatsthis)
 	return self;
 }
 
-/*
-static VALUE
-udsatom_str(VALUE self)
-{
-	smokeruby_object *o = value_obj_info(self);
-	KIO::UDSAtom * udsatom = (KIO::UDSAtom *) o->ptr;
-	if (udsatom->m_str.isNull()) {
-		return Qnil;
-	} else {
-		return rb_str_new2(udsatom->m_str.latin1());
-	}
-}
-
-
-static VALUE
-udsatom_long(VALUE self)
-{
-	smokeruby_object *o = value_obj_info(self);
-	KIO::UDSAtom * udsatom = (KIO::UDSAtom *) o->ptr;
-	return LL2NUM(udsatom->m_long);
-}
-
-static VALUE
-udsatom_uds(VALUE self)
-{
-	smokeruby_object *o = value_obj_info(self);
-	KIO::UDSAtom * udsatom = (KIO::UDSAtom *) o->ptr;
-	return UINT2NUM(udsatom->m_uds);
-}
-
-static VALUE
-set_udsatom_str(VALUE self, VALUE str)
-{
-	smokeruby_object *o = value_obj_info(self);
-	KIO::UDSAtom * udsatom = (KIO::UDSAtom *) o->ptr;
-	udsatom->m_str = QString(StringValuePtr(str));
-	return self;
-}
-
-static VALUE
-set_udsatom_long(VALUE self, VALUE m_long)
-{
-	smokeruby_object *o = value_obj_info(self);
-	KIO::UDSAtom * udsatom = (KIO::UDSAtom *) o->ptr;
-	udsatom->m_long = NUM2LL(m_long);
-	return self;
-}
-
-static VALUE
-set_udsatom_uds(VALUE self, VALUE uds)
-{
-	smokeruby_object *o = value_obj_info(self);
-	KIO::UDSAtom * udsatom = (KIO::UDSAtom *) o->ptr;
-	udsatom->m_uds = NUM2UINT(uds);
-	return self;
-}
-*/
-
 void
 Init_korundum4()
 {
@@ -242,7 +293,6 @@ Init_korundum4()
 	
     kde_internal_module = rb_define_module_under(kde_module, "Internal");
 	
-
 	rb_define_method(kconfigskeleton_class, "addItem", (VALUE (*) (...)) config_additem, -1);
 	
 	rb_define_method(kconfigskeleton_itemenum_choice_class, "name", (VALUE (*) (...)) choice_name, 0);
@@ -252,15 +302,15 @@ Init_korundum4()
 	rb_define_method(kconfigskeleton_itemenum_choice_class, "label=", (VALUE (*) (...)) set_choice_label, 1);
 	rb_define_method(kconfigskeleton_itemenum_choice_class, "whatsThis=", (VALUE (*) (...)) set_choice_whatsthis, 1);
 
-/*	
-	rb_define_method(kio_udsatom_class, "m_str", (VALUE (*) (...)) udsatom_str, 0);
-	rb_define_method(kio_udsatom_class, "m_long", (VALUE (*) (...)) udsatom_long, 0);
-	rb_define_method(kio_udsatom_class, "m_uds", (VALUE (*) (...)) udsatom_uds, 0);
-	rb_define_method(kio_udsatom_class, "m_str=", (VALUE (*) (...)) set_udsatom_str, 1);
-	rb_define_method(kio_udsatom_class, "m_long=", (VALUE (*) (...)) set_udsatom_long, 1);
-	rb_define_method(kio_udsatom_class, "m_uds=", (VALUE (*) (...)) set_udsatom_uds, 1);
-*/	
+	rb_define_method(kconfiggroup_class, "readEntry", (VALUE (*) (...)) kconfiggroup_read_entry, -1);
+	rb_define_method(kconfiggroup_class, "writeEntry", (VALUE (*) (...)) kconfiggroup_write_entry, -1);
+
+	(void) qDBusRegisterMetaType<Soprano::Statement>();
+	(void) qDBusRegisterMetaType<Soprano::Node>();
+	(void) qDBusRegisterMetaType<Soprano::BindingSet>();
+
 	rb_require("KDE/korundum4.rb");
+	rb_require("KDE/soprano.rb");
 }
 
 }
