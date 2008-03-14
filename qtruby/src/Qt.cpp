@@ -123,6 +123,7 @@ VALUE qt_module = Qnil;
 VALUE qwt_module = Qnil;
 VALUE safesite_module = Qnil;
 VALUE sonnet_module = Qnil;
+VALUE soprano_module = Qnil;
 
 
 VALUE kconfiggroup_class = Qnil;
@@ -850,7 +851,7 @@ qvariant_from_value(int argc, VALUE * argv, VALUE self)
 	} else if (qstrcmp(classname, "Qt::TextFormat") == 0) {
 		v = new QVariant(qVariantFromValue(*(QTextFormat*) o->ptr));
 	} else if (QVariant::nameToType(o->smoke->classes[o->classId].className) >= QVariant::UserType) {
-		v = new QVariant(QVariant::nameToType(o->smoke->classes[o->classId].className), o->ptr);
+		v = new QVariant(QMetaType::type(o->smoke->classes[o->classId].className), o->ptr);
 	} else {
 		// Assume the Qt::Variant can be created with a
 		// Qt::Variant.new(obj) call
@@ -3210,6 +3211,9 @@ static QRegExp * scope_op = 0;
 	} else if (packageName.startsWith("Sonnet::")) {
 		klass = rb_define_class_under(sonnet_module, package+strlen("Sonnet::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (packageName.startsWith("Soprano::")) {
+		klass = rb_define_class_under(soprano_module, package+strlen("Soprano::"), base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (scope_op->indexIn(packageName) != -1) {
 		// If an unrecognised classname of the form 'XXXXXX::YYYYYY' is found,
 		// then create a module XXXXXX to put the class YYYYYY under
@@ -3460,6 +3464,10 @@ set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE))
 	sonnet_module = rb_define_module("Sonnet");
 	rb_define_singleton_method(sonnet_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 	rb_define_singleton_method(sonnet_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	soprano_module = rb_define_module("Soprano");
+	rb_define_singleton_method(soprano_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(soprano_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 }
 
 void
