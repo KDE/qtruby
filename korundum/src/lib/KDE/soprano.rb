@@ -155,6 +155,10 @@ module Soprano
           yield node
         end
       end
+
+      def close
+        @interface.close
+      end
     end
 
     class DBusStatementIterator
@@ -171,6 +175,10 @@ module Soprano
           yield statement
         end
       end
+
+      def close
+        @interface.close
+      end
     end
 
     class DBusQueryResultIterator
@@ -186,6 +194,62 @@ module Soprano
           set = Soprano::BindingSet.unmarshall(reply)
           yield set
         end
+      end
+
+      def next
+        @interface.next
+      end
+
+      def current
+        reply = @interface.current
+        set = Soprano::BindingSet.unmarshall(reply)
+        return set
+      end
+
+      def currentStatement
+        reply = @interface.currentStatement
+        statement = Soprano::Statement.unmarshall(reply)
+        return statement
+      end
+
+      def bindingByName(name)
+        reply = @interface.bindingByName(name.to_s)
+        node = Soprano::Node.unmarshall(reply)
+        return node
+      end
+
+      def bindingByIndex(index)
+        reply = @interface.bindingByIndex(index)
+        node = Soprano::Node.unmarshall(reply)
+        return node
+      end
+
+      def bindingCount
+        @interface.bindingCount
+      end
+
+      def bindingNames
+        @interface.bindingNames
+      end
+
+      def boolValue
+        @interface.boolValue
+      end
+
+      def bool?
+        @interface.isBool
+      end
+
+      def binding?
+        @interface.isBinding
+      end
+
+      def graph?
+        @interface.isGraph
+      end
+
+      def close
+        @interface.close
       end
     end
 

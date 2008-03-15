@@ -1,3 +1,8 @@
+2008-03-15  Richard Dale  <rdale@foton.es>
+
+	* Added some more methods to the Soprano::Client::DBusQueryResultIterator class
+	  from the org.soprano.QueryResultIterator.xml interface
+
 2008-03-14  Richard Dale  <rdale@foton.es>
 
 	* Added support for communicating with the Soprano server over DBus
