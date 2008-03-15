@@ -8,19 +8,17 @@ module Soprano
       str = super
       case type.to_i
       when Soprano::Node::EmptyNode:
-        str.sub(/>$/, " value=%s>" % "(empty)")
+        str.sub(/>$/, " %s>" % "(empty)")
       when Soprano::Node::ResourceNode:
-        str.sub(/>$/, " value=<%s>>" % uri.toString)
+        str.sub(/>$/, " <%s>>" % uri.toString)
       when Soprano::Node::LiteralNode:
         if literal.isString && !language.empty?
-          str.sub(/>$/, ' value="%s"@>' % [literal.toString, language])
+          str.sub(/>$/, ' "%s"@>' % [literal.toString, language])
         else 
-          str.sub(/>$/, ' value="%s"^^<%s>>' % [literal.toString, literal.dataTypeUri.toString])
+          str.sub(/>$/, ' "%s"^^<%s>>' % [literal.toString, literal.dataTypeUri.toString])
         end
       when Soprano::Node::BlankNode:
-        str.sub(/>$/, " value=_:%s>" % identifier)
-      else
-        str.sub(/>$/, " value=%s>" % "(empty)")
+        str.sub(/>$/, " _:%s>" % identifier)
       end
     end
 		
@@ -28,19 +26,17 @@ module Soprano
       str = to_s
       case type.to_i
       when Soprano::Node::EmptyNode:
-        pp.text str.sub(/>$/, " value=%s>" % "(empty)")
+        pp.text str.sub(/>$/, " %s>" % "(empty)")
       when Soprano::Node::ResourceNode:
-        pp.text str.sub(/>$/, " value=<%s>>" % uri.toString)
+        pp.text str.sub(/>$/, " <%s>>" % uri.toString)
       when Soprano::Node::LiteralNode:
         if literal.isString && !language.empty?
-          pp.text str.sub(/>$/, ' value="%s"@>' % [literal.toString, language])
+          pp.text str.sub(/>$/, ' "%s"@>' % [literal.toString, language])
         else 
-          pp.text str.sub(/>$/, ' value="%s"^^<%s>>' % [literal.toString, literal.dataTypeUri.toString])
+          pp.text str.sub(/>$/, ' "%s"^^<%s>>' % [literal.toString, literal.dataTypeUri.toString])
         end
       when Soprano::Node::BlankNode:
-        pp.text str.sub(/>$/, " value=_:%s>" % identifier)
-      else
-        pp.text str.sub(/>$/, " value=%s>" % "(empty)")
+        pp.text str.sub(/>$/, " _:%s>" % identifier)
       end
     end
 
