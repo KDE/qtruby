@@ -1,0 +1,10 @@
+== ActiveRDF Soprano adapter
+This is the ActiveRDF adapter to a Soprano server over DBus.
+See http://www.activerdf.org/ for more information.
+
+== License
+This adapter is distributed under the LGPL license.
+
+== Authors
+* Richard Dale
+

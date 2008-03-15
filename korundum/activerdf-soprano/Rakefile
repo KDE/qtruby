@@ -1,0 +1,70 @@
+require 'meta_project'
+require 'rake'
+require 'rake/testtask'
+require 'rake/clean'
+require 'rake/gempackagetask'
+require 'rake/contrib/xforge'
+require 'rubygems'
+require 'fileutils'
+require 'rakehelp'
+
+$version  = IO.read('VERSION').strip
+$name     = 'activerdf_soprano'
+$project  = MetaProject::Project::XForge::RubyForge.new('activerdf')
+$distdir  = "#$name-#$version"
+
+# setup tests
+setup_tests
+setup_clean ["pkg", "lib/*.bundle", "*.gem", ".config"]
+
+desc "Does a full compile, test run"
+task :default => [:test, :package]
+
+setup_gem($name, $version) do |spec|
+  spec.summary = "ActiveRDF adapter to Soprano server" 
+  spec.description = spec.summary
+  spec.author="Richard Dale <richard.j.dale@gmail.com>"
+  spec.add_dependency('gem_plugin', '>= 0.2.1')
+  spec.add_dependency('activerdf', '>= 1.6.4')
+  spec.add_dependency('json', '>= 1.1.1')
+#  if RUBY_PLATFORM =~ /java/
+#    # require json_pure which has no native c extensions when running under jruby
+#    spec.add_dependency('json_pure', '>= 1.1.1')
+#  else
+#    spec.add_dependency('json', '>= 1.1.1')
+#  end
+end
+
+task :verify_rubyforge do
+  raise "RUBYFORGE_USER environment variable not set!" unless ENV['RUBYFORGE_USER']
+  raise "RUBYFORGE_PASSWORD environment variable not set!" unless ENV['RUBYFORGE_PASSWORD']
+end
+
+desc "release #$name-#$version gem on RubyForge"
+task :release => [:clean, :verify_rubyforge, :package ] do
+  release_files = FileList["pkg/#$distdir.gem"]
+
+  Rake::XForge::Release.new($project) do |release|
+    release.user_name     = ENV['RUBYFORGE_USER']
+    release.password      = ENV['RUBYFORGE_PASSWORD']
+    release.files         = release_files.to_a
+    release.release_name  = "#$name #$version"
+    release.package_name  = "activerdf-soprano"
+    release.release_notes = ""
+
+    changes = []
+    File.open("CHANGELOG") do |file|
+      current = true
+
+      file.each do |line|
+        line.chomp!
+        if current and line =~ /^==/
+          current = false; next 
+        end
+        break if line.empty? and not current
+        changes << line
+      end
+    end
+    release.release_changes = changes.join("\n")
+  end
+end

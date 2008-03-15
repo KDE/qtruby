@@ -2,6 +2,7 @@
 
 	* Added some more methods to the Soprano::Client::DBusQueryResultIterator class
 	  from the org.soprano.QueryResultIterator.xml interface
+	* Added an adaptor for using ActiveRDF with soprano
 
 2008-03-14  Richard Dale  <rdale@foton.es>
 
