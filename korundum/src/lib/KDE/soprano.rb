@@ -1,3 +1,22 @@
+=begin
+/***************************************************************************
+                          soprano.rb  -  Soprano SPARQL queries over DBus
+                             -------------------
+    begin                : Fri March 14 2008
+    copyright            : (C) 2008 by Richard Dale
+    email                : richard.j.dale@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+=end
+
 module Soprano
   class Node
     def type(*args)
@@ -13,7 +32,7 @@ module Soprano
         str.sub(/>$/, " <%s>>" % uri.toString)
       when Soprano::Node::LiteralNode:
         if literal.isString && !language.empty?
-          str.sub(/>$/, ' "%s"@>' % [literal.toString, language])
+          str.sub(/>$/, ' "%s"@%s>' % [literal.toString, language])
         else 
           str.sub(/>$/, ' "%s"^^<%s>>' % [literal.toString, literal.dataTypeUri.toString])
         end
@@ -31,7 +50,7 @@ module Soprano
         pp.text str.sub(/>$/, " <%s>>" % uri.toString)
       when Soprano::Node::LiteralNode:
         if literal.isString && !language.empty?
-          pp.text str.sub(/>$/, ' "%s"@>' % [literal.toString, language])
+          pp.text str.sub(/>$/, ' "%s"@%s>' % [literal.toString, language])
         else 
           pp.text str.sub(/>$/, ' "%s"^^<%s>>' % [literal.toString, literal.dataTypeUri.toString])
         end
