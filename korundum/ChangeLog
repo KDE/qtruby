@@ -1,3 +1,8 @@
+2008-03-16  Richard Dale  <rdale@foton.es>
+
+	* Work round the problem with DBusQueryResultIterator.current only ever returning
+	  one binding by retrieving each binding value individually with bindingByName()
+
 2008-03-15  Richard Dale  <rdale@foton.es>
 
 	* Added some more methods to the Soprano::Client::DBusQueryResultIterator class

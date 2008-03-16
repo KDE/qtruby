@@ -62,22 +62,6 @@ class SopranoAdapter < ActiveRdfAdapter
     # querying soprano server
     binding_set = @model.executeQuery(qs, Soprano::Query::QueryLanguageSparql)
 
-    while binding_set.next
-      result = []
-      select_clauses.each do |var|
-        node = binding_set.bindingByName(var)
-        if node
-          result << soprano_node_to_activerdf(node)
-        end
-      end
-      results << result
-    end
-
-    # This doesn't work as there is a problem with marshalling the
-    # complete binding set, so instead the value of each variable
-    # has to be obtained individually as above
-    #
-=begin
     binding_set.each do |binding|
       result = []
       select_clauses.each do |var|
@@ -87,7 +71,7 @@ class SopranoAdapter < ActiveRdfAdapter
       end
       results << result
     end
-=end
+
     if block_given?
       results.each do |*clauses|
         yield(*clauses)

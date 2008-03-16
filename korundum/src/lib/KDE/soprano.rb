@@ -117,11 +117,11 @@ module Soprano
   end
 
   module Query
-    QueryLanguageNone = 0x0     # No query language */
-    QueryLanguageSparql = 0x1   # The SPARQL query language: http://www.w3.org/TR/rdf-sparql-query/ */
-    QueryLanguageRdql = 0x2     # The RDQL RDF query language: http://www.w3.org/Submission/2004/SUBM-RDQL-20040109/ */
-    QueryLanguageSerql = 0x4    # Sesame RDF %Query Language: http://openrdf.org/doc/sesame2/users/ch05.html */
-    QueryLanguageUser = 0x1000  # The user type can be used to introduce unknown query lanaguages by name */
+    QueryLanguageNone = 0x0     # No query language
+    QueryLanguageSparql = 0x1   # The SPARQL query language: http://www.w3.org/TR/rdf-sparql-query/
+    QueryLanguageRdql = 0x2     # The RDQL RDF query language: http://www.w3.org/Submission/2004/SUBM-RDQL-20040109/
+    QueryLanguageSerql = 0x4    # Sesame RDF %Query Language: http://openrdf.org/doc/sesame2/users/ch05.html
+    QueryLanguageUser = 0x1000  # The user type can be used to introduce unknown query lanaguages by name
 
     def Query.queryLanguageToString(lang, userQueryLanguage )
       case lang 
@@ -189,9 +189,22 @@ module Soprano
       end
 
       def each
+=begin
+        # This code doesn't work because there is only ever one binding
+        # variable returned in the binding set. So use bindingByName()
+        # to retrieve each binding value individually
         while @interface.next
           reply = @interface.current
           set = Soprano::BindingSet.unmarshall(reply)
+          yield set
+        end
+=end
+        names = @interface.bindingNames
+        while @interface.next
+          set = {}
+          names.each do |name|
+            set[name.to_sym] = bindingByName(name)
+          end
           yield set
         end
       end
@@ -201,8 +214,17 @@ module Soprano
       end
 
       def current
+=begin
+        # This code doesn't work because there is only ever one binding
+        # variable returned in the binding set
         reply = @interface.current
         set = Soprano::BindingSet.unmarshall(reply)
+=end
+        names = @interface.bindingNames
+        set = {}
+        names.each do |name|
+          set[name.to_sym] = bindingByName(name)
+        end
         return set
       end
 
