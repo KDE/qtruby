@@ -431,6 +431,18 @@ module Qt
 		end
 	end
 
+	class DBusArgument < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " currentSignature='%s', atEnd=%s>" % [currentSignature, atEnd])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, " currentSignature='%s, atEnd=%s'>" % [currentSignature, atEnd])
+		end
+	end
+
 	class DBusConnection < Qt::Base
 		def send(*args)
 			method_missing(:send, *args)
