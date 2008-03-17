@@ -1,6 +1,10 @@
 
 add_subdirectory( lib )
 
+IF(QT_QTDBUS_FOUND)
+    ADD_DEFINITIONS (-DQT_QTDBUS)
+ENDIF(QT_QTDBUS_FOUND)
+
 include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src ${KDE4_INCLUDE_DIR} ${QT_INCLUDES}  )
 
 set(korundum_LIB_SRCS 

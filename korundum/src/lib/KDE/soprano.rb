@@ -59,58 +59,61 @@ module Soprano
       end
     end
 
-    def self.unmarshall(arg)
+    def self.demarshall(arg)
       arg.beginStructure
-        type = Qt::Integer.new
-        value = ""
-        language = ""
-        dataTypeUri = ""
-        arg >> type >> value >> language >> dataTypeUri
+      type = Qt::Integer.new
+      value = ""
+      language = ""
+      dataTypeUri = ""
+      arg >> type 
+      arg >> value 
+      arg >> language 
+      arg >> dataTypeUri
 
-        case type.to_i
-        when Soprano::Node::EmptyNode:
-          node = Soprano::Node.new
-        when Soprano::Node::ResourceNode:
-          node = Soprano::Node.new(Qt::Url.new(value))
-        when Soprano::Node::LiteralNode:
-          node = Soprano::Node.new(Soprano::LiteralValue.fromString(value, Qt::Url.new(dataTypeUri)), language)
-        when Soprano::Node::BlankNode:
-          node = Soprano::Node.new(value)
-        else
-          node = Soprano::Node.new
-        end
+      case type.to_i
+      when Soprano::Node::EmptyNode:
+        node = Soprano::Node.new
+      when Soprano::Node::ResourceNode:
+        node = Soprano::Node.new(Qt::Url.new(value))
+      when Soprano::Node::LiteralNode:
+        node = Soprano::Node.new(Soprano::LiteralValue.fromString(value, Qt::Url.new(dataTypeUri)), language)
+      when Soprano::Node::BlankNode:
+        node = Soprano::Node.new(value)
+      else
+        node = Soprano::Node.new
+      end
       arg.endStructure
       return node
     end
   end
 
   class Statement
-    def self.unmarshall(arg)
+    def self.demarshall(arg)
       arg.beginStructure
-        subject = Soprano::Node.unmarshall(arg)
-        predicate = Soprano::Node.unmarshall(arg)
-        object = Soprano::Node.unmarshall(arg)
-        context = Soprano::Node.unmarshall(arg)
-        statement = Soprano::Statement.new(subject, predicate, object, context)
+      subject = Soprano::Node.demarshall(arg)
+      predicate = Soprano::Node.demarshall(arg)
+      object = Soprano::Node.demarshall(arg)
+      context = Soprano::Node.demarshall(arg)
+      statement = Soprano::Statement.new(subject, predicate, object, context)
       arg.endStructure
       return statement
     end
   end
   
   class BindingSet
-    def self.unmarshall(arg)
+    def self.demarshall(arg)
       set = {}
       arg.beginStructure
-        arg.beginMap
-        while !arg.atEnd
-          arg.beginMapEntry
-            name = ""
-            arg >> name
-            val = Soprano::Node.unmarshall(arg)
-          arg.endMapEntry
-          set[name.to_sym] = val
-        end
-        arg.endMap
+      arg.beginMap
+      while !arg.atEnd
+        arg.beginMapEntry
+        name = ""
+        arg >> name
+        node = Soprano::Node.demarshall(arg)
+        arg.endMapEntry
+        set[name.to_sym] = node
+      end
+      arg.endMap
       arg.endStructure
       return set
     end
@@ -137,7 +140,6 @@ module Soprano
         return userQueryLanguage
       end
     end
-
   end
 
   module Client
@@ -151,7 +153,7 @@ module Soprano
       def each
         while @interface.next
           reply = @interface.current
-          node = Soprano::Node.unmarshall(reply)
+          node = Soprano::Node.demarshall(reply)
           yield node
         end
       end
@@ -171,7 +173,7 @@ module Soprano
       def each
         while @interface.next
           reply = @interface.current
-          statement = Soprano::Statement.unmarshall(reply)
+          statement = Soprano::Statement.demarshall(reply)
           yield statement
         end
       end
@@ -195,7 +197,7 @@ module Soprano
         # to retrieve each binding value individually
         while @interface.next
           reply = @interface.current
-          set = Soprano::BindingSet.unmarshall(reply)
+          set = Soprano::BindingSet.demarshall(reply)
           yield set
         end
 =end
@@ -218,7 +220,7 @@ module Soprano
         # This code doesn't work because there is only ever one binding
         # variable returned in the binding set
         reply = @interface.current
-        set = Soprano::BindingSet.unmarshall(reply)
+        set = Soprano::BindingSet.demarshall(reply)
 =end
         names = @interface.bindingNames
         set = {}
@@ -230,19 +232,19 @@ module Soprano
 
       def currentStatement
         reply = @interface.currentStatement
-        statement = Soprano::Statement.unmarshall(reply)
+        statement = Soprano::Statement.demarshall(reply)
         return statement
       end
 
       def bindingByName(name)
         reply = @interface.bindingByName(name.to_s)
-        node = Soprano::Node.unmarshall(reply)
+        node = Soprano::Node.demarshall(reply)
         return node
       end
 
       def bindingByIndex(index)
         reply = @interface.bindingByIndex(index)
-        node = Soprano::Node.unmarshall(reply)
+        node = Soprano::Node.demarshall(reply)
         return node
       end
 
@@ -391,7 +393,7 @@ module Soprano
 
       def createBlankNode()
         reply = @interface.createBlankNode
-        return Soprano::Node.unmarshall(reply)
+        return Soprano::Node.demarshall(reply)
       end
     end
 
