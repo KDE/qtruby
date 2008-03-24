@@ -33,7 +33,6 @@
 #include <kparts/plugin.h>
 #include <kaboutdata.h>
 #include <karchive.h>
-#include <kconfigskeleton.h>
 #include <kplugininfo.h>
 #include <kmountpoint.h>
 #include <kio/jobclasses.h>
@@ -823,7 +822,6 @@ void marshall_ValueListItem(Marshall *m) {
 
 DEF_VALUELIST_MARSHALLER( KAboutPersonList, QList<KAboutPerson>, KAboutPerson )
 DEF_VALUELIST_MARSHALLER( QColorList, QList<QColor>, QColor )
-DEF_VALUELIST_MARSHALLER( ChoicesList, QList<KConfigSkeleton::ItemEnum::Choice>, KConfigSkeleton::ItemEnum::Choice )
 DEF_VALUELIST_MARSHALLER( KDataToolInfoList, QList<KDataToolInfo>, KDataToolInfo )
 DEF_VALUELIST_MARSHALLER( KIOCopyInfoList, QList<KIO::CopyInfo>, KIO::CopyInfo )
 DEF_VALUELIST_MARSHALLER( KPartsPluginPluginInfoList, QList<KParts::Plugin::PluginInfo>, KParts::Plugin::PluginInfo )DEF_VALUELIST_MARSHALLER( KUserList, QList<KUser>, KUser )
@@ -948,8 +946,6 @@ TypeHandler KDE_handlers[] = {
     { "QList<KActionCollection*>&", marshall_KActionCollectionList },
     { "QList<QColor>", marshall_QColorList },
     { "QList<QColor>&", marshall_QColorList },
-    { "QList<KConfigSkeleton::ItemEnum::Choice>", marshall_ChoicesList },
-    { "QList<KConfigSkeleton::ItemEnum::Choice>&", marshall_ChoicesList },
     { "QList<KDataToolInfo>", marshall_KDataToolInfoList },
     { "QList<KDataToolInfo>&", marshall_KDataToolInfoList },
     { "QList<KIO::CopyInfo>&", marshall_KIOCopyInfoList },
