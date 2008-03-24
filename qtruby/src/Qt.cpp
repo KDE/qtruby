@@ -127,9 +127,6 @@ VALUE soprano_module = Qnil;
 
 
 VALUE kconfiggroup_class = Qnil;
-VALUE kconfigskeleton_class = Qnil;
-VALUE kconfigskeleton_itemenum_choice_class = Qnil;
-VALUE kconfigskeleton_itemenum_class = Qnil;
 VALUE konsole_part_class = Qnil;
 VALUE kwin_class = Qnil;
 VALUE qlistmodel_class = Qnil;
@@ -146,7 +143,6 @@ bool application_terminated = false;
 void rb_str_catf(VALUE self, const char *format, ...) __attribute__ ((format (printf, 2, 3)));
 
 static VALUE (*_new_kde)(int, VALUE *, VALUE) = 0;
-static VALUE (*_kconfigskeletonitem_immutable)(VALUE) = 0;
 
 Smoke::Index _current_method = 0;
 
@@ -3149,18 +3145,9 @@ kde_package_to_class(const char * package, VALUE base_class)
 static QRegExp * scope_op = 0;
 	if (scope_op == 0) {
 		scope_op = new QRegExp("^([^:]+)::([^:]+)$");
-	 }
+	}
 
-	if (packageName.startsWith("KDE::ConfigSkeleton::ItemEnum::")) {
-		klass = rb_define_class_under(kconfigskeleton_itemenum_class, package+strlen("KDE::ConfigSkeleton::EnumItem::"), base_class);
-		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
-		kconfigskeleton_itemenum_choice_class = klass;
-	} else if (packageName.startsWith("KDE::ConfigSkeleton::")) {
-		klass = rb_define_class_under(kconfigskeleton_class, package+strlen("KDE::ConfigSkeleton::"), base_class);
-		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
-		rb_define_method(klass, "immutable?", (VALUE (*) (...)) _kconfigskeletonitem_immutable, 0);
-		rb_define_method(klass, "isImmutable", (VALUE (*) (...)) _kconfigskeletonitem_immutable, 0);
-	} else if (packageName.startsWith("KDE::Win::")) {
+	if (packageName.startsWith("KDE::Win::")) {
 		klass = rb_define_class_under(kwin_class, package+strlen("KDE::Win::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (packageName.startsWith("KDE::")) {
@@ -3468,15 +3455,6 @@ set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE))
 	soprano_module = rb_define_module("Soprano");
 	rb_define_singleton_method(soprano_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 	rb_define_singleton_method(soprano_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
-}
-
-void
-set_kconfigskeletonitem_immutable(VALUE (*kconfigskeletonitem_immutable) (VALUE))
-{
-	_kconfigskeletonitem_immutable = kconfigskeletonitem_immutable;
-
-	kconfigskeleton_class = rb_define_class_under(kde_module, "ConfigSkeleton", qt_base_class);
-	kconfigskeleton_itemenum_class = rb_define_class_under(kconfigskeleton_class, "ItemEnum", qt_base_class);
 }
 
 static VALUE
