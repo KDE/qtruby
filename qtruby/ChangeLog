@@ -1,3 +1,8 @@
+2008-03-24  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Attempt to improve the marshalling of WIds and assume they are
+	  either signed ints (Mac OS) or signed longs.
+
 2008-03-14  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Fixed a bug in constructing Qt::Variants with custom types such

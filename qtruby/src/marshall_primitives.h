@@ -223,14 +223,21 @@ static WId ruby_to_primitive<WId>(VALUE v)
 {
 	if(v == Qnil)
 		return 0;
-	
-	return (WId) NUM2ULONG(v);
+#ifdef Q_WS_MAC32
+	return (WId) NUM2INT(v);
+#else
+	return (WId) NUM2LONG(v);
+#endif
 }
 
 template <>
 static VALUE primitive_to_ruby<WId>(WId sv)
 {
-	return ULONG2NUM((unsigned long) sv);
+#ifdef Q_WS_MAC32
+	return INT2NUM((unsigned long) sv);
+#else
+	return LONG2NUM((unsigned long) sv);
+#endif
 }
 
 template <>
