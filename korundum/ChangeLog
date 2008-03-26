@@ -1,3 +1,8 @@
+2008-03-26  Richard Dale  <rdale@foton.es>
+	
+	* Added update methods to the Soprano ActiveRDF adaptor
+	* Fixed bug in the Soprano::Node inspect method
+
 2008-03-24  Richard Dale  <rdale@foton.es>
 
 	* Remove the rbkconfig_compiler and associated code as afaik it wasn't being used

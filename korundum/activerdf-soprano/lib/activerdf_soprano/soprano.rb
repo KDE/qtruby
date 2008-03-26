@@ -23,15 +23,25 @@ class SopranoAdapter < ActiveRdfAdapter
     @reads = true
     @writes = false
 
-    model = params[:model] || ''
+    @model_name = params[:model] || ''
     @caching = params[:caching] || false
 
     @client = Soprano::Client::DBusClient.new
-    @model = @client.createModel(model)
+    @model = @client.createModel(@model_name)
   end
 
   def size
-    query(Query.new.select(:s,:p,:o).where(:s,:p,:o)).size
+    @model.statementCount
+  end
+
+  def clear
+    @model.removeStatement(Soprano::Node.new, Soprano::Node.new, Soprano::Node.new, Soprano::Node.new)
+  end
+
+  # load a file from the given location with the given syntax into the model.
+  def load(location, syntax="n-triples")
+    loader = Qt::Process.new
+    loader.start("sopranocmd", ["--dbus", "org.soprano.Server", "--serialization", syntax, "--model", @model_name, "import", location])
   end
 
   # query datastore with query string (SPARQL), returns array with query results
@@ -80,11 +90,44 @@ class SopranoAdapter < ActiveRdfAdapter
       results
     end
   end
-  
+
+  def flush
+    true
+  end  
+
+  def save
+    true
+  end
+
   def close
     ConnectionPool.remove_data_source(self)
   end
   
+  # add triple to datamodel
+  def add(s, p, o, c=nil)
+    $activerdflog.debug "adding triple #{s} #{p} #{o} #{c}"
+
+    # verify input
+    if s.nil? || p.nil? || o.nil?
+      $activerdflog.debug "cannot add triple with empty subject, exiting"
+      return false
+    end 
+    
+    unless s.respond_to?(:uri) && p.respond_to?(:uri)
+      $activerdflog.debug "cannot add triple where s/p are not resources, exiting"
+      return false
+    end
+  
+    @model.addStatement(Soprano::Statement.new(wrap(s), wrap(p), wrap(o), wrap(c)))
+    save if ConnectionPool.auto_flush?
+  end
+
+  # deletes triple(s,p,o) from datastore
+  # nil parameters match anything: delete(nil,nil,nil) will delete all triples
+  def delete(s, p, o, c=nil)
+    @model.removeStatement(Soprano::Statement.new(wrap(s), wrap(p), wrap(o), wrap(c)))
+  end
+
   private
   def add_to_cache(query_string, result)
     unless result.nil? or result.empty?
@@ -96,7 +139,6 @@ class SopranoAdapter < ActiveRdfAdapter
       end
     end
   end
-  
   
   def query_cache(query_string)
     if @@soprano_cache.include?(query_string)
@@ -123,5 +165,24 @@ class SopranoAdapter < ActiveRdfAdapter
         BNode.new("_:#{node.identifier}")
       end
   end
-  
+
+  def wrap(node)
+    case node
+    when nil
+      Soprano::Node.new
+    when RDFS::Resource
+      Soprano::Node.new(Qt::Url.new(node.uri))
+    when String
+      if node =~ /^_:(.*)/
+        Soprano::Node.new($1)
+      elsif node =~ /(.*)@(.*)/
+        Soprano::Node.new(Soprano::LiteralValue.new($1), $2)
+      else
+        Soprano::Node.new(Soprano::LiteralValue.new(node))
+      end
+    else
+      Soprano::Node.new(Soprano::LiteralValue.new(node))
+    end
+  end
+
 end

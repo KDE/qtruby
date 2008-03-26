@@ -31,7 +31,7 @@ module Soprano
       when Soprano::Node::ResourceNode:
         str.sub(/>$/, " <%s>>" % uri.toString)
       when Soprano::Node::LiteralNode:
-        if literal.isString && !language.empty?
+        if literal.isString && language
           str.sub(/>$/, ' "%s"@%s>' % [literal.toString, language])
         else 
           str.sub(/>$/, ' "%s"^^<%s>>' % [literal.toString, literal.dataTypeUri.toString])
@@ -49,7 +49,7 @@ module Soprano
       when Soprano::Node::ResourceNode:
         pp.text str.sub(/>$/, " <%s>>" % uri.toString)
       when Soprano::Node::LiteralNode:
-        if literal.isString && !language.empty?
+        if literal.isString && language
           pp.text str.sub(/>$/, ' "%s"@%s>' % [literal.toString, language])
         else 
           pp.text str.sub(/>$/, ' "%s"^^<%s>>' % [literal.toString, literal.dataTypeUri.toString])
