@@ -124,6 +124,7 @@ VALUE qwt_module = Qnil;
 VALUE safesite_module = Qnil;
 VALUE sonnet_module = Qnil;
 VALUE soprano_module = Qnil;
+VALUE nepomuk_module = Qnil;
 
 
 VALUE kconfiggroup_class = Qnil;
@@ -864,30 +865,29 @@ const char *
 get_VALUEtype(VALUE ruby_value)
 {
 	char * classname = rb_obj_classname(ruby_value);
-    const char *r = "";
-    if(ruby_value == Qnil)
-	r = "u";
-    else if(TYPE(ruby_value) == T_FIXNUM || TYPE(ruby_value) == T_BIGNUM || qstrcmp(classname, "Qt::Integer") == 0)
-	r = "i";
-    else if(TYPE(ruby_value) == T_FLOAT)
-	r = "n";
-    else if(TYPE(ruby_value) == T_STRING)
-	r = "s";
-    else if(ruby_value == Qtrue || ruby_value == Qfalse || qstrcmp(classname, "Qt::Boolean") == 0)
-	r = "B";
-    else if(qstrcmp(classname, "Qt::Enum") == 0) {
-	VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qenum_type"), 1, ruby_value);
-	r = StringValuePtr(temp);
-    } else if(TYPE(ruby_value) == T_DATA) {
-	smokeruby_object *o = value_obj_info(ruby_value);
-	if(!o) {
-	    r = "a";
+	const char *r = "";
+	if (ruby_value == Qnil)
+		r = "u";
+	else if (TYPE(ruby_value) == T_FIXNUM || TYPE(ruby_value) == T_BIGNUM || qstrcmp(classname, "Qt::Integer") == 0)
+		r = "i";
+	else if (TYPE(ruby_value) == T_FLOAT)
+		r = "n";
+	else if (TYPE(ruby_value) == T_STRING)
+		r = "s";
+	else if(ruby_value == Qtrue || ruby_value == Qfalse || qstrcmp(classname, "Qt::Boolean") == 0)
+		r = "B";
+	else if (qstrcmp(classname, "Qt::Enum") == 0) {
+		VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qenum_type"), 1, ruby_value);
+		r = StringValuePtr(temp);
+	} else if (TYPE(ruby_value) == T_DATA) {
+		smokeruby_object *o = value_obj_info(ruby_value);
+		if (o == 0 || o->smoke == 0) {
+			r = "a";
+		} else {
+			r = o->smoke->classes[o->classId].className;
+		}
 	} else {
-	    r = o->smoke->classes[o->classId].className;
-    }
-	}
-    else {
-	r = "U";
+		r = "U";
 	}
 
     return r;
@@ -3201,6 +3201,9 @@ static QRegExp * scope_op = 0;
 	} else if (packageName.startsWith("Soprano::")) {
 		klass = rb_define_class_under(soprano_module, package+strlen("Soprano::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (packageName.startsWith("Nepomuk::")) {
+		klass = rb_define_class_under(nepomuk_module, package+strlen("Nepomuk::"), base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (scope_op->indexIn(packageName) != -1) {
 		// If an unrecognised classname of the form 'XXXXXX::YYYYYY' is found,
 		// then create a module XXXXXX to put the class YYYYYY under
@@ -3455,6 +3458,10 @@ set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE))
 	soprano_module = rb_define_module("Soprano");
 	rb_define_singleton_method(soprano_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 	rb_define_singleton_method(soprano_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	nepomuk_module = rb_define_module("Nepomuk");
+	rb_define_singleton_method(nepomuk_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(nepomuk_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 }
 
 static VALUE
