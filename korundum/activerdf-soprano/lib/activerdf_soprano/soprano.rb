@@ -23,7 +23,7 @@ class SopranoAdapter < ActiveRdfAdapter
     @reads = true
     @writes = false
 
-    @model_name = params[:model] || ''
+    @model_name = params[:model] || 'main'
     @caching = params[:caching] || false
 
     @client = Soprano::Client::DBusClient.new
@@ -40,8 +40,7 @@ class SopranoAdapter < ActiveRdfAdapter
 
   # load a file from the given location with the given syntax into the model.
   def load(location, syntax="n-triples")
-    loader = Qt::Process.new
-    loader.start("sopranocmd", ["--dbus", "org.soprano.Server", "--serialization", syntax, "--model", @model_name, "import", location])
+    system("sopranocmd --dbus org.soprano.Server --serialization #{syntax} --model #{@model_name} import #{location}")
   end
 
   # query datastore with query string (SPARQL), returns array with query results
