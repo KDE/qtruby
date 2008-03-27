@@ -42,7 +42,7 @@ lifted from the KDE classref.
 
 =end
 
-require 'Korundum'
+require 'korundum4'
 
 # Note that we use KParts.MainWindow, not KMainWindow as the superclass
 # (KParts.MainWindow subclasses KMainWindow). Also, be sure the 'apply'
