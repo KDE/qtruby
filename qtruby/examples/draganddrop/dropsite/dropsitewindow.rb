@@ -27,7 +27,7 @@ require 'dropsitewidget.rb'
 	
 class DropSiteWindow < Qt::Widget
 	
-	slots 'updateSupportedFormats(const QMimeData *)'
+	slots 'updateFormatsTable(const QMimeData *)'
 	
 	def initialize(parent = nil)
 	    super(parent)
@@ -37,79 +37,78 @@ class DropSiteWindow < Qt::Widget
 	    @abstractLabel.wordWrap = true
 	    @abstractLabel.adjustSize()
 	
-	    @dropSiteWidget = DropSiteWidget.new
-	    connect(@dropSiteWidget, SIGNAL('changed(const QMimeData*)'),
-	            self, SLOT('updateSupportedFormats(const QMimeData*)'))
+	    @dropArea = DropArea.new
+	    connect(@dropArea, SIGNAL('changed(const QMimeData*)'),
+	            self, SLOT('updateFormatsTable(const QMimeData*)'))
 	
-	    @supportedFormats = Qt::TableWidget.new(0, 2)
 	    labels = []
 	    labels << tr("Format") << tr("Content")
-	    @supportedFormats.horizontalHeaderLabels = labels
-	    @supportedFormats.horizontalHeader().stretchLastSection = true
-	
+
+	    @formatsTable = Qt::TableWidget.new
+        @formatsTable.setColumnCount(2)
+        @formatsTable.setEditTriggers(Qt::AbstractItemView::NoEditTriggers)
+        @formatsTable.setHorizontalHeaderLabels(labels)
+        @formatsTable.horizontalHeader.setStretchLastSection(true)
+
 	    @quitButton = Qt::PushButton.new(tr("Quit"))
-	    connect(@quitButton, SIGNAL('pressed()'), self, SLOT('close()'))
-	
 	    @clearButton = Qt::PushButton.new(tr("Clear"))
-	    connect(@clearButton, SIGNAL('pressed()'), @dropSiteWidget, SLOT('clear()'))
-	
-	    buttonLayout = Qt::HBoxLayout.new do |b|
-			b.addStretch()
-			b.addWidget(@clearButton)
-			b.addWidget(@quitButton)
-			b.addStretch()
-		end
+
+        @buttonBox = Qt::DialogButtonBox.new
+        @buttonBox.addButton(@clearButton, Qt::DialogButtonBox::ActionRole)
+        @buttonBox.addButton(@quitButton, Qt::DialogButtonBox::RejectRole)
+
+	    connect(@quitButton, SIGNAL('pressed()'), self, SLOT('close()'))
+	    connect(@clearButton, SIGNAL('pressed()'), @dropArea, SLOT('clear()'))
 
 	    @layout = Qt::VBoxLayout.new do |l|
 			l.addWidget(@abstractLabel)
-			l.addWidget(@dropSiteWidget)
-			l.addWidget(@supportedFormats)
-			l.addLayout(buttonLayout)
+			l.addWidget(@dropArea)
+			l.addWidget(@formatsTable)
+			l.addWidget(@buttonBox)
 		end
 	
 	    setLayout(@layout)
-	    setMinimumSize(350, 500)
 	    setWindowTitle(tr("Drop Site"))
+	    setMinimumSize(350, 500)
 	end
 	
-	def resizeEvent(event)
-	    @supportedFormats.resizeColumnToContents(0)
-	    super(event)
-	end
-	
-	def updateSupportedFormats(mimeData = nil)
-	    @supportedFormats.rowCount = 0
+	def updateFormatsTable(mimeData = nil)
+	    @formatsTable.rowCount = 0
 	
 	    if mimeData.nil?
 	        return
 		end
-	
+
 	    formats = mimeData.formats()
 
 	    formats.each do |format|
 	        formatItem = Qt::TableWidgetItem.new(format)
 	        formatItem.flags = Qt::ItemIsEnabled
 	        formatItem.textAlignment = Qt::AlignTop | Qt::AlignLeft
-	
-	        data = mimeData.data(format)
-	
-	        text = @dropSiteWidget.createPlainText(data, format)
-	        $qApp.processEvents()
-	        if !text.empty?
-	            dataItem = Qt::TableWidgetItem.new(text)
+		
+	        text = ""
+	        if format == "text/plain"
+                text = mimeData.text.simplified
+            elsif format == "text/html"
+                text = mimeData.text.simplified
+            elsif format == "text/uri-list"
+                urlList = mimeData.urls
+                urlList.each do |url|
+                    text << url.path + " "
+                end
 	        else
+	            data = mimeData.data(format)
 	            hexdata = ""
                 data.to_s.each_byte { |b| hexdata << ("%2.2x " % b) }
-	            dataItem = Qt::TableWidgetItem.new(hexdata)
+	            text << hexdata
 	        end
-	        dataItem.flags = Qt::ItemIsEnabled
 	
 	        row = @supportedFormats.rowCount()
-	        @supportedFormats.insertRow(row)
-	        @supportedFormats.setItem(row, 0, formatItem)
-	        @supportedFormats.setItem(row, 1, dataItem)
+	        @formatsTable.insertRow(row)
+	        @formatsTable.setItem(row, 0, Qt::TabelWidgetItem.new(format))
+	        @formatsTable.setItem(row, 1, Qt::TabelWidgetItem.new(text))
 	    end
 	
-	    @supportedFormats.resizeColumnToContents(0)
+	    @formatsTable.resizeColumnToContents(0)
 	end
 end

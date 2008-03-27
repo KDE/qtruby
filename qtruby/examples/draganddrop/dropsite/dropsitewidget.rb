@@ -26,7 +26,7 @@
 	
 	
 	
-class DropSiteWidget < Qt::Label
+class DropArea < Qt::Label
 	
 	slots 'clear()'
 	
@@ -36,26 +36,33 @@ class DropSiteWidget < Qt::Label
 	    super(parent)
 	    setMinimumSize(200, 200)
 	    setFrameStyle(Qt::Frame::Sunken | Qt::Frame::StyledPanel)
+	    setAlignment(Qt::AlignCenter)
 	    setAcceptDrops(true)
 	    setAutoFillBackground(true)
-	    setBackgroundRole(Qt::Palette::Dark)
-	
-	    setText(tr("<drop content>"))
-	    setAlignment(Qt::AlignCenter)
+        clear()
 	end
 	
 	def dragEnterEvent(event)
 	    setText(tr("<drop content>"))
-	    setBackgroundRole(Qt::Palette::Light)
+	    setBackgroundRole(Qt::Palette::Highlight)
 	
 	    event.acceptProposedAction()
-	    emit changed(event.mimeData())
+#	    emit changed(event.mimeData())
 	end
 	
+    def dragMoveEvent(event)
+	    event.acceptProposedAction()
+    end
+
 	def dropEvent(event)
 	    mimeData = event.mimeData()
+        if mimeData.hasText
+            setText(mimeData.text())
+            setTextFormat(Qt::PlainText)
+	    end
+
+
 	    formats = mimeData.formats()
-	
 	    formats.each do |format|
 	        if format.startsWith("image/")
 	            pixmap = createPixmap(mimeData.data(format), format)
@@ -86,34 +93,6 @@ class DropSiteWidget < Qt::Label
 	    setText(tr("<drop content>"))
 	    setBackgroundRole(Qt::Palette::Dark)
 	
-	    emit changed()
+	    emit changed(nil)
 	end
-	
-	def createPixmap(data, format)
-	    imageFormats = Qt::ImageReader::supportedImageFormats()
-	
-	    imageFormats.each do |imageFormat|
-	        if format[6, format.length] == imageFormat.to_s
-	            pixmap.loadFromData(data, imageFormat)
-	            break
-	        end
-	    end
-	    return pixmap
-	end
-	
-	def createPlainText(data, format)
-	    text = ""
-	
-	    if format.startsWith("text/plain")
-	        text.append(data.to_s)
-	    elsif format.startsWith("text/plain;")
-	        index = format.index('=')
-	        if index > 0
-	            codec = Qt::TextCodec.codecForName(format[index + 1, format.length].toAscii())
-	            text.append(codec.toUnicode(data.to_s))
-	        end
-	    end
-	    return text
-	end
-	
 end
