@@ -33,7 +33,7 @@ class Pong < Qt::DBusAbstractAdaptor
 
     signals :aboutToQuit
     slots 'QDBusVariant query(QString)', :quit,
-			:value, 'setValue(QString)'
+			'QString value()', 'setValue(QString)'
     
     # the property
     def value()
