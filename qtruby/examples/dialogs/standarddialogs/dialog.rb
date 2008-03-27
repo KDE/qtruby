@@ -206,7 +206,7 @@ class Dialog < Qt::Dialog
         ok = Qt::Boolean.new
         item = Qt::InputDialog.getItem(self, tr("Qt::InputDialog.getItem()"),
                                              tr("Season:"), items, 0, false, ok)
-        if ok && !item.empty?
+        if ok && !item.nil?
             @itemLabel.text = item
         end
     end
@@ -216,7 +216,7 @@ class Dialog < Qt::Dialog
         text = Qt::InputDialog.getText(self, tr("Qt::InputDialog.getText()"),
                                              tr("User name:"), Qt::LineEdit::Normal,
                                              Qt::Dir::home().dirName(), ok)
-        if ok && !text.empty?
+        if ok && !text.nil?
             @textLabel.text = text
         end
     end
@@ -243,7 +243,7 @@ class Dialog < Qt::Dialog
                                     @directoryLabel.text,
                                     Qt::FileDialog::DontResolveSymlinks |
                                     Qt::FileDialog::ShowDirsOnly)
-        if !directory.empty?
+        if !directory.nil?
             @directoryLabel.text = directory
         end
     end
@@ -253,7 +253,7 @@ class Dialog < Qt::Dialog
                                     tr("Qt::FileDialog.getOpenFileName()"),
                                     @openFileNameLabel.text,
                                     tr("All Files (*);;Text Files (*.txt)"))
-        if !fileName.empty?
+        if !fileName.nil?
             @openFileNameLabel.text = fileName
         end
     end
@@ -274,7 +274,7 @@ class Dialog < Qt::Dialog
                                     tr("Qt::FileDialog.getSaveFileName()"),
                                     @saveFileNameLabel.text,
                                     tr("All Files (*);;Text Files (*.txt)"))
-        if !fileName.empty?
+        if !fileName.nil?
             @saveFileNameLabel.text = fileName
         end
     end
