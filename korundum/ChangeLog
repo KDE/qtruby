@@ -6,6 +6,8 @@
 	* Added the Qt types Qt::ByteArray, Qt::Date, Qt::DateTime and Qt::Time to the
 	  ActiveRDF Literal module in the adapter. It adds the methods xsd_type() and
 	  typed() to these classes.
+	* Oops, the module is now called QtLiteral so it doesn't wipe out the original
+	  one.
 
 2008-03-26  Richard Dale  <rdale@foton.es>
 	

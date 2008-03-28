@@ -1,6 +1,6 @@
 require 'active_rdf'
 
-module Literal
+module QtLiteral
   Namespace.register :xsd, 'http://www.w3.org/2001/XMLSchema#'
   def xsd_type
     case self
@@ -33,9 +33,9 @@ module Literal
   end
 end
 
-class Float; include Literal; end
-class Qt::ByteArray; include Literal; end
-class Qt::DateTime; include Literal; end
-class Qt::Date; include Literal; end
-class Qt::Time; include Literal; end
+class Float; include QtLiteral; end
+class Qt::ByteArray; include QtLiteral; end
+class Qt::DateTime; include QtLiteral; end
+class Qt::Date; include QtLiteral; end
+class Qt::Time; include QtLiteral; end
 
