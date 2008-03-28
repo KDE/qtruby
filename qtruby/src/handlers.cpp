@@ -31,6 +31,7 @@
 #include <QtGui/qpolygon.h>
 #include <QtGui/qtabbar.h>
 #include <QtGui/qtablewidget.h>
+#include <QtGui/qtextedit.h>
 #include <QtGui/qtextlayout.h>
 #include <QtGui/qtextobject.h>
 #include <QtGui/qtoolbar.h>
@@ -1181,6 +1182,84 @@ void marshall_QByteArrayList(Marshall *m) {
       default:
 	m->unsupported();
 	break;
+    }
+}
+
+void marshall_ExtraSelectionList(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE: 
+	{
+		VALUE list = *(m->var());
+		if (TYPE(list) != T_ARRAY) {
+			m->item().s_voidp = 0;
+			break;
+		}
+
+		int count = RARRAY(list)->len;
+		QList<QTextEdit::ExtraSelection> *selectionlist = new QList<QTextEdit::ExtraSelection>;
+
+		for (long i = 0; i < count; i++) {
+			VALUE item = rb_ary_entry(list, i);
+			QTextEdit::ExtraSelection selection;
+
+			VALUE cursor = rb_funcall(item, rb_intern("cursor"), 0);
+			smokeruby_object *c = value_obj_info(cursor);
+            selection.cursor = *((QTextCursor*) c->ptr);
+
+			VALUE format = rb_funcall(item, rb_intern("format"), 0);
+			smokeruby_object *f = value_obj_info(format);
+			selection.format = *((QTextCharFormat*) f->ptr);
+
+			selectionlist->append(selection);
+		}
+
+		m->item().s_voidp = selectionlist;
+		m->next();
+
+
+		if (m->cleanup()) {
+			delete selectionlist;
+		}
+		break;
+	}
+	case Marshall::ToVALUE: 
+	{
+		QList<QTextEdit::ExtraSelection> *selectionlist = static_cast<QList<QTextEdit::ExtraSelection>*>(m->item().s_voidp);
+		if (selectionlist == 0) {
+			*(m->var()) = Qnil;
+			break;
+		}
+
+	    VALUE av = rb_ary_new();
+		for (int i = 0; i < selectionlist->size(); i++) {
+			QTextEdit::ExtraSelection selection = selectionlist->at(i);
+
+			smokeruby_object  * c = alloc_smokeruby_object(	true, 
+															m->smoke(), 
+															m->smoke()->idClass("QTextCursor"), 
+															new QTextCursor(selection.cursor) );
+			VALUE cursor = set_obj_info("Qt::TextCursor", c);
+
+			smokeruby_object  * f = alloc_smokeruby_object(	true, 
+															m->smoke(), 
+															m->smoke()->idClass("QTextCharFormat"), 
+															new QTextCharFormat(selection.format) );
+			VALUE format = set_obj_info("Qt::TextCharFormat", f);
+
+			rb_ary_push(av, rb_funcall(qt_internal_module, rb_intern("create_extra_selection"), 2, cursor, format));
+		}
+
+
+		*(m->var()) = av;
+
+		if (m->cleanup()) {
+			delete selectionlist;
+		}
+	}
+	break;
+	default:
+		m->unsupported();
+		break;
     }
 }
 
@@ -2342,6 +2421,8 @@ TypeHandler Qt_handlers[] = {
     { "QList<QTableWidgetItem*>&", marshall_QTableWidgetItemList },
     { "QList<QTableWidgetSelectionRange>", marshall_QTableWidgetSelectionRangeList },
     { "QList<QTextBlock>", marshall_QTextBlockList },
+    { "QList<QTextEdit::ExtraSelection>", marshall_ExtraSelectionList },
+    { "QList<QTextEdit::ExtraSelection>&", marshall_ExtraSelectionList },
     { "QList<QTextFrame*>", marshall_QTextFrameList },
     { "QList<QTextLayout::FormatRange>", marshall_QTextLayoutFormatRangeList },
     { "QList<QTextLayout::FormatRange>&", marshall_QTextLayoutFormatRangeList },
