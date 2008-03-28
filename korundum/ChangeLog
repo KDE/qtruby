@@ -1,3 +1,12 @@
+2008-03-28  Richard Dale  <rdale@foton.es>
+
+	* Literals in a Soprano ActiveRDF SPARQL query result set are now returned as
+	  just the ruby values from the underlying QVariant instead of a string with the
+	  xsd type in it.
+	* Added the Qt types Qt::ByteArray, Qt::Date, Qt::DateTime and Qt::Time to the
+	  ActiveRDF Literal module in the adapter. It adds the methods xsd_type() and
+	  typed() to these classes.
+
 2008-03-26  Richard Dale  <rdale@foton.es>
 	
 	* Added update methods to the Soprano ActiveRDF adaptor

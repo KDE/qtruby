@@ -155,11 +155,7 @@ class SopranoAdapter < ActiveRdfAdapter
       when Soprano::Node::ResourceNode:
         RDFS::Resource.new(node.uri.toString)
       when Soprano::Node::LiteralNode:
-        if node.literal.isString && !node.language.empty?
-          '"%s"@%s' % [node.literal.toString, node.language]
-        else 
-          '"%s"^^<%s>' % [node.literal.toString, node.literal.dataTypeUri.toString]
-        end
+        node.literal.variant.value
       when Soprano::Node::BlankNode:
         BNode.new("_:#{node.identifier}")
       end

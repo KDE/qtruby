@@ -8,3 +8,4 @@ end
 $: << File.dirname(File.expand_path(file))
 
 require 'soprano'
+require 'literal'

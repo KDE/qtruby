@@ -1,0 +1,41 @@
+require 'active_rdf'
+
+module Literal
+  Namespace.register :xsd, 'http://www.w3.org/2001/XMLSchema#'
+  def xsd_type
+    case self
+    when Float
+      XSD::double
+    when Qt::ByteArray
+      XSD::base64Binary
+    when Qt::DateTime, Qt::Date, Qt::Time
+      XSD::date
+    end
+  end
+
+  def self.typed(value, type)
+    case type
+    when XSD::double
+      value.to_f
+    when XSD::base64Binary
+      Qt::ByteArray.new(value.to_s)
+    when XSD::date
+      Qt::DateTime.parse(value)
+    end
+  end
+
+  def to_ntriple
+    if $activerdf_without_xsdtype
+      "\"#{to_s}\""
+    else
+      "\"#{to_s}\"^^#{xsd_type}"
+    end
+  end
+end
+
+class Float; include Literal; end
+class Qt::ByteArray; include Literal; end
+class Qt::DateTime; include Literal; end
+class Qt::Date; include Literal; end
+class Qt::Time; include Literal; end
+
