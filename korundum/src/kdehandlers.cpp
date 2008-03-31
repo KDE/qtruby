@@ -233,6 +233,43 @@ void marshall_KServicePtr(Marshall *m) {
 	}
 }
 
+void marshall_KSharedConfigPtr(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE: 
+		{
+		}
+		break;
+	case Marshall::ToVALUE: 
+		{
+		KSharedPtr<KSharedConfig> *ptr = new KSharedPtr<KSharedConfig>(*(KSharedPtr<KSharedConfig>*)m->item().s_voidp);
+	    if(ptr == 0) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+	    KConfig * config = ptr->data();
+	    
+		VALUE obj = getPointerObject(config);
+		if(obj == Qnil) {
+		    smokeruby_object  * o = ALLOC(smokeruby_object);
+		    o->smoke = m->smoke();
+		    o->classId = m->smoke()->idClass("KConfig");
+		    o->ptr = config;
+		    o->allocated = true;
+		    obj = set_obj_info("KDE::Config", o);
+		}
+
+	    *(m->var()) = obj;		
+	    
+		if(m->cleanup())
+		;
+		}
+		break;
+	default:
+		m->unsupported();
+		break;
+	}
+}
+
 void marshall_KServiceList(Marshall *m) {
 	switch(m->action()) {
 	case Marshall::FromVALUE: 
@@ -938,6 +975,8 @@ DEF_MAP_MARSHALLER( QMapKEntryKeyKEntry, KEntryKey, KEntry )
 */
 
 TypeHandler KDE_handlers[] = {
+    { "KSharedConfig::Ptr", marshall_KSharedConfigPtr },
+    { "KSharedConfigPtr", marshall_KSharedConfigPtr },
     { "KService::Ptr", marshall_KServicePtr },
     { "KService::List", marshall_KServiceList },
 

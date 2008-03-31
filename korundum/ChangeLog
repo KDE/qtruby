@@ -4,6 +4,7 @@
 	  Pakulat - it will now convert String args to Qt::ByteArrays
 	* Now KConfigGroup readEntry() and writeEntry() can be passed QVariants as value
 	  it shouldn't be necessary to special case them in ruby.
+	* Added a KSharedConfigPtr marshaller
 
 2008-03-28  Richard Dale  <rdale@foton.es>
 
