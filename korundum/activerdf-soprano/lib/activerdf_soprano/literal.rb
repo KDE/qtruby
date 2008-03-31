@@ -4,8 +4,6 @@ module QtLiteral
   Namespace.register :xsd, 'http://www.w3.org/2001/XMLSchema#'
   def xsd_type
     case self
-    when Float
-      XSD::double
     when Qt::ByteArray
       XSD::base64Binary
     when Qt::DateTime, Qt::Date, Qt::Time
@@ -15,8 +13,6 @@ module QtLiteral
 
   def self.typed(value, type)
     case type
-    when XSD::double
-      value.to_f
     when XSD::base64Binary
       Qt::ByteArray.new(value.to_s)
     when XSD::date
@@ -33,7 +29,6 @@ module QtLiteral
   end
 end
 
-class Float; include QtLiteral; end
 class Qt::ByteArray; include QtLiteral; end
 class Qt::DateTime; include QtLiteral; end
 class Qt::Date; include QtLiteral; end
