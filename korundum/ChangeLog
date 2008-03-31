@@ -1,3 +1,8 @@
+2008-03-31  Richard Dale  <rdale@foton.es>
+
+	* Fixed problem with the KDE::CmdLineOptions.add() method reported by Andreas
+	  Pakulat - it will now convert String args to Qt::ByteArrays
+
 2008-03-28  Richard Dale  <rdale@foton.es>
 
 	* Literals in a Soprano ActiveRDF SPARQL query result set are now returned as

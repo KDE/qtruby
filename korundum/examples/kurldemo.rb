@@ -101,7 +101,7 @@ aboutData.addAuthor(KDE.ki18n("author2"), KDE.ki18n("they did something else"), 
 
 KDE::CmdLineArgs.init(ARGV, aboutData)
 cmdlineoptions = KDE::CmdLineOptions.new()
-#cmdlineoptions.add("+files", KDE.ki18n("File to open"))
+cmdlineoptions.add("+files", KDE.ki18n("File to open"))
 KDE::CmdLineArgs.addCmdLineOptions(cmdlineoptions)
 
 app = KDE::Application.new()

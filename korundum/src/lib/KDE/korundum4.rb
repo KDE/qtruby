@@ -194,6 +194,17 @@ module KDE
 		end
 	end
 	
+	class CmdLineOptions
+		def add(*args)
+			sargs = []
+			arg = args.shift
+			sargs << (arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg) unless arg.nil?
+			sargs << args.shift unless args.empty?
+			sargs << (arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg) unless arg.nil?
+			super(*sargs)
+		end
+	end
+
 	class Service
 		def inspect
 			str = super
