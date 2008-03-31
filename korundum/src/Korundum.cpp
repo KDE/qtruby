@@ -170,18 +170,6 @@ new_kde(int argc, VALUE * argv, VALUE klass)
 	return instance;
 }
 
-static VALUE
-kconfiggroup_read_entry(int argc, VALUE * argv, VALUE self)
-{
-	return Qnil;
-}
-
-static VALUE
-kconfiggroup_write_entry(int argc, VALUE * argv, VALUE self)
-{
-	return Qnil;
-}
-
 void
 Init_korundum4()
 {
@@ -202,9 +190,6 @@ Init_korundum4()
     install_handlers(KDE_handlers);
 	
     kde_internal_module = rb_define_module_under(kde_module, "Internal");
-	
-	rb_define_method(kconfiggroup_class, "readEntry", (VALUE (*) (...)) kconfiggroup_read_entry, -1);
-	rb_define_method(kconfiggroup_class, "writeEntry", (VALUE (*) (...)) kconfiggroup_write_entry, -1);
 
 	(void) qDBusRegisterMetaType<Soprano::Statement>();
 	(void) qDBusRegisterMetaType<Soprano::Node>();
