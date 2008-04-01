@@ -195,6 +195,16 @@ module Qt
 		end
 	end # Qt::Base
 
+	class AbstractSlider < Qt::Base
+		def range=(arg)
+			if arg.kind_of? Range
+				return super(arg.begin, arg.end)
+			else
+				return super(arg)
+			end
+		end
+	end
+
 	class AbstractSocket < Qt::Base
 		def abort(*args)
 			method_missing(:abort, *args)
@@ -896,6 +906,16 @@ module Qt
 		end
 	end
 
+	class IntValidator < Qt::Base
+		def range=(arg)
+			if arg.kind_of? Range
+				return super(arg.begin, arg.end)
+			else
+				return super(arg)
+			end
+		end
+	end
+
 	class ItemSelection < Qt::Base
 		def select(*args)
 			method_missing(:select, *args)
@@ -1264,6 +1284,26 @@ module Qt
 		end
 	end
 
+	class ProgressBar < Qt::Base
+		def range=(arg)
+			if arg.kind_of? Range
+				return super(arg.begin, arg.end)
+			else
+				return super(arg)
+			end
+		end
+	end
+
+	class ProgressDialog < Qt::Base
+		def range=(arg)
+			if arg.kind_of? Range
+				return super(arg.begin, arg.end)
+			else
+				return super(arg)
+			end
+		end
+	end
+
 	class Printer < Qt::Base
 		def abort(*args)
 			method_missing(:abort, *args)
@@ -1427,6 +1467,16 @@ module Qt
 	class SocketNotifier < Qt::Base
 		def type(*args)
 			method_missing(:type, *args)
+		end
+	end
+
+	class SpinBox < Qt::Base
+		def range=(arg)
+			if arg.kind_of? Range
+				return super(arg.begin, arg.end)
+			else
+				return super(arg)
+			end
 		end
 	end
 

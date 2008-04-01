@@ -2308,7 +2308,7 @@ qobject_connect(int argc, VALUE * argv, VALUE self)
 }
 
 static VALUE
-qtimer_single_shot(int argc, VALUE * argv, VALUE self)
+qtimer_single_shot(int argc, VALUE * argv, VALUE /*self*/)
 {
 	if (rb_block_given_p()) {
 		if (argc == 2) {

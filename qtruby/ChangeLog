@@ -5,6 +5,7 @@
 	* Qt::Timer.singleShot can now be called with a block:
 		timer = Qt::Timer.singleShot(5000, obj) { puts "In a block" }
 	* Thanks to stefo on #kde-bindings for both suggestions
+	* Added a few more 'range=' methods
 
 2008-03-28  Richard Dale  <richard.j.dale@gmail.com>
 
