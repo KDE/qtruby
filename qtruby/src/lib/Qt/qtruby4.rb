@@ -2610,6 +2610,12 @@ module Qt
 										Qt::SignalBlockInvocation.new(src, block, signature),
 										SLOT(signature) )
 		end
+
+		def Internal.single_shot_timer_connect(interval, target, block)
+			return Qt::Timer.singleShot(	interval,
+											Qt::BlockInvocation.new(target, block, "invoke()"),
+											SLOT("invoke()") )
+		end
 	end # Qt::Internal
 
 	Meta = {}

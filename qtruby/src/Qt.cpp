@@ -2307,6 +2307,20 @@ qobject_connect(int argc, VALUE * argv, VALUE self)
 	}
 }
 
+static VALUE
+qtimer_single_shot(int argc, VALUE * argv, VALUE self)
+{
+	if (rb_block_given_p()) {
+		if (argc == 2) {
+			return rb_funcall(qt_internal_module, rb_intern("single_shot_timer_connect"), 3, argv[0], argv[1], rb_block_proc());
+		} else {
+			rb_raise(rb_eArgError, "Invalid argument list");
+		}
+	} else {
+		return rb_call_super(argc, argv);
+	}
+}
+
 // --------------- Ruby C functions for Qt::_internal.* helpers  ----------------
 
 
@@ -3262,10 +3276,10 @@ create_qobject_class(VALUE /*self*/, VALUE package_value)
 			rb_define_method(qlistmodel_class, "insertColumns", (VALUE (*) (...)) qabstract_item_model_insertcolumns, -1);
 			rb_define_method(qlistmodel_class, "removeRows", (VALUE (*) (...)) qabstract_item_model_removerows, -1);
 			rb_define_method(qlistmodel_class, "removeColumns", (VALUE (*) (...)) qabstract_item_model_removecolumns, -1);
-		}
-
-		if (packageName == "Qt::AbstractItemModel") {
+		} else if (packageName == "Qt::AbstractItemModel") {
 			rb_define_method(klass, "createIndex", (VALUE (*) (...)) qabstractitemmodel_createindex, -1);
+		} else if (packageName == "Qt::Timer") {
+			rb_define_singleton_method(klass, "singleShot", (VALUE (*) (...)) qtimer_single_shot, -1);
 		}
 	} else if (packageName.startsWith("Qsci::")) {
 		if (qext_scintilla_module == Qnil) {

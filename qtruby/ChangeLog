@@ -2,7 +2,9 @@
 
 	* Qt::TimeLine.setFrameRange() can now be called like this:
 		time_line.frameRange = 0..90
-	* Thanks to stefo on #kde-bindings for the suggestion
+	* Qt::Timer.singleShot can now be called with a block:
+		timer = Qt::Timer.singleShot(5000, obj) { puts "In a block" }
+	* Thanks to stefo on #kde-bindings for both suggestions
 
 2008-03-28  Richard Dale  <richard.j.dale@gmail.com>
 
