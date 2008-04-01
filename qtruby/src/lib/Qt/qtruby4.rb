@@ -601,6 +601,26 @@ module Qt
 		end
 	end
 
+	class DoubleSpinBox < Qt::Base
+		def range=(arg)
+			if arg.kind_of? Range
+				return super(arg.begin, arg.end)
+			else
+				return super(arg)
+			end
+		end
+	end
+
+	class DoubleValidator < Qt::Base
+		def range=(arg)
+			if arg.kind_of? Range
+				return super(arg.begin, arg.end)
+			else
+				return super(arg)
+			end
+		end
+	end
+
 	class DomDocumentType < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
