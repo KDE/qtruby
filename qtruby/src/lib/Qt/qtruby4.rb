@@ -198,7 +198,7 @@ module Qt
 	class AbstractSlider < Qt::Base
 		def range=(arg)
 			if arg.kind_of? Range
-				return super(arg.begin, arg.end)
+				return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
 			else
 				return super(arg)
 			end
@@ -604,7 +604,7 @@ module Qt
 	class DoubleSpinBox < Qt::Base
 		def range=(arg)
 			if arg.kind_of? Range
-				return super(arg.begin, arg.end)
+				return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
 			else
 				return super(arg)
 			end
@@ -614,7 +614,7 @@ module Qt
 	class DoubleValidator < Qt::Base
 		def range=(arg)
 			if arg.kind_of? Range
-				return super(arg.begin, arg.end)
+				return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
 			else
 				return super(arg)
 			end
@@ -929,7 +929,7 @@ module Qt
 	class IntValidator < Qt::Base
 		def range=(arg)
 			if arg.kind_of? Range
-				return super(arg.begin, arg.end)
+				return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
 			else
 				return super(arg)
 			end
@@ -1307,7 +1307,7 @@ module Qt
 	class ProgressBar < Qt::Base
 		def range=(arg)
 			if arg.kind_of? Range
-				return super(arg.begin, arg.end)
+				return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
 			else
 				return super(arg)
 			end
@@ -1317,7 +1317,7 @@ module Qt
 	class ProgressDialog < Qt::Base
 		def range=(arg)
 			if arg.kind_of? Range
-				return super(arg.begin, arg.end)
+				return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
 			else
 				return super(arg)
 			end
@@ -1493,7 +1493,7 @@ module Qt
 	class SpinBox < Qt::Base
 		def range=(arg)
 			if arg.kind_of? Range
-				return super(arg.begin, arg.end)
+				return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
 			else
 				return super(arg)
 			end
@@ -1709,7 +1709,7 @@ module Qt
 	class TimeLine < Qt::Base
 		def frameRange=(arg)
 			if arg.kind_of? Range
-				return super(arg.begin, arg.end)
+				return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
 			else
 				return super(arg)
 			end

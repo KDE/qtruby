@@ -6,6 +6,7 @@
 		timer = Qt::Timer.singleShot(5000, obj) { puts "In a block" }
 	* Thanks to stefo on #kde-bindings for both suggestions
 	* Added a few more 'range=' methods
+	* Fixed range setters so that both 1..10 and 1...10 work properly
 
 2008-03-28  Richard Dale  <richard.j.dale@gmail.com>
 
