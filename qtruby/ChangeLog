@@ -1,3 +1,9 @@
+2008-04-01  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Qt::TimeLine.setFrameRate() can now be called like this:
+		time_line.frameRate = 0..90
+	* Thanks to stefo on #kde-bindings for the suggestion
+
 2008-03-28  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Added a QList<QTextEdit::ExtraSelection> marshallers as requested

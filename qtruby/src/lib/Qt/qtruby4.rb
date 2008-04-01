@@ -1635,6 +1635,16 @@ module Qt
 			method_missing(:type, *args)
 		end
 	end
+
+	class TimeLine < Qt::Base
+		def frameRange=(arg)
+			if arg.kind_of? Range
+				return super(arg.begin, arg.end)
+			else
+				return super(arg)
+			end
+		end
+	end
 	
 	class ToolButton < Qt::Base 
 		def setShortcut(arg)
@@ -2304,7 +2314,7 @@ module Qt
 			
 			if method == "new"
 				method = classname.dup 
-				method.gsub!(/^(Qt::TextEdit|Qt::TextBlock|Qt::TextLayout|Qt::TextFrame|KBookmark|KParts|KMediaPlayer|KIO|KNS|DOM|Kontact|Kate|KSettings|KTimeZone|KTextEditor|KWin|KWallet|Plasma|Sonnet|Soprano|Nepomuk)::/,"")
+				method.gsub!(/^(Qt::TextBlock|Qt::TextLayout|Qt::TextFrame|Qt::TextOption|Qt::Locale|Qt::AbstractFileEngine|KBookmark|KParts|KMediaPlayer|KIO|KNS|DOM|Kontact|Kate|KSettings|KTimeZone|KTextEditor|KWin|KWallet|Plasma|Sonnet|Soprano|Nepomuk)::/,"")
 			end
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
 			# Change foobar= to setFoobar()					
