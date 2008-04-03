@@ -1,6 +1,8 @@
 2008-04-03  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Updated the rbuic4 to be in line with the Qt 4.4 uic code
+	* Added a '-k' or '-kde' option to the rbuic4 tool, used in
+	  conjunction with '-x' to generate a KDE app korundum4 test stub
 
 2008-04-01  Richard Dale  <richard.j.dale@gmail.com>
 

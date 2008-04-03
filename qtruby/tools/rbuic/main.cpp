@@ -66,6 +66,7 @@ void showHelp(const char *appName)
             "  -p, -no-protection        disable header protection\n"
             "  -g <name>                 change generator\n"
             "  -x                        generate extra code to test the class\n"
+            "  -k                        use kde widgets, require 'korundum4' extension\n"
             "\n", appName);
 }
 
@@ -93,10 +94,12 @@ int runUic(int argc, char *argv[])
                 return 1;
             }
             driver.option().outputFile = QFile::decodeName(argv[arg]);
-// #ifdef QT_UIC_RUBY_GENERATOR
+#ifdef QT_UIC_RUBY_GENERATOR
         } else if (opt == QLatin1String("-x")) {
             driver.option().execCode = 1;
-// #endif
+        } else if (opt == QLatin1String("-k") || opt == QLatin1String("-kde")) {
+            driver.option().useKDE = 1;
+#endif
         } else if (opt == QLatin1String("-p") || opt == QLatin1String("-no-protection")) {
             driver.option().headerProtection = false;
         } else if (opt == QLatin1String("-postfix")) {

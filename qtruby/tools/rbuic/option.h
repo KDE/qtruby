@@ -45,6 +45,7 @@
 #define OPTION_H
 
 #include <QtCore/QString>
+#include "uic.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -63,7 +64,10 @@ struct Option
     unsigned int generateNamespace : 1;
     unsigned int autoConnection : 1;
     unsigned int dependencies : 1;
+#ifdef QT_UIC_RUBY_GENERATOR
     unsigned int execCode : 1;
+    unsigned int useKDE : 1;
+#endif
     Generator generator;
 
     QString inputFile;
