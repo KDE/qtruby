@@ -158,7 +158,7 @@ namespace {
                 if (!isIconFormat44(dri)) {
                     if (dri->text().isEmpty())  {
                         const QString msg = QString::fromUtf8("%1: An invalid icon property '%2' was encountered.").arg(fileName).arg(p->attributeName());
-                        qWarning(msg.toUtf8().constData());
+                        qWarning("%s", msg.toUtf8().constData());
                         return false;
                     }
                 }
@@ -168,7 +168,7 @@ namespace {
             if (const DomResourcePixmap *drp = p->elementPixmap())
                 if (drp->text().isEmpty()) {
                     const QString msg = QString::fromUtf8("%1: An invalid pixmap property '%2' was encountered.").arg(fileName).arg(p->attributeName());
-                    qWarning(msg.toUtf8().constData());
+                    qWarning("%s", msg.toUtf8().constData());
                     return false;
                 }
             break;
