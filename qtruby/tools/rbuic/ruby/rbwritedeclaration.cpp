@@ -1,20 +1,40 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
+** Copyright (C) 1992-2008 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
 ** This file may be used under the terms of the GNU General Public
-** License version 2.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of
-** this file.  Please review the following information to ensure GNU
-** General Public Licensing requirements will be met:
-** http://www.trolltech.com/products/qt/opensource.html
+** License versions 2.0 or 3.0 as published by the Free Software
+** Foundation and appearing in the files LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file.  Alternatively you may (at
+** your m_option) use any later version of the GNU General Public
+** License if such license has been publicly approved by Trolltech ASA
+** (or its successors, if any) and the KDE Free Qt Foundation. In
+** addition, as a special exception, Trolltech gives you certain
+** additional rights. These rights are described in the Trolltech GPL
+** Exception version 1.2, which can be found at
+** http://www.trolltech.com/products/qt/gplexception/ and in the file
+** GPL_EXCEPTION.txt in this package.
 **
-** If you are unsure which license is appropriate for your use, please
+** Please review the following information to ensure GNU General
+** Public Licensing requirements will be met:
+** http://trolltech.com/products/qt/licenses/licensing/opensource/. If
+** you are unsure which license is appropriate for your use, please
 ** review the following information:
-** http://www.trolltech.com/products/qt/licensing.html or contact the
-** sales department at sales@trolltech.com.
+** http://trolltech.com/products/qt/licenses/licensing/licensingoverview
+** or contact the sales department at sales@trolltech.com.
+**
+** In addition, as a special exception, Trolltech, as the sole
+** copyright holder for Qt Designer, grants users of the Qt/Eclipse
+** Integration plug-in the right for the Qt/Eclipse Integration to
+** link to functionality provided by Qt Designer and its related
+** libraries.
+**
+** This file is provided "AS IS" with NO WARRANTY OF ANY KIND,
+** INCLUDING THE WARRANTIES OF DESIGN, MERCHANTABILITY AND FITNESS FOR
+** A PARTICULAR PURPOSE. Trolltech reserves all rights not expressly
+** granted herein.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -35,75 +55,77 @@
 
 namespace Ruby {
 
-WriteDeclaration::WriteDeclaration(Uic *uic)
-    : driver(uic->driver()), output(uic->output()), option(uic->option())
+WriteDeclaration::WriteDeclaration(Uic *uic)  :
+    m_uic(uic),
+    m_driver(uic->driver()),
+    m_output(uic->output()),
+    m_option(uic->option())
 {
-    this->uic = uic;
 }
 
 void WriteDeclaration::acceptUI(DomUI *node)
 {
-    QString qualifiedClassName = node->elementClass() + option.postfix;
+    QString qualifiedClassName = node->elementClass() + m_option.postfix;
     QString className = qualifiedClassName;
 
-    QString varName = driver->findOrInsertWidget(node->elementWidget());
+    QString varName = m_driver->findOrInsertWidget(node->elementWidget());
     QString widgetClassName = node->elementWidget()->attributeClass();
 
     QString exportMacro = node->elementExportMacro();
     if (!exportMacro.isEmpty())
         exportMacro.append(QLatin1Char(' '));
 
-    QStringList nsList = qualifiedClassName.split(QLatin1String("::"));
-    if (nsList.count()) {
-        className = nsList.last();
-        nsList.removeLast();
+    QStringList namespaceList = qualifiedClassName.split(QLatin1String("::"));
+    if (namespaceList.count()) {
+        className = namespaceList.last();
+        namespaceList.removeLast();
     }
 
-    QListIterator<QString> it(nsList);
+    QListIterator<QString> it(namespaceList);
     while (it.hasNext()) {
         QString ns = it.next();
         if (ns.isEmpty())
             continue;
 
-//        output << "namespace " << ns << " {\n";
+//        m_output << "namespace " << ns << " {\n";
     }
 
-    if (nsList.count())
-        output << "\n";
+    if (namespaceList.count())
+        m_output << "\n";
 
-    output << "class " << option.prefix << className << "\n";
+    m_output << "class " << m_option.prefix << className << "\n";
 
-    QStringList connections = uic->databaseInfo()->connections();
+    const QStringList connections = m_uic->databaseInfo()->connections();
     for (int i=0; i<connections.size(); ++i) {
-        QString connection = connections.at(i);
+        const QString connection = connections.at(i);
 
         if (connection == QLatin1String("(default)"))
             continue;
 
-        output << option.indent << "@" << connection << "Connection = Qt::SqlDatabase.new\n";
+        m_output << m_option.indent << "@" << connection << "Connection = Qt::SqlDatabase.new\n";
     }
 
     TreeWalker::acceptWidget(node->elementWidget());
 
-    output << "\n";
+    m_output << "\n";
 
-    WriteInitialization(uic).acceptUI(node);
+    WriteInitialization(m_uic).acceptUI(node);
 
     if (node->elementImages()) {
-//        output << "\n"
+//        m_output << "\n"
 //            << "protected:\n"
-//            << option.indent << "enum IconID\n"
-//            << option.indent << "{\n";
-        WriteIconDeclaration(uic).acceptUI(node);
+//            << m_option.indent << "enum IconID\n"
+//            << m_option.indent << "{\n";
+        WriteIconDeclaration(m_uic).acceptUI(node);
 
-        output << option.indent << option.indent << "unknown_ID = "
+        m_output << m_option.indent << m_option.indent << "unknown_ID = "
             << node->elementImages()->elementImage().size() << "\n"
-            << option.indent << "\n";
+            << m_option.indent << "\n";
 
-        WriteIconInitialization(uic).acceptUI(node);
+        WriteIconInitialization(m_uic).acceptUI(node);
     }
 
-    output << "end\n\n";
+    m_output << "end\n\n";
 
     it.toBack();
     while (it.hasPrevious()) {
@@ -111,26 +133,26 @@ void WriteDeclaration::acceptUI(DomUI *node)
         if (ns.isEmpty())
             continue;
 
-//        output << "} // namespace " << ns << "\n";
+//        m_output << "} // namespace " << ns << "\n";
     }
 
-    if (nsList.count())
-        output << "\n";
+    if (namespaceList.count())
+        m_output << "\n";
 
-    if (option.generateNamespace && !option.prefix.isEmpty()) {
-        nsList.append(QLatin1String("Ui"));
+    if (m_option.generateNamespace && !m_option.prefix.isEmpty()) {
+        namespaceList.append(QLatin1String("Ui"));
 
-        QListIterator<QString> it(nsList);
+        QListIterator<QString> it(namespaceList);
         while (it.hasNext()) {
             QString ns = it.next();
             if (ns.isEmpty())
                 continue;
 
-            output << "module " << ns << "\n";
+            m_output << "module " << ns << "\n";
         }
 
-        output << option.indent << "class "  << className << " < " << option.prefix << className << "\n";
-        output << option.indent << "end\n";
+        m_output << m_option.indent << "class "  << className << " < " << m_option.prefix << className << "\n";
+        m_output << m_option.indent << "end\n";
 
         it.toBack();
         while (it.hasPrevious()) {
@@ -138,11 +160,11 @@ void WriteDeclaration::acceptUI(DomUI *node)
             if (ns.isEmpty())
                 continue;
 
-            output << "end  # module " << ns << "\n";
+            m_output << "end  # module " << ns << "\n";
         }
 
-        if (nsList.count())
-            output << "\n";
+        if (namespaceList.count())
+            m_output << "\n";
     }
 }
 
@@ -152,9 +174,9 @@ void WriteDeclaration::acceptWidget(DomWidget *node)
     if (node->hasAttributeClass())
         className = node->attributeClass();
 
-	QString item = driver->findOrInsertWidget(node);
+	QString item = m_driver->findOrInsertWidget(node);
 	item = item.mid(0, 1).toLower() + item.mid(1);
-    output << option.indent << "attr_reader :" << item << "\n";
+    m_output << m_option.indent << "attr_reader :" << item << "\n";
 
     TreeWalker::acceptWidget(node);
 }
@@ -165,36 +187,36 @@ void WriteDeclaration::acceptLayout(DomLayout *node)
     if (node->hasAttributeClass())
         className = node->attributeClass();
 
-	QString item = driver->findOrInsertLayout(node);
+	QString item = m_driver->findOrInsertLayout(node);
 	item = item.mid(0, 1).toLower() + item.mid(1);
-    output << option.indent << "attr_reader :" << item << "\n";
+    m_output << m_option.indent << "attr_reader :" << item << "\n";
 
     TreeWalker::acceptLayout(node);
 }
 
 void WriteDeclaration::acceptSpacer(DomSpacer *node)
 {
-	QString item = driver->findOrInsertSpacer(node);
+	QString item = m_driver->findOrInsertSpacer(node);
 	item = item.mid(0, 1).toLower() + item.mid(1);
-    output << option.indent << "attr_reader :" << item << "\n";
+    m_output << m_option.indent << "attr_reader :" << item << "\n";
 
     TreeWalker::acceptSpacer(node);
 }
 
 void WriteDeclaration::acceptActionGroup(DomActionGroup *node)
 {
-	QString item = driver->findOrInsertActionGroup(node);
+	QString item = m_driver->findOrInsertActionGroup(node);
 	item = item.mid(0, 1).toLower() + item.mid(1);
-    output << option.indent << "attr_reader :" << item << "\n";
+    m_output << m_option.indent << "attr_reader :" << item << "\n";
 
     TreeWalker::acceptActionGroup(node);
 }
 
 void WriteDeclaration::acceptAction(DomAction *node)
 {
-	QString item = driver->findOrInsertAction(node);
+	QString item = m_driver->findOrInsertAction(node);
 	item = item.mid(0, 1).toLower() + item.mid(1);
-    output << option.indent << "attr_reader :" << item << "\n";
+    m_output << m_option.indent << "attr_reader :" << item << "\n";
 
     TreeWalker::acceptAction(node);
 }

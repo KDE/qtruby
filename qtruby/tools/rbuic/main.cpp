@@ -1,20 +1,40 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
+** Copyright (C) 1992-2008 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
 ** This file may be used under the terms of the GNU General Public
-** License version 2.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of
-** this file.  Please review the following information to ensure GNU
-** General Public Licensing requirements will be met:
-** http://www.trolltech.com/products/qt/opensource.html
+** License versions 2.0 or 3.0 as published by the Free Software
+** Foundation and appearing in the files LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file.  Alternatively you may (at
+** your option) use any later version of the GNU General Public
+** License if such license has been publicly approved by Trolltech ASA
+** (or its successors, if any) and the KDE Free Qt Foundation. In
+** addition, as a special exception, Trolltech gives you certain
+** additional rights. These rights are described in the Trolltech GPL
+** Exception version 1.2, which can be found at
+** http://www.trolltech.com/products/qt/gplexception/ and in the file
+** GPL_EXCEPTION.txt in this package.
 **
-** If you are unsure which license is appropriate for your use, please
+** Please review the following information to ensure GNU General
+** Public Licensing requirements will be met:
+** http://trolltech.com/products/qt/licenses/licensing/opensource/. If
+** you are unsure which license is appropriate for your use, please
 ** review the following information:
-** http://www.trolltech.com/products/qt/licensing.html or contact the
-** sales department at sales@trolltech.com.
+** http://trolltech.com/products/qt/licenses/licensing/licensingoverview
+** or contact the sales department at sales@trolltech.com.
+**
+** In addition, as a special exception, Trolltech, as the sole
+** copyright holder for Qt Designer, grants users of the Qt/Eclipse
+** Integration plug-in the right for the Qt/Eclipse Integration to
+** link to functionality provided by Qt Designer and its related
+** libraries.
+**
+** This file is provided "AS IS" with NO WARRANTY OF ANY KIND,
+** INCLUDING THE WARRANTIES OF DESIGN, MERCHANTABILITY AND FITNESS FOR
+** A PARTICULAR PURPOSE. Trolltech reserves all rights not expressly
+** granted herein.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -49,7 +69,7 @@ void showHelp(const char *appName)
             "\n", appName);
 }
 
-int main(int argc, char *argv[])
+int runUic(int argc, char *argv[])
 {
     Driver driver;
 
@@ -73,10 +93,10 @@ int main(int argc, char *argv[])
                 return 1;
             }
             driver.option().outputFile = QFile::decodeName(argv[arg]);
-#ifdef QT_UIC_RUBY_GENERATOR
+// #ifdef QT_UIC_RUBY_GENERATOR
         } else if (opt == QLatin1String("-x")) {
             driver.option().execCode = 1;
-#endif
+// #endif
         } else if (opt == QLatin1String("-p") || opt == QLatin1String("-no-protection")) {
             driver.option().headerProtection = false;
         } else if (opt == QLatin1String("-postfix")) {
@@ -117,26 +137,13 @@ int main(int argc, char *argv[])
         } else if (!fileName) {
             fileName = argv[arg];
         } else {
+printf("Unrecognized option\n");
             showHelp(argv[0]);
             return 1;
         }
 
         ++arg;
     }
-
-    // report Qt usage for commercial customers with a "metered license" (currently experimental)
-#if QT_EDITION != QT_EDITION_OPENSOURCE
-#ifdef QT_CONFIGURE_BINARIES_PATH
-    const char *binariesPath = QT_CONFIGURE_BINARIES_PATH;
-    QString reporterPath = QString::fromLocal8Bit(binariesPath) + QDir::separator()
-                           + "qtusagereporter";
-#if defined(Q_OS_WIN)
-    reporterPath += ".exe";
-#endif
-    if (QFile::exists(reporterPath))
-        system(qPrintable(reporterPath + " uic"));
-#endif
-#endif
 
     QString inputFile;
     if (fileName)
@@ -161,10 +168,22 @@ int main(int argc, char *argv[])
     }
 
     bool rtn = driver.uic(inputFile, out);
-    if (!rtn)
-        fprintf(stderr, "File '%s' is not valid\n", inputFile.isEmpty() ? "<stdin>" : inputFile.toLocal8Bit().constData());
-
     delete out;
 
+    if (!rtn) {
+        if (driver.option().outputFile.size()) {
+            f.close();
+            f.remove();
+        }
+        fprintf(stderr, "File '%s' is not valid\n", inputFile.isEmpty() ? "<stdin>" : inputFile.toLocal8Bit().constData());
+    }
+
     return !rtn;
+}
+
+QT_END_NAMESPACE
+
+int main(int argc, char *argv[])
+{
+    return QT_PREPEND_NAMESPACE(runUic)(argc, argv);
 }

@@ -1,20 +1,40 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
+** Copyright (C) 1992-2008 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
 ** This file may be used under the terms of the GNU General Public
-** License version 2.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of
-** this file.  Please review the following information to ensure GNU
-** General Public Licensing requirements will be met:
-** http://www.trolltech.com/products/qt/opensource.html
+** License versions 2.0 or 3.0 as published by the Free Software
+** Foundation and appearing in the files LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file.  Alternatively you may (at
+** your option) use any later version of the GNU General Public
+** License if such license has been publicly approved by Trolltech ASA
+** (or its successors, if any) and the KDE Free Qt Foundation. In
+** addition, as a special exception, Trolltech gives you certain
+** additional rights. These rights are described in the Trolltech GPL
+** Exception version 1.2, which can be found at
+** http://www.trolltech.com/products/qt/gplexception/ and in the file
+** GPL_EXCEPTION.txt in this package.
 **
-** If you are unsure which license is appropriate for your use, please
+** Please review the following information to ensure GNU General
+** Public Licensing requirements will be met:
+** http://trolltech.com/products/qt/licenses/licensing/opensource/. If
+** you are unsure which license is appropriate for your use, please
 ** review the following information:
-** http://www.trolltech.com/products/qt/licensing.html or contact the
-** sales department at sales@trolltech.com.
+** http://trolltech.com/products/qt/licenses/licensing/licensingoverview
+** or contact the sales department at sales@trolltech.com.
+**
+** In addition, as a special exception, Trolltech, as the sole
+** copyright holder for Qt Designer, grants users of the Qt/Eclipse
+** Integration plug-in the right for the Qt/Eclipse Integration to
+** link to functionality provided by Qt Designer and its related
+** libraries.
+**
+** This file is provided "AS IS" with NO WARRANTY OF ANY KIND,
+** INCLUDING THE WARRANTIES OF DESIGN, MERCHANTABILITY AND FITNESS FOR
+** A PARTICULAR PURPOSE. Trolltech reserves all rights not expressly
+** granted herein.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -43,21 +63,22 @@
 #endif
 
 #include <QtXml/QDomDocument>
-#include <QFileInfo>
-#include <QRegExp>
-#include <QTextStream>
-#include <QDateTime>
+#include <QtCore/QFileInfo>
+#include <QtCore/QRegExp>
+#include <QtCore/QTextStream>
+#include <QtCore/QDateTime>
 
 #if defined Q_WS_WIN
 #include <qt_windows.h>
 #endif
+
+QT_BEGIN_NAMESPACE
 
 Uic::Uic(Driver *d)
      : drv(d),
        out(d->output()),
        opt(d->option()),
        info(d),
-       cWidgetsInfo(d),
        externalPix(true)
 {
 }
@@ -83,7 +104,7 @@ bool Uic::printDependencies()
     if (!doc.setContent(&f))
         return false;
 
-    QDomElement root = doc.firstChild().toElement();
+    QDomElement root = doc.firstChildElement();
     DomUI *ui = new DomUI();
     ui->read(root);
 
@@ -141,14 +162,14 @@ void Uic::writeCopyrightHeader(DomUI *ui)
     if (comment.size())
         out << "/*\n" << comment << "\n*/\n\n";
 
-	out << "/********************************************************************************\n";
-	out << "** Form generated from reading ui file '" << QFileInfo(opt.inputFile).fileName() << "'\n";
-	out << "**\n";
-	out << "** Created: " << QDateTime::currentDateTime().toString() << "\n";
-	out << "**      " << QString("by: Qt User Interface Compiler version %1\n").arg(QT_VERSION_STR);
-	out << "**\n";
-	out << "** WARNING! All changes made in this file will be lost when recompiling ui file!\n";
-	out << "********************************************************************************/\n\n";
+        out << "/********************************************************************************\n";
+        out << "** Form generated from reading ui file '" << QFileInfo(opt.inputFile).fileName() << "'\n";
+        out << "**\n";
+        out << "** Created: " << QDateTime::currentDateTime().toString() << "\n";
+        out << "**      " << QString::fromLatin1("by: Qt User Interface Compiler version %1\n").arg(QLatin1String(QT_VERSION_STR));
+        out << "**\n";
+        out << "** WARNING! All changes made in this file will be lost when recompiling ui file!\n";
+        out << "********************************************************************************/\n\n";
 #endif
 }
 
@@ -163,7 +184,7 @@ bool Uic::write(QIODevice *in)
         opt.headerProtection = false;
     }
 
-    QDomElement root = doc.firstChild().toElement();
+    QDomElement root = doc.firstChildElement();
     DomUI *ui = new DomUI();
     ui->read(root);
 
@@ -175,10 +196,17 @@ bool Uic::write(QIODevice *in)
         return false;
     }
 
+    QString language = ui->attributeLanguage();
+
+
     bool rtn = false;
 
     if (option().generator == Option::JavaGenerator) {
 #ifdef QT_UIC_JAVA_GENERATOR
+        if (language.toLower() != QLatin1String("jambi")) {
+            fprintf(stderr, "uic: File is not a 'jambi' form\n");
+            return false;
+        }
         rtn = jwrite (ui);
 #else
         fprintf(stderr, "uic: option to generate java code not compiled in\n");
@@ -191,6 +219,11 @@ bool Uic::write(QIODevice *in)
 #endif
     } else {
 #ifdef QT_UIC_CPP_GENERATOR
+        if (!language.isEmpty() && language.toLower() != QLatin1String("c++")) {
+            fprintf(stderr, "uic: File is not a 'c++' ui file, language=%s\n", qPrintable(language));
+            return false;
+        }
+
         rtn = write (ui);
 #else
         fprintf(stderr, "uic: option to generate cpp code not compiled in\n");
@@ -219,17 +252,18 @@ bool Uic::write(DomUI *ui)
     }
 
     pixFunction = ui->elementPixmapFunction();
-    if (pixFunction == QLatin1String("Qt::Pixmap::fromMimeSource"))
+    if (pixFunction == QLatin1String("QPixmap::fromMimeSource"))
         pixFunction = QLatin1String("qPixmapFromMimeSource");
 
     externalPix = ui->elementImages() == 0;
 
     info.acceptUI(ui);
     cWidgetsInfo.acceptUI(ui);
-    WriteIncludes(this).acceptUI(ui);
+    WriteIncludes writeIncludes(this);
+    writeIncludes.acceptUI(ui);
 
     Validator(this).acceptUI(ui);
-    WriteDeclaration(this).acceptUI(ui);
+    WriteDeclaration(this, writeIncludes.scriptsActivated()).acceptUI(ui);
 
     if (opt.headerProtection)
         writeHeaderProtectionEnd();
@@ -354,7 +388,10 @@ bool Uic::isContainer(const QString &className) const
 {
     return customWidgetsInfo()->extends(className, QLatin1String("QStackedWidget"))
         || customWidgetsInfo()->extends(className, QLatin1String("QToolBox"))
-        || customWidgetsInfo()->extends(className, QLatin1String("QTabWidget"));
+        || customWidgetsInfo()->extends(className, QLatin1String("QTabWidget"))
+        || customWidgetsInfo()->extends(className, QLatin1String("QScrollArea"))
+        || customWidgetsInfo()->extends(className, QLatin1String("QMdiArea"))
+        || customWidgetsInfo()->extends(className, QLatin1String("QWizard"));
 }
 
 bool Uic::isStatusBar(const QString &className) const
@@ -372,3 +409,5 @@ bool Uic::isMenu(const QString &className) const
     return customWidgetsInfo()->extends(className, QLatin1String("QMenu"))
         || customWidgetsInfo()->extends(className, QLatin1String("QPopupMenu"));
 }
+
+QT_END_NAMESPACE

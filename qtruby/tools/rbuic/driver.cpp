@@ -1,20 +1,40 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2006 Trolltech ASA. All rights reserved.
+** Copyright (C) 1992-2008 Trolltech ASA. All rights reserved.
 **
 ** This file is part of the tools applications of the Qt Toolkit.
 **
 ** This file may be used under the terms of the GNU General Public
-** License version 2.0 as published by the Free Software Foundation
-** and appearing in the file LICENSE.GPL included in the packaging of
-** this file.  Please review the following information to ensure GNU
-** General Public Licensing requirements will be met:
-** http://www.trolltech.com/products/qt/opensource.html
+** License versions 2.0 or 3.0 as published by the Free Software
+** Foundation and appearing in the files LICENSE.GPL2 and LICENSE.GPL3
+** included in the packaging of this file.  Alternatively you may (at
+** your option) use any later version of the GNU General Public
+** License if such license has been publicly approved by Trolltech ASA
+** (or its successors, if any) and the KDE Free Qt Foundation. In
+** addition, as a special exception, Trolltech gives you certain
+** additional rights. These rights are described in the Trolltech GPL
+** Exception version 1.2, which can be found at
+** http://www.trolltech.com/products/qt/gplexception/ and in the file
+** GPL_EXCEPTION.txt in this package.
 **
-** If you are unsure which license is appropriate for your use, please
+** Please review the following information to ensure GNU General
+** Public Licensing requirements will be met:
+** http://trolltech.com/products/qt/licenses/licensing/opensource/. If
+** you are unsure which license is appropriate for your use, please
 ** review the following information:
-** http://www.trolltech.com/products/qt/licensing.html or contact the
-** sales department at sales@trolltech.com.
+** http://trolltech.com/products/qt/licenses/licensing/licensingoverview
+** or contact the sales department at sales@trolltech.com.
+**
+** In addition, as a special exception, Trolltech, as the sole
+** copyright holder for Qt Designer, grants users of the Qt/Eclipse
+** Integration plug-in the right for the Qt/Eclipse Integration to
+** link to functionality provided by Qt Designer and its related
+** libraries.
+**
+** This file is provided "AS IS" with NO WARRANTY OF ANY KIND,
+** INCLUDING THE WARRANTIES OF DESIGN, MERCHANTABILITY AND FITNESS FOR
+** A PARTICULAR PURPOSE. Trolltech reserves all rights not expressly
+** granted herein.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -25,9 +45,11 @@
 #include "uic.h"
 #include "ui4.h"
 
-#include <QRegExp>
-#include <QFileInfo>
-#include <QtDebug>
+#include <QtCore/QRegExp>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDebug>
+
+QT_BEGIN_NAMESPACE
 
 Driver::Driver()
     : m_stdout(stdout, QFile::WriteOnly | QFile::Text)
@@ -49,16 +71,20 @@ QString Driver::findOrInsertWidget(DomWidget *ui_widget)
 
 QString Driver::findOrInsertSpacer(DomSpacer *ui_spacer)
 {
-    if (!m_spacers.contains(ui_spacer))
-        m_spacers.insert(ui_spacer, unique(QString(), QLatin1String("Qt::SpacerItem")));
+    if (!m_spacers.contains(ui_spacer)) {
+        const QString name = ui_spacer->hasAttributeName() ? ui_spacer->attributeName() : QString();
+        m_spacers.insert(ui_spacer, unique(name, QLatin1String("QSpacerItem")));
+    }
 
     return m_spacers.value(ui_spacer);
 }
 
 QString Driver::findOrInsertLayout(DomLayout *ui_layout)
 {
-    if (!m_layouts.contains(ui_layout))
-        m_layouts.insert(ui_layout, unique(QString(), ui_layout->attributeClass()));
+    if (!m_layouts.contains(ui_layout)) {
+        const QString name = ui_layout->hasAttributeName() ? ui_layout->attributeName() : QString();
+        m_layouts.insert(ui_layout, unique(name, ui_layout->attributeClass()));
+    }
 
     return m_layouts.value(ui_layout);
 }
@@ -84,7 +110,7 @@ QString Driver::findOrInsertLayoutItem(DomLayoutItem *ui_layoutItem)
 QString Driver::findOrInsertActionGroup(DomActionGroup *ui_group)
 {
     if (!m_actionGroups.contains(ui_group))
-        m_actionGroups.insert(ui_group, unique(ui_group->attributeName(), QLatin1String("Qt::ActionGroup")));
+        m_actionGroups.insert(ui_group, unique(ui_group->attributeName(), QLatin1String("QActionGroup")));
 
     return m_actionGroups.value(ui_group);
 }
@@ -92,7 +118,7 @@ QString Driver::findOrInsertActionGroup(DomActionGroup *ui_group)
 QString Driver::findOrInsertAction(DomAction *ui_action)
 {
     if (!m_actions.contains(ui_action))
-        m_actions.insert(ui_action, unique(ui_action->attributeName(), QLatin1String("Qt::Action")));
+        m_actions.insert(ui_action, unique(ui_action->attributeName(), QLatin1String("QAction")));
 
     return m_actions.value(ui_action);
 }
@@ -105,7 +131,7 @@ QString Driver::findOrInsertName(const QString &name)
 QString Driver::normalizedName(const QString &name)
 {
     QString result = name;
-    result.replace(QRegExp(QLatin1String("[^a-zA-Z_0-9]")), QLatin1String("_"));
+    result.replace(QRegExp(QLatin1String("[^a-zA-Z_0-9]")), QString(QLatin1Char('_')));
     return result;
 }
 
@@ -196,7 +222,6 @@ static bool isAnsiCCharacter(const QChar& c)
            || c.isDigit() || c == QLatin1Char('_');
 }
 
-
 QString Driver::headerFileName() const
 {
     QString name = m_option.outputFile;
@@ -224,13 +249,12 @@ QString Driver::headerFileName(const QString &fileName)
         if (!isAnsiCCharacter(c)) {
             // Replace character by its unicode value
             QString hex = QString::number(c.unicode(), 16);
-            baseName.replace(i, 1, "_" + hex + "_");
+            baseName.replace(i, 1, QLatin1Char('_') + hex + QLatin1Char('_'));
             i += hex.size() + 1;
         }
     }
     return baseName.toUpper() + QLatin1String("_H");
 }
-
 
 bool Driver::printDependencies(const QString &fileName)
 {
@@ -284,7 +308,15 @@ bool Driver::uic(const QString &fileName, QTextStream *out)
     if (out) {
         m_output = out;
     } else {
+#ifdef Q_WS_WIN
+        // As one might also redirect the output to a file on win, 
+        // we should not create the textstream with QFile::Text flag.
+        // The redirected file is opened in TextMode and this will
+        // result in broken line endings as writing will replace \n again.
+        m_output = new QTextStream(stdout, QIODevice::WriteOnly);
+#else
         m_output = new QTextStream(stdout, QIODevice::WriteOnly | QFile::Text);
+#endif
         deleteOutput = true;
     }
 
@@ -353,3 +385,5 @@ DomAction *Driver::actionByName(const QString &name) const
 {
     return m_actions.key(name);
 }
+
+QT_END_NAMESPACE
