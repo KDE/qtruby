@@ -334,7 +334,7 @@ bool Uic::rbwrite(DomUI *ui)
 
     if (option().execCode) {
 		QString qualifiedClassName = ui->elementClass() + option().postfix;
-		QString className = qualifiedClassName;
+		QString className = qualifiedClassName.mid(0, 1).toUpper() + qualifiedClassName.mid(1);
 		DomWidget*  parentWidget = ui->elementWidget();
 		QString parentClass = parentWidget->attributeClass();
 

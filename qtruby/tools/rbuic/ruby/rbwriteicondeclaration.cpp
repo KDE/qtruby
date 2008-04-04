@@ -48,6 +48,8 @@
 
 #include <QTextStream>
 
+QT_BEGIN_NAMESPACE
+
 namespace Ruby {
 
 WriteIconDeclaration::WriteIconDeclaration(Uic *uic)

@@ -74,4 +74,6 @@ private:
 
 } // namespace Ruby
 
+QT_END_NAMESPACE
+
 #endif // RBWRITEICONDECLARATION_H

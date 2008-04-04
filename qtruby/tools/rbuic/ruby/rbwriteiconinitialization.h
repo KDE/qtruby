@@ -78,4 +78,6 @@ private:
 
 } // namespace Ruby
 
+QT_END_NAMESPACE
+
 #endif // RBWRITEICONINITIALIZATION_H

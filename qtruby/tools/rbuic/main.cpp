@@ -49,6 +49,8 @@
 #include <QTextStream>
 #include <QTextCodec>
 
+QT_BEGIN_NAMESPACE
+
 static const char *error = 0;
 
 void showHelp(const char *appName)
@@ -140,7 +142,6 @@ int runUic(int argc, char *argv[])
         } else if (!fileName) {
             fileName = argv[arg];
         } else {
-printf("Unrecognized option\n");
             showHelp(argv[0]);
             return 1;
         }

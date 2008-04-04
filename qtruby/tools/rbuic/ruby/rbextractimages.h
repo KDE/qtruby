@@ -41,15 +41,15 @@
 **
 ****************************************************************************/
 
-#ifndef RBWRITEICONDATA_H
-#define RBWRITEICONDATA_H
+#ifndef RBEXTRACTIMAGES_H
+#define RBEXTRACTIMAGES_H
 
 #include "treewalker.h"
+#include <QtCore/QDir>
 
 QT_BEGIN_NAMESPACE
 
 class QTextStream;
-class QIODevice;
 class Driver;
 class Uic;
 
@@ -57,26 +57,23 @@ struct Option;
 
 namespace Ruby {
 
-class WriteIconData : public TreeWalker
+class ExtractImages : public TreeWalker
 {
 public:
-    WriteIconData(Uic *uic);
+    ExtractImages(const Option &opt);
 
     void acceptUI(DomUI *node);
     void acceptImages(DomImages *images);
     void acceptImage(DomImage *image);
 
-    static void writeImage(QTextStream &output, const QString &indent, DomImage *image);
-    static void writeImage(QIODevice &output, DomImage *image);
-
 private:
-    Driver *driver;
-    QTextStream &output;
-    const Option &option;
+    QTextStream *m_output;
+    const Option &m_option;
+    QDir m_imagesDir;
 };
 
 } // namespace Ruby
 
 QT_END_NAMESPACE
 
-#endif // RBWRITEICONDATA_H
+#endif // RBEXTRACTIMAGES_H

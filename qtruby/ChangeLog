@@ -1,3 +1,9 @@
+2008-04-04  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Ensure the class and module names in rbuic4 generated code
+	  start with an upper case letter, even if they didn't in the
+	  .ui file
+
 2008-04-03  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Updated the rbuic4 to be in line with the Qt 4.4 uic code

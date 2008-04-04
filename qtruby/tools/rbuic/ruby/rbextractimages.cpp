@@ -41,80 +41,104 @@
 **
 ****************************************************************************/
 
-#include "rbwriteiconinitialization.h"
+#include "rbextractimages.h"
 #include "rbwriteicondata.h"
 #include "driver.h"
 #include "ui4.h"
 #include "utils.h"
 #include "uic.h"
 
+#include <QtCore/QDataStream>
 #include <QtCore/QTextStream>
-#include <QtCore/QString>
+#include <QtCore/QTextCodec>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 
 QT_BEGIN_NAMESPACE
 
 namespace Ruby {
 
-WriteIconInitialization::WriteIconInitialization(Uic *uic)
-    : driver(uic->driver()), output(uic->output()), option(uic->option())
+ExtractImages::ExtractImages(const Option &opt)
+    : m_output(0), m_option(opt)
 {
-    this->uic = uic;
 }
 
-void WriteIconInitialization::acceptUI(DomUI *node)
+void ExtractImages::acceptUI(DomUI *node)
 {
+    if (!m_option.extractImages)
+        return;
+
     if (node->elementImages() == 0)
         return;
 
-    QString className = node->elementClass() + option.postfix;
+    QString className = node->elementClass() + m_option.postfix;
 
-    output << option.indent << "def self.icon(id)\n";
+    QFile f;
+    if (m_option.qrcOutputFile.size()) {
+        f.setFileName(m_option.qrcOutputFile);
+        if (!f.open(QIODevice::WriteOnly | QFile::Text)) {
+            fprintf(stderr, "Could not create resource file\n");
+            return;
+        }
 
-    WriteIconData(uic).acceptUI(node);
+        QFileInfo fi(m_option.qrcOutputFile);
+        QDir dir = fi.absoluteDir();
+        if (!dir.exists(QLatin1String("images")) && !dir.mkdir(QLatin1String("images"))) {
+            fprintf(stderr, "Could not create image dir\n");
+            return;
+        }
+        dir.cd(QLatin1String("images"));
+        m_imagesDir = dir;
 
-    output << option.indent << option.indent << "case id\n";
+        m_output = new QTextStream(&f);
+        m_output->setCodec(QTextCodec::codecForName("UTF-8"));
 
-    TreeWalker::acceptUI(node);
+        QTextStream &out = *m_output;
 
-    output << option.indent << option.indent << "else\n";
-    output << option.indent << option.indent << option.indent << "return Qt::Pixmap.new\n";
+        out << "<RCC>\n";
+        out << "    <qresource prefix=\"/" << className << "\" >\n";
+        TreeWalker::acceptUI(node);
+        out << "    </qresource>\n";
+        out << "</RCC>\n";
 
-    output << option.indent << option.indent << "end\n"
-           << option.indent << "end\n\n";
+        f.close();
+        delete m_output;
+        m_output = 0;
+    }
 }
 
-QString WriteIconInitialization::iconFromDataFunction()
-{
-    return QLatin1String("qt_get_icon");
-}
-
-void WriteIconInitialization::acceptImages(DomImages *images)
+void ExtractImages::acceptImages(DomImages *images)
 {
     TreeWalker::acceptImages(images);
 }
 
-void WriteIconInitialization::acceptImage(DomImage *image)
+void ExtractImages::acceptImage(DomImage *image)
 {
-    QString img = image->attributeName() + QLatin1String("_data");
-    QString data = image->elementData()->text();
-    QString fmt = image->elementData()->attributeFormat();
+    QString format = image->elementData()->attributeFormat();
+    QString extension = format.left(format.indexOf(QLatin1Char('.'))).toLower();
+    QString fname = m_imagesDir.absoluteFilePath(image->attributeName() + QLatin1Char('.') + extension);
 
-    QString imageId = image->attributeName() + QLatin1String("_ID");
-    QString imageData = image->attributeName() + QLatin1String("_data");
-    QString ind = option.indent + option.indent;
+    *m_output << "        <file>images/" << image->attributeName() << QLatin1Char('.') + extension << "</file>\n";
 
-    output << ind << "when " << imageId << "\n";
-
-    if (fmt == QLatin1String("XPM.GZ")) {
-        output << option.indent << option.indent << option.indent << "return " << "Qt::Pixmap.new(" << imageData << ")\n";
-    } else {
-        output << option.indent << option.indent << option.indent << 
-                " img = Qt::Image.new\n";
-        output << option.indent << option.indent << option.indent << "img.loadFromData(" << imageData << ", " << 
-                "imageData.length, " << fixString(fmt, ind) << ")\n";
-        output << option.indent << option.indent << option.indent << 
-                "return Qt::Pixmap.fromImage(img)\n";
+    QFile f;
+    f.setFileName(fname);
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        fprintf(stderr, "Could not create image file\n");
+        return;
     }
+
+    if (format == QLatin1String("XPM.GZ")) {
+        QTextStream *imageOut = new QTextStream(&f);
+        imageOut->setCodec(QTextCodec::codecForName("UTF-8"));
+
+        Ruby::WriteIconData::writeImage(*imageOut, QString(), image);
+        delete imageOut;
+    } else {
+        Ruby::WriteIconData::writeImage(f, image);
+    }
+
+    f.close();
 }
 
 } // namespace Ruby

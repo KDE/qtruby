@@ -137,9 +137,6 @@ namespace {
             str << indent << varName << "." << setFunction << " = " << v << "\n";
         }
 
-//    void writeSetupUIScriptVariableDeclarations(const QString &indent, QTextStream &str)  {
-//        str << indent << "QWidgetList childWidgets;\n";
-//    }
 
     static inline bool isIconFormat44(const DomResourceIcon *i) {
         return i->hasElementNormalOff()   || i->hasElementNormalOn() ||
@@ -177,14 +174,6 @@ namespace {
         }
         return  true;
     }
-
-//    inline void openIfndef(QTextStream &str, const QString &symbol)  { str << endl << QLatin1String("#ifndef ") << symbol << endl;  }
-//    inline void closeIfdef(QTextStream &str, const QString &symbol) { str << QLatin1String("#endif // ") << symbol << endl << endl; }
-
-//    const char *accessibilityDefineC = "QT_NO_ACCESSIBILITY";
-//    const char *toolTipDefineC = "QT_NO_TOOLTIP";
-//    const char *whatsThisDefineC = "QT_NO_WHATSTHIS";
-//    const char *statusTipDefineC = "QT_NO_STATUSTIP";
 }
 
 namespace Ruby {
@@ -394,7 +383,7 @@ void WriteInitialization::LayoutDefaultHandler::acceptLayoutFunction(DomLayoutFu
 
 void WriteInitialization::LayoutDefaultHandler::writeProperty(int p, const QString &indent, const QString &objectName,
                                                               const DomPropertyMap &properties, const QString &propertyName, const QString &setter,
-                                                              int defaultStyleValue, bool suppressDefault, QTextStream &str) const
+                                                              int /*defaultStyleValue*/, bool suppressDefault, QTextStream &str) const
 {
     // User value
     const DomPropertyMap::const_iterator mit = properties.constFind(propertyName);
@@ -405,13 +394,7 @@ void WriteInitialization::LayoutDefaultHandler::writeProperty(int p, const QStri
         // the default value, layout properties were always written
         const bool useLayoutFunctionPre43 = !suppressDefault && (m_state[p] == (HasDefaultFunction|HasDefaultValue)) && value == m_defaultValues[p];
         if (!useLayoutFunctionPre43) {
-//            bool ifndefMac = (!(m_state[p] & (HasDefaultFunction|HasDefaultValue)) 
-//                             && value == defaultStyleValue);
-//            if (ifndefMac)
-//                str << "#ifndef Q_OS_MAC\n";
             writeSetter(indent, objectName, setter, value, str);
-//            if (ifndefMac)
-//                str << "#endif\n";
             return;
         }
     }
@@ -472,9 +455,6 @@ void WriteInitialization::acceptUI(DomUI *node)
     if (node->elementImages())
         TreeWalker::acceptImages(node->elementImages());
 
-//    if (option.generateImplemetation)
-//        m_output << "#include <" << m_driver->headerFileName() << ">\n\n";
-
     m_stdsetdef = true;
     if (node->hasAttributeStdSetDef())
         m_stdsetdef = node->attributeStdSetDef();
@@ -530,9 +510,6 @@ void WriteInitialization::acceptUI(DomUI *node)
 
     m_output << "\n" << m_option.indent << "retranslateUi(" << m_mainWidget << ")\n";
 
-//    if (!m_delayedResize.isEmpty())
-//        m_output << "\n" << m_delayedResize << "\n";
-
     if (node->elementConnections())
         acceptConnections(node->elementConnections());
 
@@ -547,10 +524,6 @@ void WriteInitialization::acceptUI(DomUI *node)
     m_output << m_option.indent << "def " << "setup_ui(" << m_mainWidget << ")\n";
     m_output << m_option.indent << "    setupUi(" << m_mainWidget << ")\n";
     m_output << m_option.indent << "end\n\n";
-
-//    if (m_delayedActionInitialization.isEmpty()) {
-//        m_refreshInitialization += m_option.indent + QLatin1String("Q_UNUSED(") + varName + QLatin1String(");\n");
-//    }
 
     m_output << m_option.indent << "def " << "retranslateUi(" << m_mainWidget << ")\n"
            << m_refreshInitialization
@@ -928,7 +901,6 @@ void WriteInitialization::acceptLayoutItem(DomLayoutItem *node)
     if (!layout)
         return;
 
-//    QString varName = toRubyIdentifier(driver->findOrInsertLayoutItem(node));
     const QString layoutName = toRubyIdentifier(m_driver->findOrInsertLayout(layout));
     const QString itemName = toRubyIdentifier(m_driver->findOrInsertLayoutItem(node));
 
@@ -1079,10 +1051,21 @@ void WriteInitialization::writeProperties(const QString &varName,
 
     DomWidget *buttonGroupWidget = findWidget(QLatin1String("Q3ButtonGroup"));
 
+    QString indent;
+    if (!m_widgetChain.top()) {
+        indent = QLatin1String("    ");
+        m_output << m_option.indent << "if " << varName << ".objectName.nil?\n";
+    }
+
     if (varName.startsWith("@")) {
-        m_output << m_option.indent << varName << ".setObjectName(" << fixString(varName.mid(1), m_option.indent) << ")\n";
-     } else {
-           m_output << m_option.indent << varName << ".setObjectName(" << fixString(varName.mid(0,1).toLower() + varName.mid(1), m_option.indent) << ")\n";
+        m_output << m_option.indent << indent << varName << ".objectName = " << fixString(varName.mid(1), m_option.indent) << "\n";
+    } else {
+        m_output << m_option.indent << indent << varName << ".objectName = " << fixString(varName.mid(0,1).toLower() + varName.mid(1), m_option.indent) << "\n";
+    }
+
+    if (!m_widgetChain.top()) {
+        indent = QLatin1String("    ");
+        m_output << m_option.indent << "end\n";
     }
 
     int leftMargin, topMargin, rightMargin, bottomMargin;
@@ -1398,28 +1381,15 @@ void WriteInitialization::writeProperties(const QString &varName,
         }
 
         if (propertyValue.size()) {
-//            const char* defineC = 0;
-//            if (propertyName == QLatin1String("toolTip"))
-//                defineC = toolTipDefineC;
-//            if (propertyName == QLatin1String("whatsThis"))
-//                defineC = whatsThisDefineC;
-//            if (propertyName == QLatin1String("statusTip"))
-//                defineC = statusTipDefineC;
             const bool needsTranslation = p->kind() == DomProperty::String && (!p->elementString()->hasAttributeNotr() || !toBool(p->elementString()->attributeNotr()));
-//            if (propertyName == QLatin1String("accessibleName") || propertyName == QLatin1String("accessibleDescription"))
-//                defineC = accessibilityDefineC;
         
             QTextStream &o = needsTranslation ? m_refreshOut : m_output;
 
-//            if (defineC)
-//                openIfndef(o, QLatin1String(defineC));
             o << m_option.indent << varNewName << setFunction << propertyValue;
             if (!stdset) {
                 o << "))";
             }
             o << "\n";
-//            if (defineC)
-//                closeIfdef(o, QLatin1String(defineC));
         }
     }
     if (leftMargin != -1 || topMargin != -1 || rightMargin != -1 || bottomMargin != -1) {
@@ -1741,7 +1711,7 @@ void WriteInitialization::acceptTabStops(DomTabStops *tabStops)
             continue;
         }
 
-        m_output << m_option.indent << "Qt::Widget::setTabOrder(@" << lastName << ", @" << name << ")\n";
+        m_output << m_option.indent << "Qt::Widget.setTabOrder(@" << lastName << ", @" << name << ")\n";
 
         lastName = name;
     }
@@ -1974,20 +1944,20 @@ QString WriteInitialization::pixCall(const QString &t, const QString &text) cons
         return type;
     }
     if (const DomImage *image = findImage(text)) {
-/*
+
         if (m_option.extractImages) {
             const QString format = image->elementData()->attributeFormat();
             const QString extension = format.left(format.indexOf(QLatin1Char('.'))).toLower();
-            QString rc = QLatin1String("QPixmap(QString::fromUtf8(\":/");
+            QString rc = QLatin1String("Qt::Pixmap.new(\":/");
             rc += m_generatedClass;
             rc += QLatin1String("/images/");
             rc += text;
             rc += QLatin1Char('.');
             rc += extension;
-            rc += QLatin1String("\"))");
+            rc += QLatin1String("\")");
             return rc;
         }
-*/
+
         QString rc = WriteIconInitialization::iconFromDataFunction();
         rc += QLatin1Char('(');
         rc += text;
@@ -1996,10 +1966,6 @@ QString WriteInitialization::pixCall(const QString &t, const QString &text) cons
     }
 
     QString pixFunc = m_uic->pixmapFunction();
-//    if (pixFunc.isEmpty())
-//        pixFunc = QLatin1String("QString::fromUtf8");
-
-//    type += QLatin1Char('(');
     type += pixFunc;
     type += QLatin1Char('(');
     type += fixString(text, m_option.indent);
@@ -2374,7 +2340,8 @@ void WriteInitialization::initializeQ3SqlDataTable(DomWidget *w)
         m_output << "Qt3::SqlCursor.new(" << fixString(table, m_option.indent) << ", true, " << connection << "Connection" << "), false, true)\n";
     }
     m_output << m_option.indent << m_option.indent  << varName << ".refresh(Qt3::DataTable::RefreshAll)\n";
-    m_output << m_option.indent << "end\n";}
+    m_output << m_option.indent << "end\n";
+}
 
 void WriteInitialization::initializeQ3SqlDataBrowser(DomWidget *w)
 {

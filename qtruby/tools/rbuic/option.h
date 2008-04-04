@@ -64,6 +64,7 @@ struct Option
     unsigned int generateNamespace : 1;
     unsigned int autoConnection : 1;
     unsigned int dependencies : 1;
+    unsigned int extractImages : 1;
 #ifdef QT_UIC_RUBY_GENERATOR
     unsigned int execCode : 1;
     unsigned int useKDE : 1;
@@ -72,6 +73,7 @@ struct Option
 
     QString inputFile;
     QString outputFile;
+    QString qrcOutputFile;
     QString indent;
     QString prefix;
     QString postfix;
@@ -89,6 +91,7 @@ struct Option
           generateNamespace(1),
           autoConnection(1),
           dependencies(0),
+          extractImages(0),
           execCode(0),
           generator(RubyGenerator),
           prefix(QLatin1String("Ui_"))

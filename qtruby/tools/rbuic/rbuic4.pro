@@ -21,6 +21,7 @@ HEADERS += customwidgetsinfo.h \
            uic.h \
            utils.h \
            validator.h \
+           ruby/rbextractimages.h \
            ruby/rbwritedeclaration.h \
            ruby/rbwriteicondata.h \
            ruby/rbwriteicondeclaration.h \
@@ -34,6 +35,7 @@ SOURCES += customwidgetsinfo.cpp \
            ui4.cpp \
            uic.cpp \
            validator.cpp \
+           ruby/rbextractimages.cpp \
            ruby/rbwritedeclaration.cpp \
            ruby/rbwriteicondata.cpp \
            ruby/rbwriteicondeclaration.cpp \

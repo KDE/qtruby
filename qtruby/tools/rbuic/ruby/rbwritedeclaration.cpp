@@ -66,7 +66,8 @@ WriteDeclaration::WriteDeclaration(Uic *uic)  :
 void WriteDeclaration::acceptUI(DomUI *node)
 {
     QString qualifiedClassName = node->elementClass() + m_option.postfix;
-    QString className = qualifiedClassName;
+    // Ruby classnames must start with an upper case letter
+    QString className = qualifiedClassName.mid(0, 1).toUpper() + qualifiedClassName.mid(1);
 
     QString varName = m_driver->findOrInsertWidget(node->elementWidget());
     QString widgetClassName = node->elementWidget()->attributeClass();
@@ -77,7 +78,7 @@ void WriteDeclaration::acceptUI(DomUI *node)
 
     QStringList namespaceList = qualifiedClassName.split(QLatin1String("::"));
     if (namespaceList.count()) {
-        className = namespaceList.last();
+        className = namespaceList.last().mid(0, 1).toUpper() + namespaceList.last().mid(1);
         namespaceList.removeLast();
     }
 
@@ -86,8 +87,6 @@ void WriteDeclaration::acceptUI(DomUI *node)
         QString ns = it.next();
         if (ns.isEmpty())
             continue;
-
-//        m_output << "namespace " << ns << " {\n";
     }
 
     if (namespaceList.count())
@@ -112,10 +111,6 @@ void WriteDeclaration::acceptUI(DomUI *node)
     WriteInitialization(m_uic).acceptUI(node);
 
     if (node->elementImages()) {
-//        m_output << "\n"
-//            << "protected:\n"
-//            << m_option.indent << "enum IconID\n"
-//            << m_option.indent << "{\n";
         WriteIconDeclaration(m_uic).acceptUI(node);
 
         m_output << m_option.indent << m_option.indent << "unknown_ID = "
@@ -132,8 +127,6 @@ void WriteDeclaration::acceptUI(DomUI *node)
         QString ns = it.previous();
         if (ns.isEmpty())
             continue;
-
-//        m_output << "} // namespace " << ns << "\n";
     }
 
     if (namespaceList.count())
@@ -148,7 +141,7 @@ void WriteDeclaration::acceptUI(DomUI *node)
             if (ns.isEmpty())
                 continue;
 
-            m_output << "module " << ns << "\n";
+            m_output << "module " << ns.mid(0, 1).toUpper() << ns.mid(1) << "\n";
         }
 
         m_output << m_option.indent << "class "  << className << " < " << m_option.prefix << className << "\n";
