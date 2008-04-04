@@ -39,6 +39,14 @@ struct smokeruby_object {
     void *ptr;
 };
 
+static VALUE plugin_class = Qnil;
+
+static VALUE
+create_plugin_instance(VALUE av)
+{
+    return rb_funcall(plugin_class, rb_intern("new"), 2, Qnil, av);
+}
+
 class KRubyPluginFactory : public KPluginFactory
 {
     public:
@@ -80,13 +88,14 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
     const QByteArray encodedFilePath = QFile::encodeName(program.filePath());
     rb_load_protect(rb_str_new2(encodedFilePath), 0, &state);
     if (state != 0) {
+        rb_backtrace();
         kWarning() << "Failed to load" << encodedFilePath;
         return 0;
     }
 
     QByteArray className = program.baseName().toLatin1();
     className = className.left(1).toUpper() + className.right(className.length() - 1);
-    VALUE plugin_class = rb_const_get(rb_cObject, rb_intern(className));
+    plugin_class = rb_const_get(rb_cObject, rb_intern(className));
     if (plugin_class == Qnil) {
         kWarning() << "no" << className << "class found";
         return 0;
@@ -104,8 +113,9 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
         }
     }
 
-    VALUE plugin_value = rb_funcall(plugin_class, rb_intern("new"), 2, Qnil, av);
-    if (plugin_value == Qnil) {
+    VALUE plugin_value = rb_protect(create_plugin_instance, av, &state);
+    if (state != 0 || plugin_value == Qnil) {
+        rb_backtrace();
         kWarning() << "failed to create instance of plugin class";
         return 0;
     }

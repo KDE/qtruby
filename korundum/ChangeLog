@@ -1,3 +1,9 @@
+2008-04-04  Richard Dale  <rdale@foton.es>
+
+	* If anything goes wrong with the krubypluginfactory ruby plugin loading, then
+	  print a ruby backtrace before exiting.
+	* Use rb_protect() when creating the plugin instance for more robustness
+
 2008-03-31  Richard Dale  <rdale@foton.es>
 
 	* Fixed problem with the KDE::CmdLineOptions.add() method reported by Andreas
