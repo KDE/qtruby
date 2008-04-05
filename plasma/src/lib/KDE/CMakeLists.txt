@@ -1,0 +1,1 @@
+install( FILES plasma.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/KDE )

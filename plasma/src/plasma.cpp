@@ -74,26 +74,6 @@ new_kde(int argc, VALUE * argv, VALUE klass)
 	return instance;
 }
 
-KPluginFactory *
-rb_plasma_applet_factory(const char * factory)
-{
-printf("ENTER rb_plasma_applet_factory %s\n", factory);
-	VALUE factory_klass = rb_funcall(rb_cObject, rb_intern("const_get"), 1, rb_intern(factory));
-	if (factory_klass == Qnil) {
-printf("rb_plasma_applet_factory factory class nil\n");
-		return 0;
-	}
-
-	VALUE factory_value = rb_funcall(factory_klass, rb_intern("new"), 0);
-	if (factory_value == Qnil) {
-printf("rb_plasma_applet_factory factory value nil\n");
-		return 0;
-	}
-
-    smokeruby_object * o = value_obj_info(factory_value);
-	return (KPluginFactory *) o->ptr;
-}
-
 void
 Init_plasma_applet()
 {
@@ -115,7 +95,7 @@ Init_plasma_applet()
 	
     kde_internal_module = rb_define_module_under(kde_module, "Internal");
 
-//	rb_require("KDE/plasma.rb");
+	rb_require("KDE/plasma.rb");
 }
 
 }

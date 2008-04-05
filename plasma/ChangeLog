@@ -1,0 +1,5 @@
+2008-04-05  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Added some type() methods for Plasma classes so that they are called, rather
+	  than the Ruby Object#type method.
+	* Added a marshaller for the ugly Plasma::PackageStructure::Ptr type

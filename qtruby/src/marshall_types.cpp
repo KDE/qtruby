@@ -17,6 +17,17 @@
  ***************************************************************************/
 
 #include "marshall_types.h"
+#include <rubysig.h>
+
+static VALUE funcall2_protect_id = Qnil;
+static int funcall2_protect_argc = 0;
+static VALUE * funcall2_protect_args = 0;
+
+static VALUE
+funcall2_protect(VALUE obj)
+{
+	return rb_funcall2(obj, funcall2_protect_id, funcall2_protect_argc, funcall2_protect_args);
+}
 
 void
 smokeStackToQtStack(Smoke::Stack stack, void ** o, int items, MocArgument* args)
@@ -409,10 +420,25 @@ VirtualMethodCall::callMethod()
 	if (_called) return;
 	_called = true;
 
-	VALUE _retval = rb_funcall2(_obj, rb_intern(_smoke->methodNames[method().name]),
-		method().numArgs,	_sp );
+	funcall2_protect_id = rb_intern(_smoke->methodNames[method().name]);
+	funcall2_protect_argc = method().numArgs;
+	funcall2_protect_args = _sp;
+	int state = 0;
 
-	VirtualMethodReturnValue r(_smoke, _method, _stack, _retval);
+	// Sebastian Sauer suggested setting rb_thread_critical to fix the plasma
+	// problems with applets occasionally throwing exceptions. It doesn't seem
+	// to make any difference though, and so comment the code out for now.
+	//int critical_save = rb_thread_critical;
+	//rb_thread_critical = Qtrue;
+
+	VALUE _retval = rb_protect(funcall2_protect, _obj, &state);
+	if (state != 0) {
+		rb_backtrace();
+	} else {
+		VirtualMethodReturnValue r(_smoke, _method, _stack, _retval);
+	}
+
+	//rb_thread_critical = critical_save;
 }
 
 bool 
@@ -630,10 +656,26 @@ InvokeSlot::invokeSlot()
 {
 	if (_called) return;
 	_called = true;
-	VALUE result = rb_funcall2(_obj, _slotname, _items - 1, _sp);
-	if (_args[0].argType != xmoc_void) {
+
+	funcall2_protect_id = _slotname;
+	funcall2_protect_argc = _items - 1;
+	funcall2_protect_args = _sp;
+	int state = 0;
+
+	// Sebastian Sauer suggested setting rb_thread_critical to fix the plasma
+	// problems with applets occasionally throwing exceptions. It doesn't seem
+	// to make any difference though, and so comment the code out for now.
+	//int critical_save = rb_thread_critical;
+	//rb_thread_critical = Qtrue;
+
+	VALUE result = rb_protect(funcall2_protect, _obj, &state);
+	if (state != 0) {
+		rb_backtrace();
+	} else if (_args[0].argType != xmoc_void) {
 		SlotReturnValue r(_o, &result, _args);
 	}
+
+	//rb_thread_critical = critical_save;
 }
 
 void 

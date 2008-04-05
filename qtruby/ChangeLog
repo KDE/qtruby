@@ -1,3 +1,9 @@
+2008-04-05  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Added rb_protect() wrappers around virtual method callbacks and
+	  slot invocations. When there is a Ruby exception, the app no
+	  longer terminates which is useful for Plasma applets.
+
 2008-04-04  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Ensure the class and module names in rbuic4 generated code

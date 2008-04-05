@@ -26,7 +26,6 @@
 #include <kmainwindow.h>
 #include <kfile.h>
 #include <kfileitem.h>
-#include <kfileview.h>
 #include <kurl.h>
 #include <kaction.h>
 #include <kfiletreebranch.h>
@@ -47,6 +46,7 @@
 #include <kuser.h>
 #include <ktoolbar.h>
 #include <kio/copyjob.h>
+#include <plasma/packagestructure.h>
 
 extern "C" {
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
@@ -221,6 +221,80 @@ void marshall_KServicePtr(Marshall *m) {
 		    o->ptr = service;
 		    o->allocated = true;
 		    obj = set_obj_info("KDE::Service", o);
+		}
+
+	    *(m->var()) = obj;		
+	    
+		if(m->cleanup())
+		;
+		}
+		break;
+	default:
+		m->unsupported();
+		break;
+	}
+}
+
+void marshall_KSharedConfigPtr(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE: 
+		{
+		}
+		break;
+	case Marshall::ToVALUE: 
+		{
+		KSharedPtr<KSharedConfig> *ptr = new KSharedPtr<KSharedConfig>(*(KSharedPtr<KSharedConfig>*)m->item().s_voidp);
+	    if(ptr == 0) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+	    KConfig * config = ptr->data();
+	    
+		VALUE obj = getPointerObject(config);
+		if(obj == Qnil) {
+		    smokeruby_object  * o = ALLOC(smokeruby_object);
+		    o->smoke = m->smoke();
+		    o->classId = m->smoke()->idClass("KConfig");
+		    o->ptr = config;
+		    o->allocated = true;
+		    obj = set_obj_info("KDE::Config", o);
+		}
+
+	    *(m->var()) = obj;		
+	    
+		if(m->cleanup())
+		;
+		}
+		break;
+	default:
+		m->unsupported();
+		break;
+	}
+}
+
+void marshall_PackageStructurePtr(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE: 
+		{
+		}
+		break;
+	case Marshall::ToVALUE: 
+		{
+		KSharedPtr<Plasma::PackageStructure> *ptr = new KSharedPtr<Plasma::PackageStructure>(*(KSharedPtr<Plasma::PackageStructure>*)m->item().s_voidp);
+	    if(ptr == 0) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+	    Plasma::PackageStructure * package = ptr->data();
+	    
+		VALUE obj = getPointerObject(package);
+		if(obj == Qnil) {
+		    smokeruby_object  * o = ALLOC(smokeruby_object);
+		    o->smoke = m->smoke();
+		    o->classId = m->smoke()->idClass("Plasma::PackageStructure");
+		    o->ptr = package;
+		    o->allocated = true;
+		    obj = set_obj_info("Plasma::PackageStructure", o);
 		}
 
 	    *(m->var()) = obj;		
@@ -681,6 +755,9 @@ DEF_MAP_MARSHALLER( QMapKEntryKeyKEntry, KEntryKey, KEntry )
 */
 
 TypeHandler KDE_handlers[] = {
+    { "Plasma::PackageStructure::Ptr", marshall_PackageStructurePtr },
+    { "KSharedConfig::Ptr", marshall_KSharedConfigPtr },
+    { "KSharedConfigPtr", marshall_KSharedConfigPtr },
     { "KService::Ptr", marshall_KServicePtr },
     { "KService::List", marshall_KServiceList },
 
