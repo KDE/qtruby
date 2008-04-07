@@ -65,10 +65,7 @@ module Soprano
       value = ""
       language = ""
       dataTypeUri = ""
-      arg >> type 
-      arg >> value 
-      arg >> language 
-      arg >> dataTypeUri
+      arg >> type >> value >> language >> dataTypeUri
 
       case type.to_i
       when Soprano::Node::EmptyNode:

@@ -1,3 +1,8 @@
+2008-04-07  Richard Dale  <rdale@foton.es>
+
+	* Added some range=(Range) methods as synonyms for setRange(Integer, Integer),
+	  for KDE::DoubleNumInput, KDE::IntNumInput and KDE::IntValidator
+
 2008-04-04  Richard Dale  <rdale@foton.es>
 
 	* If anything goes wrong with the krubypluginfactory ruby plugin loading, then

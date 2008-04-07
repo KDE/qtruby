@@ -205,6 +205,36 @@ module KDE
 		end
 	end
 
+	class DoubleNumInput
+		def range=(arg)
+			if arg.kind_of? Range
+				return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
+			else
+				return super(arg)
+			end
+		end
+	end
+
+	class IntNumInput
+		def range=(arg)
+			if arg.kind_of? Range
+				return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
+			else
+				return super(arg)
+			end
+		end
+	end
+
+	class IntValdator
+		def range=(arg)
+			if arg.kind_of? Range
+				return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
+			else
+				return super(arg)
+			end
+		end
+	end
+
 	class Service
 		def inspect
 			str = super
