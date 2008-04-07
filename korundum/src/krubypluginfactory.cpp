@@ -78,6 +78,7 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
 
     QFileInfo program(path);
 
+    RUBY_INIT_STACK
     ruby_init();
     ruby_script(QFile::encodeName(program.fileName()));
     ruby_init_loadpath();
