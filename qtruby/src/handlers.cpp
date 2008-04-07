@@ -183,6 +183,15 @@ smokeruby_mark(void * p)
 	if (do_debug & qtdb_gc) qWarning("Checking for mark (%s*)%p", className, o->ptr);
 
     if (o->ptr && o->allocated) {
+		if (isDerivedFromByName(o->smoke, className, "QObject")) {
+			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+			// Only mark the QObject tree if the current item doesn't have a parent.
+			// This avoids marking parts of a tree more than once.
+			if (qobject->parent() == 0) {
+				mark_qobject_children(qobject);
+			}
+		}
+
 		if (isDerivedFromByName(o->smoke, className, "QListWidget")) {
 			QListWidget * listwidget = (QListWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QListWidget"));
 			
@@ -287,17 +296,6 @@ smokeruby_mark(void * p)
 			void * ptr = qmodelindex->internalPointer();
 			if (ptr != 0 && ptr != (void *) Qnil) {
 				rb_gc_mark((VALUE) ptr);
-			}
-
-			return;
-		}
-
-		if (isDerivedFromByName(o->smoke, className, "QObject")) {
-			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
-			// Only mark the QObject tree if the current item doesn't have a parent.
-			// This avoids marking parts of a tree more than once.
-			if (qobject->parent() == 0) {
-				mark_qobject_children(qobject);
 			}
 
 			return;

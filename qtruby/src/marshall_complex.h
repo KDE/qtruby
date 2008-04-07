@@ -41,7 +41,10 @@ void marshall_from_ruby<int *>(Marshall *m)
 	VALUE rv = *(m->var());
 	int *i = new int;
 	
-	if (TYPE(rv) == T_OBJECT) {
+	if (rv == Qnil) {
+		m->item().s_voidp = 0;
+		return;
+	} else if (TYPE(rv) == T_OBJECT) {
 		// A Qt::Integer has been passed as an integer value
 		VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, rv);
 		*i = NUM2INT(temp);

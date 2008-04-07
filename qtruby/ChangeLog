@@ -1,3 +1,19 @@
+2008-04-06  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Change the way the 'MocArgument*' structs are created, instead
+	  building them up in a Ruby Array, use a QList<MocArgument*>.
+	  Move all the code to C/C++ and don't call Ruby anymore.
+	* Add QTRUBY_INIT_STACK and QTRUBY_RESTORE_STACK macros based on
+	  the SWIG_INIT_STACK and SWIG_RESTORE_STACK macros. If QtRuby is
+	  compiled with a '-DRUBY_EMBEDDED' option, then before each virtual
+	  method callback and slot invocation call, which isn't nested
+	  within another, call RUBY_INIT_STACK.
+	* This fixes a problem with Ruby Plasmoids where the Ruby runtime was
+	  giving sys stackerror exceptions because the stack underflowed
+	  relative to where it was when the krubypluginfactory was loaded.
+	* Add more checking for Qnil in the marshallers for primitive types
+	  to make the runtime more robust. 
+
 2008-04-05  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Added rb_protect() wrappers around virtual method callbacks and

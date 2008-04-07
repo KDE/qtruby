@@ -30,8 +30,8 @@
 
 Marshall::HandlerFn getMarshallFn(const SmokeType &type);
 
-extern void smokeStackToQtStack(Smoke::Stack stack, void ** o, int items, MocArgument* args);
-extern void smokeStackFromQtStack(Smoke::Stack stack, void ** _o, int items, MocArgument* args);
+extern void smokeStackToQtStack(Smoke::Stack stack, void ** o, int start, int end, QList<MocArgument*> args);
+extern void smokeStackFromQtStack(Smoke::Stack stack, void ** _o, int start, int end, QList<MocArgument*> args);
 
 class MethodReturnValueBase : public Marshall 
 {
@@ -163,7 +163,7 @@ private:
 
 class SigSlotBase : public Marshall {
 public:
-	SigSlotBase(VALUE args);
+	SigSlotBase(QList<MocArgument*> args);
 	~SigSlotBase();
 	const MocArgument &arg();
 	SmokeType type();
@@ -176,7 +176,7 @@ public:
 	void next(); 
 
 protected:
-	MocArgument *_args;
+	QList<MocArgument*> _args;
 	int _cur;
 	bool _called;
 	Smoke::Stack _stack;
@@ -190,7 +190,7 @@ class EmitSignal : public SigSlotBase {
     int _id;
 	VALUE * _result;
  public:
-    EmitSignal(QObject *obj, int id, int items, VALUE args, VALUE * sp, VALUE * result);
+    EmitSignal(QObject *obj, int id, int items, QList<MocArgument*> args, VALUE * sp, VALUE * result);
     Marshall::Action action();
     Smoke::StackItem &item();
 	const char *mytype();
@@ -204,7 +204,7 @@ class InvokeNativeSlot : public SigSlotBase {
     int _id;
 	VALUE * _result;
  public:
-    InvokeNativeSlot(QObject *obj, int id, int items, VALUE args, VALUE * sp, VALUE * result);
+    InvokeNativeSlot(QObject *obj, int id, int items, QList<MocArgument*> args, VALUE * sp, VALUE * result);
     Marshall::Action action();
     Smoke::StackItem &item();
 	const char *mytype();
@@ -218,7 +218,7 @@ class InvokeSlot : public SigSlotBase {
     ID _slotname;
     void **_o;
 public:
-    InvokeSlot(VALUE obj, ID slotname, VALUE args, void ** o);
+    InvokeSlot(VALUE obj, ID slotname, QList<MocArgument*> args, void ** o);
 	~InvokeSlot();
     Marshall::Action action();
 	const char *mytype();

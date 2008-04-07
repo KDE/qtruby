@@ -79,7 +79,7 @@ extern bool qUnregisterResourceData(int, const unsigned char *, const unsigned c
 #include "marshall_types.h"
 // #define DEBUG
 
-#define QTRUBY_VERSION "1.4.9"
+#define QTRUBY_VERSION "1.4.10"
 
 // Don't use kdemacros.h/KDE_EXPORT here as it needs to be free of KDE dependencies
 extern Q_DECL_EXPORT Smoke *qt_Smoke;
@@ -364,22 +364,22 @@ public:
 	reply type
 */
 class SignalReturnValue : public Marshall {
-    MocArgument *	_replyType;
+    QList<MocArgument*>	_replyType;
     Smoke::Stack _stack;
 	VALUE * _result;
 public:
-	SignalReturnValue(void ** o, VALUE * result, MocArgument * replyType) 
+	SignalReturnValue(void ** o, VALUE * result, QList<MocArgument*> replyType) 
 	{
 		_result = result;
 		_replyType = replyType;
 		_stack = new Smoke::StackItem[1];
-		smokeStackFromQtStack(_stack, o, 1, _replyType);
+		smokeStackFromQtStack(_stack, o, 0, 1, _replyType);
 		Marshall::HandlerFn fn = getMarshallFn(type());
 		(*fn)(this);
     }
 
     SmokeType type() { 
-		return _replyType[0].st; 
+		return _replyType[0]->st; 
 	}
     Marshall::Action action() { return Marshall::ToVALUE; }
     Smoke::StackItem &item() { return _stack[0]; }
@@ -406,7 +406,7 @@ public:
 	marshall_types.cpp. However, for unknown reasons they don't link with certain
 	versions of gcc. So they were moved here in to work round that bug.
 */
-EmitSignal::EmitSignal(QObject *obj, int id, int items, VALUE args, VALUE *sp, VALUE * result) : SigSlotBase(args),
+EmitSignal::EmitSignal(QObject *obj, int id, int items, QList<MocArgument*> args, VALUE *sp, VALUE * result) : SigSlotBase(args),
     _obj(obj), _id(id)
 { 
 	_sp = sp;
@@ -437,10 +437,10 @@ EmitSignal::emitSignal()
 	if (_called) return;
 	_called = true;
 	void ** o = new void*[_items];
-	smokeStackToQtStack(_stack, o + 1, _items - 1, _args + 1);
+	smokeStackToQtStack(_stack, o + 1, 1, _items, _args);
 	_obj->metaObject()->activate(_obj, _id, o);
 
-	if (_args[0].argType != xmoc_void) {
+	if (_args[0]->argType != xmoc_void) {
 		SignalReturnValue r(o, _result, _args);
 	}
 	delete[] o;
@@ -458,7 +458,7 @@ EmitSignal::cleanup()
 	return true; 
 }
 
-InvokeNativeSlot::InvokeNativeSlot(QObject *obj, int id, int items, VALUE args, VALUE *sp, VALUE * result) : SigSlotBase(args),
+InvokeNativeSlot::InvokeNativeSlot(QObject *obj, int id, int items, QList<MocArgument*> args, VALUE *sp, VALUE * result) : SigSlotBase(args),
     _obj(obj), _id(id)
 { 
 	_sp = sp;
@@ -489,12 +489,12 @@ InvokeNativeSlot::invokeSlot()
 	if (_called) return;
 	_called = true;
 	void ** o = new void*[_items];
-	smokeStackToQtStack(_stack, o + 1, _items - 1, _args + 1);
+	smokeStackToQtStack(_stack, o + 1, 1, _items, _args);
 	void * ptr;
 	o[0] = &ptr;
 	_obj->qt_metacall(QMetaObject::InvokeMetaMethod, _id, o);
 	
-	if (_args[0].argType != xmoc_void) {
+	if (_args[0]->argType != xmoc_void) {
 		SignalReturnValue r(o, _result, _args);
 	}
 	delete[] o;
@@ -553,6 +553,7 @@ qwarning(VALUE klass, VALUE msg)
 
 static VALUE qobject_metaobject(VALUE self);
 static VALUE kde_package_to_class(const char * package, VALUE base_class);
+static QList<MocArgument*> get_moc_arguments(const char * typeName, QList<QByteArray> methodTypes);
 
 VALUE
 set_obj_info(const char * className, smokeruby_object * o)
@@ -1914,11 +1915,8 @@ static QByteArray * name = 0;
 									// Don't check that the types of the ruby args match the c++ ones for now,
 									// only that the name and arg count is the same.
 									if (*name == methodName && meta->method(id).parameterTypes().count() == (argc - 1)) {
-										VALUE args = rb_funcall(	qt_internal_module, 
-																	rb_intern("getMocArguments"), 
-																	2, 
-																	rb_str_new2(meta->method(id).typeName()), 
-																	rb_str_new2(meta->method(id).signature()) );									
+										QList<MocArgument*> args = get_moc_arguments(	meta->method(id).typeName(), 
+																						meta->method(id).parameterTypes() );
 										VALUE result = Qnil;
 										InvokeNativeSlot slot(qobject, id, argc - 1, args, argv + 1, &result);
 										slot.next();
@@ -2196,11 +2194,7 @@ static QRegExp * rx = 0;
 		return Qnil;
 	}
 
-	VALUE args = rb_funcall(	qt_internal_module, 
-								rb_intern("getMocArguments"), 
-								2, 
-								rb_str_new2(m->method(i).typeName()),
-								rb_str_new2(m->method(i).signature()) );
+	QList<MocArgument*> args = get_moc_arguments(m->method(i).typeName(), m->method(i).parameterTypes());
 
 	VALUE result = Qnil;
 	// Okay, we have the signal info. *whew*
@@ -2228,6 +2222,7 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 	smokeruby_object *o = value_obj_info(self);
 	Smoke::Index nameId = o->smoke->idMethodName("qt_metacall$$?");
 	Smoke::Index meth = o->smoke->findMethod(o->classId, nameId);
+
 	if (meth > 0) {
 		Smoke::Method &m = o->smoke->methods[o->smoke->methodMaps[meth].method];
 		Smoke::ClassFn fn = o->smoke->classes[m.classId].classFn;
@@ -2237,10 +2232,12 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 		i[3].s_voidp = _o;
 		(*fn)(m.method, o->ptr, i);
 		int ret = i[0].s_int;
+
 		if (ret < 0) {
 			return INT2NUM(ret);
 		}
 	} else {
+
 		// Should never happen..
 		rb_raise(rb_eRuntimeError, "Cannot find %s::qt_metacall() method\n", 
 			o->smoke->classes[o->classId].className );
@@ -2250,7 +2247,7 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 		return argv[1];
 	}
 
-	QObject *qobj = (QObject*) o->ptr;
+	QObject * qobj = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
 	// get obj metaobject with a virtual call
 	const QMetaObject *metaobject = qobj->metaObject();
 
@@ -2270,11 +2267,7 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 			return INT2NUM(id - count);
 		}
 
-    	VALUE mocArgs = rb_funcall(	qt_internal_module, 
-									rb_intern("getMocArguments"), 
-									2, 
-									rb_str_new2(method.typeName()),
-									rb_str_new2(method.signature()) );
+		QList<MocArgument*> mocArgs = get_moc_arguments(method.typeName(), method.parameterTypes());
 
 		QString name(method.signature());
 static QRegExp * rx = 0;
@@ -2487,78 +2480,72 @@ find_qobject_child(int argc, VALUE *argv, VALUE self)
 	return rb_qFindChild_helper(self, name, *mo);
 }
 
-static void
-mocargs_free(void * ptr)
+static QList<MocArgument*>
+get_moc_arguments(const char * typeName, QList<QByteArray> methodTypes)
 {
-    MocArgument * mocArgs = (MocArgument *) ptr;
-	delete[] mocArgs;
-	return;
-}
-
-static VALUE
-allocateMocArguments(VALUE /*self*/, VALUE count_value)
-{
-    int count = NUM2INT(count_value);
-    MocArgument * ptr = new MocArgument[count + 1];
-    return Data_Wrap_Struct(rb_cObject, 0, mocargs_free, ptr);
-}
-
-static VALUE
-setMocType(VALUE /*self*/, VALUE ptr, VALUE idx_value, VALUE name_value, VALUE static_type_value)
-{
-	int idx = NUM2INT(idx_value);
-	QByteArray name(StringValuePtr(name_value));
-	char *static_type = StringValuePtr(static_type_value);
-	MocArgument *arg = 0;
-	Data_Get_Struct(ptr, MocArgument, arg);
-	Smoke::Index typeId = 0;
-
-	if (name.isEmpty()) {
-		arg[idx].argType = xmoc_void;
-		return Qtrue;
+static QRegExp * rx = 0;
+	if (rx == 0) {
+		rx = new QRegExp("^(bool|int|uint|long|ulong|double|char\\*|QString)&?$");
 	}
 
-	if (qstrcmp(static_type, "ptr") == 0) {
-		arg[idx].argType = xmoc_ptr;
-		typeId = qt_Smoke->idType((const char *) name);
-		if (typeId == 0 && !name.contains('*')) {
-			name += "&";
-			typeId = qt_Smoke->idType((const char *) name);
+	methodTypes.prepend(QByteArray(typeName));
+	QList<MocArgument*> result;
+
+	foreach (QByteArray name, methodTypes) {
+		MocArgument *arg = new MocArgument;
+		Smoke::Index typeId = 0;
+
+		if (name.isEmpty()) {
+			arg->argType = xmoc_void;
+			result.append(arg);
+		} else {
+			name.replace("const ", "");
+			QString staticType = (rx->indexIn(name) != -1 ? rx->cap(1) : "ptr");
+			if (staticType == "ptr") {
+				arg->argType = xmoc_void;
+				typeId = qt_Smoke->idType(name.constData());
+				if (typeId == 0 && !name.contains('*')) {
+					name += "&";
+					typeId = qt_Smoke->idType(name.constData());
+				}
+			} else if (staticType == "bool") {
+				arg->argType = xmoc_bool;
+				typeId = qt_Smoke->idType(name.constData());
+			} else if (staticType == "int") {
+				arg->argType = xmoc_int;
+				typeId = qt_Smoke->idType(name.constData());
+			} else if (staticType == "uint") {
+				arg->argType = xmoc_uint;
+				typeId = qt_Smoke->idType(name.constData());
+			} else if (staticType == "long") {
+				arg->argType = xmoc_long;
+				typeId = qt_Smoke->idType(name.constData());
+			} else if (staticType == "ulong") {
+				arg->argType = xmoc_ulong;
+				typeId = qt_Smoke->idType(name.constData());
+			} else if (staticType == "double") {
+				arg->argType = xmoc_double;
+				typeId = qt_Smoke->idType(name.constData());
+			} else if (staticType == "char*") {
+				arg->argType = xmoc_charstar;
+				typeId = qt_Smoke->idType(name.constData());
+			} else if (staticType == "QString") {
+				arg->argType = xmoc_QString;
+				name += "*";
+				typeId = qt_Smoke->idType(name.constData());
+			}
+
+			if (typeId == 0) {
+				rb_raise(rb_eArgError, "Cannot handle '%s' as slot argument\n", name.constData());
+				return result;
+			}
+
+			arg->st.set(qt_Smoke, typeId);
+			result.append(arg);
 		}
-	} else if (qstrcmp(static_type, "bool") == 0) {
-		arg[idx].argType = xmoc_bool;
-		typeId = qt_Smoke->idType((const char *) name);
-	} else if (qstrcmp(static_type, "int") == 0) {
-		arg[idx].argType = xmoc_int;
-		typeId = qt_Smoke->idType((const char *) name);
-	} else if (qstrcmp(static_type, "uint") == 0) {
-		arg[idx].argType = xmoc_uint;
-		typeId = qt_Smoke->idType((const char *) name);
-	} else if (qstrcmp(static_type, "long") == 0) {
-		arg[idx].argType = xmoc_long;
-		typeId = qt_Smoke->idType((const char *) name);
-	} else if (qstrcmp(static_type, "ulong") == 0) {
-		arg[idx].argType = xmoc_ulong;
-		typeId = qt_Smoke->idType((const char *) name);
-	} else if (qstrcmp(static_type, "double") == 0) {
-		arg[idx].argType = xmoc_double;
-		typeId = qt_Smoke->idType((const char *) name);
-	} else if (qstrcmp(static_type, "char*") == 0) {
-		arg[idx].argType = xmoc_charstar;
-		typeId = qt_Smoke->idType((const char *) name);
-	} else if (qstrcmp(static_type, "QString") == 0) {
-		arg[idx].argType = xmoc_QString;
-		name += "*";
-		typeId = qt_Smoke->idType((const char *) name);
 	}
 
-	if (typeId == 0) {
-		rb_raise(rb_eArgError, "Cannot handle '%s' as slot argument\n", StringValuePtr(name_value));
-		return Qfalse;
-	}
-
-	arg[idx].st.set(qt_Smoke, typeId);
-	return Qtrue;
+	return result;
 }
 
 static VALUE
@@ -3530,8 +3517,6 @@ Init_qtruby4()
     rb_define_module_function(qt_internal_module, "getMethStat", (VALUE (*) (...)) getMethStat, 0);
     rb_define_module_function(qt_internal_module, "getClassStat", (VALUE (*) (...)) getClassStat, 0);
     rb_define_module_function(qt_internal_module, "getIsa", (VALUE (*) (...)) getIsa, 1);
-    rb_define_module_function(qt_internal_module, "allocateMocArguments", (VALUE (*) (...)) allocateMocArguments, 1);
-    rb_define_module_function(qt_internal_module, "setMocType", (VALUE (*) (...)) setMocType, 4);
     rb_define_module_function(qt_internal_module, "setDebug", (VALUE (*) (...)) setDebug, 1);
     rb_define_module_function(qt_internal_module, "debug", (VALUE (*) (...)) debugging, 0);
     rb_define_module_function(qt_internal_module, "getTypeNameOfArg", (VALUE (*) (...)) getTypeNameOfArg, 2);

@@ -40,7 +40,11 @@ VALUE primitive_to_ruby<signed char>(signed char sv)
 template <>
 unsigned char ruby_to_primitive<unsigned char>(VALUE v)
 {
-	return NUM2CHR(v);
+	if (v == Qnil) {
+		return 0;
+	} else {
+		return NUM2CHR(v);
+	}
 }
 
 template <>
@@ -52,7 +56,11 @@ VALUE primitive_to_ruby<unsigned char>(unsigned char sv)
 template <>
 short ruby_to_primitive<short>(VALUE v)
 {
-	return (short)NUM2INT(v);
+	if (v == Qnil) {
+		return 0;
+	} else {
+		return (short)NUM2INT(v);
+	}
 }
 
 template <>
@@ -64,7 +72,11 @@ VALUE primitive_to_ruby<short>(short sv)
 template <>
 unsigned short ruby_to_primitive<unsigned short>(VALUE v)
 {
-	return (unsigned short)NUM2UINT(v);
+	if (v == Qnil) {
+		return 0;
+	} else {
+		return (unsigned short)NUM2UINT(v);
+	}
 }
 
 template <>
@@ -76,7 +88,9 @@ VALUE primitive_to_ruby<unsigned short>(unsigned short sv)
 template <>
 int ruby_to_primitive<int>(VALUE v)
 {
-	if (TYPE(v) == T_OBJECT) {
+	if (v == Qnil) {
+		return 0;
+	} else if (TYPE(v) == T_OBJECT) {
 		return (int)NUM2INT(rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, v));
 	} else {
 		return (int)NUM2INT(v);
@@ -92,7 +106,9 @@ VALUE primitive_to_ruby<int>(int sv)
 template <>
 unsigned int ruby_to_primitive<unsigned int>(VALUE v)
 {
-	if (TYPE(v) == T_OBJECT) {
+	if (v == Qnil) {
+		return 0;
+	} else if (TYPE(v) == T_OBJECT) {
 		return (unsigned int) NUM2UINT(rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, v));
 	} else {
 		return (unsigned int) NUM2UINT(v);
@@ -108,7 +124,9 @@ VALUE primitive_to_ruby<unsigned int>(unsigned int sv)
 template <>
 long ruby_to_primitive<long>(VALUE v)
 {
-	if (TYPE(v) == T_OBJECT) {
+	if (v == Qnil) {
+		return 0;
+	} else if (TYPE(v) == T_OBJECT) {
 		return (long) NUM2LONG(rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, v));
 	} else {
 		return (long) NUM2LONG(v);
@@ -124,7 +142,9 @@ VALUE primitive_to_ruby<long>(long sv)
 template <>
 unsigned long ruby_to_primitive<unsigned long>(VALUE v)
 {
-	if (TYPE(v) == T_OBJECT) {
+	if (v == Qnil) {
+		return 0;
+	} else if (TYPE(v) == T_OBJECT) {
 		return (unsigned long) NUM2ULONG(rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, v));
 	} else {
 		return (unsigned long) NUM2ULONG(v);
@@ -140,7 +160,11 @@ VALUE primitive_to_ruby<unsigned long>(unsigned long sv)
 template <>
 long long ruby_to_primitive<long long>(VALUE v)
 {
-	return NUM2LL(v);
+	if (v == Qnil) {
+		return 0;
+	} else {
+		return NUM2LL(v);
+	}
 }
 
 template <>
@@ -164,7 +188,11 @@ VALUE primitive_to_ruby<unsigned long long>(unsigned long long sv)
 template <>
 float ruby_to_primitive<float>(VALUE v)
 {
-	return (float) NUM2DBL(v);
+	if (v == Qnil) {
+		return 0.0;
+	} else {
+		return (float) NUM2DBL(v);
+	}
 }
 
 template <>
@@ -176,7 +204,11 @@ VALUE primitive_to_ruby<float>(float sv)
 template <>
 double ruby_to_primitive<double>(VALUE v)
 {
-	return (double) NUM2DBL(v);
+	if (v == Qnil) {
+		return 0.0;
+	} else {
+		return (double) NUM2DBL(v);
+	}
 }
 
 template <>

@@ -2091,10 +2091,9 @@ module Qt
 	# method resolution when two methods differ only by an enum type.
 	class Enum
 		attr_accessor :type, :value
-		def initialize(n, type)
-			super() 
+		def initialize(n, enum_type)
 			@value = n 
-			@type = type
+			@type = enum_type
 		end
 		
 		def +(n) 
@@ -2340,7 +2339,6 @@ module Qt
 		end
 
 		def Internal.find_class(classname)
-			# puts @@classes.keys.sort.join "\n"
 			@@classes[classname]
 		end
 		
@@ -2505,8 +2503,8 @@ module Qt
 			return num.value = val
 		end
 		
-		def Internal.create_qenum(num, type)
-			return Qt::Enum.new(num, type)
+		def Internal.create_qenum(num, enum_type)
+			return Qt::Enum.new(num, enum_type)
 		end
 		
 		def Internal.get_qenum_type(e)
@@ -2531,22 +2529,6 @@ module Qt
 				res << c
 				getAllParents(c, res)
 			end
-		end
-	
-		def Internal.getMocArguments(reply_type, member)
-			argStr = member.sub(/.*\(/, '').sub(/\)$/, '')
-			args = argStr.scan(/([^,]*<[^>]+>)|([^,]+)/)
-			args.unshift reply_type
-			mocargs = allocateMocArguments(args.length)
-			args.each_with_index do |arg, i|
-				arg = arg.to_s
-				a = arg.sub(/^const\s+/, '')
-				a = (a =~ /^(bool|int|uint|long|ulong|double|char\*|QString)&?$/) ? $1 : 'ptr'
-				valid = setMocType(mocargs, i, arg, a)
-			end
-			result = []
-			result << args.length << mocargs
-			result
 		end
 
 		#

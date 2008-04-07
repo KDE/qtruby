@@ -54,8 +54,10 @@ void marshall_from_ruby<SmokeEnumWrapper>(Marshall *m)
 {
 	VALUE v = *(m->var());
 
-	if (TYPE(v) == T_OBJECT) {
-		// A Qt::Enum is a subclass of Qt::Integer, so 'get_qinteger()' can be called ok
+	if (v == Qnil) {
+		m->item().s_enum = 0;
+	} else if (TYPE(v) == T_OBJECT) {
+		// Both Qt::Enum and Qt::Integer have a value() method, so 'get_qinteger()' can be called ok
 		VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, v);
 		m->item().s_enum = (long) NUM2LONG(temp);
 	} else {
@@ -68,8 +70,8 @@ template <>
 void marshall_to_ruby<SmokeEnumWrapper>(Marshall *m)
 {
 	long val = m->item().s_enum;
-	*(m->var()) = rb_funcall(qt_internal_module, rb_intern("create_qenum"), 
-		2, INT2NUM(val), rb_str_new2( m->type().name()) );
+    *(m->var()) = rb_funcall(qt_internal_module, rb_intern("create_qenum"),
+                             2, LONG2NUM(val), rb_str_new2( m->type().name()) );
 }
 
 template <>
