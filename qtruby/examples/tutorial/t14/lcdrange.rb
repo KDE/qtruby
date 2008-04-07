@@ -13,7 +13,7 @@ class LCDRange < Qt::Widget
     def init
         lcd = Qt::LCDNumber.new(2)
         @slider = Qt::Slider.new(Qt::Horizontal) do |s|
-            s.setRange(0, 99)
+            s.range = 0..99
             s.value = 0
         end
         
@@ -42,6 +42,10 @@ class LCDRange < Qt::Widget
         @slider.value = value
     end
     
+    def range=( r )
+        setRange(r.begin, r.end)
+    end
+
     def setRange( minVal, maxVal )
 		if minVal < 0 || maxVal > 99 || minVal > maxVal
       		qWarning( "LCDRange::setRange(#{minVal},#{maxVal})\n" +

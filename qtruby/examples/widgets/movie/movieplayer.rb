@@ -135,7 +135,7 @@ class MoviePlayer < Qt::Widget
         @speedLabel = Qt::Label.new(tr("Speed:"))
     
         @speedSpinBox = Qt::SpinBox.new do |s|
-            s.setRange(1, 9999)
+            s.range = 1..9999
             s.value = 100
             s.suffix = tr("%")
         end

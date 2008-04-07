@@ -57,7 +57,7 @@ class Window < Qt::Widget
 	    @shapeLabel.buddy = @shapeComboBox
 	
 	    @penWidthSpinBox = Qt::SpinBox.new
-	    @penWidthSpinBox.setRange(0, 20)
+	    @penWidthSpinBox.range = 0..20
 	
 	    @penWidthLabel = Qt::Label.new(tr("Pen &Width:"))
 	    @penWidthLabel.buddy = @penWidthSpinBox

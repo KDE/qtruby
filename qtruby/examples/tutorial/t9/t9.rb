@@ -9,12 +9,12 @@ class MyWidget < Qt::Widget
     def initialize(parent = nil)
         super
         quit = Qt::PushButton.new('Quit')
-        quit.setFont(Qt::Font.new('Times', 18, Qt::Font::Bold))
+        quit.font = Qt::Font.new('Times', 18, Qt::Font::Bold)
     
         connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
     
         angle = LCDRange.new( self )
-        angle.setRange( 5, 70 )
+        angle.range = 5..70
 
         cannonField = CannonField.new( self )
 

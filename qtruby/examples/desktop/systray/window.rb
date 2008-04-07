@@ -156,11 +156,12 @@ class Window < Qt::Widget
     
         @durationLabel = Qt::Label.new(tr("Duration:"))
     
-        @durationSpinBox = Qt::SpinBox.new
-        @durationSpinBox.setRange(5, 60)
-        @durationSpinBox.suffix = " s"
-        @durationSpinBox.value = 15
-    
+        @durationSpinBox = Qt::SpinBox.new do |s|
+            s.range = 5..60
+            s.suffix = " s"
+            s.value = 15
+        end
+
         @durationWarningLabel = Qt::Label.new(tr("(some systems might ignore self " \
                                              "hint)"))
         @durationWarningLabel.indent = 10

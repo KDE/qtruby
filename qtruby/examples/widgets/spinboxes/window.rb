@@ -52,7 +52,7 @@ class Window < Qt::Widget
         integerLabel = Qt::Label.new(tr("Enter a value between %d and %d:" % [-20, 20]))
 
         integerSpinBox = Qt::SpinBox.new do |i|
-            i.setRange(-20, 20)
+            i.range = -20..20
             i.singleStep = 1
             i.value = 0
         end
@@ -60,7 +60,7 @@ class Window < Qt::Widget
         zoomLabel = Qt::Label.new(tr("Enter a zoom value between %d and %d:" % [0, 1000]))
 
         zoomSpinBox = Qt::SpinBox.new do |z|
-            z.setRange(0, 1000)
+            z.range = 0..1000
             z.singleStep = 10
             z.suffix = "%"
             z.specialValueText = tr("Automatic")
@@ -70,7 +70,7 @@ class Window < Qt::Widget
         priceLabel = Qt::Label.new(tr("Enter a price between %d and %d:" % [0, 999]))
 
         @priceSpinBox = Qt::SpinBox.new do |s|
-            s.setRange(0, 999)
+            s.range = 0..999
             s.singleStep = 1
             s.prefix = "$"
             s.value = 99
@@ -157,14 +157,14 @@ class Window < Qt::Widget
         precisionLabel = Qt::Label.new(tr("Number of decimal places to show:"))
 
         precisionSpinBox = Qt::SpinBox.new do |s|
-            s.setRange(0, 14)
+            s.range = 0..14
             s.value = 2
         end
     
         doubleLabel = Qt::Label.new(tr("Enter a value between %d and %d:" % [-20, 20]))
 
         @doubleSpinBox = Qt::DoubleSpinBox.new do |s|
-            s.setRange(-20.0, 20.0)
+            s.range = -20.0..20.0
             s.singleStep = 1.0
             s.value = 0.0
         end
@@ -172,7 +172,7 @@ class Window < Qt::Widget
         scaleLabel = Qt::Label.new(tr("Enter a scale factor between %2f and %2f:" % [0.0, 1000.0]))
 
         @scaleSpinBox = Qt::DoubleSpinBox.new do |s|
-            s.setRange(0.0, 1000.0)
+            s.range = 0.0..1000.0
             s.singleStep = 10.0
             s.suffix = "%"
             s.specialValueText = tr("No scaling")
@@ -182,7 +182,7 @@ class Window < Qt::Widget
         priceLabel = Qt::Label.new(tr("Enter a price between %2f and %2f:" % [0.0, 1000.0]))
 
         @priceSpinBox = Qt::DoubleSpinBox.new do |s|
-            s.setRange(0.0, 1000.0)
+            s.range = 0.0..1000.0
             s.singleStep = 1.0
             s.prefix = "$"
             s.value = 99.99

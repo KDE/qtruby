@@ -14,7 +14,7 @@ class MyWidget < Qt::Widget
         connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
     
         angle = LCDRange.new( self )
-        angle.setRange( 5, 70 )
+        angle.range = 5..70
 
         cannonField = CannonField.new( self )
 

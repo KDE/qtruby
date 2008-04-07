@@ -55,7 +55,7 @@ class MainWindow < Qt::MainWindow
         fontSizeLabel = Qt::Label.new(tr("Font size:"))
 
         fontSizeSpinBox = Qt::SpinBox.new do |f|
-        	f.setRange(1, 64)
+        	f.range = 1..64
         	f.value = 10
 		end
     

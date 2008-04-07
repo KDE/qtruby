@@ -15,8 +15,8 @@ def initialize()
     lcd = Qt::LCDNumber.new(2)
 
     slider = Qt::Slider.new(Qt::Horizontal)
-    slider.setRange(0, 99)
-    slider.setValue(0)
+    slider.range = 0..99
+    slider.value = 0
 
     connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
     connect(slider, SIGNAL('valueChanged(int)'),

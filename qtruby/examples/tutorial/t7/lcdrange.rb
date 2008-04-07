@@ -10,8 +10,8 @@ class LCDRange < Qt::Widget
         lcd = Qt::LCDNumber.new(2)
 
         @slider = Qt::Slider.new(Qt::Horizontal)
-        @slider.setRange(0, 99)
-        @slider.setValue(0)
+        @slider.range = 0..99
+        @slider.value = 0
 
         connect(@slider, SIGNAL('valueChanged(int)'), lcd, SLOT('display(int)'))
         connect(@slider, SIGNAL('valueChanged(int)'), SIGNAL('valueChanged(int)'))

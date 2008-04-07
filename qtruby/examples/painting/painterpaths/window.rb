@@ -142,7 +142,7 @@ class Window < Qt::Widget
 	    @fillToLabel.setSizePolicy(Qt::SizePolicy::Fixed, Qt::SizePolicy::Fixed)
 	
 	    @penWidthSpinBox = Qt::SpinBox.new
-	    @penWidthSpinBox.setRange(0, 20)
+	    @penWidthSpinBox.range = 0..20
 	
 	    @penWidthLabel = Qt::Label.new(tr("&Pen Width:"))
 	    @penWidthLabel.buddy = @penWidthSpinBox
@@ -156,7 +156,7 @@ class Window < Qt::Widget
 	    @penColorLabel.buddy = @penColorComboBox
 	
 	    @rotationAngleSpinBox = Qt::SpinBox.new do |r|
-			r.setRange(0, 359)
+			r.range = 0..359
 			r.wrapping = true
 			r.suffix = "\xB0"
 		end

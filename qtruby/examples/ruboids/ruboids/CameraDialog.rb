@@ -127,13 +127,13 @@ class CameraDialog < Qt::Dialog
 
         # Slider
         slider = Qt::Slider.new(Qt::Horizontal, box) do |s|
-            s.setRange(min, max)
+            s.range = min..max
             s.sliderPosition = initialValue
             s.pageStep = pageStep
         end
 
-        slider.setMinimumSize(slider.sizeHint())
-        slider.setMinimumWidth(180)
+        slider.minimumSize = slider.sizeHint
+        slider.minimumWidth = 180
 
         layout.addWidget(slider, row, 1)
 

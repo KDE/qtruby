@@ -31,8 +31,8 @@ class PieView < Qt::AbstractItemView
     
     def initialize(parent = nil)
         super(parent)
-        horizontalScrollBar().setRange(0, 0)
-        verticalScrollBar().setRange(0, 0)
+        horizontalScrollBar.range = 0..0
+        verticalScrollBar.range = 0..0
     
         @margin = 8
         @totalSize = 300
@@ -463,9 +463,9 @@ class PieView < Qt::AbstractItemView
     
     def updateGeometries
         horizontalScrollBar.pageStep = viewport.width
-        horizontalScrollBar.setRange(0, [0, 2*@totalSize - viewport.width].max)
+        horizontalScrollBar.range = 0..[0, 2*@totalSize - viewport.width].max
         verticalScrollBar.pageStep = viewport.height
-        verticalScrollBar.setRange(0, [0, @totalSize - viewport.height].max)
+        verticalScrollBar.range = 0..[0, @totalSize - viewport.height].max
     end
     
     def verticalOffset

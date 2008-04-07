@@ -53,7 +53,7 @@ class Window < Qt::Widget
     
     def createSlider(changedSignal, setterSlot)
         slider = Qt::Slider.new(Qt::Vertical) do |s|
-            s.setRange(0, 360 * 16)
+            s.range = 0..(360 * 16)
             s.singleStep = 16
             s.pageStep = 15 * 16
             s.tickInterval = 15 * 16

@@ -245,7 +245,7 @@ class MainWindow < Qt::MainWindow
         @otherRadioButton = Qt::RadioButton.new(tr("Other:"))
     
         @otherSpinBox = IconSizeSpinBox.new
-        @otherSpinBox.setRange(8, 128)
+        @otherSpinBox.range = 8..128
         @otherSpinBox.value = 64
     
         connect(@toolBarRadioButton, SIGNAL('toggled(bool)'),

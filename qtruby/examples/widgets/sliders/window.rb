@@ -70,17 +70,17 @@ class Window < Qt::Widget
         @invertedKeyBindings = Qt::CheckBox.new(tr("Inverted key bindings"))
     
         @minimumSpinBox = Qt::SpinBox.new do |s|
-            s.setRange(-100, 100)
+            s.range = -100..100
             s.singleStep = 1
         end
     
         @maximumSpinBox = Qt::SpinBox.new do |s|
-            s.setRange(-100, 100)
+            s.range = -100..100
             s.singleStep = 1
         end
 
         @valueSpinBox = Qt::SpinBox.new do |s|
-            s.setRange(-100, 100)
+            s.range = -100..100
             s.singleStep = 1
         end
     

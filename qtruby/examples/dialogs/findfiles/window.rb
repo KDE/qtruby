@@ -94,11 +94,11 @@ class Window < Qt::Widget
     end
     
     def findFiles(directory, files, text)
-        progressDialog = Qt::ProgressDialog.new(self)
-        progressDialog.cancelButtonText = tr("&Cancel")
-        progressDialog.setRange(0, files.length)
-        progressDialog.windowTitle = tr("Find Files")
-    
+        progressDialog = Qt::ProgressDialog.new(self) do |p|
+            p.cancelButtonText = tr("&Cancel")
+            p.range = 0..files.length
+            p.windowTitle = tr("Find Files")
+        end
         foundFiles = []
     
         (0...files.length).each do |i|

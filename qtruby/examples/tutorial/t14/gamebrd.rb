@@ -13,10 +13,10 @@ class GameBoard < Qt::Widget
         connect(quit, SIGNAL('clicked()'), $qApp, SLOT('quit()'))
     
         angle = LCDRange.new( 'ANGLE' )
-        angle.setRange( 5, 70 )
+        angle.range = 5..70
         
         force  = LCDRange.new( 'FORCE' )
-        force.setRange( 10, 50 )
+        force.range = 10..50
         
         cannonBox = Qt::Frame.new
         cannonBox.frameStyle = Qt::Frame::WinPanel | Qt::Frame::Sunken

@@ -13,6 +13,9 @@
 	  relative to where it was when the krubypluginfactory was loaded.
 	* Add more checking for Qnil in the marshallers for primitive types
 	  to make the runtime more robust. 
+	* Added some more range=(Range) methods as synonyms for 
+	  setRange(Integer, Integer)
+	* Changed the examples to use range=
 
 2008-04-05  Richard Dale  <richard.j.dale@gmail.com>
 
