@@ -589,6 +589,16 @@ module Qt
 		end
 	end
 
+	class Dial < Qt::Base
+		def range=(arg)
+			if arg.kind_of? Range
+				return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
+			else
+				return super(arg)
+			end
+		end
+	end
+
 	class Dialog < Qt::Base
 		def exec(*args)
 			method_missing(:exec, *args)
@@ -1430,6 +1440,16 @@ module Qt
 		end
 	end
 
+	class ScrollBar < Qt::Base
+		def range=(arg)
+			if arg.kind_of? Range
+				return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
+			else
+				return super(arg)
+			end
+		end
+	end
+
 	class Shortcut < Qt::Base
 		def id(*args)
 			method_missing(:id, *args)
@@ -1481,6 +1501,16 @@ module Qt
 		def pretty_print(pp)
 			str = to_s
 			pp.text str.sub(/>$/, "\n horData=%d,\n verData=%d>" % [horData, verData])
+		end
+	end
+
+	class Slider < Qt::Base
+		def range=(arg)
+			if arg.kind_of? Range
+				return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
+			else
+				return super(arg)
+			end
 		end
 	end
 
