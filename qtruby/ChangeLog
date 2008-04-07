@@ -16,6 +16,7 @@
 	* Added some more range=(Range) methods as synonyms for 
 	  setRange(Integer, Integer)
 	* Changed the examples to use range=
+	* Added a rbplasmaapi command line tool for introspecting the Ruby api
 
 2008-04-05  Richard Dale  <richard.j.dale@gmail.com>
 

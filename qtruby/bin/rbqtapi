@@ -17,6 +17,8 @@ when "rbkdeapi"
    require 'Korundum'
 when "rbkde4api"
    require 'korundum4'
+when "rbplasmaapi"
+   require 'plasma_applet'
 end
 
 if $OPT_v

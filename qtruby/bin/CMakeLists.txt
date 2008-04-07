@@ -4,4 +4,5 @@ install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CMA
 install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CMAKE_INSTALL_PREFIX}/bin/rbqtapi\"  \"${CMAKE_INSTALL_PREFIX}/bin/rbqt4api\" )" )
 install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CMAKE_INSTALL_PREFIX}/bin/rbqtapi\"  \"${CMAKE_INSTALL_PREFIX}/bin/rbkdeapi\" )" )
 install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CMAKE_INSTALL_PREFIX}/bin/rbqtapi\"  \"${CMAKE_INSTALL_PREFIX}/bin/rbkde4api\" )" )
+install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CMAKE_INSTALL_PREFIX}/bin/rbqtapi\"  \"${CMAKE_INSTALL_PREFIX}/bin/rbplasmaapi\" )" )
 
