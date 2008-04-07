@@ -1,5 +1,10 @@
+2008-04-07  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Add a '-DRUBY_EMBEDDED' option so that QtRuby is built with code to call
+	  RUBY_INIT_STACK before a non-nested virtual method call or slot invocation
+
 2008-04-05  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Added some type() methods for Plasma classes so that they are called, rather
 	  than the Ruby Object#type method.
-	* Added a marshaller for the ugly Plasma::PackageStructure::Ptr type
+	* Added a marshaller for the Plasma::PackageStructure::Ptr type

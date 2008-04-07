@@ -1,5 +1,7 @@
 add_subdirectory( lib )
 
+add_definitions (-DRUBY_EMBEDDED)
+
 include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src ${KDE4_INCLUDE_DIR} ${QT_INCLUDES}  )
 
 set(plasma_applet_LIB_SRCS 
