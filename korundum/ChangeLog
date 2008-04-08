@@ -1,3 +1,9 @@
+2008-04-08  Richard Dale  <rdale@foton.es>
+
+	* Borrowed a function from the kross code to put out an error message 
+	  and stacktrace on stderr for the current exception in the 
+	  krubypluginfactory code.
+
 2008-04-07  Richard Dale  <rdale@foton.es>
 
 	* Added some range=(Range) methods as synonyms for setRange(Integer, Integer),

@@ -39,6 +39,34 @@ struct smokeruby_object {
     void *ptr;
 };
 
+//
+// This function was borrowed this from the kross code. It puts out
+// an error message and stacktrace on stderr for the current exception.
+//
+static void
+show_exception_message()
+{
+    VALUE info = rb_gv_get("$!");
+    VALUE bt = rb_funcall(info, rb_intern("backtrace"), 0);
+    VALUE message = RARRAY(bt)->ptr[0];
+
+    QString errormessage = QString("%1: %2 (%3)")
+                            .arg( STR2CSTR(message) )
+                            .arg( STR2CSTR(rb_obj_as_string(info)) )
+                            .arg( rb_class2name(CLASS_OF(info)) );
+    fprintf(stderr, "%s\n", errormessage.toLatin1().data());
+
+    QString tracemessage;
+    for(int i = 1; i < RARRAY(bt)->len; ++i) {
+        if( TYPE(RARRAY(bt)->ptr[i]) == T_STRING ) {
+            QString s = QString("%1\n").arg( STR2CSTR(RARRAY(bt)->ptr[i]) );
+            Q_ASSERT( ! s.isNull() );
+            tracemessage += s;
+            fprintf(stderr, "\t%s", s.toLatin1().data());
+        }
+    }
+}
+
 static VALUE plugin_class = Qnil;
 
 static VALUE
@@ -89,7 +117,7 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
     const QByteArray encodedFilePath = QFile::encodeName(program.filePath());
     rb_load_protect(rb_str_new2(encodedFilePath), 0, &state);
     if (state != 0) {
-        rb_backtrace();
+        show_exception_message();
         kWarning() << "Failed to load" << encodedFilePath;
         return 0;
     }
@@ -116,7 +144,7 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
 
     VALUE plugin_value = rb_protect(create_plugin_instance, av, &state);
     if (state != 0 || plugin_value == Qnil) {
-        rb_backtrace();
+        show_exception_message();
         kWarning() << "failed to create instance of plugin class";
         return 0;
     }
