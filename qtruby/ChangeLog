@@ -1,3 +1,11 @@
+2008-04-07  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Added a QTRUBY_FUNCALL2 macro. If QtRuby is built with the
+	  -DRUBY_EMBEDDED option, then the rb_funcall2s for invoking
+	  virtual method callbacks and slot invocations in wrapped with
+	  a rb_protect() call. Otherwise, rb_funcall() is called directly
+	  and any uncaught Ruby exceptions will terminate the app.
+
 2008-04-06  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Change the way the 'MocArgument*' structs are created, instead

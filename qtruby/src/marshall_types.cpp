@@ -21,13 +21,14 @@
 
 // This is based on the SWIG SWIG_INIT_STACK and SWIG_RELEASE_STACK macros.
 // If RUBY_INIT_STACK is only called when an embedded extension such as, a
-// Ruby Plasma plugin is loaded, the C++ stack can drop below where the Ruby 
-// runtime thinks the stack should start, and result in sys stackerror exceptions
+// Ruby Plasma plugin is loaded, then later the C++ stack can drop below where the 
+// Ruby runtime thinks the stack should start (ie the stack position when the 
+// plugin was loaded), and result in sys stackerror exceptions
 //
-// There is a problem when a virtual method or slot is called from the main
-// class of a plugin when it is being loaded because RUBY_INIT_STACK will
-// have aleady have been called from krubypluginfactory, and this may cause
-// problems.
+// TODO: While constructing the main class of a plugin when it is being loaded, 
+// there could be a problem when a custom virtual method is called or a slot is
+// invoked, because RUBY_INIT_STACK will have aleady have been called from within 
+// the krubypluginfactory code, and it shouldn't be called again.
 
 #ifdef RUBY_EMBEDDED
 #  define QTRUBY_INIT_STACK                            \
@@ -43,6 +44,8 @@ static unsigned int nested_callback_count = 0;
 #  define QTRUBY_RELEASE_STACK
 #endif  /* RUBY_EMBEDDED */
 
+#ifdef RUBY_EMBEDDED
+
 static VALUE funcall2_protect_id = Qnil;
 static int funcall2_protect_argc = 0;
 static VALUE * funcall2_protect_args = 0;
@@ -54,6 +57,24 @@ funcall2_protect(VALUE obj)
 	result = rb_funcall2(obj, funcall2_protect_id, funcall2_protect_argc, funcall2_protect_args);
 	return result;
 }
+
+#  define QTRUBY_FUNCALL2(result, obj, id, argc, args) \
+      int state = 0; \
+      funcall2_protect_id = id; \
+      funcall2_protect_argc = argc; \
+      funcall2_protect_args = args; \
+      result = rb_protect(funcall2_protect, obj, &state); \
+      if (state != 0) { \
+          rb_backtrace(); \
+          result = Qnil; \
+      }
+
+#else
+
+#  define QTRUBY_FUNCALL2(result, obj, id, argc, args) \
+      result = rb_funcall2(obj, id, argc, args);
+
+#endif
 
 void
 smokeStackToQtStack(Smoke::Stack stack, void ** o, int start, int end, QList<MocArgument*> args)
@@ -446,19 +467,10 @@ VirtualMethodCall::callMethod()
 	if (_called) return;
 	_called = true;
 
-	funcall2_protect_id = rb_intern(_smoke->methodNames[method().name]);
-	funcall2_protect_argc = method().numArgs;
-	funcall2_protect_args = _sp;
-	int state = 0;
-
+	VALUE _retval;
 	QTRUBY_INIT_STACK
-	VALUE _retval = rb_protect(funcall2_protect, _obj, &state);
+	QTRUBY_FUNCALL2(_retval, _obj, rb_intern(_smoke->methodNames[method().name]), method().numArgs, _sp)
 	QTRUBY_RELEASE_STACK
-
-	if (state != 0) {
-		rb_backtrace();
-		_retval = Qnil;
-	}
 
 	VirtualMethodReturnValue r(_smoke, _method, _stack, _retval);
 }
@@ -682,19 +694,10 @@ InvokeSlot::invokeSlot()
 	if (_called) return;
 	_called = true;
 
-	funcall2_protect_id = _slotname;
-	funcall2_protect_argc = _items - 1;
-	funcall2_protect_args = _sp;
-	int state = 0;
-
+    VALUE result;
 	QTRUBY_INIT_STACK
-	VALUE result = rb_protect(funcall2_protect, _obj, &state);
+	QTRUBY_FUNCALL2(result, _obj, _slotname, _items - 1, _sp)
 	QTRUBY_RELEASE_STACK
-
-	if (state != 0) {
-		rb_backtrace();
-		result = Qnil;
-	}
 
 	if (_args[0]->argType != xmoc_void) {
 		SlotReturnValue r(_o, &result, _args);
