@@ -5,6 +5,9 @@
 	  virtual method callbacks and slot invocations in wrapped with
 	  a rb_protect() call. Otherwise, rb_funcall() is called directly
 	  and any uncaught Ruby exceptions will terminate the app.
+	* Borrowed a function from the kross code to put out an error message 
+	  and stacktrace on stderr for the current exception, when qtruby
+	  has been compiled with the embedded option.
 
 2008-04-06  Richard Dale  <richard.j.dale@gmail.com>
 

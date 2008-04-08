@@ -46,6 +46,34 @@ static unsigned int nested_callback_count = 0;
 
 #ifdef RUBY_EMBEDDED
 
+//
+// This function was borrowed this from the kross code. It puts out
+// an error message and stacktrace on stderr for the current exception.
+//
+static void
+show_exception_message()
+{
+    VALUE info = rb_gv_get("$!");
+    VALUE bt = rb_funcall(info, rb_intern("backtrace"), 0);
+    VALUE message = RARRAY(bt)->ptr[0];
+
+    QString errormessage = QString("%1: %2 (%3)")
+                            .arg( STR2CSTR(message) )
+                            .arg( STR2CSTR(rb_obj_as_string(info)) )
+                            .arg( rb_class2name(CLASS_OF(info)) );
+    fprintf(stderr, "%s\n", errormessage.toLatin1().data());
+
+    QString tracemessage;
+    for(int i = 1; i < RARRAY(bt)->len; ++i) {
+        if( TYPE(RARRAY(bt)->ptr[i]) == T_STRING ) {
+            QString s = QString("%1\n").arg( STR2CSTR(RARRAY(bt)->ptr[i]) );
+            Q_ASSERT( ! s.isNull() );
+            tracemessage += s;
+            fprintf(stderr, "\t%s", s.toLatin1().data());
+        }
+    }
+}
+
 static VALUE funcall2_protect_id = Qnil;
 static int funcall2_protect_argc = 0;
 static VALUE * funcall2_protect_args = 0;
@@ -65,7 +93,7 @@ funcall2_protect(VALUE obj)
       funcall2_protect_args = args; \
       result = rb_protect(funcall2_protect, obj, &state); \
       if (state != 0) { \
-          rb_backtrace(); \
+          show_exception_message(); \
           result = Qnil; \
       }
 
