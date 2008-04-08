@@ -47,7 +47,7 @@ static unsigned int nested_callback_count = 0;
 #ifdef RUBY_EMBEDDED
 
 //
-// This function was borrowed this from the kross code. It puts out
+// This function was borrowed from the kross code. It puts out
 // an error message and stacktrace on stderr for the current exception.
 //
 static void
