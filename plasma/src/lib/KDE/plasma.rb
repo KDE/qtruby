@@ -24,6 +24,18 @@ module Plasma
     end
   end
 
+  class Containment
+    def type(*args)
+      method_missing(:type, *args)
+    end
+  end
+
+  class GLApplet
+    def type(*args)
+      method_missing(:type, *args)
+    end
+  end
+
   class LineEdit
     def type(*args)
       method_missing(:type, *args)
