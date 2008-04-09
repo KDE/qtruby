@@ -1,0 +1,20 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Ruby Web Browser
+
+Type=Service
+ServiceTypes=Plasma/Applet
+Icon=internet-web-browser
+
+X-KDE-Library=krubypluginfactory
+X-KDE-PluginKeyword=plasma-ruby-webapplet/web_applet.rb
+
+X-KDE-PluginInfo-Author=The Plasma Team
+X-KDE-PluginInfo-Email=panel-devel@kde.org
+X-KDE-PluginInfo-Name=plasma-ruby-webapplet
+X-KDE-PluginInfo-Version=pre0.1
+X-KDE-PluginInfo-Website=http://plasma.kde.org/
+X-KDE-PluginInfo-Category=Music
+X-KDE-PluginInfo-Depends=
+X-KDE-PluginInfo-License=GPL
+X-KDE-PluginInfo-EnabledByDefault=true

@@ -1,5 +1,9 @@
 2008-04-07  Richard Dale  <richard.j.dale@gmail.com>
 
+	* Added analog-clock and webapplet examples
+
+2008-04-07  Richard Dale  <richard.j.dale@gmail.com>
+
 	* Add a '-DRUBY_EMBEDDED' option so that QtRuby is built with code to call
 	  RUBY_INIT_STACK before a non-nested virtual method call or slot invocation
 
