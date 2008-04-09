@@ -1,3 +1,9 @@
+2008-04-09  Richard Dale  <rdale@foton.es>
+
+	* The name of the main class to load for a plugin is derived from the
+	  source filename, and so in a file called 'foo_bar_baz.rb' expect a class
+	  called FooBarBaz
+
 2008-04-08  Richard Dale  <rdale@foton.es>
 
 	* Borrowed a function from the kross code to put out an error message 

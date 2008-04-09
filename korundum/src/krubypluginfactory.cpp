@@ -122,8 +122,20 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
         return 0;
     }
 
-    QByteArray className = program.baseName().toLatin1();
-    className = className.left(1).toUpper() + className.right(className.length() - 1);
+    // Convert foo_bar_baz to FooBarBaz
+    const QByteArray baseName = program.baseName().toLatin1();
+    QByteArray className = baseName.left(1).toUpper();
+    for (int i = 1; i < baseName.size(); i++) {
+         if (baseName[i] == '_') {
+             i++;
+             if (i < baseName.size()) {
+                 className += baseName.mid(i, 1).toUpper();
+             }
+         } else {
+             className += baseName[i];
+         }
+     }
+
     plugin_class = rb_const_get(rb_cObject, rb_intern(className));
     if (plugin_class == Qnil) {
         kWarning() << "no" << className << "class found";
