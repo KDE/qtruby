@@ -1838,6 +1838,18 @@ module Qt
 		end
 	end
 
+	class Url < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " url=%s>" % toString)
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, " url=%s>" % toString)
+		end
+	end
+
 	class UrlInfo < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
