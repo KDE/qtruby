@@ -2367,6 +2367,7 @@ module Qt
 				end
 			else
 				t = typename.sub(/^const\s+/, '')
+				t.sub!(/(::)?Ptr$/, '')
 				t.sub!(/[&*]$/, '')
 				if argtype == t
 					return 1

@@ -1,3 +1,10 @@
+2008-04-10  Richard Dale  <richard.j.dale@gmail.com>
+
+	* When matching arg types, strip off an '::Ptr' or 'Ptr' at the end
+	  of the type. This is to ensure that something like a KDE::Service
+	  ruby instance can be passed to a method expecting a type of
+      KService::Ptr
+
 2008-04-07  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Added a QTRUBY_FUNCALL2 macro. If QtRuby is built with the
