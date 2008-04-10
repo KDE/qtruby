@@ -2,8 +2,9 @@
 
 	* Some fixes for the digital clock example now KSharedConfig::Ptr
 	  marshalling is working.
-	* Added marshallers for QList<Plasma::Containment*>, QList<Plasma::PlotColor>
-	  and QList<Plasma::SearchMatch*>
+	* Added marshallers for QList<Plasma::Containment*>, QList<Plasma::PlotColor>,
+	  QList<Plasma::SearchMatch*>, Plasma::Applet::List and 
+	  Plasma::AbstractRunner::List
 
 2008-04-07  Richard Dale  <richard.j.dale@gmail.com>
 
