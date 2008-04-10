@@ -39,8 +39,7 @@ class Clock < Plasma::Applet
     super
     @clockStyle = PlainClock
     @plainClockFont = KDE::GlobalSettings.generalFont
-#    @useCustomColor = false
-    @useCustomColor = true
+    @useCustomColor = false
     @plainClockColor = Qt::Color.new(Qt::white)
     @plainClockFontBold = false
     @plainClockFontItalic = false
@@ -71,12 +70,10 @@ class Clock < Plasma::Applet
 
     @showSeconds = cg.readEntry("showSeconds", Qt::Variant.new(false)).value
     @plainClockFont = cg.readEntry("plainClockFont", Qt::Variant.fromValue(@plainClockFont)).value
-#    @useCustomColor = cg.readEntry("useCustomColor", Qt::Variant.new(false)).value
-    @useCustomColor = cg.readEntry("useCustomColor", Qt::Variant.new(true)).value
+    @useCustomColor = cg.readEntry("useCustomColor", Qt::Variant.new(false)).value
     if @useCustomColor
         @plainClockColor = cg.readEntry("plainClockColor", Qt::Variant.fromValue(@plainClockColor)).value
     else
-        # Oops, no marshaller for KSharedConfigPtr yet...
         @plainClockColor = KDE::ColorScheme.new(Qt::Palette::Active, KDE::ColorScheme::View, Plasma::Theme.self.colors).foreground.color
     end
     @plainClockFontBold = cg.readEntry("plainClockFontBold", Qt::Variant.new(true)).value
@@ -201,7 +198,7 @@ class Clock < Plasma::Applet
         @timezone = "Local";
         dataEngine("time").connectSource(@timezone, self, updateInterval, intervalAlignment)
         cg.writeEntry("timezone", @timezone)
-    elsif @timeZones.count > 0
+    elsif @timeZones.length > 0
         tz = @timeZones.at(0)
         if tz != @timezone
             dataEngine("time").disconnectSource(@timezone, self)
@@ -250,9 +247,9 @@ class Clock < Plasma::Applet
     @plainClockFont.setItalic(@plainClockFontItalic)
 
     cg.writeEntry("plainClock", Qt::Variant.new(@clockStyle == PlainClock))
-    cg.writeEntry("plainClockFont", Qt::Variant.new(@plainClockFont))
+    cg.writeEntry("plainClockFont", Qt::Variant.fromValue(@plainClockFont))
     cg.writeEntry("useCustomColor", Qt::Variant.new(@useCustomColor))
-    cg.writeEntry("plainClockColor", Qt::Variant.new(@plainClockColor))
+    cg.writeEntry("plainClockColor", Qt::Variant.fromValue(@plainClockColor))
     cg.writeEntry("plainClockFontBold", Qt::Variant.new(@plainClockFontBold))
     cg.writeEntry("plainClockFontItalic", Qt::Variant.new(@plainClockFontItalic))
 
