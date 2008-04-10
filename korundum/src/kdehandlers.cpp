@@ -758,7 +758,6 @@ DEF_LIST_MARSHALLER( KMultiTabBarTabList, QList<KMultiTabBarTab*>, KMultiTabBarT
 DEF_LIST_MARSHALLER( KPartsPartList, QList<KParts::Part*>, KParts::Part )
 DEF_LIST_MARSHALLER( KPartsPluginList, QList<KParts::Plugin*>, KParts::Plugin )
 DEF_LIST_MARSHALLER( KPartsReadOnlyPartList, QList<KParts::ReadOnlyPart*>, KParts::ReadOnlyPart )
-DEF_LIST_MARSHALLER( KPluginInfoList, QList<KPluginInfo*>, KPluginInfo )
 DEF_LIST_MARSHALLER( KToolBarList, QList<KToolBar*>, KToolBar )
 DEF_LIST_MARSHALLER( KXMLGUIClientList, QList<KXMLGUIClient*>, KXMLGUIClient )
 DEF_LIST_MARSHALLER( KFileItemList, QList<KFileItem*>, KFileItem )
@@ -869,6 +868,7 @@ DEF_VALUELIST_MARSHALLER( KIOCopyInfoList, QList<KIO::CopyInfo>, KIO::CopyInfo )
 DEF_VALUELIST_MARSHALLER( KPartsPluginPluginInfoList, QList<KParts::Plugin::PluginInfo>, KParts::Plugin::PluginInfo )DEF_VALUELIST_MARSHALLER( KUserList, QList<KUser>, KUser )
 DEF_VALUELIST_MARSHALLER( KUserGroupList, QList<KUserGroup>, KUserGroup )
 DEF_VALUELIST_MARSHALLER( KUrlList, QList<KUrl>, KUrl )
+DEF_VALUELIST_MARSHALLER( KPluginInfoList, QList<KPluginInfo>, KPluginInfo )
 
 /*
 template <class Qt::Key, class Value, class ItemMapIterator, const char *KeySTR, const char *ValueSTR >
@@ -1004,7 +1004,10 @@ TypeHandler KDE_handlers[] = {
     { "QList<KParts::Plugin::PluginInfo>", marshall_KPartsPluginPluginInfoList },
     { "QList<KParts::Plugin::PluginInfo>&", marshall_KPartsPluginPluginInfoList },
     { "QList<KParts::ReadOnlyPart*>", marshall_KPartsReadOnlyPartList },
-    { "QList<KPluginInfo*>&", marshall_KPluginInfoList },
+    { "QList<KPluginInfo>", marshall_KPluginInfoList },
+    { "QList<KPluginInfo>&", marshall_KPluginInfoList },
+    { "KPluginInfo::List", marshall_KPluginInfoList },
+    { "KPluginInfo::List&", marshall_KPluginInfoList },
     { "QList<KToolBar*>", marshall_KToolBarList },
     { "QList<KUser>", marshall_KUserList },
     { "QList<KUser>&", marshall_KUserList },
