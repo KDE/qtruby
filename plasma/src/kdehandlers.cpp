@@ -47,6 +47,9 @@
 #include <ktoolbar.h>
 #include <kio/copyjob.h>
 #include <plasma/packagestructure.h>
+#include <plasma/containment.h>
+#include <plasma/widgets/signalplotter.h>
+#include <plasma/searchmatch.h>
 
 extern "C" {
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
@@ -541,6 +544,8 @@ DEF_LIST_MARSHALLER( KPartsReadOnlyPartList, QList<KParts::ReadOnlyPart*>, KPart
 DEF_LIST_MARSHALLER( KToolBarList, QList<KToolBar*>, KToolBar )
 DEF_LIST_MARSHALLER( KXMLGUIClientList, QList<KXMLGUIClient*>, KXMLGUIClient )
 DEF_LIST_MARSHALLER( KFileItemList, QList<KFileItem*>, KFileItem )
+DEF_LIST_MARSHALLER( PlasmaContainmentList, QList<Plasma::Containment*>, Plasma::Containment )
+DEF_LIST_MARSHALLER( PlasmaSearchMatchList, QList<Plasma::SearchMatch*>, Plasma::SearchMatch )
 
 template <class Item, class ItemList, const char *ItemSTR >
 void marshall_ValueListItem(Marshall *m) {
@@ -649,6 +654,7 @@ DEF_VALUELIST_MARSHALLER( KPartsPluginPluginInfoList, QList<KParts::Plugin::Plug
 DEF_VALUELIST_MARSHALLER( KUserGroupList, QList<KUserGroup>, KUserGroup )
 DEF_VALUELIST_MARSHALLER( KUrlList, QList<KUrl>, KUrl )
 DEF_VALUELIST_MARSHALLER( KPluginInfoList, QList<KPluginInfo>, KPluginInfo )
+DEF_VALUELIST_MARSHALLER( PlasmaPlotColorList, QList<Plasma::PlotColor>, Plasma::PlotColor )
 
 /*
 template <class Qt::Key, class Value, class ItemMapIterator, const char *KeySTR, const char *ValueSTR >
@@ -799,6 +805,12 @@ TypeHandler KDE_handlers[] = {
     { "QList<KUser>&", marshall_KUserList },
     { "QList<KUserGroup>", marshall_KUserGroupList },
     { "QList<KXMLGUIClient*>&", marshall_KXMLGUIClientList },
+    { "QList<Plasma::Containment*>", marshall_PlasmaContainmentList },
+    { "QList<Plasma::Containment*>&", marshall_PlasmaContainmentList },
+    { "QList<Plasma::SearchMatch*>", marshall_PlasmaSearchMatchList },
+    { "QList<Plasma::SearchMatch*>&", marshall_PlasmaSearchMatchList },
+    { "QList<Plasma::PlotColor>", marshall_PlasmaPlotColorList },
+    { "QList<Plasma::PlotColor>&", marshall_PlasmaPlotColorList },
     { "KFileItemList", marshall_KFileItemList },
     { "KFileItemList&", marshall_KFileItemList },
     { "KFileItemList*", marshall_KFileItemList },
