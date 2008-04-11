@@ -1425,6 +1425,78 @@ void marshall_QListInt(Marshall *m) {
     }
 }
 
+
+void marshall_QListUInt(Marshall *m) {
+    switch(m->action()) {
+      case Marshall::FromVALUE:
+	{
+	    VALUE list = *(m->var());
+	    if (TYPE(list) != T_ARRAY) {
+		m->item().s_voidp = 0;
+		break;
+	    }
+	    int count = RARRAY(list)->len;
+	    QList<uint> *valuelist = new QList<uint>;
+	    long i;
+	    for(i = 0; i < count; i++) {
+		VALUE item = rb_ary_entry(list, i);
+		if(TYPE(item) != T_FIXNUM && TYPE(item) != T_BIGNUM) {
+		    valuelist->append(0);
+		    continue;
+		}
+		valuelist->append(NUM2UINT(item));
+	    }
+
+	    m->item().s_voidp = valuelist;
+	    m->next();
+
+		if (!m->type().isConst()) {
+			rb_ary_clear(list);
+	
+			for (	QList<uint>::iterator i = valuelist->begin(); 
+					i != valuelist->end(); 
+					++i ) 
+			{
+				rb_ary_push(list, UINT2NUM((int)*i));
+			}
+		}
+
+		if (m->cleanup()) {
+			delete valuelist;
+	    }
+	}
+	break;
+      case Marshall::ToVALUE:
+	{
+	    QList<uint> *valuelist = (QList<uint>*)m->item().s_voidp;
+	    if(!valuelist) {
+		*(m->var()) = Qnil;
+		break;
+	    }
+
+	    VALUE av = rb_ary_new();
+
+		for (	QList<uint>::iterator i = valuelist->begin(); 
+				i != valuelist->end(); 
+				++i ) 
+		{
+		    rb_ary_push(av, UINT2NUM((int)*i));
+		}
+		
+	    *(m->var()) = av;
+		m->next();
+
+		if (m->cleanup()) {
+			delete valuelist;
+		}
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
+    }
+}
+
 void marshall_QListqreal(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE:
@@ -2388,6 +2460,8 @@ TypeHandler Qt_handlers[] = {
     { "qint64&", marshall_it<long long> },
     { "QList<int>", marshall_QListInt },
     { "QList<int>&", marshall_QListInt },
+    { "QList<uint>", marshall_QListUInt },
+    { "QList<uint>&", marshall_QListUInt },
     { "QList<QAbstractButton*>", marshall_QAbstractButtonList },
     { "QList<QActionGroup*>", marshall_QActionGroupList },
     { "QList<QAction*>", marshall_QActionList },
@@ -2413,6 +2487,8 @@ TypeHandler Qt_handlers[] = {
     { "QList<QRectF>", marshall_QRectFList },
     { "QList<QRectF>&", marshall_QRectFList },
     { "QList<qreal>", marshall_QListqreal },
+    { "QList<double>", marshall_QListqreal },
+    { "QList<double>&", marshall_QListqreal },
     { "QList<QStandardItem*>", marshall_QStandardItemList },
     { "QList<QStandardItem*>&", marshall_QStandardItemList },
     { "QList<QTableWidgetItem*>", marshall_QTableWidgetItemList },
