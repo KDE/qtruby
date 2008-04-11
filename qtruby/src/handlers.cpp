@@ -1354,6 +1354,57 @@ void marshall_ItemList(Marshall *m) {
    }
 }
 
+void marshall_QListCharStar(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE:
+	{
+		VALUE av = *(m->var());
+		if (TYPE(av) != T_ARRAY) {
+			m->item().s_voidp = 0;
+			break;
+		}
+		int count = RARRAY(av)->len;
+		QList<const char*> *list = new QList<const char*>;
+		long i;
+		for(i = 0; i < count; i++) {
+			VALUE item = rb_ary_entry(av, i);
+			if (TYPE(item) != T_STRING) {
+				list->append(0);
+		    	continue;
+			}
+			list->append(StringValuePtr(item));
+		}
+
+		m->item().s_voidp = list;
+	}
+	break;
+	case Marshall::ToVALUE:
+	{
+		QList<const char*> *list = (QList<const char*>*)m->item().s_voidp;
+		if (list == 0) {
+			*(m->var()) = Qnil;
+			break;
+		}
+
+		VALUE av = rb_ary_new();
+
+		for (	QList<const char*>::iterator i = list->begin(); 
+				i != list->end(); 
+				++i ) 
+		{
+		    rb_ary_push(av, rb_str_new2((const char *)*i));
+		}
+		
+		*(m->var()) = av;
+		m->next();
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
+    }
+}
+
 void marshall_QListInt(Marshall *m) {
     switch(m->action()) {
       case Marshall::FromVALUE:
@@ -2458,6 +2509,7 @@ TypeHandler Qt_handlers[] = {
     { "qint32&", marshall_it<int *> },
     { "qint64", marshall_it<long long> },
     { "qint64&", marshall_it<long long> },
+    { "QList<const char*>", marshall_QListCharStar },
     { "QList<int>", marshall_QListInt },
     { "QList<int>&", marshall_QListInt },
     { "QList<uint>", marshall_QListUInt },
