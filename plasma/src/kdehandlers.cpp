@@ -654,106 +654,83 @@ DEF_VALUELIST_MARSHALLER( KAboutPersonList, QList<KAboutPerson>, KAboutPerson )
 DEF_VALUELIST_MARSHALLER( ChoicesList, QList<KConfigSkeleton::ItemEnum::Choice>, KConfigSkeleton::ItemEnum::Choice )
 DEF_VALUELIST_MARSHALLER( KDataToolInfoList, QList<KDataToolInfo>, KDataToolInfo )
 DEF_VALUELIST_MARSHALLER( KIOCopyInfoList, QList<KIO::CopyInfo>, KIO::CopyInfo )
-DEF_VALUELIST_MARSHALLER( KPartsPluginPluginInfoList, QList<KParts::Plugin::PluginInfo>, KParts::Plugin::PluginInfo )DEF_VALUELIST_MARSHALLER( KUserList, QList<KUser>, KUser )
+DEF_VALUELIST_MARSHALLER( KPartsPluginPluginInfoList, QList<KParts::Plugin::PluginInfo>, KParts::Plugin::PluginInfo )
+DEF_VALUELIST_MARSHALLER( KUserList, QList<KUser>, KUser )
 DEF_VALUELIST_MARSHALLER( KUserGroupList, QList<KUserGroup>, KUserGroup )
 DEF_VALUELIST_MARSHALLER( KUrlList, QList<KUrl>, KUrl )
 DEF_VALUELIST_MARSHALLER( KPluginInfoList, QList<KPluginInfo>, KPluginInfo )
 DEF_VALUELIST_MARSHALLER( PlasmaPlotColorList, QList<Plasma::PlotColor>, Plasma::PlotColor )
 
-/*
-template <class Qt::Key, class Value, class ItemMapIterator, const char *KeySTR, const char *ValueSTR >
-void marshall_Map(Marshall *m) {
-    switch(m->action()) {
-      case Marshall::FromVALUE:
+
+template <class Value, const char *ValueSTR >
+void marshall_Hash(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE:
 	{
-	    VALUE hash = *(m->var());
-	    if (TYPE(hash) != T_HASH) {
-		m->item().s_voidp = 0;
-		break;
-	    }
+		VALUE hv = *(m->var());
+		if (TYPE(hv) != T_HASH) {
+			m->item().s_voidp = 0;
+			break;
+		}
 		
-		QMap<Qt::Key,Value> * map = new QMap<Qt::Key,Value>;
+		QHash<QString, Value*> * hash = new QHash<QString, Value*>;
 		
 		// Convert the ruby hash to an array of key/value arrays
-		VALUE temp = rb_funcall(hash, rb_intern("to_a"), 0);
+		VALUE temp = rb_funcall(hv, rb_intern("to_a"), 0);
 
 		for (long i = 0; i < RARRAY(temp)->len; i++) {
 			VALUE key = rb_ary_entry(rb_ary_entry(temp, i), 0);
 			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
 			
-			smokeruby_object *o = value_obj_info(key);
+			smokeruby_object *o = value_obj_info(value);
 			if( !o || !o->ptr)
-                   continue;
-			void * key_ptr = o->ptr;
-			key_ptr = o->smoke->cast(key_ptr, o->classId, o->smoke->idClass(KeySTR));
-			
-			o = value_obj_info(value);
-			if( !o || !o->ptr)
-                   continue;
+				continue;
 			void * val_ptr = o->ptr;
 			val_ptr = o->smoke->cast(val_ptr, o->classId, o->smoke->idClass(ValueSTR));
 			
-			(*map)[(Qt::Key)*(Qt::Key*)key_ptr] = (Value)*(Value*)val_ptr;
+			(*hash)[QString(StringValuePtr(key))] = (Value*)val_ptr;
 		}
 	    
-		m->item().s_voidp = map;
+		m->item().s_voidp = hash;
 		m->next();
 		
-	    if(m->cleanup())
-		delete map;
+		if (m->cleanup())
+			delete hash;
 	}
 	break;
-      case Marshall::ToVALUE:
+	case Marshall::ToVALUE:
 	{
-	    QMap<Qt::Key,Value> *map = (QMap<Qt::Key,Value>*)m->item().s_voidp;
-	    if(!map) {
-		*(m->var()) = Qnil;
-		break;
+		QHash<QString, Value*> *hash = (QHash<QString, Value*>*) m->item().s_voidp;
+		if (hash == 0) {
+			*(m->var()) = Qnil;
+			break;
 	    }
 		
-	    VALUE hv = rb_hash_new();
-	    
-		int key_ix = m->smoke()->idClass(KeySTR);
-	    const char * key_className = m->smoke()->binding->className(key_ix);
+		VALUE hv = rb_hash_new();
 		
 		int val_ix = m->smoke()->idClass(ValueSTR);
 	    const char * val_className = m->smoke()->binding->className(val_ix);
 			
-		ItemMapIterator it;
-		for (it = map->begin(); it != map->end(); ++it) {
-			void *key_p = new Key(it.key());
-			VALUE key_obj = getPointerObject(key_p);
-			smokeruby_object  * o;
-			
-			if (key_obj == Qnil) {
-				o = ALLOC(smokeruby_object);
-				o->classId = m->smoke()->idClass(KeySTR);
-				o->smoke = m->smoke();
-				o->ptr = key_p;
-				o->allocated = true;
-				key_obj = set_obj_info(key_className, o);
-			}
-			
-			void *val_p = new Value(it.data());
+		for (QHashIterator<QString, Value*> it(*hash); it.hasNext(); it.next()) {
+			void *val_p = it.value();
 			VALUE value_obj = getPointerObject(val_p);
 				
 			if (value_obj == Qnil) {
-				o = ALLOC(smokeruby_object);
+				smokeruby_object *o = ALLOC(smokeruby_object);
 				o->classId = m->smoke()->idClass(ValueSTR);
 				o->smoke = m->smoke();
 				o->ptr = val_p;
 				o->allocated = true;
 				value_obj = set_obj_info(val_className, o);
 			}
-			
-			rb_hash_aset(hv, key_obj, value_obj);
+			rb_hash_aset(hv, rb_str_new2(((QString*)&(it.key()))->toLatin1()), value_obj);
         }
 		
 		*(m->var()) = hv;
 		m->next();
 		
-	    if(m->cleanup())
-		delete map;
+		if (m->cleanup())
+			delete hash;
 	}
 	break;
       default:
@@ -762,12 +739,13 @@ void marshall_Map(Marshall *m) {
     }
 }
 
-#define DEF_MAP_MARSHALLER(MapIdent,Qt::Key,Value) namespace { char KeyIdent##STR[] = #Qt::Key; char ValueIdent##STR[] = #Value; }  \
-        Marshall::HandlerFn marshall_##MapIdent = marshall_Map<Qt::Key, Value,QMap<Qt::Key,Value>::Iterator,KeyIdent##STR, ValueIdent##STR>;
+#define DEF_HASH_MARSHALLER(HashIdent,Item) namespace { char HashIdent##STR[] = #Item; }  \
+        Marshall::HandlerFn marshall_##HashIdent = marshall_Hash<Item,HashIdent##STR>;
 
-DEF_MAP_MARSHALLER( QMapKEntryKeyKEntry, KEntryKey, KEntry )
+DEF_HASH_MARSHALLER( QHashQStringApplet, Plasma::Applet )
+DEF_HASH_MARSHALLER( QHashQStringDataContainer, Plasma::DataContainer )
+DEF_HASH_MARSHALLER( QHashQStringDataEngine, Plasma::DataEngine )
 
-*/
 
 TypeHandler KDE_handlers[] = {
     { "Plasma::PackageStructure::Ptr", marshall_PackageStructurePtr },
@@ -777,12 +755,14 @@ TypeHandler KDE_handlers[] = {
     { "KSharedConfigPtr&", marshall_KSharedConfigPtr },
     { "KService::Ptr", marshall_KServicePtr },
     { "KService::List", marshall_KServiceList },
-
     { "QHash<QString,QVariant>", marshall_QHashQStringQVariant },
     { "QHash<QString,QVariant>&", marshall_QHashQStringQVariant },
     { "Plasma::DataEngine::Data", marshall_QHashQStringQVariant },
     { "Plasma::DataEngine::Data&", marshall_QHashQStringQVariant },
-
+    { "Plasma::Applet::Dict", marshall_QHashQStringApplet },
+    { "Plasma::Containment::Dict", marshall_QHashQStringApplet },
+    { "Plasma::DataEngine::SourceDict", marshall_QHashQStringDataContainer },
+    { "Plasma::DataEngine::Dict", marshall_QHashQStringDataEngine },
     { "QList<KAboutPerson>", marshall_KAboutPersonList },
     { "QList<KAction*>", marshall_KActionList },
     { "QList<KActionCollection*>&", marshall_KActionCollectionList },
