@@ -96,6 +96,7 @@ Init_plasma_applet()
     kde_internal_module = rb_define_module_under(kde_module, "Internal");
 
 	rb_require("KDE/plasma.rb");
+	rb_require("KDE/korundum4.rb");
 }
 
 }
