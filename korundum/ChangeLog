@@ -1,3 +1,8 @@
+2008-04-12  Richard Dale  <rdale@foton.es>
+
+	* Improved the code to special case Ruby String to Qt::ByteArray 
+	  conversions in the KDE::About* classes
+
 2008-04-09  Richard Dale  <rdale@foton.es>
 
 	* The name of the main class to load for a plugin is derived from the

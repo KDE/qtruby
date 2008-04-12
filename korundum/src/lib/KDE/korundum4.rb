@@ -19,20 +19,28 @@
 
 module KDE
 	class CmdLineArgs < Qt::Base
-	def CmdLineArgs.init(*k)
-		if k.length > 0
-			if k[0].kind_of? Array
-				# If init() is passed an array as the first argument, assume it's ARGV.
-				# Then convert to a pair of args 'ARGV.length+1, [$0]+ARGV'
-				array = k.shift
-				super(*([array.length+1] + [[$0] + array] + k))
-			elsif k[0].kind_of? KDE::AboutData
-				super(1, [$0], k[0])
+		def CmdLineArgs.init(*k)
+			if k.length > 0
+				if k[0].kind_of? Array
+					# If init() is passed an array as the first argument, assume it's ARGV.
+					# Then convert to a pair of args 'ARGV.length+1, [$0]+ARGV'
+					array = k.shift
+					super(*([array.length+1] + [[$0] + array] + k))
+				elsif k[0].kind_of? KDE::AboutData
+					super(1, [$0], k[0])
+				end
+			else
+				super
 			end
-		else
-			super
 		end
-	end
+
+		def isSet(arg)
+			super(arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg)
+		end
+
+		def getOption(arg)
+			super(arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg)
+		end
 	end
 
 	class MainWindow
@@ -84,43 +92,26 @@ module KDE
 	class AboutData
 		def initialize(*args)
 			sargs = []
-
-			arg = args.shift
-			sargs << (arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg) unless arg.nil?
-
-			arg = args.shift
-			sargs << (arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg) unless arg.nil?
-
-			sargs << args.shift unless args.empty?
-
-			arg = args.shift
-			sargs << (arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg) unless arg.nil?
-
-			sargs << args.shift unless args.empty?
-			sargs << args.shift unless args.empty?
-			sargs << args.shift unless args.empty?
-			sargs << args.shift unless args.empty?
-
-			arg = args.shift
-			sargs << (arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg) unless arg.nil?
-
-			arg = args.shift
-			sargs << (arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg) unless arg.nil?
+			for i in 0...args.length do
+				if [0, 1, 3, 8, 9].include?(i) && (args[i].kind_of?(String) || args[i].nil?)
+					sargs << Qt::ByteArray.new(args[i])
+				else
+					sargs << args[i]
+				end
+            end
 
 			super(*sargs)
 		end
 
 		def addAuthor(*args)
 			sargs = []
-
-			sargs << args.shift unless args.empty?
-			sargs << args.shift unless args.empty?
-
-			arg = args.shift
-			sargs << (arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg) unless arg.nil?
-
-			arg = args.shift
-			sargs << (arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg) unless arg.nil?
+			for i in 0...args.length do
+				if [2, 3].include?(i) && (args[i].kind_of?(String) || args[i].nil?)
+					sargs << Qt::ByteArray.new(args[i])
+				else
+					sargs << args[i]
+				end
+            end
 
 			super(*sargs)
 		end
@@ -197,10 +188,13 @@ module KDE
 	class CmdLineOptions
 		def add(*args)
 			sargs = []
-			arg = args.shift
-			sargs << (arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg) unless arg.nil?
-			sargs << args.shift unless args.empty?
-			sargs << (arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg) unless arg.nil?
+			for i in 0...args.length do
+				if [0, 2].include?(i) && (args[i].kind_of?(String) || args[i].nil?)
+					sargs << Qt::ByteArray.new(args[i])
+				else
+					sargs << args[i]
+				end
+            end
 			super(*sargs)
 		end
 	end
