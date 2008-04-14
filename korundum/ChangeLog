@@ -1,3 +1,8 @@
+2008-04-14  Richard Dale  <rdale@foton.es>
+
+	* When a KDE::Application is created set up the $qApp global variable
+	  as well as $kapp
+
 2008-04-12  Richard Dale  <rdale@foton.es>
 
 	* Improved the code to special case Ruby String to Qt::ByteArray 

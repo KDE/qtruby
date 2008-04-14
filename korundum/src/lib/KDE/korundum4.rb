@@ -64,6 +64,7 @@ module KDE
 		def initialize(*k)
 			super
 			$kapp = self
+			$qApp = self
 		end
 		
 		# Delete the underlying C++ instance after exec returns
