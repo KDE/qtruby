@@ -178,8 +178,8 @@ action = KDE::StandardAction.quit(app, SLOT(:quit), view)
 view.addAction(action)
 
 if args.isSet("pixmapcache")
-  puts "setting pixmap cache to #{args.getOption("pixmapcache").toInt}"
-  Qt::PixmapCache.cacheLimit = args.getOption("pixmapcache").toInt
+  puts "setting pixmap cache to #{args.getOption("pixmapcache")}"
+  Qt::PixmapCache.cacheLimit = args.getOption("pixmapcache").to_i
 end
 
 app.exec

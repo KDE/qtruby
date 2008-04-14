@@ -23,9 +23,9 @@
 =end
 
 require 'plasma_applet'
-require 'clockConfig.rb'
+require 'analog_clock_config.rb'
 
-class Clock < Plasma::Applet
+class AnalogClock < Plasma::Applet
 
   slots 'dataUpdated(QString,Plasma::DataEngine::Data)',
         :showConfigurationInterface,
@@ -45,7 +45,7 @@ class Clock < Plasma::Applet
     @timezone = ""
     @showTimeString = false
     @showSecondHand = false
-    @ui = Ui_ClockConfig.new
+    @ui = Ui::AnalogClockConfig.new
     @lastTimeSeen = Qt::Time.new
   end
 
@@ -60,6 +60,7 @@ class Clock < Plasma::Applet
   end
 
   def connectToEngine
+    # Use 'dataEngine("ruby-time")' for the ruby version of the engine
     timeEngine = dataEngine("time")
     if @showSecondHand
         timeEngine.connectSource(@timezone, self, 500)

@@ -4,6 +4,8 @@
  *   Copyright (C) 2007 by Riccardo Iaconelli <riccardo@kde.org>           *
  *   Copyright (C) 2007 by Sebastian Kuegler <sebas@kde.org>               *
  *                                                                         *
+ *   Translated to Ruby by Richard Dale                                    *
+ *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
@@ -22,10 +24,10 @@
 =end
 
 require 'plasma_applet'
-require 'clockConfig.rb'
+require 'digital_clock_config.rb'
 require 'calendar.rb'
 
-class Clock < Plasma::Applet
+class DigitalClock < Plasma::Applet
   PlainClock = 0
   FancyClock = 1
 
@@ -49,8 +51,8 @@ class Clock < Plasma::Applet
     @showSeconds = false
     @showTimezone = false
     @lastTimeSeen = Qt::Time.new
-    @ui = Ui_ClockConfig.new
-    @calendarUi = Ui_Calendar.new
+    @ui = Ui::DigitalClockConfig.new
+    @calendarUi = Ui::Calendar.new
 
     setHasConfigurationInterface(true)
     setContentSize(70, 22)
@@ -87,6 +89,7 @@ class Clock < Plasma::Applet
 
     @toolTipIcon = KDE::Icon.new("chronometer").pixmap(KDE::IconSize(KDE::IconLoader::Desktop))
 
+    # Use 'dataEngine("ruby-time")' for the ruby version of the engine
     dataEngine("time").connectSource(@timezone, self, updateInterval, intervalAlignment)
     connect(Plasma::Theme.self, SIGNAL(:changed), self, SLOT(:updateColors))
   end
@@ -202,7 +205,7 @@ class Clock < Plasma::Applet
         tz = @timeZones.at(0)
         if tz != @timezone
             dataEngine("time").disconnectSource(@timezone, self)
-            # We have changed the timezone, show that in the clock, but only if self
+            # We have changed the timezone, show that in the clock, but only if this
             # setting hasn't been changed.
             @ui.showTimezone.checkState = Qt::Checked
             @timezone = tz
@@ -238,7 +241,7 @@ class Clock < Plasma::Applet
     if @useCustomColor
         @plainClockColor = @ui.plainClockColor.color
     else
-        @plainClockColor = KDE::ColorScheme(Qt::Palette::Active, KDE::ColorScheme::View, Plasma::Theme.self.colors).foreground.color
+        @plainClockColor = KDE::ColorScheme.new(Qt::Palette::Active, KDE::ColorScheme::View, Plasma::Theme.self.colors).foreground.color
     end
     @plainClockFontBold = @ui.plainClockFontBold.checkState == Qt::Checked;
     @plainClockFontItalic = @ui.plainClockFontItalic.checkState == Qt::Checked;
