@@ -49,7 +49,7 @@ class TimeEngine < Plasma::DataEngine
         timezone = KDE::SystemTimeZones.local.name
     else
         newTz = KDE::SystemTimeZones.zone(tz)
-        if !newTz.valid?
+        unless newTz.valid?
             return false
         end
 
