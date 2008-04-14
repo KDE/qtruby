@@ -1,3 +1,9 @@
+2008-04-14  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Special case the KDE::DateTime and KDE::TimeZone classes so that
+	  nested classes, such as KDE::DateTime::Spec work with them. 
+	  TODO: make this work automatically without needing extra code.
+
 2008-04-10  Richard Dale  <richard.j.dale@gmail.com>
 
 	* When matching arg types, strip off an '::Ptr' or 'Ptr' at the end

@@ -1370,7 +1370,7 @@ void marshall_QListCharStar(Marshall *m) {
 			VALUE item = rb_ary_entry(av, i);
 			if (TYPE(item) != T_STRING) {
 				list->append(0);
-		    	continue;
+				continue;
 			}
 			list->append(StringValuePtr(item));
 		}

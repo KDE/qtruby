@@ -130,6 +130,9 @@ VALUE nepomuk_module = Qnil;
 VALUE kconfiggroup_class = Qnil;
 VALUE konsole_part_class = Qnil;
 VALUE kwin_class = Qnil;
+VALUE kdatetime_class = Qnil;
+VALUE ktimezone_class = Qnil;
+
 VALUE qlistmodel_class = Qnil;
 VALUE qmetaobject_class = Qnil;
 VALUE qtablemodel_class = Qnil;
@@ -3151,6 +3154,12 @@ static QRegExp * scope_op = 0;
 	if (packageName.startsWith("KDE::Win::")) {
 		klass = rb_define_class_under(kwin_class, package+strlen("KDE::Win::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (packageName.startsWith("KDE::DateTime::")) {
+		klass = rb_define_class_under(kdatetime_class, package+strlen("KDE::DateTime::"), base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (packageName.startsWith("KDE::TimeZone::")) {
+		klass = rb_define_class_under(ktimezone_class, package+strlen("KDE::TimeZone::"), base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (packageName.startsWith("KDE::")) {
 		klass = rb_define_class_under(kde_module, package+strlen("KDE::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
@@ -3431,6 +3440,8 @@ set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE))
     rb_define_singleton_method(plasma_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 
 	kwin_class = rb_define_class_under(kde_module, "Win", qt_base_class);
+	kdatetime_class = rb_define_class_under(kde_module, "DateTime", qt_base_class);
+	ktimezone_class = rb_define_class_under(kde_module, "TimeZone", qt_base_class);
 
 	kate_module = rb_define_module("Kate");
     rb_define_singleton_method(kate_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);

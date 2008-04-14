@@ -2260,14 +2260,14 @@ module Qt
 				now = classname.sub(/^Q3(?=[A-Z])/,'Qt3::')
 			elsif classname =~ /^Q/
 				now = classname.sub(/^Q(?=[A-Z])/,'Qt::')
-			elsif classname =~ /^(KConfigSkeleton|KWin)::/
+			elsif classname =~ /^(KConfigSkeleton|KWin|KDateTime|KTimeZone)::/
 				now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
 			elsif classname !~ /::/
 				now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
 			else
 				now = classname
 			end
-#			puts "normalize_classname = was::#{classname}, now::#{now}"
+#			puts "normalize_classname = was: #{classname}, now: #{now}"
 			now
 		end
 
@@ -2425,7 +2425,8 @@ module Qt
 			
 			if method == "new"
 				method = classname.dup 
-				method.gsub!(/^(Qt::TextBlock|Qt::TextLayout|Qt::TextFrame|Qt::TextOption|Qt::Locale|Qt::AbstractFileEngine|KBookmark|KParts|KMediaPlayer|KIO|KNS|DOM|Kontact|Kate|KSettings|KTimeZone|KTextEditor|KWin|KWallet|Plasma|Sonnet|Soprano|Nepomuk)::/,"")
+#				method.gsub!(/^(QTextBlock|QTextLayout|QTextFrame|QTextOption|QLocale|QAbstractFileEngine|KDateTime|KBookmark|KParts|KMediaPlayer|KIO|KNS|DOM|Kontact|Kate|KSettings|KTimeZone|KTextEditor|KWin|KWallet|Plasma|Sonnet|Soprano|Nepomuk)::/,"")
+				method.gsub!(/^.*::/,"")
 			end
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
 			# Change foobar= to setFoobar()					
