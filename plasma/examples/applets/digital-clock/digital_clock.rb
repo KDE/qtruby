@@ -28,18 +28,15 @@ require 'digital_clock_config.rb'
 require 'calendar.rb'
 
 class DigitalClock < Plasma::Applet
-  PlainClock = 0
-  FancyClock = 1
 
   slots 'dataUpdated(QString,Plasma::DataEngine::Data)',
         'showCalendar(QGraphicsSceneMouseEvent *)',
-        :showConfigurationInterface,
+        'createConfigurationInterface(KConfigDialog *)',
         :configAccepted,
         :updateColors
 
   def initialize(parent, args)
     super
-    @clockStyle = PlainClock
     @plainClockFont = KDE::GlobalSettings.generalFont
     @useCustomColor = false
     @plainClockColor = Qt::Color.new(Qt::white)
@@ -55,11 +52,12 @@ class DigitalClock < Plasma::Applet
     @calendarUi = Ui::Calendar.new
 
     setHasConfigurationInterface(true)
-    setContentSize(70, 22)
+    resize(70, 22)
   end
 
   def init
     cg = config
+    @localTimeZone = cg.readEntry("localTimeZone", Qt::Variant.new(true))
     @timezone = cg.readEntry("timezone", Qt::Variant.new("Local")).value
     @timeZones = cg.readEntry("timeZones", [])
 
@@ -67,7 +65,6 @@ class DigitalClock < Plasma::Applet
 
     @showDate = cg.readEntry("showDate", Qt::Variant.new(false)).value
     @showYear = cg.readEntry("showYear", Qt::Variant.new(false)).value
-
     @showDay = cg.readEntry("showDay", Qt::Variant.new(true)).value
 
     @showSeconds = cg.readEntry("showSeconds", Qt::Variant.new(false)).value
@@ -80,12 +77,12 @@ class DigitalClock < Plasma::Applet
     end
     @plainClockFontBold = cg.readEntry("plainClockFontBold", Qt::Variant.new(true)).value
     @plainClockFontItalic = cg.readEntry("plainClockFontItalic", Qt::Variant.new(false)).value
-    @plainClockFont.setBold(@plainClockFontBold)
-    @plainClockFont.setItalic(@plainClockFontItalic)
+    @plainClockFont.bold = @plainClockFontBold
+    @plainClockFont.italic = @plainClockFontItalic
 
     metrics = Qt::FontMetricsF.new(KDE::GlobalSettings.smallestReadableFont)
     timeString = KDE::Global.locale.formatTime(Qt::Time.new(23, 59), @showSeconds)
-    setMinimumContentSize(metrics.size(Qt::TextSingleLine, timeString))
+    setMinimumSize(metrics.size(Qt::TextSingleLine, timeString))
 
     @toolTipIcon = KDE::Icon.new("chronometer").pixmap(KDE::IconSize(KDE::IconLoader::Desktop))
 
@@ -94,27 +91,26 @@ class DigitalClock < Plasma::Applet
     connect(Plasma::Theme.self, SIGNAL(:changed), self, SLOT(:updateColors))
   end
 
-  def expandingDirections
-    if formFactor == Plasma::Horizontal
-      return Qt::Vertical
-    else
-      return Qt::Horizontal
-    end
-  end
-
-  def dataUpdated(source, data)
-    @time = data["Time"].toTime
-    @date = data["Date"].toDate
-    @prettyTimezone = data["Timezone City"].toString
-
+  def updateToolTipContent
     timeString = KDE::Global.locale.formatTime(@time, @showSeconds)
-
+    # FIXME Port to future tooltip manager
+=begin
     tipData = Plasma::ToolTipData.new
     tipData.mainText = @time.toString(timeString)
     tipData.subText = @date.toString
     tipData.image = @toolTipIcon
 
     setToolTip(tipData)
+=end
+  end
+
+  def dataUpdated(source, data)
+    @time = data["Time"].toTime
+    @date = data["Date"].toDate
+    @prettyTimezone = data["Timezone City"].toString
+    @prettyTimezone.gsub!("_", " ")
+
+    updateToolTipContent
 
     # avoid unnecessary repaints
     if @showSeconds || @time.minute != @lastTimeSeen.minute
@@ -124,7 +120,7 @@ class DigitalClock < Plasma::Applet
   end
 
   def mousePressEvent(event)
-    if event.buttons == Qt::LeftButton && contentRect.contains(event.pos)
+    if event.buttons == Qt::LeftButton
         showCalendar(event)
     else
         event.ignore
@@ -132,7 +128,7 @@ class DigitalClock < Plasma::Applet
   end
 
   def showCalendar(event)
-    if @calendar == 0
+    if @calendar.nil?
         @calendar = Plasma::Dialog.new
         # @calendar.setStyleSheet("{ border : 0px }") # FIXME: crashes
         @layout = Qt::VBoxLayout.new
@@ -154,20 +150,14 @@ class DigitalClock < Plasma::Applet
     end
   end
 
-  def showConfigurationInterface
-    if @dialog.nil?
-        @dialog = KDE::Dialog.new
+  def createConfigurationInterface(parent)
+    widget = Qt::Widget.new
+    @ui.setupUi(widget)
+    parent.buttons = KDE::Dialog::Ok | KDE::Dialog::Cancel | KDE::Dialog::Apply
+    parent.addPage(widget, parent.windowTitle, "chronometer")
+    connect(parent, SIGNAL(:applyClicked), self, SLOT(:configAccepted))
+    connect(parent, SIGNAL(:okClicked), self, SLOT(:configAccepted))
 
-        @dialog.caption = i18n("Configure Clock")
-
-        widget = Qt::Widget.new
-        @ui.setupUi(widget)
-        @dialog.mainWidget = widget
-        @dialog.buttons = KDE::Dialog::Ok | KDE::Dialog::Cancel | KDE::Dialog::Apply
-
-        connect( @dialog, SIGNAL(:applyClicked), self, SLOT(:configAccepted) )
-        connect( @dialog, SIGNAL(:okClicked), self, SLOT(:configAccepted) )
-    end
     @ui.showDate.checked = @showDate
     @ui.showYear.checked = @showYear
     @ui.showDay.checked = @showDay
@@ -183,40 +173,40 @@ class DigitalClock < Plasma::Applet
     @timeZones.each do |str|
         @ui.timeZones.setSelected(str, true)
     end
-
-    @dialog.show
   end
 
   def configAccepted
     cg = config
+
     #We need this to happen before we disconnect/reconnect sources to ensure
     #that the update interval is set properly.
     @showSeconds = @ui.secondsCheckbox.checkState == Qt::Checked
     cg.writeEntry("showSeconds", Qt::Variant.new(@showSeconds))
-    #QGraphicsItem::update
+
+    @localTimeZone = @ui.localTimeZone.checkState == Qt::Checked
+    cg.writeEntry("localTimeZone", Qt::Variant.new(@localTimeZone))
+
     @timeZones = @ui.timeZones.selection
     cg.writeEntry("timeZones", Qt::Variant.new(@timeZones))
-    if @ui.localTimeZone.checkState == Qt::Checked
+
+    if @localTimeZone
         dataEngine("time").disconnectSource(@timezone, self)
         @timezone = "Local";
         dataEngine("time").connectSource(@timezone, self, updateInterval, intervalAlignment)
-        cg.writeEntry("timezone", @timezone)
-    elsif @timeZones.length > 0
-        tz = @timeZones.at(0)
-        if tz != @timezone
-            dataEngine("time").disconnectSource(@timezone, self)
-            # We have changed the timezone, show that in the clock, but only if this
-            # setting hasn't been changed.
-            @ui.showTimezone.checkState = Qt::Checked
-            @timezone = tz
-            dataEngine("time").connectSource(@timezone, self, updateInterval, intervalAlignment)
-        end
         cg.writeEntry("timezone", Qt::Variant.new(@timezone))
+    elsif @timeZones.length > 0
+        dataEngine("time").disconnectSource(@timezone, self)
+        # We have changed the timezone, show that in the clock, but only if this
+        # setting hasn't been changed.
+        @ui.showTimezone.checkState = Qt::Checked
+        tz = @timeZones[0]
+        cg.writeEntry("timezone", Qt::Variant.new(@timezone))
+        dataEngine("time").connectSource(@timezone, self, updateInterval, intervalAlignment)
     elsif @timezone != "Local"
         dataEngine("time").disconnectSource(@timezone, self)
         @timezone = "Local"
         dataEngine("time").connectSource(@timezone, self, updateInterval, intervalAlignment)
-        cg.writeEntry("timezone", @timezone)
+        cg.writeEntry("timezone", Qt::Variant.new(@timezone))
     else
         puts "User didn't use local timezone but also didn't select any other."
     end
@@ -246,10 +236,9 @@ class DigitalClock < Plasma::Applet
     @plainClockFontBold = @ui.plainClockFontBold.checkState == Qt::Checked;
     @plainClockFontItalic = @ui.plainClockFontItalic.checkState == Qt::Checked;
 
-    @plainClockFont.setBold(@plainClockFontBold)
-    @plainClockFont.setItalic(@plainClockFontItalic)
+    @plainClockFont.bold = @plainClockFontBold
+    @plainClockFont.italic = @plainClockFontItalic
 
-    cg.writeEntry("plainClock", Qt::Variant.new(@clockStyle == PlainClock))
     cg.writeEntry("plainClockFont", Qt::Variant.fromValue(@plainClockFont))
     cg.writeEntry("useCustomColor", Qt::Variant.new(@useCustomColor))
     cg.writeEntry("plainClockColor", Qt::Variant.fromValue(@plainClockColor))
@@ -299,19 +288,18 @@ class DigitalClock < Plasma::Applet
 
                 if @showTimezone
                     timezone = @prettyTimezone
-                    timezone.gsub!("_", " ")
                     dateString = i18nc("@label Date with timezone: " +
                                        "%s day of the week with date, %s timezone" % [dateString, timezone],
                                        "%s %s" % [dateString, timezone])
                 end
             elsif @showTimezone
                 dateString = @prettyTimezone
-                dateString.gsub!("_", " ")
             end
 
             # Check sizes
             dateRect = preparePainter(p, contentsRect, KDE::GlobalSettings.smallestReadableFont, dateString)
             subtitleHeight = dateRect.height
+
             p.drawText(Qt::RectF.new(0,
                                 contentsRect.bottom-subtitleHeight,
                                 contentsRect.right,
@@ -322,9 +310,9 @@ class DigitalClock < Plasma::Applet
 
             # Now find out how much space is left for painting the time
             timeRect = Qt::Rect.new(   contentsRect.left,
-                                contentsRect.top,
-                                contentsRect.width,
-                                (contentsRect.height-subtitleHeight+4))
+                                       contentsRect.top,
+                                       contentsRect.width,
+                                       (contentsRect.height-subtitleHeight+4))
         else
             timeRect = contentsRect
         end

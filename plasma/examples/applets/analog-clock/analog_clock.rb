@@ -25,17 +25,18 @@
 require 'plasma_applet'
 require 'analog_clock_config.rb'
 
-class AnalogClock < Plasma::Applet
+class AnalogClock < Plasma::Containment
 
   slots 'dataUpdated(QString,Plasma::DataEngine::Data)',
-        :showConfigurationInterface,
+        'createConfigurationInterface(KConfigDialog*)',
+        :moveSecondHand,
         :configAccepted
 
   def initialize(parent, args)
     super
 
     setHasConfigurationInterface(true)
-    setContentSize(125, 125)
+    resize(125, 125)
     setRemainSquare(true)
 
     @theme = Plasma::Svg.new("widgets/clock", self)
@@ -97,25 +98,20 @@ class AnalogClock < Plasma::Applet
     update()
   end
 
-  def showConfigurationInterface() #TODO: Make the size settable
-     if @dialog.nil?
-       @dialog = KDE::Dialog.new
-       @dialog.caption = i18nc("@title:window", "Configure Clock")
-
-       widget = Qt::Widget.new
-       @ui.setupUi(widget)
-       @dialog.mainWidget = widget
-       @dialog.buttons = KDE::Dialog::Ok | KDE::Dialog::Cancel | KDE::Dialog::Apply
-       connect( @dialog, SIGNAL(:applyClicked), self, SLOT(:configAccepted) )
-       connect( @dialog, SIGNAL(:okClicked), self, SLOT(:configAccepted) )
-    end
+  def createConfigurationInterface(parent)
+    # TODO: Make the size settable
+    widget = Qt::Widget.new
+    @ui.setupUi(widget)
+    parent.buttons = KDE::Dialog::Ok | KDE::Dialog::Cancel | KDE::Dialog::Apply
+    connect(parent, SIGNAL(:applyClicked), self, SLOT(:configAccepted))
+    connect(parent, SIGNAL(:okClicked), self, SLOT(:configAccepted));
+    parent.addPage(widget, parent.windowTitle, "chronometer")
 
     @ui.timeZones.setSelected(@timezone, true)
     @ui.timeZones.enabled = @timezone != "Local"
     @ui.localTimeZone.checked = @timezone == "Local"
     @ui.showTimeStringCheckBox.checked = @showTimeString
     @ui.showSecondHandCheckBox.checked = @showSecondHand
-    @dialog.show
   end
 
   def configAccepted()
@@ -146,7 +142,7 @@ class AnalogClock < Plasma::Applet
       cg.writeEntry("timezone", Qt::Variant.new(@timezone))
     end
 
-    connectToEngine()
+    connectToEngine
     constraintsUpdated(Plasma::AllConstraints)
     emit configNeedsSaving
   end
@@ -170,7 +166,7 @@ class AnalogClock < Plasma::Applet
   def paintInterface(p, option, rect)
     tempRect = Qt::RectF.new(0, 0, 0, 0)
 
-    boundSize = contentSize
+    boundSize = geometry.size
     elementSize = Qt::Size.new
 
     p.renderHint = Qt::Painter::SmoothPixmapTransform
