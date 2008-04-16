@@ -18,48 +18,6 @@
 =end
 
 module KDE
-	class CmdLineArgs < Qt::Base
-		def CmdLineArgs.init(*k)
-			if k.length > 0
-				if k[0].kind_of? Array
-					# If init() is passed an array as the first argument, assume it's ARGV.
-					# Then convert to a pair of args 'ARGV.length+1, [$0]+ARGV'
-					array = k.shift
-					super(*([array.length+1] + [[$0] + array] + k))
-				elsif k[0].kind_of? KDE::AboutData
-					super(1, [$0], k[0])
-				end
-			else
-				super
-			end
-		end
-
-		def isSet(arg)
-			super(arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg)
-		end
-
-		def getOption(arg)
-			super(arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg)
-		end
-	end
-
-	class MainWindow
-		# A sane alternative to the strange looking C++ template version,
-		# this takes a variable number of ruby args as classes to restore
-		def self.kRestoreMainWindows(*k)
-			n = 1
-			while MainWindow.canBeRestored(n)
-				className = MainWindow.classNameOfToplevel(n)
-				k.each do |klass|
-					if klass.name == className
-						klass.new.restore(n)
-					end
-				end
-				n += 1
-			end
-		end
-	end
-
 	class Application
 		def initialize(*k)
 			super
@@ -157,6 +115,12 @@ module KDE
 			pp.text str
 		end
 	end
+
+	class AboutLicense
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
 	
 	class AboutPerson
 		def inspect
@@ -169,6 +133,10 @@ module KDE
 			str = to_s
 			pp.text str.sub(/>$/, "\n emailAddress=%s,\n name=%s,\n task=%s,\n webAddress=%s>" % 
 						[emailAddress.inspect, name.inspect, task.inspect, webAddress.inspect] )
+		end
+
+		def name(*args)
+			method_missing(:name, *args)
 		end
 	end
 	
@@ -185,7 +153,38 @@ module KDE
 						[emailAddress.inspect, name.inspect] )
 		end
 	end
-	
+
+	class ArchiveEntry
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class CmdLineArgs < Qt::Base
+		def CmdLineArgs.init(*k)
+			if k.length > 0
+				if k[0].kind_of? Array
+					# If init() is passed an array as the first argument, assume it's ARGV.
+					# Then convert to a pair of args 'ARGV.length+1, [$0]+ARGV'
+					array = k.shift
+					super(*([array.length+1] + [[$0] + array] + k))
+				elsif k[0].kind_of? KDE::AboutData
+					super(1, [$0], k[0])
+				end
+			else
+				super
+			end
+		end
+
+		def isSet(arg)
+			super(arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg)
+		end
+
+		def getOption(arg)
+			super(arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg)
+		end
+	end
+
 	class CmdLineOptions
 		def add(*args)
 			sargs = []
@@ -200,6 +199,24 @@ module KDE
 		end
 	end
 
+	class ColorCollection
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class Config
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class ConfigGroup
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
 	class DoubleNumInput
 		def range=(arg)
 			if arg.kind_of? Range
@@ -207,6 +224,12 @@ module KDE
 			else
 				return super(arg)
 			end
+		end
+	end
+
+	class FileItem
+		def name(*args)
+			method_missing(:name, *args)
 		end
 	end
 
@@ -230,6 +253,35 @@ module KDE
 		end
 	end
 
+	class MainWindow
+		# A sane alternative to the strange looking C++ template version,
+		# this takes a variable number of ruby args as classes to restore
+		def self.kRestoreMainWindows(*k)
+			n = 1
+			while MainWindow.canBeRestored(n)
+				className = MainWindow.classNameOfToplevel(n)
+				k.each do |klass|
+					if klass.name == className
+						klass.new.restore(n)
+					end
+				end
+				n += 1
+			end
+		end
+	end
+
+	class PageWidgetItem
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class PluginInfo
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
 	class Service
 		def inspect
 			str = super
@@ -241,19 +293,65 @@ module KDE
 			pp.text str.sub(/>$/, "\n library=%s,\n type=%s,\n name=%s>" % [library.inspect, type.inspect, name.inspect])
 		end
 	end
-=begin
-	class URL
+	class ServiceAction
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class StandardAction
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class StandardShortcut
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class StartupInfoData
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class SycocaEntry
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class TempDir
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class TimeZone
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
+
+	class Url
 		def inspect
 			str = super
-			str.sub(/>$/, " url=%s, protocol=%s, host=%s, port=%d>" % [url.inspect, protocol.inspect, host.inspect, port])
+			str.sub(/>$/, " url=%s, protocol=%s>" % [url.inspect, protocol.inspect])
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, "\n url=%s,\n protocol=%s,\n host=%s,\n port=%d>" % [url.inspect, protocol.inspect, host.inspect, port])
+			pp.text str.sub(/>$/, "\n url=%s,\n protocol=%s>" % [url.inspect, protocol.inspect])
 		end
 	end
-=end
+
+	class UserGroup
+		def name(*args)
+			method_missing(:name, *args)
+		end
+	end
 end
 
 class Object

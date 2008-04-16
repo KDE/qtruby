@@ -1,3 +1,9 @@
+2008-04-16  Richard Dale  <rdale@foton.es>
+
+	* Special cased the name() method in various classes as it clashes with
+	  a Ruby method called name() as wasn't getting called. Thanks to
+	  Stefano Crocco for reporting the bug.
+
 2008-04-14  Richard Dale  <rdale@foton.es>
 
 	* When a KDE::Application is created set up the $qApp global variable
