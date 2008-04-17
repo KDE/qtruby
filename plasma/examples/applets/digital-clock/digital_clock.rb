@@ -40,8 +40,6 @@ class DigitalClock < Plasma::Applet
     @plainClockFont = KDE::GlobalSettings.generalFont
     @useCustomColor = false
     @plainClockColor = Qt::Color.new(Qt::white)
-    @plainClockFontBold = false
-    @plainClockFontItalic = false
     @showDate = false
     @showYear = false
     @showDay = false
@@ -73,12 +71,8 @@ class DigitalClock < Plasma::Applet
     if @useCustomColor
         @plainClockColor = cg.readEntry("plainClockColor", Qt::Variant.fromValue(@plainClockColor)).value
     else
-        @plainClockColor = KDE::ColorScheme.new(Qt::Palette::Active, KDE::ColorScheme::View, Plasma::Theme.self.colors).foreground.color
+        @plainClockColor = KDE::ColorScheme.new(Qt::Palette::Active, KDE::ColorScheme::View, Plasma::Theme.self.colorScheme).foreground.color
     end
-    @plainClockFontBold = cg.readEntry("plainClockFontBold", Qt::Variant.new(true)).value
-    @plainClockFontItalic = cg.readEntry("plainClockFontItalic", Qt::Variant.new(false)).value
-    @plainClockFont.bold = @plainClockFontBold
-    @plainClockFont.italic = @plainClockFontItalic
 
     metrics = Qt::FontMetricsF.new(KDE::GlobalSettings.smallestReadableFont)
     timeString = KDE::Global.locale.formatTime(Qt::Time.new(23, 59), @showSeconds)
@@ -163,8 +157,8 @@ class DigitalClock < Plasma::Applet
     @ui.showDay.checked = @showDay
     @ui.secondsCheckbox.checked = @showSeconds
     @ui.showTimezone.checked = @showTimezone
-    @ui.plainClockFontBold.checked = @plainClockFontBold
-    @ui.plainClockFontItalic.checked = @plainClockFontItalic
+    @ui.plainClockFontBold.checked = @plainClockFont.bold
+    @ui.plainClockFontItalic.checked = @plainClockFont.italic
     @ui.plainClockFont.currentFont = @plainClockFont
     @ui.useCustomColor.checked = @useCustomColor
     @ui.plainClockColor.color = @plainClockColor
@@ -231,19 +225,14 @@ class DigitalClock < Plasma::Applet
     if @useCustomColor
         @plainClockColor = @ui.plainClockColor.color
     else
-        @plainClockColor = KDE::ColorScheme.new(Qt::Palette::Active, KDE::ColorScheme::View, Plasma::Theme.self.colors).foreground.color
+        @plainClockColor = KDE::ColorScheme.new(Qt::Palette::Active, KDE::ColorScheme::View, Plasma::Theme.self.colorScheme).foreground.color
     end
-    @plainClockFontBold = @ui.plainClockFontBold.checkState == Qt::Checked;
-    @plainClockFontItalic = @ui.plainClockFontItalic.checkState == Qt::Checked;
-
-    @plainClockFont.bold = @plainClockFontBold
-    @plainClockFont.italic = @plainClockFontItalic
+    @plainClockFont.bold = @ui.plainClockFontBold.checkState == Qt::Checked
+    @plainClockFont.italic = @ui.plainClockFontItalic.checkState == Qt::Checked
 
     cg.writeEntry("plainClockFont", Qt::Variant.fromValue(@plainClockFont))
     cg.writeEntry("useCustomColor", Qt::Variant.new(@useCustomColor))
     cg.writeEntry("plainClockColor", Qt::Variant.fromValue(@plainClockColor))
-    cg.writeEntry("plainClockFontBold", Qt::Variant.new(@plainClockFontBold))
-    cg.writeEntry("plainClockFontItalic", Qt::Variant.new(@plainClockFontItalic))
 
     update
     emit configNeedsSaving
@@ -252,8 +241,6 @@ class DigitalClock < Plasma::Applet
 
   def paintInterface(p, option, contentsRect)
     if @time.valid? && @date.valid?
-        p.font = KDE::GlobalSettings.smallestReadableFont
-
         p.pen = Qt::Pen.new(@plainClockColor)
         p.renderHint = Qt::Painter::SmoothPixmapTransform
         p.renderHint = Qt::Painter::Antialiasing
@@ -319,9 +306,6 @@ class DigitalClock < Plasma::Applet
 
         timeString = KDE::Global.locale.formatTime(@time, @showSeconds)
 
-        @plainClockFont.bold = @plainClockFontBold
-        @plainClockFont.italic = @plainClockFontItalic
-
         # Choose a relatively big font size to start with
         @plainClockFont.pointSizeF = [timeRect.height, KDE::GlobalSettings.smallestReadableFont.pointSize].max
         preparePainter(p, timeRect, @plainClockFont, timeString)
@@ -359,7 +343,7 @@ class DigitalClock < Plasma::Applet
 
   def updateColors
     if !@useCustomColor
-        @plainClockColor = KDE::ColorScheme(Qt::Palette::Active, KDE::ColorScheme::View, Plasma::Theme.self.colors).foreground.color
+        @plainClockColor = KDE::ColorScheme(Qt::Palette::Active, KDE::ColorScheme::View, Plasma::Theme.self.colorScheme).foreground.color
         update
     end
   end

@@ -40,7 +40,7 @@ class AnalogClock < Plasma::Containment
     setRemainSquare(true)
 
     @theme = Plasma::Svg.new("widgets/clock", self)
-    @theme.contentType = Plasma::Svg::SingleImage
+    @theme.containsMultipleImages = false
     @theme.resize(size())
 
     @timezone = ""
