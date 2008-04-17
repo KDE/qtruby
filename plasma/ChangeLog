@@ -1,3 +1,18 @@
+2008-04-17  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Added a Plasma Data Engine for querying SPARQL endpoints, and returning
+	  the results passed to setData() as two strings and a Qt::Variant - the 
+	  source name, a variable name from the query, followed by a Qt::Variant 
+	  containing a Soprano::Node as the value of the result. 
+	* The example data engine queries DBPedia for details of the albums for an
+	  artist given the artists name. 
+	* So the source might be 'The Velvet Underground', and the results will be
+	  all the albums they have released with album name, dbpedia resource urn
+	  for the album, and date released. The album name appears both as the source
+	  name and an attribute of the source too.
+	* Enhanced the engineexplorer to work with Qt::Variants containing 
+	  Soprano::Nodes
+
 2008-04-14  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Added a Ruby version of the time data engine called 'ruby-time'

@@ -196,7 +196,18 @@ class EngineExplorer < KDE::Dialog
       point = value.toPoint
       return "(%d, %d)" % [point.x, point.y]
     else
-      return "<unknown>"
+      if value.typeName == "Soprano::Node"
+        node = qVariantValue(Soprano::Node, value)
+        if node.literal?
+          return node.literal.variant.value.inspect
+        elsif node.resource?
+          return node.uri.toString
+        else
+          return node.inspect
+        end
+      else
+        return "<unknown>"
+      end
     end
   end
 

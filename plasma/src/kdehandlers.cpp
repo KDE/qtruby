@@ -48,7 +48,6 @@
 #include <kio/copyjob.h>
 #include <plasma/packagestructure.h>
 #include <plasma/containment.h>
-#include <plasma/widgets/signalplotter.h>
 #include <plasma/searchmatch.h>
 #include <plasma/applet.h>
 #include <plasma/abstractrunner.h>
@@ -659,8 +658,6 @@ DEF_VALUELIST_MARSHALLER( KUserList, QList<KUser>, KUser )
 DEF_VALUELIST_MARSHALLER( KUserGroupList, QList<KUserGroup>, KUserGroup )
 DEF_VALUELIST_MARSHALLER( KUrlList, QList<KUrl>, KUrl )
 DEF_VALUELIST_MARSHALLER( KPluginInfoList, QList<KPluginInfo>, KPluginInfo )
-DEF_VALUELIST_MARSHALLER( PlasmaPlotColorList, QList<Plasma::PlotColor>, Plasma::PlotColor )
-
 
 template <class Value, const char *ValueSTR >
 void marshall_Hash(Marshall *m) {
@@ -793,8 +790,6 @@ TypeHandler KDE_handlers[] = {
     { "QList<Plasma::Containment*>&", marshall_PlasmaContainmentList },
     { "QList<Plasma::SearchMatch*>", marshall_PlasmaSearchMatchList },
     { "QList<Plasma::SearchMatch*>&", marshall_PlasmaSearchMatchList },
-    { "QList<Plasma::PlotColor>", marshall_PlasmaPlotColorList },
-    { "QList<Plasma::PlotColor>&", marshall_PlasmaPlotColorList },
     { "QList<Plasma::Applet::List>", marshall_PlasmaAppletList },
     { "QList<Plasma::AbstractRunner::List>", marshall_PlasmaAbstractRunnerList },
     { "KFileItemList", marshall_KFileItemList },

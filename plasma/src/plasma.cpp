@@ -19,12 +19,12 @@
 #include <qstringlist.h>
 #include <qmap.h>
 #include <qdatastream.h>
+#include <QtDBus/qdbusmetatype.h>
 
-// #include <kdeversion.h>
-// #include <kapplication.h>
-// #include <kurl.h>
-// #include <kconfigskeleton.h>
-// #include <kio/global.h>
+#include <soprano/node.h>
+#include <soprano/statement.h>
+#include <soprano/bindingset.h>
+
 #include <plasma/applet.h>
 
 #include <ruby.h>
@@ -47,6 +47,94 @@ extern Smoke *qt_Smoke;
 
 static VALUE kde_internal_module;
 Marshall::HandlerFn getMarshallFn(const SmokeType &type);
+
+/* 
+ * These QDBusArgument operators are copied from kdesupport/soprano/server/dbus/dbusoperators.cpp
+ */
+Q_DECLARE_METATYPE(Soprano::Statement)
+Q_DECLARE_METATYPE(Soprano::Node)
+Q_DECLARE_METATYPE(Soprano::BindingSet)
+
+QDBusArgument& operator<<( QDBusArgument& arg, const Soprano::Node& node )
+{
+    arg.beginStructure();
+    arg << ( int )node.type() << node.toString() << node.language() << node.dataType().toString();
+    arg.endStructure();
+    return arg;
+}
+
+const QDBusArgument& operator>>( const QDBusArgument& arg, Soprano::Node& node )
+{
+    arg.beginStructure();
+    int type;
+    QString value, language, dataTypeUri;
+    arg >> type >> value >> language >> dataTypeUri;
+    if ( type == Soprano::Node::LiteralNode ) {
+        node = Soprano::Node( Soprano::LiteralValue::fromString( value, dataTypeUri ), language );
+    }
+    else if ( type == Soprano::Node::ResourceNode ) {
+        node = Soprano::Node( QUrl( value ) );
+    }
+    else if ( type == Soprano::Node::BlankNode ) {
+        node = Soprano::Node( value );
+    }
+    else {
+        node = Soprano::Node();
+    }
+    arg.endStructure();
+    return arg;
+}
+
+QDBusArgument& operator<<( QDBusArgument& arg, const Soprano::Statement& statement )
+{
+    arg.beginStructure();
+    arg << statement.subject() << statement.predicate() << statement.object() << statement.context();
+    arg.endStructure();
+    return arg;
+}
+
+const QDBusArgument& operator>>( const QDBusArgument& arg, Soprano::Statement& statement )
+{
+    arg.beginStructure();
+    Soprano::Node subject, predicate, object, context;
+    arg >> subject >> predicate >> object >> context;
+    statement = Soprano::Statement( subject, predicate, object, context );
+    arg.endStructure();
+    return arg;
+}
+
+QDBusArgument& operator<<( QDBusArgument& arg, const Soprano::BindingSet& set )
+{
+    arg.beginStructure();
+    arg.beginMap( QVariant::String, qMetaTypeId<Soprano::Node>() );
+    QStringList names = set.bindingNames();
+    for ( int i = 0; i < names.count(); ++i ) {
+        arg.beginMapEntry();
+        arg << names[i] << set[ names[i] ];
+        arg.endMapEntry();
+    }
+    arg.endMap();
+    arg.endStructure();
+    return arg;
+}
+
+const QDBusArgument& operator>>( const QDBusArgument& arg, Soprano::BindingSet& set )
+{
+    arg.beginStructure();
+    arg.beginMap();
+    while ( !arg.atEnd() ) {
+        QString name;
+        Soprano::Node val;
+        arg.beginMapEntry();
+        arg >> name >> val;
+        arg.endMapEntry();
+        set.insert( name, val );
+    }
+
+    arg.endMap();
+    arg.endStructure();
+    return arg;
+}
 
 extern "C" {
 extern Q_DECL_EXPORT void Init_plasma_applet();
@@ -95,8 +183,13 @@ Init_plasma_applet()
 	
     kde_internal_module = rb_define_module_under(kde_module, "Internal");
 
+	(void) qDBusRegisterMetaType<Soprano::Statement>();
+	(void) qDBusRegisterMetaType<Soprano::Node>();
+	(void) qDBusRegisterMetaType<Soprano::BindingSet>();
+
 	rb_require("KDE/plasma.rb");
 	rb_require("KDE/korundum4.rb");
+	rb_require("KDE/soprano.rb");
 }
 
 }
