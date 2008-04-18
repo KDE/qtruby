@@ -206,7 +206,7 @@ class EngineExplorer < KDE::Dialog
           return node.inspect
         end
       else
-        return "<unknown>"
+        return value.inspect
       end
     end
   end
