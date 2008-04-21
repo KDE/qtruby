@@ -1,3 +1,11 @@
+2008-04-21  Richard Dale  <rdale@foton.es>
+
+    * Add a krubyapplication executable for starting ruby KDE apps. It takes
+	  two args; the name of the app followed by the directory/ruby script
+	  name. Example usage:
+
+	  krubyapplication dbpedia dbpedia_references/dbpedia_references.rb
+
 2008-04-16  Richard Dale  <rdale@foton.es>
 
 	* Special cased the name() method in various classes as it clashes with
