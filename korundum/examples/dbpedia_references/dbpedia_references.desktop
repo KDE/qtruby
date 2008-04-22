@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Exec=krubyapplication dbpedia_references dbpedia_references/dbpedia_references.rb
+Icon=internet-web-browser
+
+Name=DBPedia References
+Categories=Qt;KDE;Network;
+
+

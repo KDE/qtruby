@@ -203,7 +203,7 @@ class DBPediaReferences < KDE::MainWindow
   end
 end
 
-about = KDE::AboutData.new("dbpedia", "DBpedia demo", KDE.ki18n(""), "")
+about = KDE::AboutData.new("dbpedia_references", "DBpedia demo", KDE.ki18n(""), "")
 KDE::CmdLineArgs.init(ARGV, about)
 KDE::Application.new
 
