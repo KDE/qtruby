@@ -134,6 +134,7 @@ Qt::Point.new(3,4)])
 	* Thanks to Sylvain Sauvage for reporting the problem on the Korundum
 help forum
 
+2007-11-21  Sebastian Sauer <mail@dipe.org>
 
 	* Fixed crash on shutdown of Ruby cause of a partly destroyed
 	  pointer_map QHash.
