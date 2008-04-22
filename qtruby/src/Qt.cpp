@@ -229,7 +229,7 @@ bool isDerivedFromByName(Smoke *smoke, const char *className, const char *baseCl
 }
 
 VALUE getPointerObject(void *ptr) {
-	if (!pointer_map()->contains(ptr)) {
+	if (!pointer_map() || !pointer_map()->contains(ptr)) {
 		if (do_debug & qtdb_gc) {
 			qWarning("getPointerObject %p -> nil", ptr);
 		}
