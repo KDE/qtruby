@@ -161,6 +161,8 @@ module KDE
 	end
 
 	class CmdLineArgs < Qt::Base
+		include Enumerable
+
 		def CmdLineArgs.init(*k)
 			if k.length > 0
 				if k[0].kind_of? Array
@@ -176,11 +178,47 @@ module KDE
 			end
 		end
 
+		def each
+			i = 0
+			while i < count do
+				yield arg(i)
+				i += 1
+			end
+		end
+
+		def length
+			count
+		end
+
+		def size
+			count
+		end
+
+		# Allows args["formfactor"] as an alternative to args.getOption("formfactor"),
+		# and args[1] as an alternative to args.arg(1)
+		def [](arg)
+			if arg.kind_of?(String)
+				getOption(arg)
+			elsif arg.kind_of?(Integer)
+				arg(arg)
+			else
+				nil
+			end
+		end
+
+		def set?(arg)
+			isSet(arg)
+		end
+
 		def isSet(arg)
 			super(arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg)
 		end
 
 		def getOption(arg)
+			super(arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg)
+		end
+
+		def getOptionList(arg)
 			super(arg.kind_of?(String) ? Qt::ByteArray.new(arg) : arg)
 		end
 	end
@@ -254,17 +292,39 @@ module KDE
 	end
 
 	class MainWindow
-		# A sane alternative to the strange looking C++ template version,
-		# this takes a variable number of ruby args as classes to restore
-		def self.kRestoreMainWindows(*k)
+		# A sane alternative to the strange looking C++ template version.
+		# There is no need to pass a list of classes, as the Ruby classes
+		# of the main windows to be restored are derived from 
+		# KDE::MainWindow#classNameOfToplevel
+		# Takes an optional block, so a newly created window can be passed
+		# into the block. For example:
+		#
+		# KDE::MainWindow.kRestoreMainWindows {|window| window.caption = "foobar"}
+		#
+		def self.kRestoreMainWindows(&block)
 			n = 1
 			while MainWindow.canBeRestored(n)
 				className = MainWindow.classNameOfToplevel(n)
-				k.each do |klass|
-					if klass.name == className
-						klass.new.restore(n)
-					end
+				if className =~ /(.*)::(.*)/
+					namespace = Object.const_get($1)
+					klass = namespace.const_get($2)
+				else
+					klass = Object.const_get(className)
 				end
+				obj = klass.new.restore(n)
+				if block_given?
+					yield obj
+				end
+				n += 1
+			end
+		end
+
+		# Yield the numbers of the windows that can be restored
+		# in turn
+		def self.each_restore
+			n = 1
+			while MainWindow.canBeRestored(n)
+				yield n
 				n += 1
 			end
 		end

@@ -1,3 +1,20 @@
+2008-04-23  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Made KDE::CmdLineArgs Enumerable so that it is easy to iterate through
+	  the args. For example:
+
+		args = KDE::CmdLineArgs.parsedArgs
+		args.each {|arg| puts arg}
+
+	* Allow args["formfactor"] as an alternative to args.getOption("formfactor"),
+	  and args[1] as an alternative to args.arg(1)
+
+	* Improved the KDE::MainWindow.kRestoreMainWindows method so that you
+	  no longer need to pass it a list of classes, and you can give it an
+	  optional block to execute for each newly created window. For example:
+
+		KDE::MainWindow.kRestoreMainWindows {|window| window.caption = "foo"}
+
 2008-04-22  Richard Dale  <rdale@foton.es>
 
 	* Made the krubyapplication executable work with args to be passed to the
