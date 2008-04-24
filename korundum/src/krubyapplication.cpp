@@ -26,35 +26,43 @@
 #include <KComponentData>
 #include <kdebug.h>
 
+// Allows KDE Ruby applications to be launched via a .desktop file.
+// Add an entry like this to the .desktop file:
+//
+//     Exec=krubyapplication dbpedia_references/dbpedia_references.rb
+//
+// Giving the name of the application's directory and the top level script.
+//
 int main(int argc, char **argv) {
-    if (argc < 3) {
-        fprintf(stderr, "Usage: %s application_name directory/ruby_script [Qt-options] [KDE-options]\n", argv[0]);
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s application_directory/ruby_script [Qt-options] [KDE-options]\n", argv[0]);
         return 1;
     }
 
-    KComponentData componentData(argv[1]);
-    QString path = componentData.dirs()->locate("data", argv[2]);
+    QFileInfo script(argv[1]);
+    KComponentData componentData(script.dirPath().toLatin1(), QByteArray(), KComponentData::SkipMainComponentRegistration);
+    QString path = componentData.dirs()->locate("data", argv[1], componentData);
 
     if (path.isEmpty()) {
-        kWarning() << "Ruby script" << argv[2] << "missing";
+        kWarning() << "Ruby script" << argv[1] << "missing";
         return 1;
     }
 
     QFileInfo program(path);
      
-    char ** rubyargs = (char **) calloc(argc, sizeof(char *));
-    rubyargs[0] = strdup(argv[1]);
+    char ** rubyargs = (char **) calloc(argc+1, sizeof(char *));
+    rubyargs[0] = strdup(argv[0]);
     rubyargs[1] = strdup("-KU");
     rubyargs[2] = strdup(QFile::encodeName(program.filePath()));
-    for (int i = 3; i < argc; i++) {
-        rubyargs[i] = strdup(argv[i]);
+    for (int i = 2; i < argc; i++) {
+        rubyargs[i+1] = strdup(argv[i]);
     }
 
     RUBY_INIT_STACK
     ruby_init();
     ruby_init_loadpath();
     ruby_incpush(QFile::encodeName(program.path()));
-    ruby_options(argc, rubyargs); 
-    ruby_script(argv[1]);
+    ruby_options(argc+1, rubyargs); 
+    ruby_script(QFile::encodeName(program.fileName()));
     ruby_run();
 }

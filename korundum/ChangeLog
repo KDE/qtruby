@@ -1,3 +1,16 @@
+2008-04-24  Richard Dale  <richard.j.dale@gmail.com>
+
+	* The krubyapplication executable now works correctly. It was creating
+	  the mainComponent to find the top level ruby script, which meant a 
+	  dummy KAboutData instance was being created for the app. When the
+	  real KAboutData was provided by the Ruby code it was ignored. 
+	* krubyapplication now only takes one argument:
+
+		krubyapplication <application directory>/<ruby script>
+
+	  The application directory is always the same as the app name and so
+	  a seperate arg was redundant.
+
 2008-04-23  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Made KDE::CmdLineArgs Enumerable so that it is easy to iterate through
