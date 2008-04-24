@@ -1580,9 +1580,7 @@ void WriteInitialization::writeColorGroup(DomColorGroup *colorGroup, const QStri
     while (itRole.hasNext()) {
         const DomColorRole *colorRole = itRole.next();
         if (colorRole->hasAttributeRole()) {
-            const QString brushName = m_driver->unique(QLatin1String("brush"));
-            writeBrush(colorRole->elementBrush(), brushName);
-
+            const QString brushName = writeBrushInitialization(colorRole->elementBrush());
             m_output << m_option.indent << paletteName << ".setBrush(" << group
                 << ", " << "Qt::Palette::" << colorRole->attributeRole()
                 << ", " << brushName << ")\n";
@@ -1644,7 +1642,7 @@ void WriteInitialization::writeBrush(const DomBrush *brush, const QString &brush
             m_output << m_option.indent << gradientName << " = Qt::ConicalGradient.new"
                 << "(" << gradient->attributeCentralX()
                 << ", " << gradient->attributeCentralY()
-                << ", " << gradient->attributeAngle() << ");\n";
+                << ", " << gradient->attributeAngle() << ")\n";
         }
 
         m_output << m_option.indent << gradientName << ".spread = Qt::Gradient::"

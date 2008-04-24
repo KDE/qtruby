@@ -1,3 +1,9 @@
+2008-04-24  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Fixed a couple of differences between C++ code generation and Ruby.
+	  The variable names weren't being stripped of any leading 'q' or 'k',
+	  and the brush initialization hadn't been updated for Qt 4.4.
+
 2008-04-22  Sebastian Sauer <mail@dipe.org>
 
 	* Fix reported crash on shutdown if QtRuby is used embedded.

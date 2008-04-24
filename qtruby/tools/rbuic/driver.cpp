@@ -191,17 +191,8 @@ QString Driver::qtify(const QString &name)
 {
     QString qname = name;
 
-    if (qname.startsWith("Qt3::"))
-        qname = qname.mid(strlen("Qt3::"));
-
-    if (qname.startsWith("Qwt::"))
-        qname = qname.mid(strlen("Qwt::"));
-
-    if (qname.startsWith("Qt::"))
-        qname = qname.mid(strlen("Qt::"));
-
-    if (qname.startsWith("KDE::"))
-        qname = qname.mid(strlen("KDE::"));
+    if (qname.at(0) == QLatin1Char('Q') || qname.at(0) == QLatin1Char('K'))
+        qname = qname.mid(1);
 
     int i=0;
     while (i < qname.length()) {
