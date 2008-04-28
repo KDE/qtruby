@@ -45,7 +45,7 @@ class EngineExplorer < KDE::Dialog
     @ui = Ui::EngineExplorer.new
     @ui.setupUi(mainWidget)
 
-    @engineManager = Plasma::DataEngineManager.new
+    @engineManager = Plasma::DataEngineManager.self
     @dataModel = Qt::StandardItemModel.new(self)
     pix = KDE::Icon.new("plasma")
     size = KDE::IconSize(KDE::IconLoader::Dialog)
@@ -93,7 +93,7 @@ class EngineExplorer < KDE::Dialog
   def listEngines
     @ui.m_engines.clear
     @ui.m_engines.addItem("")
-    engines = @engineManager.knownEngines
+    engines = @engineManager.listAllEngines
     engines.sort!
     @ui.m_engines.addItems(engines)
   end
@@ -110,7 +110,7 @@ class EngineExplorer < KDE::Dialog
     @sourceCount = 0
 
     if @engineName.empty?
-        @engineManager.unload(@engineName)
+        @engineManager.unloadEngine(@engineName)
     end
 
     @engineName = name
@@ -119,7 +119,7 @@ class EngineExplorer < KDE::Dialog
         return
     end
 
-    @engine = @engineManager.load(@engineName)
+    @engine = @engineManager.loadEngine(@engineName)
     if @engine.nil?
         @engineName.clear
         updateTitle
@@ -139,7 +139,7 @@ class EngineExplorer < KDE::Dialog
     @ui.m_updateInterval.enabled = true
     @ui.m_sourceRequester.enabled = true
     @ui.m_sourceRequester.setFocus
-    connect(@engine, SIGNAL('newSource(QString)'), self, SLOT('addSource(QString)'))
+    connect(@engine, SIGNAL('sourceAdded(QString)'), self, SLOT('addSource(QString)'))
     connect(@engine, SIGNAL('sourceRemoved(QString)'), self, SLOT('removeSource(QString)'))
     updateTitle
   end

@@ -82,7 +82,7 @@ class DigitalClock < Plasma::Applet
 
     # Use 'dataEngine("ruby-time")' for the ruby version of the engine
     dataEngine("time").connectSource(@timezone, self, updateInterval, intervalAlignment)
-    connect(Plasma::Theme.self, SIGNAL(:changed), self, SLOT(:updateColors))
+    connect(Plasma::Theme.defaultTheme, SIGNAL(:themeChanged), self, SLOT(:updateColors))
   end
 
   def updateToolTipContent

@@ -84,7 +84,7 @@ class FullView < Qt::GraphicsView
     @containment = @corona.addContainment("null")
     @containment.formFactor = @formfactor
     @containment.location = @location
-    @applet = @containment.addApplet(a, args, 0, Qt::RectF.new(0, 0, -1, -1))
+    @applet = @containment.addApplet(a, args, Qt::RectF.new(0, 0, -1, -1))
     @applet.setFlag(Qt::GraphicsItem::ItemIsMovable, false)
 
     setSceneRect(@corona.sceneRect)
@@ -99,22 +99,26 @@ class FullView < Qt::GraphicsView
     end
 
     # The applet always keeps its aspect ratio, so let's respect it.
-    ratio = event.oldSize.width / event.oldSize.height
-    newPossibleWidth = size.height * ratio
-    if newPossibleWidth > size.width
+    newWidth = 0
+    newHeight = 0
+
+    if @applet.aspectRatioMode == Qt::KeepAspectRatio
+      ratio = event.oldSize.width / event.oldSize.height
+      newPossibleWidth = size.height * ratio
+      if newPossibleWidth > size.width
         newHeight = size.width / ratio
         newWidth = newHeight * ratio
-    else
+      else
         newWidth = newPossibleWidth
         newHeight = newWidth / ratio
+      end
+    else
+      newWidth = size.width
+      newHeight = size.height
     end
-    @containment.resize(Qt::SizeF.new(newWidth, newHeight))
-    @applet.setGeometry(Qt::RectF.new(Qt::PointF.new(0.0, 0.0), Qt::SizeF.new(newWidth, newHeight)))
 
-    event.accept
-
-#     @containment.resize(size)
-#     @applet.setGeometry(Qt::RectF.new(Qt::Point.new(0, 0), size))
+    @containment.resize(Qt::SizeF.new(size()))
+    @applet.resize(Qt::SizeF.new(newWidth, newHeight))
   end
 
   def sceneRectChanged(rect)

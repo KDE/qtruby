@@ -39,7 +39,8 @@ class AnalogClock < Plasma::Containment
     resize(125, 125)
     setRemainSquare(true)
 
-    @theme = Plasma::Svg.new("widgets/clock", self)
+    @theme = Plasma::Svg.new(self)
+    @theme.imagePath = "widgets/clock"
     @theme.containsMultipleImages = false
     @theme.resize(size())
 
@@ -58,6 +59,7 @@ class AnalogClock < Plasma::Containment
     @timezone = cg.readEntry("timezone", Qt::Variant.new("Local")).value
 
     connectToEngine()
+    constraintsEvent(Plasma::AllConstraints)
   end
 
   def connectToEngine
@@ -70,9 +72,9 @@ class AnalogClock < Plasma::Containment
     end
   end
 
-  def constraintsUpdated(constraints)
+  def constraintsEvent(constraints)
     if constraints.to_i & Plasma::FormFactorConstraint.to_i
-      setDrawStandardBackground(false)
+      setBackgroundHints(NoBackground)
     end
   end
 
@@ -105,7 +107,7 @@ class AnalogClock < Plasma::Containment
     parent.buttons = KDE::Dialog::Ok | KDE::Dialog::Cancel | KDE::Dialog::Apply
     connect(parent, SIGNAL(:applyClicked), self, SLOT(:configAccepted))
     connect(parent, SIGNAL(:okClicked), self, SLOT(:configAccepted));
-    parent.addPage(widget, parent.windowTitle, "chronometer")
+    parent.addPage(widget, parent.windowTitle, icon)
 
     @ui.timeZones.setSelected(@timezone, true)
     @ui.timeZones.enabled = @timezone != "Local"
