@@ -19,6 +19,7 @@
 #include <smokeruby.h>
 
 #include <kdeversion.h>
+#include <kcoreconfigskeleton.h>
 #include <ktrader.h>
 #include <kservicegroup.h>
 #include <kservice.h>
@@ -863,9 +864,11 @@ void marshall_ValueListItem(Marshall *m) {
 
 DEF_VALUELIST_MARSHALLER( KAboutPersonList, QList<KAboutPerson>, KAboutPerson )
 DEF_VALUELIST_MARSHALLER( QColorList, QList<QColor>, QColor )
+DEF_VALUELIST_MARSHALLER( ChoicesList, QList<KCoreConfigSkeleton::ItemEnum::Choice>, KCoreConfigSkeleton::ItemEnum::Choice )
 DEF_VALUELIST_MARSHALLER( KDataToolInfoList, QList<KDataToolInfo>, KDataToolInfo )
 DEF_VALUELIST_MARSHALLER( KIOCopyInfoList, QList<KIO::CopyInfo>, KIO::CopyInfo )
-DEF_VALUELIST_MARSHALLER( KPartsPluginPluginInfoList, QList<KParts::Plugin::PluginInfo>, KParts::Plugin::PluginInfo )DEF_VALUELIST_MARSHALLER( KUserList, QList<KUser>, KUser )
+DEF_VALUELIST_MARSHALLER( KPartsPluginPluginInfoList, QList<KParts::Plugin::PluginInfo>, KParts::Plugin::PluginInfo )
+DEF_VALUELIST_MARSHALLER( KUserList, QList<KUser>, KUser )
 DEF_VALUELIST_MARSHALLER( KUserGroupList, QList<KUserGroup>, KUserGroup )
 DEF_VALUELIST_MARSHALLER( KUrlList, QList<KUrl>, KUrl )
 DEF_VALUELIST_MARSHALLER( KPluginInfoList, QList<KPluginInfo>, KPluginInfo )
@@ -992,6 +995,8 @@ TypeHandler KDE_handlers[] = {
     { "QList<KActionCollection*>&", marshall_KActionCollectionList },
     { "QList<QColor>", marshall_QColorList },
     { "QList<QColor>&", marshall_QColorList },
+    { "QList<KCoreConfigSkeleton::ItemEnum::Choice>", marshall_ChoicesList },
+    { "QList<KCoreConfigSkeleton::ItemEnum::Choice>&", marshall_ChoicesList },
     { "QList<KDataToolInfo>", marshall_KDataToolInfoList },
     { "QList<KDataToolInfo>&", marshall_KDataToolInfoList },
     { "QList<KIO::CopyInfo>&", marshall_KIOCopyInfoList },
@@ -1016,6 +1021,8 @@ TypeHandler KDE_handlers[] = {
     { "KFileItemList", marshall_KFileItemList },
     { "KFileItemList&", marshall_KFileItemList },
     { "KFileItemList*", marshall_KFileItemList },
+    { "KUrl::List", marshall_KUrlList },
+    { "KUrl::List&", marshall_KUrlList },
     { "KUrlList", marshall_KUrlList },
     { "KUrlList&", marshall_KUrlList },
     { 0, 0 }

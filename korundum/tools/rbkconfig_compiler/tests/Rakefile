@@ -1,0 +1,18 @@
+require 'rake'
+require 'rake/testtask'
+require 'rake/clean'
+
+desc 'Default: run unit tests.'
+task :default => :test
+
+desc 'Test rbkconfig_compiler4.'
+Rake::TestTask.new(:test) do |t|
+  t.pattern = 'test_rbkconfig_compiler.rb'
+  t.verbose = true
+end
+
+CLEAN.include('settings.rb', 'test10.rb', 'test1.rb',
+              'test2.rb', 'test3.rb', 'test4.rb',
+              'test5.rb', 'test6.rb', 'test7.rb',
+              'test8a.rb', 'test8b.rb', 'test9.rb',
+              'test_signal.rb')

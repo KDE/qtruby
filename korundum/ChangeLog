@@ -1,3 +1,13 @@
+2008-04-29  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Added an rbkconfig_compiler4 tool for compiling .kcfg and .kcfgc
+	  files to Ruby.
+	* The various KDE::ConfigSkeletonItem classes needed special casing
+	  because of the C++ specific way they manage a reference to an
+	  instance outside themselves. In Ruby the value of a 
+	  KDE::ConfigSkeletonItem can only be accessed via property() and 
+	  setProperty() methods.
+
 2008-04-24  Richard Dale  <richard.j.dale@gmail.com>
 
 	* The krubyapplication executable now works correctly. It was creating
