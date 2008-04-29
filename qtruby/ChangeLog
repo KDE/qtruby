@@ -1,3 +1,8 @@
+2008-04-29  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Added a marshaller for references to unsigned ints
+	* Added initialization for the various KDE::ConfigSkeleton classes
+
 2008-04-24  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Fixed a couple of differences between C++ code generation and Ruby.

@@ -82,6 +82,52 @@ void marshall_to_ruby<int *>(Marshall *m)
 }
 
 template <>
+void marshall_from_ruby<unsigned int *>(Marshall *m) 
+{
+	VALUE rv = *(m->var());
+	unsigned int *i = new unsigned int;
+	
+	if (rv == Qnil) {
+		m->item().s_voidp = 0;
+		return;
+	} else if (TYPE(rv) == T_OBJECT) {
+		// A Qt::Integer has been passed as an integer value
+		VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, rv);
+		*i = NUM2INT(temp);
+		m->item().s_voidp = i;
+		m->next();
+		rb_funcall(qt_internal_module, rb_intern("set_qinteger"), 2, rv, INT2NUM(*i));
+		rv = temp;
+	} else {
+		*i = NUM2UINT(rv);
+		m->item().s_voidp = i;
+		m->next();
+	}
+
+	if(m->cleanup() && m->type().isConst()) {
+		delete i;
+	} else {
+		m->item().s_voidp = new int((int)NUM2UINT(rv));
+	}
+}
+
+template <>
+void marshall_to_ruby<unsigned int *>(Marshall *m)
+{
+	unsigned int *ip = (unsigned int*) m->item().s_voidp;
+	VALUE rv = *(m->var());
+	if (ip == 0) {
+		rv = Qnil;
+		return;
+	}
+	
+	*(m->var()) = UINT2NUM(*ip);
+	m->next();
+	if(!m->type().isConst())
+		*ip = NUM2UINT(*(m->var()));
+}
+
+template <>
 void marshall_from_ruby<bool *>(Marshall *m) 
 {
    VALUE rv = *(m->var());

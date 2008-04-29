@@ -128,6 +128,10 @@ VALUE nepomuk_module = Qnil;
 
 
 VALUE kconfiggroup_class = Qnil;
+VALUE kcoreconfigskeleton_class = Qnil;
+VALUE kconfigskeleton_class = Qnil;
+VALUE kconfigskeleton_itemenum_class = Qnil;
+VALUE kconfigskeleton_itemenum_choice_class = Qnil;
 VALUE konsole_part_class = Qnil;
 VALUE kwin_class = Qnil;
 VALUE kdatetime_class = Qnil;
@@ -3151,7 +3155,19 @@ static QRegExp * scope_op = 0;
 		scope_op = new QRegExp("^([^:]+)::([^:]+)$");
 	}
 
-	if (packageName.startsWith("KDE::Win::")) {
+	if (packageName.startsWith("KDE::ConfigSkeleton::ItemEnum::")) {
+		klass = rb_define_class_under(kconfigskeleton_itemenum_class, package+strlen("KDE::ConfigSkeleton::ItemEnum::"), base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+		kconfigskeleton_itemenum_choice_class = klass;
+	} else if (packageName.startsWith("KDE::CoreConfigSkeleton::")) {
+		// Although in C++ the class is under KCoreConfigSkeleton, the only public api is really via
+		// KConfigSkeleton. So for Ruby make them all appear under KConfigSkeleton.
+		klass = rb_define_class_under(kconfigskeleton_class, package+strlen("KDE::CoreConfigSkeleton::"), base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (packageName.startsWith("KDE::ConfigSkeleton::")) {
+		klass = rb_define_class_under(kconfigskeleton_class, package+strlen("KDE::ConfigSkeleton::"), base_class);
+		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
+	} else if (packageName.startsWith("KDE::Win::")) {
 		klass = rb_define_class_under(kwin_class, package+strlen("KDE::Win::"), base_class);
 		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) _new_kde, -1);
 	} else if (packageName.startsWith("KDE::DateTime::")) {
@@ -3474,6 +3490,10 @@ set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE))
 	nepomuk_module = rb_define_module("Nepomuk");
 	rb_define_singleton_method(nepomuk_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 	rb_define_singleton_method(nepomuk_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	kcoreconfigskeleton_class = rb_define_class_under(kde_module, "CoreConfigSkeleton", qt_base_class);
+	kconfigskeleton_class = rb_define_class_under(kde_module, "ConfigSkeleton", qt_base_class);
+	kconfigskeleton_itemenum_class = rb_define_class_under(kconfigskeleton_class, "ItemEnum", qt_base_class);
 }
 
 static VALUE

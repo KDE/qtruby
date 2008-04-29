@@ -2260,6 +2260,10 @@ module Qt
 				now = classname.sub(/^Q3(?=[A-Z])/,'Qt3::')
 			elsif classname =~ /^Q/
 				now = classname.sub(/^Q(?=[A-Z])/,'Qt::')
+			elsif classname =~ /^KCoreConfigSkeleton::/
+				# Make classes under KCoreConfigSkeleton appear under KDE::ConfigSkeleton
+				# in Ruby, as the KCoreConfigSkeleton class isn't really the public api
+				now = classname.sub(/KCore/,'KDE::')
 			elsif classname =~ /^(KConfigSkeleton|KWin|KDateTime|KTimeZone)::/
 				now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
 			elsif classname !~ /::/
