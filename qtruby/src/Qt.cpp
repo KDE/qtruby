@@ -637,7 +637,7 @@ set_obj_info(const char * className, smokeruby_object * o)
     return obj;
 }
 
-static VALUE mapObject(VALUE self, VALUE obj);
+VALUE mapObject(VALUE self, VALUE obj);
 
 VALUE
 cast_object_to(VALUE /*self*/, VALUE object, VALUE new_klass)
@@ -2816,7 +2816,7 @@ is_disposed(VALUE self)
 	return Qfalse;
 }
 
-static VALUE
+VALUE
 mapObject(VALUE self, VALUE obj)
 {
     smokeruby_object *o = value_obj_info(obj);
