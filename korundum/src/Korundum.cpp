@@ -51,10 +51,14 @@ extern VALUE kcoreconfigskeleton_class;
 extern VALUE kconfigskeleton_class;
 
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
+extern VALUE mapObject(VALUE self, VALUE obj);
+
 extern void set_kde_resolve_classname(const char * (*kde_resolve_classname) (Smoke*, int, void *));
 extern const char * kde_resolve_classname(Smoke* smoke, int classId, void * ptr);
 }
 
+extern void smokeruby_mark(void * ptr);
+extern void smokeruby_free(void * ptr);
 extern TypeHandler KDE_handlers[];
 extern void install_handlers(TypeHandler *);
 extern Smoke *qt_Smoke;
@@ -215,15 +219,15 @@ static VALUE new_kconfigskeleton_string_item(int argc, VALUE * argv, VALUE self)
 		return rb_call_super(argc, argv);
 	}
 
-	int ix = qt_Smoke->idClass(SkeletonItemSTR);
-	const char * className = qt_Smoke->binding->className(ix);
+	smokeruby_object  * o = alloc_smokeruby_object(	true, 
+													qt_Smoke, 
+													qt_Smoke->idClass(SkeletonItemSTR), 
+													skeletonItem );
 
-	smokeruby_object  * result = alloc_smokeruby_object(	true, 
-															qt_Smoke, 
-															qt_Smoke->idClass(SkeletonItemSTR), 
-															skeletonItem );
-
-	rb_throw("newqt", set_obj_info(className, result));
+	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
+	VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, o);
+	mapObject(result, result);
+	rb_throw("newqt", result);
 	/*NOTREACHED*/
 	return self;
 }
@@ -278,15 +282,15 @@ static VALUE new_kconfigskeleton_stringlist_item(int argc, VALUE * argv, VALUE s
 		return rb_call_super(argc, argv);
 	}
 
-	int ix = qt_Smoke->idClass(SkeletonItemSTR);
-	const char * className = qt_Smoke->binding->className(ix);
+	smokeruby_object  * o = alloc_smokeruby_object(	true, 
+													qt_Smoke, 
+													qt_Smoke->idClass(SkeletonItemSTR), 
+													skeletonItem );
 
-	smokeruby_object  * result = alloc_smokeruby_object(	true, 
-															qt_Smoke, 
-															qt_Smoke->idClass(SkeletonItemSTR), 
-															skeletonItem );
-
-	rb_throw("newqt", set_obj_info(className, result));
+	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
+	VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, o);
+	mapObject(result, result);
+	rb_throw("newqt", result);
 	/*NOTREACHED*/
 	return self;
 }
@@ -341,17 +345,15 @@ static VALUE new_kconfigskeleton_primitive_item(int argc, VALUE * argv, VALUE se
 		return rb_call_super(argc, argv);
 	}
 
-	int ix = qt_Smoke->idClass(SkeletonItemSTR);
-	const char * className = qt_Smoke->binding->className(ix);
+	smokeruby_object  * o = alloc_smokeruby_object(	true, 
+													qt_Smoke, 
+													qt_Smoke->idClass(SkeletonItemSTR), 
+													skeletonItem );
 
-	smokeruby_object  * result = alloc_smokeruby_object(	true, 
-															qt_Smoke, 
-															qt_Smoke->idClass(SkeletonItemSTR), 
-															skeletonItem );
-
-	rb_throw("newqt", set_obj_info(className, result));
-	/*NOTREACHED*/
-	return self;
+	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
+	VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, o);
+	mapObject(result, result);
+	rb_throw("newqt", result);
 }
 
 #define DEF_SKELETON_PRIMITIVE_ITEM_CONSTRUCTOR(Method, SkeletonItem, Item) namespace { char Method##STR[] = #SkeletonItem; }  \
@@ -393,15 +395,15 @@ static VALUE new_kconfigskeleton_item(int argc, VALUE * argv, VALUE self)
 		return rb_call_super(argc, argv);
 	}
 
-	int ix = argv2->smoke->idClass(SkeletonItemSTR);
-	const char * className = argv2->smoke->binding->className(ix);
+	smokeruby_object  * o = alloc_smokeruby_object(	true, 
+													argv2->smoke, 
+													argv2->smoke->idClass(SkeletonItemSTR), 
+													skeletonItem );
 
-	smokeruby_object  * result = alloc_smokeruby_object(	true, 
-															argv2->smoke, 
-															argv2->smoke->idClass(SkeletonItemSTR), 
-															skeletonItem );
-
-	rb_throw("newqt", set_obj_info(className, result));
+	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
+	VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, o);
+	mapObject(result, result);
+	rb_throw("newqt", result);
 	/*NOTREACHED*/
 	return self;
 }

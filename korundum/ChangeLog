@@ -1,3 +1,7 @@
+2008-04-30  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Oops, the KConfigSkeleton constructors didn't quite work..
+
 2008-04-29  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Added an rbkconfig_compiler4 tool for compiling .kcfg and .kcfgc
