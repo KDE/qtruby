@@ -27,19 +27,19 @@ class TimeEngine < Plasma::DataEngine
 
   def initialize(parent, args)
     super(parent)
-    setMinimumUpdateInterval(333)
+    setMinimumPollingInterval(333)
 
     # To have translated timezone names
     # (effectively a noop if the catalog is already present).
     KDE::Global.locale.insertCatalog("timezones4")
   end
 
-  def sourceRequested(name)
+  def sourceRequestEvent(name)
     # puts "TimeEngine#sourceRequested #{name}"
-    return updateSource(name)
+    return updateSourceEvent(name)
   end
 
-  def updateSource(tz)
+  def updateSourceEvent(tz)
     # puts "TimeEngine#updateTime"
     localName = I18N_NOOP("Local")
     if tz == localName

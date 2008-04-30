@@ -39,7 +39,7 @@ class WebApplet < Plasma::Applet
   end
 
   def init
-    resize(150, 150)
+    resize(600, 400)
 
     @page = Plasma::WebContent.new(self)
     @page.page = Qt::WebPage.new(@page)
@@ -71,14 +71,7 @@ class WebApplet < Plasma::Applet
     puts "page loaded #{@page.page.currentFrame.url.toString}"
   end
 
-  def contentSizeHint
-    if @page
-        return @page.sizeHint
-    end
-    super
-  end
-
-  def constraintsUpdated(constraints)
+  def constraintsEvent(constraints)
     if constraints.to_i & Plasma::SizeConstraint.to_i
       @page.resize(size())
     end

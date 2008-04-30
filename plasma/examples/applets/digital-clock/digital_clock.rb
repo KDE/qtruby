@@ -50,7 +50,7 @@ class DigitalClock < Plasma::Applet
     @calendarUi = Ui::Calendar.new
 
     setHasConfigurationInterface(true)
-    resize(70, 22)
+    resize(90, 44)
   end
 
   def init
@@ -83,6 +83,22 @@ class DigitalClock < Plasma::Applet
     # Use 'dataEngine("ruby-time")' for the ruby version of the engine
     dataEngine("time").connectSource(@timezone, self, updateInterval, intervalAlignment)
     connect(Plasma::Theme.defaultTheme, SIGNAL(:themeChanged), self, SLOT(:updateColors))
+  end
+
+  def constraintsEvent(constraints)
+    if constraints & Plasma::SizeConstraint.to_i
+      aspect = 2
+      if @showSeconds
+        aspect = 3
+      end
+      if formFactor == Plasma::Horizontal
+        # We have a fixed height, set some sensible width
+        setMinimumWidth(geometry.height * aspect)
+      elsif formFactor == Plasma::Vertical
+        # We have a fixed width, set some sensible height
+        setMinimumHeight(geometry.width / aspect)
+      end
+    end
   end
 
   def updateToolTipContent
@@ -234,6 +250,7 @@ class DigitalClock < Plasma::Applet
     cg.writeEntry("useCustomColor", Qt::Variant.new(@useCustomColor))
     cg.writeEntry("plainClockColor", Qt::Variant.fromValue(@plainClockColor))
 
+    constraintsEvent(Plasma::SizeConstraint)
     update
     emit configNeedsSaving
   end

@@ -97,13 +97,13 @@ class SparqlDataEngine < Plasma::DataEngine
 
   def initialize(parent, args, endpoint, query, primary_value)
     super(parent)
-    setMinimumUpdateInterval(120 * 1000)
+    setMinimumPollingInterval(120 * 1000)
     @endpoint = endpoint
     @query = query
     @primary_value = primary_value
   end
 
-  def sourceRequested(source_name)
+  def sourceRequestEvent(source_name)
     # puts "sourceRequested(#{source_name})"
     if @job
       return false
@@ -142,10 +142,10 @@ class SparqlDataEngine < Plasma::DataEngine
     end
   end
 
-  def updateSource(source_name)
+  def updateSourceEvent(source_name)
     puts "updateSource(#{source_name})"
 
-    sourceRequested(source_name)
+    sourceRequestEvent(source_name)
     return true
   end
 end

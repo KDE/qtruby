@@ -36,6 +36,8 @@ class EngineExplorer < KDE::Dialog
     super(parent)
     @engine = nil 
     @sourceCount = 0
+    @requestingSource = false
+
     @engineName = ""
 
     setButtons(0)
@@ -151,7 +153,9 @@ class EngineExplorer < KDE::Dialog
     # puts "getting data for source #{source}"
     data = @engine.query(source)
     showData(parent, data)
-    @engine.connectSource(source, self)
+    if !@requestingSource || @sourceRequester.text != source
+      @engine.connectSource(source, self)
+    end
 
     @sourceCount += 1
     updateTitle
@@ -183,7 +187,9 @@ class EngineExplorer < KDE::Dialog
         return
     end
 
+    @requestingSource = true
     @engine.connectSource(source, self, @ui.m_updateInterval.value)
+    @requestingSource = false
   end
 
   def convertToString(value)
