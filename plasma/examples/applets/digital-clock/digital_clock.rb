@@ -71,7 +71,7 @@ class DigitalClock < Plasma::Applet
     if @useCustomColor
         @plainClockColor = cg.readEntry("plainClockColor", Qt::Variant.fromValue(@plainClockColor)).value
     else
-        @plainClockColor = KDE::ColorScheme.new(Qt::Palette::Active, KDE::ColorScheme::View, Plasma::Theme.self.colorScheme).foreground.color
+        @plainClockColor = KDE::ColorScheme.new(Qt::Palette::Active, KDE::ColorScheme::View, Plasma::Theme.defaultTheme.colorScheme).foreground.color
     end
 
     metrics = Qt::FontMetricsF.new(KDE::GlobalSettings.smallestReadableFont)
@@ -241,7 +241,7 @@ class DigitalClock < Plasma::Applet
     if @useCustomColor
         @plainClockColor = @ui.plainClockColor.color
     else
-        @plainClockColor = KDE::ColorScheme.new(Qt::Palette::Active, KDE::ColorScheme::View, Plasma::Theme.self.colorScheme).foreground.color
+        @plainClockColor = KDE::ColorScheme.new(Qt::Palette::Active, KDE::ColorScheme::View, Plasma::Theme.defaultTheme.colorScheme).foreground.color
     end
     @plainClockFont.bold = @ui.plainClockFontBold.checkState == Qt::Checked
     @plainClockFont.italic = @ui.plainClockFontItalic.checkState == Qt::Checked

@@ -37,7 +37,7 @@ class AnalogClock < Plasma::Containment
 
     setHasConfigurationInterface(true)
     resize(125, 125)
-    setRemainSquare(true)
+    setAspectRatioMode(Plasma::Square)
 
     @theme = Plasma::Svg.new(self)
     @theme.imagePath = "widgets/clock"
@@ -59,7 +59,6 @@ class AnalogClock < Plasma::Containment
     @timezone = cg.readEntry("timezone", Qt::Variant.new("Local")).value
 
     connectToEngine()
-    constraintsEvent(Plasma::AllConstraints)
   end
 
   def connectToEngine
