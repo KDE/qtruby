@@ -1,3 +1,16 @@
+2008-05-02  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Changed the way the Ruby classname is derived from a 
+	  X-KDE-PluginKeyword entry in a desktop file. The directory name is now
+	  used to derive a Ruby module name and the Ruby script name used to 
+	  derive a class name within that module. So given a path of 
+	  'my_app/foo_bar.rb' krubypluginfactory would expect a MyApp::FooBar 
+	  class in the Ruby file. Otherwise the Ruby classname would need to
+	  be unique across all plugins loaded by a KDE app, and it is easy
+	  to get clashes such as two 'Clock' classes.
+	* Special cased KDE::ComponentData so you can pass Ruby Strings to it
+	  as well as Qt::ByteArrays
+
 2008-04-30  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Oops, the KConfigSkeleton constructors didn't quite work..

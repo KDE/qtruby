@@ -243,6 +243,21 @@ module KDE
 		end
 	end
 
+	class ComponentData
+		def initialize(*args)
+			sargs = []
+			for i in 0...args.length do
+				if [0, 1].include?(i) && (args[i].kind_of?(String) || args[i].nil?)
+					sargs << Qt::ByteArray.new(args[i])
+				else
+					sargs << args[i]
+				end
+            end
+
+			super(*sargs)
+		end
+	end
+
 	class Config
 		def name(*args)
 			method_missing(:name, *args)

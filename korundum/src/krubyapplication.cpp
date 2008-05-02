@@ -21,6 +21,7 @@
 
 #include <QString>
 #include <QFileInfo>
+#include <QDir>
 
 #include <KStandardDirs>
 #include <KComponentData>
@@ -40,7 +41,7 @@ int main(int argc, char **argv) {
     }
 
     QFileInfo script(argv[1]);
-    KComponentData componentData(script.dirPath().toLatin1(), QByteArray(), KComponentData::SkipMainComponentRegistration);
+    KComponentData componentData(script.dir().dirName().toLatin1(), QByteArray(), KComponentData::SkipMainComponentRegistration);
     QString path = componentData.dirs()->locate("data", argv[1], componentData);
 
     if (path.isEmpty()) {

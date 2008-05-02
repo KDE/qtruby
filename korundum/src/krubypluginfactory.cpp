@@ -22,6 +22,7 @@
 #include <ruby.h>
 
 #include <QString>
+#include <QDir>
 #include <QFileInfo>
 
 #include <KStandardDirs>
@@ -82,12 +83,33 @@ class KRubyPluginFactory : public KPluginFactory
 
     protected:
         virtual QObject *create(const char *iface, QWidget *parentWidget, QObject *parent, const QVariantList &args, const QString &keyword);
+
+    private:
+        static QByteArray toCamelCase(QByteArray name);
 };
 K_EXPORT_PLUGIN(KRubyPluginFactory)
 
 KRubyPluginFactory::KRubyPluginFactory()
     : KPluginFactory() // no useful KComponentData object for now
 {
+}
+
+QByteArray KRubyPluginFactory::toCamelCase(QByteArray name)
+{
+    // Convert foo_bar_baz to FooBarBaz
+    QByteArray camelCaseName = name.left(1).toUpper();
+    for (int i = 1; i < name.size(); i++) {
+        if (name[i] == '_' || name[i] == '-') {
+            i++;
+            if (i < name.size()) {
+                 camelCaseName += name.mid(i, 1).toUpper();
+            }
+        } else {
+             camelCaseName += name[i];
+        }
+    }
+
+    return camelCaseName;
 }
 
 QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QObject *parent, const QVariantList &args, const QString &keyword)
@@ -122,23 +144,19 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
         return 0;
     }
 
-    // Convert foo_bar_baz to FooBarBaz
-    const QByteArray baseName = program.baseName().toLatin1();
-    QByteArray className = baseName.left(1).toUpper();
-    for (int i = 1; i < baseName.size(); i++) {
-         if (baseName[i] == '_') {
-             i++;
-             if (i < baseName.size()) {
-                 className += baseName.mid(i, 1).toUpper();
-             }
-         } else {
-             className += baseName[i];
-         }
-     }
+    // A path of my_app/foo_bar.rb is turned into module/class 'MyApp::FooBar'
+    const QByteArray moduleName = KRubyPluginFactory::toCamelCase(QFile::encodeName(program.dir().dirName()));
+    const QByteArray className = KRubyPluginFactory::toCamelCase(program.baseName().toLatin1());
 
-    plugin_class = rb_const_get(rb_cObject, rb_intern(className));
+    VALUE plugin_module = rb_const_get(rb_cObject, rb_intern(moduleName));
+    if (plugin_module == Qnil) {
+        kWarning() << "no " << moduleName << " module found";
+        return 0;
+    }
+
+    plugin_class = rb_const_get(plugin_module, rb_intern(className));
     if (plugin_class == Qnil) {
-        kWarning() << "no" << className << "class found";
+        kWarning() << "no " << moduleName << "::" << className << " class found";
         return 0;
     }
 
@@ -160,6 +178,9 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
         kWarning() << "failed to create instance of plugin class";
         return 0;
     }
+
+    // Set a global variable $my_app_foo_bar to the value of the new instance of MyApp::FooBar
+    rb_gv_set(QByteArray("$") + QFile::encodeName(program.path()) + "_" + program.baseName().toLatin1(), plugin_value);
 
     smokeruby_object *o = 0;
     Data_Get_Struct(plugin_value, smokeruby_object, o);

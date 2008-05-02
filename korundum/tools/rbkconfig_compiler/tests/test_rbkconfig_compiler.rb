@@ -10,7 +10,7 @@ require 'korundum4'
 
 class TestRbkconfigCompiler < Test::Unit::TestCase
   def setup
-    i = KDE::ComponentData.new(Qt::ByteArray.new("test"))
+    i = KDE::ComponentData.new("test")
   end
 
   def teardown
