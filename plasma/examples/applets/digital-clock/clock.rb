@@ -27,7 +27,9 @@ require 'plasma_applet'
 require 'digital_clock_config.rb'
 require 'calendar.rb'
 
-class DigitalClock < Plasma::Applet
+module PlasmaRubyDigitalClock
+
+class Clock < Plasma::Applet
 
   slots 'dataUpdated(QString,Plasma::DataEngine::Data)',
         'showCalendar(QGraphicsSceneMouseEvent *)',
@@ -366,3 +368,4 @@ class DigitalClock < Plasma::Applet
   end
 end
 
+end

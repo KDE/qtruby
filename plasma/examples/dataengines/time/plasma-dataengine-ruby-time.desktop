@@ -108,5 +108,5 @@ X-KDE-ServiceTypes=Plasma/DataEngine
 Type=Service
 Icon=alarmclock
 X-KDE-Library=krubypluginfactory
-X-KDE-PluginKeyword=plasma-ruby-engine-time/time_engine.rb
+X-KDE-PluginKeyword=plasma_ruby_engine_time/time_engine.rb
 X-Plasma-EngineName=ruby-time

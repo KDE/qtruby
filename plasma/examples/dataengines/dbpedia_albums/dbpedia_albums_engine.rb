@@ -163,15 +163,16 @@ SELECT * WHERE {
    }
 EOS
 
-#
-# Customize the use of the SparqlDataEngine by giving it the url of an endpoint,
-# a query to execute, and the name of the most important (or primary) value.
-# The '%s' in the query text above is replaced with the source name, with any
-# spaces replaced by underscores.
-#
-class DbpediaAlbumsEngine < SparqlDataEngine
-  def initialize(parent, args)
-    super(parent, args, 'http://dbpedia.org/sparql', SPARQL_QUERY, 'name')
+module PlasmaEngineDbpediaAlbums
+  #
+  # Customize the use of the SparqlDataEngine by giving it the url of an endpoint,
+  # a query to execute, and the name of the most important (or primary) value.
+  # The '%s' in the query text above is replaced with the source name, with any
+  # spaces replaced by underscores.
+  #
+  class DbpediaAlbumsEngine < SparqlDataEngine
+    def initialize(parent, args)
+      super(parent, args, 'http://dbpedia.org/sparql', SPARQL_QUERY, 'name')
+    end
   end
 end
-

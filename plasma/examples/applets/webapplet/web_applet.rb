@@ -26,6 +26,8 @@ THE SOFTWARE.
 
 require 'plasma_applet'
 
+module PlasmaRubyWebApplet
+
 class WebApplet < Plasma::Applet
 
   slots 'dataUpdated(QString,Plasma::DataEngine::Data)',
@@ -86,5 +88,6 @@ class WebApplet < Plasma::Applet
     puts "loading #{url.toString}"
     @page.mainFrame.load(url)
   end
+end
 
 end

@@ -23,6 +23,8 @@
 
 require 'plasma_applet'
 
+module PlasmaRubyEngineTime
+
 class TimeEngine < Plasma::DataEngine
 
   def initialize(parent, args)
@@ -68,4 +70,6 @@ class TimeEngine < Plasma::DataEngine
 
     return true
   end
+end
+
 end

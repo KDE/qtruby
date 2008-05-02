@@ -99,7 +99,7 @@ Type=Service
 X-KDE-ServiceTypes=Plasma/Applet
 
 X-KDE-Library=krubypluginfactory
-X-KDE-PluginKeyword=plasma-ruby-digital-clock/digital_clock.rb
+X-KDE-PluginKeyword=plasma_ruby_digital_clock/clock.rb
 
 X-KDE-PluginInfo-Author=Riccardo Iaconelli
 X-KDE-PluginInfo-Email=riccardo@kde.org

@@ -25,7 +25,9 @@
 require 'plasma_applet'
 require 'analog_clock_config.rb'
 
-class AnalogClock < Plasma::Containment
+module PlasmaRubyAnalogClock
+
+class Clock < Plasma::Containment
 
   slots 'dataUpdated(QString,Plasma::DataEngine::Data)',
         'createConfigurationInterface(KConfigDialog*)',
@@ -144,7 +146,7 @@ class AnalogClock < Plasma::Containment
     end
 
     connectToEngine
-    constraintsUpdated(Plasma::AllConstraints)
+    constraintsEvent(Plasma::AllConstraints)
     emit configNeedsSaving
   end
 
@@ -242,5 +244,6 @@ class AnalogClock < Plasma::Containment
 
     @theme.paint(p, Qt::RectF.new(rect), "Glass")
   end
+end
 
 end

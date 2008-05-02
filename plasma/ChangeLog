@@ -1,3 +1,11 @@
+2008-05-02  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Enclosed the applet and data engine example classes within Ruby
+	  modules to match the new krubypluginfactory naming convention.
+	  Everything installed under share/apps has underscores in the names
+	  rather than hyphens. The .desktop file names contain hyphens, and
+	  the X-KDE-PluginInfo-Name entries have hyphens too.
+
 2008-04-28  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Update  the clock applets, plasmoidviewer and engineexplorer in line 

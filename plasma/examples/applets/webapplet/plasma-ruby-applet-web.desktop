@@ -7,7 +7,7 @@ ServiceTypes=Plasma/Applet
 Icon=internet-web-browser
 
 X-KDE-Library=krubypluginfactory
-X-KDE-PluginKeyword=plasma-ruby-webapplet/web_applet.rb
+X-KDE-PluginKeyword=plasma_ruby_web_applet/web_applet.rb
 
 X-KDE-PluginInfo-Author=The Plasma Team
 X-KDE-PluginInfo-Email=panel-devel@kde.org

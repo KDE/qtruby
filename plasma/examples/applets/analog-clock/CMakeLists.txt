@@ -10,8 +10,8 @@ if(RBUIC4)
 
 	install(FILES plasma-ruby-clock-default.desktop DESTINATION ${SERVICES_INSTALL_DIR})
 
-	install(FILES analog_clock.rb DESTINATION ${DATA_INSTALL_DIR}/plasma-ruby-analog-clock)
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/analog_clock_config.rb DESTINATION ${DATA_INSTALL_DIR}/plasma-ruby-analog-clock)
+	install(FILES clock.rb DESTINATION ${DATA_INSTALL_DIR}/plasma_ruby_analog_clock)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/analog_clock_config.rb DESTINATION ${DATA_INSTALL_DIR}/plasma_ruby_analog_clock)
 else(RBUIC4)
         MESSAGE(STATUS "rbuic4 not found, ruby-clock will not created")
 endif(RBUIC4)

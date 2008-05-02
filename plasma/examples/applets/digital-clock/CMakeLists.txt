@@ -13,9 +13,9 @@ if(RBUIC4)
 
 	install(FILES plasma-ruby-digital-clock-default.desktop DESTINATION ${SERVICES_INSTALL_DIR})
 
-	install(FILES digital_clock.rb DESTINATION ${DATA_INSTALL_DIR}/plasma-ruby-digital-clock)
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/digital_clock_config.rb DESTINATION ${DATA_INSTALL_DIR}/plasma-ruby-digital-clock)
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/calendar.rb DESTINATION ${DATA_INSTALL_DIR}/plasma-ruby-digital-clock)
+	install(FILES clock.rb DESTINATION ${DATA_INSTALL_DIR}/plasma_ruby_digital_clock)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/digital_clock_config.rb DESTINATION ${DATA_INSTALL_DIR}/plasma_ruby_digital_clock)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/calendar.rb DESTINATION ${DATA_INSTALL_DIR}/plasma_ruby_digital_clock)
 else(RBUIC4)
         MESSAGE(STATUS "rbuic4 not found, ruby-digital-clock will not created")
 endif(RBUIC4)
