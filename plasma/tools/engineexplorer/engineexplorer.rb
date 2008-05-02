@@ -104,9 +104,9 @@ class EngineExplorer < KDE::Dialog
     @ui.m_sourceRequester.enabled = false
     @ui.m_sourceRequesterButton.enabled = false
     @dataModel.clear
-    @dataModel.columnCount = 3
+    @dataModel.columnCount = 4
     headers = []
-    headers << i18n("DataSource") << i18n("Key") << i18n("Value")
+    headers << i18n("DataSource") << i18n("Key") << i18n("Value") << i18n("Type")
     @dataModel.setHorizontalHeaderLabels(headers)
     @engine = 0
     @sourceCount = 0
@@ -193,27 +193,21 @@ class EngineExplorer < KDE::Dialog
   end
 
   def convertToString(value)
-    if value.canConvert(Qt::Variant::String)
+    if value.canConvert(Qt::Variant::String) && value.type != Qt::Variant::ByteArray
         return value.toString
     end
 
-    case value.type
-    when Qt::Variant::Point
-      point = value.toPoint
-      return "(%d, %d)" % [point.x, point.y]
-    else
-      if value.typeName == "Soprano::Node"
-        node = qVariantValue(Soprano::Node, value)
-        if node.literal?
-          return node.literal.variant.value.inspect
-        elsif node.resource?
-          return node.uri.toString
-        else
-          return node.inspect
-        end
+    if value.typeName == "Soprano::Node"
+      node = qVariantValue(Soprano::Node, value)
+      if node.literal?
+        return node.literal.variant.value.inspect
+      elsif node.resource?
+        return node.uri.toString
       else
-        return value.value.inspect
+        return node.inspect
       end
+    else
+      return value.value.inspect
     end
   end
 
@@ -226,10 +220,12 @@ class EngineExplorer < KDE::Dialog
       if value.canConvert(Qt::Variant::List)
         value.toList.each do |var|
           parent.setChild(rowCount, 2, Qt::StandardItem.new(convertToString(var)))
+          parent.setChild(rowCount, 3, Qt::StandardItem.new(var.typeName))
           rowCount += 1
         end
       else
         parent.setChild(rowCount, 2, Qt::StandardItem.new(convertToString(value)))
+        parent.setChild(rowCount, 3, Qt::StandardItem.new(value.typeName))
         rowCount += 1
       end
     end
