@@ -47,7 +47,9 @@
 #include <QtCore/QString>
 #include "uic.h"
 
-QT_BEGIN_NAMESPACE
+#if defined(QT_BEGIN_NAMESPACE)
+  QT_BEGIN_NAMESPACE
+#endif
 
 struct Option
 {
@@ -98,6 +100,8 @@ struct Option
     { indent.fill(QLatin1Char(' '), 4); }
 };
 
-QT_END_NAMESPACE
+#if defined(QT_END_NAMESPACE)
+  QT_END_NAMESPACE
+#endif
 
 #endif // OPTION_H

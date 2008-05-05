@@ -43,7 +43,10 @@
 #include "ui4.h"
 #include <QDomDocument>
 
-QT_BEGIN_NAMESPACE
+#if defined(QT_BEGIN_NAMESPACE)
+  QT_BEGIN_NAMESPACE
+#endif
+
 #ifdef QFORMINTERNAL_NAMESPACE
 using namespace QFormInternal;
 #endif
@@ -7614,5 +7617,7 @@ void DomSlots::setElementSignal(const QStringList& a)
     m_signal = a;
 }
 
-QT_END_NAMESPACE
+#if defined(QT_END_NAMESPACE)
+  QT_END_NAMESPACE
+#endif
 

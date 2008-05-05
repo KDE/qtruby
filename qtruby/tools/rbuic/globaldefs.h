@@ -46,11 +46,15 @@
 
 #include <QtCore/qglobal.h>
 
-QT_BEGIN_NAMESPACE
+#if defined(QT_BEGIN_NAMESPACE)
+  QT_BEGIN_NAMESPACE
+#endif
 
 enum { BOXLAYOUT_DEFAULT_MARGIN = 11 };
 enum { BOXLAYOUT_DEFAULT_SPACING = 6 };
 
-QT_END_NAMESPACE
+#if defined(QT_END_NAMESPACE)
+  QT_END_NAMESPACE
+#endif
 
 #endif // GLOBALDEFS_H

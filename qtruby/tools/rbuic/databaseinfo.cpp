@@ -46,7 +46,9 @@
 #include "ui4.h"
 #include "utils.h"
 
-QT_BEGIN_NAMESPACE
+#if defined(QT_BEGIN_NAMESPACE)
+  QT_BEGIN_NAMESPACE
+#endif
 
 DatabaseInfo::DatabaseInfo(Driver *drv)
     : driver(drv)
@@ -95,4 +97,6 @@ void DatabaseInfo::acceptWidget(DomWidget *node)
     TreeWalker::acceptWidget(node);
 }
 
-QT_END_NAMESPACE
+#if defined(QT_END_NAMESPACE)
+  QT_END_NAMESPACE
+#endif

@@ -63,7 +63,9 @@
 
 #include <QtCore/qglobal.h>
 
-QT_BEGIN_NAMESPACE
+#if defined(QT_BEGIN_NAMESPACE)
+  QT_BEGIN_NAMESPACE
+#endif
 
 class QDomDocument;
 class QDomElement;
@@ -3166,6 +3168,8 @@ private:
 }
 #endif
 
-QT_END_NAMESPACE
+#if defined(QT_END_NAMESPACE)
+  QT_END_NAMESPACE
+#endif
 
 #endif // UI4_H

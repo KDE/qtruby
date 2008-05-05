@@ -44,7 +44,9 @@
 #include "treewalker.h"
 #include "ui4.h"
 
-QT_BEGIN_NAMESPACE
+#if defined(QT_BEGIN_NAMESPACE)
+  QT_BEGIN_NAMESPACE
+#endif
 
 void TreeWalker::acceptUI(DomUI *ui)
 {
@@ -311,4 +313,6 @@ void TreeWalker::acceptWidgetScripts(const DomScripts &, DomWidget *, const  Dom
 {
 }
 
-QT_END_NAMESPACE
+#if defined(QT_END_NAMESPACE)
+  QT_END_NAMESPACE
+#endif

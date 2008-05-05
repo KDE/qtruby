@@ -48,7 +48,9 @@
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
 
-QT_BEGIN_NAMESPACE
+#if defined(QT_BEGIN_NAMESPACE)
+  QT_BEGIN_NAMESPACE
+#endif
 
 class Driver;
 class DomScript;
@@ -86,6 +88,8 @@ private:
     bool m_scriptsActivated;
 };
 
-QT_END_NAMESPACE
+#if defined(QT_END_NAMESPACE)
+  QT_END_NAMESPACE
+#endif
 
 #endif // CUSTOMWIDGETSINFO_H

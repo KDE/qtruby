@@ -46,7 +46,9 @@
 
 #include <QtCore/QList>
 
-QT_BEGIN_NAMESPACE
+#if defined(QT_BEGIN_NAMESPACE)
+  QT_BEGIN_NAMESPACE
+#endif
 
 class DomUI;
 class DomLayoutDefault;
@@ -130,6 +132,8 @@ struct TreeWalker
     virtual void acceptConnectionHint(DomConnectionHint *connectionHint);
 };
 
-QT_END_NAMESPACE
+#if defined(QT_END_NAMESPACE)
+  QT_END_NAMESPACE
+#endif
 
 #endif // TREEWALKER_H

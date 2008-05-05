@@ -50,7 +50,9 @@
 #include <QtCore/QStringList>
 #include <QtCore/QTextStream>
 
-QT_BEGIN_NAMESPACE
+#if defined(QT_BEGIN_NAMESPACE)
+  QT_BEGIN_NAMESPACE
+#endif
 
 class QTextStream;
 class DomUI;
@@ -132,6 +134,8 @@ private:
     QHash<QString, bool> m_pixmaps;
 };
 
-QT_END_NAMESPACE
+#if defined(QT_END_NAMESPACE)
+  QT_END_NAMESPACE
+#endif
 
 #endif // DRIVER_H

@@ -49,7 +49,9 @@
 #include <QTextStream>
 #include <QTextCodec>
 
-QT_BEGIN_NAMESPACE
+#if defined(QT_BEGIN_NAMESPACE)
+  QT_BEGIN_NAMESPACE
+#endif
 
 static const char *error = 0;
 
@@ -185,9 +187,15 @@ int runUic(int argc, char *argv[])
     return !rtn;
 }
 
-QT_END_NAMESPACE
+#if defined(QT_END_NAMESPACE)
+  QT_END_NAMESPACE
+#endif
 
 int main(int argc, char *argv[])
 {
+#if defined(QT_PREPEND_NAMESPACE)
     return QT_PREPEND_NAMESPACE(runUic)(argc, argv);
+#else
+    return runUic(argc, argv);
+#endif
 }

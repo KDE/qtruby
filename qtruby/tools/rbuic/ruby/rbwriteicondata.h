@@ -46,7 +46,9 @@
 
 #include "treewalker.h"
 
-QT_BEGIN_NAMESPACE
+#if defined(QT_BEGIN_NAMESPACE)
+  QT_BEGIN_NAMESPACE
+#endif
 
 class QTextStream;
 class QIODevice;
@@ -77,6 +79,8 @@ private:
 
 } // namespace Ruby
 
-QT_END_NAMESPACE
+#if defined(QT_END_NAMESPACE)
+  QT_END_NAMESPACE
+#endif
 
 #endif // RBWRITEICONDATA_H

@@ -46,7 +46,9 @@
 
 #include "treewalker.h"
 
-QT_BEGIN_NAMESPACE
+#if defined(QT_BEGIN_NAMESPACE)
+  QT_BEGIN_NAMESPACE
+#endif
 
 class QTextStream;
 class Driver;
@@ -71,6 +73,8 @@ private:
     Driver *m_driver;
 };
 
-QT_END_NAMESPACE
+#if defined(QT_END_NAMESPACE)
+  QT_END_NAMESPACE
+#endif
 
 #endif // VALIDATOR_H

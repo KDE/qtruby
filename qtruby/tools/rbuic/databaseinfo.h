@@ -48,7 +48,9 @@
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
 
-QT_BEGIN_NAMESPACE
+#if defined(QT_BEGIN_NAMESPACE)
+  QT_BEGIN_NAMESPACE
+#endif
 
 class Driver;
 
@@ -76,6 +78,8 @@ private:
     QMap<QString, QStringList> m_fields;
 };
 
-QT_END_NAMESPACE
+#if defined(QT_END_NAMESPACE)
+  QT_END_NAMESPACE
+#endif
 
 #endif // DATABASEINFO_H

@@ -51,7 +51,9 @@
 #include <QtCore/QStack>
 #include <QtCore/QTextStream>
 
-QT_BEGIN_NAMESPACE
+#if defined(QT_BEGIN_NAMESPACE)
+  QT_BEGIN_NAMESPACE
+#endif
 
 class Driver;
 class Uic;
@@ -305,6 +307,8 @@ private:
 
 } // namespace Ruby
 
-QT_END_NAMESPACE
+#if defined(QT_END_NAMESPACE)
+  QT_END_NAMESPACE
+#endif
 
 #endif // RBWRITEINITIALIZATION_H

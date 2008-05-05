@@ -72,7 +72,9 @@
 #include <qt_windows.h>
 #endif
 
-QT_BEGIN_NAMESPACE
+#if defined(QT_BEGIN_NAMESPACE)
+  QT_BEGIN_NAMESPACE
+#endif
 
 Uic::Uic(Driver *d)
      : drv(d),
@@ -340,7 +342,7 @@ bool Uic::rbwrite(DomUI *ui)
 
     	if (option().useKDE) {
 			out << "if $0 == __FILE__" << endl;
-			out << option().indent << "about = KDE::AboutData.new(\"" << className.lower() << "\", \"" << className << "\", KDE.ki18n(\"\"), \"0.1\")" << endl;
+			out << option().indent << "about = KDE::AboutData.new(\"" << className.toLower() << "\", \"" << className << "\", KDE.ki18n(\"\"), \"0.1\")" << endl;
 			out << option().indent << "KDE::CmdLineArgs.init(ARGV, about)" << endl;
 			out << option().indent << "a = KDE::Application.new" << endl;
 			out << option().indent << "u = " << option().prefix << className << ".new" << endl;
@@ -431,4 +433,6 @@ bool Uic::isMenu(const QString &className) const
         || customWidgetsInfo()->extends(className, QLatin1String("QPopupMenu"));
 }
 
-QT_END_NAMESPACE
+#if defined(QT_END_NAMESPACE)
+  QT_END_NAMESPACE
+#endif

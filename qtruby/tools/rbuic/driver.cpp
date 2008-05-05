@@ -49,7 +49,9 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
-QT_BEGIN_NAMESPACE
+#if defined(QT_BEGIN_NAMESPACE)
+  QT_BEGIN_NAMESPACE
+#endif
 
 Driver::Driver()
     : m_stdout(stdout, QFile::WriteOnly | QFile::Text)
@@ -377,4 +379,6 @@ DomAction *Driver::actionByName(const QString &name) const
     return m_actions.key(name);
 }
 
-QT_END_NAMESPACE
+#if defined(QT_END_NAMESPACE)
+  QT_END_NAMESPACE
+#endif

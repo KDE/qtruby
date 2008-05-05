@@ -46,7 +46,9 @@
 #include "ui4.h"
 #include "uic.h"
 
-QT_BEGIN_NAMESPACE
+#if defined(QT_BEGIN_NAMESPACE)
+  QT_BEGIN_NAMESPACE
+#endif
 
 Validator::Validator(Uic *uic)   :
     m_driver(uic->driver())
@@ -93,4 +95,6 @@ void Validator::acceptAction(DomAction *node)
     TreeWalker::acceptAction(node);
 }
 
-QT_END_NAMESPACE
+#if defined(QT_END_NAMESPACE)
+  QT_END_NAMESPACE
+#endif

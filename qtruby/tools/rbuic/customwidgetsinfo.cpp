@@ -46,7 +46,9 @@
 #include "ui4.h"
 #include "utils.h"
 
-QT_BEGIN_NAMESPACE
+#if defined(QT_BEGIN_NAMESPACE)
+  QT_BEGIN_NAMESPACE
+#endif
 
 CustomWidgetsInfo::CustomWidgetsInfo()
 {
@@ -99,5 +101,6 @@ QString CustomWidgetsInfo::customWidgetAddPageMethod(const QString &name) const
     return QString();
 }
 
-
-QT_END_NAMESPACE
+#if defined(QT_END_NAMESPACE)
+  QT_END_NAMESPACE
+#endif
