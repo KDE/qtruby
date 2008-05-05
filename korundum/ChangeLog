@@ -1,3 +1,12 @@
+2008-05-05  Richard Dale  <richard.j.dale@gmail.com>
+
+	* When a Ruby class called MyApp::FooBar is instantiated it is put in a
+	  global variable called '$my_app_foo_bar + <numeric id>' to prevent it
+	  being garbage collected. The numeric id is used to allow more than
+	  instance of a class to be run, the plugin runtime looks for the first
+	  global variable for the class that isn't being used, starting at an
+	  id of 1.
+
 2008-05-02  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Changed the way the Ruby classname is derived from a 

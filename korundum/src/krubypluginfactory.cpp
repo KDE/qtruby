@@ -2,6 +2,7 @@
  *   Copyright (C) 2005,2006,2007 by Siraj Razick <siraj@kdemail.net>      *
  *   Copyright (C) 2007 by Riccardo Iaconelli <ruphy@fsfe.org>             *
  *   Copyright (C) 2007 by Matthias Kretz <kretz@kde.org>                  *
+ *   Copyright (C) 2008 by Richard Dale <richard.j.dale@gmail.com>         *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -55,7 +56,7 @@ show_exception_message()
                             .arg( STR2CSTR(message) )
                             .arg( STR2CSTR(rb_obj_as_string(info)) )
                             .arg( rb_class2name(CLASS_OF(info)) );
-    fprintf(stderr, "%s\n", errormessage.toLatin1().data());
+    fprintf(stderr, "%s\n", errormessage.toLatin1().constData());
 
     QString tracemessage;
     for(int i = 1; i < RARRAY(bt)->len; ++i) {
@@ -63,7 +64,7 @@ show_exception_message()
             QString s = QString("%1\n").arg( STR2CSTR(RARRAY(bt)->ptr[i]) );
             Q_ASSERT( ! s.isNull() );
             tracemessage += s;
-            fprintf(stderr, "\t%s", s.toLatin1().data());
+            fprintf(stderr, "\t%s", s.toLatin1().constData());
         }
     }
 }
@@ -117,8 +118,6 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
     Q_UNUSED(iface);
     Q_UNUSED(parentWidget);
 
-    // suggestion for script lookup:
-    //KStandardDirs::locate("data", QString::fromLatin1(iface) + QLatin1Char('/') + keyword);
     QString path = KStandardDirs::locate("data", keyword);
 
     if (path.isEmpty()) {
@@ -132,7 +131,6 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
     ruby_init();
     ruby_script(QFile::encodeName(program.fileName()));
     ruby_init_loadpath();
-
     ruby_incpush(QFile::encodeName(program.path()));
 
     int state = 0;
@@ -179,8 +177,26 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
         return 0;
     }
 
-    // Set a global variable $my_app_foo_bar to the value of the new instance of MyApp::FooBar
-    rb_gv_set(QByteArray("$") + QFile::encodeName(program.path()) + "_" + program.baseName().toLatin1(), plugin_value);
+    // Set a global variable '$my_app_foo_bar + <numeric id>' to the value of the new 
+    // instance of MyApp::FooBar to prevent it being GC'd. Note that it would be
+    // better to be able to come up with a way to discover all the plugin instances,
+    // and call rb_gc_mark() on them, in the mark phase of GC.
+    QByteArray variableBaseName("$");
+    variableBaseName += QFile::encodeName(program.dir().dirName());
+    variableBaseName += "_";
+    variableBaseName += program.baseName().toLatin1();
+
+    // Handle multiple instances of the same class, and look for an unused global
+    // variable
+    QByteArray variableName;
+    VALUE variable = Qnil;
+    int id = 0;
+    do {
+        id++;
+        variableName = variableBaseName + QByteArray::number(id);
+        variable = rb_gv_get(variableName);
+    } while (variable != Qnil);
+    rb_gv_set(variableName, plugin_value);
 
     smokeruby_object *o = 0;
     Data_Get_Struct(plugin_value, smokeruby_object, o);
