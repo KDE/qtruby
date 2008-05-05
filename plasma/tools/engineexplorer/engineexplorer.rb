@@ -153,7 +153,7 @@ class EngineExplorer < KDE::Dialog
     # puts "getting data for source #{source}"
     data = @engine.query(source)
     showData(parent, data)
-    if !@requestingSource || @sourceRequester.text != source
+    if !@requestingSource || @ui.m_sourceRequester.text != source
       @engine.connectSource(source, self)
     end
 
@@ -203,6 +203,8 @@ class EngineExplorer < KDE::Dialog
         return node.literal.variant.value.inspect
       elsif node.resource?
         return node.uri.toString
+      elsif node.blank?
+        return "_:#{node.identifier}"
       else
         return node.inspect
       end
@@ -257,6 +259,9 @@ aboutData = KDE::AboutData.new("plasmaengineexplorer", nil, KDE::ki18n("Plasma E
 aboutData.addAuthor(KDE::ki18n("Aaron J. Seigo"),
                     KDE::ki18n( "Author and maintainer" ),
                     "aseigo@kde.org")
+aboutData.addAuthor(KDE::ki18n("Richard Dale"),
+                    KDE::ki18n( "Ruby version" ),
+                    "richard.j.dale@gmail.com")
 
 KDE::CmdLineArgs.init(ARGV, aboutData)
 
@@ -266,7 +271,7 @@ options.add("width <pixels>", KDE::ki18n("The desired width in pixels"))
 options.add("x <pixels>", KDE::ki18n("The desired x position in pixels"))
 options.add("y <pixels>", KDE::ki18n("The desired y position in pixels"))
 options.add("engine <data engine>", KDE::ki18n("The data engine to use"))
-options.add("interval <ms>", KDE::ki18n("Update Interval in milliseconds.  Default: 50ms"), "50")
+options.add("interval <ms>", KDE::ki18n("Update Interval in milliseconds.  Default: 50ms"))
 KDE::CmdLineArgs.addCmdLineOptions(options)
 
 args = KDE::CmdLineArgs.parsedArgs
@@ -275,28 +280,28 @@ app = KDE::Application.new
 w = EngineExplorer.new
 
 # get pos if available
-x = args.getOption("height").to_i
-y = args.getOption("width").to_i
-if x && y
-  w.resize(x,y)
+x = args["height"]
+y = args["width"]
+unless x.empty? || y.empty?
+  w.resize(x.to_i, y.to_i)
 end
 
 # get size
-x = args.getOption("x").to_i
-y = args.getOption("y").to_i
-if x && y
-  w.move(x,y)
+x = args["x"]
+y = args["y"]
+unless x.empty? || y.empty?
+  w.move(x.to_i, y.to_i)
 end
 
 # set interval
-interval = args.getOption("interval").to_i
-if interval
-  w.interval = interval
+interval = args["interval"]
+unless interval.empty?
+  w.interval = interval.to_i
 end
 
 # set engine
-engine = args.getOption("engine")
-if !engine.empty?
+engine = args["engine"]
+unless engine.empty?
   w.engine = engine
 end
 

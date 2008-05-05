@@ -3,7 +3,7 @@
 #
 
 ui_engineexplorer.rb: engineexplorer.ui
-	rbuic4 engineexplorer.ui -o ui_engineexplorer.rb
+	rbuic4 -tr KDE::tr2i18n engineexplorer.ui -o ui_engineexplorer.rb
 
 clean:
 	rm ui_engineexplorer.rb
