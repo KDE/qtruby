@@ -48,9 +48,7 @@
 #include <kio/copyjob.h>
 #include <plasma/packagestructure.h>
 #include <plasma/containment.h>
-#include <plasma/searchmatch.h>
 #include <plasma/applet.h>
-#include <plasma/abstractrunner.h>
 
 extern "C" {
 extern VALUE set_obj_info(const char * className, smokeruby_object * o);
@@ -546,9 +544,7 @@ DEF_LIST_MARSHALLER( KToolBarList, QList<KToolBar*>, KToolBar )
 DEF_LIST_MARSHALLER( KXMLGUIClientList, QList<KXMLGUIClient*>, KXMLGUIClient )
 DEF_LIST_MARSHALLER( KFileItemList, QList<KFileItem*>, KFileItem )
 DEF_LIST_MARSHALLER( PlasmaContainmentList, QList<Plasma::Containment*>, Plasma::Containment )
-DEF_LIST_MARSHALLER( PlasmaSearchMatchList, QList<Plasma::SearchMatch*>, Plasma::SearchMatch )
 DEF_LIST_MARSHALLER( PlasmaAppletList, QList<Plasma::Applet*>, Plasma::Applet )
-DEF_LIST_MARSHALLER( PlasmaAbstractRunnerList, QList<Plasma::AbstractRunner*>, Plasma::AbstractRunner )
 
 template <class Item, class ItemList, const char *ItemSTR >
 void marshall_ValueListItem(Marshall *m) {
@@ -788,10 +784,7 @@ TypeHandler KDE_handlers[] = {
     { "QList<KXMLGUIClient*>&", marshall_KXMLGUIClientList },
     { "QList<Plasma::Containment*>", marshall_PlasmaContainmentList },
     { "QList<Plasma::Containment*>&", marshall_PlasmaContainmentList },
-    { "QList<Plasma::SearchMatch*>", marshall_PlasmaSearchMatchList },
-    { "QList<Plasma::SearchMatch*>&", marshall_PlasmaSearchMatchList },
     { "QList<Plasma::Applet::List>", marshall_PlasmaAppletList },
-    { "QList<Plasma::AbstractRunner::List>", marshall_PlasmaAbstractRunnerList },
     { "KFileItemList", marshall_KFileItemList },
     { "KFileItemList&", marshall_KFileItemList },
     { "KFileItemList*", marshall_KFileItemList },

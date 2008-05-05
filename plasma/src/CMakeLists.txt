@@ -6,7 +6,7 @@ include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_PATH} ${CMAKE_SOUR
 
 set(plasma_applet_LIB_SRCS 
    plasma.cpp 
-   kdehandlers.cpp 
+   plasmahandlers.cpp 
    ${CMAKE_SOURCE_DIR}/ruby/qtruby/src/Qt.cpp
    ${CMAKE_SOURCE_DIR}/ruby/qtruby/src/handlers.cpp
    ${CMAKE_SOURCE_DIR}/ruby/qtruby/src/marshall_types.cpp
