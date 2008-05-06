@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=DBPedia Albums Data Engine
-Comment=DBPedia album data for Plasmoids
-X-KDE-ServiceTypes=Plasma/DataEngine
-Type=Service
-Icon=
-X-KDE-Library=krubypluginfactory
-X-KDE-PluginKeyword=plasma_engine_dbpedia_albums/dbpedia_albums_engine.rb
-X-Plasma-EngineName=dbpedia-albums

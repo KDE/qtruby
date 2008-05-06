@@ -5,7 +5,6 @@ macro_optional_find_package(RUBY)
 
 OPTION(ENABLE_QTRUBY "build QtRuby" ON)
 OPTION(ENABLE_KORUNDUM "build Korundum" ON)
-OPTION(ENABLE_PLASMA "build Plasma" ON)
 
 SET(CUSTOM_RUBY_SITE_ARCH_DIR ${RUBY_SITE_ARCH_DIR} CACHE DIR "custom installation directory for ruby binary extension" )
 SET(CUSTOM_RUBY_SITE_LIB_DIR ${RUBY_SITE_LIB_DIR} CACHE DIR "custom installation directory for ruby extension" )
@@ -21,14 +20,9 @@ if(RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_PATH)
         add_subdirectory( korundum )
         set(KORUNDUM_ENABLED "yes")
     endif(ENABLE_KORUNDUM)
-    if(ENABLE_PLASMA)
-        add_subdirectory( plasma )
-        set(PLASMA_ENABLED "yes")
-    endif(ENABLE_PLASMA)
 endif(RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_PATH)
 message(STATUS "Build QtRuby... " ${QTRUBY_ENABLED})
 message(STATUS "Build Korundum... " ${KORUNDUM_ENABLED})
-message(STATUS "Build Plasma... " ${PLASMA_ENABLED})
 
 #####################################################################
 # Kross Ruby
