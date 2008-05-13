@@ -1735,7 +1735,7 @@ module Qt
 			method_missing(:type, *args)
 		end
 	end
-
+	
 	class TimeLine < Qt::Base
 		def frameRange=(arg)
 			if arg.kind_of? Range
@@ -2251,27 +2251,63 @@ module Qt
 		@@cpp_names = {}
 		@@idclass   = []
 
+		@@normalize_procs = []
+
+		class ModuleIndex
+			attr_accessor :index
+			
+			def smoke
+				if ! @smoke
+				    return 0
+				end
+				return @smoke
+			end
+			
+			def initialize(smoke, index)
+				@smoke = smoke
+				@index = index
+			end
+		end
+
+		def self.classes
+			return @@classes
+		end
+
+		def self.cpp_names
+			return @@cpp_names
+		end
+
+		def self.idclass
+			return @@idclass
+		end
+
+		def self.add_normalize_proc(func)
+			@@normalize_procs << func
+		end
+
 		def Internal.normalize_classname(classname)
-			if classname =~ /^Qsci/
-				now = classname.sub(/^Qsci(?=[A-Z])/,'Qsci::')
-			elsif classname =~ /^Qwt/
-				now = classname.sub(/^Qwt(?=[A-Z])/,'Qwt::')
-			elsif classname =~ /^Q3/
+			@@normalize_procs.each do |func|
+				ret = func.call(classname)
+				if !ret.nil?
+					return ret
+				end
+			end
+# 			if classname =~ /^Qsci/
+# 				now = classname.sub(/^Qsci(?=[A-Z])/,'Qsci::')
+# 			elsif classname =~ /^Qwt/
+# 				now = classname.sub(/^Qwt(?=[A-Z])/,'Qwt::')
+			if classname =~ /^Q3/
 				now = classname.sub(/^Q3(?=[A-Z])/,'Qt3::')
 			elsif classname =~ /^Q/
 				now = classname.sub(/^Q(?=[A-Z])/,'Qt::')
-			elsif classname =~ /^KCoreConfigSkeleton::/
-				# Make classes under KCoreConfigSkeleton appear under KDE::ConfigSkeleton
-				# in Ruby, as the KCoreConfigSkeleton class isn't really the public api
-				now = classname.sub(/KCore/,'KDE::')
-			elsif classname =~ /^(KConfigSkeleton|KWin|KDateTime|KTimeZone)::/
-				now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
-			elsif classname !~ /::/
-				now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
+# 			elsif classname =~ /^(KConfigSkeleton|KWin)::/
+# 				now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
+# 			elsif classname !~ /::/
+# 				now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
 			else
 				now = classname
 			end
-#			puts "normalize_classname = was: #{classname}, now: #{now}"
+#			puts "normalize_classname = was::#{classname}, now::#{now}"
 			now
 		end
 
@@ -2280,12 +2316,12 @@ module Qt
 				return
 			end
 			classname = Qt::Internal::normalize_classname(c)
-			classId = Qt::Internal.idClass(c)
+			classId = Qt::Internal.findClass(c)
 			insert_pclassid(classname, classId)
-			@@idclass[classId] = classname
+			@@idclass[classId.index] = classname
 			@@cpp_names[classname] = c
-			klass = isQObject(classId) ? create_qobject_class(classname) \
-                                                   : create_qt_class(classname)
+			klass = isQObject(c) ? create_qobject_class(classname, Qt) \
+                                                   : create_qt_class(classname, Qt)
 			@@classes[classname] = klass unless klass.nil?
 		end
 
@@ -2485,7 +2521,7 @@ module Qt
 				best_match = -1
 				methodIds.each do
 					|id|
-					puts "matching => #{id}" if debug_level >= DebugLevel::High
+					puts "matching => smoke: #{id.smoke} index: #{id.index}" if debug_level >= DebugLevel::High
 					current_match = 0
 					(0...args.length).each do
 						|i|
@@ -2502,10 +2538,10 @@ module Qt
 					elsif current_match == best_match
 						chosen = nil
 					end
-					puts "match => #{id} score: #{current_match}" if debug_level >= DebugLevel::High
+					puts "match => #{id.index} score: #{current_match}" if debug_level >= DebugLevel::High
 				end
 					
-				puts "Resolved to id: #{chosen}" if !chosen.nil? && debug_level >= DebugLevel::High
+				puts "Resolved to id: #{chosen.index}" if !chosen.nil? && debug_level >= DebugLevel::High
 			end
 
 			if debug_level >= DebugLevel::Minimal && chosen.nil? && method !~ /^operator/
@@ -2523,7 +2559,7 @@ module Qt
 				puts dumpCandidates(method_ids)
 			end
 
-			puts "setCurrentMethod(#{chosen})" if debug_level >= DebugLevel::High
+			puts "setCurrentMethod(smokeList index: #{chosen.smoke}, meth index: #{chosen.index})" if debug_level >= DebugLevel::High
 			setCurrentMethod(chosen) if chosen
 			return nil
 		end
@@ -2533,7 +2569,7 @@ module Qt
 				if c == "Qt"
 					# Don't change Qt to Qt::t, just leave as is
 					@@cpp_names["Qt"] = c
-				elsif c != "QInternal"
+				elsif c != "QInternal" && !c.empty?
 					Qt::Internal::init_class(c)
 				end
 			end
@@ -2573,7 +2609,7 @@ module Qt
 
 		def Internal.getAllParents(class_id, res)
 			getIsa(class_id).each do |s|
-				c = idClass(s)
+				c = findClass(s)
 				res << c
 				getAllParents(c, res)
 			end
@@ -2894,10 +2930,10 @@ class Module
 		end
 
 		klass = self
-		classid = 0
+		classid = Qt::Internal::ModuleIndex.new(0, 0)
 		loop do
 			classid = Qt::Internal::find_pclassid(klass.name)
-			break if classid > 0
+			break if classid.index
 			
 			klass = klass.superclass
 			if klass.nil?

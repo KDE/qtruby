@@ -23,17 +23,18 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qmetaobject.h>
 
+#include <smoke/smoke.h>
+
 #include "marshall.h"
 #include "qtruby.h"
 #include "smokeruby.h"
-#include "smoke.h"
 
 Marshall::HandlerFn getMarshallFn(const SmokeType &type);
 
 extern void smokeStackToQtStack(Smoke::Stack stack, void ** o, int start, int end, QList<MocArgument*> args);
 extern void smokeStackFromQtStack(Smoke::Stack stack, void ** _o, int start, int end, QList<MocArgument*> args);
 
-class MethodReturnValueBase : public Marshall 
+class Q_DECL_EXPORT MethodReturnValueBase : public Marshall 
 {
 public:
 	MethodReturnValueBase(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack);
@@ -55,7 +56,7 @@ protected:
 };
 
 
-class VirtualMethodReturnValue : public MethodReturnValueBase {
+class Q_DECL_EXPORT VirtualMethodReturnValue : public MethodReturnValueBase {
 public:
 	VirtualMethodReturnValue(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack, VALUE retval);
 	Marshall::Action action();
@@ -65,7 +66,7 @@ private:
 };
 
 
-class MethodReturnValue : public MethodReturnValueBase {
+class Q_DECL_EXPORT MethodReturnValue : public MethodReturnValueBase {
 public:
 	MethodReturnValue(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack, VALUE * retval);
     Marshall::Action action();
@@ -74,7 +75,7 @@ private:
 	const char *classname();
 };
 
-class MethodCallBase : public Marshall
+class Q_DECL_EXPORT MethodCallBase : public Marshall
 {
 public:
 	MethodCallBase(Smoke *smoke, Smoke::Index meth);
@@ -100,7 +101,7 @@ protected:
 };
 
 
-class VirtualMethodCall : public MethodCallBase {
+class Q_DECL_EXPORT VirtualMethodCall : public MethodCallBase {
 public:
 	VirtualMethodCall(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack, VALUE obj, VALUE *sp);
 	~VirtualMethodCall();
@@ -115,7 +116,7 @@ private:
 };
 
 
-class MethodCall : public MethodCallBase {
+class Q_DECL_EXPORT MethodCall : public MethodCallBase {
 public:
 	MethodCall(Smoke *smoke, Smoke::Index method, VALUE target, VALUE *sp, int items);
 	~MethodCall();
@@ -161,7 +162,7 @@ private:
 };
 
 
-class SigSlotBase : public Marshall {
+class Q_DECL_EXPORT SigSlotBase : public Marshall {
 public:
 	SigSlotBase(QList<MocArgument*> args);
 	~SigSlotBase();
@@ -185,7 +186,7 @@ protected:
 };
 
 
-class EmitSignal : public SigSlotBase {
+class Q_DECL_EXPORT EmitSignal : public SigSlotBase {
     QObject *_obj;
     int _id;
 	VALUE * _result;
@@ -199,7 +200,7 @@ class EmitSignal : public SigSlotBase {
 	bool cleanup();
 };
 
-class InvokeNativeSlot : public SigSlotBase {
+class Q_DECL_EXPORT InvokeNativeSlot : public SigSlotBase {
     QObject *_obj;
     int _id;
 	VALUE * _result;
@@ -213,7 +214,7 @@ class InvokeNativeSlot : public SigSlotBase {
 	bool cleanup();
 };
 
-class InvokeSlot : public SigSlotBase {
+class Q_DECL_EXPORT InvokeSlot : public SigSlotBase {
     VALUE _obj;
     ID _slotname;
     void **_o;

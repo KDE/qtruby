@@ -1,7 +1,7 @@
 #ifndef SMOKERUBY_H
 #define SMOKERUBY_H
 
-#include "smoke.h"
+#include <smoke/smoke.h>
 
 #undef DEBUG
 #ifndef _GNU_SOURCE
@@ -213,7 +213,7 @@ public:
 	return smoke()->cast(
 	    ptr(),
 	    classId(),
-	    smoke()->idClass(toc.className())
+	    smoke()->idClass(toc.className()).index
 	);
     }
     const char *className() { return c().className(); }

@@ -4,7 +4,9 @@
                              -------------------
     begin                : Sun Sep 28 2003
     copyright            : (C) 2003-2004 by Richard Dale
+                           (C) 2008 by Arno Rehn
     email                : Richard_Dale@tipitina.demon.co.uk
+                           arno@arnorehn.de
  ***************************************************************************/
 
 /***************************************************************************
@@ -17,8 +19,10 @@
  ***************************************************************************/
 =end
 
+require 'Qt'
+
 module KDE
-	class Application
+	class Application < Qt::Base
 		def initialize(*k)
 			super
 			$kapp = self
@@ -35,7 +39,7 @@ module KDE
 		end
 	end
 	
-	class UniqueApplication
+	class UniqueApplication < Qt::Base
 		def initialize(*k)
 			super
 			$kapp = self
@@ -48,7 +52,7 @@ module KDE
 		end
 	end
 	
-	class AboutData
+	class AboutData < Qt::Base
 		def initialize(*args)
 			sargs = []
 			for i in 0...args.length do
@@ -116,13 +120,13 @@ module KDE
 		end
 	end
 
-	class AboutLicense
+	class AboutLicense < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
 		end
 	end
 	
-	class AboutPerson
+	class AboutPerson < Qt::Base
 		def inspect
 			str = super
 			str.sub(/>$/, " emailAddress=%s, name=%s, task=%s, webAddress=%s>" % 
@@ -140,7 +144,7 @@ module KDE
 		end
 	end
 	
-	class AboutTranslator
+	class AboutTranslator < Qt::Base
 		def inspect
 			str = super
 			str.sub(/>$/, " emailAddress=%s, name=%s>" % 
@@ -154,7 +158,7 @@ module KDE
 		end
 	end
 
-	class ArchiveEntry
+	class ArchiveEntry < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
 		end
@@ -223,7 +227,7 @@ module KDE
 		end
 	end
 
-	class CmdLineOptions
+	class CmdLineOptions < Qt::Base
 		def add(*args)
 			sargs = []
 			for i in 0...args.length do
@@ -237,13 +241,13 @@ module KDE
 		end
 	end
 
-	class ColorCollection
+	class ColorCollection < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
 		end
 	end
 
-	class ComponentData
+	class ComponentData < Qt::Base
 		def initialize(*args)
 			sargs = []
 			for i in 0...args.length do
@@ -258,19 +262,19 @@ module KDE
 		end
 	end
 
-	class Config
+	class Config < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
 		end
 	end
 
-	class ConfigGroup
+	class ConfigGroup < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
 		end
 	end
 
-	class DoubleNumInput
+	class DoubleNumInput < Qt::Base
 		def range=(arg)
 			if arg.kind_of? Range
 				return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
@@ -280,13 +284,13 @@ module KDE
 		end
 	end
 
-	class FileItem
+	class FileItem < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
 		end
 	end
 
-	class IntNumInput
+	class IntNumInput < Qt::Base
 		def range=(arg)
 			if arg.kind_of? Range
 				return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
@@ -296,7 +300,7 @@ module KDE
 		end
 	end
 
-	class IntValdator
+	class IntValdator < Qt::Base
 		def range=(arg)
 			if arg.kind_of? Range
 				return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
@@ -306,7 +310,7 @@ module KDE
 		end
 	end
 
-	class MainWindow
+	class MainWindow < Qt::Base
 		# A sane alternative to the strange looking C++ template version.
 		# There is no need to pass a list of classes, as the Ruby classes
 		# of the main windows to be restored are derived from 
@@ -345,19 +349,19 @@ module KDE
 		end
 	end
 
-	class PageWidgetItem
+	class PageWidgetItem < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
 		end
 	end
 
-	class PluginInfo
+	class PluginInfo < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
 		end
 	end
 
-	class Service
+	class Service < Qt::Base
 		def inspect
 			str = super
 			str.sub(/>$/, " library=%s, type=%s, name=%s>" % [library.inspect, type.inspect, name.inspect])
@@ -368,49 +372,49 @@ module KDE
 			pp.text str.sub(/>$/, "\n library=%s,\n type=%s,\n name=%s>" % [library.inspect, type.inspect, name.inspect])
 		end
 	end
-	class ServiceAction
+	class ServiceAction < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
 		end
 	end
 
-	class StandardAction
+	class StandardAction < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
 		end
 	end
 
-	class StandardShortcut
+	class StandardShortcut < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
 		end
 	end
 
-	class StartupInfoData
+	class StartupInfoData < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
 		end
 	end
 
-	class SycocaEntry
+	class SycocaEntry < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
 		end
 	end
 
-	class TempDir
+	class TempDir < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
 		end
 	end
 
-	class TimeZone
+	class TimeZone < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
 		end
 	end
 
-	class Url
+	class Url < Qt::Base
 		def inspect
 			str = super
 			str.sub(/>$/, " url=%s, protocol=%s>" % [url.inspect, protocol.inspect])
@@ -422,9 +426,66 @@ module KDE
 		end
 	end
 
-	class UserGroup
+	class UserGroup < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
+		end
+	end
+
+	module Internal
+		def self.init_all_classes
+			Qt::Internal::add_normalize_proc(Proc.new do |classname|
+				if classname =~ /^KCoreConfigSkeleton::/
+					# Make classes under KCoreConfigSkeleton appear under KDE::ConfigSkeleton
+					# in Ruby, as the KCoreConfigSkeleton class isn't really the public api
+					now = classname.sub(/KCore/,'KDE::')
+				elsif classname =~ /^(KConfigSkeleton|KWin|KDateTime|KTimeZone)::/
+					now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
+				elsif classname =~ /^K/ && classname !~ /::/
+					now = classname.sub(/(^K)/, 'KDE::')
+				end
+				now
+			end)
+			getClassList.each do |c|
+				classname = Qt::Internal::normalize_classname(c)
+				id = Qt::Internal::findClass(c);
+				Qt::Internal::insert_pclassid(classname, id)
+				Qt::Internal::cpp_names[classname] = c
+				if classname =~ /^KParts/
+					m = KParts
+				elsif classname =~ /^KIO/
+					m = KIO
+				elsif classname =~ /^Sonnet/
+					m = Sonnet
+				elsif classname =~ /^DOM/
+					m = DOM
+				elsif classname =~ /^KNS/
+					m = KNS
+				elsif classname =~ /^Kontact/
+					m = Kontact
+				elsif classname =~ /^KTextEditor/
+					m = KTextEditor
+				elsif classname =~ /^Kate/
+					m = Kate
+				elsif classname =~ /^KMediaPlayer/
+					m = KMediaPlayer
+				elsif classname =~ /^Ko/
+					m = Ko
+				elsif classname =~ /^KWallet/
+					m = KWallet
+				elsif classname =~ /^SafeSite/
+					m = SafeSite
+				elsif classname =~ /^Soprano/
+					m = Soprano
+				elsif classname =~ /^Nepomuk/
+					m = Nepomuk
+				else
+					m = KDE
+				end
+				klass = Qt::Internal::isQObject(c) ? Qt::Internal::create_qobject_class(classname, m) \
+													: Qt::Internal::create_qt_class(classname, m)
+				Qt::Internal::classes[classname] = klass unless klass.nil?
+			end
 		end
 	end
 end
@@ -441,4 +502,3 @@ class Object
 	def I18N_NOOP(x) x end
 	def I18N_NOOP2(comment, x) x end
 end
-

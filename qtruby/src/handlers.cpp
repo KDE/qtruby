@@ -64,7 +64,7 @@
 #include <QtNetwork/qnetworkcookie.h>
 #endif
 
-#include "smoke.h"
+#include <smoke/smoke.h>
 
 #undef DEBUG
 #ifndef _GNU_SOURCE
@@ -93,20 +93,7 @@ extern VALUE qvariant_class;
 extern bool application_terminated;
 }
 
-extern bool isDerivedFromByName(Smoke *smoke, const char *className, const char *baseClassName);
 extern void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *lastptr);
-
-static const char * (*_kde_resolve_classname)(Smoke*, int, void*) = 0;
-
-extern "C" {
-
-void
-set_kde_resolve_classname(const char * (*kde_resolve_classname) (Smoke*, int, void *))
-{
-	_kde_resolve_classname = kde_resolve_classname;
-}
-
-}
 
 void
 mark_qobject_children(QObject * qobject)
@@ -183,17 +170,8 @@ smokeruby_mark(void * p)
 	if (do_debug & qtdb_gc) qWarning("Checking for mark (%s*)%p", className, o->ptr);
 
     if (o->ptr && o->allocated) {
-		if (isDerivedFromByName(o->smoke, className, "QObject")) {
-			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
-			// Only mark the QObject tree if the current item doesn't have a parent.
-			// This avoids marking parts of a tree more than once.
-			if (qobject->parent() == 0) {
-				mark_qobject_children(qobject);
-			}
-		}
-
-		if (isDerivedFromByName(o->smoke, className, "QListWidget")) {
-			QListWidget * listwidget = (QListWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QListWidget"));
+		if (o->smoke->isDerivedFromByName(className, "QListWidget")) {
+			QListWidget * listwidget = (QListWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QListWidget").index);
 			
 			for (int i = 0; i < listwidget->count(); i++) {
 				QListWidgetItem * item = listwidget->item(i);
@@ -206,8 +184,8 @@ smokeruby_mark(void * p)
 			return;
 		}
 	
-		if (isDerivedFromByName(o->smoke, className, "QTableWidget")) {
-			QTableWidget * table = (QTableWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTableWidget"));
+		if (o->smoke->isDerivedFromByName(className, "QTableWidget")) {
+			QTableWidget * table = (QTableWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTableWidget").index);
 			QTableWidgetItem *item;
 
 			for ( int row = 0; row < table->rowCount(); row++ ) {
@@ -223,8 +201,8 @@ smokeruby_mark(void * p)
 			return;		
 		}
 
-		if (isDerivedFromByName(o->smoke, className, "QTreeWidget")) {
-			QTreeWidget * qtreewidget = (QTreeWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTreeWidget"));
+		if (o->smoke->isDerivedFromByName(className, "QTreeWidget")) {
+			QTreeWidget * qtreewidget = (QTreeWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTreeWidget").index);
 
 			for (int i = 0; i < qtreewidget->topLevelItemCount(); i++) {
 				QTreeWidgetItem * item = qtreewidget->topLevelItem(i);
@@ -238,8 +216,8 @@ smokeruby_mark(void * p)
 			return;
 		}
 
-		if (isDerivedFromByName(o->smoke, className, "QLayout")) {
-			QLayout * qlayout = (QLayout *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayout"));
+		if (o->smoke->isDerivedFromByName(className, "QLayout")) {
+			QLayout * qlayout = (QLayout *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayout").index);
 			for (int i = 0; i < qlayout->count(); ++i) {
 				QLayoutItem * item = qlayout->itemAt(i);
 				if (item != 0) {
@@ -253,8 +231,8 @@ smokeruby_mark(void * p)
 			return;
 		}
 
-		if (isDerivedFromByName(o->smoke, className, "QStandardItemModel")) {
-			QStandardItemModel * model = (QStandardItemModel *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QStandardItemModel"));
+		if (o->smoke->isDerivedFromByName(className, "QStandardItemModel")) {
+			QStandardItemModel * model = (QStandardItemModel *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QStandardItemModel").index);
 			for (int row = 0; row < model->rowCount(); row++) {
 				for (int column = 0; column < model->columnCount(); column++) {
 					QStandardItem * item = model->item(row, column);
@@ -274,8 +252,8 @@ smokeruby_mark(void * p)
 		}
 
 #if QT_VERSION >= 0x40200
-		if (isDerivedFromByName(o->smoke, className, "QGraphicsScene")) {
-			QGraphicsScene * scene = (QGraphicsScene *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsScene"));
+		if (o->smoke->isDerivedFromByName(className, "QGraphicsScene")) {
+			QGraphicsScene * scene = (QGraphicsScene *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsScene").index);
 			QList<QGraphicsItem *> list = scene->items();
 			for (int i = 0; i < list.size(); i++) {
 				QGraphicsItem * item = list.at(i);
@@ -328,14 +306,14 @@ smokeruby_free(void * p)
 		// Don't delete instances of these classes for now
 		free_smokeruby_object(o);
 		return;
-	} else if (isDerivedFromByName(o->smoke, className, "QLayoutItem")) {
-		QLayoutItem * item = (QLayoutItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayoutItem"));
+	} else if (o->smoke->isDerivedFromByName(className, "QLayoutItem")) {
+		QLayoutItem * item = (QLayoutItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayoutItem").index);
 		if (item->layout() != 0 || item->widget() != 0 || item->spacerItem() != 0) {
 			free_smokeruby_object(o);
 			return;
 		}
-	} else if (isDerivedFromByName(o->smoke, className, "QStandardItem")) {
-		QStandardItem * item = (QStandardItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QStandardItem"));
+	} else if (o->smoke->isDerivedFromByName(className, "QStandardItem")) {
+		QStandardItem * item = (QStandardItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QStandardItem").index);
 		if (item->model() != 0 || item->parent() != 0) {
 			free_smokeruby_object(o);
 			return;
@@ -346,8 +324,8 @@ smokeruby_free(void * p)
 			free_smokeruby_object(o);
 			return;
 		}
-	} else if (isDerivedFromByName(o->smoke, className, "QTableWidgetItem")) {
-		QTableWidgetItem * item = (QTableWidgetItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTableWidgetItem"));
+	} else if (o->smoke->isDerivedFromByName(className, "QTableWidgetItem")) {
+		QTableWidgetItem * item = (QTableWidgetItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTableWidgetItem").index);
 		if (item->tableWidget() != 0) {
 			free_smokeruby_object(o);
 			return;
@@ -358,14 +336,14 @@ smokeruby_free(void * p)
 //			free_smokeruby_object(o);
 //			return;
 //		}
-	} else if (isDerivedFromByName(o->smoke, className, "QWidget")) {
-		QWidget * qwidget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget"));
+	} else if (o->smoke->isDerivedFromByName(className, "QWidget")) {
+		QWidget * qwidget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget").index);
 		if (qwidget->parentWidget() != 0) {
 			free_smokeruby_object(o);
 			return;
 		}
-	} else if (isDerivedFromByName(o->smoke, className, "QObject")) {
-		QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject"));
+	} else if (o->smoke->isDerivedFromByName(className, "QObject")) {
+		QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject").index);
 		if (qobject->parent() != 0) {
 			free_smokeruby_object(o);
 			return;
@@ -377,11 +355,12 @@ smokeruby_free(void * p)
 	char *methodName = new char[strlen(className) + 2];
 	methodName[0] = '~';
 	strcpy(methodName + 1, className);
-	Smoke::Index nameId = o->smoke->idMethodName(methodName);
-	Smoke::Index meth = o->smoke->findMethod(o->classId, nameId);
-	if(meth > 0) {
-		Smoke::Method &m = o->smoke->methods[o->smoke->methodMaps[meth].method];
-		Smoke::ClassFn fn = o->smoke->classes[m.classId].classFn;
+	Smoke::ModuleIndex nameId = o->smoke->findMethodName(className, methodName);
+	Smoke::ModuleIndex classIdx = { o->smoke, o->classId };
+	Smoke::ModuleIndex meth = o->smoke->findMethod(classIdx, nameId);
+	if(meth.index > 0) {
+		Smoke::Method &m = meth.smoke->methods[meth.smoke->methodMaps[meth.index].method];
+		Smoke::ClassFn fn = meth.smoke->classes[m.classId].classFn;
 		Smoke::StackItem i[1];
 		(*fn)(m.method, o->ptr, i);
 	}
@@ -395,11 +374,11 @@ smokeruby_free(void * p)
  * Given an approximate classname and a qt instance, try to improve the resolution of the name
  * by using the various Qt rtti mechanisms for QObjects, QEvents and QCanvasItems
  */
-static const char *
-resolve_classname(Smoke* smoke, int classId, void * ptr)
+Q_DECL_EXPORT const char *
+resolve_classname_qt(Smoke* smoke, int classId, void * ptr)
 {
-	if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QEvent")) {
-		QEvent * qevent = (QEvent *) smoke->cast(ptr, classId, smoke->idClass("QEvent"));
+	if (smoke->isDerivedFromByName(smoke->classes[classId].className, "QEvent")) {
+		QEvent * qevent = (QEvent *) smoke->cast(ptr, classId, smoke->idClass("QEvent").index);
 		switch (qevent->type()) {
 		case QEvent::Timer:
 			return "Qt::TimerEvent";
@@ -572,20 +551,20 @@ resolve_classname(Smoke* smoke, int classId, void * ptr)
 		default:
 			break;
 		}
-	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QObject")) {
-		QObject * qobject = (QObject *) smoke->cast(ptr, classId, smoke->idClass("QObject"));
+	} else if (smoke->isDerivedFromByName(smoke->classes[classId].className, "QObject")) {
+		QObject * qobject = (QObject *) smoke->cast(ptr, classId, smoke->idClass("QObject").index);
 		const QMetaObject * meta = qobject->metaObject();
 
 		while (meta != 0) {
-			Smoke::Index classId = smoke->idClass(meta->className());
+			Smoke::Index classId = smoke->idClass(meta->className()).index;
 			if (classId != 0) {
 				return smoke->binding->className(classId);
 			}
 
 			meta = meta->superClass();
 		}
-	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QGraphicsItem")) {
-		QGraphicsItem * item = (QGraphicsItem *) smoke->cast(ptr, classId, smoke->idClass("QGraphicsItem"));
+	} else if (smoke->isDerivedFromByName(smoke->classes[classId].className, "QGraphicsItem")) {
+		QGraphicsItem * item = (QGraphicsItem *) smoke->cast(ptr, classId, smoke->idClass("QGraphicsItem").index);
 		switch (item->type()) {
 		case 1:
 			return "Qt::GraphicsItem";
@@ -610,8 +589,8 @@ resolve_classname(Smoke* smoke, int classId, void * ptr)
 		default:
 			return "Qt::GraphicsItem";
 		}
-	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QLayoutItem")) {
-		QLayoutItem * item = (QLayoutItem *) smoke->cast(ptr, classId, smoke->idClass("QLayoutItem"));
+	} else if (smoke->isDerivedFromByName(smoke->classes[classId].className, "QLayoutItem")) {
+		QLayoutItem * item = (QLayoutItem *) smoke->cast(ptr, classId, smoke->idClass("QLayoutItem").index);
 		if (item->widget() != 0) {
 			return "Qt::WidgetItem";
 		} else if (item->spacerItem() != 0) {
@@ -619,8 +598,8 @@ resolve_classname(Smoke* smoke, int classId, void * ptr)
 		} else {
 			return "Qt::Layout";
 		}
-	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QListWidgetItem")) {
-		QListWidgetItem * item = (QListWidgetItem *) smoke->cast(ptr, classId, smoke->idClass("QListWidgetItem"));
+	} else if (smoke->isDerivedFromByName(smoke->classes[classId].className, "QListWidgetItem")) {
+		QListWidgetItem * item = (QListWidgetItem *) smoke->cast(ptr, classId, smoke->idClass("QListWidgetItem").index);
 		switch (item->type()) {
 		case 0:
 			return "Qt::ListWidgetItem";
@@ -628,8 +607,8 @@ resolve_classname(Smoke* smoke, int classId, void * ptr)
 			return "Qt::ListWidgetItem";
 			break;
 		}
-	} else if (isDerivedFromByName(smoke, smoke->classes[classId].className, "QTableWidgetItem")) {
-		QTableWidgetItem * item = (QTableWidgetItem *) smoke->cast(ptr, classId, smoke->idClass("QTableWidgetItem"));
+	} else if (smoke->isDerivedFromByName(smoke->classes[classId].className, "QTableWidgetItem")) {
+		QTableWidgetItem * item = (QTableWidgetItem *) smoke->cast(ptr, classId, smoke->idClass("QTableWidgetItem").index);
 		switch (item->type()) {
 		case 0:
 			return "Qt::TableWidgetItem";
@@ -637,10 +616,6 @@ resolve_classname(Smoke* smoke, int classId, void * ptr)
 			return "Qt::TableWidgetItem";
 			break;
 		}
-	}
-	
-	if (_kde_resolve_classname != 0) {
-		return (*_kde_resolve_classname)(smoke, classId, ptr);
 	}
 	
 	return smoke->binding->className(classId);
@@ -665,19 +640,20 @@ construct_copy(smokeruby_object *o)
     char *ccSig = new char[classNameLen + 2];       // copy constructor signature
     strcpy(ccSig, className);
     strcat(ccSig, "#");
-    Smoke::Index ccId = o->smoke->idMethodName(ccSig);
+    Smoke::ModuleIndex ccId = o->smoke->findMethodName(className, ccSig);
     delete[] ccSig;
 
     char *ccArg = new char[classNameLen + 8];
     sprintf(ccArg, "const %s&", className);
 
-    Smoke::Index ccMeth = o->smoke->findMethod(o->classId, ccId);
+    Smoke::ModuleIndex classIdx = { o->smoke, o->classId };
+    Smoke::ModuleIndex ccMeth = o->smoke->findMethod(classIdx, ccId);
 
-    if(!ccMeth) {
+    if(!ccMeth.index) {
 	delete[] ccArg;
 	return 0;
     }
-	Smoke::Index method = o->smoke->methodMaps[ccMeth].method;
+	Smoke::Index method = ccMeth.smoke->methodMaps[ccMeth.index].method;
     if(method > 0) {
 	// Make sure it's a copy constructor
 	if(!matches_arg(o->smoke, method, 0, ccArg)) {
@@ -685,18 +661,18 @@ construct_copy(smokeruby_object *o)
 	    return 0;
         }
         delete[] ccArg;
-        ccMeth = method;
+        ccMeth.index = method;
     } else {
         // ambiguous method, pick the copy constructor
 	Smoke::Index i = -method;
-	while(o->smoke->ambiguousMethodList[i]) {
-	    if(matches_arg(o->smoke, o->smoke->ambiguousMethodList[i], 0, ccArg))
+	while(ccMeth.smoke->ambiguousMethodList[i]) {
+	    if(matches_arg(ccMeth.smoke, ccMeth.smoke->ambiguousMethodList[i], 0, ccArg))
 		break;
             i++;
 	}
         delete[] ccArg;
-	ccMeth = o->smoke->ambiguousMethodList[i];
-	if(!ccMeth)
+	ccMeth.index = ccMeth.smoke->ambiguousMethodList[i];
+	if(!ccMeth.index)
 	    return 0;
     }
 
@@ -705,7 +681,7 @@ construct_copy(smokeruby_object *o)
     args[0].s_voidp = 0;
     args[1].s_voidp = o->ptr;
     Smoke::ClassFn fn = o->smoke->classes[o->classId].classFn;
-    (*fn)(o->smoke->methods[ccMeth].method, 0, args);
+    (*fn)(o->smoke->methods[ccMeth.index].method, 0, args);
     return args[0].s_voidp;
 }
 
@@ -992,7 +968,7 @@ void marshall_QDBusVariant(Marshall *m) {
 			*(m->var()) = obj;
 		    break;
 		}
-		smokeruby_object * o = alloc_smokeruby_object(false, m->smoke(), m->smoke()->idClass("QVariant"), p);
+		smokeruby_object * o = alloc_smokeruby_object(false, m->smoke(), m->smoke()->findClass("QVariant").index, p);
 		
 		obj = set_obj_info("Qt::DBusVariant", o);
 		if (do_debug & qtdb_calls) {
@@ -1234,13 +1210,13 @@ void marshall_ExtraSelectionList(Marshall *m) {
 
 			smokeruby_object  * c = alloc_smokeruby_object(	true, 
 															m->smoke(), 
-															m->smoke()->idClass("QTextCursor"), 
+															m->smoke()->idClass("QTextCursor").index, 
 															new QTextCursor(selection.cursor) );
 			VALUE cursor = set_obj_info("Qt::TextCursor", c);
 
 			smokeruby_object  * f = alloc_smokeruby_object(	true, 
 															m->smoke(), 
-															m->smoke()->idClass("QTextCharFormat"), 
+															m->smoke()->idClass("QTextCharFormat").index, 
 															new QTextCharFormat(selection.format) );
 			VALUE format = set_obj_info("Qt::TextCharFormat", f);
 
@@ -1285,7 +1261,7 @@ void marshall_ItemList(Marshall *m) {
 				ptr = o->smoke->cast(
 					ptr,				// pointer
 					o->classId,				// from
-		    		o->smoke->idClass(ItemSTR)	// to
+		    		o->smoke->idClass(ItemSTR).index	// to
 				);
 				cpplist->append((Item*)ptr);
 			}
@@ -1330,7 +1306,7 @@ void marshall_ItemList(Marshall *m) {
 				if (obj == Qnil) {
 					smokeruby_object  * o = alloc_smokeruby_object(	false, 
 																	m->smoke(), 
-																	m->smoke()->idClass(ItemSTR), 
+																	m->smoke()->idClass(ItemSTR).index, 
 																	p );
 
 					obj = set_obj_info(resolve_classname(o->smoke, o->classId, o->ptr), o);
@@ -1370,7 +1346,7 @@ void marshall_QListCharStar(Marshall *m) {
 			VALUE item = rb_ary_entry(av, i);
 			if (TYPE(item) != T_STRING) {
 				list->append(0);
-				continue;
+		    	continue;
 			}
 			list->append(StringValuePtr(item));
 		}
@@ -1855,7 +1831,7 @@ void marshall_QMapQStringQVariant(Marshall *m) {
 			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
 			
 			smokeruby_object *o = value_obj_info(value);
-			if (!o || !o->ptr || o->classId != o->smoke->idClass("QVariant")) {
+			if (!o || !o->ptr || o->classId != o->smoke->findClass("QVariant").index) {
 				// If the value isn't a Qt::Variant, then try and construct
 				// a Qt::Variant from it
 				value = rb_funcall(qvariant_class, rb_intern("fromValue"), 1, value);
@@ -1893,7 +1869,7 @@ void marshall_QMapQStringQVariant(Marshall *m) {
 			if (obj == Qnil) {
 				smokeruby_object  * o = alloc_smokeruby_object(	true, 
 																m->smoke(), 
-																m->smoke()->idClass("QVariant"), 
+																m->smoke()->idClass("QVariant").index, 
 																p );
 				obj = set_obj_info("Qt::Variant", o);
 			}
@@ -1934,7 +1910,7 @@ void marshall_QMapIntQVariant(Marshall *m) {
 			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
 			
 			smokeruby_object *o = value_obj_info(value);
-			if (!o || !o->ptr || o->classId != o->smoke->idClass("QVariant")) {
+			if (!o || !o->ptr || o->classId != o->smoke->idClass("QVariant").index) {
 				// If the value isn't a Qt::Variant, then try and construct
 				// a Qt::Variant from it
 				value = rb_funcall(qvariant_class, rb_intern("fromValue"), 1, value);
@@ -1972,7 +1948,7 @@ void marshall_QMapIntQVariant(Marshall *m) {
 			if (obj == Qnil) {
 				smokeruby_object  * o = alloc_smokeruby_object(	true, 
 																m->smoke(), 
-																m->smoke()->idClass("QVariant"), 
+																m->smoke()->idClass("QVariant").index, 
 																p );
 				obj = set_obj_info("Qt::Variant", o);
 			}
@@ -2016,7 +1992,7 @@ void marshall_QMapintQVariant(Marshall *m) {
 			if( !o || !o->ptr)
                    continue;
 			void * ptr = o->ptr;
-			ptr = o->smoke->cast(ptr, o->classId, o->smoke->idClass("QVariant"));
+			ptr = o->smoke->cast(ptr, o->classId, o->smoke->idClass("QVariant").index);
 			
 			(*map)[NUM2INT(key)] = (QVariant)*(QVariant*)ptr;
 		}
@@ -2046,7 +2022,7 @@ void marshall_QMapintQVariant(Marshall *m) {
 			if (obj == Qnil) {
 				smokeruby_object  * o = alloc_smokeruby_object(	true, 
 																m->smoke(), 
-																m->smoke()->idClass("QVariant"), 
+																m->smoke()->idClass("QVariant").index, 
 																p );
 				obj = set_obj_info("Qt::Variant", o);
 			}
@@ -2241,7 +2217,7 @@ void marshall_QPairqrealQColor(Marshall *m) {
 		if (rv2 == Qnil) {
 			smokeruby_object  * o = alloc_smokeruby_object(	false, 
 															m->smoke(), 
-															m->smoke()->idClass("QColor"), 
+															m->smoke()->idClass("QColor").index, 
 															p );
 			rv2 = set_obj_info("Qt::Color", o);
 		}
@@ -2354,7 +2330,7 @@ void marshall_ValueListItem(Marshall *m) {
 
 				// Special case for the QList<QVariant> type
 				if (	qstrcmp(ItemSTR, "QVariant") == 0 
-						&& (!o || !o->ptr || o->classId != o->smoke->idClass("QVariant")) ) 
+						&& (!o || !o->ptr || o->classId != o->smoke->idClass("QVariant").index) ) 
 				{
 					// If the value isn't a Qt::Variant, then try and construct
 					// a Qt::Variant from it
@@ -2372,7 +2348,7 @@ void marshall_ValueListItem(Marshall *m) {
 				ptr = o->smoke->cast(
 					ptr,				// pointer
 					o->classId,				// from
-					o->smoke->idClass(ItemSTR)	        // to
+					o->smoke->idClass(ItemSTR).index	        // to
 				);
 				cpplist->append(*(Item*)ptr);
 			}
@@ -2404,7 +2380,7 @@ void marshall_ValueListItem(Marshall *m) {
 
 			VALUE av = rb_ary_new();
 
-			int ix = m->smoke()->idClass(ItemSTR);
+			int ix = m->smoke()->idClass(ItemSTR).index;
 			const char * className = m->smoke()->binding->className(ix);
 
 			for(int i=0; i < valuelist->size() ; ++i) {
@@ -2419,7 +2395,7 @@ void marshall_ValueListItem(Marshall *m) {
 				if(obj == Qnil) {
 					smokeruby_object  * o = alloc_smokeruby_object(	false, 
 																	m->smoke(), 
-																	m->smoke()->idClass(ItemSTR), 
+																	m->smoke()->idClass(ItemSTR).index, 
 																	p );
 					obj = set_obj_info(className, o);
 				}
@@ -2488,7 +2464,7 @@ DEF_VALUELIST_MARSHALLER( QPrinterInfoList, QList<QPrinterInfo>, QPrinterInfo )
 DEF_VALUELIST_MARSHALLER( QWebHistoryItemList, QList<QWebHistoryItem>, QWebHistoryItem )
 #endif
 
-TypeHandler Qt_handlers[] = {
+Q_DECL_EXPORT TypeHandler Qt_handlers[] = {
     { "bool*", marshall_it<bool *> },
     { "bool&", marshall_it<bool *> },
     { "char**", marshall_charP_array },

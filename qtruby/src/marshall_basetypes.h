@@ -74,6 +74,8 @@ void marshall_to_ruby<SmokeEnumWrapper>(Marshall *m)
                              2, LONG2NUM(val), rb_str_new2( m->type().name()) );
 }
 
+extern QHash<QByteArray, TypeHandler*> type_handlers;
+
 template <>
 void marshall_from_ruby<SmokeClassWrapper>(Marshall *m)
 {
@@ -113,7 +115,7 @@ void marshall_from_ruby<SmokeClassWrapper>(Marshall *m)
 	ptr = o->smoke->cast(
 		ptr,				// pointer
 		o->classId,				// from
-		o->smoke->idClass(cl.className)	// to
+		o->smoke->idClass(cl.className).index	// to
 		);
 				
 	m->item().s_class = ptr;

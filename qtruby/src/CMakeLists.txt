@@ -13,24 +13,30 @@ include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_PATH} )
 INCLUDE_DIRECTORIES (${QT_INCLUDES})
 
 
-set(qtruby_LIB_SRCS 
+set(qtrubyshared_LIB_SRCS 
    Qt.cpp 
    handlers.cpp 
    marshall_types.cpp
    )
 
+set(qtruby_LIB_SRCS qtruby.cpp)
+
 # Use 'MODULE' instead of 'SHARED' so that qtruby will be built as a bundle on Mac OS X
 # instead of a dyld. But is this correct (rjd)? It needs testing.
+add_library(qtruby4shared SHARED ${qtrubyshared_LIB_SRCS})
 add_library(qtruby4 MODULE ${qtruby_LIB_SRCS})
-#add_library(qtruby4 SHARED ${qtruby_LIB_SRCS})
 
-target_link_libraries(qtruby4 ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokeqt)
+target_link_libraries(qtruby4shared ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokeqt)
+target_link_libraries(qtruby4 ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokeqt qtruby4shared)
 
 # target_link_libraries(qtrubyinternal ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY})
 
 set_target_properties(qtruby4 PROPERTIES PREFIX "")
 
-install(TARGETS qtruby4  DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR} )
+install(TARGETS qtruby4shared LIBRARY DESTINATION lib )
+install(TARGETS qtruby4 DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
+
+install(FILES qtruby.h marshall.h marshall_basetypes.h marshall_complex.h marshall_primitives.h marshall_types.h smokeruby.h DESTINATION ${CMAKE_INSTALL_PREFIX}/include/qtruby)
 
 if (Q_WS_MAC)
     install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CUSTOM_RUBY_SITE_ARCH_DIR}/qtruby4.so\"  \"${CUSTOM_RUBY_SITE_ARCH_DIR}/qtruby4.bundle\" )" )

@@ -15,6 +15,8 @@
  *                                                                         *
  ***************************************************************************/
 
+#include <ruby.h>
+
 #include <qtruby.h>
 #include <smokeruby.h>
 
@@ -34,6 +36,7 @@
 #include <kparts/plugin.h>
 #include <kaboutdata.h>
 #include <karchive.h>
+#include <kconfigskeleton.h>
 #include <kplugininfo.h>
 #include <kmountpoint.h>
 #include <kio/jobclasses.h>
@@ -47,29 +50,18 @@
 #include <ktoolbar.h>
 #include <kio/copyjob.h>
 
-extern "C" {
-extern VALUE set_obj_info(const char * className, smokeruby_object * o);
-}
-
-extern bool isDerivedFromByName(Smoke *smoke, const char *className, const char *baseClassName);
-
-extern "C" {
-/*
- * Given an approximate classname and a kde instance, try to improve the resolution of the name
- * by using the various KDE rtti mechanisms
- */
-const char *
-kde_resolve_classname(Smoke * smoke, int classId, void * ptr)
+const char*
+resolve_classname_kde(Smoke* smoke, int classId, void* ptr)
 {
-	if (isDerivedFromByName(smoke, smoke->classes[classId].className, "KArchiveEntry")) {
-		KArchiveEntry * entry = (KArchiveEntry *) smoke->cast(ptr, classId, smoke->idClass("KArchiveEntry"));
+	if (smoke->isDerivedFromByName(smoke->classes[classId].className, "KArchiveEntry")) {
+		KArchiveEntry * entry = (KArchiveEntry *) smoke->cast(ptr, classId, smoke->idClass("KArchiveEntry").index);
 		if (entry->isDirectory()) {
 			return "KDE::ArchiveDirectory";
 		} else {
 			return "KDE::ArchiveFile";
 		}
 	} else if (strcmp(smoke->classes[classId].className, "DOM::Node") == 0) {
-		DOM::Node * node = (DOM::Node *) smoke->cast(ptr, classId, smoke->idClass("DOM::Node"));
+		DOM::Node * node = (DOM::Node *) smoke->cast(ptr, classId, smoke->idClass("DOM::Node").index);
 		switch (node->nodeType()) {
 		case DOM::Node::ELEMENT_NODE:
 			if (((DOM::Element*)node)->isHTMLElement()) {
@@ -103,8 +95,6 @@ kde_resolve_classname(Smoke * smoke, int classId, void * ptr)
 	}
 	
 	return smoke->binding->className(classId);
-}
-
 }
 
 #if defined (__i386__) && defined (__GNUC__) && __GNUC__ >= 2
@@ -216,7 +206,7 @@ void marshall_KServicePtr(Marshall *m) {
 		if(obj == Qnil) {
 		    smokeruby_object  * o = ALLOC(smokeruby_object);
 		    o->smoke = m->smoke();
-		    o->classId = m->smoke()->idClass("KService");
+		    o->classId = m->smoke()->idClass("KService").index;
 		    o->ptr = service;
 		    o->allocated = true;
 		    obj = set_obj_info("KDE::Service", o);
@@ -224,8 +214,8 @@ void marshall_KServicePtr(Marshall *m) {
 
 	    *(m->var()) = obj;		
 	    
-		if(m->cleanup())
-		;
+// 		if(m->cleanup())
+// 		;
 		}
 		break;
 	default:
@@ -258,7 +248,7 @@ void marshall_KSharedConfigPtr(Marshall *m) {
 		if(obj == Qnil) {
 		    smokeruby_object  * o = ALLOC(smokeruby_object);
 		    o->smoke = m->smoke();
-		    o->classId = m->smoke()->idClass("KSharedConfig");
+		    o->classId = m->smoke()->idClass("KSharedConfig").index;
 		    o->ptr = config;
 		    o->allocated = true;
 		    obj = set_obj_info("KDE::SharedConfig", o);
@@ -302,7 +292,7 @@ void marshall_KServiceList(Marshall *m) {
 		if(obj == Qnil) {
 		    smokeruby_object  * o = ALLOC(smokeruby_object);
 		    o->smoke = m->smoke();
-		    o->classId = m->smoke()->idClass("KService");
+		    o->classId = m->smoke()->idClass("KService").index;
 		    o->ptr = currentOffer;
 		    o->allocated = false;
 		    obj = set_obj_info("KDE::Service", o);
@@ -678,7 +668,7 @@ void marshall_ItemList(Marshall *m) {
 				ptr = o->smoke->cast(
 					ptr,				// pointer
 					o->classId,				// from
-		    		o->smoke->idClass(ItemSTR)	// to
+		    		o->smoke->idClass(ItemSTR).index	// to
 				);
 				cpplist->append((Item*)ptr);
 			}
@@ -723,10 +713,10 @@ void marshall_ItemList(Marshall *m) {
 				if (obj == Qnil) {
 					smokeruby_object  * o = alloc_smokeruby_object(	false, 
 																	m->smoke(), 
-																	m->smoke()->idClass(ItemSTR), 
+																	m->smoke()->idClass(ItemSTR).index, 
 																	p );
 
-					obj = set_obj_info(kde_resolve_classname(o->smoke, o->classId, o->ptr), o);
+					obj = set_obj_info(resolve_classname_kde(o->smoke, o->classId, o->ptr), o);
 				}
 			
 				rb_ary_push(av, obj);
@@ -788,7 +778,7 @@ void marshall_ValueListItem(Marshall *m) {
 				ptr = o->smoke->cast(
 					ptr,				// pointer
 					o->classId,				// from
-					o->smoke->idClass(ItemSTR)	        // to
+					o->smoke->idClass(ItemSTR).index	        // to
 				);
 				cpplist->append(*(Item*)ptr);
 			}
@@ -820,7 +810,7 @@ void marshall_ValueListItem(Marshall *m) {
 
 			VALUE av = rb_ary_new();
 
-			int ix = m->smoke()->idClass(ItemSTR);
+			int ix = m->smoke()->idClass(ItemSTR).index;
 			const char * className = m->smoke()->binding->className(ix);
 
 			for(int i=0; i < valuelist->size() ; ++i) {
@@ -835,7 +825,7 @@ void marshall_ValueListItem(Marshall *m) {
 				if(obj == Qnil) {
 					smokeruby_object  * o = alloc_smokeruby_object(	false, 
 																	m->smoke(), 
-																	m->smoke()->idClass(ItemSTR), 
+																	m->smoke()->idClass(ItemSTR).index, 
 																	p );
 					obj = set_obj_info(className, o);
 				}

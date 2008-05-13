@@ -3,7 +3,9 @@
                              -------------------
     begin                : Sun Sep 28 2003
     copyright            : (C) 2003-2004 by Richard Dale
+                           (C) 2008 by Arno Rehn
     email                : Richard_Dale@tipitina.demon.co.uk
+                           arno@arnorehn.de
  ***************************************************************************/
 
 /***************************************************************************
@@ -15,10 +17,11 @@
  *                                                                         *
  ***************************************************************************/
 
-#include <qobject.h>
-#include <qstringlist.h>
-#include <qmap.h>
-#include <qdatastream.h>
+#include <ruby.h>
+
+#include <QHash>
+#include <QList>
+#include <QtDebug>
 
 #include <QtCore/qdebug.h>
 #include <QtCore/qtextcodec.h>
@@ -35,36 +38,29 @@
 #include <kcoreconfigskeleton.h>
 #include <kurl.h>
 #include <kio/global.h>
+#include <kconfigskeleton.h>
 
-#include <ruby.h>
-
-#include <marshall.h>
-#include <qtruby.h>
-#include <smokeruby.h>
 #include <smoke.h>
 
-extern "C" {
-extern VALUE qt_internal_module;
-extern VALUE qt_base_class;
-extern VALUE kconfiggroup_class;
-extern VALUE kcoreconfigskeleton_class;
-extern VALUE kconfigskeleton_class;
+#include <qt/qt_smoke.h>
+#include <kde/kde_smoke.h>
 
-extern VALUE set_obj_info(const char * className, smokeruby_object * o);
-extern VALUE mapObject(VALUE self, VALUE obj);
+#include <qtruby.h>
 
-extern void set_kde_resolve_classname(const char * (*kde_resolve_classname) (Smoke*, int, void *));
-extern const char * kde_resolve_classname(Smoke* smoke, int classId, void * ptr);
+#include <iostream>
+
+const char* resolve_classname_kde(Smoke* smoke, int classId, void* ptr);
+
+static VALUE getClassList(VALUE /*self*/)
+{
+    VALUE classList = rb_ary_new();
+    for (int i = 1; i < kde_Smoke->numClasses; i++) {
+        if (kde_Smoke->classes[i].className && !kde_Smoke->classes[i].external) {
+            rb_ary_push(classList, rb_str_new2(kde_Smoke->classes[i].className));
+        }
+    }
+    return classList;
 }
-
-extern void smokeruby_mark(void * ptr);
-extern void smokeruby_free(void * ptr);
-extern TypeHandler KDE_handlers[];
-extern void install_handlers(TypeHandler *);
-extern Smoke *qt_Smoke;
-
-static VALUE kde_internal_module;
-Marshall::HandlerFn getMarshallFn(const SmokeType &type);
 
 /* 
  * These QDBusArgument operators are copied from kdesupport/soprano/server/dbus/dbusoperators.cpp
@@ -154,22 +150,43 @@ const QDBusArgument& operator>>( const QDBusArgument& arg, Soprano::BindingSet& 
     return arg;
 }
 
-
 extern "C" {
-extern Q_DECL_EXPORT void Init_korundum4();
-extern void Init_qtruby4();
-extern void set_new_kde(VALUE (*new_kde) (int, VALUE *, VALUE));
-extern void set_kde_resolve_classname(const char * (*kde_resolve_classname) (Smoke*, int, void *));
-extern const char * kde_resolve_classname(Smoke* smoke, int classId, void * ptr);
-extern VALUE new_qt(int argc, VALUE * argv, VALUE klass);
-extern VALUE new_qt(int argc, VALUE * argv, VALUE klass);
-extern VALUE qt_module;
-extern VALUE qt_internal_module;
-extern VALUE qt_base_class;
-extern VALUE kde_module;
-extern VALUE kio_module;
-extern VALUE kparts_module;
-extern VALUE khtml_module;
+VALUE kconfigskeleton_class;
+}
+
+static VALUE
+config_additem(int argc, VALUE * argv, VALUE self)
+{
+	smokeruby_object *o = value_obj_info(self);
+	KConfigSkeleton * config = (KConfigSkeleton *) o->ptr;
+	
+	if (argc < 1 || argc > 2) {
+		rb_raise(rb_eArgError, "wrong number of arguments(%d for 2)\n", argc);
+	}
+	
+	if (TYPE(argv[0]) != T_DATA) {
+		rb_raise(rb_eArgError, "wrong argument type, expected KDE::ConfigSkeletonItem\n", argc);
+	}
+	
+	smokeruby_object *c = value_obj_info(argv[0]);
+	KConfigSkeletonItem * item = (KConfigSkeletonItem *) c->ptr;
+	
+	if (argc == 1) {
+		config->addItem(item);
+	} else {
+		config->addItem(item, QString(StringValuePtr(argv[1])));
+	}
+	
+	return self;
+}
+
+static void classCreated(const char* package, VALUE /*module*/, VALUE klass)
+{
+	QString packageName(package);
+	if (packageName == "KDE::ConfigSkeleton") {
+		kconfigskeleton_class = klass;
+		rb_define_method(klass, "addItem", (VALUE (*) (...)) config_additem, -1);
+	}
 }
 
 typedef VALUE (*NewConfigSkeletonItemFn)(int, VALUE *, VALUE);
@@ -219,9 +236,10 @@ static VALUE new_kconfigskeleton_string_item(int argc, VALUE * argv, VALUE self)
 		return rb_call_super(argc, argv);
 	}
 
+	Smoke::ModuleIndex mi = qt_Smoke->findClass(SkeletonItemSTR);
 	smokeruby_object  * o = alloc_smokeruby_object(	true, 
-													qt_Smoke, 
-													qt_Smoke->idClass(SkeletonItemSTR), 
+													mi.smoke, 
+													mi.index, 
 													skeletonItem );
 
 	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
@@ -282,9 +300,10 @@ static VALUE new_kconfigskeleton_stringlist_item(int argc, VALUE * argv, VALUE s
 		return rb_call_super(argc, argv);
 	}
 
+	Smoke::ModuleIndex mi = qt_Smoke->findClass(SkeletonItemSTR);
 	smokeruby_object  * o = alloc_smokeruby_object(	true, 
-													qt_Smoke, 
-													qt_Smoke->idClass(SkeletonItemSTR), 
+													mi.smoke, 
+													mi.index, 
 													skeletonItem );
 
 	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
@@ -345,9 +364,10 @@ static VALUE new_kconfigskeleton_primitive_item(int argc, VALUE * argv, VALUE se
 		return rb_call_super(argc, argv);
 	}
 
+	Smoke::ModuleIndex mi = qt_Smoke->findClass(SkeletonItemSTR);
 	smokeruby_object  * o = alloc_smokeruby_object(	true, 
-													qt_Smoke, 
-													qt_Smoke->idClass(SkeletonItemSTR), 
+													mi.smoke, 
+													mi.index, 
 													skeletonItem );
 
 	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
@@ -397,7 +417,7 @@ static VALUE new_kconfigskeleton_item(int argc, VALUE * argv, VALUE self)
 
 	smokeruby_object  * o = alloc_smokeruby_object(	true, 
 													argv2->smoke, 
-													argv2->smoke->idClass(SkeletonItemSTR), 
+													argv2->smoke->idClass(SkeletonItemSTR).index, 
 													skeletonItem );
 
 	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
@@ -492,46 +512,125 @@ init_kconfigskeletonitem_classes()
 	klass = rb_define_class_under(kconfigskeleton_class, "ItemUrlList", qt_base_class);
 }
 
+
+extern TypeHandler KDE_handlers[];
+
 extern "C" {
 
-static VALUE
-new_kde(int argc, VALUE * argv, VALUE klass)
+VALUE kde_module;
+VALUE kde_internal_module;
+VALUE kparts_module;
+VALUE kns_module;
+VALUE kio_module;
+VALUE dom_module;
+VALUE kontact_module;
+VALUE ktexteditor_module;
+VALUE kate_module;
+VALUE kmediaplayer_module;
+VALUE koffice_module;
+VALUE kwallet_module;
+VALUE safesite_module;
+VALUE sonnet_module;
+VALUE soprano_module;
+VALUE nepomuk_module;
+
+static VALUE kde_module_method_missing(int argc, VALUE * argv, VALUE klass)
 {
-	// Note this should really call only new_qt if the instance is a QObject,
-	// and otherwise call new_qt().
-	VALUE instance = new_qt(argc, argv, klass);	
-	return instance;
+    return class_method_missing(argc, argv, klass);
 }
 
-void
+static void
+setup_kde_modules()
+{
+	kde_module = rb_define_module("KDE");
+    rb_define_singleton_method(kde_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+    rb_define_singleton_method(kde_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	kparts_module = rb_define_module("KParts");
+    rb_define_singleton_method(kparts_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+    rb_define_singleton_method(kparts_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	kns_module = rb_define_module("KNS");
+	rb_define_singleton_method(kns_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(kns_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	
+	kio_module = rb_define_module("KIO");
+	rb_define_singleton_method(kio_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(kio_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	dom_module = rb_define_module("DOM");
+    rb_define_singleton_method(dom_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+    rb_define_singleton_method(dom_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	kontact_module = rb_define_module("Kontact");
+    rb_define_singleton_method(kontact_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+    rb_define_singleton_method(kontact_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	ktexteditor_module = rb_define_module("KTextEditor");
+    rb_define_singleton_method(ktexteditor_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+    rb_define_singleton_method(ktexteditor_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	kate_module = rb_define_module("Kate");
+    rb_define_singleton_method(kate_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+    rb_define_singleton_method(kate_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	kmediaplayer_module = rb_define_module("KMediaPlayer");
+	rb_define_singleton_method(kmediaplayer_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(kmediaplayer_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	koffice_module = rb_define_module("Ko");
+	rb_define_singleton_method(koffice_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(koffice_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	kwallet_module = rb_define_module("KWallet");
+	rb_define_singleton_method(kwallet_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(kwallet_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	safesite_module = rb_define_module("SafeSite");
+	rb_define_singleton_method(safesite_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(safesite_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	sonnet_module = rb_define_module("Sonnet");
+	rb_define_singleton_method(sonnet_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(sonnet_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	soprano_module = rb_define_module("Soprano");
+	rb_define_singleton_method(soprano_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(soprano_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+
+	nepomuk_module = rb_define_module("Nepomuk");
+	rb_define_singleton_method(nepomuk_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+	rb_define_singleton_method(nepomuk_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
+}
+
+Q_DECL_EXPORT void
 Init_korundum4()
 {
-	if (qt_internal_module != Qnil) {
-		rb_fatal("require 'Korundum' must not follow require 'Qt'\n");
-		return;
-	}
+    rb_require("Qt");    // need to initialize the core runtime first
+    init_kde_Smoke();
 
-	set_new_kde(new_kde);
-	set_kde_resolve_classname(kde_resolve_classname);
-		
-	// The Qt extension is linked against libsmokeqt.so, but Korundum links against
-	// libsmokekde.so only. Specifying both a 'require Qt' and a 'require Korundum',
-	// would give a link error (see the rb_fatal() error above).
-	// So call the Init_qtruby() initialization function explicitely, not via 'require Qt'
-	// (Qt.o is linked into libqtruby.so, as well as the Qt.so extension).
-	Init_qtruby4();
+    kde_Smoke->binding = new QtRubySmokeBinding(kde_Smoke);
+
+    smokeList << kde_Smoke;
+
+    QtRubyModule module = { "KDE", resolve_classname_kde, classCreated };
+    modules[kde_Smoke] = module;
+
     install_handlers(KDE_handlers);
-	
+
+    setup_kde_modules();
     kde_internal_module = rb_define_module_under(kde_module, "Internal");
-	init_kconfigskeletonitem_classes();
+
+    rb_define_singleton_method(kde_internal_module, "getClassList", (VALUE (*) (...)) getClassList, 0);
 
 	(void) qDBusRegisterMetaType<Soprano::Statement>();
 	(void) qDBusRegisterMetaType<Soprano::Node>();
 	(void) qDBusRegisterMetaType<Soprano::BindingSet>();
 	(void) qRegisterMetaType<KUrl>();
 
-	rb_require("KDE/korundum4.rb");
-	rb_require("KDE/soprano.rb");
+    rb_require("KDE/korundum4.rb");
+    rb_funcall(kde_internal_module, rb_intern("init_all_classes"), 0);
+    init_kconfigskeletonitem_classes();
 }
 
 }
