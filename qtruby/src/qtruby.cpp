@@ -878,8 +878,6 @@ static VALUE module_method_missing(int argc, VALUE * argv, VALUE /*klass*/)
     return class_method_missing(argc, argv, qt_module);
 }
 
-extern VALUE mapObject(VALUE self, VALUE obj);
-
 /*
 
 class LCDRange < Qt::Widget
@@ -1211,13 +1209,16 @@ getIsa(VALUE /*self*/, VALUE classId)
 {
     VALUE parents_list = rb_ary_new();
 
+    int id = NUM2INT(rb_funcall(classId, rb_intern("index"), 0));
+    Smoke* smoke = smokeList[NUM2INT(rb_funcall(classId, rb_intern("smoke"), 0))];
+
     Smoke::Index *parents =
-	qt_Smoke->inheritanceList +
-	qt_Smoke->classes[NUM2INT(classId)].parents;
+	smoke->inheritanceList +
+	smoke->classes[id].parents;
 
     while(*parents) {
 	//logger("\tparent: %s", qt_Smoke->classes[*parents].className);
-	rb_ary_push(parents_list, rb_str_new2(qt_Smoke->classes[*parents++].className));
+	rb_ary_push(parents_list, rb_str_new2(smoke->classes[*parents++].className));
     }
     return parents_list;
 }
@@ -1626,16 +1627,6 @@ is_disposed(VALUE self)
 }
 
 VALUE
-mapObject(VALUE self, VALUE obj)
-{
-    smokeruby_object *o = value_obj_info(obj);
-    if(!o)
-        return Qnil;
-    mapPointer(obj, o, o->classId, 0);
-    return self;
-}
-
-static VALUE
 isQObject(VALUE /*self*/, VALUE c)
 {
     const char* classname = strdup(StringValuePtr(c));
@@ -1652,8 +1643,8 @@ idInstance(VALUE /*self*/, VALUE instance)
     smokeruby_object *o = value_obj_info(instance);
     if(!o)
         return Qnil;
-	
-    return INT2NUM(o->classId);
+
+    return rb_funcall(moduleindex_class, rb_intern("new"), 2, INT2NUM(smokeList.indexOf(o->smoke)), INT2NUM(o->classId));
 }
 
 static VALUE

@@ -1,3 +1,7 @@
+2008-05-16  Arno Rehn  <arno@arnorehn.de>
+
+	* Bring qtruby.cpp up to date with the branch-version.
+
 2008-05-16  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Rename the 'modules' global variable qtruby_modules to reduce the chances
