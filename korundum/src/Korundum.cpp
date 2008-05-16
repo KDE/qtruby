@@ -614,7 +614,7 @@ Init_korundum4()
     smokeList << kde_Smoke;
 
     QtRubyModule module = { "KDE", resolve_classname_kde, classCreated };
-    modules[kde_Smoke] = module;
+    qtruby_modules[kde_Smoke] = module;
 
     install_handlers(KDE_handlers);
 

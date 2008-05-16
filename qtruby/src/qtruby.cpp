@@ -878,7 +878,7 @@ static VALUE module_method_missing(int argc, VALUE * argv, VALUE /*klass*/)
     return class_method_missing(argc, argv, qt_module);
 }
 
-static VALUE mapObject(VALUE self, VALUE obj);
+extern VALUE mapObject(VALUE self, VALUE obj);
 
 /*
 
@@ -1625,7 +1625,7 @@ is_disposed(VALUE self)
 	return Qfalse;
 }
 
-static VALUE
+VALUE
 mapObject(VALUE self, VALUE obj)
 {
     smokeruby_object *o = value_obj_info(obj);
@@ -1805,7 +1805,7 @@ create_qobject_class(VALUE /*self*/, VALUE package_value, VALUE module_value)
 	rb_define_method(klass, "connect", (VALUE (*) (...)) qobject_connect, -1);   
 	rb_define_singleton_method(klass, "connect", (VALUE (*) (...)) qobject_connect, -1);   
 
-	foreach(QtRubyModule m, modules.values()) {
+	foreach(QtRubyModule m, qtruby_modules.values()) {
 		if (m.class_created)
 			m.class_created(package, module_value, klass);
 	}
@@ -1864,7 +1864,7 @@ create_qt_class(VALUE /*self*/, VALUE package_value, VALUE module_value)
 #endif
 	}
 
-	foreach(QtRubyModule m, modules.values()) {
+	foreach(QtRubyModule m, qtruby_modules.values()) {
 		if (m.class_created)
 			m.class_created(package, module_value, klass);
 	}
@@ -1908,7 +1908,7 @@ Init_qtruby4()
     qt_Smoke->binding = new QtRubySmokeBinding(qt_Smoke);
 
     QtRubyModule module = { "QtRuby", resolve_classname_qt, 0 };
-    modules[qt_Smoke] = module;
+    qtruby_modules[qt_Smoke] = module;
 
     install_handlers(Qt_handlers);
 

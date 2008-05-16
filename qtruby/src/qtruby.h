@@ -104,7 +104,7 @@ extern Q_DECL_EXPORT bool application_terminated;
 
 extern Q_DECL_EXPORT Smoke::ModuleIndex _current_method;
 
-extern Q_DECL_EXPORT QHash<Smoke*, QtRubyModule> modules;
+extern Q_DECL_EXPORT QHash<Smoke*, QtRubyModule> qtruby_modules;
 extern Q_DECL_EXPORT QList<Smoke*> smokeList;
 
 extern Q_DECL_EXPORT QHash<QByteArray, Smoke::ModuleIndex *> methcache;

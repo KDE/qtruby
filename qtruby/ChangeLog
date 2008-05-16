@@ -1,3 +1,8 @@
+2008-05-16  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Rename the 'modules' global variable qtruby_modules to reduce the chances
+	  of a name clash
+
 2008-04-29  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Added a marshaller for references to unsigned ints

@@ -34,7 +34,7 @@ VALUE qscintilla_internal_module;
 Q_DECL_EXPORT void
 Init_qsciruby()
 {
-    rb_require("Qt");    // need to initialize the core runtime first
+    rb_require("Qt4");    // need to initialize the core runtime first
     init_qsci_Smoke();
 
     qsci_Smoke->binding = new QtRubySmokeBinding(qsci_Smoke);
@@ -42,7 +42,7 @@ Init_qsciruby()
     smokeList << qsci_Smoke;
 
     QtRubyModule module = { "Qsci", resolve_classname_qsci, 0 };
-    modules[qsci_Smoke] = module;
+    qtruby_modules[qsci_Smoke] = module;
 
     qscintilla_module = rb_define_module("Qsci");
     qscintilla_internal_module = rb_define_module_under(qscintilla_module, "Internal");

@@ -91,7 +91,7 @@ bool application_terminated = false;
 }
 
 QList<Smoke*> smokeList;
-QHash<Smoke*, QtRubyModule> modules;
+QHash<Smoke*, QtRubyModule> qtruby_modules;
 
 #ifdef DEBUG
 int do_debug = qtdb_gc;
@@ -447,9 +447,9 @@ resolve_classname(Smoke* smoke, int classId, void * ptr)
 {
     if (smoke->classes[classId].external) {
         Smoke::ModuleIndex mi = smoke->findClass(smoke->className(classId));
-        return modules.value(mi.smoke).resolve_classname(mi.smoke, mi.index, ptr);
+        return qtruby_modules.value(mi.smoke).resolve_classname(mi.smoke, mi.index, ptr);
     }
-    return modules.value(smoke).resolve_classname(smoke, classId, ptr);
+    return qtruby_modules.value(smoke).resolve_classname(smoke, classId, ptr);
 }
 
 VALUE
