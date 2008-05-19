@@ -1,3 +1,11 @@
+2008-05-19  Richard Dale  <richard.j.dale@gmail.com>
+
+	* The method selector cache function had an off by one error, which meant
+	  it assumed there was one more argument to a method than there actually
+	  was. This caused a crash. Why such a major problem hasn't caused any
+	  problems before is a mystery - it wasn't a result of the modular smoke
+	  changes.
+
 2008-05-16  Arno Rehn  <arno@arnorehn.de>
 
 	* Bring qtruby.cpp up to date with the branch-version.

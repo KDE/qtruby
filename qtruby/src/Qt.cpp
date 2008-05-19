@@ -680,15 +680,15 @@ static QByteArray * mcid = 0;
 	if (mcid == 0) {
 		mcid = new QByteArray();
 	}
+
 	*mcid = rb_class2name(klass);
 	*mcid += ';';
 	*mcid += methodName;
-	for(int i=3; i<argc ; i++)
+	for(int i=4; i<argc ; i++)
 	{
 		*mcid += ';';
 		*mcid += get_VALUEtype(argv[i]);
 	}
-	
 	Smoke::ModuleIndex *rcid = methcache.value(*mcid);
 #ifdef DEBUG
 	if (do_debug & qtdb_calls) qWarning("method_missing mcid: %s", (const char *) *mcid);
