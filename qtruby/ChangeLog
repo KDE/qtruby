@@ -5,6 +5,11 @@
 	  was. This caused a crash. Why such a major problem hasn't caused any
 	  problems before is a mystery - it wasn't a result of the modular smoke
 	  changes.
+	* qtruby4.rb calls Kernel#y instead of Qt::Point#y on inspect and 
+	  pretty_print when the yaml gem is loaded.
+	  The attached patch fixes the problem by calling Qt::Point#y and 
+	  Qt::PointF#y explicitly. Thanks to Paolo Capriotti for the bug report
+	  and fix.
 
 2008-05-16  Arno Rehn  <arno@arnorehn.de>
 

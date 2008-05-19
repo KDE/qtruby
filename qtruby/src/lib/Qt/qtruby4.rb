@@ -1265,24 +1265,24 @@ module Qt
 	class Point < Qt::Base
 		def inspect
 			str = super
-			str.sub(/>$/, " x=%d, y=%d>" % [x, y])
+			str.sub(/>$/, " x=%d, y=%d>" % [self.x, self.y])
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, "\n x=%d,\n y=%d>" % [x, y])
+			pp.text str.sub(/>$/, "\n x=%d,\n y=%d>" % [self.x, self.y])
 		end
 	end
 	
 	class PointF < Qt::Base
 		def inspect
 			str = super
-			str.sub(/>$/, " x=%f, y=%f>" % [x, y])
+			str.sub(/>$/, " x=%f, y=%f>" % [self.x, self.y])
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, "\n x=%f,\n y=%f>" % [x, y])
+			pp.text str.sub(/>$/, "\n x=%f,\n y=%f>" % [self.x, self.y])
 		end
 	end
 
