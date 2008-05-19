@@ -86,7 +86,7 @@ class KRubyPluginFactory : public KPluginFactory
         virtual QObject *create(const char *iface, QWidget *parentWidget, QObject *parent, const QVariantList &args, const QString &keyword);
 
     private:
-        static QByteArray toCamelCase(QByteArray name);
+        static QByteArray camelize(QByteArray name);
 };
 K_EXPORT_PLUGIN(KRubyPluginFactory)
 
@@ -95,7 +95,7 @@ KRubyPluginFactory::KRubyPluginFactory()
 {
 }
 
-QByteArray KRubyPluginFactory::toCamelCase(QByteArray name)
+QByteArray KRubyPluginFactory::camelize(QByteArray name)
 {
     // Convert foo_bar_baz to FooBarBaz
     QByteArray camelCaseName = name.left(1).toUpper();
@@ -143,8 +143,8 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
     }
 
     // A path of my_app/foo_bar.rb is turned into module/class 'MyApp::FooBar'
-    const QByteArray moduleName = KRubyPluginFactory::toCamelCase(QFile::encodeName(program.dir().dirName()));
-    const QByteArray className = KRubyPluginFactory::toCamelCase(program.baseName().toLatin1());
+    const QByteArray moduleName = KRubyPluginFactory::camelize(QFile::encodeName(program.dir().dirName()));
+    const QByteArray className = KRubyPluginFactory::camelize(program.baseName().toLatin1());
 
     VALUE plugin_module = rb_const_get(rb_cObject, rb_intern(moduleName));
     if (plugin_module == Qnil) {

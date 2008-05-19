@@ -28,10 +28,6 @@
 #include <QtCore/qtextstream.h>
 #include <QtDBus/qdbusmetatype.h>
 
-#include <soprano/node.h>
-#include <soprano/statement.h>
-#include <soprano/bindingset.h>
-
 #include <kdeversion.h>
 #include <kapplication.h>
 #include <kconfigskeleton.h>
@@ -60,94 +56,6 @@ static VALUE getClassList(VALUE /*self*/)
         }
     }
     return classList;
-}
-
-/* 
- * These QDBusArgument operators are copied from kdesupport/soprano/server/dbus/dbusoperators.cpp
- */
-Q_DECLARE_METATYPE(Soprano::Statement)
-Q_DECLARE_METATYPE(Soprano::Node)
-Q_DECLARE_METATYPE(Soprano::BindingSet)
-
-QDBusArgument& operator<<( QDBusArgument& arg, const Soprano::Node& node )
-{
-    arg.beginStructure();
-    arg << ( int )node.type() << node.toString() << node.language() << node.dataType().toString();
-    arg.endStructure();
-    return arg;
-}
-
-const QDBusArgument& operator>>( const QDBusArgument& arg, Soprano::Node& node )
-{
-    arg.beginStructure();
-    int type;
-    QString value, language, dataTypeUri;
-    arg >> type >> value >> language >> dataTypeUri;
-    if ( type == Soprano::Node::LiteralNode ) {
-        node = Soprano::Node( Soprano::LiteralValue::fromString( value, dataTypeUri ), language );
-    }
-    else if ( type == Soprano::Node::ResourceNode ) {
-        node = Soprano::Node( QUrl( value ) );
-    }
-    else if ( type == Soprano::Node::BlankNode ) {
-        node = Soprano::Node( value );
-    }
-    else {
-        node = Soprano::Node();
-    }
-    arg.endStructure();
-    return arg;
-}
-
-QDBusArgument& operator<<( QDBusArgument& arg, const Soprano::Statement& statement )
-{
-    arg.beginStructure();
-    arg << statement.subject() << statement.predicate() << statement.object() << statement.context();
-    arg.endStructure();
-    return arg;
-}
-
-const QDBusArgument& operator>>( const QDBusArgument& arg, Soprano::Statement& statement )
-{
-    arg.beginStructure();
-    Soprano::Node subject, predicate, object, context;
-    arg >> subject >> predicate >> object >> context;
-    statement = Soprano::Statement( subject, predicate, object, context );
-    arg.endStructure();
-    return arg;
-}
-
-QDBusArgument& operator<<( QDBusArgument& arg, const Soprano::BindingSet& set )
-{
-    arg.beginStructure();
-    arg.beginMap( QVariant::String, qMetaTypeId<Soprano::Node>() );
-    QStringList names = set.bindingNames();
-    for ( int i = 0; i < names.count(); ++i ) {
-        arg.beginMapEntry();
-        arg << names[i] << set[ names[i] ];
-        arg.endMapEntry();
-    }
-    arg.endMap();
-    arg.endStructure();
-    return arg;
-}
-
-const QDBusArgument& operator>>( const QDBusArgument& arg, Soprano::BindingSet& set )
-{
-    arg.beginStructure();
-    arg.beginMap();
-    while ( !arg.atEnd() ) {
-        QString name;
-        Soprano::Node val;
-        arg.beginMapEntry();
-        arg >> name >> val;
-        arg.endMapEntry();
-        set.insert( name, val );
-    }
-
-    arg.endMap();
-    arg.endStructure();
-    return arg;
 }
 
 extern "C" {
@@ -199,11 +107,6 @@ new_kconfigskeleton_itemintlist(int argc, VALUE * argv, VALUE self)
 
 static VALUE
 new_kconfigskeleton_itemlonglong(int argc, VALUE * argv, VALUE self)
-{
-}
-
-static VALUE
-new_kconfigskeleton_itempathlist(int argc, VALUE * argv, VALUE self)
 {
 }
 */
@@ -374,6 +277,8 @@ static VALUE new_kconfigskeleton_primitive_item(int argc, VALUE * argv, VALUE se
 	VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, o);
 	mapObject(result, result);
 	rb_throw("newqt", result);
+	/*NOTREACHED*/
+	return self;
 }
 
 #define DEF_SKELETON_PRIMITIVE_ITEM_CONSTRUCTOR(Method, SkeletonItem, Item) namespace { char Method##STR[] = #SkeletonItem; }  \
@@ -415,9 +320,10 @@ static VALUE new_kconfigskeleton_item(int argc, VALUE * argv, VALUE self)
 		return rb_call_super(argc, argv);
 	}
 
+	Smoke::ModuleIndex mi = qt_Smoke->findClass(SkeletonItemSTR);
 	smokeruby_object  * o = alloc_smokeruby_object(	true, 
-													argv2->smoke, 
-													argv2->smoke->idClass(SkeletonItemSTR).index, 
+													mi.smoke, 
+													mi.index, 
 													skeletonItem );
 
 	VALUE klass = rb_funcall(self, rb_intern("class"), 0);
@@ -531,7 +437,6 @@ VALUE koffice_module;
 VALUE kwallet_module;
 VALUE safesite_module;
 VALUE sonnet_module;
-VALUE soprano_module;
 VALUE nepomuk_module;
 
 static VALUE kde_module_method_missing(int argc, VALUE * argv, VALUE klass)
@@ -594,10 +499,6 @@ setup_kde_modules()
 	rb_define_singleton_method(sonnet_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 	rb_define_singleton_method(sonnet_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 
-	soprano_module = rb_define_module("Soprano");
-	rb_define_singleton_method(soprano_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
-	rb_define_singleton_method(soprano_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
-
 	nepomuk_module = rb_define_module("Nepomuk");
 	rb_define_singleton_method(nepomuk_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 	rb_define_singleton_method(nepomuk_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
@@ -606,7 +507,7 @@ setup_kde_modules()
 Q_DECL_EXPORT void
 Init_korundum4()
 {
-    rb_require("Qt");    // need to initialize the core runtime first
+    rb_require("Qt4");    // need to initialize the core runtime first
     init_kde_Smoke();
 
     kde_Smoke->binding = new QtRubySmokeBinding(kde_Smoke);
@@ -623,9 +524,6 @@ Init_korundum4()
 
     rb_define_singleton_method(kde_internal_module, "getClassList", (VALUE (*) (...)) getClassList, 0);
 
-	(void) qDBusRegisterMetaType<Soprano::Statement>();
-	(void) qDBusRegisterMetaType<Soprano::Node>();
-	(void) qDBusRegisterMetaType<Soprano::BindingSet>();
 	(void) qRegisterMetaType<KUrl>();
 
     rb_require("KDE/korundum4.rb");
