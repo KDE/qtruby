@@ -475,8 +475,6 @@ module KDE
 					m = KWallet
 				elsif classname =~ /^SafeSite/
 					m = SafeSite
-				elsif classname =~ /^Soprano/
-					m = Soprano
 				elsif classname =~ /^Nepomuk/
 					m = Nepomuk
 				else

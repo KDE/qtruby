@@ -1,3 +1,7 @@
+2008-05-22  Arno Rehn  <arno@arnorehn.de>
+
+	* Fixed dumpCandidates().
+
 2008-05-19  Richard Dale  <richard.j.dale@gmail.com>
 
 	* The method selector cache function had an off by one error, which meant
