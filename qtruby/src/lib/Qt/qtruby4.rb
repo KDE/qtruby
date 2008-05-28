@@ -1314,6 +1314,10 @@ module Qt
 		end
 	end
 
+	class Process < Qt::Base
+		StandardError = 1
+	end
+
 	class ProgressBar < Qt::Base
 		def range=(arg)
 			if arg.kind_of? Range
@@ -2292,23 +2296,15 @@ module Qt
 					return ret
 				end
 			end
-# 			if classname =~ /^Qsci/
-# 				now = classname.sub(/^Qsci(?=[A-Z])/,'Qsci::')
-# 			elsif classname =~ /^Qwt/
-# 				now = classname.sub(/^Qwt(?=[A-Z])/,'Qwt::')
 			if classname =~ /^Q3/
-				now = classname.sub(/^Q3(?=[A-Z])/,'Qt3::')
+				ruby_classname = classname.sub(/^Q3(?=[A-Z])/,'Qt3::')
 			elsif classname =~ /^Q/
-				now = classname.sub(/^Q(?=[A-Z])/,'Qt::')
-# 			elsif classname =~ /^(KConfigSkeleton|KWin)::/
-# 				now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
-# 			elsif classname !~ /::/
-# 				now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
+				ruby_classname = classname.sub(/^Q(?=[A-Z])/,'Qt::')
 			else
-				now = classname
+				ruby_classname = classname
 			end
-#			puts "normalize_classname = was::#{classname}, now::#{now}"
-			now
+#			puts "normalize_classname = was::#{classname}, now::#{ruby_classname}"
+			ruby_classname
 		end
 
 		def Internal.init_class(c)

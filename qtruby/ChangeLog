@@ -1,3 +1,9 @@
+2008-05-28  Richard Dale  <richard.j.dale@gmail.com>
+
+	* The enum Qt::Process::StandardError was clashing with the exception of
+	  the same name, so add a constant to the Qt::Process class instead. 
+	  Thanks to Stefano Crocco for reporting the bug.
+
 2008-05-22  Arno Rehn  <arno@arnorehn.de>
 
 	* Fixed dumpCandidates().
