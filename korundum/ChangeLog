@@ -1,3 +1,8 @@
+2008-05-29  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Fix the KDE::CmdLineArgs.init() method to work with Ruby Strings and
+	  convert them to Qt::ByteArrays.
+
 2008-05-22  Arno Rehn  <arno@arnorehn.de>
 
 	* Remove the remaining soprano parts from korundum.

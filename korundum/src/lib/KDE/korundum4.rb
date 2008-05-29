@@ -167,15 +167,27 @@ module KDE
 	class CmdLineArgs < Qt::Base
 		include Enumerable
 
-		def CmdLineArgs.init(*k)
-			if k.length > 0
-				if k[0].kind_of? Array
+		def CmdLineArgs.init(*args)
+			if args.length > 0
+				if args[0].kind_of? Array
 					# If init() is passed an array as the first argument, assume it's ARGV.
 					# Then convert to a pair of args 'ARGV.length+1, [$0]+ARGV'
-					array = k.shift
-					super(*([array.length+1] + [[$0] + array] + k))
-				elsif k[0].kind_of? KDE::AboutData
-					super(1, [$0], k[0])
+					array = args.shift
+					if args[0].kind_of? KDE::AboutData
+						super(*([array.length+1] + [[$0] + array] + args))
+					else
+						sargs = []
+						for i in 0...args.length do
+							if [0, 1, 3].include?(i) && (args[i].kind_of?(String) || args[i].nil?)
+								sargs << Qt::ByteArray.new(args[i])
+							else
+								sargs << args[i]
+							end
+            			end
+						super(*([array.length+1] + [[$0] + array] + sargs))
+					end
+				elsif args[0].kind_of? KDE::AboutData
+					super(1, [$0], args[0])
 				end
 			else
 				super
