@@ -1,6 +1,6 @@
 =begin
 /***************************************************************************
-                          akonadi.rb  -  Akonadi plugins in Ruby
+                          akonadi.rb  -  Akonadi ruby client lib
                              -------------------
     begin                : Thurs May 29 2008
     copyright            : (C) 2008 by Richard Dale
