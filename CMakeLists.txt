@@ -7,7 +7,7 @@ OPTION(ENABLE_QTRUBY "build QtRuby" ON)
 OPTION(ENABLE_KORUNDUM "build Korundum" ON)
 OPTION(ENABLE_QSCIRUBY "build QsciRuby" OFF)
 OPTION(ENABLE_SOPRANO "build Soprano" OFF)
-OPTION(ENABLE_AKONADI "build Akonadi" ON)
+OPTION(ENABLE_AKONADI "build Akonadi" OFF)
 
 SET(CUSTOM_RUBY_SITE_ARCH_DIR ${RUBY_SITE_ARCH_DIR} CACHE DIR "custom installation directory for ruby binary extension" )
 SET(CUSTOM_RUBY_SITE_LIB_DIR ${RUBY_SITE_LIB_DIR} CACHE DIR "custom installation directory for ruby extension" )
