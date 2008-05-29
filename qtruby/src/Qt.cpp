@@ -465,38 +465,38 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
     if (do_debug & qtdb_calls) qWarning("Found method %s::%s => %d", c, name, meth.index);
 #endif
     if(!meth.index) {
-    	meth = qt_Smoke->findMethod("QGlobalSpace", name);
+        meth = qt_Smoke->findMethod("QGlobalSpace", name);
 #ifdef DEBUG
-    if (do_debug & qtdb_calls) qWarning("Found method QGlobalSpace::%s => %d", name, meth.index);
+        if (do_debug & qtdb_calls) qWarning("Found method QGlobalSpace::%s => %d", name, meth.index);
 #endif
-	}
-	
-    if(!meth.index) {
-    	return result;
-	// empty list
+    }
+
+    if (!meth.index) {
+        return result;
+    // empty list
     } else if(meth.index > 0) {
-	Smoke::Index i = meth.smoke->methodMaps[meth.index].method;
-	if(!i) {		// shouldn't happen
-	    rb_raise(rb_eArgError, "Corrupt method %s::%s", c, name);
-	} else if(i > 0) {	// single match
-	    Smoke::Method &methodRef = meth.smoke->methods[i];
-		if ((methodRef.flags & Smoke::mf_internal) == 0) {
-			rb_ary_push(result, rb_funcall(moduleindex_class, rb_intern("new"), 2, INT2NUM(smokeList.indexOf(meth.smoke)), INT2NUM(i)));
-		}
-	} else {		// multiple match
-	    i = -i;		// turn into ambiguousMethodList index
-	    while(meth.smoke->ambiguousMethodList[i]) {
-	    	Smoke::Method &methodRef = meth.smoke->methods[meth.smoke->ambiguousMethodList[i]];
-			if ((methodRef.flags & Smoke::mf_internal) == 0) {
-				rb_ary_push(result, rb_funcall(moduleindex_class, rb_intern("new"), 2, INT2NUM(smokeList.indexOf(meth.smoke)), INT2NUM(meth.smoke->ambiguousMethodList[i])));
+        Smoke::Index i = meth.smoke->methodMaps[meth.index].method;
+        if (i == 0) {		// shouldn't happen
+            rb_raise(rb_eArgError, "Corrupt method %s::%s", c, name);
+        } else if(i > 0) {	// single match
+            Smoke::Method &methodRef = meth.smoke->methods[i];
+            if ((methodRef.flags & Smoke::mf_internal) == 0) {
+                rb_ary_push(result, rb_funcall(moduleindex_class, rb_intern("new"), 2, INT2NUM(smokeList.indexOf(meth.smoke)), INT2NUM(i)));
+            }
+        } else {		// multiple match
+            i = -i;		// turn into ambiguousMethodList index
+            while (meth.smoke->ambiguousMethodList[i]) {
+                Smoke::Method &methodRef = meth.smoke->methods[meth.smoke->ambiguousMethodList[i]];
+                if ((methodRef.flags & Smoke::mf_internal) == 0) {
+                    rb_ary_push(result, rb_funcall(moduleindex_class, rb_intern("new"), 2, INT2NUM(smokeList.indexOf(meth.smoke)), INT2NUM(meth.smoke->ambiguousMethodList[i])));
 //#ifdef DEBUG
-				if (do_debug & qtdb_calls) qWarning("Ambiguous Method %s::%s => %d", c, name, meth.smoke->ambiguousMethodList[i]);
+                    if (do_debug & qtdb_calls) qWarning("Ambiguous Method %s::%s => %d", c, name, meth.smoke->ambiguousMethodList[i]);
 //#endif
 
-			}
-		i++;
+                }
+            i++;
+            }
 	    }
-	}
     }
     return result;
 }
@@ -508,28 +508,28 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
 {
     VALUE rb_mi = argv[0];
     VALUE result = rb_hash_new();
-    if(rb_mi != Qnil) {
+    if (rb_mi != Qnil) {
         Smoke::Index c = (Smoke::Index) NUM2INT(rb_funcall(rb_mi, rb_intern("index"), 0));
         Smoke *smoke = smokeList[NUM2INT(rb_funcall(rb_mi, rb_intern("smoke"), 0))];
-		if (c > smoke->numClasses) {
-			return Qnil;
-		}
+        if (c > smoke->numClasses) {
+            return Qnil;
+        }
         char * pat = 0L;
         if(argc > 1 && TYPE(argv[1]) == T_STRING)
             pat = StringValuePtr(argv[1]);
 #ifdef DEBUG
-	if (do_debug & qtdb_calls) qWarning("findAllMethods called with classid = %d, pat == %s", c, pat);
+        if (do_debug & qtdb_calls) qWarning("findAllMethods called with classid = %d, pat == %s", c, pat);
 #endif
         Smoke::Index imax = smoke->numMethodMaps;
         Smoke::Index imin = 0, icur = -1, methmin, methmax;
-	methmin = -1; methmax = -1; // kill warnings
+        methmin = -1; methmax = -1; // kill warnings
         int icmp = -1;
         while(imax >= imin) {
             icur = (imin + imax) / 2;
             icmp = smoke->leg(smoke->methodMaps[icur].classId, c);
-            if(!icmp) {
+            if (icmp == 0) {
                 Smoke::Index pos = icur;
-                while(icur && smoke->methodMaps[icur-1].classId == c)
+                while (icur && smoke->methodMaps[icur-1].classId == c)
                     icur --;
                 methmin = icur;
                 icur = pos;
@@ -539,32 +539,32 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
                 break;
             }
             if (icmp > 0)
-		imax = icur - 1;
-	    else
-		imin = icur + 1;
+                imax = icur - 1;
+            else
+                imin = icur + 1;
         }
-        if(!icmp) {
-            for(Smoke::Index i=methmin ; i <= methmax ; i++) {
+        if (icmp == 0) {
+            for (Smoke::Index i = methmin; i <= methmax; i++) {
                 Smoke::Index m = smoke->methodMaps[i].name;
-                if(!pat || !strncmp(smoke->methodNames[m], pat, strlen(pat))) {
-                    Smoke::Index ix= smoke->methodMaps[i].method;
-		    VALUE meths = rb_ary_new();
-                    if(ix >= 0) {	// single match
-	    				Smoke::Method &methodRef = smoke->methods[ix];
-						if ((methodRef.flags & Smoke::mf_internal) == 0) {
-							rb_ary_push(meths, INT2NUM((int)ix));
-						}
+                if (pat == 0L || strncmp(smoke->methodNames[m], pat, strlen(pat)) == 0) {
+                    Smoke::Index ix = smoke->methodMaps[i].method;
+                    VALUE meths = rb_ary_new();
+                    if (ix >= 0) {	// single match
+                        Smoke::Method &methodRef = smoke->methods[ix];
+                        if ((methodRef.flags & Smoke::mf_internal) == 0) {
+                            rb_ary_push(meths, rb_funcall(moduleindex_class, rb_intern("new"), 2, INT2NUM(smokeList.indexOf(smoke)), INT2NUM((int) ix)));
+                        }
                     } else {		// multiple match
                         ix = -ix;		// turn into ambiguousMethodList index
-                        while(qt_Smoke->ambiguousMethodList[ix]) {
-	    					Smoke::Method &methodRef = smoke->methods[qt_Smoke->ambiguousMethodList[ix]];
-							if ((methodRef.flags & Smoke::mf_internal) == 0) {
-                          		rb_ary_push(meths, INT2NUM((int)smoke->ambiguousMethodList[ix]));
-							}
-                          ix++;
+                        while (smoke->ambiguousMethodList[ix]) {
+                            Smoke::Method &methodRef = smoke->methods[smoke->ambiguousMethodList[ix]];
+                            if ((methodRef.flags & Smoke::mf_internal) == 0) {
+                                rb_ary_push(meths, rb_funcall(moduleindex_class, rb_intern("new"), 2, INT2NUM(smokeList.indexOf(smoke)), INT2NUM((int)smoke->ambiguousMethodList[ix])));
+                            }
+                            ix++;
                         }
                     }
-		    rb_hash_aset(result, rb_str_new2(smoke->methodNames[m]), meths);
+                    rb_hash_aset(result, rb_str_new2(smoke->methodNames[m]), meths);
                 }
             }
         }

@@ -2259,7 +2259,7 @@ module Qt
 
 		class ModuleIndex
 			attr_accessor :index
-			
+
 			def smoke
 				if ! @smoke
 				    return 0
@@ -2508,7 +2508,7 @@ module Qt
 				prototypes = dumpCandidates(methodIds).split("\n")
 				line_len = (prototypes.collect { |p| p.length }).max
 				prototypes.zip(methodIds) { 
-					|prototype,id| puts "#{prototype.ljust line_len}  (#{id})" 
+					|prototype,id| puts "#{prototype.ljust line_len}  (smoke: #{id.smoke} index: #{id.index})" 
 				}
 			end
 			
@@ -2553,9 +2553,9 @@ module Qt
 				end
 				method_ids = hash.values_at(*constructor_names).flatten
 				puts dumpCandidates(method_ids)
+			else
+				puts "setCurrentMethod(smokeList index: #{chosen.smoke}, meth index: #{chosen.index})" if debug_level >= DebugLevel::High
 			end
-
-			puts "setCurrentMethod(smokeList index: #{chosen.smoke}, meth index: #{chosen.index})" if debug_level >= DebugLevel::High
 			setCurrentMethod(chosen) if chosen
 			return nil
 		end
