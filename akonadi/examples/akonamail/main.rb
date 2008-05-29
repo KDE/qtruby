@@ -23,9 +23,9 @@ require 'akonadi'
 require 'mainwidget.rb'
 require 'mainwindow.rb'
 
-KDE::CmdLineArgs.init(ARGV, "akonamail", nil, KDE::ki18n("Akonamail"), "1.0" , KDE::ki18n("The mail client Proof-Of-Concept for Akonadi"))
+KDE::CmdLineArgs.init(ARGV, "akonamail", nil, KDE::ki18n("Akonamail"), "1.0", 
+                            KDE::ki18n("The mail client Proof-Of-Concept for Akonadi"))
 app = KDE::Application.new
-
 window = MainWindow.new
 window.show
 

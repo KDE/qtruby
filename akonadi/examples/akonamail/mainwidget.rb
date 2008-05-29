@@ -18,6 +18,7 @@
 =end
 
 class MainWidget < Qt::Widget
+
   slots 'collectionClicked(Akonadi::Collection)',
         'itemActivated(QModelIndex)',
         'itemFetchDone(job)',
@@ -52,12 +53,12 @@ class MainWidget < Qt::Widget
     sortModel = Qt::SortFilterProxyModel.new(self)
     sortModel.dynamicSortFilter = true
     sortModel.sortCaseSensitivity = Qt::CaseInsensitive
-    sortModel.setSourceModel( @collectionProxyModel )
+    sortModel.setSourceModel(@collectionProxyModel)
 
     # Right part, message list + message viewer
     rightSplitter = Qt::Splitter.new(Qt::Vertical, self)
     splitter.addWidget( rightSplitter )
-    @messageList = new QTreeView( self )
+    @messageList = Qt::TreeView.new(self)
     @messageList.dragEnabled = true
     @messageList.selectionMode = Qt::AbstractItemView::ExtendedSelection
     connect(@messageList, SIGNAL('clicked(QModelIndex)'), SLOT('itemActivated(QModelIndex)'))
@@ -72,7 +73,6 @@ class MainWidget < Qt::Widget
     @messageView = Qt::TextEdit.new(self)
     rightSplitter.addWidget(@messageView)
 
-
     splitter.sizes = [200, 500]
     rightSplitter.sizes = [300, 200]
   end
@@ -83,7 +83,7 @@ class MainWidget < Qt::Widget
   end
 
   def itemActivated(index)
-    item = @messageModel.itemForIndex( @messageProxyModel.mapToSource(index))
+    item = @messageModel.itemForIndex(@messageProxyModel.mapToSource(index))
 
     if !item.valid?
       return
