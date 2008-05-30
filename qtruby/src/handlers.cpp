@@ -2519,6 +2519,8 @@ Q_DECL_EXPORT TypeHandler Qt_handlers[] = {
     { "QList<QRectF>&", marshall_QRectFList },
     { "QList<qreal>", marshall_QListqreal },
     { "QList<double>", marshall_QListqreal },
+    { "QwtValueList", marshall_QListqreal },
+    { "QwtValueList&", marshall_QListqreal },
     { "QList<double>&", marshall_QListqreal },
     { "QList<QStandardItem*>", marshall_QStandardItemList },
     { "QList<QStandardItem*>&", marshall_QStandardItemList },
