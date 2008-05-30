@@ -6,7 +6,7 @@ module Qwt
     module Internal
         def self.init_all_classes
             Qt::Internal::add_normalize_proc(Proc.new do |classname|
-                if classname =~ /^Qsci/
+                if classname =~ /^Qwt/
                     now = classname.sub(/^Qwt?(?=[A-Z])/,'Qwt::')
                 end
                 now
