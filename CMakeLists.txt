@@ -5,7 +5,7 @@ macro_optional_find_package(RUBY)
 
 OPTION(ENABLE_QTRUBY "build QtRuby" ON)
 OPTION(ENABLE_KORUNDUM "build Korundum" ON)
-OPTION(ENABLE_QSCIRUBY "build QsciRuby" OFF)
+OPTION(ENABLE_QSCINTILLA "build QScintilla" OFF)
 OPTION(ENABLE_SOPRANO "build Soprano" OFF)
 OPTION(ENABLE_AKONADI "build Akonadi" OFF)
 
@@ -14,7 +14,7 @@ SET(CUSTOM_RUBY_SITE_LIB_DIR ${RUBY_SITE_LIB_DIR} CACHE DIR "custom installation
 
 set(QTRUBY_ENABLED "no")
 set(KORUNDUM_ENABLED "no")
-set(QSCIRUBY_ENABLED "no")
+set(QSCINTILLA_ENABLED "no")
 set(SOPRANO_ENABLED "no")
 set(AKONADI_ENABLED "no")
 
@@ -39,17 +39,17 @@ if(RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_PATH)
         add_subdirectory( akonadi )
         set(AKONADI_ENABLED "yes")
     endif(ENABLE_AKONADI)
-    if(ENABLE_QSCIRUBY)
-        add_subdirectory( qsci )
-        set(QSCI_ENABLED "yes")
-    endif(ENABLE_QSCIRUBY)
+    if(ENABLE_QSCINTILLA)
+        add_subdirectory( qscintilla )
+        set(QSCINTILLA_ENABLED "yes")
+    endif(ENABLE_QSCINTILLA)
 endif(RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_PATH)
 message(STATUS "Build QtRuby... " ${QTRUBY_ENABLED})
 message(STATUS "Build Korundum... " ${KORUNDUM_ENABLED})
 # message(STATUS "Build Plasma... " ${PLASMA_ENABLED})
 message(STATUS "Build Soprano... " ${SOPRANO_ENABLED})
 message(STATUS "Build Akonadi... " ${AKONADI_ENABLED})
-message(STATUS "Build QsciRuby... " ${QSCIRUBY_ENABLED})
+message(STATUS "Build QScintilla... " ${QSCINTILLA_ENABLED})
 
 #####################################################################
 # Kross Ruby

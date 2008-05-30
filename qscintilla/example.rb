@@ -1,7 +1,6 @@
 #/usr/bin/ruby
 
-require 'Qt'
-require 'QScintilla'
+require 'qscintilla'
 
 app = Qt::Application.new(ARGV)
 w = Qsci::Scintilla.new

@@ -32,7 +32,7 @@ VALUE qscintilla_module;
 VALUE qscintilla_internal_module;
 
 Q_DECL_EXPORT void
-Init_qsciruby()
+Init_qscintilla()
 {
     rb_require("Qt4");    // need to initialize the core runtime first
     init_qsci_Smoke();
@@ -49,7 +49,7 @@ Init_qsciruby()
 
     rb_define_singleton_method(qscintilla_internal_module, "getClassList", (VALUE (*) (...)) getClassList, 0);
 
-    rb_require("Qsci/qscintilla.rb");
+    rb_require("qscintilla/qscintilla.rb");
     rb_funcall(qscintilla_internal_module, rb_intern("init_all_classes"), 0);
 }
 

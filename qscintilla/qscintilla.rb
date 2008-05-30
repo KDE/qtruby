@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require 'Qt'
+require 'Qt4'
 
 module Qsci
     module Internal
