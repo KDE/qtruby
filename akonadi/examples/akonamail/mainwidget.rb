@@ -45,22 +45,25 @@ class MainWidget < Qt::Widget
     splitter.addWidget(@collectionList)
     # Filter the collection to only show the emails
     @collectionModel = Akonadi::CollectionStatisticsModel.new(self)
-    @collectionProxyModel = Akonadi::CollectionFilterProxyModel.new(self)
-    @collectionProxyModel.sourceModel = @collectionModel
-    @collectionProxyModel.addMimeTypeFilter("message/rfc822")
+    @collectionProxyModel = Akonadi::CollectionFilterProxyModel.new(self) do |m|
+      m.sourceModel = @collectionModel
+      m.addMimeTypeFilter("message/rfc822")
+    end
 
     # display collections sorted
-    sortModel = Qt::SortFilterProxyModel.new(self)
-    sortModel.dynamicSortFilter = true
-    sortModel.sortCaseSensitivity = Qt::CaseInsensitive
-    sortModel.setSourceModel(@collectionProxyModel)
+    sortModel = Qt::SortFilterProxyModel.new(self) do |s|
+      s.dynamicSortFilter = true
+      s.sortCaseSensitivity = Qt::CaseInsensitive
+      s.sourceModel = @collectionProxyModel
+    end
 
     # Right part, message list + message viewer
     rightSplitter = Qt::Splitter.new(Qt::Vertical, self)
     splitter.addWidget( rightSplitter )
-    @messageList = Qt::TreeView.new(self)
-    @messageList.dragEnabled = true
-    @messageList.selectionMode = Qt::AbstractItemView::ExtendedSelection
+    @messageList = Qt::TreeView.new(self) do |l|
+      l.dragEnabled = true
+      l.selectionMode = Qt::AbstractItemView::ExtendedSelection
+    end
     connect(@messageList, SIGNAL('clicked(QModelIndex)'), SLOT('itemActivated(QModelIndex)'))
     rightSplitter.addWidget(@messageList)
 
@@ -108,6 +111,7 @@ class MainWidget < Qt::Widget
   end
 
   def threadCollection
+    return if @currentCollection.nil?
     a = @currentCollection.attribute(Akonadi::Collection::AddIfMissing)
     a.deserialize(Qt::ByteArray.new("sort"))
     job = Akonadi::CollectionModifyJob.new(@currentCollection)

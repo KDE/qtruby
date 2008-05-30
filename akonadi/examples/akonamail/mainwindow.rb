@@ -29,7 +29,7 @@ class MainWindow < Qt::MainWindow
     toolBar.addAction("Rethread", self, SIGNAL(:threadCollection))
     addToolBar(toolBar)
 
-    Akonadi::Control.start()
+    Akonadi::Control.start
     setCentralWidget(MainWidget.new(self))
     resize(700, 500)
   end
