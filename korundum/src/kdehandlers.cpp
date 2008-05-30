@@ -40,9 +40,6 @@
 #include <kplugininfo.h>
 #include <kmountpoint.h>
 #include <kio/jobclasses.h>
-#include <dom/dom_node.h>
-#include <dom/dom_element.h>
-#include <dom/dom_string.h>
 
 #include <kmultitabbar.h>
 #include <kdatatool.h>
@@ -59,38 +56,6 @@ resolve_classname_kde(Smoke* smoke, int classId, void* ptr)
 			return "KDE::ArchiveDirectory";
 		} else {
 			return "KDE::ArchiveFile";
-		}
-	} else if (strcmp(smoke->classes[classId].className, "DOM::Node") == 0) {
-		DOM::Node * node = (DOM::Node *) smoke->cast(ptr, classId, smoke->idClass("DOM::Node").index);
-		switch (node->nodeType()) {
-		case DOM::Node::ELEMENT_NODE:
-			if (((DOM::Element*)node)->isHTMLElement()) {
-				return "DOM::HTMLElement";
-			} else {
-				return "DOM::Element";
-			}
-		case DOM::Node::ATTRIBUTE_NODE:
-			return "DOM::Attr";
-		case DOM::Node::TEXT_NODE:
-			return "DOM::Text";
-		case DOM::Node::CDATA_SECTION_NODE:
-			return "DOM::CDATASection";
-		case DOM::Node::ENTITY_REFERENCE_NODE:
-			return "DOM::EntityReference";
-		case DOM::Node::ENTITY_NODE:
-			return "DOM::Entity";
-		case DOM::Node::PROCESSING_INSTRUCTION_NODE:
-			return "DOM::ProcessingInstruction";
-		case DOM::Node::COMMENT_NODE:
-			return "DOM::Comment";
-		case DOM::Node::DOCUMENT_NODE:
-			return "DOM::Document";
-		case DOM::Node::DOCUMENT_TYPE_NODE:
-			return "DOM::DocumentType";
-		case DOM::Node::DOCUMENT_FRAGMENT_NODE:
-			return "DOM::DocumentFragment";
-		case DOM::Node::NOTATION_NODE:
-			return "DOM::Notation";
 		}
 	}
 	

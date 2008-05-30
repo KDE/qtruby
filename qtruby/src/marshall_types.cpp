@@ -30,7 +30,7 @@
 // invoked, because RUBY_INIT_STACK will have aleady have been called from within 
 // the krubypluginfactory code, and it shouldn't be called again.
 
-#ifdef RUBY_EMBEDDED
+#if defined(RUBY_EMBEDDED) && defined(RUBY_INIT_STACK)
 #  define QTRUBY_INIT_STACK                            \
       if ( nested_callback_count == 0 ) { RUBY_INIT_STACK } \
       nested_callback_count++;

@@ -59,7 +59,9 @@ int main(int argc, char **argv) {
         rubyargs[i+1] = strdup(argv[i]);
     }
 
+#ifdef RUBY_INIT_STACK
     RUBY_INIT_STACK
+#endif
     ruby_init();
     ruby_init_loadpath();
     ruby_incpush(QFile::encodeName(program.path()));
