@@ -26,6 +26,8 @@ resolve_classname_qsci(Smoke* smoke, int classId, void* /*ptr*/)
     return smoke->binding->className(classId);
 }
 
+extern TypeHandler QScintilla_handlers[];
+
 extern "C" {
 
 VALUE qscintilla_module;
@@ -43,6 +45,8 @@ Init_qscintilla()
 
     QtRubyModule module = { "Qsci", resolve_classname_qsci, 0 };
     qtruby_modules[qsci_Smoke] = module;
+
+    install_handlers(QScintilla_handlers);
 
     qscintilla_module = rb_define_module("Qsci");
     qscintilla_internal_module = rb_define_module_under(qscintilla_module, "Internal");
