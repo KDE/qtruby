@@ -1,3 +1,7 @@
+2008-05-31  Arno Rehn  <arno@arnorehn.de>
+
+	* Updated qtruby.cpp's header.
+
 2008-05-29  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Fixed bug in the FindAllMethods() f'n, and made the debug logging work

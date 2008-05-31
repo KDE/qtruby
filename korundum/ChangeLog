@@ -1,3 +1,8 @@
+2008-05-31  Arno Rehn  <arno@arnorehn.de>
+
+	* Don't embed qtruby into korundum, but link against qtruby4shared
+	  instead.
+
 2008-05-29  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Fix the KDE::CmdLineArgs.init() method to work with Ruby Strings and
