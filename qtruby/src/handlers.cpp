@@ -59,8 +59,6 @@
 
 #if QT_VERSION >= 0x040400
 #include <QtGui/qprinterinfo.h>
-#include <QtWebKit/qwebframe.h>
-#include <QtWebKit/qwebhistory.h>
 #include <QtNetwork/qnetworkcookie.h>
 #endif
 
@@ -2306,10 +2304,6 @@ DEF_LIST_MARSHALLER( QUndoStackList, QList<QUndoStack*>, QUndoStack )
 DEF_LIST_MARSHALLER( QMdiSubWindowList, QList<QMdiSubWindow*>, QMdiSubWindow )
 #endif
 
-#if QT_VERSION >= 0x40400
-DEF_LIST_MARSHALLER( QWebFrameList, QList<QWebFrame*>, QWebFrame )
-#endif
-
 template <class Item, class ItemList, const char *ItemSTR >
 void marshall_ValueListItem(Marshall *m) {
 	switch(m->action()) {
@@ -2461,7 +2455,6 @@ DEF_VALUELIST_MARSHALLER( QXmlStreamNotationDeclarations, QVector<QXmlStreamNota
 #if QT_VERSION >= 0x40400
 DEF_VALUELIST_MARSHALLER( QNetworkCookieList, QList<QNetworkCookie>, QNetworkCookie )
 DEF_VALUELIST_MARSHALLER( QPrinterInfoList, QList<QPrinterInfo>, QPrinterInfo )
-DEF_VALUELIST_MARSHALLER( QWebHistoryItemList, QList<QWebHistoryItem>, QWebHistoryItem )
 #endif
 
 Q_DECL_EXPORT TypeHandler Qt_handlers[] = {
@@ -2637,8 +2630,6 @@ Q_DECL_EXPORT TypeHandler Qt_handlers[] = {
     { "QList<QNetworkCookie>", marshall_QNetworkCookieList },
     { "QList<QNetworkCookie>&", marshall_QNetworkCookieList },
     { "QList<QPrinterInfo>", marshall_QPrinterInfoList },
-    { "QList<QWebFrame*>", marshall_QWebFrameList },
-    { "QList<QWebHistoryItem>", marshall_QWebHistoryItemList },
 #endif
     { 0, 0 }
 };
