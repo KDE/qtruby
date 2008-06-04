@@ -139,6 +139,8 @@ extern Q_DECL_EXPORT VALUE method_missing(int argc, VALUE * argv, VALUE self);
 extern Q_DECL_EXPORT VALUE class_method_missing(int argc, VALUE * argv, VALUE klass);
 extern Q_DECL_EXPORT QList<MocArgument*> get_moc_arguments(Smoke* smoke, const char * typeName, QList<QByteArray> methodTypes);
 
+extern Q_DECL_EXPORT void * construct_copy(smokeruby_object *o);
+
 extern "C"
 {
 extern Q_DECL_EXPORT VALUE mapObject(VALUE self, VALUE obj);

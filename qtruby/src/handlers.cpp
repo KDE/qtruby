@@ -79,6 +79,7 @@
 #include "marshall.h"
 #include "qtruby.h"
 #include "smokeruby.h"
+#include "marshall_basetypes.h"
 
 #ifndef HINT_BYTES
 #define HINT_BYTES HINT_BYTE
@@ -682,8 +683,6 @@ construct_copy(smokeruby_object *o)
     (*fn)(o->smoke->methods[ccMeth.index].method, 0, args);
     return args[0].s_voidp;
 }
-
-#include "marshall_basetypes.h"
 
 template <class T>
 static void marshall_it(Marshall *m)
