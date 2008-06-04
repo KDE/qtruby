@@ -42,6 +42,8 @@
 #include <kde/kde_smoke.h>
 
 #include <qtruby.h>
+#include <smokeruby.h>
+#include <marshall_basetypes.h>
 
 #include <iostream>
 

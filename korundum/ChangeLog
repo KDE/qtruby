@@ -1,3 +1,11 @@
+2008-06-04  Richard Dale  <richard.j.dale@gmail.com>
+
+	* The rbkconfig_compiler wasn't being built as the CMakeLists.txt
+	  file was missing from korundum/tools. Thanks to Stefano Crocco for
+	  spotting that.
+	* Korundum now builds ok as it needed to include marshall_basetypes.h
+	  from QtRuby
+
 2008-05-31  Arno Rehn  <arno@arnorehn.de>
 
 	* Don't embed qtruby into korundum, but link against qtruby4shared
