@@ -7,6 +7,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef MARSHALL_PRIMITIVES_H
+#define MARSHALL_PRIMITIVES_H
+
 template <>
 bool ruby_to_primitive<bool>(VALUE v)
 {
@@ -286,4 +289,6 @@ static VALUE primitive_to_ruby<Q_PID>(Q_PID sv)
 {
 	return ULONG2NUM((unsigned long) sv);
 }
+#endif
+
 #endif

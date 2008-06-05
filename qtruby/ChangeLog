@@ -1,3 +1,8 @@
+2008-06-05  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Make the template based QList marshallers more DRY by moving them
+	  to marshall_complex.h instead of copied into every extension.
+
 2008-06-04  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Make it possible to include marshall_basetypes.h so that korundum

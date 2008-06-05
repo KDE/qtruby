@@ -7,6 +7,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef MARSHALL_BASETYPES_H
+#define MARSHALL_BASETYPES_H
+
 template <class T> T* smoke_ptr(Marshall *m) { return (T*) m->item().s_voidp; }
 
 template<> bool* smoke_ptr<bool>(Marshall *m) { return &m->item().s_bool; }
@@ -188,3 +191,5 @@ void marshall_to_ruby<unsigned char *>(Marshall *m)
 {
 	m->unsupported();
 }
+
+#endif
