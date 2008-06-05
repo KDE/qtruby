@@ -38,8 +38,8 @@
 
 #include <smoke.h>
 
-#include <qt/qt_smoke.h>
-#include <kde/kde_smoke.h>
+#include <smoke/qt_smoke.h>
+#include <smoke/kde_smoke.h>
 
 #include <qtruby.h>
 #include <smokeruby.h>

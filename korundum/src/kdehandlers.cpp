@@ -31,8 +31,8 @@
 #include <kfileitem.h>
 #include <kurl.h>
 #include <kaction.h>
-#include <kfiletreebranch.h>
 #include <khtml_part.h>
+#include <knewstuff2/core/entry.h>
 #include <kparts/plugin.h>
 #include <kaboutdata.h>
 #include <karchive.h>
@@ -711,6 +711,7 @@ DEF_LIST_MARSHALLER( KJobList, QList<KJob*>, KJob )
 DEF_LIST_MARSHALLER( KMainWindowList, QList<KMainWindow*>, KMainWindow )
 DEF_LIST_MARSHALLER( KMultiTabBarButtonList, QList<KMultiTabBarButton*>, KMultiTabBarButton )
 DEF_LIST_MARSHALLER( KMultiTabBarTabList, QList<KMultiTabBarTab*>, KMultiTabBarTab )
+DEF_LIST_MARSHALLER( KNSEntryList, QList<KNS::Entry*>, KNS::Entry )
 DEF_LIST_MARSHALLER( KPartsPartList, QList<KParts::Part*>, KParts::Part )
 DEF_LIST_MARSHALLER( KPartsPluginList, QList<KParts::Plugin*>, KParts::Plugin )
 DEF_LIST_MARSHALLER( KPartsReadOnlyPartList, QList<KParts::ReadOnlyPart*>, KParts::ReadOnlyPart )
@@ -976,6 +977,7 @@ TypeHandler KDE_handlers[] = {
     { "KFileItemList", marshall_KFileItemList },
     { "KFileItemList&", marshall_KFileItemList },
     { "KFileItemList*", marshall_KFileItemList },
+    { "KNS::Entry::List", marshall_KNSEntryList },
     { "KUrl::List", marshall_KUrlList },
     { "KUrl::List&", marshall_KUrlList },
     { "KUrlList", marshall_KUrlList },

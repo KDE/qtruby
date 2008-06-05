@@ -20,7 +20,22 @@ set(application_SRCS
 
 kde4_add_library(korundum4 SHARED ${korundum_LIB_SRCS})
 
-target_link_libraries(korundum4 ${KDE4_KDECORE_LIBS} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokeqt smokekde qtruby4shared)
+target_link_libraries(korundum4 
+    ${QT_QTNETWORK_LIBRARY} 
+    ${QT_QTSQL_LIBRARY} 
+    ${QT_QTOPENGL_LIBRARY} 
+    ${QT_QTXML_LIBRARY} 
+    ${QT_QTSVG_LIBRARY} 
+    ${KDE4_KDECORE_LIBS} 
+    ${KDE4_KDEUI_LIBS}
+    ${KDE4_KIO_LIBS} 
+    ${KDE4_KNEWSTUFF2_LIBS}
+    ${KDE4_KPTY_LIBS}
+    ${KDE4_KUTILS_LIBS}
+    ${RUBY_LIBRARY} 
+    smokeqt 
+    smokekde 
+    qtruby4shared)
 
 set_target_properties(korundum4 PROPERTIES PREFIX "")
 
