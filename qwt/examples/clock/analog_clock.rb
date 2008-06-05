@@ -1,3 +1,4 @@
+require 'Qt4'
 require 'qwt'
 
 app = Qt::Application.new(ARGV)

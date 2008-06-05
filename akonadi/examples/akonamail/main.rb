@@ -19,6 +19,7 @@
     USA.
 =end
 
+require 'korundum4'
 require 'akonadi'
 require 'mainwidget.rb'
 require 'mainwindow.rb'
