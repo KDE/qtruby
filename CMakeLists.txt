@@ -4,6 +4,7 @@ macro_optional_find_package(RUBY)
 # QtRuby/Korundum
 
 OPTION(ENABLE_QTRUBY "build QtRuby" ON)
+OPTION(ENABLE_QTWEBKIT "build QtWebKit" ON)
 OPTION(ENABLE_KORUNDUM "build Korundum" ON)
 OPTION(ENABLE_QSCINTILLA "build QScintilla" OFF)
 OPTION(ENABLE_QWT "build Qwt" OFF)
@@ -17,6 +18,7 @@ SET(CUSTOM_RUBY_SITE_ARCH_DIR ${RUBY_SITE_ARCH_DIR} CACHE DIR "custom installati
 SET(CUSTOM_RUBY_SITE_LIB_DIR ${RUBY_SITE_LIB_DIR} CACHE DIR "custom installation directory for ruby extension" )
 
 set(QTRUBY_ENABLED "no")
+set(QTWEBKIT_ENABLED "no")
 set(KORUNDUM_ENABLED "no")
 set(QSCINTILLA_ENABLED "no")
 set(QWT_ENABLED "no")
@@ -27,6 +29,10 @@ set(NEPOMUK_ENABLED "no")
 set(PLASMA_ENABLED "no")
 
 if(RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_PATH)
+    if(ENABLE_QTWEBKIT)
+        add_subdirectory( qtwebkit )
+        set(QTWEBKIT_ENABLED "yes")
+    endif(ENABLE_QTRUBY)
     if(ENABLE_QTRUBY)
         add_subdirectory( qtruby )
         set(QTRUBY_ENABLED "yes")
