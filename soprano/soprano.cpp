@@ -36,7 +36,6 @@ VALUE soprano_internal_module;
 Q_DECL_EXPORT void
 Init_soprano()
 {
-    rb_require("Qt4");    // need to initialize the core runtime first
     init_soprano_Smoke();
 
     soprano_Smoke->binding = new QtRubySmokeBinding(soprano_Smoke);

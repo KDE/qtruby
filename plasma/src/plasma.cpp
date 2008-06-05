@@ -41,7 +41,6 @@ static VALUE plasma_module_method_missing(int argc, VALUE * argv, VALUE klass)
 Q_DECL_EXPORT void
 Init_plasma_applet()
 {
-    rb_require("korundum4");
     init_plasma_Smoke();
 
     plasma_Smoke->binding = new QtRubySmokeBinding(plasma_Smoke);

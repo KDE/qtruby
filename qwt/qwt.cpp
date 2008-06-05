@@ -36,7 +36,6 @@ VALUE qwt_internal_module;
 Q_DECL_EXPORT void
 Init_qwt()
 {
-    rb_require("Qt4");    // need to initialize the core runtime first
     init_qwt_Smoke();
 
     qwt_Smoke->binding = new QtRubySmokeBinding(qwt_Smoke);

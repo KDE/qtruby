@@ -53,8 +53,6 @@ VALUE akonadi_internal_module;
 Q_DECL_EXPORT void
 Init_akonadi()
 {
-//    rb_require("Qt4");    // need to initialize the core runtime first
-    rb_require("korundum4");
     init_akonadi_Smoke();
 
     akonadi_Smoke->binding = new QtRubySmokeBinding(akonadi_Smoke);

@@ -36,7 +36,6 @@ VALUE qscintilla_internal_module;
 Q_DECL_EXPORT void
 Init_qscintilla()
 {
-    rb_require("Qt4");    // need to initialize the core runtime first
     init_qsci_Smoke();
 
     qsci_Smoke->binding = new QtRubySmokeBinding(qsci_Smoke);
