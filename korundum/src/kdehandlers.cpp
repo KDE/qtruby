@@ -19,6 +19,7 @@
 
 #include <qtruby.h>
 #include <smokeruby.h>
+#include <marshall_basetypes.h>
 
 #include <kdeversion.h>
 #include <kcoreconfigskeleton.h>
