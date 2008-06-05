@@ -44,7 +44,7 @@
 #endif
 
 #include <smoke/smoke.h>
-#include <smoke/qt/qt_smoke.h>
+#include <smoke/qt_smoke.h>
 #include <ruby.h>
 
 #include "marshall_types.h"

@@ -4,7 +4,7 @@
 #include <QList>
 #include <QtDebug>
 
-#include <soprano/soprano_smoke.h>
+#include <smoke/soprano_smoke.h>
 
 #include <qtruby.h>
 

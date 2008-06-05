@@ -63,7 +63,7 @@
 #include <ruby.h>
 
 #include <smoke/smoke.h>
-#include <smoke/qt/qt_smoke.h>
+#include <smoke/qt_smoke.h>
 
 #undef free
 #undef malloc

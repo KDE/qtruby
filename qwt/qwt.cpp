@@ -4,7 +4,7 @@
 #include <QList>
 #include <QtDebug>
 
-#include <qwt/qwt_smoke.h>
+#include <smoke/qwt_smoke.h>
 
 #include <qtruby.h>
 
