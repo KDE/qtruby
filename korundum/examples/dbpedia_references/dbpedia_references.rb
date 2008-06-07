@@ -1,6 +1,8 @@
 $KCODE = 'u'
 
 require 'korundum4'
+require 'soprano'
+require 'qtwebkit'
 require 'cgi'
 require 'rexml/document'
 

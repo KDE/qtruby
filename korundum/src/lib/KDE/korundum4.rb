@@ -469,26 +469,10 @@ module KDE
 					m = KIO
 				elsif classname =~ /^Sonnet/
 					m = Sonnet
-				elsif classname =~ /^DOM/
-					m = DOM
 				elsif classname =~ /^KNS/
 					m = KNS
-				elsif classname =~ /^Kontact/
-					m = Kontact
-				elsif classname =~ /^KTextEditor/
-					m = KTextEditor
-				elsif classname =~ /^Kate/
-					m = Kate
-				elsif classname =~ /^KMediaPlayer/
-					m = KMediaPlayer
-				elsif classname =~ /^Ko/
-					m = Ko
 				elsif classname =~ /^KWallet/
 					m = KWallet
-				elsif classname =~ /^SafeSite/
-					m = SafeSite
-				elsif classname =~ /^Nepomuk/
-					m = Nepomuk
 				else
 					m = KDE
 				end
