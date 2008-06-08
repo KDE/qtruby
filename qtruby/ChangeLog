@@ -1,3 +1,8 @@
+2008-06-08  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Move the template based List marshallers to a new header
+	  marshall.macros.h and add marshallers for QLinkedList types
+
 2008-06-05  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Make the template based QList marshallers more DRY by moving them

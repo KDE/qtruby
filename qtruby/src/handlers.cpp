@@ -80,6 +80,7 @@
 #include "qtruby.h"
 #include "smokeruby.h"
 #include "marshall_basetypes.h"
+#include "marshall_macros.h"
 
 #ifndef HINT_BYTES
 #define HINT_BYTES HINT_BYTE
@@ -2306,8 +2307,6 @@ Q_DECL_EXPORT TypeHandler Qt_handlers[] = {
     { "QwtValueList", marshall_QListqreal },
     { "QwtValueList&", marshall_QListqreal },
     { "QList<double>&", marshall_QListqreal },
-    { "QList<QStandardItem*>", marshall_QStandardItemList },
-    { "QList<QStandardItem*>&", marshall_QStandardItemList },
     { "QList<QTableWidgetItem*>", marshall_QTableWidgetItemList },
     { "QList<QTableWidgetItem*>&", marshall_QTableWidgetItemList },
     { "QList<QTableWidgetSelectionRange>", marshall_QTableWidgetSelectionRangeList },

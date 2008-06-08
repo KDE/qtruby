@@ -1,9 +1,9 @@
 /***************************************************************************
-                          nepomukhandlers.cpp  -  Nepomuk specific marshallers
+                          solidhandlers.cpp  -  Solid specific marshallers
                              -------------------
-    begin                : Thurs May 29 2008
+    begin                : 08-06-2008
     copyright            : (C) 2008 by Richard Dale
-    email                : Richard_Dale@tipitina.demon.co.uk
+    email                : richard.j.dale@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -21,16 +21,11 @@
 #include <smokeruby.h>
 #include <marshall_macros.h>
 
-#include <nepomuk/resource.h>
-#include <nepomuk/tag.h>
+#include <solid/device.h>
 
-DEF_VALUELIST_MARSHALLER( NepomukResourceList, QList<Nepomuk::Resource>, Nepomuk::Resource )
-DEF_VALUELIST_MARSHALLER( NepomukTagList, QList<Nepomuk::Tag>, Nepomuk::Tag )
+DEF_VALUELIST_MARSHALLER( SolidDeviceList, QList<Solid::Device>, Solid::Device )
 
-TypeHandler Nepomuk_handlers[] = {
-    { "QList<Nepomuk::Resource>", marshall_NepomukResourceList },
-    { "QList<Nepomuk::Resource>&", marshall_NepomukResourceList },
-    { "QList<Nepomuk::Tag>", marshall_NepomukTagList },
-    { "QList<Nepomuk::Tag>&", marshall_NepomukTagList },
+TypeHandler Solid_handlers[] = {
+    { "QList<Solid::Device>", marshall_SolidDeviceList },
     { 0, 0 }
 };

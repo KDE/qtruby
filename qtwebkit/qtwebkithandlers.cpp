@@ -19,7 +19,7 @@
 
 #include <qtruby.h>
 #include <smokeruby.h>
-#include <marshall_basetypes.h>
+#include <marshall_macros.h>
 
 #include <QtWebKit/qwebframe.h>
 #include <QtWebKit/qwebhistory.h>

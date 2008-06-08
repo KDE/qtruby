@@ -19,7 +19,7 @@
 
 #include <qtruby.h>
 #include <smokeruby.h>
-#include <marshall_basetypes.h>
+#include <marshall_macros.h>
 
 #include <ktexteditor/commandinterface.h>
 #include <ktexteditor/document.h>
