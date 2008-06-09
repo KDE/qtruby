@@ -1,3 +1,10 @@
+2008-06-09  Richard Dale  <richard.j.dale@gmail.com>
+
+	* The rb_id2name() function has changed to return a 'const char *'
+	  in Ruby 1.8.7, which meant the QtRuby wouldn't compile. So attempt
+	  to make it build on both 1.8.6 and 1.8.7. Thanks to Stefano Crocco
+	  for reporting the bug.
+
 2008-06-08  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Move the template based List marshallers to a new header

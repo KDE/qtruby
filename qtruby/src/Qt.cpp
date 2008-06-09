@@ -673,7 +673,7 @@ findAllMethodNames(VALUE /*self*/, VALUE result, VALUE classid, VALUE flags_valu
 }
 
 QByteArray *
-find_cached_selector(int argc, VALUE * argv, VALUE klass, char * methodName)
+find_cached_selector(int argc, VALUE * argv, VALUE klass, const char * methodName)
 {
     // Look in the cache
 static QByteArray * mcid = 0;
@@ -712,7 +712,7 @@ static QByteArray * mcid = 0;
 VALUE
 method_missing(int argc, VALUE * argv, VALUE self)
 {
-	char * methodName = rb_id2name(SYM2ID(argv[0]));
+	const char * methodName = rb_id2name(SYM2ID(argv[0]));
     VALUE klass = rb_funcall(self, rb_intern("class"), 0);
 
     VALUE retval = Qnil;
@@ -764,7 +764,7 @@ static QByteArray * pred = 0;
 
 			retval = rb_funcall2(qt_internal_module, rb_intern("do_method_missing"), argc+3, temp_stack);
 			if (_current_method.index == -1) {
-				char * op = rb_id2name(SYM2ID(argv[0]));
+				const char * op = rb_id2name(SYM2ID(argv[0]));
 				if (	qstrcmp(op, "-") == 0
 						|| qstrcmp(op, "+") == 0
 						|| qstrcmp(op, "/") == 0
@@ -871,7 +871,7 @@ class_method_missing(int argc, VALUE * argv, VALUE klass)
 {
 	VALUE result = Qnil;
 	VALUE retval = Qnil;
-	char * methodName = rb_id2name(SYM2ID(argv[0]));
+	const char * methodName = rb_id2name(SYM2ID(argv[0]));
 	VALUE * temp_stack = ALLOCA_N(VALUE, argc+3);
     temp_stack[0] = rb_str_new2("Qt");
     temp_stack[1] = rb_str_new2(methodName);
