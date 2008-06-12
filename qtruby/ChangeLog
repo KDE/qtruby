@@ -1,3 +1,12 @@
+2008-06-12  Richard Dale  <richard.j.dale@gmail.com>
+
+	* When resolve_classname_qt() was given a class outside the Qt smoke
+	  library, such as KAction, it was failing to resolve it. This was
+	  because it was only looking in the smoke library of the arg type
+	  declared in the method. Hence, an arg type of 'QAction' was not
+	  being resolved to 'KAction'. Thanks to Stefano Crocco for reporting 
+	  the bug.
+
 2008-06-09  Richard Dale  <richard.j.dale@gmail.com>
 
 	* The rb_id2name() function has changed to return a 'const char *'

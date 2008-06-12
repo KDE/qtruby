@@ -556,9 +556,12 @@ resolve_classname_qt(Smoke* smoke, int classId, void * ptr)
 		const QMetaObject * meta = qobject->metaObject();
 
 		while (meta != 0) {
-			Smoke::Index classId = smoke->idClass(meta->className()).index;
-			if (classId != 0) {
-				return smoke->binding->className(classId);
+			Smoke* s = Smoke::classMap[meta->className()];
+			if (s != 0) {
+				Smoke::Index classId = s->idClass(meta->className()).index;
+				if (classId != 0) {
+					return s->binding->className(classId);
+				}
 			}
 
 			meta = meta->superClass();
