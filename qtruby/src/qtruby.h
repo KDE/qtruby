@@ -65,7 +65,7 @@ extern Q_DECL_EXPORT int do_debug;   // evil
 extern Q_DECL_EXPORT VALUE rv_qapp;
 extern Q_DECL_EXPORT int object_count;
 
-typedef const char* (*ResolveClassNameFn)(Smoke* smoke, int classId, void * ptr);
+typedef const char* (*ResolveClassNameFn)(smokeruby_object * o);
 typedef void (*ClassCreatedFn)(const char* package, VALUE module, VALUE klass);
 
 struct QtRubyModule {
@@ -127,7 +127,7 @@ extern Q_DECL_EXPORT VALUE getPointerObject(void *ptr);
 extern Q_DECL_EXPORT void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *lastptr);
 extern Q_DECL_EXPORT void unmapPointer(smokeruby_object *, Smoke::Index, void*);
 
-extern Q_DECL_EXPORT const char * resolve_classname(Smoke* smoke, int classId, void * ptr);
+extern Q_DECL_EXPORT const char * resolve_classname(smokeruby_object * o);
 extern Q_DECL_EXPORT void rb_str_catf(VALUE self, const char *format, ...) __attribute__ ((format (printf, 2, 3)));
 
 extern Q_DECL_EXPORT VALUE findMethod(VALUE self, VALUE c_value, VALUE name_value);

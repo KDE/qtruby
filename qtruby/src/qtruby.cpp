@@ -54,7 +54,7 @@ extern bool qRegisterResourceData(int, const unsigned char *, const unsigned cha
 extern bool qUnregisterResourceData(int, const unsigned char *, const unsigned char *, const unsigned char *);
 
 extern TypeHandler Qt_handlers[];
-extern const char * resolve_classname_qt(Smoke* smoke, int classId, void * ptr);
+extern const char * resolve_classname_qt(smokeruby_object * o);
 
 extern "C" {
 

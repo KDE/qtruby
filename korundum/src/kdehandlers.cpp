@@ -54,10 +54,10 @@
 
 
 const char*
-resolve_classname_kde(Smoke* smoke, int classId, void* ptr)
+resolve_classname_kde(smokeruby_object * o)
 {
-	if (smoke->isDerivedFromByName(smoke->classes[classId].className, "KArchiveEntry")) {
-		KArchiveEntry * entry = (KArchiveEntry *) smoke->cast(ptr, classId, smoke->idClass("KArchiveEntry").index);
+	if (o->smoke->isDerivedFromByName(o->smoke->classes[o->classId].className, "KArchiveEntry")) {
+		KArchiveEntry * entry = (KArchiveEntry *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("KArchiveEntry").index);
 		if (entry->isDirectory()) {
 			return "KDE::ArchiveDirectory";
 		} else {
@@ -65,7 +65,7 @@ resolve_classname_kde(Smoke* smoke, int classId, void* ptr)
 		}
 	}
 	
-	return smoke->binding->className(classId);
+	return o->smoke->binding->className(o->classId);
 }
 
 #if defined (__i386__) && defined (__GNUC__) && __GNUC__ >= 2

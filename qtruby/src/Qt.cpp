@@ -443,13 +443,15 @@ static char p[CAT_BUFFER_SIZE];
 }
 
 const char *
-resolve_classname(Smoke* smoke, int classId, void * ptr)
+resolve_classname(smokeruby_object * o)
 {
-    if (smoke->classes[classId].external) {
-        Smoke::ModuleIndex mi = smoke->findClass(smoke->className(classId));
-        return qtruby_modules.value(mi.smoke).resolve_classname(mi.smoke, mi.index, ptr);
+    if (o->smoke->classes[o->classId].external) {
+        Smoke::ModuleIndex mi = o->smoke->findClass(o->smoke->className(o->classId));
+        o->smoke = mi.smoke;
+        o->classId = mi.index;
+        return qtruby_modules.value(mi.smoke).resolve_classname(o);
     }
-    return qtruby_modules.value(smoke).resolve_classname(smoke, classId, ptr);
+    return qtruby_modules.value(o->smoke).resolve_classname(o);
 }
 
 VALUE

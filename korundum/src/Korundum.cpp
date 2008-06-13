@@ -47,7 +47,7 @@
 
 #include <iostream>
 
-const char* resolve_classname_kde(Smoke* smoke, int classId, void* ptr);
+const char* resolve_classname_kde(smokeruby_object * o);
 
 static VALUE getClassList(VALUE /*self*/)
 {

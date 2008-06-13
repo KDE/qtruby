@@ -97,7 +97,7 @@ void marshall_ItemList(Marshall *m) {
 																	m->smoke()->idClass(ItemSTR).index, 
 																	p );
 
-					obj = set_obj_info(resolve_classname(o->smoke, o->classId, o->ptr), o);
+					obj = set_obj_info(resolve_classname(o), o);
 				}
 			
 				rb_ary_push(av, obj);
@@ -313,7 +313,7 @@ void marshall_LinkedItemList(Marshall *m) {
 																	m->smoke()->idClass(ItemSTR).index, 
 																	p );
 
-					obj = set_obj_info(resolve_classname(o->smoke, o->classId, o->ptr), o);
+					obj = set_obj_info(resolve_classname(o), o);
 				}
 			
 				rb_ary_push(av, obj);

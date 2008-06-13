@@ -384,9 +384,22 @@ module KDE
 			pp.text str.sub(/>$/, "\n library=%s,\n type=%s,\n name=%s>" % [library.inspect, type.inspect, name.inspect])
 		end
 	end
+
 	class ServiceAction < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
+		end
+	end
+
+	class Shortcut < Qt::Base
+		def inspect
+			str = super
+			str.sub(/>$/, " %s>" % toString)
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, " %s>" % toString)
 		end
 	end
 

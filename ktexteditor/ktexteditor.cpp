@@ -38,9 +38,9 @@ static VALUE getClassList(VALUE /*self*/)
 }
 
 const char*
-resolve_classname_ktexteditor(Smoke* smoke, int classId, void* /*ptr*/)
+resolve_classname_ktexteditor(smokeruby_object * o)
 {
-    return smoke->binding->className(classId);
+    return o->smoke->binding->className(o->classId);
 }
 
 extern TypeHandler KTextEditor_handlers[];

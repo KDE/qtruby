@@ -975,6 +975,16 @@ module Qt
 			end
 			return super(*args)
 		end
+
+		def inspect
+			str = super
+			str.sub(/>$/, " %s>" % toString)
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, " %s>" % toString)
+		end
 	end
 
 	class LCDNumber < Qt::Base

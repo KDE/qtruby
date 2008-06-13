@@ -21,9 +21,9 @@ static VALUE getClassList(VALUE /*self*/)
 }
 
 const char*
-resolve_classname_qtwebkit(Smoke* smoke, int classId, void* /*ptr*/)
+resolve_classname_qtwebkit(smokeruby_object * o)
 {
-    return smoke->binding->className(classId);
+    return o->smoke->binding->className(o->classId);
 }
 
 extern TypeHandler QtWebKit_handlers[];

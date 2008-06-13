@@ -21,9 +21,9 @@ static VALUE getClassList(VALUE /*self*/)
 }
 
 const char*
-resolve_classname_qwt(Smoke* smoke, int classId, void* /*ptr*/)
+resolve_classname_qwt(smokeruby_object * o)
 {
-    return smoke->binding->className(classId);
+    return o->smoke->binding->className(o->classId);
 }
 
 extern TypeHandler Qwt_handlers[];

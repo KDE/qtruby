@@ -1,3 +1,9 @@
+2008-06-13  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Pass the resolve_classname() functions a 'smokeruby_object *' so that
+	  they can change the smoke lib and classId on it.
+	* Added Qt::KeySequence inspect and pretty_print methods
+
 2008-06-12  Richard Dale  <richard.j.dale@gmail.com>
 
 	* When resolve_classname_qt() was given a class outside the Qt smoke
