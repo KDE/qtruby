@@ -1,3 +1,9 @@
+2008-06-14  Arno Rehn  <arno@arnorehn.de>
+
+	* Since every smoke module defines a class 'QGlobalSpace', don't rely
+	  on Smoke::classMap and search every smoke module for methods of this
+	  class.
+
 2008-06-13  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Pass the resolve_classname() functions a 'smokeruby_object *' so that

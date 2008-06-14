@@ -467,7 +467,15 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
     if (do_debug & qtdb_calls) qWarning("Found method %s::%s => %d", c, name, meth.index);
 #endif
     if(!meth.index) {
-        meth = qt_Smoke->findMethod("QGlobalSpace", name);
+        // since every smoke module defines a class 'QGlobalSpace' we can't rely on the classMap,
+        // so we search for methods by hand
+        foreach (Smoke* s, smokeList) {
+            Smoke::ModuleIndex cid = s->idClass("QGlobalSpace");
+            Smoke::ModuleIndex mnid = s->idMethodName(name);
+            if (!cid.index || !mnid.index) continue;
+            meth = s->idMethod(cid.index, mnid.index);
+            if (meth.index) break;
+        }
 #ifdef DEBUG
         if (do_debug & qtdb_calls) qWarning("Found method QGlobalSpace::%s => %d", name, meth.index);
 #endif
