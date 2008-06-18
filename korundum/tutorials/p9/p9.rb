@@ -1,4 +1,5 @@
 require 'korundum4'
+require 'khtml'
  
 class Browser < KDE::XmlGuiWindow
     slots   :fileSetDefaultPage, 

@@ -8,7 +8,7 @@ class MainWindow < KDE::MainWindow
         self.objectName = name
         self.caption = "KDE Tutorial - p3"
 
-        filemenu = Qt::Menu.new(i18n("&File"))
+        filemenu = Qt::Menu.new(i18n("&File"), self)
         filemenu.addAction(i18n("&Open"), self, SLOT(:fileOpen))
         filemenu.addAction(i18n("&Save"), self, SLOT(:fileSave))
         filemenu.addAction(i18n("&Quit"), $kapp, SLOT(:quit) )
@@ -21,7 +21,7 @@ class MainWindow < KDE::MainWindow
                  "This tutorial comes with ABSOLUTELY NO WARRANTY\n" +
                  "This is free software, and you are welcome to redistribute it\n" +
                  "under certain conditions\n")
-        helpmenu = helpMenu( about )
+        helpmenu = helpMenu(about)
         
         menu = menuBar()
         menu.addMenu( filemenu )

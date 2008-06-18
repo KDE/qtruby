@@ -1,5 +1,6 @@
 require 'korundum4'
- 
+require 'khtml'
+
 class MainWindow < KDE::MainWindow
     slots   :changeLocation, 
             'openUrlRequest(KUrl, KParts::OpenUrlArguments)'
