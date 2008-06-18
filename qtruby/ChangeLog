@@ -1,3 +1,9 @@
+2008-06-13  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Remove unnecessary special casing for Qt::TextEdit::ExtraSelection,
+      just make it an ording QtRuby class instead of a Struct, and add a 
+	  marshaller for QList<QTextEdit::ExtraSelection>
+
 2008-06-14  Arno Rehn  <arno@arnorehn.de>
 
 	* Since every smoke module defines a class 'QGlobalSpace', don't rely

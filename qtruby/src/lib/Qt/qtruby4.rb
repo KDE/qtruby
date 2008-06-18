@@ -1672,10 +1672,6 @@ module Qt
 		end
 	end
 
-	class TextEdit < Qt::Base
-		ExtraSelection = Struct.new(:cursor, :format)
-	end
-
 	class TextFormat < Qt::Base
 		def type(*args)
 			method_missing(:type, *args)
@@ -2313,7 +2309,6 @@ module Qt
 			else
 				ruby_classname = classname
 			end
-#			puts "normalize_classname = was::#{classname}, now::#{ruby_classname}"
 			ruby_classname
 		end
 
@@ -2607,10 +2602,6 @@ module Qt
 		
 		def Internal.set_qboolean(b, val)
 			return b.value = val
-		end
-
-		def Internal.create_extra_selection(cursor, format)
-			Qt::TextEdit::ExtraSelection.new(cursor, format)
 		end
 
 		def Internal.getAllParents(class_id, res)

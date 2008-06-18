@@ -1834,7 +1834,6 @@ create_qt_class(VALUE /*self*/, VALUE package_value, VALUE module_value)
 	const char *moduleName = strdup(StringValuePtr(value_moduleName));
 	VALUE klass = module_value;
 	QString packageName(package);
-	if (packageName == "Qt::TextEdit::ExtraSelection") return Qnil;
 	
 	foreach(QString s, packageName.mid(strlen(moduleName) + 2).split("::")) {
 		klass = rb_define_class_under(klass, (const char*) s.toLatin1(), qt_base_class);
