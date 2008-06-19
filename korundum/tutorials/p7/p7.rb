@@ -74,7 +74,7 @@ class Browser < KDE::XmlGuiWindow
                     self, SLOT( 'changeLocation()' ) )
  
         split = Qt::Splitter.new
-        split.setOpaqueResize()
+        split.opaqueResize = true
 
         widget = Qt::Widget.new(self)
 

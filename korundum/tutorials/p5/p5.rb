@@ -1,4 +1,5 @@
 require 'korundum4'
+require 'khtml'
 
 class MainWindow < KDE::MainWindow
     slots   :changeLocation, 
@@ -34,7 +35,7 @@ class MainWindow < KDE::MainWindow
                     self, SLOT(:changeLocation) )
  
         split = Qt::Splitter.new
-        split.setOpaqueResize()
+        split.opaqueResize = true
 
         widget = Qt::Widget.new(self)
 
