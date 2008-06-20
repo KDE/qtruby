@@ -1,3 +1,10 @@
+2008-06-20  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Partly fix bug reported by Stefan Crocco - this explains why a slot
+	  return value of type QPoint was nil. However, it's value is wrong,
+	  and the problem with a QString return value crashing is still not
+	  explained.
+
 2008-06-13  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Remove unnecessary special casing for Qt::TextEdit::ExtraSelection,

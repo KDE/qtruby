@@ -951,7 +951,7 @@ static QRegExp * rx = 0;
 			name.replace("const ", "");
 			QString staticType = (rx->indexIn(name) != -1 ? rx->cap(1) : "ptr");
 			if (staticType == "ptr") {
-				arg->argType = xmoc_void;
+				arg->argType = xmoc_ptr;
 				typeId = smoke->idType(name.constData());
 				if (typeId == 0 && !name.contains('*')) {
 					name += "&";
