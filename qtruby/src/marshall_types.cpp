@@ -18,6 +18,7 @@
 
 #include "marshall_types.h"
 #include <rubysig.h>
+#include <smoke/qt_smoke.h>
 
 // This is based on the SWIG SWIG_INIT_STACK and SWIG_RELEASE_STACK macros.
 // If RUBY_INIT_STACK is only called when an embedded extension such as, a
@@ -296,6 +297,35 @@ smokeStackFromQtStack(Smoke::Stack stack, void ** _o, int start, int end, QList<
 			}
 		}
 		}
+	}
+}
+
+void prepareQtReturnValue(const MocArgument& arg, Smoke::Stack stack, void** o)
+{
+	o[0] = 0;
+	
+	if (arg.argType == xmoc_ptr) {
+		QString type(arg.st.name());
+		type = type.trimmed();
+		if (!type.endsWith('*')) {  // a real pointer type, so a simple void* will do
+			type.remove('&');
+			const char* className = (const char*) type.toLatin1();
+			Smoke::ModuleIndex ci = qt_Smoke->findClass(className);
+			if (ci.index) {
+				Smoke::ModuleIndex mi = ci.smoke->findMethod(className, className);
+				if (mi.index) {
+					Smoke::Class& c = ci.smoke->classes[ci.index];
+					Smoke::Method& meth = mi.smoke->methods[mi.smoke->methodMaps[mi.index].method];
+					Smoke::StackItem _stack[1];
+					c.classFn(meth.method, 0, _stack);
+					o[0] = _stack[0].s_voidp;
+				}
+			}
+		}
+	} else if (arg.argType == xmoc_QString) {
+		o[0] = new QString;
+	} else if (arg.argType != xmoc_void) {
+		o[0] = &stack[0];
 	}
 }
 

@@ -1,3 +1,8 @@
+2008-06-20  Arno Rehn  <arno@arnorehn.de>
+
+	* Fix bug reported by Stefano Crocco. qt_metacall tried to write
+	  data via an uninitialized pointer.
+
 2008-06-20  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Partly fix bug reported by Stefan Crocco - this explains why a slot

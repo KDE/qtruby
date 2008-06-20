@@ -356,6 +356,11 @@ EmitSignal::emitSignal()
 	_called = true;
 	void ** o = new void*[_items];
 	smokeStackToQtStack(_stack, o + 1, 1, _items, _args);
+	void * ptr;
+	prepareQtReturnValue(*_args[0], _stack, o);
+	if (o[0] == 0 && arg.argType != xmoc_void)
+		o[0] = &ptr;
+
 	_obj->metaObject()->activate(_obj, _id, o);
 
 	if (_args[0]->argType != xmoc_void) {
@@ -409,7 +414,10 @@ InvokeNativeSlot::invokeSlot()
 	void ** o = new void*[_items];
 	smokeStackToQtStack(_stack, o + 1, 1, _items, _args);
 	void * ptr;
-	o[0] = &ptr;
+	prepareQtReturnValue(*_args[0], _stack, o);
+	if (o[0] == 0 && arg.argType != xmoc_void)
+		o[0] = &ptr;
+
 	_obj->qt_metacall(QMetaObject::InvokeMetaMethod, _id, o);
 	
 	if (_args[0]->argType != xmoc_void) {

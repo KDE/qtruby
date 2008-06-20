@@ -30,6 +30,7 @@
 #include "smokeruby.h"
 
 Marshall::HandlerFn getMarshallFn(const SmokeType &type);
+void prepareQtReturnValue(const MocArgument& arg, Smoke::Stack stack, void** o);
 
 extern void smokeStackToQtStack(Smoke::Stack stack, void ** o, int start, int end, QList<MocArgument*> args);
 extern void smokeStackFromQtStack(Smoke::Stack stack, void ** _o, int start, int end, QList<MocArgument*> args);
