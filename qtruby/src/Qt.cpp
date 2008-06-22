@@ -154,6 +154,9 @@ VALUE getPointerObject(void *ptr) {
 	if (!pointer_map() || !pointer_map()->contains(ptr)) {
 		if (do_debug & qtdb_gc) {
 			qWarning("getPointerObject %p -> nil", ptr);
+			if (!pointer_map()) {
+				qWarning("getPointerObject pointer_map deleted");
+			}
 		}
 	    return Qnil;
 	} else {
@@ -236,6 +239,7 @@ bool
 QtRubySmokeBinding::callMethod(Smoke::Index method, void *ptr, Smoke::Stack args, bool /*isAbstract*/) {
 	VALUE obj = getPointerObject(ptr);
 	smokeruby_object *o = value_obj_info(obj);
+
 	if (do_debug & qtdb_virtual) {
 		Smoke::Method & meth = smoke->methods[method];
 		QByteArray signature(smoke->methodNames[meth.name]);
@@ -253,7 +257,8 @@ QtRubySmokeBinding::callMethod(Smoke::Index method, void *ptr, Smoke::Stack args
 						smoke->classes[smoke->methods[method].classId].className,
 					(const char *) signature );
 	}
-	if (!o) {
+
+	if (o == 0) {
     	if( do_debug & qtdb_virtual )   // if not in global destruction
 			qWarning("Cannot find object for virtual method %p -> %p", ptr, &obj);
     	return false;

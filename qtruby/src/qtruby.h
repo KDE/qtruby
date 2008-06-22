@@ -74,7 +74,7 @@ struct QtRubyModule {
     ClassCreatedFn class_created;
 };
 
-// keep this enum in sync with lib/Qt/debug.pm
+// keep this enum in sync with lib/Qt/qtruby4.rb
 
 enum QtDebugChannel {
     qtdb_none = 0x00,
@@ -99,6 +99,7 @@ extern Q_DECL_EXPORT VALUE qvariant_class;
 extern Q_DECL_EXPORT VALUE moduleindex_class;
 
 extern Q_DECL_EXPORT bool application_terminated;
+extern Q_DECL_EXPORT void set_qtruby_embedded(bool yn);
 }
 
 

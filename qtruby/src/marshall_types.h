@@ -127,18 +127,19 @@ public:
 	inline void callMethod() {
 		if(_called) return;
 		_called = true;
-		
-		QString className(_smoke->className(method().classId));
+
+/*		
+		QByteArray className(_smoke->className(method().classId));
 	
 		if (	! className.endsWith(_smoke->methodNames[method().name])
-			&& TYPE(_target) != T_DATA 
-			&& _target != Qnil
-			&& !(method().flags & Smoke::mf_static) ) 
+				&& TYPE(_target) != T_DATA 
+				&& _target != Qnil
+				&& !(method().flags & Smoke::mf_static) ) 
 		{
 			rb_raise(rb_eArgError, "Instance is not initialized, cannot call %s", 
 						_smoke->methodNames[method().name]);
 		}
-	
+*/
 		if (_target == Qnil && !(method().flags & Smoke::mf_static)) {
 			rb_raise(rb_eArgError, "%s is not a class method\n", _smoke->methodNames[method().name]);
 		}

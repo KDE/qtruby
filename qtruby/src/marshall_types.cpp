@@ -20,6 +20,23 @@
 #include <rubysig.h>
 #include <smoke/qt_smoke.h>
 
+static bool qtruby_embedded = false;
+
+extern "C" {
+
+Q_DECL_EXPORT void 
+set_qtruby_embedded(bool yn) {
+#if !defined(RUBY_INIT_STACK)
+    if (yn) {
+        qWarning("ERROR: set_qtruby_embedded(true) called but RUBY_INIT_STACK is undefined");
+        qWarning("       Upgrade to Ruby 1.8.6 or greater");
+	}
+#endif
+    qtruby_embedded = yn;
+}
+
+}
+
 // This is based on the SWIG SWIG_INIT_STACK and SWIG_RELEASE_STACK macros.
 // If RUBY_INIT_STACK is only called when an embedded extension such as, a
 // Ruby Plasma plugin is loaded, then later the C++ stack can drop below where the 
@@ -31,9 +48,9 @@
 // invoked, because RUBY_INIT_STACK will have aleady have been called from within 
 // the krubypluginfactory code, and it shouldn't be called again.
 
-#if defined(RUBY_EMBEDDED) && defined(RUBY_INIT_STACK)
+#if defined(RUBY_INIT_STACK)
 #  define QTRUBY_INIT_STACK                            \
-      if ( nested_callback_count == 0 ) { RUBY_INIT_STACK } \
+      if ( qtruby_embedded && nested_callback_count == 0 ) { RUBY_INIT_STACK } \
       nested_callback_count++;
 #  define QTRUBY_RELEASE_STACK nested_callback_count--;
 
@@ -44,8 +61,6 @@ static unsigned int nested_callback_count = 0;
 #  define QTRUBY_INIT_STACK
 #  define QTRUBY_RELEASE_STACK
 #endif  /* RUBY_EMBEDDED */
-
-#ifdef RUBY_EMBEDDED
 
 //
 // This function was borrowed from the kross code. It puts out
@@ -88,22 +103,19 @@ funcall2_protect(VALUE obj)
 }
 
 #  define QTRUBY_FUNCALL2(result, obj, id, argc, args) \
-      int state = 0; \
-      funcall2_protect_id = id; \
-      funcall2_protect_argc = argc; \
-      funcall2_protect_args = args; \
-      result = rb_protect(funcall2_protect, obj, &state); \
-      if (state != 0) { \
-          show_exception_message(); \
-          result = Qnil; \
+      if (qtruby_embedded) { \
+          int state = 0; \
+          funcall2_protect_id = id; \
+          funcall2_protect_argc = argc; \
+          funcall2_protect_args = args; \
+          result = rb_protect(funcall2_protect, obj, &state); \
+          if (state != 0) { \
+              show_exception_message(); \
+              result = Qnil; \
+          } \
+      } else { \
+          result = rb_funcall2(obj, id, argc, args); \
       }
-
-#else
-
-#  define QTRUBY_FUNCALL2(result, obj, id, argc, args) \
-      result = rb_funcall2(obj, id, argc, args);
-
-#endif
 
 void
 smokeStackToQtStack(Smoke::Stack stack, void ** o, int start, int end, QList<MocArgument*> args)
@@ -544,7 +556,7 @@ MethodCall::MethodCall(Smoke *smoke, Smoke::Index method, VALUE target, VALUE *s
 {
 	if (_target != Qnil) {
 		smokeruby_object *o = value_obj_info(_target);
-		if (o && o->ptr) {
+		if (o != 0 && o->ptr != 0) {
 			_current_object = o->ptr;
 			_current_object_class = o->classId;
 		}

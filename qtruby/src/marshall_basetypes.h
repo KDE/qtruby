@@ -84,18 +84,18 @@ void marshall_from_ruby<SmokeClassWrapper>(Marshall *m)
 {
 	VALUE v = *(m->var());
 
-	if(v == Qnil) {
+	if (v == Qnil) {
 		m->item().s_class = 0;
 		return;
 	}
 				
-	if(TYPE(v) != T_DATA) {
+	if (TYPE(v) != T_DATA) {
 		rb_raise(rb_eArgError, "Invalid type, expecting %s\n", m->type().name());
 		return;
 	}
 
 	smokeruby_object *o = value_obj_info(v);
-	if(!o || !o->ptr) {
+	if (o == 0 || o->ptr == 0) {
 		if(m->type().isRef()) {
 			rb_warning("References can't be nil\n");
 			m->unsupported();
@@ -106,13 +106,14 @@ void marshall_from_ruby<SmokeClassWrapper>(Marshall *m)
 	}
 		
 	void *ptr = o->ptr;
-	if(!m->cleanup() && m->type().isStack()) {
+	if (!m->cleanup() && m->type().isStack()) {
 		ptr = construct_copy(o);
 		if (do_debug & qtdb_gc) {
 			qWarning("copying %s %p to %p\n", resolve_classname(o), o->ptr, ptr);
 		}
 	}
-		
+
+
 	const Smoke::Class &cl = m->smoke()->classes[m->type().classId()];
 	
 	ptr = o->smoke->cast(

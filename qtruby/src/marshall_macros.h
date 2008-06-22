@@ -25,6 +25,21 @@
 
 #include "marshall.h"
 
+#define DEF_HASH_MARSHALLER(HashIdent,Item) namespace { char HashIdent##STR[] = #Item; }  \
+        Marshall::HandlerFn marshall_##HashIdent = marshall_Hash<Item,HashIdent##STR>;
+
+#define DEF_LIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; }  \
+        Marshall::HandlerFn marshall_##ListIdent = marshall_ItemList<Item,ItemList,ListIdent##STR>;
+
+#define DEF_VALUELIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; }  \
+        Marshall::HandlerFn marshall_##ListIdent = marshall_ValueListItem<Item,ItemList,ListIdent##STR>;
+
+#define DEF_LINKED_LIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; }  \
+        Marshall::HandlerFn marshall_##ListIdent = marshall_LinkedItemList<Item,ItemList,ListIdent##STR>;
+
+#define DEF_LINKED_VALUELIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; }  \
+        Marshall::HandlerFn marshall_##ListIdent = marshall_LinkedValueListItem<Item,ItemList,ListIdent##STR>;
+
 template <class Item, class ItemList, const char *ItemSTR >
 void marshall_ItemList(Marshall *m) {
 	switch(m->action()) {
@@ -117,9 +132,6 @@ void marshall_ItemList(Marshall *m) {
 		break;
    }
 }
-
-#define DEF_LIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; }  \
-        Marshall::HandlerFn marshall_##ListIdent = marshall_ItemList<Item,ItemList,ListIdent##STR>;
 
 template <class Item, class ItemList, const char *ItemSTR >
 void marshall_ValueListItem(Marshall *m) {
@@ -230,9 +242,6 @@ void marshall_ValueListItem(Marshall *m) {
 	}
 }
 
-#define DEF_VALUELIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; }  \
-        Marshall::HandlerFn marshall_##ListIdent = marshall_ValueListItem<Item,ItemList,ListIdent##STR>;
-
 /*
 	The code for the QLinkedList marshallers is identical to the QList and QVector marshallers apart
 	from the use of iterators instead of at(), and so it really should be possible to code one marshaller
@@ -333,9 +342,6 @@ void marshall_LinkedItemList(Marshall *m) {
 		break;
    }
 }
-
-#define DEF_LINKED_LIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; }  \
-        Marshall::HandlerFn marshall_##ListIdent = marshall_LinkedItemList<Item,ItemList,ListIdent##STR>;
 
 template <class Item, class ItemList, const char *ItemSTR >
 void marshall_LinkedValueListItem(Marshall *m) {
@@ -449,7 +455,82 @@ void marshall_LinkedValueListItem(Marshall *m) {
 	}
 }
 
-#define DEF_LINKED_VALUELIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; }  \
-        Marshall::HandlerFn marshall_##ListIdent = marshall_LinkedValueListItem<Item,ItemList,ListIdent##STR>;
+template <class Value, const char *ValueSTR >
+void marshall_Hash(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE:
+	{
+		VALUE hv = *(m->var());
+		if (TYPE(hv) != T_HASH) {
+			m->item().s_voidp = 0;
+			break;
+		}
+		
+		QHash<QString, Value*> * hash = new QHash<QString, Value*>;
+		
+		// Convert the ruby hash to an array of key/value arrays
+		VALUE temp = rb_funcall(hv, rb_intern("to_a"), 0);
+
+		for (long i = 0; i < RARRAY(temp)->len; i++) {
+			VALUE key = rb_ary_entry(rb_ary_entry(temp, i), 0);
+			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
+			
+			smokeruby_object *o = value_obj_info(value);
+			if( !o || !o->ptr)
+				continue;
+			void * val_ptr = o->ptr;
+			val_ptr = o->smoke->cast(val_ptr, o->classId, o->smoke->idClass(ValueSTR).index);
+			
+			(*hash)[QString(StringValuePtr(key))] = (Value*)val_ptr;
+		}
+	    
+		m->item().s_voidp = hash;
+		m->next();
+		
+		if (m->cleanup())
+			delete hash;
+	}
+	break;
+	case Marshall::ToVALUE:
+	{
+		QHash<QString, Value*> *hash = (QHash<QString, Value*>*) m->item().s_voidp;
+		if (hash == 0) {
+			*(m->var()) = Qnil;
+			break;
+	    }
+		
+		VALUE hv = rb_hash_new();
+		
+		int val_ix = m->smoke()->idClass(ValueSTR).index;
+	    const char * val_className = m->smoke()->binding->className(val_ix);
+			
+		for (QHashIterator<QString, Value*> it(*hash); it.hasNext(); it.next()) {
+			void *val_p = it.value();
+			VALUE value_obj = getPointerObject(val_p);
+				
+			if (value_obj == Qnil) {
+				smokeruby_object *o = ALLOC(smokeruby_object);
+				o->classId = m->smoke()->idClass(ValueSTR).index;
+				o->smoke = m->smoke();
+				o->ptr = val_p;
+				o->allocated = true;
+				value_obj = set_obj_info(val_className, o);
+			}
+			rb_hash_aset(hv, rb_str_new2(((QString*)&(it.key()))->toLatin1()), value_obj);
+        }
+		
+		*(m->var()) = hv;
+		m->next();
+		
+		if (m->cleanup())
+			delete hash;
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
+    }
+}
+
 
 #endif
