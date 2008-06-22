@@ -284,6 +284,22 @@ module KDE
 		def name(*args)
 			method_missing(:name, *args)
 		end
+
+		def readEntry(key, default)
+			if default.kind_of?(String) || default.kind_of?(Qt::Variant)
+				return super(key, default)
+			else
+				return super(key, Qt::Variant.new(default)).value
+			end
+		end
+
+		def writeEntry(key, value, pFlags = KDE::ConfigBase::Normal)
+			if value.kind_of?(String) || value.kind_of?(Qt::Variant)
+				super(key, value, pFlags)
+			else
+				super(key, Qt::Variant.new(value), pFlags)
+			end
+		end
 	end
 
 	class DoubleNumInput < Qt::Base

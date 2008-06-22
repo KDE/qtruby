@@ -42,23 +42,7 @@ class Browser < KDE::XmlGuiWindow
         menu.addMenu(filemenu)
         menu.addSeparator()
         menu.addMenu(helpmenu)
- 
-=begin
-        toolbar = KDE::ToolBar.new(self)
 
-        icons = KDE::IconLoader.new()
-        toolbar.insertButton(icons.loadIcon("reload", KDE::Icon::Toolbar), TOOLBAR_ID_ADDBOOKMARK,
-                              SIGNAL('clicked(int)'),self,SLOT('bookLocation()'),true,
-                              i18n("Add to Bookmarks"))
-        toolbar.insertButton(icons.loadIcon("back", KDE::Icon::Toolbar), TOOLBAR_ID_BACK,
-                              SIGNAL('clicked(int)'),self,SLOT('gotoPreviousPage()'),
-                              false, i18n("Back to previous page"))
-        toolbar.insertButton(icons.loadIcon("exit", KDE::Icon::Toolbar), TOOLBAR_ID_QUIT,
-                              SIGNAL('clicked(int)'),$kapp,SLOT('quit()'),true,
-                              i18n("Quit the application"))
-        addToolBar(toolbar)
-
-=end
         toolBar.addAction(@quitAction)
         toolBar.addAction(@addBookmarkAction)
         toolBar.addAction(@backAction)
@@ -67,8 +51,8 @@ class Browser < KDE::XmlGuiWindow
         @location = Qt::LineEdit.new
         @location.text = "http://localhost"
  
-        config = $kapp.sessionConfig
-        @location.text = config.group("Settings").readEntry("defaultPage", Qt::Variant.new("http://localhost")).value
+        @config = KDE::ConfigGroup.new(KDE::Global.config, "Settings")
+        @location.text = @config.readEntry("defaultPage", "http://localhost")
 
         connect( @location , SIGNAL( 'returnPressed()' ),
                     self, SLOT( 'changeLocation()' ) )
@@ -126,10 +110,8 @@ class Browser < KDE::XmlGuiWindow
     end
  
     def fileSetDefaultPage()
-        config = $kapp.config()
- 
-        config.group = "Settings"
-        config.writeEntry("defaultPage", @browser.url.url)
+        @config.writeEntry("defaultPage", @browser.url.url)
+        @config.sync
     end
 end
 

@@ -51,8 +51,8 @@ class Browser < KDE::XmlGuiWindow
         @location = Qt::LineEdit.new
         @location.text = "http://localhost"
  
-        config = $kapp.sessionConfig
-        @location.text = config.group("Settings").readEntry("defaultPage", Qt::Variant.new("http://localhost")).value
+        @config = KDE::ConfigGroup.new(KDE::Global.config, "Settings")
+        @location.text = @config.readEntry("defaultPage", "http://localhost")
 
         connect( @location , SIGNAL( 'returnPressed()' ),
                     self, SLOT( 'changeLocation()' ) )
@@ -110,10 +110,8 @@ class Browser < KDE::XmlGuiWindow
     end
  
     def fileSetDefaultPage()
-        config = $kapp.config()
- 
-        config.group = "Settings"
-        config.writeEntry("defaultPage", @browser.url.url)
+        @config.writeEntry("defaultPage", @browser.url.url)
+        @config.sync
     end
 end
 

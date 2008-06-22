@@ -126,10 +126,10 @@ void marshall_KSharedConfigPtr(Marshall *m) {
 	case Marshall::ToVALUE: 
 		{
 		KSharedPtr<KSharedConfig> *ptr = new KSharedPtr<KSharedConfig>(*(KSharedPtr<KSharedConfig>*)m->item().s_voidp);
-	    if(ptr == 0) {
-		*(m->var()) = Qnil;
-		break;
-	    }
+		if (ptr == 0) {
+			*(m->var()) = Qnil;
+			break;
+		}
 	    KSharedConfig * config = ptr->data();
 	    
 		VALUE obj = getPointerObject(config);

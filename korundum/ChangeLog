@@ -1,3 +1,8 @@
+2008-06-22  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Add more ruby friendly versions of KDE::ConfigGroup.readEntry() and
+	  writeEntry(). Update the tutorial examples to match.
+
 2008-06-04  Richard Dale  <richard.j.dale@gmail.com>
 
 	* The rbkconfig_compiler wasn't being built as the CMakeLists.txt

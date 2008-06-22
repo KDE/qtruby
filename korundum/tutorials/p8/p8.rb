@@ -10,7 +10,7 @@ class BookMarkList < Qt::TableWidget
         self.horizontalHeaderLabels = [i18n("My Bookmarks")]
         horizontalHeader().resizeSection(0, 250)
         connect( self, SIGNAL('itemClicked(QTableWidgetItem*)'), 
-		         self, SLOT('setUrlInBrowser(QTableWidgetItem*)'))
+                 self, SLOT('setUrlInBrowser(QTableWidgetItem*)'))
     end
          
     def add(s)
@@ -19,12 +19,12 @@ class BookMarkList < Qt::TableWidget
     end
 
     def setUrlInBrowser(item)
-		iface = Qt::DBusInterface.new("org.kde.Browser", "/", "", Qt::DBusConnection.sessionBus)
-		if iface.valid?
-			iface.setUrl(item.text)
-		else
+        iface = Qt::DBusInterface.new("org.kde.Browser", "/", "", Qt::DBusConnection.sessionBus)
+        if iface.valid?
+            iface.setUrl(item.text)
+        else
             qWarning("Error with DBUS\n")
-		end
+        end
     end
 end
     
@@ -33,15 +33,15 @@ KDE::CmdLineArgs.init(ARGV, about)
 a = KDE::UniqueApplication.new
 
 if !Qt::DBusConnection::sessionBus.connected?
-	$stderr.puts("Cannot connect to the D-BUS session bus.\n" \
-	                "To start it, run:\n" \
-	                "\teval `dbus-launch --auto-syntax`\n")
-	exit(1)
+    $stderr.puts("Cannot connect to the D-BUS session bus.\n" \
+                    "To start it, run:\n" \
+                    "\teval `dbus-launch --auto-syntax`\n")
+    exit(1)
 end
-	
+    
 if !Qt::DBusConnection.sessionBus.registerService("org.kde.BookMarkList")
-	$stderr.puts("%s\n" %  Qt::DBusConnection.sessionBus.lastError.message)
-	exit(1)
+    $stderr.puts("%s\n" %  Qt::DBusConnection.sessionBus.lastError.message)
+    exit(1)
 end
 
 mylist = BookMarkList.new
