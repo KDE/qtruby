@@ -30,7 +30,6 @@
 #include "smokeruby.h"
 
 Marshall::HandlerFn getMarshallFn(const SmokeType &type);
-void prepareQtReturnValue(const MocArgument& arg, Smoke::Stack stack, void** o);
 
 extern void smokeStackToQtStack(Smoke::Stack stack, void ** o, int start, int end, QList<MocArgument*> args);
 extern void smokeStackFromQtStack(Smoke::Stack stack, void ** _o, int start, int end, QList<MocArgument*> args);
@@ -177,6 +176,7 @@ public:
 	virtual void mainfunction() = 0;
 	void unsupported();
 	void next(); 
+	void prepareReturnValue(void** o);
 
 protected:
 	QList<MocArgument*> _args;
@@ -200,6 +200,7 @@ class Q_DECL_EXPORT EmitSignal : public SigSlotBase {
 	void emitSignal();
 	void mainfunction();
 	bool cleanup();
+
 };
 
 class Q_DECL_EXPORT InvokeNativeSlot : public SigSlotBase {

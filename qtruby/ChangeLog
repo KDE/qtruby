@@ -1,3 +1,9 @@
+2008-06-23  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Change prepareQtReturnType from a standalone function to a method
+	  in the SigSlotBase class. It should work with int types, and fix
+	  the bug reported by Stefano Crocco.
+
 2008-06-22  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Fix bug in resolve_classname_qt() caused by missing break statments

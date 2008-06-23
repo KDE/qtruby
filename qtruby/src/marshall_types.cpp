@@ -312,35 +312,6 @@ smokeStackFromQtStack(Smoke::Stack stack, void ** _o, int start, int end, QList<
 	}
 }
 
-void prepareQtReturnValue(const MocArgument& arg, Smoke::Stack stack, void** o)
-{
-	o[0] = 0;
-	
-	if (arg.argType == xmoc_ptr) {
-		QString type(arg.st.name());
-		type = type.trimmed();
-		if (!type.endsWith('*')) {  // a real pointer type, so a simple void* will do
-			type.remove('&');
-			const char* className = (const char*) type.toLatin1();
-			Smoke::ModuleIndex ci = qt_Smoke->findClass(className);
-			if (ci.index) {
-				Smoke::ModuleIndex mi = ci.smoke->findMethod(className, className);
-				if (mi.index) {
-					Smoke::Class& c = ci.smoke->classes[ci.index];
-					Smoke::Method& meth = mi.smoke->methods[mi.smoke->methodMaps[mi.index].method];
-					Smoke::StackItem _stack[1];
-					c.classFn(meth.method, 0, _stack);
-					o[0] = _stack[0].s_voidp;
-				}
-			}
-		}
-	} else if (arg.argType == xmoc_QString) {
-		o[0] = new QString;
-	} else if (arg.argType != xmoc_void) {
-		o[0] = &stack[0];
-	}
-}
-
 MethodReturnValueBase::MethodReturnValueBase(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack) :
 	_smoke(smoke), _method(meth), _stack(stack) 
 { 
@@ -669,6 +640,32 @@ SigSlotBase::next()
 
 	mainfunction();
 	_cur = oldcur;
+}
+
+void 
+SigSlotBase::prepareReturnValue(void** o)
+{
+	if (_args[0]->argType == xmoc_ptr) {
+		QByteArray type(_args[0]->st.name());
+		if (!type.endsWith('*')) {  // a real pointer type, so a simple void* will do
+			if (type.endsWith('&')) {
+				type.resize(type.size() - 1);
+			}
+			Smoke::ModuleIndex ci = qt_Smoke->findClass(type);
+			if (ci.index != 0) {
+				Smoke::ModuleIndex mi = ci.smoke->findMethod(type, type);
+				if (mi.index) {
+					Smoke::Class& c = ci.smoke->classes[ci.index];
+					Smoke::Method& meth = mi.smoke->methods[mi.smoke->methodMaps[mi.index].method];
+					Smoke::StackItem _stack[1];
+					c.classFn(meth.method, 0, _stack);
+					o[0] = _stack[0].s_voidp;
+				}
+			}
+		}
+	} else if (_args[0]->argType == xmoc_QString) {
+		o[0] = new QString;
+	}
 }
 
 /*
