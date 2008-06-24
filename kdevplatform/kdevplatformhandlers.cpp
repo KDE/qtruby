@@ -21,7 +21,6 @@
 #include <smokeruby.h>
 #include <marshall_macros.h>
 
-#include <kdevplatform/editor/documentrange.h>
 #include <kdevplatform/interfaces/idocument.h>
 #include <kdevplatform/interfaces/ilanguage.h>
 #include <kdevplatform/interfaces/iplugin.h>
