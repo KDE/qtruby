@@ -24,46 +24,21 @@
 
 require 'plasma_applet'
 require 'analog_clock_config.rb'
-
-class Plasma::AppletScript
-  def config
-    applet.config
-  end
-
-  def showConfigurationInterface
-    if @applet_script.respond_to?(:createConfigurationInterface)
-      dialogId = "#{applet.id}settings#{applet.name}"
-      nullManager = KDE::ConfigSkeleton.new(nil)
-      dialog = KDE::ConfigDialog(nil, dialogId, nullManager)
-      dialog.faceType = KDE::PageDialog::Auto
-      dialog.windowTitle = applet.windowTitle
-      dialog.setAttribute(Qt::WA_DeleteOnClose, true)
-      @applet_script.createConfigurationInterface(dialog)
-      # TODO: would be nice to not show dialog if there are no pages added?
-      connect(dialog, SIGNAL(:finished), nullManager, SLOT(:deleteLater))
-      dialog.show
-      dialog.enableButtonApply(true)
-    else
-      @applet_script.showConfigurationInterface
-    end
-  end
-end
-
-class PlasmaScripting::Applet
-  def config
-    applet_script.config
-  end
-end
+require 'calendar'
 
 module PlasmaRubyAnalogClock
 
-class Clock < PlasmaScripting::Applet
+class Clock < Plasma::Containment
 
-  slots :moveSecondHand, :configAccepted
+  slots :moveSecondHand, :configAccepted, 
+        'showCalendar(QGraphicsSceneMouseEvent *)',
+        'dataUpdated(QString, Plasma::DataEngine::Data)'
 
   def initialize(parent, args)
     super
-#    setHasConfigurationInterface(true)
+    KDE::Global.locale.insertCatalog("libplasmaclock")
+
+    setHasConfigurationInterface(true)
     resize(125, 125)
     setAspectRatioMode(Plasma::Square)
 
@@ -76,15 +51,19 @@ class Clock < PlasmaScripting::Applet
     @showTimeString = false
     @showSecondHand = false
     @ui = Ui::AnalogClockConfig.new
+    @calendarUi = Ui::Calendar.new
+
     @lastTimeSeen = Qt::Time.new
+    @calendar = 0
+    @time = Qt::Time.new
   end
 
   def init
     cg = config()
-    @showTimeString = cg.readEntry("showTimeString", Qt::Variant.new(false)).value
-    @showSecondHand = cg.readEntry("showSecondHand", Qt::Variant.new(false)).value
-    @fancyHands = cg.readEntry("fancyHands", Qt::Variant.new(false)).value
-    @timezone = cg.readEntry("timezone", Qt::Variant.new("Local")).value
+    @showTimeString = cg.readEntry("showTimeString", false)
+    @showSecondHand = cg.readEntry("showSecondHand", false)
+    @fancyHands = cg.readEntry("fancyHands", false)
+    @timezone = cg.readEntry("timezone", "Local")
 
     connectToEngine()
   end
@@ -113,6 +92,7 @@ class Clock < PlasmaScripting::Applet
 
   def dataUpdated(source, data)
     @time = data["Time"].toTime()
+return
     if @time.minute == @lastTimeSeen.minute &&
       @time.second == @lastTimeSeen.second
       # avoid unnecessary repaints
@@ -148,27 +128,27 @@ class Clock < PlasmaScripting::Applet
     @showTimeString = @ui.showTimeStringCheckBox.checked?
     @showSecondHand = @ui.showSecondHandCheckBox.checked?
 
-    cg.writeEntry("showTimeString", Qt::Variant.new(@showTimeString))
-    cg.writeEntry("showSecondHand", Qt::Variant.new(@showSecondHand))
+    cg.writeEntry("showTimeString", @showTimeString)
+    cg.writeEntry("showSecondHand", @showSecondHand)
     update()
     tzs = @ui.timeZones.selection
 
     if @ui.localTimeZone.checkState == Qt::Checked
       dataEngine("time").disconnectSource(@timezone, self)
       @timezone = "Local"
-      cg.writeEntry("timezone", Qt::Variant.new(@timezone))
+      cg.writeEntry("timezone", @timezone)
     elsif tzs.length > 0
       # TODO: support multiple timezones
       tz = tzs[0]
       if tz != @timezone
           dataEngine("time").disconnectSource(@timezone, self)
           @timezone = tz;
-          cg.writeEntry("timezone", Qt::Variant.new(@timezone))
+          cg.writeEntry("timezone", @timezone)
       end
     elsif @timezone != "Local"
       dataEngine("time").disconnectSource(@timezone, self)
       @timezone = "Local"
-      cg.writeEntry("timezone", Qt::Variant.new(@timezone))
+      cg.writeEntry("timezone", @timezone)
     end
 
     connectToEngine
@@ -183,21 +163,18 @@ class Clock < PlasmaScripting::Applet
   def drawHand(p, rotation, handName)
     p.save
     boundSize = boundingRect.size
-    elementSize = @theme.elementSize(handName)
+    elementRect = @theme.elementRect(handName)
 
     p.translate(boundSize.width() / 2, boundSize.height() / 2)
     p.rotate(rotation)
-    p.translate(-elementSize.width() / 2, -elementSize.width())
-    @theme.paint(p, Qt::RectF.new(Qt::PointF.new(0.0, 0.0), Qt::SizeF.new(elementSize)), handName)
+    p.translate(-elementRect.width / 2, -(@theme.elementRect("clockFace").center.y - elementRect.top))
+    @theme.paint(p, Qt::RectF.new(Qt::PointF.new(0.0, 0.0), elementRect.size), handName)
     p.restore
   end
 
   def paintInterface(p, option, rect)
     tempRect = Qt::RectF.new(0, 0, 0, 0)
-
     boundSize = geometry.size
-    elementSize = Qt::Size.new
-
     p.renderHint = Qt::Painter::SmoothPixmapTransform
 
     minutes = 6.0 * @time.minute - 180
@@ -205,8 +182,31 @@ class Clock < PlasmaScripting::Applet
 
     @theme.paint(p, Qt::RectF.new(rect), "ClockFace")
 
-    drawHand(p, hours, "HourHand")
-    drawHand(p, minutes, "MinuteHand")
+    if @showTimeString
+      fm = Qt::FontMetrics.new(Qt::Application.font)
+      margin = 4
+      if @showSecondHand
+        # FIXME: temporary time output
+        time = @time.toString
+      else
+        time = @time.toString("hh:mm")
+      end
+      textRect = Qt::Rect.new((rect.width/2 - fm.width(time) / 2),((rect.height / 2) - fm.xHeight * 4),
+                  fm.width(time), fm.xHeight())
+
+      p.pen = Qt::NoPen
+      background = Plasma::Theme.defaultTheme.color(Plasma::Theme::BackgroundColor)
+      background.setAlphaF(0.5)
+      p.brush = Qt::Brush.new(background)
+
+      p.setRenderHint(Qt::Painter::Antialiasing, true)
+      p.drawPath(Plasma.roundedRectangle(Qt::RectF.new(textRect.adjusted(-margin, -margin, margin, margin)), margin))
+      p.setRenderHint(Qt::Painter::Antialiasing, false)
+
+      p.pen = Plasma::Theme::defaultTheme.color(Plasma::Theme::TextColor)
+        
+      p.drawText(textRect.bottomLeft, time)
+    end
 
     # Make sure we paint the second hand on top of the others
     if @showSecondHand
@@ -241,35 +241,66 @@ class Clock < PlasmaScripting::Applet
           end
         end
       end
+    end
 
-      drawHand(p, seconds, "SecondHand");
+    if @theme.hasElement("HourHandShadow")
+        p.translate(1,3)
+
+        drawHand(p, hours, "HourHandShadow")
+        drawHand(p, minutes, "MinuteHandShadow")
+
+        if @showSecondHand
+            drawHand(p, seconds, "SecondHandShadow")
+        end
+
+        p.translate(-1,-3);
+    end
+
+    drawHand(p, hours, "HourHand")
+    drawHand(p, minutes, "MinuteHand")
+
+    if @showSecondHand
+        drawHand(p, seconds, "SecondHand")
     end
 
     p.save
     @theme.resize(boundSize)
-    elementSize = @theme.elementSize("HandCenterScrew")
-    tempRect.setSize(Qt::SizeF.new(elementSize))
-    p.translate(boundSize.width() / 2 - elementSize.width() / 2, boundSize.height() / 2 - elementSize.height() / 2)
+    elementSize = Qt::SizeF.new(@theme.elementSize("HandCenterScrew"))
+
+    tempRect.size = elementSize
+    p.translate(boundSize.width / 2.0 - elementSize.width / 2.0, boundSize.height / 2.0 - elementSize.height / 2.0)
     @theme.paint(p, tempRect, "HandCenterScrew")
     p.restore
 
-    if @showTimeString
-      if @showSecondHand
-        # FIXME: temporary time output
-        time = @time.toString
-        fm = Qt::FontMetrics.new(Qt::Application.font)
-        p.drawText((rect.width/2 - fm.width(time) / 2),
-                  ((rect.height/2) - fm.xHeight*3), @time.toString)
-      else
-        time = @time.toString("hh:mm")
-        fm = Qt::FontMetrics.new(Qt::Application.font)
-        p.drawText((rect.width/2 - fm.width(time) / 2),
-                  ((rect.height/2) - fm.xHeight*3), @time.toString("hh:mm"))
-      end
-    end
-
     @theme.paint(p, Qt::RectF.new(rect), "Glass")
   end
+
+  def mousePressEvent(event)
+    if event.buttons == Qt::LeftButton
+      showCalendar(event)
+    else
+      event.ignore
+    end
+  end
+
+  def showCalendar(event)
+    if @calendar == 0
+      @calendar = Plasma::Dialog.new
+      @calendarUi.setupUi(@calendar)
+      @calendar.setWindowFlags(Qt::Popup)
+      @calendar.adjustSize
+    end
+
+    if @calendar.visible?
+      @calendar.hide
+    else
+      data = dataEngine("time").query(@timezone)
+      @calendarUi.kdatepicker.date = data["Date"].toDate
+      @calendar.move(popupPosition(@calendar.sizeHint))
+      @calendar.show
+    end
+  end
+
 end
 
 end

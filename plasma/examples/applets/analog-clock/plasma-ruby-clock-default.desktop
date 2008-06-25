@@ -22,7 +22,8 @@ Comment[sv]=En klocka med SVG-teman
 Comment[xx]=xxAn SVG themable clockxx
 Icon=chronometer
 Type=Service
-ServiceTypes=Plasma/Applet
+X-KDE-ServiceTypes=Plasma/Applet,Plasma/Containment
+
 X-KDE-Library=krubypluginfactory
 X-KDE-PluginKeyword=plasma_ruby_analog_clock/clock.rb
 X-KDE-PluginInfo-Author=The Plasma Team
