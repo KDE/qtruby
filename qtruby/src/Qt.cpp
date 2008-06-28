@@ -252,9 +252,10 @@ QtRubySmokeBinding::callMethod(Smoke::Index method, void *ptr, Smoke::Stack args
 		if (meth.flags & Smoke::mf_const) {
 			signature += " const";
 		}
-			qWarning(	"virtual %p->%s::%s called", 
-				ptr,
-						smoke->classes[smoke->methods[method].classId].className,
+		qWarning(	"module: %s virtual %p->%s::%s called", 
+					smoke->moduleName(),
+					ptr,
+					smoke->classes[smoke->methods[method].classId].className,
 					(const char *) signature );
 	}
 
