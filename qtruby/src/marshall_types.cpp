@@ -19,6 +19,7 @@
 #include "marshall_types.h"
 #include <rubysig.h>
 #include <smoke/qt_smoke.h>
+#include <QtDBus>
 
 static bool qtruby_embedded = false;
 
@@ -647,19 +648,32 @@ SigSlotBase::prepareReturnValue(void** o)
 {
 	if (_args[0]->argType == xmoc_ptr) {
 		QByteArray type(_args[0]->st.name());
+		type.replace("const ", "");
 		if (!type.endsWith('*')) {  // a real pointer type, so a simple void* will do
 			if (type.endsWith('&')) {
 				type.resize(type.size() - 1);
 			}
-			Smoke::ModuleIndex ci = qt_Smoke->findClass(type);
-			if (ci.index != 0) {
-				Smoke::ModuleIndex mi = ci.smoke->findMethod(type, type);
-				if (mi.index) {
-					Smoke::Class& c = ci.smoke->classes[ci.index];
-					Smoke::Method& meth = mi.smoke->methods[mi.smoke->methodMaps[mi.index].method];
-					Smoke::StackItem _stack[1];
-					c.classFn(meth.method, 0, _stack);
-					o[0] = _stack[0].s_voidp;
+			if (type.startsWith("QList")) {
+				o[0] = new QList<void*>;
+			} else if (type.startsWith("QVector")) {
+				o[0] = new QVector<void*>;
+			} else if (type.startsWith("QHash")) {
+				o[0] = new QHash<void*, void*>;
+			} else if (type.startsWith("QMap")) {
+				o[0] = new QMap<void*, void*>;
+			} else if (type == "QDBusVariant") {
+				o[0] = new QDBusVariant;
+			} else {
+				Smoke::ModuleIndex ci = qt_Smoke->findClass(type);
+				if (ci.index != 0) {
+					Smoke::ModuleIndex mi = ci.smoke->findMethod(type, type);
+					if (mi.index) {
+						Smoke::Class& c = ci.smoke->classes[ci.index];
+						Smoke::Method& meth = mi.smoke->methods[mi.smoke->methodMaps[mi.index].method];
+						Smoke::StackItem _stack[1];
+						c.classFn(meth.method, 0, _stack);
+						o[0] = _stack[0].s_voidp;
+					}
 				}
 			}
 		}
@@ -684,14 +698,22 @@ public:
 		_stack = new Smoke::StackItem[1];
 		Marshall::HandlerFn fn = getMarshallFn(type());
 		(*fn)(this);
-		// Save any address in zeroth element of the arrary of 'void*'s passed to 
-		// qt_metacall()
-		void * ptr = o[0];
-		smokeStackToQtStack(_stack, o, 0, 1, _replyType);
-		// Only if the zeroth element of the array of 'void*'s passed to qt_metacall()
-		// contains an address, is the return value of the slot needed.
-		if (ptr != 0) {
-			*(void**)ptr = *(void**)(o[0]);
+		
+		QByteArray t(type().name());
+		t.replace("const ", "");
+		t.replace("&", "");
+		if (t == "QDBusVariant") {
+			*reinterpret_cast<QDBusVariant*>(o[0]) = *(QDBusVariant*) _stack[0].s_class;
+		} else {
+			// Save any address in zeroth element of the arrary of 'void*'s passed to 
+			// qt_metacall()
+			void * ptr = o[0];
+			smokeStackToQtStack(_stack, o, 0, 1, _replyType);
+			// Only if the zeroth element of the array of 'void*'s passed to qt_metacall()
+			// contains an address, is the return value of the slot needed.
+			if (ptr != 0) {
+				*(void**)ptr = *(void**)(o[0]);
+			}
 		}
     }
 

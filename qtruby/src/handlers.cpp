@@ -1001,6 +1001,7 @@ void marshall_QDBusVariant(Marshall *m) {
 		}
 		
 		*(m->var()) = obj;
+		break;
 	}
 	
 	default:
@@ -2251,6 +2252,8 @@ Q_DECL_EXPORT TypeHandler Qt_handlers[] = {
     { "QwtValueList", marshall_QListqreal },
     { "QwtValueList&", marshall_QListqreal },
     { "QList<double>&", marshall_QListqreal },
+    { "QList<QObject*>", marshall_QObjectList },
+    { "QList<QObject*>&", marshall_QObjectList },
     { "QList<QTableWidgetItem*>", marshall_QTableWidgetItemList },
     { "QList<QTableWidgetItem*>&", marshall_QTableWidgetItemList },
     { "QList<QTableWidgetSelectionRange>", marshall_QTableWidgetSelectionRangeList },

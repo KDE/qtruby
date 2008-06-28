@@ -1,3 +1,14 @@
+2008-06-28  Arno Rehn  <arno@arnorehn.de>
+
+	* Special case QDBusVariants in SlotReturnValue and make it behave
+	  like the moc. This makes the complexpingpong example work.
+	  Maybe more things need to be special cased, like in
+	  SigSlotBase::prepareReturnValue().
+	* Add special cases for lists and maps to
+	  SigSlotBase::prepareReturnValue().
+	* Add 'QList<QObject*>' to the handlers array.
+	* Small fixes to complexping.rb.
+
 2008-06-23  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Change prepareQtReturnType from a standalone function to a method

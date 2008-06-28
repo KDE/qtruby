@@ -57,7 +57,7 @@ class Ping < Qt::Object
                     puts("value = %s" % reply)
                 end
             elsif line =~ /^value=/
-                iface.value = line[6, line.length]
+                iface.setValue Qt::Variant.new(line[6, line.length])
             else
                 reply = Qt::DBusReply.new(iface.call("query", Qt::Variant.new(line)))
                 if reply.valid?
@@ -87,6 +87,6 @@ ping.connect(Qt::DBusConnection.sessionBus.interface,
              SLOT('start(QString,QString,QString)'))
 
 pong = Qt::Process.new
-pong.start("./complexpong.rb")
+pong.start("ruby ./complexpong.rb")
 
 app.exec
