@@ -1,8 +1,8 @@
 require 'plasma_applet'
 
-module RubyScriptEngine
+module RubyAppletScript
   class PackageRuboid < Plasma::PackageStructure
-    def initialize(parent = nil)
+    def initialize(parent, args)
       super(parent, "Ruboid")
       addDirectoryDefinition("images", "images", KDE::i18n("Images"))
       mimetypes = []

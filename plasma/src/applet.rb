@@ -1,9 +1,9 @@
 require 'plasma_applet'
 
-module RubyScriptEngine
+module RubyAppletScript
   class Applet < Plasma::AppletScript
-    def initialize(parent = nil)
-      super
+    def initialize(parent, args)
+      super(parent)
     end
 
     def camelize(str)
@@ -12,14 +12,16 @@ module RubyScriptEngine
 
     def init
       applet.resize(200, 200)
-      puts "Applet.init mainScript: #{mainScript}"
+      puts "RubyAppletScript::Applet#init mainScript: #{mainScript}"
       program = Qt::FileInfo.new(mainScript)
       load Qt::File.encodeName(program.filePath).to_s
       moduleName = camelize(package.metadata.name)
       className = camelize(program.baseName)
-      puts "Applet.init instantiating: #{moduleName}::#{className}"
+      puts "RubyAppletScript::Applet#init instantiating: #{moduleName}::#{className}"
       klass = Object.const_get(moduleName.to_sym).const_get(className.to_sym)
       @applet_script = klass.new(self)
+      @applet_script.init
+      return true
     end
 
     def paintInterface(painter, option, contentsRect)

@@ -1,0 +1,4 @@
+2008-06-28  Richard Dale  <richard.j.dale@gmail.com>
+
+* Make the Ruby ScriptEngine based plugins work
+* Add a Ruby version of the Javascript Tiger applet

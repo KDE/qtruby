@@ -17,6 +17,8 @@
  ***************************************************************************/
 =end
 
+require 'qtwebkit'
+
 module Plasma
 
   module Internal
@@ -70,6 +72,7 @@ module PlasmaScripting
 
     def initialize(parent, args = nil)
       super(parent)
+      @applet_script = parent
     end
 
     def paintInterface(painter, option, contentsRect)
