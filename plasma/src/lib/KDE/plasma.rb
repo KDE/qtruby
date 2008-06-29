@@ -75,11 +75,25 @@ module PlasmaScripting
       @applet_script = parent
     end
 
+    # If a method is called on a PlasmaScripting::Applet instance is found to be missing
+    # then try calling the method on the underlying Plasma::Applet in the ScriptEngine.
+    def method_missing(method, *args)
+      begin
+        super(method, *args)
+      rescue
+        applet_script.applet.method_missing(method, *args)
+      end
+    end
+
     def paintInterface(painter, option, contentsRect)
     end
 
     def size
       @applet_script.size
+    end
+
+    def shape
+      @applet_script.shape
     end
 
     def constraintsEvent(constraints)
@@ -103,6 +117,7 @@ module PlasmaScripting
 
   class DataEngine < Qt::Object
     def initialize(parent, args)
+      super(parent)
     end
 
     def sourceRequestEvent(name)

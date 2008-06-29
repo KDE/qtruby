@@ -1,4 +1,12 @@
-2008-06-28  Richard Dale  <richard.j.dale@gmail.com>
+2008-06-29  Richard Dale  <richard.j.dale@gmail.com>
+* If a method call is invoked on a PlasmaScripting::Applet, then relay it to
+  the underlying Plasma::Applet in the script engine.
+* Add an event filter to the RubyAppletScript::Applet class so that scripting
+  applets can implement event method handling overrides.
+* Change various methods in the QGraphicsView and Plasma api so that they can
+  accept instances of PlasmaScripting::Applet, and the instance is substituted
+  for the underlying Plasma::Applet in the ScriptEngine.
 
+2008-06-28  Richard Dale  <richard.j.dale@gmail.com>
 * Make the Ruby ScriptEngine based plugins work
 * Add a Ruby version of the Javascript Tiger applet
