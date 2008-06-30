@@ -529,8 +529,7 @@ MethodCall::MethodCall(Smoke *smoke, Smoke::Index method, VALUE target, VALUE *s
 	if (_target != Qnil) {
 		smokeruby_object *o = value_obj_info(_target);
 		if (o != 0 && o->ptr != 0) {
-			_current_object = o->ptr;
-			_current_object_class = o->classId;
+			_current_object = o;
 		}
 	}
 

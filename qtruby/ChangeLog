@@ -6,6 +6,12 @@
 	  the same smoke module as the type of the instance. For instance,
 	  an instance of type Plasma::Applet wasn't being correctly cast
 	  to a QGraphicsLayoutItem, which caused a crash.
+	* Fixed a similar bug to the above description, but for where the target
+	  of a method call was being cast to the correct class. For instance,
+	  a call of parentWidget() on a Plasma::Applet() needed the correct cast
+	  to a QWidget for it to work. This fixes the strange error messages in
+	  Plasma applets like the clock, about zero pixmap sizes and QPainter
+	  problems.
 
 2008-06-28  Arno Rehn  <arno@arnorehn.de>
 

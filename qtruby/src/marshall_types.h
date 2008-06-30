@@ -144,7 +144,18 @@ public:
 		}
 	
 		Smoke::ClassFn fn = _smoke->classes[method().classId].classFn;
-		void *ptr = _smoke->cast(_current_object, _current_object_class, method().classId);
+
+	
+		void * ptr = 0;
+
+		if (_current_object != 0) {
+			const Smoke::Class &cl = _smoke->classes[method().classId];
+
+			ptr = _current_object->smoke->cast(	_current_object->ptr,
+												_current_object->classId,
+												_current_object->smoke->idClass(cl.className, true).index );
+		}
+
 		_items = -1;
 		(*fn)(method().method, ptr, _stack);
 		MethodReturnValue r(_smoke, _method, _stack, &_retval);
@@ -154,8 +165,7 @@ public:
 	bool cleanup();
 private:
 	VALUE _target;
-	void *_current_object;
-	Smoke::Index _current_object_class;
+	smokeruby_object * _current_object;
 	VALUE *_sp;
 	int _items;
 	VALUE _retval;
