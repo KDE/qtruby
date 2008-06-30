@@ -524,12 +524,12 @@ VirtualMethodCall::cleanup()
 }
 
 MethodCall::MethodCall(Smoke *smoke, Smoke::Index method, VALUE target, VALUE *sp, int items) :
-	MethodCallBase(smoke,method), _target(target), _current_object(0), _sp(sp), _items(items)
+	MethodCallBase(smoke,method), _target(target), _o(0), _sp(sp), _items(items)
 {
 	if (_target != Qnil) {
 		smokeruby_object *o = value_obj_info(_target);
 		if (o != 0 && o->ptr != 0) {
-			_current_object = o;
+			_o = o;
 		}
 	}
 

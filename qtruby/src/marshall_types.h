@@ -148,12 +148,12 @@ public:
 	
 		void * ptr = 0;
 
-		if (_current_object != 0) {
+		if (_o != 0) {
 			const Smoke::Class &cl = _smoke->classes[method().classId];
 
-			ptr = _current_object->smoke->cast(	_current_object->ptr,
-												_current_object->classId,
-												_current_object->smoke->idClass(cl.className, true).index );
+			ptr = _o->smoke->cast(	_o->ptr,
+									_o->classId,
+									_o->smoke->idClass(cl.className, true).index );
 		}
 
 		_items = -1;
@@ -165,7 +165,7 @@ public:
 	bool cleanup();
 private:
 	VALUE _target;
-	smokeruby_object * _current_object;
+	smokeruby_object * _o;
 	VALUE *_sp;
 	int _items;
 	VALUE _retval;
