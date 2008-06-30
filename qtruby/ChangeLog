@@ -1,3 +1,12 @@
+2008-06-30  Richard Dale  <richard.j.dale@gmail.com>
+
+	* When a ruby value was marshalled to C++, and the actual type of
+	  the C++ instance was cast to the type of the return value, it
+	  was working correctly if the target type for the cast wasn't in
+	  the same smoke module as the type of the instance. For instance,
+	  an instance of type Plasma::Applet wasn't being correctly cast
+	  to a QGraphicsLayoutItem, which caused a crash.
+
 2008-06-28  Arno Rehn  <arno@arnorehn.de>
 
 	* Special case QDBusVariants in SlotReturnValue and make it behave

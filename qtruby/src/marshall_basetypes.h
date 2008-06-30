@@ -119,9 +119,9 @@ void marshall_from_ruby<SmokeClassWrapper>(Marshall *m)
 	ptr = o->smoke->cast(
 		ptr,				// pointer
 		o->classId,				// from
-		o->smoke->idClass(cl.className).index	// to
+		o->smoke->idClass(cl.className, true).index	// to
 		);
-				
+
 	m->item().s_class = ptr;
 	return;
 }
