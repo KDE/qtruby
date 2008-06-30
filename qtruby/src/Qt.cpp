@@ -1170,7 +1170,7 @@ smoke2kross(VALUE /* self*/, VALUE sobj)
 VALUE
 qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 {
-	char * classname = rb_class2name(variant_value_klass);
+	const char * classname = rb_class2name(variant_value_klass);
     smokeruby_object *o = value_obj_info(variant_value);
 	if (o == 0 || o->ptr == 0) {
 		return Qnil;
@@ -1287,7 +1287,7 @@ qvariant_from_value(int argc, VALUE * argv, VALUE self)
 		}
 	}
 
-	char * classname = rb_obj_classname(argv[0]);
+	const char * classname = rb_obj_classname(argv[0]);
     smokeruby_object *o = value_obj_info(argv[0]);
 	if (o == 0 || o->ptr == 0) {
 		// Assume the Qt::Variant can be created with a
@@ -1350,7 +1350,7 @@ qvariant_from_value(int argc, VALUE * argv, VALUE self)
 const char *
 get_VALUEtype(VALUE ruby_value)
 {
-	char * classname = rb_obj_classname(ruby_value);
+	const char * classname = rb_obj_classname(ruby_value);
 	const char *r = "";
 	if (ruby_value == Qnil)
 		r = "u";
