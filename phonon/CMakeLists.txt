@@ -1,5 +1,3 @@
-find_package(Phonon REQUIRED)
-
 include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src)
 
 set(rubyphonon_LIBRARY_SRC phonon.cpp phononhandlers.cpp)
