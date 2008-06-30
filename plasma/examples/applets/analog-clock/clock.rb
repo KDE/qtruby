@@ -92,7 +92,6 @@ class Clock < Plasma::Containment
 
   def dataUpdated(source, data)
     @time = data["Time"].toTime()
-return
     if @time.minute == @lastTimeSeen.minute &&
       @time.second == @lastTimeSeen.second
       # avoid unnecessary repaints
