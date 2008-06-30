@@ -32,6 +32,7 @@ module RubyAppletScript
     def init
       puts "RubyAppletScript::DataEngine#init mainScript: #{mainScript}"
       program = Qt::FileInfo.new(mainScript)
+      $: << program.path
       load Qt::File.encodeName(program.filePath).to_s
       moduleName = camelize(package.metadata.name)
       className = camelize(program.baseName)
