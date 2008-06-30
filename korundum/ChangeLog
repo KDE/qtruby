@@ -1,3 +1,8 @@
+2008-06-30  Richard Dale  <richard.j.dale@gmail.com>
+
+	* In krubypluginfactory only call ruby_init_loadpath() once as otherwise
+	  the same paths get added everytime a new plugin is loaded.
+
 2008-06-22  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Add more ruby friendly versions of KDE::ConfigGroup.readEntry() and

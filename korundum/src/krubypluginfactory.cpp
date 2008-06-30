@@ -30,6 +30,10 @@
 #include <klibloader.h>
 #include <kdebug.h>
 
+extern "C" {
+extern VALUE rb_load_path;
+}
+
 /*
     Duplicate the definition of this struct, to avoid linking directly
     against the QtRuby libs
@@ -130,9 +134,18 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
 #ifdef RUBY_INIT_STACK
     RUBY_INIT_STACK
 #endif
+
+    bool firstTime = (rb_load_path == 0);
+
     ruby_init();
     ruby_script(QFile::encodeName(program.fileName()));
-    ruby_init_loadpath();
+
+    // If ruby_init_loadpath() is called more than once, it keeps
+    // adding the same standard directories to it.
+    if (firstTime) {
+        ruby_init_loadpath();
+    }
+
     ruby_incpush(QFile::encodeName(program.path()));
 
     int state = 0;
