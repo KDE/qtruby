@@ -360,6 +360,8 @@ TypeHandler KDE_handlers[] = {
     { "KSharedConfig::Ptr&", marshall_KSharedConfigPtr },
     { "KSharedConfigPtr", marshall_KSharedConfigPtr },
     { "KSharedConfigPtr&", marshall_KSharedConfigPtr },
+    { "KSharedPtr<KSharedConfig>", marshall_KSharedConfigPtr },
+    { "KSharedPtr<KSharedConfig>&", marshall_KSharedConfigPtr },
     { "KUrl::List", marshall_KUrlList },
     { "KUrl::List&", marshall_KUrlList },
     { "KUrlList", marshall_KUrlList },
