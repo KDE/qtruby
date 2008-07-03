@@ -19,7 +19,7 @@
 
 require 'plasma_applet'
 
-module RubyAppletScript
+module PlasmaScriptengineRuby
   class Applet < Plasma::AppletScript
     def initialize(parent, args)
       super(parent)

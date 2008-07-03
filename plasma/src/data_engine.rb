@@ -19,7 +19,7 @@
 
 require 'plasma_applet'
 
-module RubyAppletScript
+module PlasmaScriptengineRuby
   class DataEngine < Plasma::DataEngineScript
     def initialize(parent, args)
       super(parent)

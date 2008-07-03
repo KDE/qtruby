@@ -19,7 +19,7 @@
 
 require 'plasma_applet'
 
-module RubyAppletScript
+module PlasmaScriptengineRuby
   class PackageRuboid < Plasma::PackageStructure
     def initialize(parent, args)
       super(parent, "Ruboid")
