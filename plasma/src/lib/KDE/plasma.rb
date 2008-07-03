@@ -68,11 +68,28 @@ end
 
 module PlasmaScripting
   class Applet < Qt::Object
+	slots	"setImmutability(Plasma::ImmutabilityType)",
+            :destroy,
+            :showConfigurationInterface,
+            :raise,
+            :lower,
+            :flushPendingConstraintsEvents,
+            :init
+
+    signals	:releaseVisualFocus,
+            :geometryChanged,
+            :configNeedsSaving,
+            :activate
+
     attr_accessor :applet_script
 
     def initialize(parent, args = nil)
       super(parent)
       @applet_script = parent
+      connect(@applet_script.applet, SIGNAL(:releaseVisualFocus), self, SIGNAL(:releaseVisualFocus))
+      connect(@applet_script.applet, SIGNAL(:geometryChanged), self, SIGNAL(:geometryChanged))
+      connect(@applet_script.applet, SIGNAL(:configNeedsSaving), self, SIGNAL(:configNeedsSaving))
+      connect(@applet_script.applet, SIGNAL(:activate), self, SIGNAL(:activate))
     end
 
     # If a method is called on a PlasmaScripting::Applet instance is found to be missing
@@ -113,11 +130,42 @@ module PlasmaScripting
     def package
       @applet_script.package
     end
+
+	def setImmutability(immutabilityType)
+      @applet_script.applet.setImmutability(immutabilityType)
+    end
+
+	def immutability=(immutabilityType)
+      setImmutability(immutabilityType)
+    end
+
+    def destroy
+      @applet_script.applet.destroy
+    end
+
+    def raise
+      @applet_script.applet.raise
+    end
+
+    def lower
+      @applet_script.applet.lower
+    end
+
+    def flushPendingConstraintsEvents
+      @applet_script.applet.flushPendingConstraintsEvents
+    end
   end
 
   class DataEngine < Qt::Object
-    def initialize(parent, args)
+    signals "sourceAdded(QString)", "sourceRemoved(QString)"
+
+    attr_accessor :data_engine_script
+
+    def initialize(parent, args = nil)
       super(parent)
+      @data_engine_script = parent
+      connect(@data_engine_script.dataEngine, SIGNAL("sourceAdded(QString)"), self, SIGNAL("sourceAdded(QString)"))
+      connect(@data_engine_script.dataEngine, SIGNAL("sourceRemoved(QString)"), self, SIGNAL("sourceRemoved(QString)"))
     end
 
     def sourceRequestEvent(name)

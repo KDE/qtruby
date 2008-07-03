@@ -1,3 +1,7 @@
+2008-07-03  Richard Dale  <richard.j.dale@gmail.com>
+* Add slots and signals for scripting applets and data engines corresponding
+  to the ones in Plasma::Applet and Plasma::DataEngine
+
 2008-06-30  Richard Dale  <richard.j.dale@gmail.com>
 * For script engine based applets, add the directory where the mainScript was
   found to the ruby load path.
