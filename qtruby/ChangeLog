@@ -1,3 +1,9 @@
+2008-07-03  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Fixed bug in the rbuic4 tool where a QPixmap constructor was not being
+	  converted to ruby correctly. Thanks to Henrik Tikanvaara for reporting
+	  the error.
+
 2008-06-30  Richard Dale  <richard.j.dale@gmail.com>
 
 	* When a ruby value was marshalled to C++, and the actual type of

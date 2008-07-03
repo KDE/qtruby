@@ -1921,11 +1921,11 @@ QString WriteInitialization::pixCall(const DomProperty *p) const
     QString type, s;
     switch (p->kind()) {
     case DomProperty::IconSet:
-        type = QLatin1String("QIcon");
+        type = QLatin1String("Qt::Icon.new");
         s = p->elementIconSet()->text();
         break;
     case DomProperty::Pixmap:
-        type = QLatin1String("QPixmap");
+        type = QLatin1String("Qt::Pixmap.new");
         s = p->elementPixmap()->text();
         break;
     default:
