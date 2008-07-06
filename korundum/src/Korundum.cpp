@@ -64,6 +64,34 @@ extern "C" {
 VALUE kconfigskeleton_class;
 }
 
+/*
+ * In C++ a KConfigSkeleton instance can be constructed with 'new KConfigSkeleton(0)',
+ * and the KConfigSkeleton(KSharedConfig::Ptr) constructor is invoked. In Ruby it 
+ * isn't possible to tell whether this constructor or the one with a QString arg is
+ * needed. So special case a KDE::ConfigSkeleton.new(nil) call here.
+ */
+static VALUE
+config_initialize(int argc, VALUE * argv, VALUE self)
+{
+	if (argc == 1 && argv[0] == Qnil) {
+		KConfigSkeleton * ptr = new KConfigSkeleton(0);
+		Smoke::ModuleIndex mi = qt_Smoke->findClass("KConfigSkeleton");
+		smokeruby_object  * o = alloc_smokeruby_object(	true, 
+														mi.smoke, 
+														mi.index, 
+														ptr );
+	
+		VALUE klass = rb_funcall(self, rb_intern("class"), 0);
+		VALUE result = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, o);
+		mapObject(result, result);
+		rb_throw("newqt", result);
+		/*NOTREACHED*/
+		return self;
+	} else {
+		return rb_call_super(argc, argv);
+	}
+}
+
 static VALUE
 config_additem(int argc, VALUE * argv, VALUE self)
 {
@@ -96,6 +124,7 @@ static void classCreated(const char* package, VALUE /*module*/, VALUE klass)
 	if (packageName == "KDE::ConfigSkeleton") {
 		kconfigskeleton_class = klass;
 		rb_define_method(klass, "addItem", (VALUE (*) (...)) config_additem, -1);
+		rb_define_method(klass, "initialize", (VALUE (*) (...)) config_initialize, -1);
 	}
 }
 
