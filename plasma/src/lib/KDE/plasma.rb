@@ -120,7 +120,23 @@ module PlasmaScripting
       return []
     end
 
+    def createConfigurationInterface(dialog)
+    end
+
     def showConfigurationInterface
+        dialogId = "#{applet.id}settings#{applet.name}"
+        windowTitle = KDE::i18nc("@title:window", "%s Settings" % applet.name)
+        @nullManager = KDE::ConfigSkeleton.new(nil)
+        dialog = KDE::ConfigDialog.new(nil, dialogId, @nullManager)
+        dialog.faceType = KDE::PageDialog::Auto
+        dialog.windowTitle = windowTitle
+        dialog.setAttribute(Qt::WA_DeleteOnClose, true)
+        createConfigurationInterface(dialog)
+        # TODO: would be nice to not show dialog if there are no pages added?
+        connect(dialog, SIGNAL(:finished), @nullManager, SLOT(:deleteLater))
+        # TODO: Apply button does not correctly work for now, so do not show it
+        dialog.showButton(KDE::Dialog::Apply, false)
+        dialog.show
     end
 
     def dataEngine(engine)

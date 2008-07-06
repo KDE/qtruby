@@ -60,24 +60,22 @@ module PlasmaScriptengineRuby
     end
 
     def showConfigurationInterface
-      if @applet_script.respond_to?(:createConfigurationInterface)
-        dialogId = "#{applet.id}settings#{applet.name}"
-        windowTitle = KDE::i18nc("@title:window", "%s Settings" % applet.name)
-        @nullManager = KDE::ConfigSkeleton.new(nil)
-        dialog = KDE::ConfigDialog.new(nil, dialogId, @nullManager)
-        dialog.faceType = KDE::PageDialog::Auto
-        dialog.windowTitle = windowTitle
-        dialog.setAttribute(Qt::WA_DeleteOnClose, true)
-        @applet_script.createConfigurationInterface(dialog)
-        # TODO: would be nice to not show dialog if there are no pages added?
-        connect(dialog, SIGNAL(:finished), @nullManager, SLOT(:deleteLater))
-        # TODO: Apply button does not correctly work for now, so do not show it
-        dialog.showButton(KDE::Dialog::Apply, false)
-        dialog.show
+      @applet_script.showConfigurationInterface
+    end
+
+    protected
+
+    def eventFilter(obj, event)
+      handler = @event_handlers[event.type.to_i]
+      if handler
+        @applet_script.send(handler, event)
+        return true
       else
-        @applet_script.showConfigurationInterface
+        return false
       end
     end
+
+    private
 
     def set_up_event_handlers
       @event_handlers = {}
@@ -160,16 +158,6 @@ module PlasmaScriptengineRuby
 
       if !@event_handlers.empty?
         applet.installEventFilter(self)
-      end
-    end
-
-    def eventFilter(obj, event)
-      handler = @event_handlers[event.type.to_i]
-      if handler
-        @applet_script.send(handler, event)
-        return true
-      else
-        return false
       end
     end
 
