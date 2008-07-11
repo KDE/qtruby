@@ -1,3 +1,7 @@
+2008-07-11  Cyrille Berger <cberger@cberger.net>
+
+	* Make it possible to call set_qtruby_embedded from ruby.
+
 2008-07-03  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Fixed bug in the rbuic4 tool where a QPixmap constructor was not being

@@ -1900,6 +1900,13 @@ set_application_terminated(VALUE /*self*/, VALUE yn)
 	return Qnil;
 }
 
+static VALUE
+set_qtruby_embedded_wrapped(VALUE /*self*/, VALUE yn)
+{
+  set_qtruby_embedded( yn == Qtrue );
+  return Qnil;
+}
+
 extern Q_DECL_EXPORT void
 Init_qtruby4()
 {
@@ -1982,6 +1989,8 @@ Init_qtruby4()
     rb_define_module_function(qt_internal_module, "cast_object_to", (VALUE (*) (...)) cast_object_to, 2);
     rb_define_module_function(qt_internal_module, "kross2smoke", (VALUE (*) (...)) kross2smoke, 2);
     rb_define_module_function(qt_internal_module, "smoke2kross", (VALUE (*) (...)) smoke2kross, 1);
+    rb_define_module_function(qt_internal_module, "set_qtruby_embedded", (VALUE (*) (...)) set_qtruby_embedded_wrapped, 1);
+    
     rb_define_module_function(qt_internal_module, "application_terminated=", (VALUE (*) (...)) set_application_terminated, 1);
     
 	rb_define_module_function(qt_module, "version", (VALUE (*) (...)) version, 0);
