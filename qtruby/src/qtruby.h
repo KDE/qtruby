@@ -50,10 +50,10 @@ public:
 };
 
 struct smokeruby_object {
+    void *ptr;
     bool allocated;
     Smoke *smoke;
     int classId;
-    void *ptr;
 };
 
 struct TypeHandler {

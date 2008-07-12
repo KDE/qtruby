@@ -964,11 +964,38 @@ static QRegExp * rx = 0;
 			QString staticType = (rx->indexIn(name) != -1 ? rx->cap(1) : "ptr");
 			if (staticType == "ptr") {
 				arg->argType = xmoc_ptr;
-				typeId = smoke->idType(name.constData());
+				QByteArray targetType = name;
+				typeId = smoke->idType(targetType.constData());
 				if (typeId == 0 && !name.contains('*')) {
-					name += "&";
-					typeId = smoke->idType(name.constData());
+					if (!name.contains("&")) {
+						targetType += "&";
+					}
+					typeId = smoke->idType(targetType.constData());
 				}
+
+				// This shouldn't be necessary because the type of the slot arg should always be in the 
+				// smoke module of the slot being invoked. However, that isn't true for a dataUpdated()
+				// slot in a PlasmaScripting::Applet
+				if (typeId == 0) {
+					QHash<Smoke*, QtRubyModule>::const_iterator it;
+					for (it = qtruby_modules.constBegin(); it != qtruby_modules.constEnd(); ++it) {
+						smoke = it.key();
+						targetType = name;
+						typeId = smoke->idType(targetType.constData());
+	
+						if (typeId == 0 && !name.contains('*')) {
+							if (!name.contains("&")) {
+								targetType += "&";
+							}
+
+							typeId = smoke->idType(targetType.constData());
+	
+							if (typeId != 0) {
+								break;
+							}
+						}
+					}
+				}			
 			} else if (staticType == "bool") {
 				arg->argType = xmoc_bool;
 				typeId = smoke->idType(name.constData());
