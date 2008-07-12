@@ -1,3 +1,8 @@
+2008-07-12  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Change the layout of the smokeruby_object struct in kpluginfactory to
+	  match the new layout in QtRuby.
+
 2008-06-30  Richard Dale  <richard.j.dale@gmail.com>
 
 	* In krubypluginfactory only call ruby_init_loadpath() once as otherwise
