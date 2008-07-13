@@ -34,7 +34,7 @@ class WebApplet < Plasma::Applet
         'load(QUrl)',
         'setHtml(QByteArray)',
         'loadHtml(QUrl)',
-        'loadDone(bool)'
+        'loadFinished(bool)'
 
   def initialize(parent, args)
     super
@@ -48,7 +48,7 @@ class WebApplet < Plasma::Applet
     @page.page.linkDelegationPolicy = Qt::WebPage::DelegateAllLinks
     @page.page.settings.setAttribute(Qt::WebSettings::LinksIncludedInFocusChain, true)
 
-    connect(@page, SIGNAL('loadDone(bool)'), self, SLOT('loadDone(bool)'))
+    connect(@page, SIGNAL('loadFinished(bool)'), self, SLOT('loadFinished(bool)'))
     connect(@page.page, SIGNAL('linkClicked(QUrl)'), self, SLOT('load(QUrl)'))
 
     @page.mainFrame.setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff)
@@ -69,7 +69,7 @@ class WebApplet < Plasma::Applet
     @page
   end
 
-  def loadDone(success)
+  def loadFinished(success)
     puts "page loaded #{@page.page.currentFrame.url.toString}"
   end
 

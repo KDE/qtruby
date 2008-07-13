@@ -10,7 +10,7 @@ X-KDE-PluginKeyword=plasma_ruby_web_applet/web_applet.rb
 
 X-KDE-PluginInfo-Author=The Plasma Team
 X-KDE-PluginInfo-Email=panel-devel@kde.org
-X-KDE-PluginInfo-Name=plasma-ruby-webapplet
+X-KDE-PluginInfo-Name=plasma-ruby-web-applet
 X-KDE-PluginInfo-Version=pre0.1
 X-KDE-PluginInfo-Website=http://plasma.kde.org/
 X-KDE-PluginInfo-Category=Music
