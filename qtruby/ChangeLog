@@ -1,3 +1,6 @@
+2008-07-13  Cyrille Berger  <cberger@cberger.net>
+  * Reverting kross2smoke to use a pointer, since that what kross use for now.
+
 2008-07-13  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Remove the smoke2kross() function as it isn't needed anymore. Change

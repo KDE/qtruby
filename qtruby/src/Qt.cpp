@@ -1175,10 +1175,10 @@ kross2smoke(VALUE /*self*/, VALUE krobject, VALUE new_klass)
     rb_raise(rb_eArgError, "unable to find class \"%s\" to cast to\n", StringValuePtr(new_klassname));
   }
   
-  void** o;
-  Data_Get_Struct(krobject, void*, o);
+  void* o;
+  Data_Get_Struct(krobject, void, o);
   
-  smokeruby_object * o_cast = alloc_smokeruby_object(false, cast_to_id->smoke, (int) cast_to_id->index, *o);
+  smokeruby_object * o_cast = alloc_smokeruby_object(false, cast_to_id->smoke, (int) cast_to_id->index, o);
   
   VALUE obj = Data_Wrap_Struct(new_klass, smokeruby_mark, smokeruby_free, (void *) o_cast);
   mapPointer(obj, o_cast, o_cast->classId, 0);
