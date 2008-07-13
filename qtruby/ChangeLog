@@ -1,3 +1,9 @@
+2008-07-13  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Remove the smoke2kross() function as it isn't needed anymore. Change
+	  the kross2smoke() function so that it assumes Kross will return a 
+	  pointer to a pointer, instead of just a pointer to the C++ instance.
+
 2008-07-12  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Change the layout of the smokeruby_object struct so that the ptr to
