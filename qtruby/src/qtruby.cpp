@@ -1007,26 +1007,6 @@ new_qt(int argc, VALUE * argv, VALUE klass)
 	return result;
 }
 
-static VALUE
-new_qapplication(int argc, VALUE * argv, VALUE klass)
-{
- 	VALUE result = Qnil;
-
-	if (argc == 1 && TYPE(argv[0]) == T_ARRAY) {
-		// Convert '(ARGV)' to '(NUM, [$0]+ARGV)'
-		VALUE * local_argv = ALLOCA_N(VALUE, argc + 1);
-		VALUE temp = rb_ary_dup(argv[0]);
-		rb_ary_unshift(temp, rb_gv_get("$0"));
-		local_argv[0] = INT2NUM(RARRAY(temp)->len);
-		local_argv[1] = temp;
-		result = new_qt(2, local_argv, klass);
-	} else {
-		result = new_qt(argc, argv, klass);
-	}
-
-	rb_gv_set("$qApp", result);
-	return result;
-}
 
 // Returns $qApp.ARGV() - the original ARGV array with Qt command line options removed
 static VALUE
@@ -1771,7 +1751,6 @@ create_qobject_class(VALUE /*self*/, VALUE package_value, VALUE module_value)
 	}
 	
 	if (packageName == "Qt::Application" || packageName == "Qt::CoreApplication" ) {
-		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qapplication, -1);
 		rb_define_method(klass, "ARGV", (VALUE (*) (...)) qapplication_argv, 0);
 	} else if (packageName == "Qt::Object") {
 		rb_define_singleton_method(klass, "staticMetaObject", (VALUE (*) (...)) qobject_staticmetaobject, 0);

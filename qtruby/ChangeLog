@@ -1,3 +1,8 @@
+2008-07-18  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Fixed the Qt::Application constructor so that it can subclassed. Thanks
+	  to Stefano Crocco for reporting the bug
+
 2008-07-13  Cyrille Berger  <cberger@cberger.net>
   * Reverting kross2smoke to use a pointer, since that what kross use for now.
 
