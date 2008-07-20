@@ -41,13 +41,18 @@ inline uint qHash(const Smoke::ModuleIndex& mi) {
 
 struct MocArgument;
 
-class Q_DECL_EXPORT QtRubySmokeBinding : public SmokeBinding {
+namespace QtRuby {
+
+class Q_DECL_EXPORT Binding : public SmokeBinding {
 public:
-	QtRubySmokeBinding(Smoke *s);
+	Binding();
+	Binding(Smoke *s);
 	void deleted(Smoke::Index classId, void *ptr);
 	bool callMethod(Smoke::Index method, void *ptr, Smoke::Stack args, bool /*isAbstract*/);
 	char *className(Smoke::Index classId);
 };
+
+}
 
 struct smokeruby_object {
     void *ptr;
@@ -72,6 +77,7 @@ struct QtRubyModule {
     const char *name;
     ResolveClassNameFn resolve_classname;
     ClassCreatedFn class_created;
+    QtRuby::Binding *binding;
 };
 
 // keep this enum in sync with lib/Qt/qtruby4.rb

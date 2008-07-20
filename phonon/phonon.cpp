@@ -40,7 +40,7 @@ static VALUE getClassList(VALUE /*self*/)
 const char*
 resolve_classname_phonon(smokeruby_object * o)
 {
-    return o->smoke->binding->className(o->classId);
+    return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
 extern TypeHandler Phonon_handlers[];
@@ -50,16 +50,18 @@ extern "C" {
 VALUE phonon_module;
 VALUE phonon_internal_module;
 
+static QtRuby::Binding binding;
+
 Q_DECL_EXPORT void
 Init_phonon()
 {
     init_phonon_Smoke();
 
-    phonon_Smoke->binding = new QtRubySmokeBinding(phonon_Smoke);
+    binding = QtRuby::Binding(phonon_Smoke);
 
     smokeList << phonon_Smoke;
 
-    QtRubyModule module = { "Phonon", resolve_classname_phonon, 0 };
+    QtRubyModule module = { "Phonon", resolve_classname_phonon, 0, &binding };
     qtruby_modules[phonon_Smoke] = module;
 
     install_handlers(Phonon_handlers);

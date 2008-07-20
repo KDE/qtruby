@@ -40,7 +40,7 @@ static VALUE getClassList(VALUE /*self*/)
 const char*
 resolve_classname_qtscript(smokeruby_object * o)
 {
-    return o->smoke->binding->className(o->classId);
+    return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
 extern TypeHandler QtScript_handlers[];
@@ -50,16 +50,18 @@ extern "C" {
 VALUE qtscript_module;
 VALUE qtscript_internal_module;
 
+static QtRuby::Binding binding;
+
 Q_DECL_EXPORT void
 Init_qtscript()
 {
     init_qtscript_Smoke();
 
-    qtscript_Smoke->binding = new QtRubySmokeBinding(qtscript_Smoke);
+    binding = QtRuby::Binding(qtscript_Smoke);
 
     smokeList << qtscript_Smoke;
 
-    QtRubyModule module = { "QtScript", resolve_classname_qtscript, 0 };
+    QtRubyModule module = { "QtScript", resolve_classname_qtscript, 0, &binding };
     qtruby_modules[qtscript_Smoke] = module;
 
     install_handlers(QtScript_handlers);

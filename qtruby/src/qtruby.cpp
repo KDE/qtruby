@@ -695,7 +695,7 @@ static Smoke::Index drawlines_line_vector = 0;
 			return rb_call_super(argc, argv);
 		}
 
-		MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
+		QtRuby::MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
 		c.next();
 		return self;
 	}
@@ -740,7 +740,7 @@ static Smoke::Index drawlines_rect_vector = 0;
 			return rb_call_super(argc, argv);
 		}
 
-		MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
+		QtRuby::MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
 		c.next();
 		return self;
 	}
@@ -872,7 +872,7 @@ static Smoke::Index new_qvariant_qmap = 0;
 	if (argc == 1 && TYPE(argv[0]) == T_HASH) {
 		_current_method.smoke = qt_Smoke;
 		_current_method.index = new_qvariant_qmap;
-		MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
+		QtRuby::MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
 		c.next();
     	return *(c.var());
 	} else if (	argc == 1 
@@ -882,7 +882,7 @@ static Smoke::Index new_qvariant_qmap = 0;
 	{
 		_current_method.smoke = qt_Smoke;
 		_current_method.index = new_qvariant_qlist;
-		MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
+		QtRuby::MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
 		c.next();
 		return *(c.var());
 	}
@@ -968,7 +968,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	{
 		// Allocate the MethodCall within a C block. Otherwise, because the continue_new_instance()
 		// call below will longjmp out, it wouldn't give C++ an opportunity to clean up
-		MethodCall c(_current_method.smoke, _current_method.index, self, temp_stack+4, argc);
+		QtRuby::MethodCall c(_current_method.smoke, _current_method.index, self, temp_stack+4, argc);
 		c.next();
 		temp_obj = *(c.var());
 	}
@@ -1066,7 +1066,7 @@ static QRegExp * rx = 0;
 
 	VALUE result = Qnil;
 	// Okay, we have the signal info. *whew*
-	EmitSignal signal(qobj, i, argc, args, argv, &result);
+	QtRuby::EmitSignal signal(qobj, i, argc, args, argv, &result);
 	signal.next();
 
 	return result;
@@ -1141,7 +1141,7 @@ static QRegExp * rx = 0;
 			rx = new QRegExp("\\(.*");
 		}
 		name.replace(*rx, "");
-		InvokeSlot slot(self, rb_intern(name.toLatin1()), mocArgs, _o);
+		QtRuby::InvokeSlot slot(self, rb_intern(name.toLatin1()), mocArgs, _o);
 		slot.next();
 	}
 	
@@ -1723,6 +1723,7 @@ setCurrentMethod(VALUE self, VALUE meth_value)
 static VALUE
 getClassList(VALUE /*self*/)
 {
+	printf("in ruby getClassList\n");
     VALUE class_list = rb_ary_new();
 
     for(int i = 1; i <= qt_Smoke->numClasses; i++) {
@@ -1886,22 +1887,16 @@ set_qtruby_embedded_wrapped(VALUE /*self*/, VALUE yn)
   return Qnil;
 }
 
+static QtRuby::Binding binding;
+
 extern Q_DECL_EXPORT void
 Init_qtruby4()
 {
-// 	if (qt_Smoke != 0L) {
-// 		// This function must have been called twice because both
-// 		// 'require Qt' and 'require Korundum' statements have
-// 		// been included in a ruby program
-// 		rb_fatal("require 'Qt' must not follow require 'Korundum'\n");
-// 		return;
-// 	}
-
     if (qt_Smoke == 0) init_qt_Smoke();
     smokeList << qt_Smoke;
-    qt_Smoke->binding = new QtRubySmokeBinding(qt_Smoke);
 
-    QtRubyModule module = { "QtRuby", resolve_classname_qt, 0 };
+    binding = QtRuby::Binding(qt_Smoke);
+    QtRubyModule module = { "QtRuby", resolve_classname_qt, 0, &binding };
     qtruby_modules[qt_Smoke] = module;
 
     install_handlers(Qt_handlers);

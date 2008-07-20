@@ -215,11 +215,13 @@ void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *last
 	return;
 }
 
+namespace QtRuby {
 
-QtRubySmokeBinding::QtRubySmokeBinding(Smoke *s) : SmokeBinding(s) {}
+Binding::Binding() : SmokeBinding(0) {}
+Binding::Binding(Smoke *s) : SmokeBinding(s) {}
 
 void
-QtRubySmokeBinding::deleted(Smoke::Index classId, void *ptr) {
+Binding::deleted(Smoke::Index classId, void *ptr) {
 	if (!pointer_map()) {
 	return;
 	}
@@ -236,7 +238,7 @@ QtRubySmokeBinding::deleted(Smoke::Index classId, void *ptr) {
 }
 
 bool
-QtRubySmokeBinding::callMethod(Smoke::Index method, void *ptr, Smoke::Stack args, bool /*isAbstract*/) {
+Binding::callMethod(Smoke::Index method, void *ptr, Smoke::Stack args, bool /*isAbstract*/) {
 	VALUE obj = getPointerObject(ptr);
 	smokeruby_object *o = value_obj_info(obj);
 
@@ -272,13 +274,13 @@ QtRubySmokeBinding::callMethod(Smoke::Index method, void *ptr, Smoke::Stack args
 	if (rb_respond_to(obj, rb_intern(methodName)) == 0) {
     	return false;
 	}
-	VirtualMethodCall c(smoke, method, args, obj, ALLOCA_N(VALUE, smoke->methods[method].numArgs));
+	QtRuby::VirtualMethodCall c(smoke, method, args, obj, ALLOCA_N(VALUE, smoke->methods[method].numArgs));
 	c.next();
 	return true;
 }
 
 char*
-QtRubySmokeBinding::className(Smoke::Index classId) {
+Binding::className(Smoke::Index classId) {
 	Smoke::ModuleIndex mi = { smoke, classId };
 	return (char *) (const char *) *(classname.value(mi));
 }
@@ -440,6 +442,8 @@ bool
 InvokeNativeSlot::cleanup() 
 { 
 	return true; 
+}
+
 }
 
 void rb_str_catf(VALUE self, const char *format, ...) 
@@ -864,7 +868,7 @@ static QByteArray * name = 0;
 										QList<MocArgument*> args = get_moc_arguments(	o->smoke, meta->method(id).typeName(), 
 																						meta->method(id).parameterTypes() );
 										VALUE result = Qnil;
-										InvokeNativeSlot slot(qobject, id, argc - 1, args, argv + 1, &result);
+										QtRuby::InvokeNativeSlot slot(qobject, id, argc - 1, args, argv + 1, &result);
 										slot.next();
 										return result;
 									}
@@ -882,7 +886,7 @@ static QByteArray * name = 0;
 			methcache.insert(*mcid, new Smoke::ModuleIndex(_current_method));
 		}
 	}
-    MethodCall c(_current_method.smoke, _current_method.index, self, temp_stack+4, argc-1);
+    QtRuby::MethodCall c(_current_method.smoke, _current_method.index, self, temp_stack+4, argc-1);
     c.next();
     VALUE result = *(c.var());
     return result;
@@ -935,7 +939,7 @@ static QRegExp * rx = 0;
 			return rb_call_super(argc, argv);
 		}
     }
-    MethodCall c(_current_method.smoke, _current_method.index, Qnil, temp_stack+4, argc-1);
+    QtRuby::MethodCall c(_current_method.smoke, _current_method.index, Qnil, temp_stack+4, argc-1);
     c.next();
     result = *(c.var());
     return result;
@@ -1296,7 +1300,7 @@ qvariant_from_value(int argc, VALUE * argv, VALUE self)
 			{
 				_current_method.smoke = meth.smoke;
 				_current_method.index = meth.smoke->ambiguousMethodList[i];
-				MethodCall c(meth.smoke, _current_method.index, self, argv, 0);
+				QtRuby::MethodCall c(meth.smoke, _current_method.index, self, argv, 0);
 				c.next();
 				return *(c.var());
 			}

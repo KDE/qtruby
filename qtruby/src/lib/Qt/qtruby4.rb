@@ -2321,7 +2321,7 @@ module Qt
 		end
 
 		def Internal.init_class(c)
-			if c == "WebCore" || c == "std"
+			if c == "WebCore" || c == "std" || c == "QGlobalSpace"
 				return
 			end
 			classname = Qt::Internal::normalize_classname(c)

@@ -34,6 +34,8 @@ Marshall::HandlerFn getMarshallFn(const SmokeType &type);
 extern void smokeStackToQtStack(Smoke::Stack stack, void ** o, int start, int end, QList<MocArgument*> args);
 extern void smokeStackFromQtStack(Smoke::Stack stack, void ** _o, int start, int end, QList<MocArgument*> args);
 
+namespace QtRuby {
+
 class Q_DECL_EXPORT MethodReturnValueBase : public Marshall 
 {
 public:
@@ -158,6 +160,11 @@ public:
 
 		_items = -1;
 		(*fn)(method().method, ptr, _stack);
+		if (method().flags & Smoke::mf_ctor) {
+			Smoke::StackItem s[2];
+			s[1].s_voidp = qtruby_modules[_smoke].binding;
+			(*fn)(0, _stack[0].s_voidp, s);
+		}
 		MethodReturnValue r(_smoke, _method, _stack, &_retval);
 	}
 
@@ -241,5 +248,7 @@ public:
 	void invokeSlot(); 
 	void mainfunction();
 };
+
+}
 
 #endif

@@ -23,7 +23,7 @@ static VALUE getClassList(VALUE /*self*/)
 const char*
 resolve_classname_plasma(smokeruby_object * o)
 {
-    return o->smoke->binding->className(o->classId);
+    return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
 extern TypeHandler Plasma_handlers[];
@@ -38,6 +38,8 @@ static VALUE plasma_module_method_missing(int argc, VALUE * argv, VALUE klass)
     return class_method_missing(argc, argv, klass);
 }
 
+static QtRuby::Binding binding;
+
 Q_DECL_EXPORT void
 Init_plasma_applet()
 {
@@ -45,11 +47,11 @@ Init_plasma_applet()
     init_plasma_Smoke();
     set_qtruby_embedded(true);
 
-    plasma_Smoke->binding = new QtRubySmokeBinding(plasma_Smoke);
+    binding = QtRuby::Binding(plasma_Smoke);
 
     smokeList << plasma_Smoke;
 
-    QtRubyModule module = { "Plasma", resolve_classname_plasma, 0 };
+    QtRubyModule module = { "Plasma", resolve_classname_plasma, 0, &binding };
     qtruby_modules[plasma_Smoke] = module;
 
     install_handlers(Plasma_handlers);

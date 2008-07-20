@@ -600,7 +600,7 @@ resolve_classname_qt(smokeruby_object * o)
 			if (o->smoke != 0) {
 				o->classId = o->smoke->idClass(meta->className()).index;
 				if (o->classId != 0) {
-					return o->smoke->binding->className(o->classId);
+					return qtruby_modules[o->smoke].binding->className(o->classId);
 				}
 			}
 
@@ -648,7 +648,7 @@ resolve_classname_qt(smokeruby_object * o)
 		}
 	}
 	
-	return o->smoke->binding->className(o->classId);
+	return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
 bool

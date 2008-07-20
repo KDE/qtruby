@@ -40,7 +40,7 @@ static VALUE getClassList(VALUE /*self*/)
 const char*
 resolve_classname_kdevplatform(smokeruby_object * o)
 {
-    return o->smoke->binding->className(o->classId);
+    return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
 extern TypeHandler KDevPlatform_handlers[];
@@ -50,16 +50,18 @@ extern "C" {
 VALUE kdevelop_module;
 VALUE kdevelop_internal_module;
 
+static QtRuby::Binding binding;
+
 Q_DECL_EXPORT void
 Init_kdevplatform()
 {
     init_kdevplatform_Smoke();
 
-    kdevplatform_Smoke->binding = new QtRubySmokeBinding(kdevplatform_Smoke);
+    binding = QtRuby::Binding(kdevplatform_Smoke);
 
     smokeList << kdevplatform_Smoke;
 
-    QtRubyModule module = { "KDevPlatform", resolve_classname_kdevplatform, 0 };
+    QtRubyModule module = { "KDevPlatform", resolve_classname_kdevplatform, 0, &binding };
     qtruby_modules[kdevplatform_Smoke] = module;
 
     install_handlers(KDevPlatform_handlers);

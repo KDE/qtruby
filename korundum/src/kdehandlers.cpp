@@ -65,7 +65,7 @@ resolve_classname_kde(smokeruby_object * o)
 		}
 	}
 	
-	return o->smoke->binding->className(o->classId);
+	return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
 #if defined (__i386__) && defined (__GNUC__) && __GNUC__ >= 2

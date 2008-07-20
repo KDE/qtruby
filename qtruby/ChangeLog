@@ -1,3 +1,9 @@
+2008-07-20  Arno Rehn  <arno@arnorehn.de>
+
+	* Put the classes derived from Marshall in the 'QtRuby' namespace.
+	* Set the SmokeBinding for each class individually by calling the
+	  method with index 0 on the instance.
+
 2008-07-18  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Fixed the Qt::Application constructor so that it can subclassed. Thanks
