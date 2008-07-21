@@ -1,3 +1,7 @@
+2008-07-21  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Fix the KService offer list marshaller
+
 2008-07-12  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Change the layout of the smokeruby_object struct in kpluginfactory to

@@ -157,43 +157,44 @@ void marshall_KSharedConfigPtr(Marshall *m) {
 void marshall_KServiceList(Marshall *m) {
 	switch(m->action()) {
 	case Marshall::FromVALUE: 
-		{
-		}
-		break;
+	{
+	}
+	break;
 	case Marshall::ToVALUE: 
+	{
+		KService::List *offerList = (KService::List*)m->item().s_voidp;
+		if (!offerList) {
+			*(m->var()) = Qnil;
+			break;
+		}
+
+		VALUE av = rb_ary_new();
+
+		for (	KService::List::Iterator it = offerList->begin();
+				it != offerList->end();
+				++it ) 
 		{
-	    KService::List *offerList = (KService::List*)m->item().s_voidp;
-	    if(!offerList) {
-		*(m->var()) = Qnil;
-		break;
-	    }
+			KSharedPtr<KService> *ptr = new KSharedPtr<KService>(*it);
+			KService * currentOffer = ptr->data();
 
-	    VALUE av = rb_ary_new();
-
-	    for(KService::List::Iterator it = offerList->begin();
-		it != offerList->end();
-		++it) {
-		KSharedPtr<KService> *ptr = new KSharedPtr<KService>(*it);
-		KService * currentOffer = ptr->data();
-
-		VALUE obj = getPointerObject(currentOffer);
-		if(obj == Qnil) {
-		    smokeruby_object  * o = ALLOC(smokeruby_object);
-		    o->smoke = m->smoke();
-		    o->classId = m->smoke()->idClass("KService").index;
-		    o->ptr = currentOffer;
-		    o->allocated = false;
-		    obj = set_obj_info("KDE::Service", o);
+			VALUE obj = getPointerObject(currentOffer);
+			if (obj == Qnil) {
+				smokeruby_object  * o = ALLOC(smokeruby_object);
+				o->smoke = m->smoke();
+				o->classId = m->smoke()->idClass("KService").index;
+				o->ptr = currentOffer;
+				o->allocated = false;
+				obj = set_obj_info("KDE::Service", o);
+			}
+			rb_ary_push(av, obj);
 		}
-		rb_ary_push(av, obj);
-            }
 
-	    *(m->var()) = av;		
+		*(m->var()) = av;		
 	    
-		if(m->cleanup())
-		delete offerList;
-		}
-		break;
+		if (m->cleanup())
+			delete offerList;
+	}
+	break;
 	default:
 		m->unsupported();
 		break;
@@ -229,7 +230,6 @@ DEF_VALUELIST_MARSHALLER( KPartsPluginPluginInfoList, QList<KParts::Plugin::Plug
 DEF_VALUELIST_MARSHALLER( KPluginInfoList, QList<KPluginInfo>, KPluginInfo )
 DEF_VALUELIST_MARSHALLER( KServiceActionList, QList<KServiceAction>, KServiceAction )
 DEF_VALUELIST_MARSHALLER( KServiceGroupPtrList, QList<KServiceGroup::Ptr>, KServiceGroup::Ptr )
-DEF_VALUELIST_MARSHALLER( KServicePtrList, QList<KService::Ptr>, KService::Ptr )
 DEF_VALUELIST_MARSHALLER( KTimeZoneLeapSecondsList, QList<KTimeZone::LeapSeconds>, KTimeZone::LeapSeconds )
 DEF_VALUELIST_MARSHALLER( KTimeZonePhaseList, QList<KTimeZone::Phase>, KTimeZone::Phase )
 DEF_VALUELIST_MARSHALLER( KTimeZoneTransitionList, QList<KTimeZone::Transition>, KTimeZone::Transition )
@@ -355,6 +355,8 @@ TypeHandler KDE_handlers[] = {
     { "KPluginInfo::List", marshall_KPluginInfoList },
     { "KPluginInfo::List&", marshall_KPluginInfoList },
     { "KService::List", marshall_KServiceList },
+    { "QList<KService::Ptr>", marshall_KServiceList },
+    { "QList<KSharedPtr<KService> >", marshall_KServiceList },
     { "KService::Ptr", marshall_KServicePtr },
     { "KSharedConfig::Ptr", marshall_KSharedConfigPtr },
     { "KSharedConfig::Ptr&", marshall_KSharedConfigPtr },
@@ -396,7 +398,6 @@ TypeHandler KDE_handlers[] = {
     { "QList<KPluginInfo>&", marshall_KPluginInfoList },
     { "QList<KServiceAction>", marshall_KServiceActionList },
     { "QList<KServiceGroup::Ptr>", marshall_KServiceGroupPtrList },
-    { "QList<KService::Ptr>", marshall_KServicePtrList },
     { "QList<KTimeZone::LeapSeconds>", marshall_KTimeZoneLeapSecondsList },
     { "QList<KTimeZone::LeapSeconds>&", marshall_KTimeZoneLeapSecondsList },
     { "QList<KTimeZone::Phase>", marshall_KTimeZonePhaseList },
