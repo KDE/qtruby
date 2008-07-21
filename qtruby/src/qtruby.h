@@ -155,8 +155,6 @@ extern Q_DECL_EXPORT VALUE qobject_metaobject(VALUE self);
 extern Q_DECL_EXPORT VALUE set_obj_info(const char * className, smokeruby_object * o);
 extern Q_DECL_EXPORT VALUE cast_object_to(VALUE self, VALUE object, VALUE new_klass);
 extern Q_DECL_EXPORT VALUE kross2smoke(VALUE self, VALUE krobject, VALUE new_klass);
-extern Q_DECL_EXPORT VALUE qvariant_value(VALUE self, VALUE variant_value_klass, VALUE variant_value);
-extern Q_DECL_EXPORT VALUE qvariant_from_value(int argc, VALUE * argv, VALUE self);
 extern Q_DECL_EXPORT const char* get_VALUEtype(VALUE ruby_value);
 extern Q_DECL_EXPORT VALUE prettyPrintMethod(Smoke::Index id);
 }

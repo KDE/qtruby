@@ -1,3 +1,16 @@
+2008-07-21  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Qt::Variant.fromValue() and Qt::Variant.value() now both work correctly
+	  with custom types, after a regression in the change to modular smoke. 
+	  It should no longer be necessary to use qVariantValue() or 
+	  qVariantFromValue().
+	* In the smoke library method calls for pure virtual methods were not
+	  being generated, only callbacks to override them. However, that
+	  meant that interfaces which were based on classes with pure virtual
+	  methods, with private implementation classes wouldn't work. This fixes
+	  a problem reported by Stefano Crocco where he found the ktexteditor
+	  ruby extension didn't work.
+
 2008-07-20  Arno Rehn  <arno@arnorehn.de>
 
 	* Put the classes derived from Marshall in the 'QtRuby' namespace.
