@@ -16,8 +16,10 @@ set_target_properties(rubyktexteditor PROPERTIES PREFIX "" OUTPUT_NAME ktextedit
 install(TARGETS rubyktexteditor DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
 install(FILES ktexteditor.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/ktexteditor)
 
+if(FALSE)
 set(rubyloadktexteditor_LIBRARY_SRC loadktexteditor.cpp)
 add_library(rubyloadktexteditor MODULE ${rubyloadktexteditor_LIBRARY_SRC})
 target_link_libraries(rubyloadktexteditor ${RUBY_LIBRARY} ${KDE4_KTEXTEDITOR_LIBS})
 set_target_properties(rubyloadktexteditor PROPERTIES PREFIX "" OUTPUT_NAME loadktexteditor)
 install(TARGETS rubyloadktexteditor DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
+endif(FALSE)
