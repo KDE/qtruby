@@ -40,7 +40,7 @@ static VALUE getClassList(VALUE /*self*/)
 const char*
 resolve_classname_khtml(smokeruby_object * o)
 {
-    return o->smoke->binding->className(o->classId);
+    return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
 extern TypeHandler KHTML_handlers[];
@@ -50,16 +50,18 @@ extern "C" {
 VALUE dom_module;
 VALUE khtml_internal_module;
 
+static QtRuby::Binding binding;
+
 Q_DECL_EXPORT void
 Init_khtml()
 {
     init_khtml_Smoke();
 
-    khtml_Smoke->binding = new QtRubySmokeBinding(khtml_Smoke);
+    binding = QtRuby::Binding(khtml_Smoke);
 
     smokeList << khtml_Smoke;
 
-    QtRubyModule module = { "KHTML", resolve_classname_khtml, 0 };
+    QtRubyModule module = { "KHTML", resolve_classname_khtml, 0, &binding };
     qtruby_modules[khtml_Smoke] = module;
 
     install_handlers(KHTML_handlers);

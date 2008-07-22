@@ -40,7 +40,7 @@ static VALUE getClassList(VALUE /*self*/)
 const char*
 resolve_classname_nepomuk(smokeruby_object * o)
 {
-    return o->smoke->binding->className(o->classId);
+    return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
 extern TypeHandler Nepomuk_handlers[];
@@ -50,16 +50,18 @@ extern "C" {
 VALUE nepomuk_module;
 VALUE nepomuk_internal_module;
 
+static QtRuby::Binding binding;
+
 Q_DECL_EXPORT void
 Init_nepomuk()
 {
     init_nepomuk_Smoke();
 
-    nepomuk_Smoke->binding = new QtRubySmokeBinding(nepomuk_Smoke);
+    binding = QtRuby::Binding(nepomuk_Smoke);
 
     smokeList << nepomuk_Smoke;
 
-    QtRubyModule module = { "Nepomuk", resolve_classname_nepomuk, 0 };
+    QtRubyModule module = { "Nepomuk", resolve_classname_nepomuk, 0, &binding };
     qtruby_modules[nepomuk_Smoke] = module;
 
     install_handlers(Nepomuk_handlers);

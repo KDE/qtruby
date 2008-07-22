@@ -40,7 +40,7 @@ static VALUE getClassList(VALUE /*self*/)
 const char*
 resolve_classname_akonadi(smokeruby_object * o)
 {
-    return o->smoke->binding->className(o->classId);
+    return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
 extern TypeHandler Akonadi_handlers[];
@@ -50,16 +50,18 @@ extern "C" {
 VALUE akonadi_module;
 VALUE akonadi_internal_module;
 
+static QtRuby::Binding binding;
+
 Q_DECL_EXPORT void
 Init_akonadi()
 {
     init_akonadi_Smoke();
 
-    akonadi_Smoke->binding = new QtRubySmokeBinding(akonadi_Smoke);
+    binding = QtRuby::Binding(akonadi_Smoke);
 
     smokeList << akonadi_Smoke;
 
-    QtRubyModule module = { "Akonadi", resolve_classname_akonadi, 0 };
+    QtRubyModule module = { "Akonadi", resolve_classname_akonadi, 0, &binding };
     qtruby_modules[akonadi_Smoke] = module;
 
     install_handlers(Akonadi_handlers);

@@ -40,7 +40,7 @@ static VALUE getClassList(VALUE /*self*/)
 const char*
 resolve_classname_qtuitools(smokeruby_object * o)
 {
-    return o->smoke->binding->className(o->classId);
+    return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
 extern TypeHandler QtUiTools_handlers[];
@@ -50,16 +50,18 @@ extern "C" {
 VALUE qtuitools_module;
 VALUE qtuitools_internal_module;
 
+static QtRuby::Binding binding;
+
 Q_DECL_EXPORT void
 Init_qtuitools()
 {
     init_qtuitools_Smoke();
 
-    qtuitools_Smoke->binding = new QtRubySmokeBinding(qtuitools_Smoke);
+    binding = QtRuby::Binding(qtuitools_Smoke);
 
     smokeList << qtuitools_Smoke;
 
-    QtRubyModule module = { "QtUiTools", resolve_classname_qtuitools, 0 };
+    QtRubyModule module = { "QtUiTools", resolve_classname_qtuitools, 0, &binding };
     qtruby_modules[qtuitools_Smoke] = module;
 
     install_handlers(QtUiTools_handlers);

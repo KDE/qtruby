@@ -40,7 +40,7 @@ static VALUE getClassList(VALUE /*self*/)
 const char*
 resolve_classname_ktexteditor(smokeruby_object * o)
 {
-    return o->smoke->binding->className(o->classId);
+    return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
 extern TypeHandler KTextEditor_handlers[];
@@ -50,16 +50,18 @@ extern "C" {
 VALUE ktexteditor_module;
 VALUE ktexteditor_internal_module;
 
+static QtRuby::Binding binding;
+
 Q_DECL_EXPORT void
 Init_ktexteditor()
 {
     init_ktexteditor_Smoke();
 
-    ktexteditor_Smoke->binding = new QtRubySmokeBinding(ktexteditor_Smoke);
+    binding = QtRuby::Binding(ktexteditor_Smoke);
 
     smokeList << ktexteditor_Smoke;
 
-    QtRubyModule module = { "KTextEditor", resolve_classname_ktexteditor, 0 };
+    QtRubyModule module = { "KTextEditor", resolve_classname_ktexteditor, 0, &binding };
     qtruby_modules[ktexteditor_Smoke] = module;
 
     install_handlers(KTextEditor_handlers);

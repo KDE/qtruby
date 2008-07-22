@@ -40,7 +40,7 @@ static VALUE getClassList(VALUE /*self*/)
 const char*
 resolve_classname_okular(smokeruby_object * o)
 {
-    return o->smoke->binding->className(o->classId);
+    return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
 extern TypeHandler Okular_handlers[];
@@ -50,16 +50,18 @@ extern "C" {
 VALUE okular_module;
 VALUE okular_internal_module;
 
+static QtRuby::Binding binding;
+
 Q_DECL_EXPORT void
 Init_okular()
 {
     init_okular_Smoke();
 
-    okular_Smoke->binding = new QtRubySmokeBinding(okular_Smoke);
+    binding = QtRuby::Binding(okular_Smoke);
 
     smokeList << okular_Smoke;
 
-    QtRubyModule module = { "Okular", resolve_classname_okular, 0 };
+    QtRubyModule module = { "Okular", resolve_classname_okular, 0, &binding };
     qtruby_modules[okular_Smoke] = module;
 
     install_handlers(Okular_handlers);

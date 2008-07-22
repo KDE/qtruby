@@ -23,7 +23,7 @@ static VALUE getClassList(VALUE /*self*/)
 const char*
 resolve_classname_qtwebkit(smokeruby_object * o)
 {
-    return o->smoke->binding->className(o->classId);
+    return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
 extern TypeHandler QtWebKit_handlers[];
@@ -33,16 +33,18 @@ extern "C" {
 VALUE qtwebkit_module;
 VALUE qtwebkit_internal_module;
 
+static QtRuby::Binding binding;
+
 Q_DECL_EXPORT void
 Init_qtwebkit()
 {
     init_qtwebkit_Smoke();
 
-    qtwebkit_Smoke->binding = new QtRubySmokeBinding(qtwebkit_Smoke);
+    binding = QtRuby::Binding(qtwebkit_Smoke);
 
     smokeList << qtwebkit_Smoke;
 
-    QtRubyModule module = { "QtWebKit", resolve_classname_qtwebkit, 0 };
+    QtRubyModule module = { "QtWebKit", resolve_classname_qtwebkit, 0, &binding };
     qtruby_modules[qtwebkit_Smoke] = module;
 
     install_handlers(QtWebKit_handlers);

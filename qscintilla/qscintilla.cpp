@@ -23,7 +23,7 @@ static VALUE getClassList(VALUE /*self*/)
 const char*
 resolve_classname_qsci(smokeruby_object * o)
 {
-    return o->smoke->binding->className(o->classId);
+    return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
 extern TypeHandler QScintilla_handlers[];
@@ -33,16 +33,18 @@ extern "C" {
 VALUE qscintilla_module;
 VALUE qscintilla_internal_module;
 
+static QtRuby::Binding binding;
+
 Q_DECL_EXPORT void
 Init_qscintilla()
 {
     init_qsci_Smoke();
 
-    qsci_Smoke->binding = new QtRubySmokeBinding(qsci_Smoke);
+    binding = QtRuby::Binding(qsci_Smoke);
 
     smokeList << qsci_Smoke;
 
-    QtRubyModule module = { "Qsci", resolve_classname_qsci, 0 };
+    QtRubyModule module = { "Qsci", resolve_classname_qsci, 0, &binding };
     qtruby_modules[qsci_Smoke] = module;
 
     install_handlers(QScintilla_handlers);

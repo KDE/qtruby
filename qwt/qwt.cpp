@@ -23,7 +23,7 @@ static VALUE getClassList(VALUE /*self*/)
 const char*
 resolve_classname_qwt(smokeruby_object * o)
 {
-    return o->smoke->binding->className(o->classId);
+    return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
 extern TypeHandler Qwt_handlers[];
@@ -33,16 +33,18 @@ extern "C" {
 VALUE qwt_module;
 VALUE qwt_internal_module;
 
+static QtRuby::Binding binding;
+
 Q_DECL_EXPORT void
 Init_qwt()
 {
     init_qwt_Smoke();
 
-    qwt_Smoke->binding = new QtRubySmokeBinding(qwt_Smoke);
+    binding = QtRuby::Binding(qwt_Smoke);
 
     smokeList << qwt_Smoke;
 
-    QtRubyModule module = { "Qwt", resolve_classname_qwt, 0 };
+    QtRubyModule module = { "Qwt", resolve_classname_qwt, 0, &binding };
     qtruby_modules[qwt_Smoke] = module;
 
     install_handlers(Qwt_handlers);

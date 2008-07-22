@@ -40,7 +40,7 @@ static VALUE getClassList(VALUE /*self*/)
 const char*
 resolve_classname_solid(smokeruby_object * o)
 {
-    return o->smoke->binding->className(o->classId);
+    return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
 extern TypeHandler Solid_handlers[];
@@ -50,16 +50,18 @@ extern "C" {
 VALUE solid_module;
 VALUE solid_internal_module;
 
+static QtRuby::Binding binding;
+
 Q_DECL_EXPORT void
 Init_solid()
 {
     init_solid_Smoke();
 
-    solid_Smoke->binding = new QtRubySmokeBinding(solid_Smoke);
+    binding = QtRuby::Binding(solid_Smoke);
 
     smokeList << solid_Smoke;
 
-    QtRubyModule module = { "Solid", resolve_classname_solid, 0 };
+    QtRubyModule module = { "Solid", resolve_classname_solid, 0, &binding };
     qtruby_modules[solid_Smoke] = module;
 
     install_handlers(Solid_handlers);

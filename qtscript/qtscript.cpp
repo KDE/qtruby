@@ -1,7 +1,7 @@
 /***************************************************************************
-                          phonon.cpp  -  Phonon ruby extension
+                          qtscript.cpp  -  QtScript ruby extension
                              -------------------
-    begin                : Sat Jun 28 2008
+    begin                : 11-07-2008
     copyright            : (C) 2008 by Richard Dale
     email                : richard.j.dale@gmail.com
  ***************************************************************************/
@@ -21,7 +21,7 @@
 #include <QList>
 #include <QtDebug>
 
-#include <smoke/phonon_smoke.h>
+#include <smoke/qtscript_smoke.h>
 
 #include <qtruby.h>
 
@@ -30,49 +30,49 @@
 static VALUE getClassList(VALUE /*self*/)
 {
     VALUE classList = rb_ary_new();
-    for (int i = 1; i < phonon_Smoke->numClasses; i++) {
-        if (phonon_Smoke->classes[i].className && !phonon_Smoke->classes[i].external)
-            rb_ary_push(classList, rb_str_new2(phonon_Smoke->classes[i].className));
+    for (int i = 1; i < qtscript_Smoke->numClasses; i++) {
+        if (qtscript_Smoke->classes[i].className && !qtscript_Smoke->classes[i].external)
+            rb_ary_push(classList, rb_str_new2(qtscript_Smoke->classes[i].className));
     }
     return classList;
 }
 
 const char*
-resolve_classname_phonon(smokeruby_object * o)
+resolve_classname_qtscript(smokeruby_object * o)
 {
     return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
-extern TypeHandler Phonon_handlers[];
+extern TypeHandler QtScript_handlers[];
 
 extern "C" {
 
-VALUE phonon_module;
-VALUE phonon_internal_module;
+VALUE qtscript_module;
+VALUE qtscript_internal_module;
 
 static QtRuby::Binding binding;
 
 Q_DECL_EXPORT void
-Init_phonon()
+Init_qtscript()
 {
-    init_phonon_Smoke();
+    init_qtscript_Smoke();
 
-    binding = QtRuby::Binding(phonon_Smoke);
+    binding = QtRuby::Binding(qtscript_Smoke);
 
-    smokeList << phonon_Smoke;
+    smokeList << qtscript_Smoke;
 
-    QtRubyModule module = { "Phonon", resolve_classname_phonon, 0, &binding };
-    qtruby_modules[phonon_Smoke] = module;
+    QtRubyModule module = { "QtScript", resolve_classname_qtscript, 0, &binding };
+    qtruby_modules[qtscript_Smoke] = module;
 
-    install_handlers(Phonon_handlers);
+    install_handlers(QtScript_handlers);
 
-    phonon_module = rb_define_module("Phonon");
-    phonon_internal_module = rb_define_module_under(phonon_module, "Internal");
+    qtscript_module = rb_define_module("QtScript");
+    qtscript_internal_module = rb_define_module_under(qtscript_module, "Internal");
 
-    rb_define_singleton_method(phonon_internal_module, "getClassList", (VALUE (*) (...)) getClassList, 0);
+    rb_define_singleton_method(qtscript_internal_module, "getClassList", (VALUE (*) (...)) getClassList, 0);
 
-    rb_require("phonon/phonon.rb");
-    rb_funcall(phonon_internal_module, rb_intern("init_all_classes"), 0);
+    rb_require("qtscript/qtscript.rb");
+    rb_funcall(qtscript_internal_module, rb_intern("init_all_classes"), 0);
 }
 
 }

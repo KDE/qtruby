@@ -204,7 +204,7 @@ void marshall_ValueListItem(Marshall *m) {
 			VALUE av = rb_ary_new();
 
 			int ix = m->smoke()->idClass(ItemSTR).index;
-			const char * className = m->smoke()->binding->className(ix);
+			const char * className = qtruby_modules[m->smoke()].binding->className(ix);
 
 			for(int i=0; i < valuelist->size() ; ++i) {
 				void *p = (void *) &(valuelist->at(i));
@@ -416,7 +416,7 @@ void marshall_LinkedValueListItem(Marshall *m) {
 			VALUE av = rb_ary_new();
 
 			int ix = m->smoke()->idClass(ItemSTR).index;
-			const char * className = m->smoke()->binding->className(ix);
+			const char * className = qtruby_modules[m->smoke()].binding->className(ix);
 
 			QLinkedListIterator<Item> iter(*valuelist);
 			while (iter.hasNext()) {
@@ -502,7 +502,7 @@ void marshall_Hash(Marshall *m) {
 		VALUE hv = rb_hash_new();
 		
 		int val_ix = m->smoke()->idClass(ValueSTR).index;
-	    const char * val_className = m->smoke()->binding->className(val_ix);
+	    const char * val_className = qtruby_modules[m->smoke()].binding->className(val_ix);
 			
 		for (QHashIterator<QString, Value*> it(*hash); it.hasNext(); it.next()) {
 			void *val_p = it.value();

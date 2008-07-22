@@ -23,7 +23,7 @@ static VALUE getClassList(VALUE /*self*/)
 const char*
 resolve_classname_soprano(smokeruby_object * o)
 {
-    return o->smoke->binding->className(o->classId);
+    return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
 extern TypeHandler Soprano_handlers[];
@@ -33,16 +33,18 @@ extern "C" {
 VALUE soprano_module;
 VALUE soprano_internal_module;
 
+static QtRuby::Binding binding;
+
 Q_DECL_EXPORT void
 Init_soprano()
 {
     init_soprano_Smoke();
 
-    soprano_Smoke->binding = new QtRubySmokeBinding(soprano_Smoke);
+    binding = QtRuby::Binding(soprano_Smoke);
 
     smokeList << soprano_Smoke;
 
-    QtRubyModule module = { "Soprano", resolve_classname_soprano, 0 };
+    QtRubyModule module = { "Soprano", resolve_classname_soprano, 0, &binding };
     qtruby_modules[soprano_Smoke] = module;
 
     install_handlers(Soprano_handlers);

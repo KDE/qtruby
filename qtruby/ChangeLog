@@ -1,3 +1,52 @@
+2008-07-21  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Qt::Variant.fromValue() and Qt::Variant.value() now both work correctly
+	  with custom types, after a regression in the change to modular smoke. 
+	  It should no longer be necessary to use qVariantValue() or 
+	  qVariantFromValue().
+	* In the smoke library method calls for pure virtual methods were not
+	  being generated, only callbacks to override them. However, that
+	  meant that interfaces which were based on classes with pure virtual
+	  methods, with private implementation classes wouldn't work. This fixes
+	  a problem reported by Stefano Crocco where he found the ktexteditor
+	  ruby extension didn't work.
+
+2008-07-20  Arno Rehn  <arno@arnorehn.de>
+
+	* Put the classes derived from Marshall in the 'QtRuby' namespace.
+	* Set the SmokeBinding for each class individually by calling the
+	  method with index 0 on the instance.
+
+2008-07-18  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Fixed the Qt::Application constructor so that it can subclassed. Thanks
+	  to Stefano Crocco for reporting the bug
+
+2008-07-13  Cyrille Berger  <cberger@cberger.net>
+  * Reverting kross2smoke to use a pointer, since that what kross use for now.
+
+2008-07-13  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Remove the smoke2kross() function as it isn't needed anymore. Change
+	  the kross2smoke() function so that it assumes Kross will return a 
+	  pointer to a pointer, instead of just a pointer to the C++ instance.
+
+2008-07-12  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Change the layout of the smokeruby_object struct so that the ptr to
+      the C++ instance is at the start. This should make it easier for
+	  QtRuby to interoperate with Kross
+	* The type of a slot arg should always be in the smoke module of the slot
+	  being invoked. However, that isn't true for a dataUpdated() slot in a 
+      PlasmaScripting::Applet. So make GetMocArguments search through all the
+	  loaded smoke modules if the arg type isn't found at first.
+	* In the GC mark function the tests for a QObject type had gone missing, so
+	  restore it.
+
+2008-07-11  Cyrille Berger <cberger@cberger.net>
+
+	* Make it possible to call set_qtruby_embedded from ruby.
+
 2008-07-03  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Fixed bug in the rbuic4 tool where a QPixmap constructor was not being

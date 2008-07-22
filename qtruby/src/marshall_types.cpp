@@ -313,6 +313,8 @@ smokeStackFromQtStack(Smoke::Stack stack, void ** _o, int start, int end, QList<
 	}
 }
 
+namespace QtRuby {
+
 MethodReturnValueBase::MethodReturnValueBase(Smoke *smoke, Smoke::Index meth, Smoke::Stack stack) :
 	_smoke(smoke), _method(meth), _stack(stack) 
 { 
@@ -798,3 +800,4 @@ InvokeSlot::mainfunction()
 	invokeSlot(); 
 }
 
+}

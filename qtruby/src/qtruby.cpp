@@ -619,25 +619,6 @@ qdbusargument_endstructurewrite(VALUE self)
 	return self;
 }
 
-static VALUE
-qvariant_qdbusobjectpath_value(VALUE self)
-{
-    smokeruby_object *o = value_obj_info(self);
-	QVariant * arg = (QVariant *) o->ptr;
-	QString s = qVariantValue<QDBusObjectPath>(*arg).path();
-	return rb_str_new2(s.toLatin1());
-}
-
-static VALUE
-qvariant_qdbussignature_value(VALUE self)
-{
-    smokeruby_object *o = value_obj_info(self);
-	QVariant * arg = (QVariant *) o->ptr;
-	QString s = qVariantValue<QDBusSignature>(*arg).signature();
-	return rb_str_new2(s.toLatin1());
-}
-
-
 #endif
 
 // The QtRuby runtime's overloaded method resolution mechanism can't currently
@@ -695,7 +676,7 @@ static Smoke::Index drawlines_line_vector = 0;
 			return rb_call_super(argc, argv);
 		}
 
-		MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
+		QtRuby::MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
 		c.next();
 		return self;
 	}
@@ -740,7 +721,7 @@ static Smoke::Index drawlines_rect_vector = 0;
 			return rb_call_super(argc, argv);
 		}
 
-		MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
+		QtRuby::MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
 		c.next();
 		return self;
 	}
@@ -846,6 +827,202 @@ qobject_staticmetaobject(VALUE /*klass*/)
 }
 
 static VALUE
+qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
+{
+	void * value_ptr = 0;
+	VALUE result = Qnil;
+	smokeruby_object * vo = 0;
+
+    smokeruby_object *o = value_obj_info(variant_value);
+	if (o == 0 || o->ptr == 0) {
+		return Qnil;
+	}
+
+	QVariant * variant = (QVariant*) o->ptr;
+
+	// If the QVariant contains a user type, don't bother to look at the Ruby class argument
+	if (variant->type() >= QVariant::UserType) { 
+#ifdef QT_QTDBUS 
+		if (qstrcmp(variant->typeName(), "QDBusObjectPath") == 0) {
+			QString s = qVariantValue<QDBusObjectPath>(*variant).path();
+			return rb_str_new2(s.toLatin1());
+		} else if (qstrcmp(variant->typeName(), "QDBusSignature") == 0) {
+			QString s = qVariantValue<QDBusSignature>(*variant).signature();
+			return rb_str_new2(s.toLatin1());
+		}
+#endif
+
+		value_ptr = QMetaType::construct(QMetaType::type(variant->typeName()), (void *) variant->constData());
+		Smoke::ModuleIndex mi = o->smoke->findClass(variant->typeName());
+		vo = alloc_smokeruby_object(true, mi.smoke, mi.index, value_ptr);
+		return set_obj_info(qtruby_modules[mi.smoke].binding->className(mi.index), vo);
+	}
+
+	const char * classname = rb_class2name(variant_value_klass);
+    Smoke::ModuleIndex * value_class_id = classcache.value(classname);
+	if (value_class_id == 0) {
+		return Qnil;
+	}
+
+	if (qstrcmp(classname, "Qt::Pixmap") == 0) {
+		QPixmap v = qVariantValue<QPixmap>(*variant);
+		value_ptr = (void *) new QPixmap(v);
+	} else if (qstrcmp(classname, "Qt::Font") == 0) {
+		QFont v = qVariantValue<QFont>(*variant);
+		value_ptr = (void *) new QFont(v);
+	} else if (qstrcmp(classname, "Qt::Brush") == 0) {
+		QBrush v = qVariantValue<QBrush>(*variant);
+		value_ptr = (void *) new QBrush(v);
+	} else if (qstrcmp(classname, "Qt::Color") == 0) {
+		QColor v = qVariantValue<QColor>(*variant);
+		value_ptr = (void *) new QColor(v);
+	} else if (qstrcmp(classname, "Qt::Palette") == 0) {
+		QPalette v = qVariantValue<QPalette>(*variant);
+		value_ptr = (void *) new QPalette(v);
+	} else if (qstrcmp(classname, "Qt::Icon") == 0) {
+		QIcon v = qVariantValue<QIcon>(*variant);
+		value_ptr = (void *) new QIcon(v);
+	} else if (qstrcmp(classname, "Qt::Image") == 0) {
+		QImage v = qVariantValue<QImage>(*variant);
+		value_ptr = (void *) new QImage(v);
+	} else if (qstrcmp(classname, "Qt::Polygon") == 0) {
+		QPolygon v = qVariantValue<QPolygon>(*variant);
+		value_ptr = (void *) new QPolygon(v);
+	} else if (qstrcmp(classname, "Qt::Region") == 0) {
+		QRegion v = qVariantValue<QRegion>(*variant);
+		value_ptr = (void *) new QRegion(v);
+	} else if (qstrcmp(classname, "Qt::Bitmap") == 0) {
+		QBitmap v = qVariantValue<QBitmap>(*variant);
+		value_ptr = (void *) new QBitmap(v);
+	} else if (qstrcmp(classname, "Qt::Cursor") == 0) {
+		QCursor v = qVariantValue<QCursor>(*variant);
+		value_ptr = (void *) new QCursor(v);
+	} else if (qstrcmp(classname, "Qt::SizePolicy") == 0) {
+		QSizePolicy v = qVariantValue<QSizePolicy>(*variant);
+		value_ptr = (void *) new QSizePolicy(v);
+	} else if (qstrcmp(classname, "Qt::KeySequence") == 0) {
+		QKeySequence v = qVariantValue<QKeySequence>(*variant);
+		value_ptr = (void *) new QKeySequence(v);
+	} else if (qstrcmp(classname, "Qt::Pen") == 0) {
+		QPen v = qVariantValue<QPen>(*variant);
+		value_ptr = (void *) new QPen(v);
+	} else if (qstrcmp(classname, "Qt::TextLength") == 0) {
+		QTextLength v = qVariantValue<QTextLength>(*variant);
+		value_ptr = (void *) new QTextLength(v);
+	} else if (qstrcmp(classname, "Qt::TextFormat") == 0) {
+		QTextFormat v = qVariantValue<QTextFormat>(*variant);
+		value_ptr = (void *) new QTextFormat(v);
+	} else if (qstrcmp(classname, "Qt::Variant") == 0) {
+		value_ptr = (void *) new QVariant(*((QVariant *) variant->constData()));
+	} else {
+		// Assume the value of the Qt::Variant can be obtained
+		// with a call such as Qt::Variant.toPoint()
+		QByteArray toValueMethodName(classname);
+		if (toValueMethodName.startsWith("Qt::")) {
+			toValueMethodName.remove(0, strlen("Qt::"));
+		}
+		toValueMethodName.prepend("to");
+		return rb_funcall(variant_value, rb_intern(toValueMethodName), 1, variant_value);
+	}
+
+	vo = alloc_smokeruby_object(true, value_class_id->smoke, value_class_id->index, value_ptr);
+	result = set_obj_info(classname, vo);
+
+	return result;
+}
+
+static VALUE
+qvariant_from_value(int argc, VALUE * argv, VALUE self)
+{
+	if (argc == 2) {
+		Smoke::ModuleIndex nameId = qt_Smoke->NullModuleIndex;
+		if (TYPE(argv[0]) == T_DATA) {
+			nameId = qt_Smoke->idMethodName("QVariant#");
+		} else if (TYPE(argv[0]) == T_ARRAY || TYPE(argv[0]) == T_ARRAY) {
+			nameId = qt_Smoke->idMethodName("QVariant?");
+		} else {
+			nameId = qt_Smoke->idMethodName("QVariant$");
+		}
+
+		Smoke::ModuleIndex meth = qt_Smoke->findMethod(qt_Smoke->idClass("QVariant"), nameId);
+		Smoke::Index i = meth.smoke->methodMaps[meth.index].method;
+		i = -i;		// turn into ambiguousMethodList index
+		while (meth.smoke->ambiguousMethodList[i] != 0) {
+			if (	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args]].name,
+								StringValuePtr(argv[1]) ) == 0 )
+			{
+				_current_method.smoke = meth.smoke;
+				_current_method.index = meth.smoke->ambiguousMethodList[i];
+				QtRuby::MethodCall c(meth.smoke, _current_method.index, self, argv, 0);
+				c.next();
+				return *(c.var());
+			}
+
+			i++;
+		}
+	}
+
+	const char * classname = rb_obj_classname(argv[0]);
+    smokeruby_object *o = value_obj_info(argv[0]);
+	if (o == 0 || o->ptr == 0) {
+		// Assume the Qt::Variant can be created with a
+		// Qt::Variant.new(obj) call
+		if (qstrcmp(classname, "Qt::Enum") == 0) {
+			return rb_funcall(qvariant_class, rb_intern("new"), 1, rb_funcall(argv[0], rb_intern("to_i"), 0));
+		} else {
+			return rb_funcall(qvariant_class, rb_intern("new"), 1, argv[0]);
+		}
+	}
+
+	QVariant * v = 0;
+
+	if (qstrcmp(classname, "Qt::Pixmap") == 0) {
+		v = new QVariant(qVariantFromValue(*(QPixmap*) o->ptr));
+	} else if (qstrcmp(classname, "Qt::Font") == 0) {
+		v = new QVariant(qVariantFromValue(*(QFont*) o->ptr));
+	} else if (qstrcmp(classname, "Qt::Brush") == 0) {
+		v = new QVariant(qVariantFromValue(*(QBrush*) o->ptr));
+	} else if (qstrcmp(classname, "Qt::Color") == 0) {
+		v = new QVariant(qVariantFromValue(*(QColor*) o->ptr));
+	} else if (qstrcmp(classname, "Qt::Palette") == 0) {
+		v = new QVariant(qVariantFromValue(*(QPalette*) o->ptr));
+	} else if (qstrcmp(classname, "Qt::Icon") == 0) {
+		v = new QVariant(qVariantFromValue(*(QIcon*) o->ptr));
+	} else if (qstrcmp(classname, "Qt::Image") == 0) {
+		v = new QVariant(qVariantFromValue(*(QImage*) o->ptr));
+	} else if (qstrcmp(classname, "Qt::Polygon") == 0) {
+		v = new QVariant(qVariantFromValue(*(QPolygon*) o->ptr));
+	} else if (qstrcmp(classname, "Qt::Region") == 0) {
+		v = new QVariant(qVariantFromValue(*(QRegion*) o->ptr));
+	} else if (qstrcmp(classname, "Qt::Bitmap") == 0) {
+		v = new QVariant(qVariantFromValue(*(QBitmap*) o->ptr));
+	} else if (qstrcmp(classname, "Qt::Cursor") == 0) {
+		v = new QVariant(qVariantFromValue(*(QCursor*) o->ptr));
+	} else if (qstrcmp(classname, "Qt::SizePolicy") == 0) {
+		v = new QVariant(qVariantFromValue(*(QSizePolicy*) o->ptr));
+	} else if (qstrcmp(classname, "Qt::KeySequence") == 0) {
+		v = new QVariant(qVariantFromValue(*(QKeySequence*) o->ptr));
+	} else if (qstrcmp(classname, "Qt::Pen") == 0) {
+		v = new QVariant(qVariantFromValue(*(QPen*) o->ptr));
+	} else if (qstrcmp(classname, "Qt::TextLength") == 0) {
+		v = new QVariant(qVariantFromValue(*(QTextLength*) o->ptr));
+	} else if (qstrcmp(classname, "Qt::TextFormat") == 0) {
+		v = new QVariant(qVariantFromValue(*(QTextFormat*) o->ptr));
+	} else if (QVariant::nameToType(o->smoke->classes[o->classId].className) >= QVariant::UserType) {
+		v = new QVariant(QMetaType::type(o->smoke->classes[o->classId].className), o->ptr);
+	} else {
+		// Assume the Qt::Variant can be created with a
+		// Qt::Variant.new(obj) call
+		return rb_funcall(qvariant_class, rb_intern("new"), 1, argv[0]);
+	}
+
+	smokeruby_object * vo = alloc_smokeruby_object(true, qt_Smoke, qt_Smoke->idClass("QVariant").index, v);
+	VALUE result = set_obj_info("Qt::Variant", vo);
+
+	return result;
+}
+
+static VALUE
 new_qvariant(int argc, VALUE * argv, VALUE self)
 {
 static Smoke::Index new_qvariant_qlist = 0;
@@ -872,7 +1049,7 @@ static Smoke::Index new_qvariant_qmap = 0;
 	if (argc == 1 && TYPE(argv[0]) == T_HASH) {
 		_current_method.smoke = qt_Smoke;
 		_current_method.index = new_qvariant_qmap;
-		MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
+		QtRuby::MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
 		c.next();
     	return *(c.var());
 	} else if (	argc == 1 
@@ -882,7 +1059,7 @@ static Smoke::Index new_qvariant_qmap = 0;
 	{
 		_current_method.smoke = qt_Smoke;
 		_current_method.index = new_qvariant_qlist;
-		MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
+		QtRuby::MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
 		c.next();
 		return *(c.var());
 	}
@@ -968,7 +1145,7 @@ initialize_qt(int argc, VALUE * argv, VALUE self)
 	{
 		// Allocate the MethodCall within a C block. Otherwise, because the continue_new_instance()
 		// call below will longjmp out, it wouldn't give C++ an opportunity to clean up
-		MethodCall c(_current_method.smoke, _current_method.index, self, temp_stack+4, argc);
+		QtRuby::MethodCall c(_current_method.smoke, _current_method.index, self, temp_stack+4, argc);
 		c.next();
 		temp_obj = *(c.var());
 	}
@@ -1007,26 +1184,6 @@ new_qt(int argc, VALUE * argv, VALUE klass)
 	return result;
 }
 
-static VALUE
-new_qapplication(int argc, VALUE * argv, VALUE klass)
-{
- 	VALUE result = Qnil;
-
-	if (argc == 1 && TYPE(argv[0]) == T_ARRAY) {
-		// Convert '(ARGV)' to '(NUM, [$0]+ARGV)'
-		VALUE * local_argv = ALLOCA_N(VALUE, argc + 1);
-		VALUE temp = rb_ary_dup(argv[0]);
-		rb_ary_unshift(temp, rb_gv_get("$0"));
-		local_argv[0] = INT2NUM(RARRAY(temp)->len);
-		local_argv[1] = temp;
-		result = new_qt(2, local_argv, klass);
-	} else {
-		result = new_qt(argc, argv, klass);
-	}
-
-	rb_gv_set("$qApp", result);
-	return result;
-}
 
 // Returns $qApp.ARGV() - the original ARGV array with Qt command line options removed
 static VALUE
@@ -1086,7 +1243,7 @@ static QRegExp * rx = 0;
 
 	VALUE result = Qnil;
 	// Okay, we have the signal info. *whew*
-	EmitSignal signal(qobj, i, argc, args, argv, &result);
+	QtRuby::EmitSignal signal(qobj, i, argc, args, argv, &result);
 	signal.next();
 
 	return result;
@@ -1161,7 +1318,7 @@ static QRegExp * rx = 0;
 			rx = new QRegExp("\\(.*");
 		}
 		name.replace(*rx, "");
-		InvokeSlot slot(self, rb_intern(name.toLatin1()), mocArgs, _o);
+		QtRuby::InvokeSlot slot(self, rb_intern(name.toLatin1()), mocArgs, _o);
 		slot.next();
 	}
 	
@@ -1384,14 +1541,15 @@ debugging(VALUE /*self*/)
 }
 
 static VALUE
-getTypeNameOfArg(VALUE /*self*/, VALUE method_value, VALUE idx_value)
+get_arg_type_name(VALUE /*self*/, VALUE method_value, VALUE idx_value)
 {
     int method = NUM2INT(rb_funcall(method_value, rb_intern("index"), 0));
     int smokeIndex = NUM2INT(rb_funcall(method_value, rb_intern("smoke"), 0));
+    Smoke * smoke = smokeList[smokeIndex];
     int idx = NUM2INT(idx_value);
-    Smoke::Method &m = smokeList[smokeIndex]->methods[method];
-    Smoke::Index *args = smokeList[smokeIndex]->argumentList + m.args;
-    return rb_str_new2((char*)smokeList[smokeIndex]->types[args[idx]].name);
+    Smoke::Method &m = smoke->methods[method];
+    Smoke::Index *args = smoke->argumentList + m.args;
+    return rb_str_new2((char*)smoke->types[args[idx]].name);
 }
 
 static VALUE
@@ -1447,7 +1605,7 @@ find_pclassid(VALUE /*self*/, VALUE p_value)
 }
 
 static VALUE
-getVALUEtype(VALUE /*self*/, VALUE ruby_value)
+get_value_type(VALUE /*self*/, VALUE ruby_value)
 {
     return rb_str_new2(get_VALUEtype(ruby_value));
 }
@@ -1771,7 +1929,6 @@ create_qobject_class(VALUE /*self*/, VALUE package_value, VALUE module_value)
 	}
 	
 	if (packageName == "Qt::Application" || packageName == "Qt::CoreApplication" ) {
-		rb_define_singleton_method(klass, "new", (VALUE (*) (...)) new_qapplication, -1);
 		rb_define_method(klass, "ARGV", (VALUE (*) (...)) qapplication_argv, 0);
 	} else if (packageName == "Qt::Object") {
 		rb_define_singleton_method(klass, "staticMetaObject", (VALUE (*) (...)) qobject_staticmetaobject, 0);
@@ -1845,10 +2002,6 @@ create_qt_class(VALUE /*self*/, VALUE package_value, VALUE module_value)
 		qvariant_class = klass;
 		rb_define_singleton_method(qvariant_class, "fromValue", (VALUE (*) (...)) qvariant_from_value, -1);
     	rb_define_singleton_method(qvariant_class, "new", (VALUE (*) (...)) new_qvariant, -1);
-#ifdef QT_QTDBUS 
-		rb_define_method(klass, "qdbusobjectpath_value", (VALUE (*) (...)) qvariant_qdbusobjectpath_value, 1);
-		rb_define_method(klass, "qdbussignature_value", (VALUE (*) (...)) qvariant_qdbussignature_value, 1);
-#endif
 	} else if (packageName == "Qt::ByteArray") {
 		rb_define_method(klass, "+", (VALUE (*) (...)) qbytearray_append, 1);
 	} else if (packageName == "Qt::Char") {
@@ -1900,22 +2053,23 @@ set_application_terminated(VALUE /*self*/, VALUE yn)
 	return Qnil;
 }
 
+static VALUE
+set_qtruby_embedded_wrapped(VALUE /*self*/, VALUE yn)
+{
+  set_qtruby_embedded( yn == Qtrue );
+  return Qnil;
+}
+
+static QtRuby::Binding binding;
+
 extern Q_DECL_EXPORT void
 Init_qtruby4()
 {
-// 	if (qt_Smoke != 0L) {
-// 		// This function must have been called twice because both
-// 		// 'require Qt' and 'require Korundum' statements have
-// 		// been included in a ruby program
-// 		rb_fatal("require 'Qt' must not follow require 'Korundum'\n");
-// 		return;
-// 	}
-
     if (qt_Smoke == 0) init_qt_Smoke();
     smokeList << qt_Smoke;
-    qt_Smoke->binding = new QtRubySmokeBinding(qt_Smoke);
 
-    QtRubyModule module = { "QtRuby", resolve_classname_qt, 0 };
+    binding = QtRuby::Binding(qt_Smoke);
+    QtRubyModule module = { "QtRuby", resolve_classname_qt, 0, &binding };
     qtruby_modules[qt_Smoke] = module;
 
     install_handlers(Qt_handlers);
@@ -1953,12 +2107,12 @@ Init_qtruby4()
     rb_define_module_function(qt_internal_module, "getIsa", (VALUE (*) (...)) getIsa, 1);
     rb_define_module_function(qt_internal_module, "setDebug", (VALUE (*) (...)) setDebug, 1);
     rb_define_module_function(qt_internal_module, "debug", (VALUE (*) (...)) debugging, 0);
-    rb_define_module_function(qt_internal_module, "getTypeNameOfArg", (VALUE (*) (...)) getTypeNameOfArg, 2);
+    rb_define_module_function(qt_internal_module, "get_arg_type_name", (VALUE (*) (...)) get_arg_type_name, 2);
     rb_define_module_function(qt_internal_module, "classIsa", (VALUE (*) (...)) classIsa, 2);
     rb_define_module_function(qt_internal_module, "isEnum", (VALUE (*) (...)) isEnum, 1);
     rb_define_module_function(qt_internal_module, "insert_pclassid", (VALUE (*) (...)) insert_pclassid, 2);
     rb_define_module_function(qt_internal_module, "find_pclassid", (VALUE (*) (...)) find_pclassid, 1);
-    rb_define_module_function(qt_internal_module, "getVALUEtype", (VALUE (*) (...)) getVALUEtype, 1);
+    rb_define_module_function(qt_internal_module, "get_value_type", (VALUE (*) (...)) get_value_type, 1);
 
     rb_define_module_function(qt_internal_module, "make_metaObject", (VALUE (*) (...)) make_metaObject, 4);
     rb_define_module_function(qt_internal_module, "addMetaObjectMethods", (VALUE (*) (...)) add_metaobject_methods, 1);
@@ -1981,7 +2135,8 @@ Init_qtruby4()
     rb_define_module_function(qt_internal_module, "create_qobject_class", (VALUE (*) (...)) create_qobject_class, 2);
     rb_define_module_function(qt_internal_module, "cast_object_to", (VALUE (*) (...)) cast_object_to, 2);
     rb_define_module_function(qt_internal_module, "kross2smoke", (VALUE (*) (...)) kross2smoke, 2);
-    rb_define_module_function(qt_internal_module, "smoke2kross", (VALUE (*) (...)) smoke2kross, 1);
+    rb_define_module_function(qt_internal_module, "set_qtruby_embedded", (VALUE (*) (...)) set_qtruby_embedded_wrapped, 1);
+    
     rb_define_module_function(qt_internal_module, "application_terminated=", (VALUE (*) (...)) set_application_terminated, 1);
     
 	rb_define_module_function(qt_module, "version", (VALUE (*) (...)) version, 0);

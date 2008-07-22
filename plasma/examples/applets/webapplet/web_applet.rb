@@ -34,27 +34,39 @@ class WebApplet < Plasma::Applet
         'load(QUrl)',
         'setHtml(QByteArray)',
         'loadHtml(QUrl)',
-        'loadDone(bool)'
+        'loadFinished(bool)'
 
   def initialize(parent, args)
+Qt::Internal::setDebug Qt::QtDebugChannel::QTDB_ALL
     super
   end
 
   def init
+puts "init 1"
     resize(600, 400)
+puts "init 2"
 
+ Qt::debug_level = Qt::DebugLevel::High
     @page = Plasma::WebContent.new(self)
+puts "init 3"
     @page.page = Qt::WebPage.new(@page)
+puts "init 4"
     @page.page.linkDelegationPolicy = Qt::WebPage::DelegateAllLinks
+puts "init 5"
     @page.page.settings.setAttribute(Qt::WebSettings::LinksIncludedInFocusChain, true)
+puts "init 6"
 
-    connect(@page, SIGNAL('loadDone(bool)'), self, SLOT('loadDone(bool)'))
+    connect(@page, SIGNAL('loadFinished(bool)'), self, SLOT('loadFinished(bool)'))
     connect(@page.page, SIGNAL('linkClicked(QUrl)'), self, SLOT('load(QUrl)'))
+puts "init 7"
 
     @page.mainFrame.setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff)
+puts "init 8"
     @page.mainFrame.setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff)
+puts "init 9"
 
     @page.url = Qt::Url.new("http://dot.kde.org/")
+puts "init 10"
   end
 
   def paintInterface(p, option, rect)
@@ -69,7 +81,7 @@ class WebApplet < Plasma::Applet
     @page
   end
 
-  def loadDone(success)
+  def loadFinished(success)
     puts "page loaded #{@page.page.currentFrame.url.toString}"
   end
 

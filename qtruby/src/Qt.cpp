@@ -215,11 +215,13 @@ void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *last
 	return;
 }
 
+namespace QtRuby {
 
-QtRubySmokeBinding::QtRubySmokeBinding(Smoke *s) : SmokeBinding(s) {}
+Binding::Binding() : SmokeBinding(0) {}
+Binding::Binding(Smoke *s) : SmokeBinding(s) {}
 
 void
-QtRubySmokeBinding::deleted(Smoke::Index classId, void *ptr) {
+Binding::deleted(Smoke::Index classId, void *ptr) {
 	if (!pointer_map()) {
 	return;
 	}
@@ -236,7 +238,7 @@ QtRubySmokeBinding::deleted(Smoke::Index classId, void *ptr) {
 }
 
 bool
-QtRubySmokeBinding::callMethod(Smoke::Index method, void *ptr, Smoke::Stack args, bool /*isAbstract*/) {
+Binding::callMethod(Smoke::Index method, void *ptr, Smoke::Stack args, bool /*isAbstract*/) {
 	VALUE obj = getPointerObject(ptr);
 	smokeruby_object *o = value_obj_info(obj);
 
@@ -272,13 +274,13 @@ QtRubySmokeBinding::callMethod(Smoke::Index method, void *ptr, Smoke::Stack args
 	if (rb_respond_to(obj, rb_intern(methodName)) == 0) {
     	return false;
 	}
-	VirtualMethodCall c(smoke, method, args, obj, ALLOCA_N(VALUE, smoke->methods[method].numArgs));
+	QtRuby::VirtualMethodCall c(smoke, method, args, obj, ALLOCA_N(VALUE, smoke->methods[method].numArgs));
 	c.next();
 	return true;
 }
 
 char*
-QtRubySmokeBinding::className(Smoke::Index classId) {
+Binding::className(Smoke::Index classId) {
 	Smoke::ModuleIndex mi = { smoke, classId };
 	return (char *) (const char *) *(classname.value(mi));
 }
@@ -440,6 +442,8 @@ bool
 InvokeNativeSlot::cleanup() 
 { 
 	return true; 
+}
+
 }
 
 void rb_str_catf(VALUE self, const char *format, ...) 
@@ -864,7 +868,7 @@ static QByteArray * name = 0;
 										QList<MocArgument*> args = get_moc_arguments(	o->smoke, meta->method(id).typeName(), 
 																						meta->method(id).parameterTypes() );
 										VALUE result = Qnil;
-										InvokeNativeSlot slot(qobject, id, argc - 1, args, argv + 1, &result);
+										QtRuby::InvokeNativeSlot slot(qobject, id, argc - 1, args, argv + 1, &result);
 										slot.next();
 										return result;
 									}
@@ -882,7 +886,7 @@ static QByteArray * name = 0;
 			methcache.insert(*mcid, new Smoke::ModuleIndex(_current_method));
 		}
 	}
-    MethodCall c(_current_method.smoke, _current_method.index, self, temp_stack+4, argc-1);
+    QtRuby::MethodCall c(_current_method.smoke, _current_method.index, self, temp_stack+4, argc-1);
     c.next();
     VALUE result = *(c.var());
     return result;
@@ -935,7 +939,7 @@ static QRegExp * rx = 0;
 			return rb_call_super(argc, argv);
 		}
     }
-    MethodCall c(_current_method.smoke, _current_method.index, Qnil, temp_stack+4, argc-1);
+    QtRuby::MethodCall c(_current_method.smoke, _current_method.index, Qnil, temp_stack+4, argc-1);
     c.next();
     result = *(c.var());
     return result;
@@ -964,11 +968,38 @@ static QRegExp * rx = 0;
 			QString staticType = (rx->indexIn(name) != -1 ? rx->cap(1) : "ptr");
 			if (staticType == "ptr") {
 				arg->argType = xmoc_ptr;
-				typeId = smoke->idType(name.constData());
+				QByteArray targetType = name;
+				typeId = smoke->idType(targetType.constData());
 				if (typeId == 0 && !name.contains('*')) {
-					name += "&";
-					typeId = smoke->idType(name.constData());
+					if (!name.contains("&")) {
+						targetType += "&";
+					}
+					typeId = smoke->idType(targetType.constData());
 				}
+
+				// This shouldn't be necessary because the type of the slot arg should always be in the 
+				// smoke module of the slot being invoked. However, that isn't true for a dataUpdated()
+				// slot in a PlasmaScripting::Applet
+				if (typeId == 0) {
+					QHash<Smoke*, QtRubyModule>::const_iterator it;
+					for (it = qtruby_modules.constBegin(); it != qtruby_modules.constEnd(); ++it) {
+						smoke = it.key();
+						targetType = name;
+						typeId = smoke->idType(targetType.constData());
+	
+						if (typeId == 0 && !name.contains('*')) {
+							if (!name.contains("&")) {
+								targetType += "&";
+							}
+
+							typeId = smoke->idType(targetType.constData());
+	
+							if (typeId != 0) {
+								break;
+							}
+						}
+					}
+				}			
 			} else if (staticType == "bool") {
 				arg->argType = xmoc_bool;
 				typeId = smoke->idType(name.constData());
@@ -1156,195 +1187,6 @@ kross2smoke(VALUE /*self*/, VALUE krobject, VALUE new_klass)
   VALUE obj = Data_Wrap_Struct(new_klass, smokeruby_mark, smokeruby_free, (void *) o_cast);
   mapPointer(obj, o_cast, o_cast->classId, 0);
   return obj;
-}
-
-VALUE
-smoke2kross(VALUE /* self*/, VALUE sobj)
-{
-  smokeruby_object * o;
-  Data_Get_Struct(sobj, smokeruby_object, o);	
-  
-  return Data_Wrap_Struct(rb_cObject, 0, 0, o->ptr );
-}
-
-VALUE
-qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
-{
-	const char * classname = rb_class2name(variant_value_klass);
-    smokeruby_object *o = value_obj_info(variant_value);
-	if (o == 0 || o->ptr == 0) {
-		return Qnil;
-	}
-
-	QVariant * variant = (QVariant*) o->ptr;
-
-    Smoke::ModuleIndex * value_class_id = classcache.value(classname);
-	if (value_class_id == 0) {
-		return Qnil;
-	}
-
-	void * value_ptr = 0;
-	VALUE result = Qnil;
-	smokeruby_object * vo = 0;
-
-	if (qstrcmp(classname, "Qt::Pixmap") == 0) {
-		QPixmap v = qVariantValue<QPixmap>(*variant);
-		value_ptr = (void *) new QPixmap(v);
-	} else if (qstrcmp(classname, "Qt::Font") == 0) {
-		QFont v = qVariantValue<QFont>(*variant);
-		value_ptr = (void *) new QFont(v);
-	} else if (qstrcmp(classname, "Qt::Brush") == 0) {
-		QBrush v = qVariantValue<QBrush>(*variant);
-		value_ptr = (void *) new QBrush(v);
-	} else if (qstrcmp(classname, "Qt::Color") == 0) {
-		QColor v = qVariantValue<QColor>(*variant);
-		value_ptr = (void *) new QColor(v);
-	} else if (qstrcmp(classname, "Qt::Palette") == 0) {
-		QPalette v = qVariantValue<QPalette>(*variant);
-		value_ptr = (void *) new QPalette(v);
-	} else if (qstrcmp(classname, "Qt::Icon") == 0) {
-		QIcon v = qVariantValue<QIcon>(*variant);
-		value_ptr = (void *) new QIcon(v);
-	} else if (qstrcmp(classname, "Qt::Image") == 0) {
-		QImage v = qVariantValue<QImage>(*variant);
-		value_ptr = (void *) new QImage(v);
-	} else if (qstrcmp(classname, "Qt::Polygon") == 0) {
-		QPolygon v = qVariantValue<QPolygon>(*variant);
-		value_ptr = (void *) new QPolygon(v);
-	} else if (qstrcmp(classname, "Qt::Region") == 0) {
-		QRegion v = qVariantValue<QRegion>(*variant);
-		value_ptr = (void *) new QRegion(v);
-	} else if (qstrcmp(classname, "Qt::Bitmap") == 0) {
-		QBitmap v = qVariantValue<QBitmap>(*variant);
-		value_ptr = (void *) new QBitmap(v);
-	} else if (qstrcmp(classname, "Qt::Cursor") == 0) {
-		QCursor v = qVariantValue<QCursor>(*variant);
-		value_ptr = (void *) new QCursor(v);
-	} else if (qstrcmp(classname, "Qt::SizePolicy") == 0) {
-		QSizePolicy v = qVariantValue<QSizePolicy>(*variant);
-		value_ptr = (void *) new QSizePolicy(v);
-	} else if (qstrcmp(classname, "Qt::KeySequence") == 0) {
-		QKeySequence v = qVariantValue<QKeySequence>(*variant);
-		value_ptr = (void *) new QKeySequence(v);
-	} else if (qstrcmp(classname, "Qt::Pen") == 0) {
-		QPen v = qVariantValue<QPen>(*variant);
-		value_ptr = (void *) new QPen(v);
-	} else if (qstrcmp(classname, "Qt::TextLength") == 0) {
-		QTextLength v = qVariantValue<QTextLength>(*variant);
-		value_ptr = (void *) new QTextLength(v);
-	} else if (qstrcmp(classname, "Qt::TextFormat") == 0) {
-		QTextFormat v = qVariantValue<QTextFormat>(*variant);
-		value_ptr = (void *) new QTextFormat(v);
-	} else if (qstrcmp(classname, "Qt::Variant") == 0) {
-		value_ptr = (void *) new QVariant(*((QVariant *) variant->constData()));
-	} else if (variant->type() >= QVariant::UserType) { 
-		value_ptr = QMetaType::construct(QMetaType::type(variant->typeName()), (void *) variant->constData());
-	} else {
-		// Assume the value of the Qt::Variant can be obtained
-		// with a call such as Qt::Variant.toPoint()
-		QByteArray toValueMethodName(classname);
-		if (toValueMethodName.startsWith("Qt::")) {
-			toValueMethodName.remove(0, strlen("Qt::"));
-		}
-		toValueMethodName.prepend("to");
-		return rb_funcall(variant_value, rb_intern(toValueMethodName), 1, variant_value);
-	}
-
-	vo = alloc_smokeruby_object(true, value_class_id->smoke, value_class_id->index, value_ptr);
-	result = set_obj_info(classname, vo);
-
-	return result;
-}
-
-VALUE
-qvariant_from_value(int argc, VALUE * argv, VALUE self)
-{
-	if (argc == 2) {
-		Smoke::ModuleIndex nameId = qt_Smoke->NullModuleIndex;
-		if (TYPE(argv[0]) == T_DATA) {
-			nameId = qt_Smoke->idMethodName("QVariant#");
-		} else if (TYPE(argv[0]) == T_ARRAY || TYPE(argv[0]) == T_ARRAY) {
-			nameId = qt_Smoke->idMethodName("QVariant?");
-		} else {
-			nameId = qt_Smoke->idMethodName("QVariant$");
-		}
-
-		Smoke::ModuleIndex meth = qt_Smoke->findMethod(qt_Smoke->idClass("QVariant"), nameId);
-		Smoke::Index i = meth.smoke->methodMaps[meth.index].method;
-		i = -i;		// turn into ambiguousMethodList index
-		while (meth.smoke->ambiguousMethodList[i] != 0) {
-			if (	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args]].name,
-								StringValuePtr(argv[1]) ) == 0 )
-			{
-				_current_method.smoke = meth.smoke;
-				_current_method.index = meth.smoke->ambiguousMethodList[i];
-				MethodCall c(meth.smoke, _current_method.index, self, argv, 0);
-				c.next();
-				return *(c.var());
-			}
-
-			i++;
-		}
-	}
-
-	const char * classname = rb_obj_classname(argv[0]);
-    smokeruby_object *o = value_obj_info(argv[0]);
-	if (o == 0 || o->ptr == 0) {
-		// Assume the Qt::Variant can be created with a
-		// Qt::Variant.new(obj) call
-		if (qstrcmp(classname, "Qt::Enum") == 0) {
-			return rb_funcall(qvariant_class, rb_intern("new"), 1, rb_funcall(argv[0], rb_intern("to_i"), 0));
-		} else {
-			return rb_funcall(qvariant_class, rb_intern("new"), 1, argv[0]);
-		}
-	}
-
-	QVariant * v = 0;
-
-	if (qstrcmp(classname, "Qt::Pixmap") == 0) {
-		v = new QVariant(qVariantFromValue(*(QPixmap*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Font") == 0) {
-		v = new QVariant(qVariantFromValue(*(QFont*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Brush") == 0) {
-		v = new QVariant(qVariantFromValue(*(QBrush*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Color") == 0) {
-		v = new QVariant(qVariantFromValue(*(QColor*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Palette") == 0) {
-		v = new QVariant(qVariantFromValue(*(QPalette*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Icon") == 0) {
-		v = new QVariant(qVariantFromValue(*(QIcon*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Image") == 0) {
-		v = new QVariant(qVariantFromValue(*(QImage*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Polygon") == 0) {
-		v = new QVariant(qVariantFromValue(*(QPolygon*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Region") == 0) {
-		v = new QVariant(qVariantFromValue(*(QRegion*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Bitmap") == 0) {
-		v = new QVariant(qVariantFromValue(*(QBitmap*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Cursor") == 0) {
-		v = new QVariant(qVariantFromValue(*(QCursor*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::SizePolicy") == 0) {
-		v = new QVariant(qVariantFromValue(*(QSizePolicy*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::KeySequence") == 0) {
-		v = new QVariant(qVariantFromValue(*(QKeySequence*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Pen") == 0) {
-		v = new QVariant(qVariantFromValue(*(QPen*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::TextLength") == 0) {
-		v = new QVariant(qVariantFromValue(*(QTextLength*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::TextFormat") == 0) {
-		v = new QVariant(qVariantFromValue(*(QTextFormat*) o->ptr));
-	} else if (QVariant::nameToType(o->smoke->classes[o->classId].className) >= QVariant::UserType) {
-		v = new QVariant(QVariant::nameToType(o->smoke->classes[o->classId].className), o->ptr);
-	} else {
-		// Assume the Qt::Variant can be created with a
-		// Qt::Variant.new(obj) call
-		return rb_funcall(qvariant_class, rb_intern("new"), 1, argv[0]);
-	}
-
-	smokeruby_object * vo = alloc_smokeruby_object(true, o->smoke, o->smoke->findClass("QVariant").index, v);
-	VALUE result = set_obj_info("Qt::Variant", vo);
-
-	return result;
 }
 
 const char *

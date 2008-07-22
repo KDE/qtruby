@@ -244,6 +244,14 @@ module Qt
 	end
 
 	class Application < Qt::Base
+		def initialize(*args)
+			if args.length == 1 && args[0].kind_of?(Array)
+				super(args.length + 1, [$0] + args[0])
+			else
+				super(*args)
+			end
+            $qApp = self
+		end 
 		# Delete the underlying C++ instance after exec returns
 		# Otherwise, rb_gc_call_finalizer_at_exit() can delete
 		# stuff that Qt::Application still needs for its cleanup.
@@ -1990,16 +1998,7 @@ module Qt
 				return toUrl
 			end
 
-            case typeName()
-            when "QDBusArgument"
-				return qVariantValue(Qt::DBusArgument, self)
-            when "QDBusVariant"
-				return qVariantValue(Qt::Variant, self)
-            when "QDBusObjectPath"
-				return qdbusobjectpath_value(self)
-            when "QDBusSignature"
-				return qdbussignature_value(self)
-            end
+			return qVariantValue(nil, self)
 		end
 
 		def inspect
@@ -2313,7 +2312,7 @@ module Qt
 		end
 
 		def Internal.init_class(c)
-			if c == "WebCore" || c == "std"
+			if c == "WebCore" || c == "std" || c == "QGlobalSpace"
 				return
 			end
 			classname = Qt::Internal::normalize_classname(c)
@@ -2526,7 +2525,7 @@ module Qt
 					current_match = 0
 					(0...args.length).each do
 						|i|
-						current_match += checkarg( getVALUEtype(args[i]), getTypeNameOfArg(id, i) )
+						current_match += checkarg(get_value_type(args[i]), get_arg_type_name(id, i))
 					end
 					
 					# Note that if current_match > best_match, then chosen must be nil

@@ -39,10 +39,10 @@ extern VALUE rb_load_path;
     against the QtRuby libs
 */
 struct smokeruby_object {
+    void *ptr;
     bool allocated;
     void *smoke;
     int classId;
-    void *ptr;
 };
 
 //

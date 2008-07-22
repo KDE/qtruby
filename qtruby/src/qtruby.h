@@ -41,19 +41,24 @@ inline uint qHash(const Smoke::ModuleIndex& mi) {
 
 struct MocArgument;
 
-class Q_DECL_EXPORT QtRubySmokeBinding : public SmokeBinding {
+namespace QtRuby {
+
+class Q_DECL_EXPORT Binding : public SmokeBinding {
 public:
-	QtRubySmokeBinding(Smoke *s);
+	Binding();
+	Binding(Smoke *s);
 	void deleted(Smoke::Index classId, void *ptr);
 	bool callMethod(Smoke::Index method, void *ptr, Smoke::Stack args, bool /*isAbstract*/);
 	char *className(Smoke::Index classId);
 };
 
+}
+
 struct smokeruby_object {
+    void *ptr;
     bool allocated;
     Smoke *smoke;
     int classId;
-    void *ptr;
 };
 
 struct TypeHandler {
@@ -72,6 +77,7 @@ struct QtRubyModule {
     const char *name;
     ResolveClassNameFn resolve_classname;
     ClassCreatedFn class_created;
+    QtRuby::Binding *binding;
 };
 
 // keep this enum in sync with lib/Qt/qtruby4.rb
@@ -149,9 +155,6 @@ extern Q_DECL_EXPORT VALUE qobject_metaobject(VALUE self);
 extern Q_DECL_EXPORT VALUE set_obj_info(const char * className, smokeruby_object * o);
 extern Q_DECL_EXPORT VALUE cast_object_to(VALUE self, VALUE object, VALUE new_klass);
 extern Q_DECL_EXPORT VALUE kross2smoke(VALUE self, VALUE krobject, VALUE new_klass);
-extern Q_DECL_EXPORT VALUE smoke2kross(VALUE self, VALUE sobj);
-extern Q_DECL_EXPORT VALUE qvariant_value(VALUE self, VALUE variant_value_klass, VALUE variant_value);
-extern Q_DECL_EXPORT VALUE qvariant_from_value(int argc, VALUE * argv, VALUE self);
 extern Q_DECL_EXPORT const char* get_VALUEtype(VALUE ruby_value);
 extern Q_DECL_EXPORT VALUE prettyPrintMethod(Smoke::Index id);
 }

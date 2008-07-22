@@ -535,17 +535,19 @@ setup_kde_modules()
 	rb_define_singleton_method(nepomuk_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 }
 
+static QtRuby::Binding binding;
+
 Q_DECL_EXPORT void
 Init_korundum4()
 {
     rb_require("Qt4");    // need to initialize the core runtime first
     init_kde_Smoke();
 
-    kde_Smoke->binding = new QtRubySmokeBinding(kde_Smoke);
+    binding = QtRuby::Binding(kde_Smoke);
 
     smokeList << kde_Smoke;
 
-    QtRubyModule module = { "KDE", resolve_classname_kde, classCreated };
+    QtRubyModule module = { "KDE", resolve_classname_kde, classCreated, &binding };
     qtruby_modules[kde_Smoke] = module;
 
     install_handlers(KDE_handlers);
