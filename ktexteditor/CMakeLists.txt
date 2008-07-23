@@ -10,7 +10,6 @@ target_link_libraries(rubyktexteditor
     smokeqt 
     smokekde 
     smokektexteditor 
-    katepart
     qtruby4shared)
 set_target_properties(rubyktexteditor PROPERTIES PREFIX "" OUTPUT_NAME ktexteditor)
 install(TARGETS rubyktexteditor DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
