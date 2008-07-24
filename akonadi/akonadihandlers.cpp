@@ -26,9 +26,7 @@
 #include <akonadi/attribute.h>
 #include <akonadi/collection.h>
 #include <akonadi/item.h>
-#include <akonadi/job.h>
 
-DEF_LIST_MARSHALLER( AkonadiJobList, QList<Akonadi::Job*>, Akonadi::Job )
 DEF_LIST_MARSHALLER( AkonadiAttributeList, QList<Akonadi::Attribute*>, Akonadi::Attribute )
 
 DEF_VALUELIST_MARSHALLER( AkonadiAgentInstanceList, QList<Akonadi::AgentInstance>, Akonadi::AgentInstance )
@@ -44,7 +42,5 @@ TypeHandler Akonadi_handlers[] = {
     { "Akonadi::Collection::List&", marshall_AkonadiCollectionList },
     { "Akonadi::Item::List", marshall_AkonadiItemList },
     { "Akonadi::Item::List&", marshall_AkonadiItemList },
-    { "Akonadi::Job::List", marshall_AkonadiJobList },
-    { "Akonadi::Job::List&", marshall_AkonadiJobList },
     { 0, 0 }
 };
