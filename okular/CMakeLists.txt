@@ -7,7 +7,7 @@ add_library(rubyokular MODULE ${rubyokular_LIBRARY_SRC})
 target_link_libraries(rubyokular 
     ${QT_QTCORE_LIBRARY} 
     ${RUBY_LIBRARY} 
-    okularcore
+    ${OKULAR_LIBRARIES}
     smokeqt 
     smokekde 
     smokeokular 
