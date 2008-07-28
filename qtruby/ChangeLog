@@ -1,3 +1,8 @@
+2008-07-28  Richard Dale  <richard.j.dale@gmail.com>
+
+	* The code to look up the types of slot arguments was failing for types
+	  in the KTextEditor library
+
 2008-07-21  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Qt::Variant.fromValue() and Qt::Variant.value() now both work correctly

@@ -986,6 +986,9 @@ static QRegExp * rx = 0;
 						smoke = it.key();
 						targetType = name;
 						typeId = smoke->idType(targetType.constData());
+						if (typeId != 0) {
+							break;
+						}
 	
 						if (typeId == 0 && !name.contains('*')) {
 							if (!name.contains("&")) {
