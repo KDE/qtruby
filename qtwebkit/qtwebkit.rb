@@ -3,12 +3,6 @@
 module QtWebKit
     module Internal
         def self.init_all_classes
-            Qt::Internal::add_normalize_proc(Proc.new do |classname|
-                if classname =~ /^Qsci/
-                    now = classname.sub(/^Qt?(?=[A-Z])/,'Qt::')
-                end
-                now
-            end)
             getClassList.each do |c|
                 classname = Qt::Internal::normalize_classname(c)
                 id = Qt::Internal::findClass(c);
