@@ -64,11 +64,22 @@ module Plasma
       method_missing(:type, *args)
     end
   end
+
+  class Slider < Qt::Base
+    def range=(arg)
+      if arg.kind_of? Range
+        return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
+      else
+        return super(arg)
+      end
+    end
+  end
+
 end
 
 module PlasmaScripting
   class Applet < Qt::Object
-	slots	"setImmutability(Plasma::ImmutabilityType)",
+  slots  "setImmutability(Plasma::ImmutabilityType)",
             :destroy,
             :showConfigurationInterface,
             :raise,
@@ -76,7 +87,7 @@ module PlasmaScripting
             :flushPendingConstraintsEvents,
             :init
 
-    signals	:releaseVisualFocus,
+    signals :releaseVisualFocus,
             :geometryChanged,
             :configNeedsSaving,
             :activate
@@ -147,11 +158,11 @@ module PlasmaScripting
       @applet_script.package
     end
 
-	def setImmutability(immutabilityType)
+  def setImmutability(immutabilityType)
       @applet_script.applet.setImmutability(immutabilityType)
     end
 
-	def immutability=(immutabilityType)
+  def immutability=(immutabilityType)
       setImmutability(immutabilityType)
     end
 

@@ -202,6 +202,16 @@ module Plasma
     end
   end
 
+  class Frame < Qt::Base
+    def initialize(parent = nil)
+      if parent.kind_of?(PlasmaScripting::Applet)
+        super(parent.applet_script.applet)
+      else
+        super
+      end
+    end
+  end
+
   class GroupBox < Qt::Base
     def initialize(parent = nil)
       if parent.kind_of?(PlasmaScripting::Applet)
@@ -277,6 +287,26 @@ module Plasma
   end
 
   class SignalPlotter < Qt::Base
+    def initialize(parent = nil)
+      if parent.kind_of?(PlasmaScripting::Applet)
+        super(parent.applet_script.applet)
+      else
+        super
+      end
+    end
+  end
+
+  class Slider < Qt::Base
+    def initialize(parent = nil)
+      if parent.kind_of?(PlasmaScripting::Applet)
+        super(parent.applet_script.applet)
+      else
+        super
+      end
+    end
+  end
+
+  class TabBar < Qt::Base
     def initialize(parent = nil)
       if parent.kind_of?(PlasmaScripting::Applet)
         super(parent.applet_script.applet)
