@@ -45,6 +45,10 @@ module Plasma
     def type(*args)
       method_missing(:type, *args)
     end
+
+    def id(*args)
+      method_missing(:id, *args)
+    end
   end
 
   class Containment < Qt::Base
@@ -113,6 +117,14 @@ module PlasmaScripting
       end
     end
 
+    def self.const_missing(name)
+      begin
+        super(name)
+      rescue
+        Plasma::Applet.const_missing(name)
+      end
+    end
+
     def paintInterface(painter, option, contentsRect)
     end
 
@@ -135,8 +147,8 @@ module PlasmaScripting
     end
 
     def showConfigurationInterface
-        dialogId = "#{applet.id}settings#{applet.name}"
-        windowTitle = KDE::i18nc("@title:window", "%s Settings" % applet.name)
+        dialogId = "#{@applet_script.applet.id}settings#{@applet_script.applet.name}"
+        windowTitle = KDE::i18nc("@title:window", "%s Settings" % @applet_script.applet.name)
         @nullManager = KDE::ConfigSkeleton.new(nil)
         dialog = KDE::ConfigDialog.new(nil, dialogId, @nullManager)
         dialog.faceType = KDE::PageDialog::Auto

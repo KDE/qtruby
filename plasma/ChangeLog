@@ -2,6 +2,12 @@
 * The marshaller for Plasma::DataEngine::Data was creating Qt::Variants with
   the wrong smoke pointer in the smokeruby_object struct, and this was causing
   a crash in the GC marking function.
+* In PlasmaScripting::Applet, if a constant such as NoBackground is referenced
+  and found to be missing, then look for it in Plasma::Applet.
+* Fix bugs in the PlasmaScripting::Applet#showConfigurationInterface method
+* Special case Plasma::Applet#id so it doesn't get a Ruby warning.
+* In PlasmaScriptengineRuby::Applet the module name wasn't being derived 
+  correctly from the Package path
 
 2008-08-06  Richard Dale  <richard.j.dale@gmail.com>
 * Add some fixes for the new Plasma::Frame and Plasma::Slider widgets
