@@ -20,6 +20,7 @@
 #include <qtruby.h>
 #include <smokeruby.h>
 #include <marshall_macros.h>
+#include <smoke/qt_smoke.h>
 
 #include <plasma/packagestructure.h>
 #include <plasma/containment.h>
@@ -113,8 +114,8 @@ void marshall_QHashQStringQVariant(Marshall *m) {
 				
 			if (obj == Qnil) {
 				smokeruby_object  * o = alloc_smokeruby_object(	true, 
-																m->smoke(), 
-																m->smoke()->idClass("QVariant").index, 
+																qt_Smoke, 
+																qt_Smoke->idClass("QVariant").index, 
 																p );
 				obj = set_obj_info("Qt::Variant", o);
 			}

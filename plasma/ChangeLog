@@ -1,4 +1,9 @@
-2008-08-08  Richard Dale  <richard.j.dale@gmail.com>
+2008-08-07  Richard Dale  <richard.j.dale@gmail.com>
+* The marshaller for Plasma::DataEngine::Data was creating Qt::Variants with
+  the wrong smoke pointer in the smokeruby_object struct, and this was causing
+  a crash in the GC marking function.
+
+2008-08-06  Richard Dale  <richard.j.dale@gmail.com>
 * Add some fixes for the new Plasma::Frame and Plasma::Slider widgets
 
 2008-07-03  Richard Dale  <richard.j.dale@gmail.com>
