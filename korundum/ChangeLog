@@ -1,3 +1,8 @@
+2008-08-07  Richard Dale  <richard.j.dale@gmail.com>
+
+	* The special cased KDE::ConfigSkeleton.new(nil) constructor wasn't 
+	  working
+
 2008-07-21  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Fix the KService offer list marshaller

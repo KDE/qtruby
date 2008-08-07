@@ -74,6 +74,15 @@ static VALUE
 config_initialize(int argc, VALUE * argv, VALUE self)
 {
 	if (argc == 1 && argv[0] == Qnil) {
+		if (TYPE(self) == T_DATA) {
+			// If a ruby block was passed then run that now
+			if (rb_block_given_p()) {
+				rb_funcall(qt_internal_module, rb_intern("run_initializer_block"), 2, self, rb_block_proc());
+			}
+	
+			return self;
+		}
+
 		KConfigSkeleton * ptr = new KConfigSkeleton(0);
 		Smoke::ModuleIndex mi = qt_Smoke->findClass("KConfigSkeleton");
 		smokeruby_object  * o = alloc_smokeruby_object(	true, 
