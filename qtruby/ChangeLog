@@ -1,3 +1,8 @@
+2008-08-07  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Fix the Qt::CoreApplication constructor so it handles the ARGV array
+	  correctly
+
 2008-07-28  Richard Dale  <richard.j.dale@gmail.com>
 
 	* The code to look up the types of slot arguments was failing for types
