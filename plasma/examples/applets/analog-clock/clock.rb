@@ -35,7 +35,7 @@ class Clock < ClockApplet
   slots :moveSecondHand, :configAccepted, 
         'dataUpdated(QString, Plasma::DataEngine::Data)'
 
-  def initialize(parent, args)
+  def initialize(parent, args = nil)
     super
     KDE::Global.locale.insertCatalog("libplasmaclock")
 
@@ -64,7 +64,7 @@ class Clock < ClockApplet
     @showTimeString = cg.readEntry("showTimeString", false)
     @showSecondHand = cg.readEntry("showSecondHand", false)
     @fancyHands = cg.readEntry("fancyHands", false)
-    @timezone = cg.readEntry("timezone", "Local")
+    self.currentTimezone = cg.readEntry("timezone", localTimezone())
 
     connectToEngine()
   end
@@ -73,9 +73,9 @@ class Clock < ClockApplet
     # Use 'dataEngine("ruby-time")' for the ruby version of the engine
     timeEngine = dataEngine("time")
     if @showSecondHand
-        timeEngine.connectSource(@timezone, self, 500)
+        timeEngine.connectSource(currentTimezone(), self, 500)
     else 
-        timeEngine.connectSource(@timezone, self, 6000, Plasma::AlignToMinute)
+        timeEngine.connectSource(currentTimezone(), self, 6000, Plasma::AlignToMinute)
     end
   end
 
@@ -199,7 +199,7 @@ class Clock < ClockApplet
       p.brush = Qt::Brush.new(background)
 
       p.setRenderHint(Qt::Painter::Antialiasing, true)
-      p.drawPath(Plasma.roundedRectangle(Qt::RectF.new(textRect.adjusted(-margin, -margin, margin, margin)), margin))
+      p.drawPath(Plasma::PaintUtils.roundedRectangle(Qt::RectF.new(textRect.adjusted(-margin, -margin, margin, margin)), margin))
       p.setRenderHint(Qt::Painter::Antialiasing, false)
 
       p.pen = Plasma::Theme::defaultTheme.color(Plasma::Theme::TextColor)
