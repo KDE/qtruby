@@ -22,11 +22,11 @@ Comment[xx]=xxAn SVG themable clockxx
 Icon=chronometer
 Type=Service
 ServiceTypes=Plasma/Applet
-X-Plasma-API=ruby
+X-Plasma-API=ruby-script
 
 X-KDE-PluginInfo-Author=The Plasma Team
 X-KDE-PluginInfo-Email=panel-devel@kde.org
-X-KDE-PluginInfo-Name=ruby-clock
+X-KDE-PluginInfo-Name=plasma_applet_ruby_clock
 X-KDE-PluginInfo-Version=pre0.1
 X-KDE-PluginInfo-Website=http://plasma.kde.org/
 X-KDE-PluginInfo-Category=Date and Time

@@ -156,7 +156,8 @@ module PlasmaScripting
         @dialog.setAttribute(Qt::WA_DeleteOnClose, true)
         createConfigurationInterface(@dialog)
         # TODO: would be nice to not show dialog if there are no pages added?
-        connect(@dialog, SIGNAL(:finished), @nullManager, SLOT(:deleteLater))
+        # Don't connect to the deleteLater() slot in Ruby as it causes crashes
+        # connect(@dialog, SIGNAL(:finished), @nullManager, SLOT(:deleteLater))
         # TODO: Apply button does not correctly work for now, so do not show it
         @dialog.showButton(KDE::Dialog::Apply, false)
         @dialog.show
