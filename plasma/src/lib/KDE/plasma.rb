@@ -150,16 +150,16 @@ module PlasmaScripting
         dialogId = "#{@applet_script.applet.id}settings#{@applet_script.applet.name}"
         windowTitle = KDE::i18nc("@title:window", "%s Settings" % @applet_script.applet.name)
         @nullManager = KDE::ConfigSkeleton.new(nil)
-        dialog = KDE::ConfigDialog.new(nil, dialogId, @nullManager)
-        dialog.faceType = KDE::PageDialog::Auto
-        dialog.windowTitle = windowTitle
-        dialog.setAttribute(Qt::WA_DeleteOnClose, true)
-        createConfigurationInterface(dialog)
+        @dialog = KDE::ConfigDialog.new(nil, dialogId, @nullManager)
+        @dialog.faceType = KDE::PageDialog::Auto
+        @dialog.windowTitle = windowTitle
+        @dialog.setAttribute(Qt::WA_DeleteOnClose, true)
+        createConfigurationInterface(@dialog)
         # TODO: would be nice to not show dialog if there are no pages added?
-        connect(dialog, SIGNAL(:finished), @nullManager, SLOT(:deleteLater))
+        connect(@dialog, SIGNAL(:finished), @nullManager, SLOT(:deleteLater))
         # TODO: Apply button does not correctly work for now, so do not show it
-        dialog.showButton(KDE::Dialog::Apply, false)
-        dialog.show
+        @dialog.showButton(KDE::Dialog::Apply, false)
+        @dialog.show
     end
 
     def dataEngine(engine)
@@ -170,11 +170,11 @@ module PlasmaScripting
       @applet_script.package
     end
 
-  def setImmutability(immutabilityType)
+    def setImmutability(immutabilityType)
       @applet_script.applet.setImmutability(immutabilityType)
     end
 
-  def immutability=(immutabilityType)
+    def immutability=(immutabilityType)
       setImmutability(immutabilityType)
     end
 
