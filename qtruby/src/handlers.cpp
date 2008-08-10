@@ -2394,7 +2394,7 @@ Marshall::HandlerFn getMarshallFn(const SmokeType &type) {
 		return marshall_basetype;
 	if (!type.name())
 		return marshall_void;
-	
+
 	TypeHandler *h = type_handlers[type.name()];
 	
 	if (h == 0 && type.isConst() && strlen(type.name()) > strlen("const ")) {

@@ -952,7 +952,6 @@ static QRegExp * rx = 0;
 	if (rx == 0) {
 		rx = new QRegExp("^(bool|int|uint|long|ulong|double|char\\*|QString)&?$");
 	}
-
 	methodTypes.prepend(QByteArray(typeName));
 	QList<MocArgument*> result;
 
@@ -1005,28 +1004,36 @@ static QRegExp * rx = 0;
 				}			
 			} else if (staticType == "bool") {
 				arg->argType = xmoc_bool;
+				smoke = qt_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "int") {
 				arg->argType = xmoc_int;
+				smoke = qt_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "uint") {
 				arg->argType = xmoc_uint;
+				smoke = qt_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "long") {
 				arg->argType = xmoc_long;
+				smoke = qt_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "ulong") {
 				arg->argType = xmoc_ulong;
+				smoke = qt_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "double") {
 				arg->argType = xmoc_double;
+				smoke = qt_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "char*") {
 				arg->argType = xmoc_charstar;
+				smoke = qt_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "QString") {
 				arg->argType = xmoc_QString;
 				name += "*";
+				smoke = qt_Smoke;
 				typeId = smoke->idType(name.constData());
 			}
 

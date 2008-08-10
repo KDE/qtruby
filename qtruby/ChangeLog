@@ -1,3 +1,9 @@
+2008-08-10  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Fix a bug reported by Stefano Crocco where primitives types and QStrings
+	  were not working as arguments to slots and signals in smoke libs outside
+	  the qt one.
+
 2008-08-07  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Fix the Qt::CoreApplication constructor so it handles the ARGV array
