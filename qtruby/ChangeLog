@@ -1,3 +1,13 @@
+2008-08-11  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Added a qobject_cast() method that uses qt_metacast() to cast one 
+	  instance of QObject to another. This allow the KTextEditor:: 
+	  interface classes to be used. Fixes a problem reported by Stefano
+	  Crocco. Example usage:
+
+		doc = KTextEditor::EditorChooser.editor('katepart').create_document( nil)
+		annotator = doc.qobject_cast(KTextEditor::AnnotationInterface)
+
 2008-08-10  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Fix a bug reported by Stefano Crocco where primitives types and QStrings

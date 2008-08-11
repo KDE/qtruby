@@ -827,6 +827,65 @@ qobject_staticmetaobject(VALUE /*klass*/)
 }
 
 static VALUE
+cast_object_to(VALUE /*self*/, VALUE object, VALUE new_klass)
+{
+    smokeruby_object *o = value_obj_info(object);
+
+	VALUE new_klassname = rb_funcall(new_klass, rb_intern("name"), 0);
+
+    Smoke::ModuleIndex * cast_to_id = classcache.value(StringValuePtr(new_klassname));
+	if (cast_to_id == 0) {
+		rb_raise(rb_eArgError, "unable to find class \"%s\" to cast to\n", StringValuePtr(new_klassname));
+	}
+
+	smokeruby_object * o_cast = alloc_smokeruby_object(	o->allocated, 
+														cast_to_id->smoke, 
+														(int) cast_to_id->index, 
+														o->smoke->cast(o->ptr, o->classId, (int) cast_to_id->index) );
+
+    VALUE obj = Data_Wrap_Struct(new_klass, smokeruby_mark, smokeruby_free, (void *) o_cast);
+    mapPointer(obj, o_cast, o_cast->classId, 0);
+    return obj;
+}
+
+static VALUE
+qobject_qt_metacast(VALUE self, VALUE klass)
+{
+    smokeruby_object *o = value_obj_info(self);
+	if (o == 0 || o->ptr == 0) {
+		return Qnil;
+	}
+
+	const char * classname = rb_class2name(klass);
+	Smoke::ModuleIndex * mi = classcache.value(classname);
+	if (mi == 0) {
+		return Qnil;
+	}
+
+	o->classId = (int) mi->index;
+
+	QObject* qobj = (QObject*) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject").index);
+	if (qobj == 0) {
+		return Qnil;
+	}
+
+	void* ret = qobj->qt_metacast(mi->smoke->classes[mi->index].className);
+
+	if (ret == 0) {
+		return Qnil;
+	}
+
+	smokeruby_object * o_cast = alloc_smokeruby_object(	o->allocated, 
+														mi->smoke, 
+														(int) mi->index, 
+														ret );
+
+    VALUE obj = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, (void *) o_cast);
+    mapPointer(obj, o_cast, o_cast->classId, 0);
+    return obj;
+}
+
+static VALUE
 qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 {
 	void * value_ptr = 0;
@@ -1962,6 +2021,7 @@ create_qobject_class(VALUE /*self*/, VALUE package_value, VALUE module_value)
 	}
 	
 
+	rb_define_method(klass, "qobject_cast", (VALUE (*) (...)) qobject_qt_metacast, 1);
 	rb_define_method(klass, "inspect", (VALUE (*) (...)) inspect_qobject, 0);
 	rb_define_method(klass, "pretty_print", (VALUE (*) (...)) pretty_print_qobject, 1);
 	rb_define_method(klass, "className", (VALUE (*) (...)) class_name, 0);

@@ -1157,28 +1157,6 @@ set_obj_info(const char * className, smokeruby_object * o)
     return obj;
 }
 
-VALUE
-cast_object_to(VALUE /*self*/, VALUE object, VALUE new_klass)
-{
-    smokeruby_object *o = value_obj_info(object);
-
-	VALUE new_klassname = rb_funcall(new_klass, rb_intern("name"), 0);
-
-    Smoke::ModuleIndex * cast_to_id = classcache.value(StringValuePtr(new_klassname));
-	if (cast_to_id == 0) {
-		rb_raise(rb_eArgError, "unable to find class \"%s\" to cast to\n", StringValuePtr(new_klassname));
-	}
-
-	smokeruby_object * o_cast = alloc_smokeruby_object(	o->allocated, 
-														cast_to_id->smoke, 
-														(int) cast_to_id->index, 
-														o->smoke->cast(o->ptr, o->classId, (int) cast_to_id->index) );
-
-    VALUE obj = Data_Wrap_Struct(new_klass, smokeruby_mark, smokeruby_free, (void *) o_cast);
-    mapPointer(obj, o_cast, o_cast->classId, 0);
-    return obj;
-}
-
 VALUE 
 kross2smoke(VALUE /*self*/, VALUE krobject, VALUE new_klass)
 {
