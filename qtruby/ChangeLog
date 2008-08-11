@@ -7,6 +7,11 @@
 
 		doc = KTextEditor::EditorChooser.editor('katepart').create_document( nil)
 		annotator = doc.qobject_cast(KTextEditor::AnnotationInterface)
+	* Special case the Qt::SignalMapper#mapping and Qt::SignalMapper#setMapping
+	  methods so they work with both Qt::Object and Qt::Widget arguments as it
+	  confuses the method overloading resolution code at present.
+	* Add lower case/underscore methods as well as camel case for special cased
+	  methods
 
 2008-08-10  Richard Dale  <richard.j.dale@gmail.com>
 
