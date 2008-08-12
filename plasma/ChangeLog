@@ -1,3 +1,6 @@
+2008-08-12  Arno Rehn  <arno@arnorehn.de>
+* Fix restoring of applet sizes.
+
 2008-08-07  Richard Dale  <richard.j.dale@gmail.com>
 * The marshaller for Plasma::DataEngine::Data was creating Qt::Variants with
   the wrong smoke pointer in the smokeruby_object struct, and this was causing
