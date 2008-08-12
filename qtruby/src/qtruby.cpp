@@ -862,8 +862,6 @@ qobject_qt_metacast(VALUE self, VALUE klass)
 		return Qnil;
 	}
 
-	o->classId = (int) mi->index;
-
 	QObject* qobj = (QObject*) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject").index);
 	if (qobj == 0) {
 		return Qnil;

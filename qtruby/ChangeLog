@@ -1,3 +1,10 @@
+2008-08-12  Richard Dale  <richard.j.dale@gmail.com>
+
+	* The new qobject_cast() method was wrongly changing the smoke classId of
+	  the Ruby source instance. This was messing up method calls such as
+	  empty?, and fixes a problem reported by Stefano Crocco (thanks again
+	  Stefano for all these reports!).
+
 2008-08-11  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Added a qobject_cast() method that uses qt_metacast() to cast one 
