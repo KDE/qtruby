@@ -30,7 +30,7 @@ module PlasmaScriptengineRuby
     end
 
     def init
-      applet.resize(200, 200)
+      oldSize = applet.size
 
       puts "RubyAppletScript::Applet#init mainScript: #{mainScript}"
       program = Qt::FileInfo.new(mainScript)
@@ -42,6 +42,9 @@ module PlasmaScriptengineRuby
       klass = Object.const_get(moduleName.to_sym).const_get(className.to_sym)
       @applet_script = klass.new(self)
       @applet_script.init
+      if oldSize.height > 10 && oldSize.width > 10
+        applet.resize(oldSize)
+      end
 
       set_up_event_handlers
       return true
