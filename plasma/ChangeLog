@@ -1,3 +1,6 @@
+2008-08-15  Richard Dale  <richard.j.dale@gmail.com>
+* Re-added the ruby version of the plasmoidviewer app
+
 2008-08-12  Arno Rehn  <arno@arnorehn.de>
 * Fix restoring of applet sizes.
 
