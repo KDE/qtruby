@@ -32,6 +32,7 @@ target_link_libraries(qtruby4 ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} ${QT_QTNETWOR
 # target_link_libraries(qtrubyinternal ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY})
 
 set_target_properties(qtruby4 PROPERTIES PREFIX "")
+set_target_properties(qtruby4shared PROPERTIES VERSION 2.0.0 SOVERSION 2)
 
 install(TARGETS qtruby4shared LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX} )
 install(TARGETS qtruby4 DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
