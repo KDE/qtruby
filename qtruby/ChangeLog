@@ -1,3 +1,8 @@
+2008-08-18  Richard Dale  <richard.j.dale@gmail.com>
+
+	* The disposed? method was round the wrong way, and true if an instance
+	  had not been disposed. Thanks to Stefano Crocco for finding the bug.
+
 2008-08-12  Richard Dale  <richard.j.dale@gmail.com>
 
 	* The new qobject_cast() method was wrongly changing the smoke classId of

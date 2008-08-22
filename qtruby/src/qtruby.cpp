@@ -1926,8 +1926,7 @@ static VALUE
 is_disposed(VALUE self)
 {
 	smokeruby_object *o = value_obj_info(self);
-	if(o && o->ptr) { return Qtrue; }
-	return Qfalse;
+	return (o != 0 && o->ptr != 0) ? Qfalse : Qtrue;
 }
 
 VALUE
