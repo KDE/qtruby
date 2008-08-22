@@ -1,3 +1,9 @@
+2008-08-22  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Argument types of 'unsigned short' were not being matched in the 
+	  overloaded method resolution code which was causing a Qt::KeyEvent
+	  constructor to fail. Fixes a problem reported by Stefano Crocco.
+
 2008-08-18  Richard Dale  <richard.j.dale@gmail.com>
 
 	* The disposed? method was round the wrong way, and true if an instance

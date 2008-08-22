@@ -2352,7 +2352,7 @@ module Qt
 					return 2
 				elsif typename =~ /^quint32&?$/
 					return 1
-				elsif typename =~ /^(?:short|ushort|unsigned short int|uchar|uint|long|ulong|unsigned long int|unsigned|float|double|WId|Q_PID|^quint16&?$|^qint16&?$)$/
+				elsif typename =~ /^(?:short|ushort|unsigned short int|unsigned short|uchar|uint|long|ulong|unsigned long int|unsigned|float|double|WId|Q_PID|^quint16&?$|^qint16&?$)$/
 					return 1
 				elsif typename =~ /^(quint|qint|qulong|qlong|qreal)/
 					return 1
