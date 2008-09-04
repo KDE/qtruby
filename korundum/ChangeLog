@@ -1,3 +1,8 @@
+2008-09-04  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Added a KSharedPtr<KMimeType> marshaller so that the 
+	  KMimeType::findByPath() method can be used in Ruby
+
 2008-08-11  Richard Dale  <richard.j.dale@gmail.com>
 
 	* The KDE::ActionCollection#addAction method wasn't working with the two
