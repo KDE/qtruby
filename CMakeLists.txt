@@ -41,8 +41,6 @@ set(PLASMA_ENABLED "no")
 set(SOLID_ENABLED "no")
 
 if(RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_PATH)
-    add_subdirectory( wtruby )
-    add_subdirectory( wtext )
     if(ENABLE_QTRUBY)
         add_subdirectory( qtruby )
         set(QTRUBY_ENABLED "yes")
