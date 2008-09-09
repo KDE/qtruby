@@ -1,3 +1,9 @@
+2008-09-09  Richard Dale  <richard.j.dale@gmail.com>
+
+	* The KDE::Dialog exec method was giving a ArgumentError exception.
+	  Also fixed some other classes with exec() methods. Problem reported 
+	  by Stefano Crocco
+
 2008-09-04  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Added a KSharedPtr<KMimeType> marshaller so that the 
