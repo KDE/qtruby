@@ -497,10 +497,10 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
 #endif
     }
 
-    if (!meth.index) {
+    if (meth.index == 0) {
         return result;
     // empty list
-    } else if(meth.index > 0) {
+    } else if (meth.index > 0) {
         Smoke::Index i = meth.smoke->methodMaps[meth.index].method;
         if (i == 0) {		// shouldn't happen
             rb_raise(rb_eArgError, "Corrupt method %s::%s", c, name);
@@ -713,7 +713,7 @@ static QByteArray * mcid = 0;
 	for(int i=4; i<argc ; i++)
 	{
 		*mcid += ';';
-		*mcid += get_VALUEtype(argv[i]);
+		*mcid += value_to_type_flag(argv[i]);
 	}
 	Smoke::ModuleIndex *rcid = methcache.value(*mcid);
 #ifdef DEBUG
@@ -1178,7 +1178,7 @@ kross2smoke(VALUE /*self*/, VALUE krobject, VALUE new_klass)
 }
 
 const char *
-get_VALUEtype(VALUE ruby_value)
+value_to_type_flag(VALUE ruby_value)
 {
 	const char * classname = rb_obj_classname(ruby_value);
 	const char *r = "";

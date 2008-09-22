@@ -1,3 +1,11 @@
+2008-09-22  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Rename get_VALUEtype() as value_to_type_flag()
+	* Change the inspect() method for Qt::Rects and RectFs to use the
+	  Qt4 convention of x, y, width, height
+	* module_method_missing() had the Qt:: module hard wired into it, and
+	  so constants in other modules wouldn't be found
+
 2008-08-22  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Argument types of 'unsigned short' were not being matched in the 

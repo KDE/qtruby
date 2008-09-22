@@ -1196,9 +1196,9 @@ static Smoke::Index new_qvariant_qmap = 0;
 	return rb_call_super(argc, argv);
 }
 
-static VALUE module_method_missing(int argc, VALUE * argv, VALUE /*klass*/)
+static VALUE module_method_missing(int argc, VALUE * argv, VALUE klass)
 {
-    return class_method_missing(argc, argv, qt_module);
+    return class_method_missing(argc, argv, klass);
 }
 
 /*
@@ -1736,7 +1736,7 @@ find_pclassid(VALUE /*self*/, VALUE p_value)
 static VALUE
 get_value_type(VALUE /*self*/, VALUE ruby_value)
 {
-    return rb_str_new2(get_VALUEtype(ruby_value));
+    return rb_str_new2(value_to_type_flag(ruby_value));
 }
 
 static QMetaObject* 

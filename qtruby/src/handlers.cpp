@@ -2218,6 +2218,7 @@ Q_DECL_EXPORT TypeHandler Qt_handlers[] = {
     { "long long int&", marshall_it<long long> },
     { "QDBusVariant", marshall_QDBusVariant },
     { "QDBusVariant&", marshall_QDBusVariant },
+    { "QList<QFileInfo>", marshall_QFileInfoList },
     { "QFileInfoList", marshall_QFileInfoList },
     { "QGradiantStops", marshall_QPairqrealQColor },
     { "QGradiantStops&", marshall_QPairqrealQColor },
