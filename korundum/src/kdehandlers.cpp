@@ -144,9 +144,9 @@ void marshall_KSharedConfigPtr(Marshall *m) {
 
 	    *(m->var()) = obj;		
 	    
-		if(m->cleanup())
-		;
-		}
+//		if(m->cleanup())
+//			;
+//		}
 		break;
 	default:
 		m->unsupported();
@@ -186,9 +186,9 @@ void marshall_KSharedMimeTypePtr(Marshall *m) {
 
 	    *(m->var()) = obj;		
 	    
-		if(m->cleanup())
-		;
-		}
+//		if(m->cleanup())
+//			;
+//		}
 		break;
 	default:
 		m->unsupported();
