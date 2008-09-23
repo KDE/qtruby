@@ -45,6 +45,10 @@ module Plasma
     def type(*args)
       method_missing(:type, *args)
     end
+
+    def id(*args)
+      method_missing(:id, *args)
+    end
   end
 
   class Containment < Qt::Base
@@ -64,11 +68,22 @@ module Plasma
       method_missing(:type, *args)
     end
   end
+
+  class Slider < Qt::Base
+    def range=(arg)
+      if arg.kind_of? Range
+        return super(arg.begin, arg.exclude_end?  ? arg.end - 1 : arg.end)
+      else
+        return super(arg)
+      end
+    end
+  end
+
 end
 
 module PlasmaScripting
   class Applet < Qt::Object
-	slots	"setImmutability(Plasma::ImmutabilityType)",
+  slots  "setImmutability(Plasma::ImmutabilityType)",
             :destroy,
             :showConfigurationInterface,
             :raise,
@@ -76,7 +91,7 @@ module PlasmaScripting
             :flushPendingConstraintsEvents,
             :init
 
-    signals	:releaseVisualFocus,
+    signals :releaseVisualFocus,
             :geometryChanged,
             :configNeedsSaving,
             :activate
@@ -102,6 +117,14 @@ module PlasmaScripting
       end
     end
 
+    def self.const_missing(name)
+      begin
+        super(name)
+      rescue
+        Plasma::Applet.const_missing(name)
+      end
+    end
+
     def paintInterface(painter, option, contentsRect)
     end
 
@@ -124,19 +147,20 @@ module PlasmaScripting
     end
 
     def showConfigurationInterface
-        dialogId = "#{applet.id}settings#{applet.name}"
-        windowTitle = KDE::i18nc("@title:window", "%s Settings" % applet.name)
+        dialogId = "#{@applet_script.applet.id}settings#{@applet_script.applet.name}"
+        windowTitle = KDE::i18nc("@title:window", "%s Settings" % @applet_script.applet.name)
         @nullManager = KDE::ConfigSkeleton.new(nil)
-        dialog = KDE::ConfigDialog.new(nil, dialogId, @nullManager)
-        dialog.faceType = KDE::PageDialog::Auto
-        dialog.windowTitle = windowTitle
-        dialog.setAttribute(Qt::WA_DeleteOnClose, true)
-        createConfigurationInterface(dialog)
+        @dialog = KDE::ConfigDialog.new(nil, dialogId, @nullManager)
+        @dialog.faceType = KDE::PageDialog::Auto
+        @dialog.windowTitle = windowTitle
+        @dialog.setAttribute(Qt::WA_DeleteOnClose, true)
+        createConfigurationInterface(@dialog)
         # TODO: would be nice to not show dialog if there are no pages added?
-        connect(dialog, SIGNAL(:finished), @nullManager, SLOT(:deleteLater))
+        # Don't connect to the deleteLater() slot in Ruby as it causes crashes
+        # connect(@dialog, SIGNAL(:finished), @nullManager, SLOT(:deleteLater))
         # TODO: Apply button does not correctly work for now, so do not show it
-        dialog.showButton(KDE::Dialog::Apply, false)
-        dialog.show
+        @dialog.showButton(KDE::Dialog::Apply, false)
+        @dialog.show
     end
 
     def dataEngine(engine)
@@ -147,11 +171,11 @@ module PlasmaScripting
       @applet_script.package
     end
 
-	def setImmutability(immutabilityType)
+    def setImmutability(immutabilityType)
       @applet_script.applet.setImmutability(immutabilityType)
     end
 
-	def immutability=(immutabilityType)
+    def immutability=(immutabilityType)
       setImmutability(immutabilityType)
     end
 

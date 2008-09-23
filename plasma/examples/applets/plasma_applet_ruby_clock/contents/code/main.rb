@@ -30,7 +30,7 @@ require 'clockapplet'
 
 module PlasmaAppletRubyClock
 
-class Clock < ClockApplet
+class Main < ClockApplet
 
   slots :moveSecondHand, :configAccepted, 
         'dataUpdated(QString, Plasma::DataEngine::Data)'

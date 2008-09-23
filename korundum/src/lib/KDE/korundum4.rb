@@ -43,6 +43,7 @@ module KDE
 		def initialize(*k)
 			super
 			$kapp = self
+			$qApp = self
 		end
 		
 		def exec
@@ -302,6 +303,12 @@ module KDE
 		end
 	end
 
+	class Dialog < Qt::Base
+		def exec(*args)
+			method_missing(:exec, *args)
+		end
+	end
+
 	class DoubleNumInput < Qt::Base
 		def range=(arg)
 			if arg.kind_of? Range
@@ -335,6 +342,12 @@ module KDE
 			else
 				return super(arg)
 			end
+		end
+	end
+
+	class Job < Qt::Base
+		def exec(*args)
+			method_missing(:exec, *args)
 		end
 	end
 
@@ -389,6 +402,18 @@ module KDE
 		end
 	end
 
+	class PopupFrame < Qt::Base
+		def exec(*args)
+			method_missing(:exec, *args)
+		end
+	end
+
+	class ProtocolInfo < Qt::Base
+		def exec(*args)
+			method_missing(:exec, *args)
+		end
+	end
+
 	class Service < Qt::Base
 		def inspect
 			str = super
@@ -399,11 +424,19 @@ module KDE
 			str = to_s
 			pp.text str.sub(/>$/, "\n library=%s,\n type=%s,\n name=%s>" % [library.inspect, type.inspect, name.inspect])
 		end
+
+		def exec(*args)
+			method_missing(:exec, *args)
+		end
 	end
 
 	class ServiceAction < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
+		end
+
+		def exec(*args)
+			method_missing(:exec, *args)
 		end
 	end
 

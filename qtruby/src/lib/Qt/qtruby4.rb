@@ -363,10 +363,26 @@ module Qt
 	end
 
 	class CoreApplication < Qt::Base
+		def initialize(*args)
+			if args.length == 1 && args[0].kind_of?(Array)
+				super(args.length + 1, [$0] + args[0])
+			else
+				super(*args)
+			end
+            $qApp = self
+		end 
+
+		# Delete the underlying C++ instance after exec returns
+		# Otherwise, rb_gc_call_finalizer_at_exit() can delete
+		# stuff that Qt::Application still needs for its cleanup.
 		def exec
 			method_missing(:exec)
 			self.dispose
 			Qt::Internal.application_terminated = true
+		end
+
+		def type(*args)
+			method_missing(:type, *args)
 		end
 
 		def exit(*args)
@@ -1435,24 +1451,24 @@ module Qt
 	class Rect < Qt::Base
 		def inspect
 			str = super
-			str.sub(/>$/, " left=%d, right=%d, top=%d, bottom=%d>" % [left, right, top, bottom])
+			str.sub(/>$/, " x=%d, y=%d, width=%d, height=%d>" % [x, y, width, height])
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, "\n left=%d,\n right=%d,\n top=%d,\n bottom=%d>" % [left, right, top, bottom])
+			pp.text str.sub(/>$/, "\n x=%d,\n y=%d,\n width=%d,\n height=%d>" % [x, y, width, height])
 		end
 	end
 	
 	class RectF < Qt::Base
 		def inspect
 			str = super
-			str.sub(/>$/, " left=%f, right=%f, top=%f, bottom=%f>" % [left, right, top, bottom])
+			str.sub(/>$/, " x=%f, y=%f, width=%f, height=%f>" % [x, y, width, height])
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, "\n left=%f,\n right=%f,\n top=%f,\n bottom=%f>" % [left, right, top, bottom])
+			pp.text str.sub(/>$/, "\n x=%f,\n y=%f,\n width=%f,\n height=%f>" % [x, y, width, height])
 		end
 	end
 
@@ -2336,7 +2352,7 @@ module Qt
 					return 2
 				elsif typename =~ /^quint32&?$/
 					return 1
-				elsif typename =~ /^(?:short|ushort|unsigned short int|uchar|uint|long|ulong|unsigned long int|unsigned|float|double|WId|Q_PID|^quint16&?$|^qint16&?$)$/
+				elsif typename =~ /^(?:short|ushort|unsigned short int|unsigned short|uchar|uint|long|ulong|unsigned long int|unsigned|float|double|WId|Q_PID|^quint16&?$|^qint16&?$)$/
 					return 1
 				elsif typename =~ /^(quint|qint|qulong|qlong|qreal)/
 					return 1

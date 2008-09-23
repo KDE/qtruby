@@ -36,7 +36,7 @@ module PlasmaScriptengineRuby
       program = Qt::FileInfo.new(mainScript)
       $: << program.path
       load Qt::File.encodeName(program.filePath).to_s
-      moduleName = camelize(package.metadata.name)
+      moduleName = camelize(Qt::Dir.new(package.path).dirName)
       className = camelize(program.baseName)
       puts "RubyAppletScript::Applet#init instantiating: #{moduleName}::#{className}"
       klass = Object.const_get(moduleName.to_sym).const_get(className.to_sym)
@@ -205,6 +205,16 @@ module Plasma
     end
   end
 
+  class Frame < Qt::Base
+    def initialize(parent = nil)
+      if parent.kind_of?(PlasmaScripting::Applet)
+        super(parent.applet_script.applet)
+      else
+        super
+      end
+    end
+  end
+
   class GroupBox < Qt::Base
     def initialize(parent = nil)
       if parent.kind_of?(PlasmaScripting::Applet)
@@ -280,6 +290,26 @@ module Plasma
   end
 
   class SignalPlotter < Qt::Base
+    def initialize(parent = nil)
+      if parent.kind_of?(PlasmaScripting::Applet)
+        super(parent.applet_script.applet)
+      else
+        super
+      end
+    end
+  end
+
+  class Slider < Qt::Base
+    def initialize(parent = nil)
+      if parent.kind_of?(PlasmaScripting::Applet)
+        super(parent.applet_script.applet)
+      else
+        super
+      end
+    end
+  end
+
+  class TabBar < Qt::Base
     def initialize(parent = nil)
       if parent.kind_of?(PlasmaScripting::Applet)
         super(parent.applet_script.applet)

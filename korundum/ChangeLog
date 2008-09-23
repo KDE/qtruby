@@ -1,3 +1,34 @@
+2008-09-09  Richard Dale  <richard.j.dale@gmail.com>
+
+	* The KDE::Dialog exec method was giving a ArgumentError exception.
+	  Also fixed some other classes with exec() methods. Problem reported 
+	  by Stefano Crocco
+
+2008-09-04  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Added a KSharedPtr<KMimeType> marshaller so that the 
+	  KMimeType::findByPath() method can be used in Ruby
+
+2008-08-11  Richard Dale  <richard.j.dale@gmail.com>
+
+	* The KDE::ActionCollection#addAction method wasn't working with the two
+	  argument form where the second arg was either a KDE::Action or a 
+	  Qt::Action as the normal overloaded method resolution code can't 
+	  distinguish between the two. So special case it for now. Fixes problem 
+	  reported by Stafono Crocco. For example, the following code now works
+	  correctly:
+
+		 a1 = KDE::RecentFilesAction.new "Recent", action_collection
+		 action_collection.addAction "recent", a1
+		 a2 = Qt::Action.new(self)
+		 action_collection.addAction "foobar", a2
+
+
+2008-08-07  Richard Dale  <richard.j.dale@gmail.com>
+
+	* The special cased KDE::ConfigSkeleton.new(nil) constructor wasn't 
+	  working
+
 2008-07-21  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Fix the KService offer list marshaller

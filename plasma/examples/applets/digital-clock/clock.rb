@@ -39,8 +39,6 @@ class Clock < Plasma::Applet
 
   def initialize(parent, args)
     super
-    @time = Qt::Time.new
-    @date = Qt::Date.new
     @plainClockFont = KDE::GlobalSettings.generalFont
     @useCustomColor = false
     @plainClockColor = Qt::Color.new(Qt::white)

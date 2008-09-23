@@ -43,7 +43,7 @@
 
 #include <qtruby.h>
 #include <smokeruby.h>
-// #include <marshall_basetypes.h>
+#include <marshall_types.h>
 
 #include <iostream>
 
@@ -74,6 +74,15 @@ static VALUE
 config_initialize(int argc, VALUE * argv, VALUE self)
 {
 	if (argc == 1 && argv[0] == Qnil) {
+		if (TYPE(self) == T_DATA) {
+			// If a ruby block was passed then run that now
+			if (rb_block_given_p()) {
+				rb_funcall(qt_internal_module, rb_intern("run_initializer_block"), 2, self, rb_block_proc());
+			}
+	
+			return self;
+		}
+
 		KConfigSkeleton * ptr = new KConfigSkeleton(0);
 		Smoke::ModuleIndex mi = qt_Smoke->findClass("KConfigSkeleton");
 		smokeruby_object  * o = alloc_smokeruby_object(	true, 
@@ -118,13 +127,53 @@ config_additem(int argc, VALUE * argv, VALUE self)
 	return self;
 }
 
+static VALUE
+kactioncollection_add_action(int argc, VALUE * argv, VALUE self)
+{
+	if (argc == 2 && TYPE(argv[0]) == T_STRING && TYPE(argv[1]) == T_DATA) {
+		smokeruby_object *o = value_obj_info(self);
+		smokeruby_object *a = value_obj_info(argv[1]);
+
+		Smoke::ModuleIndex nameId = qt_Smoke->NullModuleIndex;
+		nameId = o->smoke->idMethodName("addAction$#");
+		Smoke::ModuleIndex ci = { o->smoke, o->classId };
+		Smoke::ModuleIndex meth = o->smoke->findMethod(ci, nameId);
+		Smoke::Index i = meth.smoke->methodMaps[meth.index].method;
+		i = -i;		// turn into ambiguousMethodList index
+		while (meth.smoke->ambiguousMethodList[i] != 0) {
+			if (	(	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args + 1]].name,
+									"QAction*" ) == 0 
+						&& a->smoke->isDerivedFromByName(a->smoke->classes[a->classId].className, "QAction")
+						&& !a->smoke->isDerivedFromByName(a->smoke->classes[a->classId].className, "KAction") )
+					|| (	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args + 1]].name,
+										"KAction*" ) == 0 
+							&& a->smoke->isDerivedFromByName(a->smoke->classes[a->classId].className, "KAction") ) )
+			{
+				_current_method.smoke = meth.smoke;
+				_current_method.index = meth.smoke->ambiguousMethodList[i];
+				QtRuby::MethodCall c(meth.smoke, _current_method.index, self, argv, 2);
+				c.next();
+				return *(c.var());
+			}
+
+			i++;
+		}
+	}
+
+	return rb_call_super(argc, argv);
+}
+
 static void classCreated(const char* package, VALUE /*module*/, VALUE klass)
 {
 	QString packageName(package);
 	if (packageName == "KDE::ConfigSkeleton") {
 		kconfigskeleton_class = klass;
 		rb_define_method(klass, "addItem", (VALUE (*) (...)) config_additem, -1);
+		rb_define_method(klass, "add_item", (VALUE (*) (...)) config_additem, -1);
 		rb_define_method(klass, "initialize", (VALUE (*) (...)) config_initialize, -1);
+	} else if (packageName == "KDE::ActionCollection") {
+		rb_define_method(klass, "addAction", (VALUE (*) (...)) kactioncollection_add_action, -1);
+		rb_define_method(klass, "add_action", (VALUE (*) (...)) kactioncollection_add_action, -1);
 	}
 }
 

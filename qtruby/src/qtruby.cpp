@@ -827,6 +827,135 @@ qobject_staticmetaobject(VALUE /*klass*/)
 }
 
 static VALUE
+cast_object_to(VALUE /*self*/, VALUE object, VALUE new_klass)
+{
+    smokeruby_object *o = value_obj_info(object);
+
+	VALUE new_klassname = rb_funcall(new_klass, rb_intern("name"), 0);
+
+    Smoke::ModuleIndex * cast_to_id = classcache.value(StringValuePtr(new_klassname));
+	if (cast_to_id == 0) {
+		rb_raise(rb_eArgError, "unable to find class \"%s\" to cast to\n", StringValuePtr(new_klassname));
+	}
+
+	smokeruby_object * o_cast = alloc_smokeruby_object(	o->allocated, 
+														cast_to_id->smoke, 
+														(int) cast_to_id->index, 
+														o->smoke->cast(o->ptr, o->classId, (int) cast_to_id->index) );
+
+    VALUE obj = Data_Wrap_Struct(new_klass, smokeruby_mark, smokeruby_free, (void *) o_cast);
+    mapPointer(obj, o_cast, o_cast->classId, 0);
+    return obj;
+}
+
+static VALUE
+qobject_qt_metacast(VALUE self, VALUE klass)
+{
+    smokeruby_object *o = value_obj_info(self);
+	if (o == 0 || o->ptr == 0) {
+		return Qnil;
+	}
+
+	const char * classname = rb_class2name(klass);
+	Smoke::ModuleIndex * mi = classcache.value(classname);
+	if (mi == 0) {
+		return Qnil;
+	}
+
+	QObject* qobj = (QObject*) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject").index);
+	if (qobj == 0) {
+		return Qnil;
+	}
+
+	void* ret = qobj->qt_metacast(mi->smoke->classes[mi->index].className);
+
+	if (ret == 0) {
+		return Qnil;
+	}
+
+	smokeruby_object * o_cast = alloc_smokeruby_object(	o->allocated, 
+														mi->smoke, 
+														(int) mi->index, 
+														ret );
+
+    VALUE obj = Data_Wrap_Struct(klass, smokeruby_mark, smokeruby_free, (void *) o_cast);
+    mapPointer(obj, o_cast, o_cast->classId, 0);
+    return obj;
+}
+
+static VALUE
+qsignalmapper_mapping(int argc, VALUE * argv, VALUE self)
+{
+	if (argc == 1 && TYPE(argv[0]) == T_DATA) {
+		smokeruby_object *o = value_obj_info(self);
+		smokeruby_object *a = value_obj_info(argv[0]);
+
+		Smoke::ModuleIndex nameId = qt_Smoke->NullModuleIndex;
+		nameId = o->smoke->idMethodName("mapping#");
+		Smoke::ModuleIndex ci = { o->smoke, o->classId };
+		Smoke::ModuleIndex meth = o->smoke->findMethod(ci, nameId);
+		Smoke::Index i = meth.smoke->methodMaps[meth.index].method;
+		i = -i;		// turn into ambiguousMethodList index
+		while (meth.smoke->ambiguousMethodList[i] != 0) {
+			if (	(	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args]].name,
+									"QObject*" ) == 0 
+						&& a->smoke->isDerivedFromByName(a->smoke->classes[a->classId].className, "QObject")
+						&& !a->smoke->isDerivedFromByName(a->smoke->classes[a->classId].className, "QWidget") )
+					|| (	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args]].name,
+										"QWidget*" ) == 0 
+							&& a->smoke->isDerivedFromByName(a->smoke->classes[a->classId].className, "QWidget") ) )
+			{
+				_current_method.smoke = meth.smoke;
+				_current_method.index = meth.smoke->ambiguousMethodList[i];
+				QtRuby::MethodCall c(meth.smoke, _current_method.index, self, argv, 1);
+				c.next();
+				return *(c.var());
+			}
+
+			i++;
+		}
+	}
+
+	return rb_call_super(argc, argv);
+}
+
+static VALUE
+qsignalmapper_set_mapping(int argc, VALUE * argv, VALUE self)
+{
+	if (argc == 2 && TYPE(argv[0]) == T_DATA && TYPE(argv[1]) == T_DATA) {
+		smokeruby_object *o = value_obj_info(self);
+		smokeruby_object *a = value_obj_info(argv[1]);
+
+		Smoke::ModuleIndex nameId = qt_Smoke->NullModuleIndex;
+		nameId = o->smoke->idMethodName("setMapping##");
+		Smoke::ModuleIndex ci = { o->smoke, o->classId };
+		Smoke::ModuleIndex meth = o->smoke->findMethod(ci, nameId);
+		Smoke::Index i = meth.smoke->methodMaps[meth.index].method;
+		i = -i;		// turn into ambiguousMethodList index
+		while (meth.smoke->ambiguousMethodList[i] != 0) {
+			if (	(	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args + 1]].name,
+									"QObject*" ) == 0 
+						&& a->smoke->isDerivedFromByName(a->smoke->classes[a->classId].className, "QObject")
+						&& !a->smoke->isDerivedFromByName(a->smoke->classes[a->classId].className, "QWidget") )
+					|| (	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args + 1]].name,
+										"QWidget*" ) == 0 
+							&& a->smoke->isDerivedFromByName(a->smoke->classes[a->classId].className, "QWidget") ) )
+			{
+				_current_method.smoke = meth.smoke;
+				_current_method.index = meth.smoke->ambiguousMethodList[i];
+				QtRuby::MethodCall c(meth.smoke, _current_method.index, self, argv, 2);
+				c.next();
+				return *(c.var());
+			}
+
+			i++;
+		}
+	}
+
+	return rb_call_super(argc, argv);
+}
+
+static VALUE
 qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 {
 	void * value_ptr = 0;
@@ -1067,9 +1196,9 @@ static Smoke::Index new_qvariant_qmap = 0;
 	return rb_call_super(argc, argv);
 }
 
-static VALUE module_method_missing(int argc, VALUE * argv, VALUE /*klass*/)
+static VALUE module_method_missing(int argc, VALUE * argv, VALUE klass)
 {
-    return class_method_missing(argc, argv, qt_module);
+    return class_method_missing(argc, argv, klass);
 }
 
 /*
@@ -1607,7 +1736,7 @@ find_pclassid(VALUE /*self*/, VALUE p_value)
 static VALUE
 get_value_type(VALUE /*self*/, VALUE ruby_value)
 {
-    return rb_str_new2(get_VALUEtype(ruby_value));
+    return rb_str_new2(value_to_type_flag(ruby_value));
 }
 
 static QMetaObject* 
@@ -1797,8 +1926,7 @@ static VALUE
 is_disposed(VALUE self)
 {
 	smokeruby_object *o = value_obj_info(self);
-	if(o && o->ptr) { return Qtrue; }
-	return Qfalse;
+	return (o != 0 && o->ptr != 0) ? Qfalse : Qtrue;
 }
 
 VALUE
@@ -1935,39 +2063,59 @@ create_qobject_class(VALUE /*self*/, VALUE package_value, VALUE module_value)
 	} else if (packageName == "Qt::AbstractTableModel") {
 		qtablemodel_class = rb_define_class_under(qt_module, "TableModel", klass);
 		rb_define_method(qtablemodel_class, "rowCount", (VALUE (*) (...)) qabstract_item_model_rowcount, -1);
+		rb_define_method(qtablemodel_class, "row_count", (VALUE (*) (...)) qabstract_item_model_rowcount, -1);
 		rb_define_method(qtablemodel_class, "columnCount", (VALUE (*) (...)) qabstract_item_model_columncount, -1);
+		rb_define_method(qtablemodel_class, "column_count", (VALUE (*) (...)) qabstract_item_model_columncount, -1);
 		rb_define_method(qtablemodel_class, "data", (VALUE (*) (...)) qabstract_item_model_data, -1);
 		rb_define_method(qtablemodel_class, "setData", (VALUE (*) (...)) qabstract_item_model_setdata, -1);
+		rb_define_method(qtablemodel_class, "set_data", (VALUE (*) (...)) qabstract_item_model_setdata, -1);
 		rb_define_method(qtablemodel_class, "flags", (VALUE (*) (...)) qabstract_item_model_flags, 1);
 		rb_define_method(qtablemodel_class, "insertRows", (VALUE (*) (...)) qabstract_item_model_insertrows, -1);
+		rb_define_method(qtablemodel_class, "insert_rows", (VALUE (*) (...)) qabstract_item_model_insertrows, -1);
 		rb_define_method(qtablemodel_class, "insertColumns", (VALUE (*) (...)) qabstract_item_model_insertcolumns, -1);
+		rb_define_method(qtablemodel_class, "insert_columns", (VALUE (*) (...)) qabstract_item_model_insertcolumns, -1);
 		rb_define_method(qtablemodel_class, "removeRows", (VALUE (*) (...)) qabstract_item_model_removerows, -1);
+		rb_define_method(qtablemodel_class, "remove_rows", (VALUE (*) (...)) qabstract_item_model_removerows, -1);
 		rb_define_method(qtablemodel_class, "removeColumns", (VALUE (*) (...)) qabstract_item_model_removecolumns, -1);
+		rb_define_method(qtablemodel_class, "remove_columns", (VALUE (*) (...)) qabstract_item_model_removecolumns, -1);
 		
 		qlistmodel_class = rb_define_class_under(qt_module, "ListModel", klass);
 		rb_define_method(qlistmodel_class, "rowCount", (VALUE (*) (...)) qabstract_item_model_rowcount, -1);
+		rb_define_method(qlistmodel_class, "row_count", (VALUE (*) (...)) qabstract_item_model_rowcount, -1);
 		rb_define_method(qlistmodel_class, "columnCount", (VALUE (*) (...)) qabstract_item_model_columncount, -1);
+		rb_define_method(qlistmodel_class, "column_count", (VALUE (*) (...)) qabstract_item_model_columncount, -1);
 		rb_define_method(qlistmodel_class, "data", (VALUE (*) (...)) qabstract_item_model_data, -1);
 		rb_define_method(qlistmodel_class, "setData", (VALUE (*) (...)) qabstract_item_model_setdata, -1);
+		rb_define_method(qlistmodel_class, "set_data", (VALUE (*) (...)) qabstract_item_model_setdata, -1);
 		rb_define_method(qlistmodel_class, "flags", (VALUE (*) (...)) qabstract_item_model_flags, 1);
 		rb_define_method(qlistmodel_class, "insertRows", (VALUE (*) (...)) qabstract_item_model_insertrows, -1);
+		rb_define_method(qlistmodel_class, "insert_rows", (VALUE (*) (...)) qabstract_item_model_insertrows, -1);
 		rb_define_method(qlistmodel_class, "insertColumns", (VALUE (*) (...)) qabstract_item_model_insertcolumns, -1);
+		rb_define_method(qlistmodel_class, "insert_columns", (VALUE (*) (...)) qabstract_item_model_insertcolumns, -1);
 		rb_define_method(qlistmodel_class, "removeRows", (VALUE (*) (...)) qabstract_item_model_removerows, -1);
+		rb_define_method(qlistmodel_class, "remove_rows", (VALUE (*) (...)) qabstract_item_model_removerows, -1);
 		rb_define_method(qlistmodel_class, "removeColumns", (VALUE (*) (...)) qabstract_item_model_removecolumns, -1);
+		rb_define_method(qlistmodel_class, "remove_columns", (VALUE (*) (...)) qabstract_item_model_removecolumns, -1);
 	}
 	else if (packageName == "Qt::AbstractItemModel") {
 		rb_define_method(klass, "createIndex", (VALUE (*) (...)) qabstractitemmodel_createindex, -1);
+		rb_define_method(klass, "create_index", (VALUE (*) (...)) qabstractitemmodel_createindex, -1);
 	} else if (packageName == "Qt::Timer") {
 		rb_define_singleton_method(klass, "singleShot", (VALUE (*) (...)) qtimer_single_shot, -1);
+		rb_define_singleton_method(klass, "single_shot", (VALUE (*) (...)) qtimer_single_shot, -1);
 	}
 	
 
+	rb_define_method(klass, "qobject_cast", (VALUE (*) (...)) qobject_qt_metacast, 1);
 	rb_define_method(klass, "inspect", (VALUE (*) (...)) inspect_qobject, 0);
 	rb_define_method(klass, "pretty_print", (VALUE (*) (...)) pretty_print_qobject, 1);
 	rb_define_method(klass, "className", (VALUE (*) (...)) class_name, 0);
+	rb_define_method(klass, "class_name", (VALUE (*) (...)) class_name, 0);
 	rb_define_method(klass, "inherits", (VALUE (*) (...)) inherits_qobject, -1);
 	rb_define_method(klass, "findChildren", (VALUE (*) (...)) find_qobject_children, -1);
+	rb_define_method(klass, "find_children", (VALUE (*) (...)) find_qobject_children, -1);
 	rb_define_method(klass, "findChild", (VALUE (*) (...)) find_qobject_child, -1);   
+	rb_define_method(klass, "find_child", (VALUE (*) (...)) find_qobject_child, -1);   
 	rb_define_method(klass, "connect", (VALUE (*) (...)) qobject_connect, -1);   
 	rb_define_singleton_method(klass, "connect", (VALUE (*) (...)) qobject_connect, -1);   
 
@@ -2001,6 +2149,7 @@ create_qt_class(VALUE /*self*/, VALUE package_value, VALUE module_value)
 	} else if (packageName == "Qt::Variant") {
 		qvariant_class = klass;
 		rb_define_singleton_method(qvariant_class, "fromValue", (VALUE (*) (...)) qvariant_from_value, -1);
+		rb_define_singleton_method(qvariant_class, "from_value", (VALUE (*) (...)) qvariant_from_value, -1);
     	rb_define_singleton_method(qvariant_class, "new", (VALUE (*) (...)) new_qvariant, -1);
 	} else if (packageName == "Qt::ByteArray") {
 		rb_define_method(klass, "+", (VALUE (*) (...)) qbytearray_append, 1);
@@ -2013,15 +2162,26 @@ create_qt_class(VALUE /*self*/, VALUE package_value, VALUE module_value)
 		rb_define_method(klass, "length", (VALUE (*) (...)) qitemselection_count, 0);
 	} else if (packageName == "Qt::Painter") {
 		rb_define_method(klass, "drawLines", (VALUE (*) (...)) qpainter_drawlines, -1);
+		rb_define_method(klass, "draw_lines", (VALUE (*) (...)) qpainter_drawlines, -1);
 		rb_define_method(klass, "drawRects", (VALUE (*) (...)) qpainter_drawrects, -1);
+		rb_define_method(klass, "draw_rects", (VALUE (*) (...)) qpainter_drawrects, -1);
 	} else if (packageName == "Qt::ModelIndex") {
 		rb_define_method(klass, "internalPointer", (VALUE (*) (...)) qmodelindex_internalpointer, 0);
+		rb_define_method(klass, "internal_pointer", (VALUE (*) (...)) qmodelindex_internalpointer, 0);
+	} else if (packageName == "Qt::SignalMapper") {
+		rb_define_method(klass, "mapping", (VALUE (*) (...)) qsignalmapper_mapping, -1);
+		rb_define_method(klass, "setMapping", (VALUE (*) (...)) qsignalmapper_set_mapping, -1);
+		rb_define_method(klass, "set_mapping", (VALUE (*) (...)) qsignalmapper_set_mapping, -1);
 #ifdef QT_QTDBUS
 	} else if (packageName == "Qt::DBusArgument") {
 		rb_define_method(klass, "endArrayWrite", (VALUE (*) (...)) qdbusargument_endarraywrite, 0);
+		rb_define_method(klass, "end_array_write", (VALUE (*) (...)) qdbusargument_endarraywrite, 0);
 		rb_define_method(klass, "endMapEntryWrite", (VALUE (*) (...)) qdbusargument_endmapentrywrite, 0);
+		rb_define_method(klass, "end_map_entry_write", (VALUE (*) (...)) qdbusargument_endmapentrywrite, 0);
 		rb_define_method(klass, "endMapWrite", (VALUE (*) (...)) qdbusargument_endmapwrite, 0);
+		rb_define_method(klass, "end_map_write", (VALUE (*) (...)) qdbusargument_endmapwrite, 0);
 		rb_define_method(klass, "endStructureWrite", (VALUE (*) (...)) qdbusargument_endstructurewrite, 0);
+		rb_define_method(klass, "end_structure_write", (VALUE (*) (...)) qdbusargument_endstructurewrite, 0);
 #endif
 	}
 

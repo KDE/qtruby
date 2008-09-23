@@ -1,3 +1,60 @@
+2008-09-22  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Rename get_VALUEtype() as value_to_type_flag()
+	* Change the inspect() method for Qt::Rects and RectFs to use the
+	  Qt4 convention of x, y, width, height
+	* module_method_missing() had the Qt:: module hard wired into it, and
+	  so constants in other modules wouldn't be found
+
+2008-08-22  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Argument types of 'unsigned short' were not being matched in the 
+	  overloaded method resolution code which was causing a Qt::KeyEvent
+	  constructor to fail. Fixes a problem reported by Stefano Crocco.
+
+2008-08-18  Richard Dale  <richard.j.dale@gmail.com>
+
+	* The disposed? method was round the wrong way, and true if an instance
+	  had not been disposed. Thanks to Stefano Crocco for finding the bug.
+
+2008-08-12  Richard Dale  <richard.j.dale@gmail.com>
+
+	* The new qobject_cast() method was wrongly changing the smoke classId of
+	  the Ruby source instance. This was messing up method calls such as
+	  empty?, and fixes a problem reported by Stefano Crocco (thanks again
+	  Stefano for all these reports!).
+
+2008-08-11  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Added a qobject_cast() method that uses qt_metacast() to cast one 
+	  instance of QObject to another. This allow the KTextEditor:: 
+	  interface classes to be used. Fixes a problem reported by Stefano
+	  Crocco. Example usage:
+
+		doc = KTextEditor::EditorChooser.editor('katepart').create_document( nil)
+		annotator = doc.qobject_cast(KTextEditor::AnnotationInterface)
+	* Special case the Qt::SignalMapper#mapping and Qt::SignalMapper#setMapping
+	  methods so they work with both Qt::Object and Qt::Widget arguments as it
+	  confuses the method overloading resolution code at present.
+	* Add lower case/underscore methods as well as camel case for special cased
+	  methods
+
+2008-08-10  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Fix a bug reported by Stefano Crocco where primitives types and QStrings
+	  were not working as arguments to slots and signals in smoke libs outside
+	  the qt one.
+
+2008-08-07  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Fix the Qt::CoreApplication constructor so it handles the ARGV array
+	  correctly
+
+2008-07-28  Richard Dale  <richard.j.dale@gmail.com>
+
+	* The code to look up the types of slot arguments was failing for types
+	  in the KTextEditor library
+
 2008-07-21  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Qt::Variant.fromValue() and Qt::Variant.value() now both work correctly

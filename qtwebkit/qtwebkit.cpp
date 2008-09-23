@@ -14,8 +14,9 @@ static VALUE getClassList(VALUE /*self*/)
 {
     VALUE classList = rb_ary_new();
     for (int i = 1; i < qtwebkit_Smoke->numClasses; i++) {
-        if (qtwebkit_Smoke->classes[i].className && !qtwebkit_Smoke->classes[i].external)
+        if (qtwebkit_Smoke->classes[i].className && !qtwebkit_Smoke->classes[i].external) {
             rb_ary_push(classList, rb_str_new2(qtwebkit_Smoke->classes[i].className));
+        }
     }
     return classList;
 }

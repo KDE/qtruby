@@ -497,10 +497,10 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
 #endif
     }
 
-    if (!meth.index) {
+    if (meth.index == 0) {
         return result;
     // empty list
-    } else if(meth.index > 0) {
+    } else if (meth.index > 0) {
         Smoke::Index i = meth.smoke->methodMaps[meth.index].method;
         if (i == 0) {		// shouldn't happen
             rb_raise(rb_eArgError, "Corrupt method %s::%s", c, name);
@@ -713,7 +713,7 @@ static QByteArray * mcid = 0;
 	for(int i=4; i<argc ; i++)
 	{
 		*mcid += ';';
-		*mcid += get_VALUEtype(argv[i]);
+		*mcid += value_to_type_flag(argv[i]);
 	}
 	Smoke::ModuleIndex *rcid = methcache.value(*mcid);
 #ifdef DEBUG
@@ -952,7 +952,6 @@ static QRegExp * rx = 0;
 	if (rx == 0) {
 		rx = new QRegExp("^(bool|int|uint|long|ulong|double|char\\*|QString)&?$");
 	}
-
 	methodTypes.prepend(QByteArray(typeName));
 	QList<MocArgument*> result;
 
@@ -986,6 +985,9 @@ static QRegExp * rx = 0;
 						smoke = it.key();
 						targetType = name;
 						typeId = smoke->idType(targetType.constData());
+						if (typeId != 0) {
+							break;
+						}
 	
 						if (typeId == 0 && !name.contains('*')) {
 							if (!name.contains("&")) {
@@ -1002,28 +1004,36 @@ static QRegExp * rx = 0;
 				}			
 			} else if (staticType == "bool") {
 				arg->argType = xmoc_bool;
+				smoke = qt_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "int") {
 				arg->argType = xmoc_int;
+				smoke = qt_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "uint") {
 				arg->argType = xmoc_uint;
+				smoke = qt_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "long") {
 				arg->argType = xmoc_long;
+				smoke = qt_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "ulong") {
 				arg->argType = xmoc_ulong;
+				smoke = qt_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "double") {
 				arg->argType = xmoc_double;
+				smoke = qt_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "char*") {
 				arg->argType = xmoc_charstar;
+				smoke = qt_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "QString") {
 				arg->argType = xmoc_QString;
 				name += "*";
+				smoke = qt_Smoke;
 				typeId = smoke->idType(name.constData());
 			}
 
@@ -1147,28 +1157,6 @@ set_obj_info(const char * className, smokeruby_object * o)
     return obj;
 }
 
-VALUE
-cast_object_to(VALUE /*self*/, VALUE object, VALUE new_klass)
-{
-    smokeruby_object *o = value_obj_info(object);
-
-	VALUE new_klassname = rb_funcall(new_klass, rb_intern("name"), 0);
-
-    Smoke::ModuleIndex * cast_to_id = classcache.value(StringValuePtr(new_klassname));
-	if (cast_to_id == 0) {
-		rb_raise(rb_eArgError, "unable to find class \"%s\" to cast to\n", StringValuePtr(new_klassname));
-	}
-
-	smokeruby_object * o_cast = alloc_smokeruby_object(	o->allocated, 
-														cast_to_id->smoke, 
-														(int) cast_to_id->index, 
-														o->smoke->cast(o->ptr, o->classId, (int) cast_to_id->index) );
-
-    VALUE obj = Data_Wrap_Struct(new_klass, smokeruby_mark, smokeruby_free, (void *) o_cast);
-    mapPointer(obj, o_cast, o_cast->classId, 0);
-    return obj;
-}
-
 VALUE 
 kross2smoke(VALUE /*self*/, VALUE krobject, VALUE new_klass)
 {
@@ -1190,7 +1178,7 @@ kross2smoke(VALUE /*self*/, VALUE krobject, VALUE new_klass)
 }
 
 const char *
-get_VALUEtype(VALUE ruby_value)
+value_to_type_flag(VALUE ruby_value)
 {
 	const char * classname = rb_obj_classname(ruby_value);
 	const char *r = "";

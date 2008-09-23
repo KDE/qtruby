@@ -144,9 +144,51 @@ void marshall_KSharedConfigPtr(Marshall *m) {
 
 	    *(m->var()) = obj;		
 	    
-		if(m->cleanup())
-		;
+//		if(m->cleanup())
+//			;
+//		}
+		break;
+	default:
+		m->unsupported();
+		break;
+	}
+}
+
+void marshall_KSharedMimeTypePtr(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE: 
+		{
+			VALUE config = *(m->var());
+			smokeruby_object *o = value_obj_info(config);
+			m->item().s_voidp = new KSharedPtr<KMimeType>(*(static_cast<KSharedPtr<KMimeType>*>(o->ptr)));
+			m->next();
+			// delete (KSharedConfigPtr*) m->item().s_voidp;
 		}
+		break;
+	case Marshall::ToVALUE: 
+		{
+		KSharedPtr<KMimeType> *ptr = new KSharedPtr<KMimeType>(*(static_cast<KSharedPtr<KMimeType>*>(m->item().s_voidp)));
+		if (ptr == 0) {
+			*(m->var()) = Qnil;
+			break;
+		}
+	    KMimeType * config = ptr->data();
+	    
+		VALUE obj = getPointerObject(config);
+		if(obj == Qnil) {
+		    smokeruby_object  * o = ALLOC(smokeruby_object);
+		    o->smoke = m->smoke();
+		    o->classId = m->smoke()->idClass("KMimeType").index;
+		    o->ptr = config;
+		    o->allocated = true;
+		    obj = set_obj_info("KDE::MimeType", o);
+		}
+
+	    *(m->var()) = obj;		
+	    
+//		if(m->cleanup())
+//			;
+//		}
 		break;
 	default:
 		m->unsupported();
@@ -362,6 +404,8 @@ TypeHandler KDE_handlers[] = {
     { "KSharedConfig::Ptr&", marshall_KSharedConfigPtr },
     { "KSharedConfigPtr", marshall_KSharedConfigPtr },
     { "KSharedConfigPtr&", marshall_KSharedConfigPtr },
+    { "KMimeType::Ptr", marshall_KSharedMimeTypePtr },
+    { "KSharedPtr<KMimeType>", marshall_KSharedMimeTypePtr },
     { "KSharedPtr<KSharedConfig>", marshall_KSharedConfigPtr },
     { "KSharedPtr<KSharedConfig>&", marshall_KSharedConfigPtr },
     { "KUrl::List", marshall_KUrlList },
