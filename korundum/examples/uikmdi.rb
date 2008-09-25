@@ -1,7 +1,7 @@
 
 =begin
 This is a ruby version of Jim Bublitz's python original. The ruby behaviour
-is 'crash for crash' identical - so the the problems described below are 
+is 'crash for crash' identical - so the problems described below are 
 related to KMDI, and not the bindings.
 =end
 
