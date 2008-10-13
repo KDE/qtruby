@@ -875,6 +875,11 @@ qstringFromRString(VALUE rstring) {
 	return new QString(QString::fromLocal8Bit(StringValuePtr(rstring), RSTRING(rstring)->len));
 }
 
+QByteArray*
+qbytearrayFromRString(VALUE rstring) {
+  return new QByteArray(StringValuePtr(rstring), RSTRING(rstring)->len);
+}
+
 VALUE 
 rstringFromQString(QString * s) {
 	if (KCODE == 0) {
@@ -891,6 +896,11 @@ rstringFromQString(QString * s) {
 		return rb_str_new2(s->toLatin1());
 	else
 		return rb_str_new2(s->toLocal8Bit());
+}
+
+VALUE
+rstringFromQByteArray(QByteArray * s) {
+  return rb_str_new(s->data(), s->size());
 }
 
 static void marshall_QString(Marshall *m) {
@@ -940,6 +950,56 @@ static void marshall_QString(Marshall *m) {
 		default:
 			m->unsupported();
 		break;
+   }
+}
+
+static void marshall_QByteArray(Marshall *m) {
+  switch(m->action()) {
+    case Marshall::FromVALUE:
+    {
+      QByteArray* s = 0;
+      if( *(m->var()) != Qnil) {
+        s = qbytearrayFromRString(*(m->var()));
+      } else {
+        s = new QByteArray();
+      }
+
+      m->item().s_voidp = s;
+      m->next();
+
+      if (!m->type().isConst() && *(m->var()) != Qnil && s != 0 && !s->isNull()) {
+        rb_str_resize(*(m->var()), 0);
+        VALUE temp = rstringFromQByteArray(s);
+        rb_str_cat2(*(m->var()), StringValuePtr(temp));
+      }
+
+      if (s != 0 && m->cleanup()) {
+        delete s;
+      }
+    }
+    break;
+
+    case Marshall::ToVALUE:
+    {
+      QByteArray *s = (QByteArray*)m->item().s_voidp;
+      if(s) {
+        if (s->isNull()) {
+          *(m->var()) = Qnil;
+        } else {
+          *(m->var()) = rstringFromQByteArray(s);
+        }
+        if(m->cleanup() || m->type().isStack() ) {
+          delete s;
+        }
+      } else {
+        *(m->var()) = Qnil;
+      }
+    }
+    break;
+
+    default:
+      m->unsupported();
+    break;
    }
 }
 
@@ -2309,6 +2369,9 @@ Q_DECL_EXPORT TypeHandler Qt_handlers[] = {
     { "QString", marshall_QString },
     { "QString*", marshall_QString },
     { "QString&", marshall_QString },
+    { "QByteArray", marshall_QByteArray },
+    { "QByteArray*", marshall_QByteArray },
+    { "QByteArray&", marshall_QByteArray },
     { "quint64", marshall_it<unsigned long long> },
     { "quint64&", marshall_it<unsigned long long> },
     { "qulonglong", marshall_it<unsigned long long> },

@@ -279,6 +279,14 @@ module Qt
 	end
 	
 	class ByteArray < Qt::Base
+    def initialize(*args)
+      if args.size == 1 && args[0].kind_of?(String)
+        super(args[0], args[0].size)
+      else
+        super
+      end
+    end
+
 		def to_s
 			return constData()
 		end

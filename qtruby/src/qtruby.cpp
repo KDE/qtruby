@@ -582,6 +582,14 @@ qbytearray_append(VALUE self, VALUE str)
 	return self;
 }
 
+static VALUE
+qbytearray_data(VALUE self)
+{
+  smokeruby_object *o = value_obj_info(self);
+  QByteArray * bytes = (QByteArray *) o->ptr;
+  return rb_str_new(bytes->data(), bytes->size());
+}
+
 #ifdef QT_QTDBUS 
 static VALUE
 qdbusargument_endarraywrite(VALUE self)
@@ -2153,6 +2161,9 @@ create_qt_class(VALUE /*self*/, VALUE package_value, VALUE module_value)
     	rb_define_singleton_method(qvariant_class, "new", (VALUE (*) (...)) new_qvariant, -1);
 	} else if (packageName == "Qt::ByteArray") {
 		rb_define_method(klass, "+", (VALUE (*) (...)) qbytearray_append, 1);
+    rb_define_method(klass, "data", (VALUE (*) (...)) qbytearray_data, 0);
+    rb_define_method(klass, "constData", (VALUE (*) (...)) qbytearray_data, 0);
+    rb_define_method(klass, "const_data", (VALUE (*) (...)) qbytearray_data, 0);
 	} else if (packageName == "Qt::Char") {
 		rb_define_method(klass, "to_s", (VALUE (*) (...)) qchar_to_s, 0);
 	} else if (packageName == "Qt::ItemSelection") {
