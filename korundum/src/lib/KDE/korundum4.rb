@@ -390,6 +390,12 @@ module KDE
 		end
 	end
 
+	class PageDialog < Qt::Base
+		def exec(*args)
+			method_missing(:exec, *args)
+		end
+	end
+
 	class PageWidgetItem < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
