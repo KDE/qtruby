@@ -1,3 +1,8 @@
+2008-10-21  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Special case the KDE::StandardAction.open method so it gets called and not
+	  Kernel.open. Thanks to Stefano Crocco for reporting the error.
+
 2008-09-09  Richard Dale  <richard.j.dale@gmail.com>
 
 	* The KDE::Dialog exec method was giving a ArgumentError exception.

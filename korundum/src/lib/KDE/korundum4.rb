@@ -462,6 +462,10 @@ module KDE
 		def name(*args)
 			method_missing(:name, *args)
 		end
+
+		def open(*args)
+			method_missing(:name, *args)
+		end
 	end
 
 	class StandardShortcut < Qt::Base
