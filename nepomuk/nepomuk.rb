@@ -37,4 +37,16 @@ module Nepomuk
       end
     end
   end
+
+  class Variant < Qt::Base
+    def inspect
+      str = super
+      str.sub(/>$/, " '%s'>" % toString)
+    end
+    
+    def pretty_print(pp)
+      str = to_s
+      pp.text str.sub(/>$/, " '%s'>" % toString)
+    end
+  end
 end
