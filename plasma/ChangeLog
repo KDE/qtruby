@@ -1,3 +1,7 @@
+2008-10-23  Richard Dale  <richard.j.dale@gmail.com>
+* Converted the webapplet to use the script engine api, and renamed it
+  plasma_applet_ruby_webapplet
+
 2008-08-15  Richard Dale  <richard.j.dale@gmail.com>
 * Re-added the ruby version of the plasmoidviewer app
 

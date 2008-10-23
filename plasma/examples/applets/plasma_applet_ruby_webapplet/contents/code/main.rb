@@ -26,9 +26,9 @@ THE SOFTWARE.
 
 require 'plasma_applet'
 
-module PlasmaRubyWebApplet
+module PlasmaAppletRubyWebapplet
 
-class WebApplet < Plasma::Applet
+class Main < PlasmaScripting::Applet
 
   slots 'dataUpdated(QString,Plasma::DataEngine::Data)',
         'load(QUrl)',
@@ -36,7 +36,7 @@ class WebApplet < Plasma::Applet
         'loadHtml(QUrl)',
         'loadFinished(bool)'
 
-  def initialize(parent, args)
+  def initialize(parent, args = nil)
     super
   end
 
