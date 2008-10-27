@@ -42,9 +42,12 @@ static T value2enum(VALUE v)
 
 static VALUE qwidget_key_click(int argc, VALUE * argv, VALUE self)
 {
-    if (argc < 1 || argc > 3) rb_raise(rb_eArgError, "Invalid argument list");
     smokeruby_object *o = value_obj_info(self);
-    QWidget * widget = static_cast<QWidget *>(o->ptr);
+    QWidget * widget = qobject_cast<QWidget *>(static_cast<QObject *>(o->ptr));
+    if (!widget)
+        rb_call_super(argc, argv);
+
+    if (argc < 1 || argc > 3) rb_raise(rb_eArgError, "Invalid argument list");
     char key = NUM2CHR(argv[0]);
 
     Qt::KeyboardModifiers modifier = Qt::NoModifier;
@@ -60,9 +63,12 @@ static VALUE qwidget_key_click(int argc, VALUE * argv, VALUE self)
 
 static VALUE qwidget_key_clicks(int argc, VALUE * argv, VALUE self)
 {
-    if (argc < 1 || argc > 3) rb_raise(rb_eArgError, "Invalid argument list");
     smokeruby_object *o = value_obj_info(self);
-    QWidget * widget = static_cast<QWidget *>(o->ptr);
+    QWidget * widget = qobject_cast<QWidget *>(static_cast<QObject *>(o->ptr));
+    if (!widget)
+        rb_call_super(argc, argv);
+
+    if (argc < 1 || argc > 3) rb_raise(rb_eArgError, "Invalid argument list");
     char * sequence = StringValueCStr(argv[0]);
 
     Qt::KeyboardModifiers modifier = Qt::NoModifier;
@@ -86,11 +92,10 @@ Init_qttest()
 {
     rb_require("Qt4");
 
-    VALUE widget = rb_define_class_under(qt_module, "Widget", qt_base_class);
-    rb_define_method(widget, "key_click", (VALUE (*) (...)) qwidget_key_click, -1);
-    rb_define_method(widget, "keyClick", (VALUE (*) (...)) qwidget_key_click, -1);
-    rb_define_method(widget, "key_clicks", (VALUE (*) (...)) qwidget_key_clicks, -1);
-    rb_define_method(widget, "keyClicks", (VALUE (*) (...)) qwidget_key_clicks, -1);
+    rb_define_method(qt_base_class, "key_click", (VALUE (*) (...)) qwidget_key_click, -1);
+    rb_define_method(qt_base_class, "keyClick", (VALUE (*) (...)) qwidget_key_click, -1);
+    rb_define_method(qt_base_class, "key_clicks", (VALUE (*) (...)) qwidget_key_clicks, -1);
+    rb_define_method(qt_base_class, "keyClicks", (VALUE (*) (...)) qwidget_key_clicks, -1);
 }
 
 }
