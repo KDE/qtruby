@@ -21,13 +21,59 @@
 #include <QtTest/qtestkeyboard.h>
 #include <qtruby.h>
 
+#include <marshall_types.h>
+
+template <typename T>
+static T value2enum(VALUE v)
+{
+    long res;
+    if (v == Qnil) {
+        res = 0;
+    } else if (TYPE(v) == T_OBJECT) {
+        // Both Qt::Enum and Qt::Integer have a value() method, so 'get_qinteger()' can be called ok
+        VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, v);
+        res = (long) NUM2LONG(temp);
+    } else {
+        res = (long) NUM2LONG(v);
+    }
+
+    return static_cast<T>(res);
+}
+
 static VALUE qwidget_key_click(int argc, VALUE * argv, VALUE self)
 {
-    if (argc < 1 || argc > 4) rb_raise(rb_eArgError, "Invalid argument list");
+    if (argc < 1 || argc > 3) rb_raise(rb_eArgError, "Invalid argument list");
     smokeruby_object *o = value_obj_info(self);
     QWidget * widget = static_cast<QWidget *>(o->ptr);
+    char key = NUM2CHR(argv[0]);
 
-    QTest::keyClick(widget, NUM2CHR(argv[0]));
+    Qt::KeyboardModifiers modifier = Qt::NoModifier;
+    if (argc > 1)
+        modifier = value2enum<Qt::KeyboardModifiers>(argv[1]);
+    int delay = -1;
+    if (argc > 2)
+        delay = NUM2INT(argv[2]);
+
+    QTest::keyClick(widget, key, modifier, delay);
+    return Qnil;
+}
+
+static VALUE qwidget_key_clicks(int argc, VALUE * argv, VALUE self)
+{
+    if (argc < 1 || argc > 3) rb_raise(rb_eArgError, "Invalid argument list");
+    smokeruby_object *o = value_obj_info(self);
+    QWidget * widget = static_cast<QWidget *>(o->ptr);
+    char * sequence = StringValueCStr(argv[0]);
+
+    Qt::KeyboardModifiers modifier = Qt::NoModifier;
+    if (argc > 1)
+        modifier = value2enum<Qt::KeyboardModifiers>(argv[1]);
+    int delay = -1;
+    if (argc > 2)
+        delay = NUM2INT(argv[2]);
+
+    QTest::keyClicks(widget, sequence, modifier, delay);
+
     return Qnil;
 }
 
@@ -43,6 +89,10 @@ Init_qttest()
     VALUE widget = rb_define_class_under(qt_module, "Widget", qt_base_class);
     rb_define_method(widget, "key_click", (VALUE (*) (...)) qwidget_key_click, -1);
     rb_define_method(widget, "keyClick", (VALUE (*) (...)) qwidget_key_click, -1);
+    rb_define_method(widget, "key_clicks", (VALUE (*) (...)) qwidget_key_clicks, -1);
+    rb_define_method(widget, "keyClicks", (VALUE (*) (...)) qwidget_key_clicks, -1);
 }
 
 }
+
+// kate: indent-width 4;
