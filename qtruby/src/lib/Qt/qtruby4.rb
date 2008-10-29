@@ -1914,7 +1914,9 @@ module Qt
 												Qt::Time.new(args[0].hour, args[0].min, args[0].sec) ) )
 			elsif args.size == 1 && args[0].class.name == "Time"
 				return super(Qt::Time.new(args[0]))
-			else
+			elsif args.size == 1 && args[0].class.name == "BigDecimal"
+        return super args[0].to_f # we have to make do with a float
+      else
 				return super(*args)
 			end
 		end
