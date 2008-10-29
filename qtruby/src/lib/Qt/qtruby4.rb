@@ -437,7 +437,7 @@ module Qt
 		end
 
 		def to_date
-			Date.new! to_julian_day
+			::Date.new! to_julian_day
 		end
 	end
 	
