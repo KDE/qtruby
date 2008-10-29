@@ -1937,6 +1937,8 @@ module Qt
 
 		def value
 			case type()
+			when Qt::Variant::Invalid
+				return nil
 			when Qt::Variant::Bitmap
 			when Qt::Variant::Bool
 				return toBool
