@@ -1915,7 +1915,7 @@ module Qt
 			elsif args.size == 1 && args[0].class.name == "Time"
 				return super(Qt::Time.new(args[0]))
 			elsif args.size == 1 && args[0].class.name == "BigDecimal"
-        return super args[0].to_f # we have to make do with a float
+        return super(args[0].to_f) # we have to make do with a float
       else
 				return super(*args)
 			end
