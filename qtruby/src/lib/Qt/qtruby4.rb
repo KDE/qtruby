@@ -435,6 +435,10 @@ module Qt
 			str = to_s
 			pp.text str.sub(/>$/, " %s>" % toString)
 		end
+
+		def to_date
+			Date.new! to_julian_day
+		end
 	end
 	
 	class DateTime < Qt::Base
@@ -2977,3 +2981,5 @@ class Module
 		return meths.uniq
 	end
 end
+
+# kate: space-indent false;
