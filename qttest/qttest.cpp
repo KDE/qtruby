@@ -48,7 +48,19 @@ static VALUE qwidget_key_click(int argc, VALUE * argv, VALUE self)
         rb_call_super(argc, argv);
 
     if (argc < 1 || argc > 3) rb_raise(rb_eArgError, "Invalid argument list");
-    char key = NUM2CHR(argv[0]);
+    
+    char chKey;
+    Qt::Key enKey;
+    bool isChar = false;
+    switch(TYPE(argv[0])) {
+	case T_STRING:
+	case T_FIXNUM:
+	    chKey = NUM2CHR(argv[0]);
+	    isChar = true;
+	    break;
+	default:
+	    enKey = value2enum<Qt::Key>(argv[0]);
+    }
 
     Qt::KeyboardModifiers modifier = Qt::NoModifier;
     if (argc > 1)
@@ -57,7 +69,11 @@ static VALUE qwidget_key_click(int argc, VALUE * argv, VALUE self)
     if (argc > 2)
         delay = NUM2INT(argv[2]);
 
-    QTest::keyClick(widget, key, modifier, delay);
+    if (isChar)
+	QTest::keyClick(widget, chKey, modifier, delay);
+    else
+	QTest::keyClick(widget, enKey, modifier, delay);
+    
     return Qnil;
 }
 
@@ -83,6 +99,14 @@ static VALUE qwidget_key_clicks(int argc, VALUE * argv, VALUE self)
     return Qnil;
 }
 
+static VALUE qtest_qwait(VALUE /*self*/, VALUE ms_)
+{
+    int ms = NUM2INT(ms_);
+
+    QTest::qWait(ms);
+    return Qnil;
+}
+
 extern TypeHandler qttest_handlers[];
 
 extern "C" {
@@ -96,6 +120,10 @@ Init_qttest()
     rb_define_method(qt_base_class, "keyClick", (VALUE (*) (...)) qwidget_key_click, -1);
     rb_define_method(qt_base_class, "key_clicks", (VALUE (*) (...)) qwidget_key_clicks, -1);
     rb_define_method(qt_base_class, "keyClicks", (VALUE (*) (...)) qwidget_key_clicks, -1);
+
+    VALUE test_class = rb_define_class_under(qt_module, "Test", rb_cObject);
+    rb_define_singleton_method(test_class, "qWait", (VALUE (*) (...)) qtest_qwait, 1);
+    rb_define_singleton_method(test_class, "wait", (VALUE (*) (...)) qtest_qwait, 1);
 }
 
 }
