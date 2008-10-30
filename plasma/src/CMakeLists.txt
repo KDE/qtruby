@@ -20,11 +20,3 @@ target_link_libraries(plasma_applet
 set_target_properties(plasma_applet PROPERTIES PREFIX "")
 install(TARGETS plasma_applet DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
 
-install(FILES package_ruboid.rb DESTINATION ${DATA_INSTALL_DIR}/plasma_scriptengine_ruby)
-install(FILES applet.rb DESTINATION ${DATA_INSTALL_DIR}/plasma_scriptengine_ruby)
-install(FILES data_engine.rb DESTINATION ${DATA_INSTALL_DIR}/plasma_scriptengine_ruby)
-
-install(FILES plasma-scriptengine-ruby-package.desktop DESTINATION ${SERVICES_INSTALL_DIR})
-install(FILES plasma-scriptengine-ruby-applet.desktop DESTINATION ${SERVICES_INSTALL_DIR})
-install(FILES plasma-scriptengine-ruby-dataengine.desktop DESTINATION ${SERVICES_INSTALL_DIR})
-

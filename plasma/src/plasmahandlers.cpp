@@ -25,42 +25,45 @@
 #include <plasma/packagestructure.h>
 #include <plasma/containment.h>
 #include <plasma/applet.h>
+#include <plasma/datacontainer.h>
 
 void marshall_PackageStructurePtr(Marshall *m) {
-	switch(m->action()) {
-	case Marshall::FromVALUE: 
-		{
-		}
-		break;
-	case Marshall::ToVALUE: 
-		{
-		KSharedPtr<Plasma::PackageStructure> *ptr = new KSharedPtr<Plasma::PackageStructure>(*(KSharedPtr<Plasma::PackageStructure>*)m->item().s_voidp);
-	    if(ptr == 0) {
-		*(m->var()) = Qnil;
-		break;
-	    }
-	    Plasma::PackageStructure * package = ptr->data();
-	    
-		VALUE obj = getPointerObject(package);
-		if(obj == Qnil) {
-		    smokeruby_object  * o = ALLOC(smokeruby_object);
-		    o->smoke = m->smoke();
-		    o->classId = m->smoke()->idClass("Plasma::PackageStructure").index;
-		    o->ptr = package;
-		    o->allocated = true;
-		    obj = set_obj_info("Plasma::PackageStructure", o);
-		}
+    switch(m->action()) {
+    case Marshall::FromVALUE: 
+    {
+        break;
+    }
 
-	    *(m->var()) = obj;		
-	    
-		if(m->cleanup())
-		;
-		}
-		break;
-	default:
-		m->unsupported();
-		break;
-	}
+    case Marshall::ToVALUE: 
+    {
+        KSharedPtr<Plasma::PackageStructure> *ptr = new KSharedPtr<Plasma::PackageStructure>(*(KSharedPtr<Plasma::PackageStructure>*)m->item().s_voidp);
+        if (ptr == 0) {
+            *(m->var()) = Qnil;
+            break;
+        }
+        Plasma::PackageStructure * package = ptr->data();
+ 
+        VALUE obj = getPointerObject(package);
+        if (obj == Qnil) {
+            smokeruby_object  * o = ALLOC(smokeruby_object);
+            o->smoke = m->smoke();
+            o->classId = m->smoke()->idClass("Plasma::PackageStructure").index;
+            o->ptr = package;
+            o->allocated = true;
+            obj = set_obj_info("Plasma::PackageStructure", o);
+        }
+
+        *(m->var()) = obj;		
+
+        if (m->cleanup()) {
+        }
+        break;
+    }
+
+    default:
+        m->unsupported();
+        break;
+    }
 }
 
 void marshall_QHashQStringQVariant(Marshall *m) {
