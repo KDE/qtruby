@@ -2286,7 +2286,23 @@ module Qt
 			@target.instance_exec(*args, &@block)
 		end
 	end
-	
+
+	class MethodInvocation < Qt::Object
+		def initialize(target, method, signature)
+			super(target)
+			if metaObject.indexOfSlot(signature) == -1
+				self.class.slots signature
+			end
+			@target = target
+			method = method.intern unless method.is_a?Symbol
+			@method = method
+		end
+
+		def invoke(*args)
+			@target.send @method, args
+		end
+	end
+
 	module Internal
 		@@classes   = {}
 		@@cpp_names = {}
@@ -2772,6 +2788,16 @@ module Qt
 			return Qt::Object.connect(	src,
 										signal,
 										Qt::SignalBlockInvocation.new(src, block, signature),
+										SLOT(signature) )
+		end
+
+		def Internal.method_connect(src, signal, target, method)
+			signal = SIGNAL(signal.to_s + "()") if signal.is_a?Symbol
+			args = (signal =~ /\((.*)\)/) ? $1 : ""
+			signature = Qt::MetaObject.normalizedSignature("invoke(%s)" % args).to_s
+			return Qt::Object.connect(  src,
+										signal,
+										Qt::MethodInvocation.new(target, method, signature),
 										SLOT(signature) )
 		end
 

@@ -1476,7 +1476,10 @@ qobject_connect(int argc, VALUE * argv, VALUE self)
 			rb_raise(rb_eArgError, "Invalid argument list");
 		}
 	} else {
-		return rb_call_super(argc, argv);
+		if (argc == 3) {
+			return rb_funcall(qt_internal_module, rb_intern("method_connect"), 4, self, argv[0], argv[1], argv[2]);
+		} else
+			return rb_call_super(argc, argv);
 	}
 }
 
@@ -2323,3 +2326,4 @@ Init_qtruby4()
 }
 
 }
+// kate: space-indent false;
