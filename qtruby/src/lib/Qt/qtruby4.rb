@@ -2299,7 +2299,7 @@ module Qt
 		end
 
 		def invoke(*args)
-			@target.send @method, args
+			@target.send @method, *args
 		end
 	end
 
