@@ -23,9 +23,6 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="windowTitle" >
-   <string>Calculator Form</string>
-  </property>
   <layout class="QGridLayout" >
    <property name="objectName" >
     <string notr="true" />
