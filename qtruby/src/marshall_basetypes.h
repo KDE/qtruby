@@ -198,3 +198,4 @@ void marshall_to_ruby<unsigned char *>(Marshall *m)
 }
 
 #endif
+// kate: space-indent false;
