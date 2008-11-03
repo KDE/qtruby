@@ -1,7 +1,10 @@
-include_directories(${RUBY_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src)
+include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src)
+INCLUDE_DIRECTORIES (${QT_INCLUDES} ${KDE4_INCLUDE_DIR})
 
-set(rubyqttest_LIBRARY_SRC qttest.cpp)
-add_library(rubyqttest MODULE ${rubyqttest_LIBRARY_SRC})
-target_link_libraries(rubyqttest ${RUBY_LIBRARY} qtruby4shared QtTest)
-set_target_properties(rubyqttest PROPERTIES PREFIX "" OUTPUT_NAME qttest)
-install(TARGETS rubyqttest DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
+set(qttest_LIBRARY_SRC qttest.cpp qttesthandlers.cpp)
+
+add_library(qttest MODULE ${qttest_LIBRARY_SRC})
+target_link_libraries(qttest ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} smokeqt smokekde smokeqttest qtruby4shared)
+set_target_properties(qttest PROPERTIES PREFIX "")
+install(TARGETS qttest DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
+install(FILES qttest.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/qttest)

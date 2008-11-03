@@ -1,131 +1,78 @@
-/*
-    qttest.rb - Ruby bindings for the QtTest library
-    Copyright (C) 2008 Rafał Rzepecki
+/***************************************************************************
+                          qttest.cpp  -  QtTest ruby extension
+                             -------------------
+    begin                : 29-10-2008
+    copyright            : (C) 2008 by Richard Dale
+    email                : richard.j.dale@gmail.com
+ ***************************************************************************/
 
-    This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 2.1 of the License, or (at your option) any later version.
-
-    This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
 
 #include <ruby.h>
-#include <QtTest/qtestkeyboard.h>
+
+#include <QHash>
+#include <QList>
+#include <QtDebug>
+
+#include <smoke/qttest_smoke.h>
+
 #include <qtruby.h>
 
-#include <marshall_types.h>
+#include <iostream>
 
-template <typename T>
-static T value2enum(VALUE v)
+static VALUE getClassList(VALUE /*self*/)
 {
-    long res;
-    if (v == Qnil) {
-        res = 0;
-    } else if (TYPE(v) == T_OBJECT) {
-        // Both Qt::Enum and Qt::Integer have a value() method, so 'get_qinteger()' can be called ok
-        VALUE temp = rb_funcall(qt_internal_module, rb_intern("get_qinteger"), 1, v);
-        res = (long) NUM2LONG(temp);
-    } else {
-        res = (long) NUM2LONG(v);
+    VALUE classList = rb_ary_new();
+    for (int i = 1; i < qttest_Smoke->numClasses; i++) {
+        if (qttest_Smoke->classes[i].className && !qttest_Smoke->classes[i].external)
+            rb_ary_push(classList, rb_str_new2(qttest_Smoke->classes[i].className));
     }
-
-    return static_cast<T>(res);
+    return classList;
 }
 
-static VALUE qwidget_key_click(int argc, VALUE * argv, VALUE self)
+const char*
+resolve_classname_qttest(smokeruby_object * o)
 {
-    smokeruby_object *o = value_obj_info(self);
-    QWidget * widget = qobject_cast<QWidget *>(static_cast<QObject *>(o->ptr));
-    if (!widget)
-        rb_call_super(argc, argv);
-
-    if (argc < 1 || argc > 3) rb_raise(rb_eArgError, "Invalid argument list");
-    
-    char chKey;
-    Qt::Key enKey;
-    bool isChar = false;
-    switch(TYPE(argv[0])) {
-	case T_STRING:
-	case T_FIXNUM:
-	    chKey = NUM2CHR(argv[0]);
-	    isChar = true;
-	    break;
-	default:
-	    enKey = value2enum<Qt::Key>(argv[0]);
-    }
-
-    Qt::KeyboardModifiers modifier = Qt::NoModifier;
-    if (argc > 1)
-        modifier = value2enum<Qt::KeyboardModifiers>(argv[1]);
-    int delay = -1;
-    if (argc > 2)
-        delay = NUM2INT(argv[2]);
-
-    if (isChar)
-	QTest::keyClick(widget, chKey, modifier, delay);
-    else
-	QTest::keyClick(widget, enKey, modifier, delay);
-    
-    return Qnil;
+    return qtruby_modules[o->smoke].binding->className(o->classId);
 }
 
-static VALUE qwidget_key_clicks(int argc, VALUE * argv, VALUE self)
-{
-    smokeruby_object *o = value_obj_info(self);
-    QWidget * widget = qobject_cast<QWidget *>(static_cast<QObject *>(o->ptr));
-    if (!widget)
-        rb_call_super(argc, argv);
-
-    if (argc < 1 || argc > 3) rb_raise(rb_eArgError, "Invalid argument list");
-    char * sequence = StringValueCStr(argv[0]);
-
-    Qt::KeyboardModifiers modifier = Qt::NoModifier;
-    if (argc > 1)
-        modifier = value2enum<Qt::KeyboardModifiers>(argv[1]);
-    int delay = -1;
-    if (argc > 2)
-        delay = NUM2INT(argv[2]);
-
-    QTest::keyClicks(widget, sequence, modifier, delay);
-
-    return Qnil;
-}
-
-static VALUE qtest_qwait(VALUE /*self*/, VALUE ms_)
-{
-    int ms = NUM2INT(ms_);
-
-    QTest::qWait(ms);
-    return Qnil;
-}
-
-extern TypeHandler qttest_handlers[];
+extern TypeHandler QtTest_handlers[];
 
 extern "C" {
+
+VALUE qttest_module;
+VALUE qttest_internal_module;
+
+static QtRuby::Binding binding;
 
 Q_DECL_EXPORT void
 Init_qttest()
 {
-    rb_require("Qt4");
+    init_qttest_Smoke();
 
-    rb_define_method(qt_base_class, "key_click", (VALUE (*) (...)) qwidget_key_click, -1);
-    rb_define_method(qt_base_class, "keyClick", (VALUE (*) (...)) qwidget_key_click, -1);
-    rb_define_method(qt_base_class, "key_clicks", (VALUE (*) (...)) qwidget_key_clicks, -1);
-    rb_define_method(qt_base_class, "keyClicks", (VALUE (*) (...)) qwidget_key_clicks, -1);
+    binding = QtRuby::Binding(qttest_Smoke);
 
-    VALUE test_class = rb_define_class_under(qt_module, "Test", rb_cObject);
-    rb_define_singleton_method(test_class, "qWait", (VALUE (*) (...)) qtest_qwait, 1);
-    rb_define_singleton_method(test_class, "wait", (VALUE (*) (...)) qtest_qwait, 1);
+    smokeList << qttest_Smoke;
+
+    QtRubyModule module = { "QtTest", resolve_classname_qttest, 0, &binding };
+    qtruby_modules[qttest_Smoke] = module;
+
+    install_handlers(QtTest_handlers);
+
+    qttest_module = rb_define_module("QtTest");
+    qttest_internal_module = rb_define_module_under(qttest_module, "Internal");
+
+    rb_define_singleton_method(qttest_internal_module, "getClassList", (VALUE (*) (...)) getClassList, 0);
+
+    rb_require("qttest/qttest.rb");
+    rb_funcall(qttest_internal_module, rb_intern("init_all_classes"), 0);
 }
 
 }
-
-// kate: indent-width 4;
