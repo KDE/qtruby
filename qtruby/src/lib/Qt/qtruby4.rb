@@ -2379,49 +2379,56 @@ module Qt
 
 		def Internal.checkarg(argtype, typename)
 			puts "      #{typename} (#{argtype})" if debug_level >= DebugLevel::High
+			if typename =~ /^(const )?QVariant&?$/ && !(typename =~ /QList/)
+				if argtype == "QVariant"
+					return 2
+				else
+					return 0
+				end
+			end
 			if argtype == 'i'
 				if typename =~ /^int&?$|^signed int&?$|^signed$|^qint32&?$/
-					return 2
+					return 3
 				elsif typename =~ /^quint32&?$/
-					return 1
+					return 2
 				elsif typename =~ /^(?:short|ushort|unsigned short int|unsigned short|uchar|uint|long|ulong|unsigned long int|unsigned|float|double|WId|Q_PID|^quint16&?$|^qint16&?$)$/
-					return 1
+					return 2
 				elsif typename =~ /^(quint|qint|qulong|qlong|qreal)/
-					return 1
+					return 2
 				else 
 					t = typename.sub(/^const\s+/, '')
 					t.sub!(/[&*]$/, '')
 					if isEnum(t)
-						return 0
+						return 1
 					end
 				end
 			elsif argtype == 'n'
 				if typename =~ /^double$|^qreal$/
-					return 2
+					return 3
 				elsif typename =~ /^float$/
-					return 1
+					return 2
 				elsif typename =~ /^int&?$/
-					return 0
+					return 1
 				elsif typename =~ /^(?:short|ushort|uint|long|ulong|signed|unsigned|float|double)$/
-					return 0
+					return 1
 				else 
 					t = typename.sub(/^const\s+/, '')
 					t.sub!(/[&*]$/, '')
 					if isEnum(t)
-						return 0
+						return 1
 					end
 				end
 			elsif argtype == 'B'
 				if typename =~ /^(?:bool)[*&]?$/
-					return 0
+					return 1
 				end
 			elsif argtype == 's'
 				if typename =~ /^(const )?((QChar)[*&]?)$/
-					return 1
+					return 2
 				elsif typename =~ /^(?:u?char\*|const u?char\*|(?:const )?(Q(C?)String)[*&]?)$/
 					qstring = !$1.nil?
 					c = ("C" == $2)
-					return c ? 2 : (qstring ? 3 : 0)
+					return c ? 3 : (qstring ? 4 : 1)
 				end
 			elsif argtype == 'a'
 				# FIXME: shouldn't be hardcoded. Installed handlers should tell what ruby type they expect.
@@ -2435,35 +2442,35 @@ module Qt
 						    char\*\*
 						)
 					        )$/x
-					return 0
+					return 1
 				end
 			elsif argtype == 'u'
 				# Give nil matched against string types a higher score than anything else
 				if typename =~ /^(?:u?char\*|const u?char\*|(?:const )?((Q(C?)String))[*&]?)$/
-					return 1
+					return 2
 				# Numerics will give a runtime conversion error, so they fail the match
 				elsif typename =~ /^(?:short|ushort|uint|long|ulong|signed|unsigned|int)$/
 					return -99
 				else
-					return 0
+					return 1
 				end
 			elsif argtype == 'U'
 				if typename =~ /QStringList/
-					return 1
+					return 2
 				else
-					return 0
+					return 1
 				end
 			else
 				t = typename.sub(/^const\s+/, '')
 				t.sub!(/(::)?Ptr$/, '')
 				t.sub!(/[&*]$/, '')
 				if argtype == t
-					return 1
+					return 2
 				elsif classIsa(argtype, t)
-					return 0
+					return 1
 				elsif isEnum(argtype) and 
 						(t =~ /int|qint32|uint|quint32|long|ulong/ or isEnum(t))
-					return 0
+					return 1
 				end
 			end
 			return -99
@@ -2538,7 +2545,12 @@ module Qt
 				elsif arg.kind_of? Array or arg.kind_of? Hash
 					methods.collect! { |meth| meth << '?' }
 				else
-					methods.collect! { |meth| meth << '$' }
+					temp = []
+					methods.collect! do |meth|
+						temp << meth + '#'
+						meth << '$'
+					end
+					methods.concat(temp)
 				end
 			end
 			

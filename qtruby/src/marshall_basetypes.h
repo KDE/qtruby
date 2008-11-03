@@ -84,13 +84,17 @@ void marshall_from_ruby<SmokeClassWrapper>(Marshall *m)
 {
 	VALUE v = *(m->var());
 
+	if (TYPE(v) != T_DATA) {
+		if (QByteArray(m->type().name()).contains("QVariant"))
+			v = rb_funcall(qvariant_class, rb_intern("new"), 1, v);
+		else if (v != Qnil) {
+			rb_raise(rb_eArgError, "Invalid type, expecting %s\n", m->type().name());
+			return;
+		}
+	}
+
 	if (v == Qnil) {
 		m->item().s_class = 0;
-		return;
-	}
-				
-	if (TYPE(v) != T_DATA) {
-		rb_raise(rb_eArgError, "Invalid type, expecting %s\n", m->type().name());
 		return;
 	}
 
