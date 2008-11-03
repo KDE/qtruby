@@ -2596,6 +2596,7 @@ module Qt
 					# If ambiguous matches occur the problem must be fixed be adjusting the relative
 					# ranking of the arg types involved in checkarg().
 					elsif current_match == best_match
+						puts "multiple methods matching, this is an error" if debug_level >= DebugLevel::Minimal
 						chosen = nil
 					end
 					puts "match => #{id.index} score: #{current_match}" if debug_level >= DebugLevel::High
