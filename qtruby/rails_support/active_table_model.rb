@@ -53,6 +53,15 @@ class ActiveTableModel < Qt::AbstractTableModel
         @keys.size
     end
 
+
+    def [](row)
+        @collection[row]
+    end
+
+    def column(name)
+        @keys.index name
+    end
+
     def data(index, role=Qt::DisplayRole)
         invalid = Qt::Variant.new
         return invalid unless role == Qt::DisplayRole or role == Qt::EditRole
