@@ -117,3 +117,5 @@ class ActiveTableModel < Qt::AbstractTableModel
         end
     end
 end
+
+# kate: indent-width 4;
