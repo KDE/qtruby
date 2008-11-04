@@ -55,6 +55,7 @@ class ActiveTableModel < Qt::AbstractTableModel
 
 
     def [](row)
+        row = row.row if row.is_a?Qt::ModelIndex
         @collection[row]
     end
 
