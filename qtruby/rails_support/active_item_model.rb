@@ -107,6 +107,14 @@ class ActiveItemModel < Qt::AbstractItemModel
             end
         end
     end
+
+    def [](row)
+        @collection[row]
+    end
+
+    def column(name)
+        @keys.index name
+    end
     
     def columnCount(parent)
         if parent.valid?
@@ -220,3 +228,5 @@ class ActiveItemModel < Qt::AbstractItemModel
         return parentItem.childCount
     end
 end
+
+# kate: indent-width 4;
