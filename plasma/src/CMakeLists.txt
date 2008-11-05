@@ -13,7 +13,7 @@ set(plasma_applet_LIB_SRCS
 kde4_add_library(plasma_applet SHARED ${plasma_applet_LIB_SRCS})
 
 target_link_libraries(plasma_applet 
-    ${PLASMA_LIBS} 
+    ${KDE4_PLASMA_LIBS} 
     ${RUBY_LIBRARY} 
     qtruby4shared 
     smokeplasma)
