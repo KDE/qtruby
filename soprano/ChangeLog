@@ -1,0 +1,8 @@
+2008-11-07  Richard Dale  <richard.j.dale@gmail.com>
+* Improved the ActiveRDF adapter
+    * Added a ':service' option which defaults to 'org.soprano.Server'
+    * The adapter was read-only
+    * Fixed bugs in deleting statements from the store
+    * Improved the test script, although it still doesn't work very well
+* Added inspect and pretty_print methods for Soprano::Statements
+* Variable values in a Soprano::BindingSet can be accessed as 'myset[:mykey]'
