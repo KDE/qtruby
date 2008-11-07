@@ -46,3 +46,5 @@ TypeHandler Soprano_handlers[] = {
 	{ "QList<const Soprano::Serializer*>", marshall_SopranoBindingSetList },
     { 0, 0 }
 };
+
+// kate: space-indent on; indent-width 4; replace-tabs on; mixed-indent off;

@@ -7,5 +7,7 @@ else
 end
 $: << File.dirname(File.expand_path(file))
 
+require 'Qt4'
 require 'soprano'
+require 'activerdf_soprano'
 require 'literal'

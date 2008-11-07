@@ -105,6 +105,18 @@ module Soprano
   end
 
   class Statement < Qt::Base
+    def inspect
+      str = super
+      str.sub(/>$/, " valid?=%s, subject=%s, predicate=%s, object=%s, context=%s>" % 
+        [isValid, subject.inspect, predicate.inspect, object.inspect, context.inspect])
+    end
+    
+    def pretty_print(pp)
+      str = to_s
+      pp.text str.sub(/>$/, " valid?=%s,\n subject=%s,\n predicate=%s,\n object=%s,\n context=%s>" % 
+        [isValid, subject.inspect, predicate.inspect, object.inspect, context.inspect])
+    end
+
     def self.demarshall(arg)
       arg.beginStructure
       subject = Soprano::Node.demarshall(arg)
@@ -133,6 +145,10 @@ module Soprano
       arg.endMap
       arg.endStructure
       return set
+    end
+
+    def [](v)
+      value(v.to_s)
     end
   end
 
@@ -199,3 +215,5 @@ module Soprano
   end
 
 end
+
+# kate: space-indent on; indent-width 2; replace-tabs on; mixed-indent off;

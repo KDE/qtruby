@@ -21,12 +21,15 @@ class SopranoAdapter < ActiveRdfAdapter
   # * :model => name of model to use, defaults to 'main'
   def initialize(params = {})  
     @reads = true
-    @writes = false
+    @writes = true
 
     @model_name = params[:model] || 'main'
     @caching = params[:caching] || false
 
-    @client = Soprano::Client::DBusClient.new
+    # For accessing the Nepomuk store in KDE, use 'org.kde.NepomukServer'
+    @service = params[:service] || 'org.soprano.Server'
+
+    @client = Soprano::Client::DBusClient.new(@service)
     @model = @client.createModel(@model_name)
   end
 
@@ -40,7 +43,7 @@ class SopranoAdapter < ActiveRdfAdapter
 
   # load a file from the given location with the given syntax into the model.
   def load(location, syntax="n-triples")
-    system("sopranocmd --dbus org.soprano.Server --serialization #{syntax} --model #{@model_name} import #{location}")
+    system("sopranocmd --dbus #{@service} --serialization #{syntax} --model #{@model_name} import #{location}")
   end
 
   # query datastore with query string (SPARQL), returns array with query results
@@ -123,8 +126,13 @@ class SopranoAdapter < ActiveRdfAdapter
 
   # deletes triple(s,p,o) from datastore
   # nil parameters match anything: delete(nil,nil,nil) will delete all triples
+  # ActiveRDF will pass the symbol :all as 'o' when all values of
+  # object for the subject/predicate should be deleted
   def delete(s, p, o, c=nil)
-    @model.removeStatement(Soprano::Statement.new(wrap(s), wrap(p), wrap(o), wrap(c)))
+    $activerdflog.debug "removing triple(s) #{s} #{p} #{o} #{c}"
+
+    o = nil if o == :all
+    @model.removeAllStatements(Soprano::Statement.new(wrap(s), wrap(p), wrap(o), wrap(c)))
   end
 
   private
@@ -181,3 +189,5 @@ class SopranoAdapter < ActiveRdfAdapter
   end
 
 end
+
+# kate: space-indent on; indent-width 2; replace-tabs on; mixed-indent off;

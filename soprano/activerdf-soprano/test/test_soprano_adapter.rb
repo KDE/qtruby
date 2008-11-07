@@ -11,6 +11,8 @@ require 'queryengine/query'
 
 class TestSopranoAdapter < Test::Unit::TestCase
   def setup
+    @test_service = 'org.soprano.Server'
+    # @test_service = 'org.kde.NepomukServer'
     ConnectionPool.clear
   end
 
@@ -18,7 +20,7 @@ class TestSopranoAdapter < Test::Unit::TestCase
   end
 
   def test_registration
-    adapter = ConnectionPool.add_data_source(:type => :soprano)
+    adapter = ConnectionPool.add_data_source(:type => :soprano, :service => @test_service)
     assert_instance_of SopranoAdapter, adapter
   end
 
@@ -28,7 +30,7 @@ class TestSopranoAdapter < Test::Unit::TestCase
   end
 
   def test_simple_query
-    adapter = ConnectionPool.add_data_source(:type => :soprano)
+    adapter = ConnectionPool.add_data_source(:type => :soprano, :service => @test_service, :model => 'test_person')
 
     eyal = RDFS::Resource.new 'eyaloren.org'
     age = RDFS::Resource.new 'foaf:age'
@@ -39,11 +41,13 @@ class TestSopranoAdapter < Test::Unit::TestCase
 
     assert_instance_of RDFS::Resource, result
     assert_equal 'eyaloren.org', result.uri
+
+    adapter.clear
   end
 
   def test_federated_query
-    adapter1 = ConnectionPool.add_data_source(:type => :soprano)
-    adapter2 = ConnectionPool.add_data_source(:type => :soprano, :fake_symbol_to_get_unique_adapter => true)
+    adapter1 = ConnectionPool.add_data_source(:type => :soprano, :service => @test_service, :model => 'test_person')
+    adapter2 = ConnectionPool.add_data_source(:type => :soprano, :service => @test_service, :model => 'test_person', :fake_symbol_to_get_unique_adapter => true)
 
     eyal = RDFS::Resource.new 'eyaloren.org'
     age = RDFS::Resource.new 'foaf:age'
@@ -61,10 +65,12 @@ class TestSopranoAdapter < Test::Unit::TestCase
     assert_equal 2, results.size
 
     results.all? {|result| assert result.instance_of?(RDFS::Resource) }
+
+    adapter1.clear
   end
 
   def test_query_with_block
-    adapter = ConnectionPool.add_data_source(:type => :redland)
+    adapter = ConnectionPool.add_data_source(:type => :soprano, :service => @test_service, :model => 'test_person')
 
     eyal = RDFS::Resource.new 'eyaloren.org'
     age = RDFS::Resource.new 'foaf:age'
@@ -75,18 +81,22 @@ class TestSopranoAdapter < Test::Unit::TestCase
       assert_equal 'eyaloren.org', s.uri
       assert_equal 'foaf:age', p.uri
     end
+
+    adapter.clear
   end
   
   def test_load_from_file
-    adapter = ConnectionPool.add_data_source :type => :soprano, :model => 'test_load'
+    adapter = ConnectionPool.add_data_source :type => :soprano, :service => @test_service, :model => 'test_person'
     # adapter.load("/tmp/test_person_data.nt", "turtle")
     # adapter.load("/home/metaman/workspaces/deri-workspace/activerdf/test/test_person_data.nt", "turtle")
     adapter.load("#{File.dirname(__FILE__)}/test_person_data.nt", "turtle")
-    assert_equal 28, adapter.size  
+    assert_equal 28, adapter.size
+
+    adapter.clear
   end
 
   def test_person_data
-    ConnectionPool.add_data_source :type => :soprano, :model => 'test_person'
+    ConnectionPool.add_data_source :type => :soprano, :service => @test_service, :model => 'test_person'
     Namespace.register(:test, 'http://activerdf.org/test/')
 
     eyal = Namespace.lookup(:test, :eyal)
@@ -102,11 +112,13 @@ class TestSopranoAdapter < Test::Unit::TestCase
     ObjectManager.construct_classes
     assert eyal.instance_of?(TEST::Person)
     assert eyal.instance_of?(RDFS::Resource)
+
+    adapter.clear
   end
 
   def test_federated_query
-    adapter1 = ConnectionPool.add_data_source(:type => :soprano)
-    adapter2 = ConnectionPool.add_data_source(:type => :soprano, :fake_symbol_to_get_unique_adapter => true)
+    adapter1 = ConnectionPool.add_data_source(:type => :soprano, :service => @test_service, :model => 'test_person')
+    adapter2 = ConnectionPool.add_data_source(:type => :soprano, :service => @test_service, :model => 'test_person', :fake_symbol_to_get_unique_adapter => true)
 
     eyal = RDFS::Resource.new 'eyaloren.org'
     age = RDFS::Resource.new 'foaf:age'
@@ -124,10 +136,12 @@ class TestSopranoAdapter < Test::Unit::TestCase
     assert_equal 2, results.size
 
     results.all? {|result| assert result.instance_of?(RDFS::Resource) }
+
+    adapter1.clear
   end
 
   def test_query_with_block
-    adapter = ConnectionPool.add_data_source(:type => :soprano)
+    adapter = ConnectionPool.add_data_source(:type => :soprano, :service => @test_service, :model => 'test_person')
 
     eyal = RDFS::Resource.new 'eyaloren.org'
     age = RDFS::Resource.new 'foaf:age'
@@ -138,10 +152,12 @@ class TestSopranoAdapter < Test::Unit::TestCase
       assert_equal 'eyaloren.org', s.uri
       assert_equal 'foaf:age', p.uri
     end
+
+    adapter.clear
   end
 
   def test_person_data
-    adapter = ConnectionPool.add_data_source :type => :soprano, :model => 'test_person'
+    adapter = ConnectionPool.add_data_source :type => :soprano, :service => @test_service, :model => 'test_person'
     adapter.load("#{File.dirname(__FILE__)}/test_person_data.nt", "turtle")
 
     Namespace.register(:test, 'http://activerdf.org/test/')
@@ -157,10 +173,11 @@ class TestSopranoAdapter < Test::Unit::TestCase
     ObjectManager.construct_classes
     assert eyal.instance_of?(TEST::Person)
     assert eyal.instance_of?(RDFS::Resource)
+    adapter.clear
   end
 
   def test_sparql_query
-    adapter = ConnectionPool.add_data_source :type => :soprano
+    adapter = ConnectionPool.add_data_source :type => :soprano, :service => @test_service, :model => 'test_person'
 
     eyal = RDFS::Resource.new 'eyaloren.org'
     age = RDFS::Resource.new 'foaf:age'
@@ -172,5 +189,9 @@ class TestSopranoAdapter < Test::Unit::TestCase
     results = query.execute
 
     assert results.include?('eyaloren.org')
+
+    adapter.clear
   end
 end
+
+# kate: space-indent on; indent-width 2; replace-tabs on; mixed-indent off;
