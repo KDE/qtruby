@@ -7,6 +7,8 @@ add_library(rubynepomuk MODULE ${rubynepomuk_LIBRARY_SRC})
 target_link_libraries(rubynepomuk 
     ${RUBY_LIBRARY} 
     ${NEPOMUK_LIBRARIES}
+    nepomukqueryclient
+    nepomukquery
     smokeqt 
     smokesoprano
     smokekde 
