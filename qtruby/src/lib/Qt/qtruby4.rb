@@ -151,6 +151,8 @@ module Qt
 #		Object has a '==' operator instance method, so pretend it
 #		don't exist by calling method_missing() explicitely
 		def ==(a)
+
+			return false if a.nil?
 			begin
 				Qt::method_missing(:==, self, a)
 			rescue
