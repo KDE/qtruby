@@ -1,6 +1,6 @@
 2008-11-17  Richard Dale  <richard.j.dale@gmail.com>
 	* Comparisons between Qt instances and nil were causing QtRuby to
-	  crash. Fixes bug reported by Stefano Croco.
+	  crash. Fixes bug reported by Stefano Crocco.
 
 2008-09-22  Richard Dale  <richard.j.dale@gmail.com>
 
