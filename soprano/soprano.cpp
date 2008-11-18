@@ -4,11 +4,17 @@
 #include <QList>
 #include <QtDebug>
 
+#include <soprano/node.h>
+#include <soprano/statement.h>
+
 #include <smoke/soprano_smoke.h>
 
 #include <qtruby.h>
 
 #include <iostream>
+
+Q_DECLARE_METATYPE(Soprano::Statement)
+Q_DECLARE_METATYPE(Soprano::Node)
 
 static VALUE getClassList(VALUE /*self*/)
 {
@@ -53,6 +59,9 @@ Init_soprano()
     soprano_internal_module = rb_define_module_under(soprano_module, "Internal");
 
     rb_define_singleton_method(soprano_internal_module, "getClassList", (VALUE (*) (...)) getClassList, 0);
+
+    (void) qRegisterMetaType<Soprano::Statement>();
+    (void) qRegisterMetaType<Soprano::Node>();
 
     rb_require("soprano/soprano.rb");
     rb_funcall(soprano_internal_module, rb_intern("init_all_classes"), 0);

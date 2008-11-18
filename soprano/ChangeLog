@@ -1,3 +1,7 @@
+2008-11-18  Richard Dale  <richard.j.dale@gmail.com>
+* Call qRegisterMetatype() on Soprano::Node and Soprano::Statement at start up
+  so that Qt::Variants can be created with them
+
 2008-11-07  Richard Dale  <richard.j.dale@gmail.com>
 * Improved the ActiveRDF adapter
     * Added a ':service' option which defaults to 'org.soprano.Server'
