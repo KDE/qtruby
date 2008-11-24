@@ -1465,24 +1465,24 @@ module Qt
 	class Rect < Qt::Base
 		def inspect
 			str = super
-			str.sub(/>$/, " x=%d, y=%d, width=%d, height=%d>" % [x, y, width, height])
+			str.sub(/>$/, " x=%d, y=%d, width=%d, height=%d>" % [self.x, self.y, width, height])
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, "\n x=%d,\n y=%d,\n width=%d,\n height=%d>" % [x, y, width, height])
+			pp.text str.sub(/>$/, "\n x=%d,\n y=%d,\n width=%d,\n height=%d>" % [self.x, self.y, width, height])
 		end
 	end
 	
 	class RectF < Qt::Base
 		def inspect
 			str = super
-			str.sub(/>$/, " x=%f, y=%f, width=%f, height=%f>" % [x, y, width, height])
+			str.sub(/>$/, " x=%f, y=%f, width=%f, height=%f>" % [self.x, self.y, width, height])
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, "\n x=%f,\n y=%f,\n width=%f,\n height=%f>" % [x, y, width, height])
+			pp.text str.sub(/>$/, "\n x=%f,\n y=%f,\n width=%f,\n height=%f>" % [self.x, self.y, width, height])
 		end
 	end
 

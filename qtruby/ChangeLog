@@ -1,6 +1,10 @@
 2008-11-24  Richard Dale  <richard.j.dale@gmail.com>
 	* Added a DEF_MAP_MARSHALLER() macro for defining marshallers for
 	  QMaps with QString keys and value types as the values
+	* The YAML library was adding a y() method to Kernel, which was messing
+	  up the inspect() methods for Qt::Rects and Qt::RectFs. So instead of
+	  calling y(), call self.y() instead. Thanks to Stefano Crocco for the
+	  bug report and fix.
 
 2008-11-17  Richard Dale  <richard.j.dale@gmail.com>
 	* Comparisons between Qt instances and nil were causing QtRuby to
