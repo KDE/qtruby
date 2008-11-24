@@ -1,3 +1,7 @@
+2008-11-24  Richard Dale  <richard.j.dale@gmail.com>
+	* Added a DEF_MAP_MARSHALLER() macro for defining marshallers for
+	  QMaps with QString keys and value types as the values
+
 2008-11-17  Richard Dale  <richard.j.dale@gmail.com>
 	* Comparisons between Qt instances and nil were causing QtRuby to
 	  crash. Fixes bug reported by Stefano Crocco.

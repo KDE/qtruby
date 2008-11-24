@@ -282,114 +282,7 @@ DEF_VALUELIST_MARSHALLER( KUserGroupList, QList<KUserGroup>, KUserGroup )
 DEF_VALUELIST_MARSHALLER( KUserList, QList<KUser>, KUser )
 DEF_VALUELIST_MARSHALLER( QColorList, QList<QColor>, QColor )
 
-/*
-template <class Qt::Key, class Value, class ItemMapIterator, const char *KeySTR, const char *ValueSTR >
-void marshall_Map(Marshall *m) {
-    switch(m->action()) {
-      case Marshall::FromVALUE:
-	{
-	    VALUE hash = *(m->var());
-	    if (TYPE(hash) != T_HASH) {
-		m->item().s_voidp = 0;
-		break;
-	    }
-		
-		QMap<Qt::Key,Value> * map = new QMap<Qt::Key,Value>;
-		
-		// Convert the ruby hash to an array of key/value arrays
-		VALUE temp = rb_funcall(hash, rb_intern("to_a"), 0);
-
-		for (long i = 0; i < RARRAY(temp)->len; i++) {
-			VALUE key = rb_ary_entry(rb_ary_entry(temp, i), 0);
-			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
-			
-			smokeruby_object *o = value_obj_info(key);
-			if( !o || !o->ptr)
-                   continue;
-			void * key_ptr = o->ptr;
-			key_ptr = o->smoke->cast(key_ptr, o->classId, o->smoke->idClass(KeySTR));
-			
-			o = value_obj_info(value);
-			if( !o || !o->ptr)
-                   continue;
-			void * val_ptr = o->ptr;
-			val_ptr = o->smoke->cast(val_ptr, o->classId, o->smoke->idClass(ValueSTR));
-			
-			(*map)[(Qt::Key)*(Qt::Key*)key_ptr] = (Value)*(Value*)val_ptr;
-		}
-	    
-		m->item().s_voidp = map;
-		m->next();
-		
-	    if(m->cleanup())
-		delete map;
-	}
-	break;
-      case Marshall::ToVALUE:
-	{
-	    QMap<Qt::Key,Value> *map = (QMap<Qt::Key,Value>*)m->item().s_voidp;
-	    if(!map) {
-		*(m->var()) = Qnil;
-		break;
-	    }
-		
-	    VALUE hv = rb_hash_new();
-	    
-		int key_ix = m->smoke()->idClass(KeySTR);
-	    const char * key_className = m->smoke()->binding->className(key_ix);
-		
-		int val_ix = m->smoke()->idClass(ValueSTR);
-	    const char * val_className = m->smoke()->binding->className(val_ix);
-			
-		ItemMapIterator it;
-		for (it = map->begin(); it != map->end(); ++it) {
-			void *key_p = new Key(it.key());
-			VALUE key_obj = getPointerObject(key_p);
-			smokeruby_object  * o;
-			
-			if (key_obj == Qnil) {
-				o = ALLOC(smokeruby_object);
-				o->classId = m->smoke()->idClass(KeySTR);
-				o->smoke = m->smoke();
-				o->ptr = key_p;
-				o->allocated = true;
-				key_obj = set_obj_info(key_className, o);
-			}
-			
-			void *val_p = new Value(it.data());
-			VALUE value_obj = getPointerObject(val_p);
-				
-			if (value_obj == Qnil) {
-				o = ALLOC(smokeruby_object);
-				o->classId = m->smoke()->idClass(ValueSTR);
-				o->smoke = m->smoke();
-				o->ptr = val_p;
-				o->allocated = true;
-				value_obj = set_obj_info(val_className, o);
-			}
-			
-			rb_hash_aset(hv, key_obj, value_obj);
-        }
-		
-		*(m->var()) = hv;
-		m->next();
-		
-	    if(m->cleanup())
-		delete map;
-	}
-	break;
-      default:
-	m->unsupported();
-	break;
-    }
-}
-
-#define DEF_MAP_MARSHALLER(MapIdent,Qt::Key,Value) namespace { char KeyIdent##STR[] = #Qt::Key; char ValueIdent##STR[] = #Value; }  \
-        Marshall::HandlerFn marshall_##MapIdent = marshall_Map<Qt::Key, Value,QMap<Qt::Key,Value>::Iterator,KeyIdent##STR, ValueIdent##STR>;
-
-DEF_MAP_MARSHALLER( QMapKEntryKeyKEntry, KEntryKey, KEntry )
-
-*/
+DEF_MAP_MARSHALLER( QMapQStringKTimeZone, KTimeZone )
 
 TypeHandler KDE_handlers[] = {
     { "KFileItemList", marshall_KFileItemList },
@@ -459,6 +352,6 @@ TypeHandler KDE_handlers[] = {
     { "QList<KXMLGUIClient*>&", marshall_KXMLGUIClientList },
     { "QList<QColor>", marshall_QColorList },
     { "QList<QColor>&", marshall_QColorList },
-
+    { "QMap<QString,KTimeZone>", marshall_QMapQStringKTimeZone },
     { 0, 0 }
 };

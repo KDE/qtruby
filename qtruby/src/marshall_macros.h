@@ -22,11 +22,16 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qlinkedlist.h>
 #include <QtCore/qvector.h>
+#include <QtCore/qhash.h>
+#include <QtCore/qmap.h>
 
 #include "marshall.h"
 
 #define DEF_HASH_MARSHALLER(HashIdent,Item) namespace { char HashIdent##STR[] = #Item; }  \
         Marshall::HandlerFn marshall_##HashIdent = marshall_Hash<Item,HashIdent##STR>;
+
+#define DEF_MAP_MARSHALLER(MapIdent,Item) namespace { char MapIdent##STR[] = #Item; }  \
+        Marshall::HandlerFn marshall_##MapIdent = marshall_Map<Item,MapIdent##STR>;
 
 #define DEF_LIST_MARSHALLER(ListIdent,ItemList,Item) namespace { char ListIdent##STR[] = #Item; }  \
         Marshall::HandlerFn marshall_##ListIdent = marshall_ItemList<Item,ItemList,ListIdent##STR>;
@@ -513,7 +518,7 @@ void marshall_Hash(Marshall *m) {
 				o->classId = m->smoke()->idClass(ValueSTR).index;
 				o->smoke = m->smoke();
 				o->ptr = val_p;
-				o->allocated = true;
+				o->allocated = false;
 				value_obj = set_obj_info(val_className, o);
 			}
 			rb_hash_aset(hv, rb_str_new2(((QString*)&(it.key()))->toLatin1()), value_obj);
@@ -532,5 +537,85 @@ void marshall_Hash(Marshall *m) {
     }
 }
 
+template <class Value, const char *ValueSTR >
+void marshall_Map(Marshall *m) {
+	switch(m->action()) {
+	case Marshall::FromVALUE:
+	{
+		VALUE hv = *(m->var());
+		if (TYPE(hv) != T_HASH) {
+			m->item().s_voidp = 0;
+			break;
+		}
+		
+		QMap<QString, Value> * map = new QMap<QString, Value>;
+		
+		// Convert the ruby hash to an array of key/value arrays
+		VALUE temp = rb_funcall(hv, rb_intern("to_a"), 0);
+
+		for (long i = 0; i < RARRAY(temp)->len; i++) {
+			VALUE key = rb_ary_entry(rb_ary_entry(temp, i), 0);
+			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
+			
+			smokeruby_object *o = value_obj_info(value);
+			if (o == 0 || o->ptr == 0) {
+				continue;
+			}
+			void * val_ptr = o->ptr;
+			val_ptr = o->smoke->cast(val_ptr, o->classId, o->smoke->idClass(ValueSTR).index);
+			
+			(*map)[QString(StringValuePtr(key))] = *((Value*)val_ptr);
+		}
+	    
+		m->item().s_voidp = map;
+		m->next();
+		
+		if (m->cleanup()) {
+			delete map;
+		}
+	}
+	break;
+	case Marshall::ToVALUE:
+	{
+		QMap<QString, Value> *map = (QMap<QString, Value>*) m->item().s_voidp;
+		if (map == 0) {
+			*(m->var()) = Qnil;
+			break;
+		}
+		
+		VALUE hv = rb_hash_new();
+		
+		int val_ix = m->smoke()->idClass(ValueSTR).index;
+		const char * val_className = qtruby_modules[m->smoke()].binding->className(val_ix);
+		QMapIterator<QString, Value> it(*map);
+		while (it.hasNext()) {
+			it.next();
+			void *val_p = (void *) &(it.value());
+			VALUE value_obj = getPointerObject(val_p);
+				
+			if (value_obj == Qnil) {
+				smokeruby_object *o = ALLOC(smokeruby_object);
+				o->classId = m->smoke()->idClass(ValueSTR).index;
+				o->smoke = m->smoke();
+				o->ptr = val_p;
+				o->allocated = false;
+				value_obj = set_obj_info(val_className, o);
+			}
+			rb_hash_aset(hv, rb_str_new2(((QString*)&(it.key()))->toLatin1()), value_obj);
+        }
+		
+		*(m->var()) = hv;
+		m->next();
+		
+		if (m->cleanup()) {
+			delete map;
+		}
+	}
+	break;
+      default:
+	m->unsupported();
+	break;
+    }
+}
 
 #endif
