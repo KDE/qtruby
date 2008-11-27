@@ -1,3 +1,7 @@
+2008-11-27  Richard Dale  <richard.j.dale@gmail.com>
+* The Soprano ActiveRDF adapter shouldn't return BNode blank nodes, but should
+  return nil instead
+
 2008-11-18  Richard Dale  <richard.j.dale@gmail.com>
 * Call qRegisterMetatype() on Soprano::Node and Soprano::Statement at start up
   so that Qt::Variants can be created with them

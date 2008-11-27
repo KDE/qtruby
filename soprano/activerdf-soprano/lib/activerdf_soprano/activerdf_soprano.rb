@@ -165,7 +165,7 @@ class SopranoAdapter < ActiveRdfAdapter
       when Soprano::Node::LiteralNode:
         node.literal.variant.value
       when Soprano::Node::BlankNode:
-        BNode.new("_:#{node.identifier}")
+        nil
       end
   end
 
