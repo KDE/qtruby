@@ -2426,11 +2426,13 @@ module Qt
 				end
 			elsif argtype == 's'
 				if typename =~ /^(const )?((QChar)[*&]?)$/
+					return 3
+				elsif typename =~ /^(?:u?char\*)$/
+					return 1
+				elsif typename =~ /^(?:const u?char\*)$/
 					return 2
-				elsif typename =~ /^(?:u?char\*|const u?char\*|(?:const )?(Q(C?)String)[*&]?)$/
-					qstring = !$1.nil?
-					c = ("C" == $2)
-					return c ? 3 : (qstring ? 4 : 1)
+				elsif typename =~ /^(?:(?:const )?(QString)[*&]?)$/
+					return 4
 				end
 			elsif argtype == 'a'
 				# FIXME: shouldn't be hardcoded. Installed handlers should tell what ruby type they expect.

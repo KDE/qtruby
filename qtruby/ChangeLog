@@ -1,3 +1,32 @@
+2008-12-04  Richard Dale  <richard.j.dale@gmail.com>
+
+	* From Bartosz Wadolowski (thanks for the patch):
+
+	unsigned char* marshalling in qtruby didn't work. The patch works as char* 
+	case does - I simply copied code and added one casting.
+	It also fixes method matching with string argument in qtruby4.rb. In
+	cases when method could take constant or regular (unsigned)char
+	pointer Qt::Internal.checkarg was returning the same value. Now in
+	case of constant arguments it returns lower value. I also made this
+	part of code a little bit more readable.
+	Those changes made possible to use those QImage constructors and
+	probably some other methods:
+
+	  QImage ( uchar * data, int width, int height, Format format )
+	  QImage ( const uchar * data, int width, int height, Format format )
+	  QImage ( uchar * data, int width, int height, int bytesPerLine, Format 
+               format )
+	  QImage ( const uchar * data, int width, int height, int bytesPerLine,
+			  Format format )
+
+	IMPORTANT NOTE:
+	Some Qt/KDE objects use Ruby String*, passed as (unsigned )char*
+	method argument, as internal buffer/array(call it as you like). In
+	those cases programmer need to make sure that Ruby String object is
+	not being garbage collected or changed(in most cases) for the time its
+	being used by Qt/KDE object. It is also quite possible that Qt/KDE
+	object will change Ruby String (or rather its internal C char array).
+
 2008-11-24  Richard Dale  <richard.j.dale@gmail.com>
 	* Added a DEF_MAP_MARSHALLER() macro for defining marshallers for
 	  QMaps with QString keys and value types as the values
@@ -411,7 +440,7 @@ Qt::Point.new(3,4)])
 	* Thanks to Sylvain Sauvage for reporting the problem on the Korundum
 help forum
 
-2007-11-21 Â Sebastian Sauer <mail@dipe.org>
+2007-11-21 Â    Sebastian Sauer <mail@dipe.org>
 
 	* Fixed crash on shutdown of Ruby cause of a partly destroyed
 	  pointer_map QHash.

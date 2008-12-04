@@ -53,6 +53,12 @@ void marshall_from_ruby<char *>(Marshall *m)
 }
 
 template <>
+void marshall_from_ruby<unsigned char *>(Marshall *m)
+{
+	m->item().s_voidp = ruby_to_primitive<unsigned char*>(*(m->var()));
+}
+
+template <>
 void marshall_from_ruby<SmokeEnumWrapper>(Marshall *m)
 {
 	VALUE v = *(m->var());
