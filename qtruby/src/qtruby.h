@@ -117,7 +117,7 @@ extern Q_DECL_EXPORT QList<Smoke*> smokeList;
 extern Q_DECL_EXPORT QHash<QByteArray, Smoke::ModuleIndex *> methcache;
 extern Q_DECL_EXPORT QHash<QByteArray, Smoke::ModuleIndex *> classcache;
 // Maps from an int id to classname in the form Qt::Widget
-extern Q_DECL_EXPORT QHash<Smoke::ModuleIndex, QByteArray*> classname;
+extern Q_DECL_EXPORT QHash<Smoke::ModuleIndex, QByteArray*> IdToClassNameMap;
 
 extern Q_DECL_EXPORT void install_handlers(TypeHandler *);
 

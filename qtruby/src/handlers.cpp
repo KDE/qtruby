@@ -121,6 +121,31 @@ mark_qobject_children(QObject * qobject)
 }
 
 void
+mark_qgraphicsitem_children(QGraphicsItem * item)
+{
+	VALUE obj;
+	
+	const QList<QGraphicsItem*> l = item->childItems();
+	
+	if (l.count() == 0) {
+		return;
+	}
+
+	QGraphicsItem *child;
+
+	for (int i=0; i < l.size(); ++i) {
+		child = l.at(i);
+		obj = getPointerObject(child);
+		if (obj != Qnil) {
+			if(do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p", "QGraphicsItem", child, (void*)obj);
+			rb_gc_mark(obj);
+		}
+		
+		mark_qgraphicsitem_children(child);
+	}
+}
+
+void
 mark_qtreewidgetitem_children(QTreeWidgetItem * item)
 {
 	VALUE obj;
@@ -260,7 +285,15 @@ smokeruby_mark(void * p)
 			return;
 		}
 
-#if QT_VERSION >= 0x40200
+		if (o->smoke->isDerivedFromByName(className, "QGraphicsItem")) {
+			QGraphicsItem * item = (QGraphicsItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsItem").index);
+			// Only mark the QGraphicsItem tree if the current item doesn't have a parent.
+			// This avoids marking parts of a tree more than once.
+			if (item->parentItem() == 0) {
+				mark_qgraphicsitem_children(item);
+			}
+		}
+
 		if (o->smoke->isDerivedFromByName(className, "QGraphicsScene")) {
 			QGraphicsScene * scene = (QGraphicsScene *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsScene").index);
 			QList<QGraphicsItem *> list = scene->items();
@@ -276,7 +309,6 @@ smokeruby_mark(void * p)
 			}			
 			return;
 		}
-#endif
 
 		if (qstrcmp(className, "QModelIndex") == 0) {
 			QModelIndex * qmodelindex = (QModelIndex *) o->ptr;

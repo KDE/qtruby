@@ -3,8 +3,8 @@
                           qtruby.rb  -  description
                              -------------------
     begin                : Fri Jul 4 2003
-    copyright            : (C) 2003-2005 by Richard Dale
-    email                : Richard_Dale@tipitina.demon.co.uk
+    copyright            : (C) 2003-2008 by Richard Dale
+    email                : richard.j.dale@gmail.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -151,7 +151,6 @@ module Qt
 #		Object has a '==' operator instance method, so pretend it
 #		don't exist by calling method_missing() explicitely
 		def ==(a)
-
 			return false if a.nil?
 			begin
 				Qt::method_missing(:==, self, a)
@@ -160,6 +159,26 @@ module Qt
 			end
 		end
 
+		def self.ancestors
+			klass = self
+			classid = nil
+			loop do
+				classid = Qt::Internal::find_pclassid(klass.name)
+				break if classid.index
+      
+				klass = klass.superclass
+				if klass.nil?
+					return super
+				end
+			end
+
+			klasses = super
+			klasses.delete(Qt::Base)
+			klasses.delete(self)
+			ids = []
+			Qt::Internal::getAllParents(classid, ids)
+			return [self] + ids.map {|id| Qt::Internal.find_class(Qt::Internal.classid2name(id))} + klasses
+		end
 
 		def methods(regular=true)
 			if !regular
@@ -2524,7 +2543,6 @@ module Qt
 			
 			if method == "new"
 				method = classname.dup 
-#				method.gsub!(/^(QTextBlock|QTextLayout|QTextFrame|QTextOption|QLocale|QAbstractFileEngine|KDateTime|KBookmark|KParts|KMediaPlayer|KIO|KNS|DOM|Kontact|Kate|KSettings|KTimeZone|KTextEditor|KWin|KWallet|Plasma|Sonnet|Soprano|Nepomuk)::/,"")
 				method.gsub!(/^.*::/,"")
 			end
 			method = "operator" + method.sub("@","") if method !~ /[a-zA-Z]+/
@@ -2790,6 +2808,11 @@ module Qt
 			meta.metaobject
 		end
 
+		# Handles calls of the form:
+		#	connect(myobj, SIGNAL('mysig(int)'), mytarget) {|arg(s)| ...}
+		#	connect(myobj, SIGNAL('mysig(int)')) {|arg(s)| ...}
+		#	connect(myobj, SIGNAL(:mysig), mytarget) { ...}
+		#	connect(myobj, SIGNAL(:mysig)) { ...}
 		def Internal.connect(src, signal, target, block)
 			args = (signal =~ /\((.*)\)/) ? $1 : ""
 			signature = Qt::MetaObject.normalizedSignature("invoke(%s)" % args).to_s
@@ -2799,6 +2822,9 @@ module Qt
 										SLOT(signature) )
 		end
 
+		# Handles calls of the form:
+		#	connect(SIGNAL(:mysig)) { ...}
+		#	connect(SIGNAL('mysig(int)')) {|arg(s)| ...}
 		def Internal.signal_connect(src, signal, block)
 			args = (signal =~ /\((.*)\)/) ? $1 : ""
 			signature = Qt::MetaObject.normalizedSignature("invoke(%s)" % args).to_s
@@ -2808,8 +2834,11 @@ module Qt
 										SLOT(signature) )
 		end
 
+		# Handles calls of the form:
+		#	connect(:mysig, mytarget, :mymethod))
+		#	connect(SIGNAL('mysignal(int)'), mytarget, :mymethod))
 		def Internal.method_connect(src, signal, target, method)
-			signal = SIGNAL(signal.to_s + "()") if signal.is_a?Symbol
+			signal = SIGNAL(signal) if signal.is_a?Symbol
 			args = (signal =~ /\((.*)\)/) ? $1 : ""
 			signature = Qt::MetaObject.normalizedSignature("invoke(%s)" % args).to_s
 			return Qt::Object.connect(  src,
@@ -2818,6 +2847,8 @@ module Qt
 										SLOT(signature) )
 		end
 
+		# Handles calls of the form:
+		#	Qt::Timer.singleShot(500, myobj) { ...}
 		def Internal.single_shot_timer_connect(interval, target, block)
 			return Qt::Timer.singleShot(	interval,
 											Qt::BlockInvocation.new(target, block, "invoke()"),

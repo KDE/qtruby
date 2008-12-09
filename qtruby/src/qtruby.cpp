@@ -1476,10 +1476,11 @@ qobject_connect(int argc, VALUE * argv, VALUE self)
 			rb_raise(rb_eArgError, "Invalid argument list");
 		}
 	} else {
-		if (argc == 3) {
+		if (argc == 3 && TYPE(argv[1]) != T_STRING) {
 			return rb_funcall(qt_internal_module, rb_intern("method_connect"), 4, self, argv[0], argv[1], argv[2]);
-		} else
+		} else {
 			return rb_call_super(argc, argv);
+		}
 	}
 }
 
@@ -1729,8 +1730,17 @@ insert_pclassid(VALUE self, VALUE p_value, VALUE mi_value)
     int smokeidx = NUM2INT(rb_funcall(mi_value, rb_intern("smoke"), 0));
     Smoke::ModuleIndex mi = { smokeList[smokeidx], ix };
     classcache.insert(QByteArray(p), new Smoke::ModuleIndex(mi));
-    classname.insert(mi, new QByteArray(p));
+    IdToClassNameMap.insert(mi, new QByteArray(p));
     return self;
+}
+
+static VALUE
+classid2name(VALUE /*self*/, VALUE mi_value)
+{
+    int ix = NUM2INT(rb_funcall(mi_value, rb_intern("index"), 0));
+    int smokeidx = NUM2INT(rb_funcall(mi_value, rb_intern("smoke"), 0));
+    Smoke::ModuleIndex mi = { smokeList[smokeidx], ix };
+    return rb_str_new2(IdToClassNameMap[mi]->constData());
 }
 
 static VALUE
@@ -1738,10 +1748,11 @@ find_pclassid(VALUE /*self*/, VALUE p_value)
 {
     char *p = StringValuePtr(p_value);
     Smoke::ModuleIndex *r = classcache.value(QByteArray(p));
-    if(r)
+    if (r != 0) {
         return rb_funcall(moduleindex_class, rb_intern("new"), 2, INT2NUM(smokeList.indexOf(r->smoke)), INT2NUM(r->index));
-    else
+    } else {
         return rb_funcall(moduleindex_class, rb_intern("new"), 2, 0, 0);
+    }
 }
 
 static VALUE
@@ -2285,6 +2296,7 @@ Init_qtruby4()
     rb_define_module_function(qt_internal_module, "classIsa", (VALUE (*) (...)) classIsa, 2);
     rb_define_module_function(qt_internal_module, "isEnum", (VALUE (*) (...)) isEnum, 1);
     rb_define_module_function(qt_internal_module, "insert_pclassid", (VALUE (*) (...)) insert_pclassid, 2);
+    rb_define_module_function(qt_internal_module, "classid2name", (VALUE (*) (...)) classid2name, 1);
     rb_define_module_function(qt_internal_module, "find_pclassid", (VALUE (*) (...)) find_pclassid, 1);
     rb_define_module_function(qt_internal_module, "get_value_type", (VALUE (*) (...)) get_value_type, 1);
 

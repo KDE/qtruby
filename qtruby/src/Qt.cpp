@@ -108,10 +108,7 @@ int object_count = 0;
 QHash<QByteArray, Smoke::ModuleIndex *> methcache;
 QHash<QByteArray, Smoke::ModuleIndex *> classcache;
 
-// FIXME:
-// find some way to use a Smoke::ModuleIndex here instead of an int
-// Maps from an int id to classname in the form Qt::Widget
-QHash<Smoke::ModuleIndex, QByteArray*> classname;
+QHash<Smoke::ModuleIndex, QByteArray*> IdToClassNameMap;
 
 #define logger logger_backend
 
@@ -282,7 +279,7 @@ Binding::callMethod(Smoke::Index method, void *ptr, Smoke::Stack args, bool /*is
 char*
 Binding::className(Smoke::Index classId) {
 	Smoke::ModuleIndex mi = { smoke, classId };
-	return (char *) (const char *) *(classname.value(mi));
+	return (char *) (const char *) *(IdToClassNameMap.value(mi));
 }
 
 /*

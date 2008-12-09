@@ -1,3 +1,18 @@
+2008-12-09  Richard Dale  <richard.j.dale@gmail.com>
+	* Added an ancestors() method to Qt::Base that returns an Array of the
+	  super classes of a class in the Smoke library. For instance:
+
+		irb(main):001:0> Qt::Widget.ancestors
+		=> [Qt::Widget, Qt::Object, Qt::PaintDevice, Object, Kernel]
+
+	* Fixed regression caused by adding to Qt::Object.connect() the feature
+	  to connect an arbitrary ruby method to a signal. It was causing the
+	  standard three argument form of connect() to not work.
+	* Renamed the QHash of smoke index against class name as 'IdToClassNameMap'
+	  instead of 'classname'.
+	* The child items of a QGraphicsItem are marked as not needing garbage
+	  collection of they have corresponding ruby instances.
+
 2008-12-04  Richard Dale  <richard.j.dale@gmail.com>
 
 	* From Bartosz Wadolowski (thanks for the patch):
