@@ -4,6 +4,7 @@
 	  would like it to do?
 	* For other uses of 'uchar *' return types add a marshaller, hoping that
 	  will be null terminated.
+	* Add a Qt::Image.scanLine() method
 
 2008-12-09  Richard Dale  <richard.j.dale@gmail.com>
 	* Added an ancestors() method to Qt::Base that returns an Array of the

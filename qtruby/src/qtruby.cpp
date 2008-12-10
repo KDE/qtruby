@@ -594,9 +594,18 @@ static VALUE
 qimage_bits(VALUE self)
 {
   smokeruby_object *o = value_obj_info(self);
-  QImage * image = (QImage *) o->ptr;
+  QImage * image = static_cast<QImage *>(o->ptr);
   const uchar * bytes = image->bits();
   return rb_str_new((const char *) bytes, image->numBytes());
+}
+
+static VALUE
+qimage_scan_line(VALUE self, VALUE ix)
+{
+  smokeruby_object *o = value_obj_info(self);
+  QImage * image = static_cast<QImage *>(o->ptr);
+  const uchar * bytes = image->scanLine(NUM2INT(ix));
+  return rb_str_new((const char *) bytes, image->bytesPerLine());
 }
 
 #ifdef QT_QTDBUS 
@@ -2191,6 +2200,7 @@ create_qt_class(VALUE /*self*/, VALUE package_value, VALUE module_value)
 		rb_define_method(klass, "to_s", (VALUE (*) (...)) qchar_to_s, 0);
 	} else if (packageName == "Qt::Image") {
 		rb_define_method(klass, "bits", (VALUE (*) (...)) qimage_bits, 0);
+		rb_define_method(klass, "scanLine", (VALUE (*) (...)) qimage_scan_line, 1);
 	} else if (packageName == "Qt::ItemSelection") {
 		rb_define_method(klass, "[]", (VALUE (*) (...)) qitemselection_at, 1);
 		rb_define_method(klass, "at", (VALUE (*) (...)) qitemselection_at, 1);
