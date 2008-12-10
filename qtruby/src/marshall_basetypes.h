@@ -200,7 +200,17 @@ void marshall_to_ruby<char *>(Marshall *m)
 template <>
 void marshall_to_ruby<unsigned char *>(Marshall *m)
 {
-	m->unsupported();
+	char * sv = (char *)m->item().s_voidp;
+	VALUE obj;
+	if (sv != 0)
+		obj = rb_str_new2(sv);
+	else
+		obj = Qnil;
+
+	if (m->cleanup())
+		delete[] sv;
+
+	*(m->var()) = obj;
 }
 
 #endif

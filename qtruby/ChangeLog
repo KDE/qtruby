@@ -1,3 +1,10 @@
+2008-12-10  Richard Dale  <richard.j.dale@gmail.com>
+	* Special case the Qt::Image.bits() method. Use the const variant so that
+	  Qt doesn't make a deep copy. Is that what Davor Ocelic and David Palacio
+	  would like it to do?
+	* For other uses of 'uchar *' return types add a marshaller, hoping that
+	  will be null terminated.
+
 2008-12-09  Richard Dale  <richard.j.dale@gmail.com>
 	* Added an ancestors() method to Qt::Base that returns an Array of the
 	  super classes of a class in the Smoke library. For instance:

@@ -590,6 +590,15 @@ qbytearray_data(VALUE self)
   return rb_str_new(bytes->data(), bytes->size());
 }
 
+static VALUE
+qimage_bits(VALUE self)
+{
+  smokeruby_object *o = value_obj_info(self);
+  QImage * image = (QImage *) o->ptr;
+  const uchar * bytes = image->bits();
+  return rb_str_new((const char *) bytes, image->numBytes());
+}
+
 #ifdef QT_QTDBUS 
 static VALUE
 qdbusargument_endarraywrite(VALUE self)
@@ -2053,7 +2062,7 @@ getClassList(VALUE /*self*/)
 {
     VALUE class_list = rb_ary_new();
 
-    for(int i = 1; i <= qt_Smoke->numClasses; i++) {
+    for (int i = 1; i <= qt_Smoke->numClasses; i++) {
         if (qt_Smoke->classes[i].className)
             rb_ary_push(class_list, rb_str_new2(qt_Smoke->classes[i].className));
     }
@@ -2180,6 +2189,8 @@ create_qt_class(VALUE /*self*/, VALUE package_value, VALUE module_value)
     rb_define_method(klass, "const_data", (VALUE (*) (...)) qbytearray_data, 0);
 	} else if (packageName == "Qt::Char") {
 		rb_define_method(klass, "to_s", (VALUE (*) (...)) qchar_to_s, 0);
+	} else if (packageName == "Qt::Image") {
+		rb_define_method(klass, "bits", (VALUE (*) (...)) qimage_bits, 0);
 	} else if (packageName == "Qt::ItemSelection") {
 		rb_define_method(klass, "[]", (VALUE (*) (...)) qitemselection_at, 1);
 		rb_define_method(klass, "at", (VALUE (*) (...)) qitemselection_at, 1);
