@@ -253,7 +253,7 @@ inspect_qobject(VALUE self)
 	// Start with #<Qt::HBoxLayout:0x30139030> from the original inspect() call
 	// Drop the closing '>'
 	VALUE inspect_str = rb_call_super(0, 0);	
-	rb_str_resize(inspect_str, RSTRING(inspect_str)->len - 1);
+	rb_str_resize(inspect_str, RSTRING_LEN(inspect_str) - 1);
 	
 	smokeruby_object * o = 0;
     Data_Get_Struct(self, smokeruby_object, o);	
@@ -296,7 +296,7 @@ pretty_print_qobject(VALUE self, VALUE pp)
 	// Start with #<Qt::HBoxLayout:0x30139030>
 	// Drop the closing '>'
 	VALUE inspect_str = rb_funcall(self, rb_intern("to_s"), 0, 0);	
-	rb_str_resize(inspect_str, RSTRING(inspect_str)->len - 1);
+	rb_str_resize(inspect_str, RSTRING_LEN(inspect_str) - 1);
 	rb_funcall(pp, rb_intern("text"), 1, inspect_str);
 	rb_funcall(pp, rb_intern("breakable"), 0);
 	
@@ -311,7 +311,7 @@ pretty_print_qobject(VALUE self, VALUE pp)
 		VALUE obj = getPointerObject(qobject->parent());
 		if (obj != Qnil) {
 			VALUE parent_inspect_str = rb_funcall(obj, rb_intern("to_s"), 0, 0);	
-			rb_str_resize(parent_inspect_str, RSTRING(parent_inspect_str)->len - 1);
+			rb_str_resize(parent_inspect_str, RSTRING_LEN(parent_inspect_str) - 1);
 			parentInspectString = StringValuePtr(parent_inspect_str);
 		} else {
 			parentInspectString.sprintf("#<%s:0x0", qobject->parent()->metaObject()->className());
@@ -374,14 +374,14 @@ pretty_print_qobject(VALUE self, VALUE pp)
 static VALUE
 q_register_resource_data(VALUE /*self*/, VALUE version, VALUE tree_value, VALUE name_value, VALUE data_value)
 {
-	const unsigned char * tree = (const unsigned char *) malloc(RSTRING(tree_value)->len);
-	memcpy((void *) tree, (const void *) RSTRING(tree_value)->ptr, RSTRING(tree_value)->len);
+	const unsigned char * tree = (const unsigned char *) malloc(RSTRING_LEN(tree_value));
+	memcpy((void *) tree, (const void *) RSTRING(tree_value)->ptr, RSTRING_LEN(tree_value));
 
-	const unsigned char * name = (const unsigned char *) malloc(RSTRING(name_value)->len);
-	memcpy((void *) name, (const void *) RSTRING(name_value)->ptr, RSTRING(name_value)->len);
+	const unsigned char * name = (const unsigned char *) malloc(RSTRING_LEN(name_value));
+	memcpy((void *) name, (const void *) RSTRING(name_value)->ptr, RSTRING_LEN(name_value));
 
-	const unsigned char * data = (const unsigned char *) malloc(RSTRING(data_value)->len);
-	memcpy((void *) data, (const void *) RSTRING(data_value)->ptr, RSTRING(data_value)->len);
+	const unsigned char * data = (const unsigned char *) malloc(RSTRING_LEN(data_value));
+	memcpy((void *) data, (const void *) RSTRING(data_value)->ptr, RSTRING_LEN(data_value));
 
 	return qRegisterResourceData(NUM2INT(version), tree, name, data) ? Qtrue : Qfalse;
 }
@@ -389,14 +389,14 @@ q_register_resource_data(VALUE /*self*/, VALUE version, VALUE tree_value, VALUE 
 static VALUE
 q_unregister_resource_data(VALUE /*self*/, VALUE version, VALUE tree_value, VALUE name_value, VALUE data_value)
 {
-	const unsigned char * tree = (const unsigned char *) malloc(RSTRING(tree_value)->len);
-	memcpy((void *) tree, (const void *) RSTRING(tree_value)->ptr, RSTRING(tree_value)->len);
+	const unsigned char * tree = (const unsigned char *) malloc(RSTRING_LEN(tree_value));
+	memcpy((void *) tree, (const void *) RSTRING(tree_value)->ptr, RSTRING_LEN(tree_value));
 
-	const unsigned char * name = (const unsigned char *) malloc(RSTRING(name_value)->len);
-	memcpy((void *) name, (const void *) RSTRING(name_value)->ptr, RSTRING(name_value)->len);
+	const unsigned char * name = (const unsigned char *) malloc(RSTRING_LEN(name_value));
+	memcpy((void *) name, (const void *) RSTRING(name_value)->ptr, RSTRING_LEN(name_value));
 
-	const unsigned char * data = (const unsigned char *) malloc(RSTRING(data_value)->len);
-	memcpy((void *) data, (const void *) RSTRING(data_value)->ptr, RSTRING(data_value)->len);
+	const unsigned char * data = (const unsigned char *) malloc(RSTRING_LEN(data_value));
+	memcpy((void *) data, (const void *) RSTRING(data_value)->ptr, RSTRING_LEN(data_value));
 
 	return qUnregisterResourceData(NUM2INT(version), tree, name, data) ? Qtrue : Qfalse;
 }
@@ -1813,12 +1813,12 @@ make_metaObject(VALUE /*self*/, VALUE obj, VALUE parentMeta, VALUE stringdata_va
 		superdata = (QMetaObject *) p->ptr;
 	}
 
-	char *stringdata = new char[RSTRING(stringdata_value)->len];
+	char *stringdata = new char[RSTRING_LEN(stringdata_value)];
 
 	int count = RARRAY(data_value)->len;
 	uint * data = new uint[count];
 
-	memcpy(	(void *) stringdata, RSTRING(stringdata_value)->ptr, RSTRING(stringdata_value)->len );
+	memcpy(	(void *) stringdata, RSTRING(stringdata_value)->ptr, RSTRING_LEN(stringdata_value) );
 	
 	for (long i = 0; i < count; i++) {
 		VALUE rv = rb_ary_entry(data_value, i);
@@ -1890,7 +1890,7 @@ make_metaObject(VALUE /*self*/, VALUE obj, VALUE parentMeta, VALUE stringdata_va
 	printf("\nqt_meta_stringdata:\n    \"");
 
     int strlength = 0;
-	for (int j = 0; j < RSTRING(stringdata_value)->len; j++) {
+	for (int j = 0; j < RSTRING_LEN(stringdata_value); j++) {
         strlength++;
 		if (meta->d.stringdata[j] == 0) {
 			printf("\\0");

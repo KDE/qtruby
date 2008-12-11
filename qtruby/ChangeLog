@@ -1,3 +1,8 @@
+2008-12-11  Richard Dale  <richard.j.dale@gmail.com>
+	* Make some changes from the patch at 
+      http://napalm.sf.cz/qt4-qtruby-ruby1.9.patch to make it easier to port
+	  qtruby to Ruby 1.9. Thanks to Davor Ocelic and Mr Napalm.
+
 2008-12-10  Richard Dale  <richard.j.dale@gmail.com>
 	* Special case the Qt::Image.bits() method. Use the const variant so that
 	  Qt doesn't make a deep copy. Is that what Davor Ocelic and David Palacio

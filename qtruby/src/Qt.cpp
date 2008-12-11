@@ -443,7 +443,7 @@ InvokeNativeSlot::cleanup()
 
 }
 
-void rb_str_catf(VALUE self, const char *format, ...) 
+VALUE rb_str_catf(VALUE self, const char *format, ...) 
 {
 #define CAT_BUFFER_SIZE 2048
 static char p[CAT_BUFFER_SIZE];
@@ -453,6 +453,7 @@ static char p[CAT_BUFFER_SIZE];
 	p[CAT_BUFFER_SIZE - 1] = '\0';
 	rb_str_cat2(self, p);
 	va_end(ap);
+	return self;
 }
 
 const char *

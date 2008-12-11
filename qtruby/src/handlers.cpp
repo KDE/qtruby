@@ -896,7 +896,7 @@ qstringFromRString(VALUE rstring) {
 	}
 	
 	if (qstrcmp(KCODE, "UTF8") == 0)
-		return new QString(QString::fromUtf8(StringValuePtr(rstring), RSTRING(rstring)->len));
+		return new QString(QString::fromUtf8(StringValuePtr(rstring), RSTRING_LEN(rstring)));
 	else if (qstrcmp(KCODE, "EUC") == 0)
 		return new QString(codec->toUnicode(StringValuePtr(rstring)));
 	else if (qstrcmp(KCODE, "SJIS") == 0)
@@ -904,12 +904,12 @@ qstringFromRString(VALUE rstring) {
 	else if(qstrcmp(KCODE, "NONE") == 0)
 		return new QString(QString::fromLatin1(StringValuePtr(rstring)));
 
-	return new QString(QString::fromLocal8Bit(StringValuePtr(rstring), RSTRING(rstring)->len));
+	return new QString(QString::fromLocal8Bit(StringValuePtr(rstring), RSTRING_LEN(rstring)));
 }
 
 QByteArray*
 qbytearrayFromRString(VALUE rstring) {
-  return new QByteArray(StringValuePtr(rstring), RSTRING(rstring)->len);
+  return new QByteArray(StringValuePtr(rstring), RSTRING_LEN(rstring));
 }
 
 VALUE 
@@ -1234,7 +1234,7 @@ void marshall_QByteArrayList(Marshall *m) {
 		    stringlist->append(QByteArray());
 		    continue;
 		}
-		stringlist->append(QByteArray(StringValuePtr(item), RSTRING(item)->len));
+		stringlist->append(QByteArray(StringValuePtr(item), RSTRING_LEN(item)));
 	    }
 
 	    m->item().s_voidp = stringlist;
