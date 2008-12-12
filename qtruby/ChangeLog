@@ -3,6 +3,12 @@
 	  types prefer the non-const version of the arg. Thanks to Davor Ocelic
 	  for explaining why this was a good idea in the case of the Qt::Image
 	  constructors.
+	* Revert the recent change for marshalling 'unsigned char*' types which
+	  expected them to be null terminated. After more thought it is pretty
+	  likely they won't be null terminated because if they were they would
+	  have been defined as just 'char *' instead. It better to have a clear
+	  message saying they aren't supported and need special casing, rather
+	  than needing to track down possible random buggy effects.
 
 2008-12-11  Richard Dale  <richard.j.dale@gmail.com>
 	* Make some changes from the patch at 
