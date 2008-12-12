@@ -2447,9 +2447,9 @@ module Qt
 				if typename =~ /^(const )?((QChar)[*&]?)$/
 					return 3
 				elsif typename =~ /^(?:u?char\*)$/
-					return 1
-				elsif typename =~ /^(?:const u?char\*)$/
 					return 2
+				elsif typename =~ /^(?:const u?char\*)$/
+					return 1
 				elsif typename =~ /^(?:(?:const )?(QString)[*&]?)$/
 					return 4
 				end

@@ -1,3 +1,9 @@
+2008-12-12  Richard Dale  <richard.j.dale@gmail.com>
+	* When resolving overloaded methods with 'uchar*' and 'const uchar*' arg
+	  types prefer the non-const version of the arg. Thanks to Davor Ocelic
+	  for explaining why this was a good idea in the case of the Qt::Image
+	  constructors.
+
 2008-12-11  Richard Dale  <richard.j.dale@gmail.com>
 	* Make some changes from the patch at 
       http://napalm.sf.cz/qt4-qtruby-ruby1.9.patch to make it easier to port
