@@ -1118,15 +1118,15 @@ static void marshall_charP_array(Marshall *m) {
 	    VALUE arglist = *(m->var());
 	    if (arglist == Qnil
 	    || TYPE(arglist) != T_ARRAY
-	    || RARRAY(arglist)->len == 0 )
+	    || RARRAY_LEN(arglist) == 0 )
 	    {
                 m->item().s_voidp = 0;
                 break;
 	    }
 
-	    char **argv = new char *[RARRAY(arglist)->len + 1];
+	    char **argv = new char *[RARRAY_LEN(arglist) + 1];
 	    long i;
-	    for(i = 0; i < RARRAY(arglist)->len; i++) {
+	    for(i = 0; i < RARRAY_LEN(arglist); i++) {
                 VALUE item = rb_ary_entry(arglist, i);
                 char *s = StringValuePtr(item);
                 argv[i] = new char[strlen(s) + 1];
@@ -1158,7 +1158,7 @@ void marshall_QStringList(Marshall *m) {
 				break;
 			}
 
-			int count = RARRAY(list)->len;
+			int count = RARRAY_LEN(list);
 			QStringList *stringlist = new QStringList;
 
 			for(long i = 0; i < count; i++) {
@@ -1225,7 +1225,7 @@ void marshall_QByteArrayList(Marshall *m) {
 		break;
 	    }
 
-	    int count = RARRAY(list)->len;
+	    int count = RARRAY_LEN(list);
 	    QList<QByteArray> *stringlist = new QList<QByteArray>;
 
 	    for(long i = 0; i < count; i++) {
@@ -1289,7 +1289,7 @@ void marshall_QListCharStar(Marshall *m) {
 			m->item().s_voidp = 0;
 			break;
 		}
-		int count = RARRAY(av)->len;
+		int count = RARRAY_LEN(av);
 		QList<const char*> *list = new QList<const char*>;
 		long i;
 		for(i = 0; i < count; i++) {
@@ -1340,7 +1340,7 @@ void marshall_QListInt(Marshall *m) {
 		m->item().s_voidp = 0;
 		break;
 	    }
-	    int count = RARRAY(list)->len;
+	    int count = RARRAY_LEN(list);
 	    QList<int> *valuelist = new QList<int>;
 	    long i;
 	    for(i = 0; i < count; i++) {
@@ -1412,7 +1412,7 @@ void marshall_QListUInt(Marshall *m) {
 		m->item().s_voidp = 0;
 		break;
 	    }
-	    int count = RARRAY(list)->len;
+	    int count = RARRAY_LEN(list);
 	    QList<uint> *valuelist = new QList<uint>;
 	    long i;
 	    for(i = 0; i < count; i++) {
@@ -1483,7 +1483,7 @@ void marshall_QListqreal(Marshall *m) {
 		m->item().s_voidp = 0;
 		break;
 	    }
-	    int count = RARRAY(list)->len;
+	    int count = RARRAY_LEN(list);
 	    QList<qreal> *valuelist = new QList<qreal>;
 	    long i;
 	    for(i = 0; i < count; i++) {
@@ -1557,7 +1557,7 @@ void marshall_QVectorqreal(Marshall *m) {
 			break;
 		}
 
-		int count = RARRAY(list)->len;
+		int count = RARRAY_LEN(list);
 		QVector<qreal> *valuelist = new QVector<qreal>;
 		long i;
 		for (i = 0; i < count; i++) {
@@ -1626,7 +1626,7 @@ void marshall_QVectorint(Marshall *m) {
 			break;
 		}
 
-		int count = RARRAY(list)->len;
+		int count = RARRAY_LEN(list);
 		QVector<int> *valuelist = new QVector<int>;
 		long i;
 		for (i = 0; i < count; i++) {
@@ -1720,7 +1720,7 @@ void marshall_QMapQStringQString(Marshall *m) {
 		// Convert the ruby hash to an array of key/value arrays
 		VALUE temp = rb_funcall(hash, rb_intern("to_a"), 0);
 
-		for (long i = 0; i < RARRAY(temp)->len; i++) {
+		for (long i = 0; i < RARRAY_LEN(temp); i++) {
 			VALUE key = rb_ary_entry(rb_ary_entry(temp, i), 0);
 			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
 			(*map)[QString(StringValuePtr(key))] = QString(StringValuePtr(value));
@@ -1776,7 +1776,7 @@ void marshall_QMapQStringQVariant(Marshall *m) {
 		// Convert the ruby hash to an array of key/value arrays
 		VALUE temp = rb_funcall(hash, rb_intern("to_a"), 0);
 
-		for (long i = 0; i < RARRAY(temp)->len; i++) {
+		for (long i = 0; i < RARRAY_LEN(temp); i++) {
 			VALUE key = rb_ary_entry(rb_ary_entry(temp, i), 0);
 			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
 			
@@ -1855,7 +1855,7 @@ void marshall_QMapIntQVariant(Marshall *m) {
 		// Convert the ruby hash to an array of key/value arrays
 		VALUE temp = rb_funcall(hash, rb_intern("to_a"), 0);
 
-		for (long i = 0; i < RARRAY(temp)->len; i++) {
+		for (long i = 0; i < RARRAY_LEN(temp); i++) {
 			VALUE key = rb_ary_entry(rb_ary_entry(temp, i), 0);
 			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
 			
@@ -1934,7 +1934,7 @@ void marshall_QMapintQVariant(Marshall *m) {
 		// Convert the ruby hash to an array of key/value arrays
 		VALUE temp = rb_funcall(hash, rb_intern("to_a"), 0);
 
-		for (long i = 0; i < RARRAY(temp)->len; i++) {
+		for (long i = 0; i < RARRAY_LEN(temp); i++) {
 			VALUE key = rb_ary_entry(rb_ary_entry(temp, i), 0);
 			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
 			
@@ -2026,7 +2026,7 @@ void marshall_QRgb_array(Marshall *m) {
 		m->item().s_voidp = 0;
 		break;
 	    }
-	    int count = RARRAY(list)->len;
+	    int count = RARRAY_LEN(list);
 	    QRgb *rgb = new QRgb[count + 2];
 	    long i;
 	    for(i = 0; i < count; i++) {
@@ -2061,11 +2061,11 @@ void marshall_QPairQStringQStringList(Marshall *m) {
 	    }
 
 		QList<QPair<QString,QString> > * pairlist = new QList<QPair<QString,QString> >();
-		int count = RARRAY(list)->len;
+		int count = RARRAY_LEN(list);
 
 		for (long i = 0; i < count; i++) {
 			VALUE item = rb_ary_entry(list, i);
-			if (TYPE(item) != T_ARRAY || RARRAY(item)->len != 2) {
+			if (TYPE(item) != T_ARRAY || RARRAY_LEN(item) != 2) {
 				continue;
 			}
 			VALUE s1 = rb_ary_entry(item, 0);
@@ -2122,7 +2122,7 @@ void marshall_QPairqrealQColor(Marshall *m) {
 	case Marshall::FromVALUE:
 	{
 		VALUE list = *(m->var());
-		if (TYPE(list) != T_ARRAY || RARRAY(list)->len != 2) {
+		if (TYPE(list) != T_ARRAY || RARRAY_LEN(list) != 2) {
 			m->item().s_voidp = 0;
 			break;
 	    }
@@ -2193,7 +2193,7 @@ void marshall_QPairintint(Marshall *m) {
 	case Marshall::FromVALUE:
 	{
 		VALUE list = *(m->var());
-		if (TYPE(list) != T_ARRAY || RARRAY(list)->len != 2) {
+		if (TYPE(list) != T_ARRAY || RARRAY_LEN(list) != 2) {
 			m->item().s_voidp = 0;
 			break;
 	    }

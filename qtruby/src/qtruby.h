@@ -28,6 +28,19 @@
 #endif
 #define QTRUBY_VERSION "1.4.10"
 
+#if !defined RSTRING_LEN
+#define RSTRING_LEN(a) RSTRING(a)->len
+#endif
+#if !defined RSTRING_PTR
+#define RSTRING_PTR(a) RSTRING(a)->ptr
+#endif
+#if !defined RARRAY_LEN
+#define RARRAY_LEN(a) RARRAY(a)->len
+#endif
+#if !defined RARRAY_PTR
+#define RARRAY_PTR(a) RARRAY(a)->ptr
+#endif
+
 inline bool operator==(const Smoke::ModuleIndex& a, const Smoke::ModuleIndex& b) {
 	if (a.index == b.index && a.smoke == b.smoke)
 		return true;

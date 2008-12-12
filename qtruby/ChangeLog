@@ -9,6 +9,8 @@
 	  have been defined as just 'char *' instead. It better to have a clear
 	  message saying they aren't supported and need special casing, rather
 	  than needing to track down possible random buggy effects.
+	* Added Davor Ocelic's patch for Ruby 1.9 compatible RSTRING usage and
+	  improved instructions for building QtRuby without KDE.
 
 2008-12-11  Richard Dale  <richard.j.dale@gmail.com>
 	* Make some changes from the patch at 

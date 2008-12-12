@@ -56,7 +56,7 @@ void marshall_ItemList(Marshall *m) {
 				break;
 			}
 
-			int count = RARRAY(list)->len;
+			int count = RARRAY_LEN(list);
 			ItemList *cpplist = new ItemList;
 			long i;
 			for(i = 0; i < count; i++) {
@@ -148,7 +148,7 @@ void marshall_ValueListItem(Marshall *m) {
 				m->item().s_voidp = 0;
 				break;
 			}
-			int count = RARRAY(list)->len;
+			int count = RARRAY_LEN(list);
 			ItemList *cpplist = new ItemList;
 			long i;
 			for(i = 0; i < count; i++) {
@@ -264,7 +264,7 @@ void marshall_LinkedItemList(Marshall *m) {
 				break;
 			}
 
-			int count = RARRAY(list)->len;
+			int count = RARRAY_LEN(list);
 			ItemList *cpplist = new ItemList;
 			long i;
 			for (i = 0; i < count; i++) {
@@ -358,7 +358,7 @@ void marshall_LinkedValueListItem(Marshall *m) {
 				m->item().s_voidp = 0;
 				break;
 			}
-			int count = RARRAY(list)->len;
+			int count = RARRAY_LEN(list);
 			ItemList *cpplist = new ItemList;
 			long i;
 			for(i = 0; i < count; i++) {
@@ -476,7 +476,7 @@ void marshall_Hash(Marshall *m) {
 		// Convert the ruby hash to an array of key/value arrays
 		VALUE temp = rb_funcall(hv, rb_intern("to_a"), 0);
 
-		for (long i = 0; i < RARRAY(temp)->len; i++) {
+		for (long i = 0; i < RARRAY_LEN(temp); i++) {
 			VALUE key = rb_ary_entry(rb_ary_entry(temp, i), 0);
 			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
 			
@@ -553,7 +553,7 @@ void marshall_Map(Marshall *m) {
 		// Convert the ruby hash to an array of key/value arrays
 		VALUE temp = rb_funcall(hv, rb_intern("to_a"), 0);
 
-		for (long i = 0; i < RARRAY(temp)->len; i++) {
+		for (long i = 0; i < RARRAY_LEN(temp); i++) {
 			VALUE key = rb_ary_entry(rb_ary_entry(temp, i), 0);
 			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
 			

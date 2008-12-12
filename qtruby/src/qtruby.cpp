@@ -375,13 +375,13 @@ static VALUE
 q_register_resource_data(VALUE /*self*/, VALUE version, VALUE tree_value, VALUE name_value, VALUE data_value)
 {
 	const unsigned char * tree = (const unsigned char *) malloc(RSTRING_LEN(tree_value));
-	memcpy((void *) tree, (const void *) RSTRING(tree_value)->ptr, RSTRING_LEN(tree_value));
+	memcpy((void *) tree, (const void *) RSTRING_PTR(tree_value), RSTRING_LEN(tree_value));
 
 	const unsigned char * name = (const unsigned char *) malloc(RSTRING_LEN(name_value));
-	memcpy((void *) name, (const void *) RSTRING(name_value)->ptr, RSTRING_LEN(name_value));
+	memcpy((void *) name, (const void *) RSTRING_PTR(name_value), RSTRING_LEN(name_value));
 
 	const unsigned char * data = (const unsigned char *) malloc(RSTRING_LEN(data_value));
-	memcpy((void *) data, (const void *) RSTRING(data_value)->ptr, RSTRING_LEN(data_value));
+	memcpy((void *) data, (const void *) RSTRING_PTR(data_value), RSTRING_LEN(data_value));
 
 	return qRegisterResourceData(NUM2INT(version), tree, name, data) ? Qtrue : Qfalse;
 }
@@ -390,13 +390,13 @@ static VALUE
 q_unregister_resource_data(VALUE /*self*/, VALUE version, VALUE tree_value, VALUE name_value, VALUE data_value)
 {
 	const unsigned char * tree = (const unsigned char *) malloc(RSTRING_LEN(tree_value));
-	memcpy((void *) tree, (const void *) RSTRING(tree_value)->ptr, RSTRING_LEN(tree_value));
+	memcpy((void *) tree, (const void *) RSTRING_PTR(tree_value), RSTRING_LEN(tree_value));
 
 	const unsigned char * name = (const unsigned char *) malloc(RSTRING_LEN(name_value));
-	memcpy((void *) name, (const void *) RSTRING(name_value)->ptr, RSTRING_LEN(name_value));
+	memcpy((void *) name, (const void *) RSTRING_PTR(name_value), RSTRING_LEN(name_value));
 
 	const unsigned char * data = (const unsigned char *) malloc(RSTRING_LEN(data_value));
-	memcpy((void *) data, (const void *) RSTRING(data_value)->ptr, RSTRING_LEN(data_value));
+	memcpy((void *) data, (const void *) RSTRING_PTR(data_value), RSTRING_LEN(data_value));
 
 	return qUnregisterResourceData(NUM2INT(version), tree, name, data) ? Qtrue : Qfalse;
 }
@@ -661,7 +661,7 @@ static Smoke::Index drawlines_point_vector = 0;
 static Smoke::Index drawlines_linef_vector = 0;
 static Smoke::Index drawlines_line_vector = 0;
 
-	if (argc == 1 && TYPE(argv[0]) == T_ARRAY && RARRAY(argv[0])->len > 0) {
+	if (argc == 1 && TYPE(argv[0]) == T_ARRAY && RARRAY_LEN(argv[0]) > 0) {
 		if (drawlines_point_vector == 0) {
 			Smoke::ModuleIndex nameId = qt_Smoke->findMethodName("QPainter", "drawLines?");
 			Smoke::ModuleIndex meth = qt_Smoke->findMethod(qt_Smoke->findClass("QPainter"), nameId);
@@ -716,7 +716,7 @@ qpainter_drawrects(int argc, VALUE * argv, VALUE self)
 static Smoke::Index drawlines_rectf_vector = 0;
 static Smoke::Index drawlines_rect_vector = 0;
 
-	if (argc == 1 && TYPE(argv[0]) == T_ARRAY && RARRAY(argv[0])->len > 0) {
+	if (argc == 1 && TYPE(argv[0]) == T_ARRAY && RARRAY_LEN(argv[0]) > 0) {
 		if (drawlines_rectf_vector == 0) {
 			Smoke::ModuleIndex nameId = qt_Smoke->findMethodName("QPainter", "drawRects?");
 			Smoke::ModuleIndex meth = qt_Smoke->findMethod(qt_Smoke->findClass("QPainter"), nameId);
@@ -1209,7 +1209,7 @@ static Smoke::Index new_qvariant_qmap = 0;
     	return *(c.var());
 	} else if (	argc == 1 
 				&& TYPE(argv[0]) == T_ARRAY
-				&& RARRAY(argv[0])->len > 0
+				&& RARRAY_LEN(argv[0]) > 0
 				&& TYPE(rb_ary_entry(argv[0], 0)) != T_STRING )
 	{
 		_current_method.smoke = qt_Smoke;
@@ -1593,8 +1593,8 @@ rb_qFindChildren_helper(VALUE parent, const QString &name, VALUE re,
         return;
 	VALUE children = rb_funcall(parent, rb_intern("children"), 0);
     VALUE rv = Qnil;
-    for (int i = 0; i < RARRAY(children)->len; ++i) {
-        rv = RARRAY(children)->ptr[i];
+    for (int i = 0; i < RARRAY_LEN(children); ++i) {
+        rv = RARRAY_PTR(children)[i];
 		smokeruby_object *o = value_obj_info(rv);
 		QObject * obj = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject").index);
 		
@@ -1653,15 +1653,15 @@ rb_qFindChild_helper(VALUE parent, const QString &name, const QMetaObject &mo)
 	VALUE children = rb_funcall(parent, rb_intern("children"), 0);
     VALUE rv;
 	int i;
-    for (i = 0; i < RARRAY(children)->len; ++i) {
-        rv = RARRAY(children)->ptr[i];
+    for (i = 0; i < RARRAY_LEN(children); ++i) {
+        rv = RARRAY_PTR(children)[i];
 		smokeruby_object *o = value_obj_info(rv);
 		QObject * obj = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject").index);
         if (obj->qt_metacast(mo.className()) != 0 && (name.isNull() || obj->objectName() == name))
             return rv;
     }
-    for (i = 0; i < RARRAY(children)->len; ++i) {
-        rv = rb_qFindChild_helper(RARRAY(children)->ptr[i], name, mo);
+    for (i = 0; i < RARRAY_LEN(children); ++i) {
+        rv = rb_qFindChild_helper(RARRAY_PTR(children)[i], name, mo);
         if (rv != Qnil)
             return rv;
     }
@@ -1815,10 +1815,10 @@ make_metaObject(VALUE /*self*/, VALUE obj, VALUE parentMeta, VALUE stringdata_va
 
 	char *stringdata = new char[RSTRING_LEN(stringdata_value)];
 
-	int count = RARRAY(data_value)->len;
+	int count = RARRAY_LEN(data_value);
 	uint * data = new uint[count];
 
-	memcpy(	(void *) stringdata, RSTRING(stringdata_value)->ptr, RSTRING_LEN(stringdata_value) );
+	memcpy(	(void *) stringdata, RSTRING_PTR(stringdata_value), RSTRING_LEN(stringdata_value) );
 	
 	for (long i = 0; i < count; i++) {
 		VALUE rv = rb_ary_entry(data_value, i);
@@ -1924,7 +1924,7 @@ add_metaobject_methods(VALUE self, VALUE klass)
 static VALUE
 add_signal_methods(VALUE self, VALUE klass, VALUE signalNames)
 {
-	for (long index = 0; index < RARRAY(signalNames)->len; index++) {
+	for (long index = 0; index < RARRAY_LEN(signalNames); index++) {
 		VALUE signal = rb_ary_entry(signalNames, index);
 		rb_define_method(klass, StringValuePtr(signal), (VALUE (*) (...)) qt_signal, -1);
 	}
@@ -2018,7 +2018,7 @@ dumpCandidates(VALUE /*self*/, VALUE rmeths)
 {
     VALUE errmsg = rb_str_new2("");
     if(rmeths != Qnil) {
-	int count = RARRAY(rmeths)->len;
+	int count = RARRAY_LEN(rmeths);
         for(int i = 0; i < count; i++) {
 	    rb_str_catf(errmsg, "\t");
 	    int id = NUM2INT(rb_funcall(rb_ary_entry(rmeths, i), rb_intern("index"), 0));
