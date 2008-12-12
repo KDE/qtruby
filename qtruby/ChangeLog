@@ -11,6 +11,11 @@
 	  than needing to track down possible random buggy effects.
 	* Added Davor Ocelic's patch for Ruby 1.9 compatible RSTRING usage and
 	  improved instructions for building QtRuby without KDE.
+	* When an overriden virtual method with a non-const QVector/QList argument
+	  was called, such as Generator.openDocument() in Okular, the Ruby values
+	  in the Ruby Array were not being converted back to the values in the
+	  C++ list after the method call. Thanks to David Palacio for the bug
+	  report.
 
 2008-12-11  Richard Dale  <richard.j.dale@gmail.com>
 	* Make some changes from the patch at 

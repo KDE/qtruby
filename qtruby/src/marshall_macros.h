@@ -56,7 +56,7 @@ void marshall_ItemList(Marshall *m) {
 				break;
 			}
 
-			int count = RARRAY_LEN(list);
+			int count = RARRAY(list)->len;
 			ItemList *cpplist = new ItemList;
 			long i;
 			for(i = 0; i < count; i++) {
@@ -94,16 +94,16 @@ void marshall_ItemList(Marshall *m) {
       
 		case Marshall::ToVALUE:
 		{
-			ItemList *valuelist = (ItemList*)m->item().s_voidp;
-			if(!valuelist) {
+			ItemList * cpplist = (ItemList *) m->item().s_voidp;
+			if (cpplist == 0) {
 				*(m->var()) = Qnil;
 				break;
 			}
 
 			VALUE av = rb_ary_new();
 
-			for (int i=0;i<valuelist->size();++i) {
-				void *p = (void *) valuelist->at(i);
+			for (int i=0; i < cpplist->size(); ++i) {
+				void *p = (void *) cpplist->at(i);
 
 				if (m->item().s_voidp == 0) {
 					*(m->var()) = Qnil;
@@ -126,8 +126,29 @@ void marshall_ItemList(Marshall *m) {
 			*(m->var()) = av;
 			m->next();
 
+			if (!m->type().isConst()) {
+			  int count = RARRAY(av)->len;
+			  long i;
+			  cpplist->clear();
+			  for (i = 0; i < count; i++) {
+				  VALUE item = rb_ary_entry(av, i);
+				  // TODO do type checking!
+				  smokeruby_object *o = value_obj_info(item);
+				  if(!o || !o->ptr)
+					  continue;
+				  void *ptr = o->ptr;
+				  ptr = o->smoke->cast(
+					  ptr,				// pointer
+					  o->classId,				// from
+					  o->smoke->idClass(ItemSTR).index	// to
+				  );
+
+				  cpplist->append((Item*)ptr);
+			  }
+			}
+
 			if (m->cleanup()) {
-				delete valuelist;
+				delete cpplist;
 			}
 		}
 		break;
@@ -148,7 +169,7 @@ void marshall_ValueListItem(Marshall *m) {
 				m->item().s_voidp = 0;
 				break;
 			}
-			int count = RARRAY_LEN(list);
+			int count = RARRAY(list)->len;
 			ItemList *cpplist = new ItemList;
 			long i;
 			for(i = 0; i < count; i++) {
@@ -264,7 +285,7 @@ void marshall_LinkedItemList(Marshall *m) {
 				break;
 			}
 
-			int count = RARRAY_LEN(list);
+			int count = RARRAY(list)->len;
 			ItemList *cpplist = new ItemList;
 			long i;
 			for (i = 0; i < count; i++) {
@@ -358,7 +379,7 @@ void marshall_LinkedValueListItem(Marshall *m) {
 				m->item().s_voidp = 0;
 				break;
 			}
-			int count = RARRAY_LEN(list);
+			int count = RARRAY(list)->len;
 			ItemList *cpplist = new ItemList;
 			long i;
 			for(i = 0; i < count; i++) {
@@ -476,7 +497,7 @@ void marshall_Hash(Marshall *m) {
 		// Convert the ruby hash to an array of key/value arrays
 		VALUE temp = rb_funcall(hv, rb_intern("to_a"), 0);
 
-		for (long i = 0; i < RARRAY_LEN(temp); i++) {
+		for (long i = 0; i < RARRAY(temp)->len; i++) {
 			VALUE key = rb_ary_entry(rb_ary_entry(temp, i), 0);
 			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
 			
@@ -553,7 +574,7 @@ void marshall_Map(Marshall *m) {
 		// Convert the ruby hash to an array of key/value arrays
 		VALUE temp = rb_funcall(hv, rb_intern("to_a"), 0);
 
-		for (long i = 0; i < RARRAY_LEN(temp); i++) {
+		for (long i = 0; i < RARRAY(temp)->len; i++) {
 			VALUE key = rb_ary_entry(rb_ary_entry(temp, i), 0);
 			VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
 			
