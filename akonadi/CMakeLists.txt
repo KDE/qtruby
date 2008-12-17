@@ -1,5 +1,6 @@
 include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src)
 INCLUDE_DIRECTORIES (${QT_INCLUDES} ${KDE4_INCLUDE_DIR})
+include_directories( ${AKONADI_INCLUDE_DIR}/akonadi )
 
 set(rubyakonadi_LIBRARY_SRC akonadi.cpp akonadihandlers.cpp)
 
