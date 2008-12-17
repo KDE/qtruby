@@ -7,8 +7,8 @@ add_library(rubyakonadi MODULE ${rubyakonadi_LIBRARY_SRC})
 target_link_libraries(rubyakonadi 
     ${QT_QTCORE_LIBRARY} 
     ${RUBY_LIBRARY} 
-    akonadi-kde
-    akonadi-kmime
+    ${KDEPIMLIBS_AKONADI_LIBS} 
+    ${KDEPIMLIBS_AKONADI_KMIME_LIBS}
     smokeqt 
     smokekde 
     smokeakonadi 
