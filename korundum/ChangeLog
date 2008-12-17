@@ -1,3 +1,7 @@
+2008-12-17  Richard Dale  <richard.j.dale@gmail.com>
+	* The KCmdLineArgs.count method was looping - thanks to Simon St James
+	  for reporting the bug.
+
 2008-11-24  Richard Dale  <richard.j.dale@gmail.com>
 	* Added a QMap<QString,KTimeZone> marshaller
 

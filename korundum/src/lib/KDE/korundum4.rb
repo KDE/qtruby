@@ -203,6 +203,10 @@ module KDE
 			end
 		end
 
+		def count
+			method_missing(:count)
+		end
+
 		def length
 			count
 		end
