@@ -1,3 +1,7 @@
+2008-12-18  Richard Dale  <richard.j.dale@gmail.com>
+	* Added another patch from Davor Ocelic for Ruby 1.9 compatible RSTRING 
+	  usage - thanks Davor
+
 2008-12-12  Richard Dale  <richard.j.dale@gmail.com>
 	* When resolving overloaded methods with 'uchar*' and 'const uchar*' arg
 	  types prefer the non-const version of the arg. Thanks to Davor Ocelic
