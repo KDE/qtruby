@@ -1,3 +1,10 @@
+2008-12-19  Richard Dale  <richard.j.dale@gmail.com>
+	* When the construct_copy() function was used to copy and instance, it
+	  wasn't initializing the binding for the new instance. This caused a
+	  crash when the destructor for the instance tried to make a callback with
+	  the null binding. Fixes a crash in a Qt::Image destructor reported by David
+	  Palacio
+
 2008-12-18  Richard Dale  <richard.j.dale@gmail.com>
 	* Added another patch from Davor Ocelic for Ruby 1.9 compatible RSTRING 
 	  usage - thanks Davor

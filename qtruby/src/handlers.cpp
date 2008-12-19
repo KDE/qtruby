@@ -711,31 +711,36 @@ construct_copy(smokeruby_object *o)
     Smoke::ModuleIndex classIdx = { o->smoke, o->classId };
     Smoke::ModuleIndex ccMeth = o->smoke->findMethod(classIdx, ccId);
 
-    if(!ccMeth.index) {
-	delete[] ccArg;
-	return 0;
+    if (ccMeth.index == 0) {
+        qWarning("construct_copy() failed %s %p\n", resolve_classname(o), o->ptr);
+        delete[] ccArg;
+        return 0;
     }
-	Smoke::Index method = ccMeth.smoke->methodMaps[ccMeth.index].method;
-    if(method > 0) {
-	// Make sure it's a copy constructor
-	if(!matches_arg(o->smoke, method, 0, ccArg)) {
+    Smoke::Index method = ccMeth.smoke->methodMaps[ccMeth.index].method;
+    if (method > 0) {
+        // Make sure it's a copy constructor
+        if (!matches_arg(o->smoke, method, 0, ccArg)) {
+            qWarning("construct_copy() failed %s %p\n", resolve_classname(o), o->ptr);
             delete[] ccArg;
-	    return 0;
+            return 0;
         }
         delete[] ccArg;
         ccMeth.index = method;
     } else {
         // ambiguous method, pick the copy constructor
-	Smoke::Index i = -method;
-	while(ccMeth.smoke->ambiguousMethodList[i]) {
-	    if(matches_arg(ccMeth.smoke, ccMeth.smoke->ambiguousMethodList[i], 0, ccArg))
-		break;
+        Smoke::Index i = -method;
+        while (ccMeth.smoke->ambiguousMethodList[i]) {
+            if (matches_arg(ccMeth.smoke, ccMeth.smoke->ambiguousMethodList[i], 0, ccArg)) {
+                break;
+            }
             i++;
-	}
+        }
         delete[] ccArg;
-	ccMeth.index = ccMeth.smoke->ambiguousMethodList[i];
-	if(!ccMeth.index)
-	    return 0;
+        ccMeth.index = ccMeth.smoke->ambiguousMethodList[i];
+        if (ccMeth.index == 0) {
+            qWarning("construct_copy() failed %s %p\n", resolve_classname(o), o->ptr);
+            return 0;
+        }
     }
 
     // Okay, ccMeth is the copy constructor. Time to call it.
@@ -744,6 +749,12 @@ construct_copy(smokeruby_object *o)
     args[1].s_voidp = o->ptr;
     Smoke::ClassFn fn = o->smoke->classes[o->classId].classFn;
     (*fn)(o->smoke->methods[ccMeth.index].method, 0, args);
+
+    // Initialize the binding for the new instance
+    Smoke::StackItem s[2];
+    s[1].s_voidp = qtruby_modules[o->smoke].binding;
+    (*fn)(0, args[0].s_voidp, s);
+
     return args[0].s_voidp;
 }
 
