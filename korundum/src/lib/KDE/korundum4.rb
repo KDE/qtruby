@@ -527,7 +527,7 @@ module KDE
 					# Make classes under KCoreConfigSkeleton appear under KDE::ConfigSkeleton
 					# in Ruby, as the KCoreConfigSkeleton class isn't really the public api
 					now = classname.sub(/KCore/,'KDE::')
-				elsif classname =~ /^(KConfigSkeleton|KWin|KDateTime|KTimeZone)::/
+				elsif classname =~ /^(KConfigSkeleton|KWin|KDateTime|KTimeZone|KSettings)::/
 					now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
 				elsif classname =~ /^K/ && classname !~ /::/
 					now = classname.sub(/(^K)/, 'KDE::')
