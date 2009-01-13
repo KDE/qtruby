@@ -323,6 +323,10 @@ module KDE
 		end
 	end
 
+	class File < Qt::Base
+		File = 1
+	end
+
 	class FileItem < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
