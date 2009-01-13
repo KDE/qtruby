@@ -1,3 +1,6 @@
+2009-01-13  Richard Dale  <richard.j.dale@gmail.com>
+	* Upped the QtRuby version number to 2.0.0
+
 2008-12-19  Richard Dale  <richard.j.dale@gmail.com>
 	* When the construct_copy() function was used to copy and instance, it
 	  wasn't initializing the binding for the new instance. This caused a
@@ -498,7 +501,7 @@ Qt::Point.new(3,4)])
 	* Thanks to Sylvain Sauvage for reporting the problem on the Korundum
 help forum
 
-2007-11-21 Â    Sebastian Sauer <mail@dipe.org>
+2007-11-21 ï¿½    Sebastian Sauer <mail@dipe.org>
 
 	* Fixed crash on shutdown of Ruby cause of a partly destroyed
 	  pointer_map QHash.
