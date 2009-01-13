@@ -26,7 +26,7 @@
 #ifndef QT_VERSION_STR
 #define QT_VERSION_STR "Unknown"
 #endif
-#define QTRUBY_VERSION "1.4.10"
+#define QTRUBY_VERSION "2.0.0"
 
 #if !defined RSTRING_LEN
 #define RSTRING_LEN(a) RSTRING(a)->len
