@@ -1,3 +1,8 @@
+2009-01-13  Richard Dale  <richard.j.dale@gmail.com>
+	* The enum KDE::File::File was conflicting with the Ruby class 'File' and
+	  not working properly. So special case it and make it a constant. Thanks
+	  to David Palacio for finding the problem.
+
 2008-12-17  Richard Dale  <richard.j.dale@gmail.com>
 	* The KCmdLineArgs.count method was looping - thanks to Simon St James
 	  for reporting the bug.
