@@ -1,5 +1,6 @@
 2009-01-13  Richard Dale  <richard.j.dale@gmail.com>
 	* Upped the QtRuby version number to 2.0.0
+	* Special cased some constants whose names clashed with Ruby classes. 
 
 2008-12-19  Richard Dale  <richard.j.dale@gmail.com>
 	* When the construct_copy() function was used to copy and instance, it

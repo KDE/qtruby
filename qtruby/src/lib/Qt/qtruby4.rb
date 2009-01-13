@@ -662,6 +662,10 @@ module Qt
 		end
 	end
 
+	class Dir < Qt::Base
+		Time = 1
+	end
+
 	class DomAttr < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
@@ -748,6 +752,8 @@ module Qt
 	end
 
 	class FileIconProvider < Qt::Base
+		File = 6
+
 		def type(*args)
 			method_missing(:type, *args)
 		end
@@ -771,6 +777,10 @@ module Qt
 			pp.text str.sub(/>$/, "\n family=%s,\n pointSize=%d,\n weight=%d,\n italic=%s,\n bold=%s,\n underline=%s,\n strikeOut=%s>" % 
 			[family.inspect, pointSize, weight, italic, bold, underline, strikeOut])
 		end
+	end
+
+	class FontDatabase < Qt::Base
+		Symbol = 30
 	end
 
 	class Ftp < Qt::Base
@@ -1129,6 +1139,7 @@ module Qt
 	class MetaMethod < Qt::Base
 		# Oops, name clash with the Signal module so hard code
 		# this value rather than get it from the Smoke runtime
+		Method = 0
 		Signal = 1
 	end
 
@@ -1257,6 +1268,8 @@ module Qt
 	end
 
 	class MetaType < Qt::Base
+		Float = 135
+
 		def load(*args)
 			method_missing(:load, *args)
 		end
@@ -1586,6 +1599,8 @@ module Qt
 	end
 
 	class SocketNotifier < Qt::Base
+		Exception = 2
+
 		def type(*args)
 			method_missing(:type, *args)
 		end
@@ -1923,6 +1938,10 @@ module Qt
 		end
 	end
 	
+	class Uuid < Qt::Base
+		Time = 1
+	end
+
 	class Variant < Qt::Base
 		String = 10
 		Date = 14
