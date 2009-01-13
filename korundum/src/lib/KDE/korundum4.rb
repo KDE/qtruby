@@ -324,7 +324,7 @@ module KDE
 	end
 
 	class File < Qt::Base
-		File = 1
+		File = Qt::Enum.new(1, "KFile::Mode")
 	end
 
 	class FileItem < Qt::Base
