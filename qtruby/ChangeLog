@@ -1,3 +1,7 @@
+2009-01-14  Richard Dale  <richard.j.dale@gmail.com>
+	* For the enum values whose names clashed with Ruby classes, make them
+	  Qt::Enums instead of just Fixnums
+
 2009-01-13  Richard Dale  <richard.j.dale@gmail.com>
 	* Upped the QtRuby version number to 2.0.0
 	* Special cased some constants whose names clashed with Ruby classes. 

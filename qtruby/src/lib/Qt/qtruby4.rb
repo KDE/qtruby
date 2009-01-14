@@ -215,6 +215,167 @@ module Qt
 			return meths.uniq
 		end
 	end # Qt::Base
+	
+	# Provides a mutable numeric class for passing to methods with
+	# C++ 'int*' or 'int&' arg types
+	class Integer
+		attr_accessor :value
+		def initialize(n=0) @value = n end
+		
+		def +(n) 
+			return Integer.new(@value + n.to_i) 
+		end
+		def -(n) 
+			return Integer.new(@value - n.to_i)
+		end
+		def *(n) 
+			return Integer.new(@value * n.to_i)
+		end
+		def /(n) 
+			return Integer.new(@value / n.to_i)
+		end
+		def %(n) 
+			return Integer.new(@value % n.to_i)
+		end
+		def **(n) 
+			return Integer.new(@value ** n.to_i)
+		end
+		
+		def |(n) 
+			return Integer.new(@value | n.to_i)
+		end
+		def &(n) 
+			return Integer.new(@value & n.to_i)
+		end
+		def ^(n) 
+			return Integer.new(@value ^ n.to_i)
+		end
+		def <<(n) 
+			return Integer.new(@value << n.to_i)
+		end
+		def >>(n) 
+			return Integer.new(@value >> n.to_i)
+		end
+		def >(n) 
+			return @value > n.to_i
+		end
+		def >=(n) 
+			return @value >= n.to_i
+		end
+		def <(n) 
+			return @value < n.to_i
+		end
+		def <=(n) 
+			return @value <= n.to_i
+		end
+		
+		def <=>(n)
+			if @value < n.to_i
+				return -1
+			elsif @value > n.to_i
+				return 1
+			else
+				return 0
+			end
+		end
+		
+		def to_f() return @value.to_f end
+		def to_i() return @value.to_i end
+		def to_s() return @value.to_s end
+		
+		def coerce(n)
+			[n, @value]
+		end
+	end
+	
+	# If a C++ enum was converted to an ordinary ruby Integer, the
+	# name of the type is lost. The enum type name is needed for overloaded
+	# method resolution when two methods differ only by an enum type.
+	class Enum
+		attr_accessor :type, :value
+		def initialize(n, enum_type)
+			@value = n 
+			@type = enum_type
+		end
+		
+		def +(n) 
+			return @value + n.to_i
+		end
+		def -(n) 
+			return @value - n.to_i
+		end
+		def *(n) 
+			return @value * n.to_i
+		end
+		def /(n) 
+			return @value / n.to_i
+		end
+		def %(n) 
+			return @value % n.to_i
+		end
+		def **(n) 
+			return @value ** n.to_i
+		end
+		
+		def |(n) 
+			return Enum.new(@value | n.to_i, @type)
+		end
+		def &(n) 
+			return Enum.new(@value & n.to_i, @type)
+		end
+		def ^(n) 
+			return Enum.new(@value ^ n.to_i, @type)
+		end
+		def ~() 
+			return ~ @value
+		end
+		def <(n) 
+			return @value < n.to_i
+		end
+		def <=(n) 
+			return @value <= n.to_i
+		end
+		def >(n) 
+			return @value > n.to_i
+		end
+		def >=(n) 
+			return @value >= n.to_i
+		end
+		def <<(n) 
+			return Enum.new(@value << n.to_i, @type)
+		end
+		def >>(n) 
+			return Enum.new(@value >> n.to_i, @type)
+		end
+		
+		def ==(n) return @value == n.to_i end
+		def to_i() return @value end
+
+		def to_f() return @value.to_f end
+		def to_s() return @value.to_s end
+		
+		def coerce(n)
+			[n, @value]
+		end
+		
+		def inspect
+			to_s
+		end
+
+		def pretty_print(pp)
+			pp.text "#<%s:0x%8.8x @type=%s, @value=%d>" % [self.class.name, object_id, type, value]
+		end
+	end
+	
+	# Provides a mutable boolean class for passing to methods with
+	# C++ 'bool*' or 'bool&' arg types
+	class Boolean
+		attr_accessor :value
+		def initialize(b=false) @value = b end
+		def nil? 
+			return !@value 
+		end
+	end
 
 	class AbstractSlider < Qt::Base
 		def range=(arg)
@@ -300,13 +461,13 @@ module Qt
 	end
 	
 	class ByteArray < Qt::Base
-    def initialize(*args)
-      if args.size == 1 && args[0].kind_of?(String)
-        super(args[0], args[0].size)
-      else
-        super
-      end
-    end
+		def initialize(*args)
+			if args.size == 1 && args[0].kind_of?(String)
+				super(args[0], args[0].size)
+			else
+				super
+			end
+		end
 
 		def to_s
 			return constData()
@@ -438,7 +599,6 @@ module Qt
 	end
 	
 	class Date < Qt::Base
-
 		def initialize(*args)
 			if args.size == 1 && args[0].class.name == "Date"
 				return super(args[0].year, args[0].month, args[0].day)
@@ -553,7 +713,6 @@ module Qt
 	end
 
 	class DBusInterface < Qt::Base 
-
 		def call(method_name, *args)
 			if args.length == 0
 				return super(method_name)
@@ -663,7 +822,7 @@ module Qt
 	end
 
 	class Dir < Qt::Base
-		Time = 1
+		Time = Qt::Enum.new(1, "QDir::SortFlag")
 	end
 
 	class DomAttr < Qt::Base
@@ -752,7 +911,7 @@ module Qt
 	end
 
 	class FileIconProvider < Qt::Base
-		File = 6
+		File = Qt::Enum.new(6, "QFileIconProvider::IconType")
 
 		def type(*args)
 			method_missing(:type, *args)
@@ -780,7 +939,7 @@ module Qt
 	end
 
 	class FontDatabase < Qt::Base
-		Symbol = 30
+		Symbol = Qt::Enum.new(30, "QFontDatabase::WritingSystem")
 	end
 
 	class Ftp < Qt::Base
@@ -1139,8 +1298,8 @@ module Qt
 	class MetaMethod < Qt::Base
 		# Oops, name clash with the Signal module so hard code
 		# this value rather than get it from the Smoke runtime
-		Method = 0
-		Signal = 1
+		Method = Qt::Enum.new(0, "QMetaMethod::MethodType")
+		Signal = Qt::Enum.new(1, "QMetaMethod::MethodType")
 	end
 
 	class MetaObject < Qt::Base
@@ -1268,7 +1427,7 @@ module Qt
 	end
 
 	class MetaType < Qt::Base
-		Float = 135
+		Float = Qt::Enum.new(135, "QMetaType::Type")
 
 		def load(*args)
 			method_missing(:load, *args)
@@ -1395,7 +1554,7 @@ module Qt
 	end
 
 	class Process < Qt::Base
-		StandardError = 1
+		StandardError = Qt::Enum.new(1, "QProcess::ProcessChannel")
 	end
 
 	class ProgressBar < Qt::Base
@@ -1599,7 +1758,7 @@ module Qt
 	end
 
 	class SocketNotifier < Qt::Base
-		Exception = 2
+		Exception = Qt::Enum.new(2, "QSocketNotifier::Type")
 
 		def type(*args)
 			method_missing(:type, *args)
@@ -1939,14 +2098,14 @@ module Qt
 	end
 	
 	class Uuid < Qt::Base
-		Time = 1
+		Time = Qt::Enum.new(1, "QUuid::Version")
 	end
 
 	class Variant < Qt::Base
-		String = 10
-		Date = 14
-		Time = 15
-		DateTime = 16
+		String = Qt::Enum.new(10, "QVariant::Type")
+		Date = Qt::Enum.new(14, "QVariant::Type")
+		Time = Qt::Enum.new(15, "QVariant::Type")
+		DateTime = Qt::Enum.new(16, "QVariant::Type")
 
 		def initialize(*args)
 			if args.size == 1 && args[0].nil?
@@ -1959,8 +2118,8 @@ module Qt
 			elsif args.size == 1 && args[0].class.name == "Time"
 				return super(Qt::Time.new(args[0]))
 			elsif args.size == 1 && args[0].class.name == "BigDecimal"
-        return super(args[0].to_f) # we have to make do with a float
-      else
+				return super(args[0].to_f) # we have to make do with a float
+			else
 				return super(*args)
 			end
 		end
@@ -2134,167 +2293,6 @@ module Qt
 	class XmlAttributes < Qt::Base
 		def type(*args)
 			method_missing(:type, *args)
-		end
-	end
-	
-	# Provides a mutable numeric class for passing to methods with
-	# C++ 'int*' or 'int&' arg types
-	class Integer
-		attr_accessor :value
-		def initialize(n=0) @value = n end
-		
-		def +(n) 
-			return Integer.new(@value + n.to_i) 
-		end
-		def -(n) 
-			return Integer.new(@value - n.to_i)
-		end
-		def *(n) 
-			return Integer.new(@value * n.to_i)
-		end
-		def /(n) 
-			return Integer.new(@value / n.to_i)
-		end
-		def %(n) 
-			return Integer.new(@value % n.to_i)
-		end
-		def **(n) 
-			return Integer.new(@value ** n.to_i)
-		end
-		
-		def |(n) 
-			return Integer.new(@value | n.to_i)
-		end
-		def &(n) 
-			return Integer.new(@value & n.to_i)
-		end
-		def ^(n) 
-			return Integer.new(@value ^ n.to_i)
-		end
-		def <<(n) 
-			return Integer.new(@value << n.to_i)
-		end
-		def >>(n) 
-			return Integer.new(@value >> n.to_i)
-		end
-		def >(n) 
-			return @value > n.to_i
-		end
-		def >=(n) 
-			return @value >= n.to_i
-		end
-		def <(n) 
-			return @value < n.to_i
-		end
-		def <=(n) 
-			return @value <= n.to_i
-		end
-		
-		def <=>(n)
-			if @value < n.to_i
-				return -1
-			elsif @value > n.to_i
-				return 1
-			else
-				return 0
-			end
-		end
-		
-		def to_f() return @value.to_f end
-		def to_i() return @value.to_i end
-		def to_s() return @value.to_s end
-		
-		def coerce(n)
-			[n, @value]
-		end
-	end
-	
-	# If a C++ enum was converted to an ordinary ruby Integer, the
-	# name of the type is lost. The enum type name is needed for overloaded
-	# method resolution when two methods differ only by an enum type.
-	class Enum
-		attr_accessor :type, :value
-		def initialize(n, enum_type)
-			@value = n 
-			@type = enum_type
-		end
-		
-		def +(n) 
-			return @value + n.to_i
-		end
-		def -(n) 
-			return @value - n.to_i
-		end
-		def *(n) 
-			return @value * n.to_i
-		end
-		def /(n) 
-			return @value / n.to_i
-		end
-		def %(n) 
-			return @value % n.to_i
-		end
-		def **(n) 
-			return @value ** n.to_i
-		end
-		
-		def |(n) 
-			return Enum.new(@value | n.to_i, @type)
-		end
-		def &(n) 
-			return Enum.new(@value & n.to_i, @type)
-		end
-		def ^(n) 
-			return Enum.new(@value ^ n.to_i, @type)
-		end
-		def ~() 
-			return ~ @value
-		end
-		def <(n) 
-			return @value < n.to_i
-		end
-		def <=(n) 
-			return @value <= n.to_i
-		end
-		def >(n) 
-			return @value > n.to_i
-		end
-		def >=(n) 
-			return @value >= n.to_i
-		end
-		def <<(n) 
-			return Enum.new(@value << n.to_i, @type)
-		end
-		def >>(n) 
-			return Enum.new(@value >> n.to_i, @type)
-		end
-		
-		def ==(n) return @value == n.to_i end
-		def to_i() return @value end
-
-		def to_f() return @value.to_f end
-		def to_s() return @value.to_s end
-		
-		def coerce(n)
-			[n, @value]
-		end
-		
-		def inspect
-			to_s
-		end
-
-		def pretty_print(pp)
-			pp.text "#<%s:0x%8.8x @type=%s, @value=%d>" % [self.class.name, object_id, type, value]
-		end
-	end
-	
-	# Provides a mutable boolean class for passing to methods with
-	# C++ 'bool*' or 'bool&' arg types
-	class Boolean
-		attr_accessor :value
-		def initialize(b=false) @value = b end
-		def nil? 
-			return !@value 
 		end
 	end
 
