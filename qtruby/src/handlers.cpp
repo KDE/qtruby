@@ -699,11 +699,16 @@ construct_copy(smokeruby_object *o)
 {
     const char *className = o->smoke->className(o->classId);
     int classNameLen = strlen(className);
-    char *ccSig = new char[classNameLen + 2];       // copy constructor signature
-    strcpy(ccSig, className);
-    strcat(ccSig, "#");
+
+    // copy constructor signature
+    QByteArray ccSig(className);
+    int pos = ccSig.lastIndexOf("::");
+    if (pos != -1) {
+        ccSig = ccSig.mid(pos + strlen("::"));
+    }
+    ccSig.append("#");
+
     Smoke::ModuleIndex ccId = o->smoke->findMethodName(className, ccSig);
-    delete[] ccSig;
 
     char *ccArg = new char[classNameLen + 8];
     sprintf(ccArg, "const %s&", className);

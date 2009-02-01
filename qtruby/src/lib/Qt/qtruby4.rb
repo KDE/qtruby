@@ -2525,7 +2525,7 @@ module Qt
 		# wrapped in a new ruby variable of type T_DATA
 		def Internal.try_initialize(instance, *args)
 			initializer = instance.method(:initialize)
-			catch "newqt" do
+			catch :newqt do
 				initializer.call(*args)
 			end
 		end
