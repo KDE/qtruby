@@ -17,7 +17,6 @@
  ***************************************************************************/
 
 #include "marshall_types.h"
-#include <rubysig.h>
 #include <smoke/qt_smoke.h>
 #include <QtDBus>
 

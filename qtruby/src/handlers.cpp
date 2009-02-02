@@ -891,8 +891,10 @@ static void marshall_doubleR(Marshall *m) {
 	}
 }
 
-static const char * KCODE = 0;
 static QTextCodec *codec = 0;
+
+#if RUBY_VERSION < 0x10900
+static const char * KCODE = 0;
 
 static void 
 init_codec() {
@@ -923,11 +925,6 @@ qstringFromRString(VALUE rstring) {
 	return new QString(QString::fromLocal8Bit(StringValuePtr(rstring), RSTRING_LEN(rstring)));
 }
 
-QByteArray*
-qbytearrayFromRString(VALUE rstring) {
-  return new QByteArray(StringValuePtr(rstring), RSTRING_LEN(rstring));
-}
-
 VALUE 
 rstringFromQString(QString * s) {
 	if (KCODE == 0) {
@@ -944,6 +941,40 @@ rstringFromQString(QString * s) {
 		return rb_str_new2(s->toLatin1());
 	else
 		return rb_str_new2(s->toLocal8Bit());
+}
+
+#else
+
+QString* 
+qstringFromRString(VALUE rstring) {
+	VALUE encoding = rb_funcall(rstring, rb_intern("encoding"), 0);
+	encoding = rb_funcall(encoding, rb_intern("to_s"), 0);
+	const char * enc_s = RSTRING_PTR(encoding);
+
+	if (qstrcmp(enc_s, "UTF8") == 0) {
+		return new QString(QString::fromUtf8(StringValuePtr(rstring), RSTRING_LEN(rstring)));
+	} else if (qstrcmp(enc_s, "EUC-JP") == 0) {
+		codec = QTextCodec::codecForName("eucJP");
+		return new QString(codec->toUnicode(StringValuePtr(rstring)));
+	} else if (qstrcmp(enc_s, "Shift-JIS") == 0) {
+		codec = QTextCodec::codecForName("Shift-JIS");
+		return new QString(codec->toUnicode(StringValuePtr(rstring)));
+	} else if(qstrcmp(enc_s, "ISO-8859-1") == 0 || qstrcmp(enc_s, "US-ASCII") == 0) {
+		return new QString(QString::fromLatin1(StringValuePtr(rstring)));
+	}
+
+	return new QString(QString::fromLocal8Bit(StringValuePtr(rstring), RSTRING_LEN(rstring)));
+}
+
+VALUE 
+rstringFromQString(QString * s) {
+	return rb_str_new2(s->toUtf8());
+}
+#endif
+
+QByteArray*
+qbytearrayFromRString(VALUE rstring) {
+  return new QByteArray(StringValuePtr(rstring), RSTRING_LEN(rstring));
 }
 
 VALUE

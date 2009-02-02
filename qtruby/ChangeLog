@@ -1,3 +1,10 @@
+2009-02-02  Richard Dale  <richard.j.dale@gmail.com>
+	* Set up a RUBY_VERSION macro to use to test for whether QtRuby is being 
+	  built for Ruby 1.9 or not. Add patches from Mr Napalm for building with
+	  Ruby 1.9, for the new 'per string' encoding. Also add conditional code
+	  for whether to use the new rb_frame_callee() function or the old
+	  rb_frame_last_func() one.
+
 2009-02-01  Richard Dale  <richard.j.dale@gmail.com>
 	* The construct_copy() function was using the full classname of the class
 	  to construct which meant that it didn't work with classnames containing
