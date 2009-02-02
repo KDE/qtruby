@@ -65,7 +65,12 @@ int main(int argc, char **argv) {
     ruby_init();
     ruby_init_loadpath();
     ruby_incpush(QFile::encodeName(program.path()));
+#if RUBY_VERSION < 0x10900
     ruby_options(argc+1, rubyargs); 
     ruby_script(QFile::encodeName(program.fileName()));
     ruby_run();
+#else
+    ruby_script(QFile::encodeName(program.fileName()));
+    ruby_run_node(ruby_options(argc+1, rubyargs));
+#endif
 }

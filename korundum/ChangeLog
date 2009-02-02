@@ -1,3 +1,6 @@
+2009-02-02  Richard Dale  <richard.j.dale@gmail.com>
+	* Make Korundum build with Ruby 1.9
+
 2009-01-13  Richard Dale  <richard.j.dale@gmail.com>
 	* The enum KDE::File::File was conflicting with the Ruby class 'File' and
 	  not working properly. So special case it and make it a constant. Thanks

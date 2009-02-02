@@ -54,7 +54,7 @@ show_exception_message()
 {
     VALUE info = rb_gv_get("$!");
     VALUE bt = rb_funcall(info, rb_intern("backtrace"), 0);
-    VALUE message = RARRAY(bt)->ptr[0];
+    VALUE message = RARRAY_PTR(bt)[0];
 
     QString errormessage = QString("%1: %2 (%3)")
                             .arg( STR2CSTR(message) )
@@ -63,9 +63,9 @@ show_exception_message()
     fprintf(stderr, "%s\n", errormessage.toLatin1().constData());
 
     QString tracemessage;
-    for(int i = 1; i < RARRAY(bt)->len; ++i) {
-        if( TYPE(RARRAY(bt)->ptr[i]) == T_STRING ) {
-            QString s = QString("%1\n").arg( STR2CSTR(RARRAY(bt)->ptr[i]) );
+    for(int i = 1; i < RARRAY_LEN(bt); ++i) {
+        if( TYPE(RARRAY_PTR(bt)[i]) == T_STRING ) {
+            QString s = QString("%1\n").arg( STR2CSTR(RARRAY_PTR(bt)[i]) );
             Q_ASSERT( ! s.isNull() );
             tracemessage += s;
             fprintf(stderr, "\t%s", s.toLatin1().constData());
@@ -135,7 +135,11 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
     RUBY_INIT_STACK
 #endif
 
+#if RUBY_VERSION < 0x10900
     bool firstTime = (rb_load_path == 0);
+#else
+    bool firstTime = true;
+#endif
 
     ruby_init();
     ruby_script(QFile::encodeName(program.fileName()));

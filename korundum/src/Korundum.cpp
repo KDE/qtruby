@@ -112,7 +112,7 @@ config_additem(int argc, VALUE * argv, VALUE self)
 	}
 	
 	if (TYPE(argv[0]) != T_DATA) {
-		rb_raise(rb_eArgError, "wrong argument type, expected KDE::ConfigSkeletonItem\n", argc);
+		rb_raise(rb_eArgError, "wrong argument type, expected KDE::ConfigSkeletonItem\n");
 	}
 	
 	smokeruby_object *c = value_obj_info(argv[0]);
@@ -254,7 +254,7 @@ static VALUE new_kconfigskeleton_stringlist_item(int argc, VALUE * argv, VALUE s
 
 	QStringList * reference = new QStringList();
     VALUE list = argv[2];
-	int count = RARRAY(list)->len;
+	int count = RARRAY_LEN(list);
 	for(int i = 0; i < count; i++) {
 		VALUE item = rb_ary_entry(list, i);
 		reference->append(QString::fromLatin1(StringValuePtr(item)));
@@ -269,7 +269,7 @@ static VALUE new_kconfigskeleton_stringlist_item(int argc, VALUE * argv, VALUE s
 	} else if (argc == 4) {
 		QStringList defaultList;
 		list = argv[3];
-		int count = RARRAY(list)->len;
+		int count = RARRAY_LEN(list);
 		for(int i = 0; i < count; i++) {
 			VALUE item = rb_ary_entry(list, i);
 			defaultList.append(QString::fromLatin1(StringValuePtr(item)));
