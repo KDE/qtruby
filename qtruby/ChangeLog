@@ -1,3 +1,7 @@
+2009-02-07  Richard Dale  <richard.j.dale@gmail.com>
+	* Add a Qt::dynamic_cast method as a synonym with a less clunky name for 
+	  Qt::Internal.cast_object_to
+
 2009-02-04  Richard Dale  <richard.j.dale@gmail.com>
 	* In Ruby 1.9.1 the arity of a block with no arguments is 0, whereas in 
 	  Ruby 1.8.x it is -1. This meant that blocks passed to QtRuby 
