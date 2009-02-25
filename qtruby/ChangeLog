@@ -1,3 +1,7 @@
+2009-02-25  Richard Dale  <richard.j.dale@gmail.com>
+	* Restored the note in the COPYING file about having permission from 
+Trolltech, now Qt Software, to use the 'Qt' in QtRuby.
+
 2009-02-07  Richard Dale  <richard.j.dale@gmail.com>
 	* Add a Qt::dynamic_cast method as a synonym with a less clunky name for 
 	  Qt::Internal.cast_object_to
