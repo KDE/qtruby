@@ -1,3 +1,6 @@
+2009-02-02  Richard Dale  <richard.j.dale@gmail.com>
+	* Make the plasma extension build with Ruby 1.9
+
 2008-10-30  Richard Dale  <richard.j.dale@gmail.com>
 * Separated the script engine plugins from the plasma ruby extension and moved
   the script engine code to kdebase with the other script engines

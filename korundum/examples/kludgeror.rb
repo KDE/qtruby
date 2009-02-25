@@ -4,20 +4,20 @@
 # -- gg.
 # AK - ported to ruby
 
-require 'Korundum'
+require 'korundum4'
 
-opt =     [ [ "+[url]",      "An URL to open at startup.",         ""            ],
-            [ "z",           "A dummy binary option.",             ""            ],
-            [ "baz <file>",  "A long option with arg.",            ""            ],
-            [ "boz <file>",  "Same as above with default value",   "default.txt" ],
-          ]            
+# Qt::Internal::setDebug Qt::QtDebugChannel::QTDB_ALL
+# Qt.debug_level = Qt::DebugLevel::High
 
-Qt::Internal::setDebug Qt::QtDebugChannel::QTDB_ALL
-Qt.debug_level = Qt::DebugLevel::High
+aboutData = KDE::AboutData.new("kludgeror", "Kludgeror", KDE.ki18n("A basic web browser"), "0.1")
+KDE::CmdLineArgs.init(ARGV, aboutData)
+cmdlineoptions = KDE::CmdLineOptions.new()
+cmdlineoptions.add("+[url]", KDE.ki18n("An URL to open at startup."))
+cmdlineoptions.add("z", KDE.ki18n("A dummy binary option."))
+cmdlineoptions.add("baz <file>", KDE.ki18n("A long option with arg."))
+cmdlineoptions.add("boz <file>", KDE.ki18n("Same as above with default value."), "default.txt")
+KDE::CmdLineArgs.addCmdLineOptions(cmdlineoptions)
 
-about = KDE::AboutData.new("kludgeror", "Kludgeror", "0.1", "A basic web browser")
-KDE::CmdLineArgs::init(ARGV.length + 1, [$0] + ARGV, about)
-KDE::CmdLineArgs::addCmdLineOptions opt
 args = KDE::CmdLineArgs::parsedArgs
 
 a = KDE::Application.new # BUG, application shouldn't be needed at the top, lets fix this...
@@ -63,7 +63,7 @@ LOC_ED  = 322
 ERASE_B = 323
 BACK_B  = 324
 
-url = (args.count > 1) ? args.url(0) : KDE::URL.new("http://loki:8080/xml/index.xml")
+url = (args.count > 1) ? args.url(0) : KDE::Url.new("http://loki:8080/xml/index.xml")
 
 puts "Dummy z option activated." if args.isSet "z"
 puts "Dummy baz option has value: #{args.getOption "baz"}" if args.isSet "baz"

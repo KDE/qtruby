@@ -1365,7 +1365,11 @@ qt_signal(int argc, VALUE * argv, VALUE self)
 		return Qfalse;
 	}
 
+#if RUBY_VERSION >= 0x10900
+	QLatin1String signalname(rb_id2name(rb_frame_callee()));
+#else
 	QLatin1String signalname(rb_id2name(rb_frame_last_func()));
+#endif
 	VALUE metaObject_value = rb_funcall(qt_internal_module, rb_intern("getMetaObject"), 2, Qnil, self);
 
 	smokeruby_object *ometa = value_obj_info(metaObject_value);
@@ -2341,6 +2345,7 @@ Init_qtruby4()
     rb_define_module_function(qt_internal_module, "create_qt_class", (VALUE (*) (...)) create_qt_class, 2);
     rb_define_module_function(qt_internal_module, "create_qobject_class", (VALUE (*) (...)) create_qobject_class, 2);
     rb_define_module_function(qt_internal_module, "cast_object_to", (VALUE (*) (...)) cast_object_to, 2);
+    rb_define_module_function(qt_module, "dynamic_cast", (VALUE (*) (...)) cast_object_to, 2);
     rb_define_module_function(qt_internal_module, "kross2smoke", (VALUE (*) (...)) kross2smoke, 2);
     rb_define_module_function(qt_internal_module, "set_qtruby_embedded", (VALUE (*) (...)) set_qtruby_embedded_wrapped, 1);
     

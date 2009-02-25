@@ -2525,7 +2525,7 @@ module Qt
 		# wrapped in a new ruby variable of type T_DATA
 		def Internal.try_initialize(instance, *args)
 			initializer = instance.method(:initialize)
-			catch "newqt" do
+			catch :newqt do
 				initializer.call(*args)
 			end
 		end
@@ -2535,7 +2535,7 @@ module Qt
 		# if no args were passed to the block. Or otherwise,
 		# run the block in the context of the arg.
 		def Internal.run_initializer_block(instance, block)
-			if block.arity == -1
+			if block.arity == -1 || block.arity == 0
 				instance.instance_eval(&block)
 			elsif block.arity == 1
 				block.call(instance)
