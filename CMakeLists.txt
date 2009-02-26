@@ -46,6 +46,16 @@ set(SOLID_ENABLED "no")
 set(PLASMA_ENABLED "no")
 
 if(RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_PATH)
+   EXECUTE_PROCESS(COMMAND ${RUBY_EXECUTABLE} -e "print RUBY_VERSION"
+      OUTPUT_VARIABLE RUBY_VERSION)
+
+    STRING(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]+.*" "\\1" RUBY_VERSION_MAJOR "${RUBY_VERSION}")
+    STRING(REGEX REPLACE "^[0-9]+\\.([0-9])+\\.[0-9]+.*" "\\1" RUBY_VERSION_MINOR "${RUBY_VERSION}")
+    STRING(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" RUBY_VERSION_PATCH "${RUBY_VERSION}")
+
+    # compute an overall version number which can be compared at once
+    MATH(EXPR RUBY_VERSION_NUMBER "${RUBY_VERSION_MAJOR}*10000 + ${RUBY_VERSION_MINOR}*100 + ${RUBY_VERSION_PATCH}")
+
     if(ENABLE_QTRUBY)
         add_subdirectory( qtruby )
         set(QTRUBY_ENABLED "yes")
