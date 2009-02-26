@@ -86,6 +86,54 @@ public:
 
 };
 
+class SmokeClass {
+    Smoke::Class *_c;
+    Smoke *_smoke;
+    Smoke::Index _id;
+public:
+    SmokeClass(const SmokeType &t) {
+	_smoke = t.smoke();
+	_id = t.classId();
+	_c = _smoke->classes + _id;
+    }
+    SmokeClass(Smoke *smoke, Smoke::Index id) : _smoke(smoke), _id(id) {
+	_c = _smoke->classes + _id;
+    }
+
+    Smoke *smoke() const { return _smoke; }
+    const Smoke::Class &c() const { return *_c; }
+    Smoke::Index classId() const { return _id; }
+    const char *className() const { return _c->className; }
+    Smoke::ClassFn classFn() const { return _c->classFn; }
+    Smoke::EnumFn enumFn() const { return _c->enumFn; }
+    bool operator ==(const SmokeClass &b) const {
+	const SmokeClass &a = *this;
+	if(a.className() == b.className()) return true;
+	if(a.className() && b.className() && qstrcmp(a.className(), b.className()) == 0)
+	    return true;
+	return false;
+    }
+    bool operator !=(const SmokeClass &b) const {
+	const SmokeClass &a = *this;
+	return !(a == b);
+    }
+    bool isa(const SmokeClass &sc) const {
+	// This is a sick function, if I do say so myself
+	if(*this == sc) return true;
+	Smoke::Index *parents = _smoke->inheritanceList + _c->parents;
+	for(int i = 0; parents[i]; i++) {
+	    if(SmokeClass(_smoke, parents[i]).isa(sc)) return true;
+	}
+	return false;
+    }
+
+    unsigned short flags() const { return _c->flags; }
+    bool hasConstructor() const { return flags() & Smoke::cf_constructor; }
+    bool hasCopy() const { return flags() & Smoke::cf_deepcopy; }
+    bool hasVirtual() const { return flags() & Smoke::cf_virtual; }
+    bool hasFire() const { return !(flags() & Smoke::cf_undefined); }
+};
+
 /*
  * Simply using typeids isn't enough for signals/slots. It will be possible
  * to declare signals and slots which use arguments which can't all be
