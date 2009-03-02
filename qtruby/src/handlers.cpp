@@ -707,7 +707,6 @@ construct_copy(smokeruby_object *o)
         ccSig = ccSig.mid(pos + strlen("::"));
     }
     ccSig.append("#");
-
     Smoke::ModuleIndex ccId = o->smoke->findMethodName(className, ccSig);
 
     char *ccArg = new char[classNameLen + 8];
