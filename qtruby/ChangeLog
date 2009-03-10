@@ -1,6 +1,13 @@
+2009-03-10  Richard Dale  <richard.j.dale@gmail.com>
+	* Change the license text in the QtRuby headers to LGPL
+
+2009-03-02  Richard Dale  <richard.j.dale@gmail.com>
+	* Add method_missing and const_missing handlers for top level modules such
+	  as Soprano
+
 2009-02-25  Richard Dale  <richard.j.dale@gmail.com>
 	* Restored the note in the COPYING file about having permission from 
-Trolltech, now Qt Software, to use the 'Qt' in QtRuby.
+	  Trolltech, now Qt Software, to use the 'Qt' in QtRuby.
 
 2009-02-07  Richard Dale  <richard.j.dale@gmail.com>
 	* Add a Qt::dynamic_cast method as a synonym with a less clunky name for 
