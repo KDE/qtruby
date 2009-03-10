@@ -34,14 +34,14 @@ class SopranoAdapter < ActiveRdfAdapter
       @backend = Soprano.discoverBackendByName(@backend_name)
       settings = []
       if @backend_name =~ /^virtuoso/
-        host = params[:host] || 'localhost'
-        port = params[:port] || 1111
-        username = params[:username] || 'dba'
-        password = params[:password] || 'dba'
-        settings << Soprano::BackendSetting.new(Soprano::BackendOptionHost, host)
-        settings << Soprano::BackendSetting.new(Soprano::BackendOptionPort, port)
-        settings << Soprano::BackendSetting.new(Soprano::BackendOptionUsername, username)
-        settings << Soprano::BackendSetting.new(Soprano::BackendOptionPassword, password)
+        @host = params[:host] || 'localhost'
+        @port = params[:port] || 1111
+        @username = params[:username] || 'dba'
+        @password = params[:password] || 'dba'
+        settings << Soprano::BackendSetting.new(Soprano::BackendOptionHost, @host)
+        settings << Soprano::BackendSetting.new(Soprano::BackendOptionPort, @port)
+        settings << Soprano::BackendSetting.new(Soprano::BackendOptionUsername, @username)
+        settings << Soprano::BackendSetting.new(Soprano::BackendOptionPassword, @password)
       end
       @model = @backend.createModel(settings)
     else
@@ -64,7 +64,7 @@ class SopranoAdapter < ActiveRdfAdapter
   # load a file from the given location with the given syntax into the model.
   def load(location, syntax="n-triples")
     if @backend_name
-      system("sopranocmd --backend #{@backend_name} --serialization #{syntax} import #{location}")
+      system("sopranocmd --backend #{@backend_name} --host #{@host} --port #{@port} --username #{@username} --password #{@password} --serialization #{syntax} import #{location}")
     else
       system("sopranocmd --dbus #{@service} --serialization #{syntax} --model #{@model_name} import #{location}")
     end

@@ -1,3 +1,7 @@
+2009-03-10  Richard Dale <richard.j.dale@gmail.com>
+* Add port, host, username and password options to the bulk load option for
+virtuoso backends with the bulk loading option in the ActiveRDF adapter
+
 2009-03-03  Richard Dale <richard.j.dale@gmail.com>
 * Fixed a bug in the ActiveRDF adapter which meant it wouldn't work with 
 activerdf 1.6.11
