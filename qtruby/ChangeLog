@@ -8,6 +8,8 @@
 		  should be searched
 		- A '-s' option attempts to show matching methods with Ruby types
 	* Removed the rbqtsh program as it was never really very useful
+	* The 'Type' enum was not working with the Qt::Graphics* classes, and so
+	  special case them as Ruby constants
 
 2009-03-10  Richard Dale  <richard.j.dale@gmail.com>
 	* Change the license text in the QtRuby headers to LGPL
