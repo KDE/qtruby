@@ -3,109 +3,129 @@
 # Note: this program is part of qtruby and makes use of its internal functions.
 #       You should not rely on those in your own programs.
 
-require 'getopts'
-getopts('r:hvimp')
+require 'Qt4'
+require 'getoptlong'
 
-case File.basename $0
-when "rbqtapi"
-   require 'Qt'
-when "rbqt3api"
-   require 'Qt3'
-when "rbqt4api"
-   require 'Qt4'
-when "rbkdeapi"
-   require 'Korundum'
-when "rbkde4api"
-   require 'korundum4'
-when "rbplasmaapi"
-   require 'plasma_applet'
+$usage = <<USAGE
+rbqtapi - a qtruby introspection tool
+
+usage: rbqtapi [-h] [-v] [-p] [-m <re> [-i]] [-r <extension> ...] [<class>]
+
+options:
+    -m <re> : find all functions matching regular expression/keyword <re>
+    -i : together with -m, performs a case insensitive search
+    -p : also display inherited methods for <class>
+    -s | show method names with ruby types
+    -r : require a qtruby extension
+    -v : print qtruby and Qt versions
+    -h : print this help message
+USAGE
+
+pattern = helpOpt = matchOpt = parentsOpt = showOpt = versionOpt = insensitiveOpt = nil
+
+opts = GetoptLong.new(
+  [ "--help", "-h", GetoptLong::NO_ARGUMENT ],
+  [ "--match", "-m", GetoptLong::REQUIRED_ARGUMENT ],
+  [ "--parents", "-p", GetoptLong::NO_ARGUMENT ],
+  [ "--show", "-s", GetoptLong::NO_ARGUMENT ],
+  [ "--version", "-v", GetoptLong::NO_ARGUMENT ],
+  [ "--insensitive", "-i", GetoptLong::NO_ARGUMENT ],
+  [ "--require", "-r", GetoptLong::REQUIRED_ARGUMENT ]
+)
+
+opts.each do |opt, arg|
+  case opt
+  when '--parents'
+    parentsOpt = true
+  when '--insensitive'
+    insensitiveOpt = true
+  when '--match'
+    matchOpt = arg
+  when '--show'
+    showOpt = arg
+  when '--version'
+    versionOpt = true
+  when '--help'
+    helpOpt = true
+  when '--require'
+    require(arg)
+  end
 end
 
-if $OPT_v
-    # TODO add and use version number #{Qt::VERSION}
-    print "qtruby using Qt-#{Qt::version}\n"
+if versionOpt
+    print "QtRuby #{Qt::qtruby_version} using Qt-#{Qt::version}\n"
     exit 0 
-elsif $OPT_h
+elsif helpOpt
     print $usage
     exit 0
 end
 
-if $OPT_m
-    while 1
-        line = STDIN.readline.chomp
-        line.gsub!(/^Q(?=[A-Z])/,'Qt::')
-        line.gsub!(/^K/,'KDE::') unless line =~ /^(KDE)|(KIO)|(KParts)|(KNS)/
-        classid = Qt::Internal::find_pclassid($_)
-        puts "__START__"
-        if classid
-            a = Qt::Internal::findAllMethods(classid)
-            ids = (a.keys.sort.map{|k|a[k]}).flatten
-            candidates = Qt::dumpCandidates(ids)
-            sup = []
-            Qt::Internal::getAllParents(classid, sup)
-            sup.each {
-                |sup_item|
-                a = Qt::Internal::findAllMethods(sup_item)
-                ids = (a.keys.sort.map{|k|a[k]}).flatten
-                candidates << Qt::Internal::dumpCandidates(ids)
-            }
-            candidates.gsub("\t","") # erm. whats the "s" mean on s/\t//gs ?
-            print candidates
-        end
-        puts "__END__"
-    end
+if matchOpt
+  pattern = insensitiveOpt ? Regexp.new(matchOpt, Regexp::IGNORECASE) : Regexp.new(matchOpt)
 end
 
-search_string = ARGV[0] ? ARGV[0].dup : nil
-search_string.gsub!(/^Q(?=[A-Z])/,'Qt::') if search_string
-# search_string.gsub!(/^K(?=[^D][^E])/,'KDE::') if search_string
-search_string.gsub!(/^K/,'KDE::') unless search_string.nil? or search_string =~ /^(KDE)|(KIO)|(KParts)|(KNS)/
-classid = search_string ? Qt::Internal::find_pclassid(search_string) : 1
-if classid == 0
-    puts "Class #{search_string} not found"
-    exit 1
+classnames = []
+if ARGV.length == 0
+  classnames = Qt::Internal.classes.keys
+else
+  ARGV.each do |classname|
+    classid = Qt::Internal::find_pclassid(classname)
+    if !classid.index
+      puts "ERROR: class '#{classname}' not found"
+      exit 1
+    end
+    classnames << classname
+  end
 end
-regexp = nil
-regexp = ( $OPT_i ? Regexp.new($OPT_r, Regexp::IGNORECASE) : Regexp.new($OPT_r) ) if $OPT_r
+
 candidates = ""
-while true
-    a = Qt::Internal::findAllMethods(classid)
-    break if a.nil? 
-    ids = (a.keys.sort.map{|k|a[k]}).flatten
-    candidates = Qt::Internal::dumpCandidates(ids)
-    if $OPT_p and !search_string.empty? and classid
-	sup = []
-        Qt::Internal::getAllParents(classid, sup)
-	sup.each {
-	    |sup_item|
-            a = Qt::Internal::findAllMethods(sup_item)
-            ids = (a.keys.sort.map{|k|a[k]}).flatten
-            candidates << Qt::Internal::dumpCandidates(ids)
-        }
+
+classnames.each do |classname|
+  classid = Qt::Internal::find_pclassid(classname)
+  if !classid.index
+    next
+  end
+
+  a = Qt::Internal.findAllMethods(classid)
+  ids = (a.keys.sort.map{|k|a[k]}).flatten
+  candidates << Qt::Internal::dumpCandidates(ids)
+
+  if parentsOpt
+    superclasses = []
+    Qt::Internal::getAllParents(classid, superclasses)
+    superclasses.each do |klass|
+        a = Qt::Internal::findAllMethods(klass)
+        ids = (a.keys.sort.map{|k|a[k]}).flatten
+        candidates << Qt::Internal::dumpCandidates(ids)
     end
-    if regexp
-	candidates.split("\n").each {
-	    |candidate|
-	    puts candidate if candidate =~ regexp
-	}
-    else
-	print candidates
-    end
-    break unless search_string.nil?
-    classid += 1
+  end
 end
 
-BEGIN {
-$usage = <<USAGE
-rbqtapi - a qtruby introspection tool\t(c) Germain Garand 2003 <germain\@ebooksfrance.org>
+class String
+  def to_ruby_method(show)
+    if !show
+      return self
+    end
 
-usage: rbqtapi [-r <re>] [<class>]
+    method_name = self.clone
+    method_name.gsub!(/char*/, 'String')
+    method_name.gsub!(/[*&]/, '')
+    method_name.gsub!(/(static|void|const) /, '')
+    method_name.gsub!(/ const/, '')
+    method_name.gsub!(/enum /, 'CONSTANT ')
+    method_name.gsub!(/QString/, 'String')
+    method_name.gsub!(/bool/, 'Boolean')
+    method_name.gsub!(/float|double|qreal/, 'Float')
+    method_name.gsub!(/u?int[0-9]?[0-9]?/, 'Integer')
+    method_name.gsub!(/Q(List|Vector)<[^>]+>/, 'Array')
+    method_name.gsub!(/Q(Hash|Map)<[^>]+>/, 'Hash')
+    return method_name
+  end
+end
 
-options:
-\t-r <re> : find all functions matching regular expression/keyword <re>
-\t-i : together with -r, performs a case insensitive search
-\t-p : display also inherited methods for <class>.
-\t-v : print qtruby and Qt versions
-\t-h : print this help message
-USAGE
-}
+candidates.gsub!("\t", "")
+candidates.each do |candidate|
+  print candidate.to_ruby_method(showOpt) if pattern.nil? || pattern =~ candidate
+end
+
+# kate: space-indent on; indent-width 2; replace-tabs on; mixed-indent off;

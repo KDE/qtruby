@@ -1,3 +1,14 @@
+2009-03-11  Richard Dale  <richard.j.dale@gmail.com>
+	* Rewritten the rbqtapi command line tool to simplify the code
+		- Added a '-r' or '--require' option for specifying QtRuby extension.
+		  This means that there is no longer a need for different sym links to
+		  the script for each QtRuby extension.
+		- One or more class names can be specifed. If no class name is given
+		  it means that all of the classes in the loaded QtRuby extensions 
+		  should be searched
+		- A '-s' option attempts to show matching methods with Ruby types
+	* Removed the rbqtsh program as it was never really very useful
+
 2009-03-10  Richard Dale  <richard.j.dale@gmail.com>
 	* Change the license text in the QtRuby headers to LGPL
 
