@@ -159,6 +159,10 @@ module KDE
 		end
 	end
 
+	class Archive < Qt::Base
+		UnknownTime = Qt::Enum.new(-1, "KArchive")
+	end
+
 	class ArchiveEntry < Qt::Base
 		def name(*args)
 			method_missing(:name, *args)
