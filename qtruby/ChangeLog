@@ -1,3 +1,6 @@
+2009-03-13  Richard Dale  <richard.j.dale@gmail.com>
+	* Improved the rbqtapi '-s' option
+
 2009-03-11  Richard Dale  <richard.j.dale@gmail.com>
 	* Rewritten the rbqtapi command line tool to simplify the code
 		- Added a '-r' or '--require' option for specifying QtRuby extension.
