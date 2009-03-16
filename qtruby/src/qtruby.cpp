@@ -1939,7 +1939,7 @@ static VALUE
 dispose(VALUE self)
 {
     smokeruby_object *o = value_obj_info(self);
-    if(!o || !o->ptr) { return Qnil; }
+    if (o == 0 || o->ptr == 0) { return Qnil; }
 
     const char *className = o->smoke->classes[o->classId].className;
 	if(do_debug & qtdb_gc) printf("Deleting (%s*)%p\n", className, o->ptr);
@@ -1963,7 +1963,7 @@ dispose(VALUE self)
 	o->ptr = 0;
 	o->allocated = false;
 	
-	return self;
+	return Qnil;
 }
 
 static VALUE

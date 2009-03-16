@@ -1,3 +1,9 @@
+2009-03-16  Richard Dale  <richard.j.dale@gmail.com>
+	* Make the dispose() method always return nil. Otherwise, when an instance
+	  is deleted from within irb, it makes irb crash when it tries to run
+	  run inspect() on the newly deleted value returned by dispose(). Thanks
+	  to Stefano Crocco for finding the problem.
+
 2009-03-13  Richard Dale  <richard.j.dale@gmail.com>
 	* Improved the rbqtapi '-s' option
 
