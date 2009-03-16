@@ -3,6 +3,16 @@
 	  is deleted from within irb, it makes irb crash when it tries to run
 	  run inspect() on the newly deleted value returned by dispose(). Thanks
 	  to Stefano Crocco for finding the problem.
+	* A problem has been found with QtRuby when it is run with Ruby 1.9.1
+	  and GC.stess is true. Thanks to Davor Ocelic for reporting it.
+	  In the smokeruby_mark() function called during garbage collection, 
+	  any virtual methods which are called on the instances being checked 
+	  could have overriden by Ruby methods.  So the Wt::Ruby runtime uses 
+	  'respond_to()' to find out whether they have been overriden.
+	  However, this involves calling 'rb_intern()' on the method name,
+	  which means memory could be allocated, giving an error when running under
+	  GC.stress mode. So workround it by pre-allocating any strings with
+	  rb_intern() for all the C++ methods used in smokeruby_mark()
 
 2009-03-13  Richard Dale  <richard.j.dale@gmail.com>
 	* Improved the rbqtapi '-s' option

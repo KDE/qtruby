@@ -2360,6 +2360,34 @@ Init_qtruby4()
     rb_define_module_function(qt_module, "qRegisterResourceData", (VALUE (*) (...)) q_register_resource_data, 4);
     rb_define_module_function(qt_module, "qUnregisterResourceData", (VALUE (*) (...)) q_unregister_resource_data, 4);
 
+    // A problem has been found with QtRuby when it is run with Ruby 1.9.1
+    // and GC.stess is true.
+    // In the smokeruby_mark() function called during garbage collection, 
+    // any virtual methods which are called on the instances being checked 
+    // could have overriden by Ruby methods.  So the Wt::Ruby runtime uses 
+    // 'respond_to()' to find out whether they have been overriden.
+    // However, this involves calling 'rb_intern()' on the method name,
+    // which means memory could be allocated, giving an error when running under
+    // GC.stress mode. So workround it by pre-allocating any strings with
+    // rb_intern() for all the C++ methods used in smokeruby_mark()
+    rb_intern("children");
+    rb_intern("childItems");
+    rb_intern("childCount");
+    rb_intern("child");
+    rb_intern("hasChildren");
+    rb_intern("parent");
+    rb_intern("parentItem");
+    rb_intern("item");
+    rb_intern("items");
+    rb_intern("rowCount");
+    rb_intern("rowAt");
+    rb_intern("columnCount");
+    rb_intern("elementAt");
+    rb_intern("columnAt");
+    rb_intern("topLevelItem");
+    rb_intern("itemAt");
+    rb_intern("internalPointer");
+
 	rb_require("Qt/qtruby4.rb");
 
     // Do package initialization
