@@ -1,3 +1,6 @@
+2009-03-17  Richard Dale <richard.j.dale@gmail.com>
+* Added command line tool example similar to 'sopranocmd'
+
 2009-03-10  Richard Dale <richard.j.dale@gmail.com>
 * Add port, host, username and password options to the bulk load option for
 virtuoso backends with the bulk loading option in the ActiveRDF adapter
