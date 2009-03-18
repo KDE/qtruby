@@ -27,12 +27,8 @@
 
 #include <nepomuk/class.h>
 #include <nepomuk/property.h>
-#include <nepomuk/query.h>
-#include <nepomuk/queryserviceclient.h>
 #include <nepomuk/resource.h>
-#include <nepomuk/result.h>
 #include <nepomuk/tag.h>
-#include <nepomuk/term.h>
 #include <nepomuk/variant.h>
 
 void marshall_QHashQUrlNepomukVariant(Marshall *m) {
@@ -122,8 +118,6 @@ void marshall_QHashQUrlNepomukVariant(Marshall *m) {
 
 DEF_VALUELIST_MARSHALLER( NepomukResourceList, QList<Nepomuk::Resource>, Nepomuk::Resource )
 DEF_VALUELIST_MARSHALLER( NepomukTagList, QList<Nepomuk::Tag>, Nepomuk::Tag )
-DEF_VALUELIST_MARSHALLER( NepomukSearchResultList, QList<Nepomuk::Search::Result>, Nepomuk::Search::Result )
-DEF_VALUELIST_MARSHALLER( NepomukSearchTermList, QList<Nepomuk::Search::Term>, Nepomuk::Search::Term )
 DEF_VALUELIST_MARSHALLER( NepomukTypesClassList, QList<Nepomuk::Types::Class>, Nepomuk::Types::Class )
 DEF_VALUELIST_MARSHALLER( NepomukTypesPropertyList, QList<Nepomuk::Types::Property>, Nepomuk::Types::Property )
 
@@ -132,10 +126,6 @@ TypeHandler Nepomuk_handlers[] = {
     { "QList<Nepomuk::Resource>&", marshall_NepomukResourceList },
     { "QList<Nepomuk::Tag>", marshall_NepomukTagList },
     { "QList<Nepomuk::Tag>&", marshall_NepomukTagList },
-    { "QList<Nepomuk::Search::Result>", marshall_NepomukSearchResultList },
-    { "QList<Nepomuk::Search::Result>&", marshall_NepomukSearchResultList },
-    { "QList<Nepomuk::Search::Term>", marshall_NepomukSearchTermList },
-    { "QList<Nepomuk::Search::Term>&", marshall_NepomukSearchTermList },
     { "QList<Nepomuk::Types::Class>", marshall_NepomukTypesClassList },
     { "QList<Nepomuk::Types::Class>&", marshall_NepomukTypesClassList },
     { "QList<Nepomuk::Types::Property>", marshall_NepomukTypesPropertyList },
