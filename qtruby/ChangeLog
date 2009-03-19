@@ -1,3 +1,10 @@
+2009-03-19  Richard Dale  <richard.j.dale@gmail.com>
+	* The rbqtap was calling 'each' on a string which no longer works in Ruby
+	  1.9.1 as they aren't Enumerable. So use split instead so that the code
+	  works on both Ruby 1.8.x and 1.9.1. Thanks to Youhei Kondou for the bug
+	  report and fix.
+	* The inspect method for Qt::SizePolicy instances was wrong
+
 2009-03-16  Richard Dale  <richard.j.dale@gmail.com>
 	* Make the dispose() method always return nil. Otherwise, when an instance
 	  is deleted from within irb, it makes irb crash when it tries to run

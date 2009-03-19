@@ -1767,12 +1767,12 @@ module Qt
 	class SizePolicy < Qt::Base
 		def inspect
 			str = super
-			str.sub(/>$/, " horData=%d, verData=%d>" % [horData, verData])
+			str.sub(/>$/, " horizontalPolicy=%d, verticalPolicy=%d>" % [horizontalPolicy, verticalPolicy])
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, "\n horData=%d,\n verData=%d>" % [horData, verData])
+			pp.text str.sub(/>$/, "\n horizontalPolicy=%d,\n verticalPolicy=%d>" % [horizontalPolicy, verticalPolicy])
 		end
 	end
 
