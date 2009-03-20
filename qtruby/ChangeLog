@@ -1,3 +1,13 @@
+2009-03-20  Richard Dale  <richard.j.dale@gmail.com>
+	* Remove 'LIBRARY' from this line in qtruby/src/CMakeLists.txt:
+
+	  install(TARGETS qtruby4shared 
+	          LIBRARY DESTINATION 
+	          ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX} )
+
+	  It was causing problems with a configuration error when building QtRuby
+	  on Windows. Thanks to David Palacio for reporting the problem
+
 2009-03-19  Richard Dale  <richard.j.dale@gmail.com>
 	* The rbqtap was calling 'each' on a string which no longer works in Ruby
 	  1.9.1 as they aren't Enumerable. So use split instead so that the code
