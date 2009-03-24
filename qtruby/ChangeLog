@@ -1,3 +1,6 @@
+2009-03-24  Richard Dale  <richard.j.dale@gmail.com>
+	* Raised the QtRuby version to 2.0.3 for the RubyForge release
+
 2009-03-20  Richard Dale  <richard.j.dale@gmail.com>
 	* Remove 'LIBRARY' from this line in qtruby/src/CMakeLists.txt:
 
