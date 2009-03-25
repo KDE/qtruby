@@ -10,9 +10,9 @@
 /***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
+ *   it under the terms of the GNU Lesser General Public License as        *
+ *   published by the Free Software Foundation; either version 2 of the    *
+ *   License, or (at your option) any later version.                       *
  *                                                                         *
  ***************************************************************************/
 =end
@@ -990,19 +990,23 @@ module Qt
 		end
 	end
 
-	class GraphicsItemGroup < Qt::Base 
+	class GraphicsItemGroup < Qt::Base
+		Type = 10
+
 		def type(*args)
 			method_missing(:type, *args)
 		end
 	end
 
-	class GraphicsLineItem < Qt::Base 
+	class GraphicsLineItem < Qt::Base
+		Type = 6
 		def type(*args)
 			method_missing(:type, *args)
 		end
 	end
 
 	class GraphicsPathItem < Qt::Base 
+		Type = 2
 		def type(*args)
 			method_missing(:type, *args)
 		end
@@ -1014,13 +1018,22 @@ module Qt
 		end
 	end
 
-	class GraphicsPolygonItem < Qt::Base 
+	class GraphicsPolygonItem < Qt::Base
+		Type = 5
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class GraphicsProxyWidget < Qt::Base
+		Type = 12
 		def type(*args)
 			method_missing(:type, *args)
 		end
 	end
 
 	class GraphicsRectItem < Qt::Base 
+		Type = 3
 		def type(*args)
 			method_missing(:type, *args)
 		end
@@ -1057,12 +1070,28 @@ module Qt
 	end
 
 	class GraphicsSimpleTextItem < Qt::Base 
+		Type = 9
 		def type(*args)
 			method_missing(:type, *args)
 		end
 	end
 
-	class GraphicsTextItem < Qt::Base 
+	class GraphicsSvgItem < Qt::Base 
+		Type = 13
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class GraphicsTextItem < Qt::Base
+		Type = 8
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
+	class GraphicsWidget < Qt::Base
+		Type = 11
 		def type(*args)
 			method_missing(:type, *args)
 		end
@@ -1738,12 +1767,12 @@ module Qt
 	class SizePolicy < Qt::Base
 		def inspect
 			str = super
-			str.sub(/>$/, " horData=%d, verData=%d>" % [horData, verData])
+			str.sub(/>$/, " horizontalPolicy=%d, verticalPolicy=%d>" % [horizontalPolicy, verticalPolicy])
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, "\n horData=%d,\n verData=%d>" % [horData, verData])
+			pp.text str.sub(/>$/, "\n horizontalPolicy=%d,\n verticalPolicy=%d>" % [horizontalPolicy, verticalPolicy])
 		end
 	end
 

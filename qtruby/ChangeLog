@@ -1,9 +1,62 @@
+2009-03-20  Richard Dale  <richard.j.dale@gmail.com>
+	* Remove 'LIBRARY' from this line in qtruby/src/CMakeLists.txt:
+
+	  install(TARGETS qtruby4shared 
+	          LIBRARY DESTINATION 
+	          ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX} )
+
+	  It was causing problems with a configuration error when building QtRuby
+	  on Windows. Thanks to David Palacio for reporting the problem
+
+2009-03-19  Richard Dale  <richard.j.dale@gmail.com>
+	* The rbqtap was calling 'each' on a string which no longer works in Ruby
+	  1.9.1 as they aren't Enumerable. So use split instead so that the code
+	  works on both Ruby 1.8.x and 1.9.1. Thanks to Youhei Kondou for the bug
+	  report and fix.
+	* The inspect method for Qt::SizePolicy instances was wrong
+
+2009-03-16  Richard Dale  <richard.j.dale@gmail.com>
+	* Make the dispose() method always return nil. Otherwise, when an instance
+	  is deleted from within irb, it makes irb crash when it tries to run
+	  run inspect() on the newly deleted value returned by dispose(). Thanks
+	  to Stefano Crocco for finding the problem.
+	* A problem has been found with QtRuby when it is run with Ruby 1.9.1
+	  and GC.stess is true. Thanks to Davor Ocelic for reporting it.
+	  In the smokeruby_mark() function called during garbage collection, 
+	  any virtual methods which are called on the instances being checked 
+	  could have overriden by Ruby methods.  So the Wt::Ruby runtime uses 
+	  'respond_to()' to find out whether they have been overriden.
+	  However, this involves calling 'rb_intern()' on the method name,
+	  which means memory could be allocated, giving an error when running under
+	  GC.stress mode. So workround it by pre-allocating any strings with
+	  rb_intern() for all the C++ methods used in smokeruby_mark()
+
+2009-03-13  Richard Dale  <richard.j.dale@gmail.com>
+	* Improved the rbqtapi '-s' option
+
+2009-03-11  Richard Dale  <richard.j.dale@gmail.com>
+	* Rewritten the rbqtapi command line tool to simplify the code
+		- Added a '-r' or '--require' option for specifying QtRuby extension.
+		  This means that there is no longer a need for different sym links to
+		  the script for each QtRuby extension.
+		- One or more class names can be specifed. If no class name is given
+		  it means that all of the classes in the loaded QtRuby extensions 
+		  should be searched
+		- A '-s' option attempts to show matching methods with Ruby types
+	* Removed the rbqtsh program as it was never really very useful
+	* The 'Type' enum was not working with the Qt::Graphics* classes, and so
+	  special case them as Ruby constants
+
+2009-03-10  Richard Dale  <richard.j.dale@gmail.com>
+	* Change the license text in the QtRuby headers to LGPL
+
 2009-03-02  Richard Dale  <richard.j.dale@gmail.com>
 	* Add method_missing and const_missing handlers for top level modules such
 	  as Soprano
 
 2009-02-25  Richard Dale  <richard.j.dale@gmail.com>
-	* Raise the QtRuby version to 2.0.1 for the KDE 4.2.1 release
+	* Restored the note in the COPYING file about having permission from 
+	  Trolltech, now Qt Software, to use the 'Qt' in QtRuby.
 
 2009-02-07  Richard Dale  <richard.j.dale@gmail.com>
 	* Add a Qt::dynamic_cast method as a synonym with a less clunky name for 
