@@ -182,6 +182,19 @@ module Soprano
     end
   end
 
+  class StorageModel < Qt::Base
+    # executeQuery() is a pure virtual method with an optional 
+    # arg. This isn't supported by the smoke code generation
+    # yet, so cater for the optional arg here for now
+    def executeQuery(*args)
+      if args.length == 2
+        super(args[0], args[1], nil)
+      else
+        super
+      end
+    end
+  end
+
   class Client < Qt::Base
     class DBusNodeIterator < Qt::Base
       include Enumerable
@@ -212,8 +225,8 @@ module Soprano
         end
       end
     end
-  end
 
+  end
 end
 
 # kate: space-indent on; indent-width 2; replace-tabs on; mixed-indent off;

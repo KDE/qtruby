@@ -19,18 +19,38 @@ class SopranoAdapter < ActiveRdfAdapter
   # Instantiate the connection with the SPARQL Endpoint.
   # available parameters:
   # * :model => name of model to use, defaults to 'main'
-  def initialize(params = {})  
+  # * :service => DBus service to use, defaults to 'org.soprano.Server'
+  # * :backend => the name of a backend, such as 'virtuoso'
+  def initialize(params = {})
+    super()  
     @reads = true
     @writes = true
 
     @model_name = params[:model] || 'main'
     @caching = params[:caching] || false
+    @backend_name = params[:backend]
 
-    # For accessing the Nepomuk store in KDE, use 'org.kde.NepomukServer'
-    @service = params[:service] || 'org.soprano.Server'
+    if @backend_name
+      @backend = Soprano.discoverBackendByName(@backend_name)
+      settings = []
+      if @backend_name =~ /^virtuoso/
+        @host = params[:host] || 'localhost'
+        @port = params[:port] || 1111
+        @username = params[:username] || 'dba'
+        @password = params[:password] || 'dba'
+        settings << Soprano::BackendSetting.new(Soprano::BackendOptionHost, @host)
+        settings << Soprano::BackendSetting.new(Soprano::BackendOptionPort, @port)
+        settings << Soprano::BackendSetting.new(Soprano::BackendOptionUsername, @username)
+        settings << Soprano::BackendSetting.new(Soprano::BackendOptionPassword, @password)
+      end
+      @model = @backend.createModel(settings)
+    else
+      # For accessing the Nepomuk store in KDE, use 'org.kde.NepomukServer'
+      @service = params[:service] || 'org.soprano.Server'
 
-    @client = Soprano::Client::DBusClient.new(@service)
-    @model = @client.createModel(@model_name)
+      @client = Soprano::Client::DBusClient.new(@service)
+      @model = @client.createModel(@model_name)
+    end
   end
 
   def size
@@ -43,7 +63,11 @@ class SopranoAdapter < ActiveRdfAdapter
 
   # load a file from the given location with the given syntax into the model.
   def load(location, syntax="n-triples")
-    system("sopranocmd --dbus #{@service} --serialization #{syntax} --model #{@model_name} import #{location}")
+    if @backend_name
+      system("sopranocmd --backend #{@backend_name} --host #{@host} --port #{@port} --username #{@username} --password #{@password} --serialization #{syntax} import #{location}")
+    else
+      system("sopranocmd --dbus #{@service} --serialization #{syntax} --model #{@model_name} import #{location}")
+    end
   end
 
   # query datastore with query string (SPARQL), returns array with query results

@@ -34,6 +34,7 @@ DEF_VALUELIST_MARSHALLER( SopranoInferenceRuleList, QList<Soprano::Inference::Ru
 DEF_VALUELIST_MARSHALLER( SopranoInferenceStatementPatternList, QList<Soprano::Inference::StatementPattern>, Soprano::Inference::StatementPattern )
 DEF_VALUELIST_MARSHALLER( SopranoNodeList, QList<Soprano::Node>, Soprano::Node )
 DEF_VALUELIST_MARSHALLER( SopranoStatementList, QList<Soprano::Statement>, Soprano::Statement )
+DEF_VALUELIST_MARSHALLER( SopranoBackendSettingList, QList<Soprano::BackendSetting>, Soprano::BackendSetting )
 
 TypeHandler Soprano_handlers[] = {
 	{ "QList<Soprano::BindingSet>", marshall_SopranoBindingSetList },
@@ -43,7 +44,9 @@ TypeHandler Soprano_handlers[] = {
 	{ "QList<Soprano::Statement>", marshall_SopranoStatementList  },
 	{ "QList<const Soprano::Backend*>", marshall_SopranoBackendList },
 	{ "QList<const Soprano::Parser*>", marshall_SopranoParserList  },
-	{ "QList<const Soprano::Serializer*>", marshall_SopranoBindingSetList },
+    { "QList<const Soprano::Serializer*>", marshall_SopranoBindingSetList },
+    { "QList<Soprano::BackendSetting>", marshall_SopranoBackendSettingList },
+    { "QList<Soprano::BackendSetting>&", marshall_SopranoBackendSettingList },
     { 0, 0 }
 };
 
