@@ -10,6 +10,8 @@
 	  
 	  foo['my_att'] = value
 	  foo.save
+	* QtRuby wasn't building on Mac OS X with a version of Qt built without 
+	  QtDBus support, so add some #ifdefs to fix that
 
 2009-03-24  Richard Dale  <richard.j.dale@gmail.com>
 	* Raised the QtRuby version to 2.0.3 for the RubyForge release
