@@ -1,3 +1,16 @@
+2009-04-07  Richard Dale  <richard.j.dale@gmail.com>
+	* The ActiveRecord based model classes were setting changed values in the 
+	  'attributes' and then saving the changed instance, like this
+ 
+	  foo.attributes['my_att'] = value
+	  foo.save
+
+	  However, this no longer works with ActiveRecord, and the instance can 
+	  be changed more directly like this
+	  
+	  foo['my_att'] = value
+	  foo.save
+
 2009-03-24  Richard Dale  <richard.j.dale@gmail.com>
 	* Raised the QtRuby version to 2.0.3 for the RubyForge release
 

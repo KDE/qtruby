@@ -109,7 +109,7 @@ class ActiveTableModel < Qt::AbstractTableModel
                 value = Time.new(value.hour, value.min, value.sec)
             end
 
-            eval("item.attributes['%s'] = value" % att.gsub(/\./, "'].attributes['"))
+            eval("item['%s'] = value" % att.gsub(/\./, "']['"))
             item.save
             emit dataChanged(index, index)
             return true
