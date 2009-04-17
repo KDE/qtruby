@@ -1,3 +1,9 @@
+2009-04-17  Richard Dale  <richard.j.dale@gmail.com>
+  * When Qt::StandardItemModel#setItemPrototype was used with a 
+    Qt::StandardItem it crashed because the clone() method was using 
+    Object#clone. So special case the clone() method. Thanks to Stefano Crocco
+    for reporting the bug.
+
 2009-04-07  Richard Dale  <richard.j.dale@gmail.com>
 	* The ActiveRecord based model classes were setting changed values in the 
 	  'attributes' and then saving the changed instance, like this
