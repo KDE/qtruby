@@ -30,8 +30,8 @@ set(qtruby_LIB_SRCS qtruby.cpp)
 add_library(qtruby4shared SHARED ${qtrubyshared_LIB_SRCS})
 add_library(qtruby4 MODULE ${qtruby_LIB_SRCS})
 
-target_link_libraries(qtruby4shared ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokeqt)
-target_link_libraries(qtruby4 ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokeqt qtruby4shared)
+target_link_libraries(qtruby4shared ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokeqt)
+target_link_libraries(qtruby4 ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTDBUS_LIBRARY} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY} smokeqt qtruby4shared)
 
 # target_link_libraries(qtrubyinternal ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY})
 
