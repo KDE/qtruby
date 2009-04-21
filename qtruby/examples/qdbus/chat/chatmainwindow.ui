@@ -1,7 +1,4 @@
 <ui version="4.0" >
- <author></author>
- <comment></comment>
- <exportmacro></exportmacro>
  <class>ChatMainWindow</class>
  <widget class="QMainWindow" name="ChatMainWindow" >
   <property name="geometry" >
@@ -144,7 +141,6 @@
    </property>
   </action>
  </widget>
- <pixmapfunction></pixmapfunction>
  <tabstops>
   <tabstop>chatHistory</tabstop>
   <tabstop>messageLineEdit</tabstop>
