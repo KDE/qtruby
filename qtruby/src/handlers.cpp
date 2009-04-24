@@ -623,21 +623,6 @@ resolve_classname_qt(smokeruby_object * o)
 		default:
 			break;
 		}
-	} else if (o->smoke->isDerivedFromByName(o->smoke->classes[o->classId].className, "QObject")) {
-		QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject").index);
-		const QMetaObject * meta = qobject->metaObject();
-
-		while (meta != 0) {
-			o->smoke = Smoke::classMap[meta->className()];
-			if (o->smoke != 0) {
-				o->classId = o->smoke->idClass(meta->className()).index;
-				if (o->classId != 0) {
-					return qtruby_modules[o->smoke].binding->className(o->classId);
-				}
-			}
-
-			meta = meta->superClass();
-		}
 	} else if (o->smoke->isDerivedFromByName(o->smoke->classes[o->classId].className, "QGraphicsItem")) {
 		QGraphicsItem * item = (QGraphicsItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsItem").index);
 		switch (item->type()) {
@@ -1213,6 +1198,7 @@ void marshall_QStringList(Marshall *m) {
 						stringlist->append(QString());
 						continue;
 					}
+
 				stringlist->append(*(qstringFromRString(item)));
 			}
 
@@ -1228,7 +1214,7 @@ void marshall_QStringList(Marshall *m) {
 			if (m->cleanup()) {
 				delete stringlist;
 			}
-	   
+   
 			break;
 		}
 
