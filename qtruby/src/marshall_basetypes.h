@@ -139,13 +139,13 @@ void marshall_from_ruby<SmokeClassWrapper>(Marshall *m)
 template <>
 void marshall_to_ruby<SmokeClassWrapper>(Marshall *m)
 {
-	if(m->item().s_voidp == 0) {
+	if (m->item().s_voidp == 0) {
 		*(m->var()) = Qnil;
 		return;
 	}
 	void *p = m->item().s_voidp;
 	VALUE obj = getPointerObject(p);
-	if(obj != Qnil) {
+	if (obj != Qnil) {
 		*(m->var()) = obj;
 		return ;
 	}
@@ -153,13 +153,13 @@ void marshall_to_ruby<SmokeClassWrapper>(Marshall *m)
 	smokeruby_object  * o = alloc_smokeruby_object(false, m->smoke(), m->type().classId(), p);
 
 	const char * classname = resolve_classname(o);
-	if(m->type().isConst() && m->type().isRef()) {
+	if (m->type().isConst() && m->type().isRef()) {
 		p = construct_copy( o );
 		if (do_debug & qtdb_gc) {
 			qWarning("copying %s %p to %p\n", classname, o->ptr, p);
 		}
 
-		if(p) {
+		if (p) {
 			o->ptr = p;
 			o->allocated = true;
 		}

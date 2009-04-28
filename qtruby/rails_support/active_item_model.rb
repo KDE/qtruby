@@ -1,7 +1,8 @@
 =begin
-This table model allows an ActiveRecord or ActiveResource to be used as a
-basis for a Qt::AbstractItemModel for viewing in a Qt::TreeView. Example
-usage:
+This Qt::AbstractItemModel based model allows an ActiveRecord or ActiveResource
+data set be used for viewing in a Qt::TreeView. 
+
+Example usage:
 
 app = Qt::Application.new(ARGV)
 agencies = TravelAgency.find(:all)

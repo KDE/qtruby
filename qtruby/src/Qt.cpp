@@ -459,6 +459,23 @@ static char p[CAT_BUFFER_SIZE];
 const char *
 resolve_classname(smokeruby_object * o)
 {
+	if (o->smoke->isDerivedFromByName(o->smoke->classes[o->classId].className, "QObject")) {
+		QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject").index);
+		const QMetaObject * meta = qobject->metaObject();
+
+		while (meta != 0) {
+			o->smoke = Smoke::classMap[meta->className()];
+			if (o->smoke != 0) {
+				o->classId = o->smoke->idClass(meta->className()).index;
+				if (o->classId != 0) {
+					return qtruby_modules[o->smoke].binding->className(o->classId);
+				}
+			}
+
+			meta = meta->superClass();
+		}
+	}
+
     if (o->smoke->classes[o->classId].external) {
         Smoke::ModuleIndex mi = o->smoke->findClass(o->smoke->className(o->classId));
         o->smoke = mi.smoke;

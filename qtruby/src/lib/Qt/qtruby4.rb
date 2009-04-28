@@ -1256,7 +1256,7 @@ module Qt
 
 	class ListWidgetItem < Qt::Base
 		def clone(*args)
-			method_missing(:clone, *args)
+			Qt::ListWidgetItem.new(self)
 		end
 
 		def type(*args)
@@ -1265,12 +1265,12 @@ module Qt
 
 		def inspect
 			str = super
-			str.sub(/>$/, " text=%s>" % text)
+			str.sub(/>$/, " text='%s'>" % text)
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, " text=%s>" % text)
+			pp.text str.sub(/>$/, " text='%s'>" % text)
 		end
 	end
 
@@ -1855,8 +1855,22 @@ module Qt
 	end
 
 	class StandardItem < Qt::Base 
+		def inspect
+			str = super
+			str.sub(/>$/, " text='%s'>" % [text])
+		end
+		
+		def pretty_print(pp)
+			str = to_s
+			pp.text str.sub(/>$/, "\n text='%s'>" % [text])
+		end
+
 		def type(*args)
 			method_missing(:type, *args)
+		end
+
+		def clone
+			Qt::StandardItem.new(self)
 		end
 	end
 
@@ -1892,7 +1906,7 @@ module Qt
 
 	class TableWidgetItem < Qt::Base
 		def clone(*args)
-			method_missing(:clone, *args)
+			Qt::TableWidgetItem.new(self)
 		end
 
 		def type(*args)
@@ -1901,12 +1915,12 @@ module Qt
 
 		def inspect
 			str = super
-			str.sub(/>$/, " text=%s>" % text)
+			str.sub(/>$/, " text='%s'>" % text)
 		end
 		
 		def pretty_print(pp)
 			str = to_s
-			pp.text str.sub(/>$/, " text=%s>" % text)
+			pp.text str.sub(/>$/, " text='%s'>" % text)
 		end
 	end
 
@@ -2069,7 +2083,7 @@ module Qt
 			str.sub!(/>$/, "")
 			str << " parent=%s," % parent unless parent.nil?
 			for i in 0..(columnCount - 1)
-				str << " text%d=%s," % [i, self.text(i)]
+				str << " text%d='%s'," % [i, self.text(i)]
 			end
 			str.sub!(/,?$/, ">")
 		end
@@ -2079,14 +2093,14 @@ module Qt
 			str.sub!(/>$/, "")
 			str << " parent=%s," % parent unless parent.nil?
 			for i in 0..(columnCount - 1)
-				str << " text%d=%s," % [i, self.text(i)]
+				str << " text%d='%s'," % [i, self.text(i)]
 			end
 			str.sub!(/,?$/, ">")
 			pp.text str
 		end
 
 		def clone(*args)
-			method_missing(:clone, *args)
+			Qt::TreeWidgetItem.new(self)
 		end
 
 		def type(*args)

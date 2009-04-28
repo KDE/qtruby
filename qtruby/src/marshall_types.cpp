@@ -18,7 +18,15 @@
 
 #include "marshall_types.h"
 #include <smoke/qt_smoke.h>
+
+#include <QtCore/qvector.h>
+#include <QtCore/qlist.h>
+#include <QtCore/qhash.h>
+#include <QtCore/qmap.h>
+
+#ifdef QT_QTDBUS
 #include <QtDBus>
+#endif
 
 static bool qtruby_embedded = false;
 
@@ -661,8 +669,10 @@ SigSlotBase::prepareReturnValue(void** o)
 				o[0] = new QHash<void*, void*>;
 			} else if (type.startsWith("QMap")) {
 				o[0] = new QMap<void*, void*>;
+#ifdef QT_QTDBUS
 			} else if (type == "QDBusVariant") {
 				o[0] = new QDBusVariant;
+#endif
 			} else {
 				Smoke::ModuleIndex ci = qt_Smoke->findClass(type);
 				if (ci.index != 0) {
@@ -702,8 +712,11 @@ public:
 		QByteArray t(type().name());
 		t.replace("const ", "");
 		t.replace("&", "");
+
 		if (t == "QDBusVariant") {
+#ifdef QT_QTDBUS
 			*reinterpret_cast<QDBusVariant*>(o[0]) = *(QDBusVariant*) _stack[0].s_class;
+#endif
 		} else {
 			// Save any address in zeroth element of the arrary of 'void*'s passed to 
 			// qt_metacall()

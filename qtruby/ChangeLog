@@ -1,3 +1,33 @@
+2009-04-24  Richard Dale  <richard.j.dale@gmail.com>
+	* The resolve_classname() function was not resolving names for QObject
+	  derived classes when the class wasn't in the base Qt smoke library.
+	  For instance, this meant that a Plasma::Applet was not being resolved to
+	  a Plasma::PopupApplet to match the underlying C++ type.
+
+2009-04-17  Richard Dale  <richard.j.dale@gmail.com>
+	* When Qt::StandardItemModel#setItemPrototype was used with a 
+      Qt::StandardItem it crashed because the clone() method was using 
+      Object#clone. So special case the clone() method. Thanks to Stefano Crocco
+      for reporting the bug.
+
+2009-04-07  Richard Dale  <richard.j.dale@gmail.com>
+	* The ActiveRecord based model classes were setting changed values in the 
+	  'attributes' and then saving the changed instance, like this
+ 
+	  foo.attributes['my_att'] = value
+	  foo.save
+
+	  However, this no longer works with ActiveRecord, and the instance can 
+	  be changed more directly like this
+	  
+	  foo['my_att'] = value
+	  foo.save
+	* QtRuby wasn't building on Mac OS X with a version of Qt built without 
+	  QtDBus support, so add some #ifdefs to fix that
+
+2009-03-24  Richard Dale  <richard.j.dale@gmail.com>
+	* Raised the QtRuby version to 2.0.3 for the RubyForge release
+
 2009-03-20  Richard Dale  <richard.j.dale@gmail.com>
 	* Remove 'LIBRARY' from this line in qtruby/src/CMakeLists.txt:
 
