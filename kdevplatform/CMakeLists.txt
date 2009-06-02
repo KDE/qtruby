@@ -28,3 +28,7 @@ target_link_libraries(rubykdevplatform
 set_target_properties(rubykdevplatform PROPERTIES PREFIX "" OUTPUT_NAME kdevplatform)
 install(TARGETS rubykdevplatform DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
 install(FILES kdevplatform.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/kdevplatform)
+
+if (Q_WS_MAC)
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CUSTOM_RUBY_SITE_ARCH_DIR}/kdevplatform.so\"  \"${CUSTOM_RUBY_SITE_ARCH_DIR}/kdevplatform.bundle\" )" )
+endif (Q_WS_MAC)

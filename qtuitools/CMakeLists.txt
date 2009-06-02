@@ -7,3 +7,7 @@ target_link_libraries(rubyqtuitools ${RUBY_LIBRARY} smokeqt smokeqtuitools qtrub
 set_target_properties(rubyqtuitools PROPERTIES PREFIX "" OUTPUT_NAME qtuitools)
 install(TARGETS rubyqtuitools DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
 install(FILES qtuitools.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/qtuitools)
+
+if (Q_WS_MAC)
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CUSTOM_RUBY_SITE_ARCH_DIR}/qtuitools.so\"  \"${CUSTOM_RUBY_SITE_ARCH_DIR}/qtuitools.bundle\" )" )
+endif (Q_WS_MAC)

@@ -8,3 +8,8 @@ target_link_libraries(qtscript ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} smokeqt smok
 set_target_properties(qtscript PROPERTIES PREFIX "")
 install(TARGETS qtscript DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
 install(FILES qtscript.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/qtscript)
+
+if (Q_WS_MAC)
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CUSTOM_RUBY_SITE_ARCH_DIR}/qtscript.so\"  \"${CUSTOM_RUBY_SITE_ARCH_DIR}/qtscript.bundle\" )" )
+endif (Q_WS_MAC)
+

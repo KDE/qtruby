@@ -15,3 +15,8 @@ target_link_libraries(rubynepomuk
 set_target_properties(rubynepomuk PROPERTIES PREFIX "" OUTPUT_NAME nepomuk)
 install(TARGETS rubynepomuk DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
 install(FILES nepomuk.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/nepomuk)
+
+if (Q_WS_MAC)
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CUSTOM_RUBY_SITE_ARCH_DIR}/nepomuk.so\"  \"${CUSTOM_RUBY_SITE_ARCH_DIR}/nepomuk.bundle\" )" )
+endif (Q_WS_MAC)
+

@@ -53,4 +53,9 @@ install(TARGETS korundum4  DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR} )
 install(TARGETS krubypluginfactory DESTINATION ${PLUGIN_INSTALL_DIR})
 install(TARGETS krubyapplication DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
+if (Q_WS_MAC)
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CUSTOM_RUBY_SITE_ARCH_DIR}/korundum4.so\"  \"${CUSTOM_RUBY_SITE_ARCH_DIR}/korundum4.bundle\" )" )
+endif (Q_WS_MAC)
+
+
 
