@@ -1,3 +1,7 @@
+2009-06-16  Richard Dale  <richard.j.dale@gmail.com>
+	* Add a marshaller for KIO::UDSEntryList. Fixes problem reported by David
+	  Palacio
+
 2009-02-02  Richard Dale  <richard.j.dale@gmail.com>
 	* Make Korundum build with Ruby 1.9
 

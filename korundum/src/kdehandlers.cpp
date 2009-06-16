@@ -281,6 +281,7 @@ DEF_VALUELIST_MARSHALLER( KUrlList, QList<KUrl>, KUrl )
 DEF_VALUELIST_MARSHALLER( KUserGroupList, QList<KUserGroup>, KUserGroup )
 DEF_VALUELIST_MARSHALLER( KUserList, QList<KUser>, KUser )
 DEF_VALUELIST_MARSHALLER( QColorList, QList<QColor>, QColor )
+DEF_VALUELIST_MARSHALLER( KIOUDSEntryList, QList<KIO::UDSEntry>, KIO::UDSEntry )
 
 DEF_MAP_MARSHALLER( QMapQStringKTimeZone, KTimeZone )
 
@@ -352,6 +353,8 @@ TypeHandler KDE_handlers[] = {
     { "QList<KXMLGUIClient*>&", marshall_KXMLGUIClientList },
     { "QList<QColor>", marshall_QColorList },
     { "QList<QColor>&", marshall_QColorList },
+    { "QList<KIO::UDSEntry>&", marshall_KIOUDSEntryList },
+    { "KIO::UDSEntryList&", marshall_KIOUDSEntryList },
     { "QMap<QString,KTimeZone>", marshall_QMapQStringKTimeZone },
     { 0, 0 }
 };
