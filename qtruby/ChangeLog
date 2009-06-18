@@ -1,3 +1,6 @@
+2009-06-18  Richard Dale  <richard.j.dale@gmail.com>
+	* Made Qt::ItemSelection Enumerable
+
 2009-04-24  Richard Dale  <richard.j.dale@gmail.com>
 	* The resolve_classname() function was not resolving names for QObject
 	  derived classes when the class wasn't in the base Qt smoke library.

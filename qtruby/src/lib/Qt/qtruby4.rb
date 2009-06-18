@@ -1202,6 +1202,15 @@ module Qt
 	end
 
 	class ItemSelection < Qt::Base
+		include Enumerable
+
+		def each
+			for i in 0...count
+				yield at(i)
+			end
+			return self
+		end
+
 		def select(*args)
 			method_missing(:select, *args)
 		end
