@@ -1,3 +1,9 @@
+2009-06-23  Richard Dale  <richard.j.dale@gmail.com>
+	* In smokeruby_mark() layouts owned by QWidgets or QGraphicsWidgets are 
+	  now marked. Items owned by QLayouts or QGraphicsLayouts are also marked.
+	  This fixes some premature garbage collection problems in Plasma Applets,
+	  reported by David Palacio.
+
 2009-06-18  Richard Dale  <richard.j.dale@gmail.com>
 	* Made Qt::ItemSelection Enumerable
 

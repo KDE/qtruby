@@ -44,7 +44,9 @@
 
 #if QT_VERSION >= 0x40200
 #include <QtGui/qgraphicsitem.h>
+#include <QtGui/qgraphicslayout.h>
 #include <QtGui/qgraphicsscene.h>
+#include <QtGui/qgraphicswidget.h>
 #include <QtGui/qstandarditemmodel.h>
 #include <QtGui/qundostack.h>
 #endif
@@ -204,6 +206,18 @@ smokeruby_mark(void * p)
 			}
 		}
 
+		if (o->smoke->isDerivedFromByName(className, "QWidget")) {
+			QWidget * widget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget").index);
+			QLayout * layout = widget->layout();
+			if (layout != 0) {
+				obj = getPointerObject(layout);
+				if (obj != Qnil) {
+					if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p", "QLayout", layout, (void*)obj);
+					rb_gc_mark(obj);
+				}
+			}
+		}
+
 		if (o->smoke->isDerivedFromByName(className, "QListWidget")) {
 			QListWidget * listwidget = (QListWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QListWidget").index);
 			
@@ -279,6 +293,33 @@ smokeruby_mark(void * p)
 							if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p", "QStandardItem", item, (void*)obj);
 							rb_gc_mark(obj);
 						}
+					}
+				}
+			}
+			return;
+		}
+
+		if (o->smoke->isDerivedFromByName(className, "QGraphicsWidget")) {
+			QGraphicsWidget * widget = (QGraphicsWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsWidget").index);
+			QGraphicsLayout * layout = widget->layout();
+			if (layout != 0) {
+				obj = getPointerObject(layout);
+				if (obj != Qnil) {
+					if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p", "QGraphicsLayout", layout, (void*)obj);
+					rb_gc_mark(obj);
+				}
+			}
+		}
+
+		if (o->smoke->isDerivedFromByName(className, "QGraphicsLayout")) {
+			QGraphicsLayout * qlayout = (QGraphicsLayout *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsLayout").index);
+			for (int i = 0; i < qlayout->count(); ++i) {
+				QGraphicsLayoutItem * item = qlayout->itemAt(i);
+				if (item != 0) {
+					obj = getPointerObject(item);
+					if (obj != Qnil) {
+						if (do_debug & qtdb_gc) qWarning("Marking (%s*)%p -> %p", "QGraphicsLayoutItem", item, (void*)obj);
+						rb_gc_mark(obj);
 					}
 				}
 			}
