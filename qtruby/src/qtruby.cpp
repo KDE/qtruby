@@ -2076,7 +2076,7 @@ getClassList(VALUE /*self*/)
     VALUE class_list = rb_ary_new();
 
     for (int i = 1; i <= qt_Smoke->numClasses; i++) {
-        if (qt_Smoke->classes[i].className)
+        if (qt_Smoke->classes[i].className && !qt_Smoke->classes[i].external)
             rb_ary_push(class_list, rb_str_new2(qt_Smoke->classes[i].className));
     }
 
