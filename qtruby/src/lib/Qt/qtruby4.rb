@@ -2469,13 +2469,6 @@ module Qt
 
 		def Internal.checkarg(argtype, typename)
 			puts "      #{typename} (#{argtype})" if debug_level >= DebugLevel::High
-			if typename =~ /^(const )?QVariant&?$/ && !(typename =~ /QList/)
-				if argtype == "QVariant"
-					return 2
-				else
-					return 0
-				end
-			end
 			if argtype == 'i'
 				if typename =~ /^int&?$|^signed int&?$|^signed$|^qint32&?$/
 					return 3
@@ -2636,12 +2629,7 @@ module Qt
 				elsif arg.kind_of? Array or arg.kind_of? Hash
 					methods.collect! { |meth| meth << '?' }
 				else
-					temp = []
-					methods.collect! do |meth|
-						temp << meth + '#'
-						meth << '$'
-					end
-					methods.concat(temp)
+					methods.collect! { |meth| meth << '$' }
 				end
 			end
 			

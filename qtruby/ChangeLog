@@ -1,3 +1,16 @@
+2009-07-21  Richard Dale  <richard.j.dale@gmail.com>
+	* Revert a commit made by 'divide' some time ago. It was a hack to allow
+	  primitive types to be passed as arguments where the expected arg type
+	  was a Qt::Variant. However, it subverts the 'munged method name' scheme
+	  of fast overloaded method resolution because for every method argument of
+	  type '#' (a class), it adds another of type '$' (a primitive type). So 
+	  with that scheme we might as well have only two of the munged method 
+	  types instead of three. Sometime we need to add support for C++ implicit
+	  constructors in resolving overloaded methods at runtime, but that is a
+	  really hard problem. In the meantime I think it is best to add support
+	  for implicitely converting args to Qt::Variants on a case by case basis,
+	  such as was done for the QtDBus and Plasma Data Engine apis.
+
 2009-06-23  Richard Dale  <richard.j.dale@gmail.com>
 	* In smokeruby_mark() layouts owned by QWidgets or QGraphicsWidgets are 
 	  now marked. Items owned by QLayouts or QGraphicsLayouts are also marked.
