@@ -128,6 +128,7 @@ alloc_smokeruby_object(bool allocated, Smoke * smoke, int classId, void * ptr)
 void
 free_smokeruby_object(smokeruby_object * o)
 {
+	o->ptr = 0;
 	xfree(o);
 	return;
 }
