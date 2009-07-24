@@ -1,3 +1,7 @@
+2009-07-24  Richard Dale  <richard.j.dale@gmail.com>
+	* Replace the obsolete STR2CSTR macro with StringValueCStr to make QtRuby
+	  compile with Ruby 1.9.2. Thanks to Youhei Kondou for the patch.
+
 2009-07-21  Richard Dale  <richard.j.dale@gmail.com>
 	* Revert a commit made by 'divide' some time ago. It was a hack to allow
 	  primitive types to be passed as arguments where the expected arg type

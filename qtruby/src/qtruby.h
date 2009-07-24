@@ -40,6 +40,9 @@
 #if !defined RARRAY_PTR
 #define RARRAY_PTR(a) RARRAY(a)->ptr
 #endif
+#if !defined StringValueCStr
+#define StringValueCStr(s) STR2CSTR(s)
+#endif
 
 inline bool operator==(const Smoke::ModuleIndex& a, const Smoke::ModuleIndex& b) {
 	if (a.index == b.index && a.smoke == b.smoke)
