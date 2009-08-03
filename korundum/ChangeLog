@@ -1,3 +1,9 @@
+2009-08-03  Richard Dale  <richard.j.dale@gmail.com>
+	* Added Ruby versions of the i18n(), i18nc(), i18np() and i18ncp() methods
+	  with variable numbers of arguments that replace the '%1, '%2' place
+	  holders in the main strings. Thanks to Robert Riemann for reporting them
+	  missing.
+
 2009-06-16  Richard Dale  <richard.j.dale@gmail.com>
 	* Add a marshaller for KIO::UDSEntryList. Fixes problem reported by David
 	  Palacio
