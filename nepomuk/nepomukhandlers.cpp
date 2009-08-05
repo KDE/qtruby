@@ -46,7 +46,7 @@ void marshall_QHashQUrlNepomukVariant(Marshall *m) {
         // Convert the ruby hash to an array of key/value arrays
         VALUE temp = rb_funcall(hash, rb_intern("to_a"), 0);
 
-        for (long i = 0; i < RARRAY(temp)->len; i++) {
+        for (long i = 0; i < RARRAY_LEN(temp); i++) {
             VALUE key = rb_ary_entry(rb_ary_entry(temp, i), 0);
             VALUE value = rb_ary_entry(rb_ary_entry(temp, i), 1);
             
