@@ -1,3 +1,8 @@
+2009-08-04  Richard Dale  <richard.j.dale@gmail.com>
+	* Enable KDE::ConfigGroup.read_entry() and write_entry() methods to 
+	  automatically convert args to Qt::Variants as well as the camel case
+	  versions. Thanks to David Palacio for the bug report.
+
 2009-08-03  Richard Dale  <richard.j.dale@gmail.com>
 	* Added Ruby versions of the i18n(), i18nc(), i18np() and i18ncp() methods
 	  with variable numbers of arguments that replace the '%1, '%2' place
