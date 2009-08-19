@@ -1,3 +1,7 @@
+2009-08-19  Richard Dale  <richard.j.dale@gmail.com>
+    * Added a patch from Youhei Kondou to make the to_a and kind_of? methods
+      use the C++ class ancestors obtained from the smoke libary
+
 2009-07-24  Richard Dale  <richard.j.dale@gmail.com>
 	* Replace the obsolete STR2CSTR macro with StringValueCStr to make QtRuby
 	  compile with Ruby 1.9.2. Thanks to Youhei Kondou for the patch.

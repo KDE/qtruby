@@ -180,6 +180,13 @@ module Qt
 			return [self] + ids.map {|id| Qt::Internal.find_class(Qt::Internal.classid2name(id))} + klasses
 		end
 
+		# Change the behaviors of is_a? and kind_of? (alias of is_a?) to use above self.ancestors method
+		# Note: this definition also affects Object#===
+		def is_a?(mod)
+			super || self.class.ancestors.include?(mod)
+		end
+		alias :kind_of? :is_a?
+
 		def methods(regular=true)
 			if !regular
 				return singleton_methods
