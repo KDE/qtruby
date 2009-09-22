@@ -1,3 +1,7 @@
+2009-09-22  Richard Dale  <richard.j.dale@gmail.com>
+    * Fix broken KDE::ConfigGroup.readEntry method. Thanks to Paulo Capriotti
+      for reporting the bug
+
 2009-08-04  Richard Dale  <richard.j.dale@gmail.com>
 	* Enable KDE::ConfigGroup.read_entry() and write_entry() methods to 
 	  automatically convert args to Qt::Variants as well as the camel case

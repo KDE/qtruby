@@ -318,16 +318,18 @@ module KDE
 			method_missing(:name, *args)
 		end
 
-		def readEntry(key, default = nil)
-			if default.kind_of?(String) || default.kind_of?(Qt::Variant)
-				return super(key, default)
-			else
-				return super(key, Qt::Variant.new(default)).value
-			end
-		end
+        def readEntry(*args)
+            if args.length < 2
+                return super(*args)
+            elsif args[1].kind_of?(String) || args[1].kind_of?(Qt::Variant)
+                return super(*args)
+            else
+                return super(args[0], Qt::Variant.new(args[1])).value
+            end
+        end
 
-		def read_entry(key, default = nil)
-			readEntry(key, default)
+		def read_entry(*args)
+			readEntry(*args)
 		end
 
 		def writeEntry(key, value, pFlags = KDE::ConfigBase::Normal)
