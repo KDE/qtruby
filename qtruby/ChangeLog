@@ -40,6 +40,15 @@
         (it is in Ruby 1.9)
 
     * Thanks to Davor for the patch
+    * Added a patch from 'Ruby Twiddler'. Qt::DBusInterface.call() didn't work
+      when the first argument is an enum. For example:
+
+        iface = Qt::DBusInterface.new(SERVICE_NAME, "", "",
+        Qt::DBusConnection.sessionBus)
+        msg = iface.call(Qt::DBus::BlockWithGui, "somemethod", param)
+        p msg   # => nil
+        reply = Qt::DBusReply.new(msg)  # => Error!
+    * Thanks to Twiddler for the patch
 
 2009-08-19  Richard Dale  <richard.j.dale@gmail.com>
     * Added a patch from Youhei Kondou to make the is_a? and kind_of? methods

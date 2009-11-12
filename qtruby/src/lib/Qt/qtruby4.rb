@@ -723,6 +723,10 @@ module Qt
 		def call(method_name, *args)
 			if args.length == 0
 				return super(method_name)
+			elsif method_name.is_a? Qt::Enum
+				opt = args.shift
+				qdbusArgs = args.collect {|arg| qVariantFromValue(arg)}
+				return super(method_name, opt, *qdbusArgs)
 			else
 				# If the method is Qt::DBusInterface.call(), create an Array 
 				# 'dbusArgs' of Qt::Variants from '*args'
