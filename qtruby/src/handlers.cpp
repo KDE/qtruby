@@ -2516,6 +2516,7 @@ Q_DECL_EXPORT TypeHandler Qt_handlers[] = {
     { "QwtArray<int>&", marshall_QVectorint },
     { "signed int&", marshall_it<int *> },
     { "uchar*", marshall_ucharP },
+    { "unsigned char*", marshall_ucharP },
     { "unsigned long long int", marshall_it<long long> },
     { "unsigned long long int&", marshall_it<long long> },
     { "void", marshall_void },

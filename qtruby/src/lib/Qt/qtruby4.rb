@@ -2361,7 +2361,11 @@ module Qt
 			if metaObject.indexOfSlot(signature) == -1
 				self.class.slots signature
 			end
+			# This makes a difference between being and not being able
+			# to run with GC.stress= true. Reason unclear.
+			gc_disabled= GC.disable
 			@block = block
+			GC.enable unless gc_disabled
 		end
 
 		def invoke(*args)
@@ -2515,9 +2519,9 @@ module Qt
 			elsif argtype == 's'
 				if typename =~ /^(const )?((QChar)[*&]?)$/
 					return 3
-				elsif typename =~ /^(?:u?char\*)$/
+				elsif typename =~ /^(?:(u(nsigned )?)?char\*)$/
 					return 2
-				elsif typename =~ /^(?:const u?char\*)$/
+				elsif typename =~ /^(?:const (u(nsigned )?)?char\*)$/
 					return 1
 				elsif typename =~ /^(?:(?:const )?(QString)[*&]?)$/
 					return 4
@@ -3047,7 +3051,7 @@ class Object
 	# matter for the intended use in invoking blocks as Qt slots.
 	def instance_exec(*arguments, &block)
 		block.bind(self)[*arguments]
-	end
+	end unless defined? instance_exec
 end
 
 class Proc 

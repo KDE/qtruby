@@ -3,6 +3,43 @@
     * The Qt::SizePolicy.horizontalStretch= method wasn't working with a Smoke
       library created with the new generator as the type 'unsigned char' wasn't
       recognized. Thanks to Stefano Crocco for reporting the bug.
+    * Applied a patch from Davor Ocelic. Here's an overview of the changes:
+
+
+        ruby/qtruby/src/handlers.cpp:
+
+        Added { "unsigned char*", marshall_ucharP } so that conversion
+        from String to "unsigned char*" would work. Qt code doesn't
+        have unsigned char*, but Smoke seems to internally convert
+        uchar* to unsigned char*.
+
+
+        ruby/qtruby/src/Qt.cpp:
+
+        The code at the place of patch checks whether a method is overriden
+        in Ruby. But during GC, it's not allowed to execute Ruby code anyway,
+        so the patch removes this check altogether. (In rare, but existing
+        situations, this check itself lead to new object allocation, crashing
+        the application).
+
+        (New info: the function we've used to check if it's running during
+        GC or not seems to be Ruby 1.9 specific, so a simple compatibility
+        for 1.8 should be added before committing).
+
+
+        ruby/qtruby/src/lib/Qt/qtruby4.rb
+
+        1) Added GC.disable around line of code that says: "@block = block".
+        This makes a difference between being and being not able to run
+        with GC.stress= true. Reason unclear, comments appreciated.
+
+        2) Extended typename =~ /^(?:u?char\*)$/ checks to support 
+        unsigned char.
+
+        3) Skip "def instance_exec" if it is already defined
+        (it is in Ruby 1.9)
+
+    * Thanks to Davor for the patch
 
 2009-08-19  Richard Dale  <richard.j.dale@gmail.com>
     * Added a patch from Youhei Kondou to make the is_a? and kind_of? methods
