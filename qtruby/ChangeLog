@@ -1,3 +1,12 @@
+2009-11-13  Richard Dale  <richard.j.dale@gmail.com>
+
+    * The QtTest module expects test slots to be private which isn't possible
+      in QtRuby, so add a 'private_slots' method to declare them. For example:
+
+        class MyFirstTest < Qt::Object
+            private_slots   :initTestCase, :myFirstTest, 
+                            :mySecondTest, :cleanupTestCase
+
 2009-11-12  Richard Dale  <richard.j.dale@gmail.com>
 
     * The Qt::SizePolicy.horizontalStretch= method wasn't working with a Smoke

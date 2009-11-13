@@ -42,29 +42,50 @@ module Qt
 	def Qt.debug_level
 		@@debug_level
 	end
-		
+	
+	module Internal
+		#
+		# From the enum MethodFlags in qt-copy/src/tools/moc/generator.cpp
+		#
+		AccessPrivate = 0x00
+		AccessProtected = 0x01
+		AccessPublic = 0x02
+		MethodMethod = 0x00
+		MethodSignal = 0x04
+		MethodSlot = 0x08
+		MethodCompatibility = 0x10
+		MethodCloned = 0x20
+		MethodScriptable = 0x40
+	end
+	
 	class Base
 		def self.signals(*signal_list)
 			meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
-			meta.add_signals(signal_list)
+			meta.add_signals(signal_list, Internal::MethodSignal | Internal::AccessProtected)
 			meta.changed = true
 		end
 	
 		def self.slots(*slot_list)
 			meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
-			meta.add_slots(slot_list)
+			meta.add_slots(slot_list, Internal::MethodSlot | Internal::AccessPublic)
+			meta.changed = true
+		end
+
+		def self.private_slots(*slot_list)
+			meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
+			meta.add_slots(slot_list, Internal::MethodSlot | Internal::AccessPrivate)
 			meta.changed = true
 		end
 
 		def self.q_signal(signal)
 			meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
-			meta.add_signals([signal])
+			meta.add_signals([signal], Internal::MethodSignal | Internal::AccessProtected)
 			meta.changed = true
 		end
 
 		def self.q_slot(slot)
 			meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
-			meta.add_slots([slot])
+			meta.add_slots([slot], Internal::MethodSlot | Internal::AccessPublic)
 			meta.changed = true
 		end
 
@@ -2765,19 +2786,6 @@ module Qt
 				getAllParents(c, res)
 			end
 		end
-
-		#
-		# From the enum MethodFlags in qt-copy/src/tools/moc/generator.cpp
-		#
-		AccessPrivate = 0x00
-		AccessProtected = 0x01
-		AccessPublic = 0x02
-		MethodMethod = 0x00
-		MethodSignal = 0x04
-		MethodSlot = 0x08
-		MethodCompatibility = 0x10
-		MethodCloned = 0x20
-		MethodScriptable = 0x40
 	
 		# Keeps a hash of strings against their corresponding offsets
 		# within the qt_meta_stringdata sequence of null terminated
@@ -2831,7 +2839,7 @@ module Qt
 				if dbus
 					data.push MethodScriptable | MethodSignal | AccessPublic
 				else
-					data.push MethodSignal | AccessProtected	# flags, always protected for now
+					data.push entry.access	# flags, always protected for now
 				end
 			end
 
@@ -2843,7 +2851,7 @@ module Qt
 				if dbus
 					data.push MethodScriptable | MethodSlot | AccessPublic	# flags, always public for now
 				else
-					data.push MethodSlot | AccessPublic		# flags, always public for now
+					data.push entry.access		# flags, always public for now
 				end
 			end
 
@@ -2937,7 +2945,7 @@ module Qt
 	#  :full_name is 'foobar(QString,bool)'
 	#  :arg_types is 'QString,bool'
 	#  :reply_type is 'int'
-	QObjectMember = Struct.new :name, :full_name, :arg_types, :reply_type
+	QObjectMember = Struct.new :name, :full_name, :arg_types, :reply_type, :access
 
 	class MetaInfo
 		attr_accessor :classinfos, :dbus, :signals, :slots, :metaobject, :mocargs, :changed
@@ -2954,7 +2962,7 @@ module Qt
 			Internal.addMetaObjectMethods(klass)
 		end
 		
-		def add_signals(signal_list)
+		def add_signals(signal_list, access)
 			signal_names = []
 			signal_list.each do |signal|
 				if signal.kind_of? Symbol
@@ -2962,7 +2970,11 @@ module Qt
 				end
 				signal = Qt::MetaObject.normalizedSignature(signal).to_s
 				if signal =~ /^(([\w,<>:]*)\s+)?([^\s]*)\((.*)\)/
-					@signals.push QObjectMember.new($3, $3 + "(" + $4 + ")", $4, ($2 == 'void' || $2.nil?) ? "" : $2)
+					@signals.push QObjectMember.new(	$3, 
+					                                    $3 + "(" + $4 + ")", 
+					                                    $4, 
+					                                    ($2 == 'void' || $2.nil?) ? "" : $2,
+					                                    access )
 					signal_names << $3
 				else
 					qWarning( "#{@klass.name}: Invalid signal format: '#{signal}'" )
@@ -2985,14 +2997,18 @@ module Qt
 			return all_signals
 		end
 		
-		def add_slots(slot_list)
+		def add_slots(slot_list, access)
 			slot_list.each do |slot|
 				if slot.kind_of? Symbol
 					slot = slot.to_s + "()"
 				end
 				slot = Qt::MetaObject.normalizedSignature(slot).to_s
 				if slot =~ /^(([\w,<>:]*)\s+)?([^\s]*)\((.*)\)/
-					@slots.push QObjectMember.new($3, $3 + "(" + $4 + ")", $4, ($2 == 'void' || $2.nil?) ? "" : $2)
+					@slots.push QObjectMember.new(	$3, 
+					                                $3 + "(" + $4 + ")", 
+					                                $4, 
+					                                ($2 == 'void' || $2.nil?) ? "" : $2,
+					                                access )
 				else
 					qWarning( "#{@klass.name}: Invalid slot format: '#{slot}'" )
 				end
