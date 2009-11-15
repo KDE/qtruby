@@ -1379,7 +1379,7 @@ static Smoke::Index qtscript_ambiguousMethodList[] = {
 };
 
 
-void init_qt_Smoke();
+extern "C" void init_qt_Smoke();
 
 bool initialized = false;
 Smoke *qtscript_Smoke = 0;
