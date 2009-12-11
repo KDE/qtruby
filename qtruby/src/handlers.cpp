@@ -551,9 +551,12 @@ resolve_classname_qt(smokeruby_object * o)
 		case QEvent::DeactivateControl:
 			o->classId = o->smoke->idClass("QEvent").index;
 			break;
-		case QEvent::ContextMenu:
-			o->classId = o->smoke->idClass("QContextMenuEvent").index;
-			break;
+        case QEvent::ContextMenu:
+            o->classId = o->smoke->idClass("QContextMenuEvent").index;
+            break;
+        case QEvent::DynamicPropertyChange:
+            o->classId = o->smoke->idClass("QDynamicPropertyChangeEvent").index;
+            break;
 		case QEvent::InputMethod:
 			o->classId = o->smoke->idClass("QInputMethodEvent").index;
 			break;
