@@ -136,7 +136,7 @@ kactioncollection_add_action(int argc, VALUE * argv, VALUE self)
 
 		Smoke::ModuleIndex nameId = qt_Smoke->NullModuleIndex;
 		nameId = o->smoke->idMethodName("addAction$#");
-		Smoke::ModuleIndex ci = { o->smoke, o->classId };
+		Smoke::ModuleIndex ci(o->smoke, o->classId);
 		Smoke::ModuleIndex meth = o->smoke->findMethod(ci, nameId);
 		Smoke::Index i = meth.smoke->methodMaps[meth.index].method;
 		i = -i;		// turn into ambiguousMethodList index

@@ -423,7 +423,7 @@ smokeruby_free(void * p)
 	methodName[0] = '~';
 	strcpy(methodName + 1, className);
 	Smoke::ModuleIndex nameId = o->smoke->findMethodName(className, methodName);
-	Smoke::ModuleIndex classIdx = { o->smoke, o->classId };
+	Smoke::ModuleIndex classIdx(o->smoke, o->classId);
 	Smoke::ModuleIndex meth = o->smoke->findMethod(classIdx, nameId);
 	if(meth.index > 0) {
 		Smoke::Method &m = meth.smoke->methods[meth.smoke->methodMaps[meth.index].method];
@@ -741,7 +741,7 @@ construct_copy(smokeruby_object *o)
     char *ccArg = new char[classNameLen + 8];
     sprintf(ccArg, "const %s&", className);
 
-    Smoke::ModuleIndex classIdx = { o->smoke, o->classId };
+    Smoke::ModuleIndex classIdx(o->smoke, o->classId);
     Smoke::ModuleIndex ccMeth = o->smoke->findMethod(classIdx, ccId);
 
     if (ccMeth.index == 0) {

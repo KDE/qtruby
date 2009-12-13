@@ -112,7 +112,7 @@ QHash<Smoke::ModuleIndex, QByteArray*> IdToClassNameMap;
 
 #define logger logger_backend
 
-Smoke::ModuleIndex _current_method = { 0, 0 };
+Smoke::ModuleIndex _current_method;
 
 smokeruby_object * 
 alloc_smokeruby_object(bool allocated, Smoke * smoke, int classId, void * ptr)
@@ -280,7 +280,7 @@ Binding::callMethod(Smoke::Index method, void *ptr, Smoke::Stack args, bool /*is
 
 char*
 Binding::className(Smoke::Index classId) {
-	Smoke::ModuleIndex mi = { smoke, classId };
+	Smoke::ModuleIndex mi(smoke, classId);
 	return (char *) (const char *) *(IdToClassNameMap.value(mi));
 }
 
@@ -466,9 +466,10 @@ resolve_classname(smokeruby_object * o)
 		const QMetaObject * meta = qobject->metaObject();
 
 		while (meta != 0) {
-			o->smoke = Smoke::classMap[meta->className()];
+			Smoke::ModuleIndex mi = Smoke::classMap[meta->className()];
+			o->smoke = mi.smoke;
+			o->classId = mi.index;
 			if (o->smoke != 0) {
-				o->classId = o->smoke->idClass(meta->className()).index;
 				if (o->classId != 0) {
 					return qtruby_modules[o->smoke].binding->className(o->classId);
 				}
@@ -493,7 +494,7 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
     char *c = StringValuePtr(c_value);
     char *name = StringValuePtr(name_value);
     VALUE result = rb_ary_new();
-    Smoke* s = Smoke::classMap[c];
+    Smoke* s = Smoke::classMap[c].smoke;
     Smoke::ModuleIndex meth = qt_Smoke->NullModuleIndex;
     if (s) meth = s->findMethod(c, name);
 #ifdef DEBUG

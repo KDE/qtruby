@@ -918,7 +918,7 @@ qsignalmapper_mapping(int argc, VALUE * argv, VALUE self)
 
 		Smoke::ModuleIndex nameId = qt_Smoke->NullModuleIndex;
 		nameId = o->smoke->idMethodName("mapping#");
-		Smoke::ModuleIndex ci = { o->smoke, o->classId };
+		Smoke::ModuleIndex ci(o->smoke, o->classId);
 		Smoke::ModuleIndex meth = o->smoke->findMethod(ci, nameId);
 		Smoke::Index i = meth.smoke->methodMaps[meth.index].method;
 		i = -i;		// turn into ambiguousMethodList index
@@ -954,7 +954,7 @@ qsignalmapper_set_mapping(int argc, VALUE * argv, VALUE self)
 
 		Smoke::ModuleIndex nameId = qt_Smoke->NullModuleIndex;
 		nameId = o->smoke->idMethodName("setMapping##");
-		Smoke::ModuleIndex ci = { o->smoke, o->classId };
+		Smoke::ModuleIndex ci(o->smoke, o->classId);
 		Smoke::ModuleIndex meth = o->smoke->findMethod(ci, nameId);
 		Smoke::Index i = meth.smoke->methodMaps[meth.index].method;
 		i = -i;		// turn into ambiguousMethodList index
@@ -1425,7 +1425,7 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 	// Assume the target slot is a C++ one
 	smokeruby_object *o = value_obj_info(self);
 	Smoke::ModuleIndex nameId = o->smoke->idMethodName("qt_metacall$$?");
-	Smoke::ModuleIndex classIdx = { o->smoke, o->classId };
+	Smoke::ModuleIndex classIdx(o->smoke, o->classId);
 	Smoke::ModuleIndex meth = nameId.smoke->findMethod(classIdx, nameId);
 	if (meth.index > 0) {
 		Smoke::Method &m = meth.smoke->methods[meth.smoke->methodMaps[meth.index].method];
@@ -1750,7 +1750,7 @@ insert_pclassid(VALUE self, VALUE p_value, VALUE mi_value)
     char *p = StringValuePtr(p_value);
     int ix = NUM2INT(rb_funcall(mi_value, rb_intern("index"), 0));
     int smokeidx = NUM2INT(rb_funcall(mi_value, rb_intern("smoke"), 0));
-    Smoke::ModuleIndex mi = { smokeList[smokeidx], ix };
+    Smoke::ModuleIndex mi(smokeList[smokeidx], ix);
     classcache.insert(QByteArray(p), new Smoke::ModuleIndex(mi));
     IdToClassNameMap.insert(mi, new QByteArray(p));
     return self;
@@ -1761,7 +1761,7 @@ classid2name(VALUE /*self*/, VALUE mi_value)
 {
     int ix = NUM2INT(rb_funcall(mi_value, rb_intern("index"), 0));
     int smokeidx = NUM2INT(rb_funcall(mi_value, rb_intern("smoke"), 0));
-    Smoke::ModuleIndex mi = { smokeList[smokeidx], ix };
+    Smoke::ModuleIndex mi(smokeList[smokeidx], ix);
     return rb_str_new2(IdToClassNameMap[mi]->constData());
 }
 
@@ -1788,7 +1788,7 @@ parent_meta_object(VALUE obj)
 {
 	smokeruby_object* o = value_obj_info(obj);
 	Smoke::ModuleIndex nameId = o->smoke->idMethodName("metaObject");
-	Smoke::ModuleIndex classIdx = { o->smoke, o->classId };
+	Smoke::ModuleIndex classIdx(o->smoke, o->classId);
 	Smoke::ModuleIndex meth = o->smoke->findMethod(classIdx, nameId);
 	if (meth.index <= 0) {
 		// Should never happen..
@@ -1951,7 +1951,7 @@ dispose(VALUE self)
 	methodName[0] = '~';
 	strcpy(methodName + 1, className);
 	Smoke::ModuleIndex nameId = o->smoke->findMethodName(className, methodName);
-	Smoke::ModuleIndex classIdx = { o->smoke, o->classId };
+	Smoke::ModuleIndex classIdx(o->smoke, o->classId);
 	Smoke::ModuleIndex meth = nameId.smoke->findMethod(classIdx, nameId);
 	if(meth.index > 0) {
 		Smoke::Method &m = meth.smoke->methods[meth.smoke->methodMaps[meth.index].method];

@@ -44,13 +44,6 @@
 #define StringValueCStr(s) STR2CSTR(s)
 #endif
 
-inline bool operator==(const Smoke::ModuleIndex& a, const Smoke::ModuleIndex& b) {
-	if (a.index == b.index && a.smoke == b.smoke)
-		return true;
-	else
-		return false;
-}
-
 inline uint qHash(const Smoke::ModuleIndex& mi) {
 	return qHash(mi.index) ^ qHash(mi.smoke);
 }
