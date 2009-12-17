@@ -466,7 +466,7 @@ resolve_classname(smokeruby_object * o)
 		const QMetaObject * meta = qobject->metaObject();
 
 		while (meta != 0) {
-			Smoke::ModuleIndex mi = Smoke::classMap[meta->className()];
+			Smoke::ModuleIndex mi = o->smoke->findClass(meta->className());
 			o->smoke = mi.smoke;
 			o->classId = mi.index;
 			if (o->smoke != 0) {
@@ -494,9 +494,11 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
     char *c = StringValuePtr(c_value);
     char *name = StringValuePtr(name_value);
     VALUE result = rb_ary_new();
-    Smoke* s = Smoke::classMap[c].smoke;
+    Smoke::ModuleIndex classId = qt_Smoke->findClass(c);    
     Smoke::ModuleIndex meth = qt_Smoke->NullModuleIndex;
-    if (s) meth = s->findMethod(c, name);
+    if (classId.smoke != 0) {
+        meth = classId.smoke->findMethod(c, name);
+    }
 #ifdef DEBUG
     if (do_debug & qtdb_calls) qWarning("Found method %s::%s => %d", c, name, meth.index);
 #endif
