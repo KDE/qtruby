@@ -44,7 +44,16 @@
 #endif
 
 #include <smoke/smoke.h>
-#include <smoke/qt_smoke.h>
+
+#include <smoke/qtcore_smoke.h>
+#include <smoke/qtgui_smoke.h>
+#include <smoke/qtxml_smoke.h>
+#include <smoke/qtsql_smoke.h>
+#include <smoke/qtopengl_smoke.h>
+#include <smoke/qtnetwork_smoke.h>
+#include <smoke/qtsvg_smoke.h>
+#include <smoke/qtdbus_smoke.h>
+
 #include <ruby.h>
 
 #include "marshall_types.h"
@@ -663,8 +672,8 @@ static Smoke::Index drawlines_line_vector = 0;
 
 	if (argc == 1 && TYPE(argv[0]) == T_ARRAY && RARRAY_LEN(argv[0]) > 0) {
 		if (drawlines_point_vector == 0) {
-			Smoke::ModuleIndex nameId = qt_Smoke->findMethodName("QPainter", "drawLines?");
-			Smoke::ModuleIndex meth = qt_Smoke->findMethod(qt_Smoke->findClass("QPainter"), nameId);
+			Smoke::ModuleIndex nameId = qtcore_Smoke->findMethodName("QPainter", "drawLines?");
+			Smoke::ModuleIndex meth = qtcore_Smoke->findMethod(qtcore_Smoke->findClass("QPainter"), nameId);
 			Smoke::Index i = meth.smoke->methodMaps[meth.index].method;
 			i = -i;		// turn into ambiguousMethodList index
 			while (meth.smoke->ambiguousMethodList[i] != 0) {
@@ -687,22 +696,22 @@ static Smoke::Index drawlines_line_vector = 0;
 		smokeruby_object * o = value_obj_info(rb_ary_entry(argv[0], 0));
 
 		if (qstrcmp(o->smoke->classes[o->classId].className, "QPointF") == 0) {
-			_current_method.smoke = qt_Smoke;
+			_current_method.smoke = qtcore_Smoke;
 			_current_method.index = drawlines_pointf_vector;
 		} else if (qstrcmp(o->smoke->classes[o->classId].className, "QPoint") == 0) {
-			_current_method.smoke = qt_Smoke;
+			_current_method.smoke = qtcore_Smoke;
 			_current_method.index = drawlines_point_vector;
 		} else if (qstrcmp(o->smoke->classes[o->classId].className, "QLineF") == 0) {
-			_current_method.smoke = qt_Smoke;
+			_current_method.smoke = qtcore_Smoke;
 			_current_method.index = drawlines_linef_vector;
 		} else if (qstrcmp(o->smoke->classes[o->classId].className, "QLine") == 0) {
-			_current_method.smoke = qt_Smoke;
+			_current_method.smoke = qtcore_Smoke;
 			_current_method.index = drawlines_line_vector;
 		} else {
 			return rb_call_super(argc, argv);
 		}
 
-		QtRuby::MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
+		QtRuby::MethodCall c(qtcore_Smoke, _current_method.index, self, argv, argc-1);
 		c.next();
 		return self;
 	}
@@ -718,8 +727,8 @@ static Smoke::Index drawlines_rect_vector = 0;
 
 	if (argc == 1 && TYPE(argv[0]) == T_ARRAY && RARRAY_LEN(argv[0]) > 0) {
 		if (drawlines_rectf_vector == 0) {
-			Smoke::ModuleIndex nameId = qt_Smoke->findMethodName("QPainter", "drawRects?");
-			Smoke::ModuleIndex meth = qt_Smoke->findMethod(qt_Smoke->findClass("QPainter"), nameId);
+			Smoke::ModuleIndex nameId = qtcore_Smoke->findMethodName("QPainter", "drawRects?");
+			Smoke::ModuleIndex meth = qtcore_Smoke->findMethod(qtcore_Smoke->findClass("QPainter"), nameId);
 			Smoke::Index i = meth.smoke->methodMaps[meth.index].method;
 			i = -i;		// turn into ambiguousMethodList index
 			while (meth.smoke->ambiguousMethodList[i] != 0) {
@@ -738,16 +747,16 @@ static Smoke::Index drawlines_rect_vector = 0;
 		smokeruby_object * o = value_obj_info(rb_ary_entry(argv[0], 0));
 
 		if (qstrcmp(o->smoke->classes[o->classId].className, "QRectF") == 0) {
-			_current_method.smoke = qt_Smoke;
+			_current_method.smoke = qtcore_Smoke;
 			_current_method.index = drawlines_rectf_vector;
 		} else if (qstrcmp(o->smoke->classes[o->classId].className, "QRect") == 0) {
-			_current_method.smoke = qt_Smoke;
+			_current_method.smoke = qtcore_Smoke;
 			_current_method.index = drawlines_rect_vector;
 		} else {
 			return rb_call_super(argc, argv);
 		}
 
-		QtRuby::MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
+		QtRuby::MethodCall c(qtcore_Smoke, _current_method.index, self, argv, argc-1);
 		c.next();
 		return self;
 	}
@@ -761,7 +770,7 @@ qabstractitemmodel_createindex(int argc, VALUE * argv, VALUE self)
 	if (argc == 2 || argc == 3) {
 		smokeruby_object * o = value_obj_info(self);
 		Smoke::ModuleIndex nameId = o->smoke->idMethodName("createIndex$$$");
-		Smoke::ModuleIndex meth = o->smoke->findMethod(qt_Smoke->findClass("QAbstractItemModel"), nameId);
+		Smoke::ModuleIndex meth = o->smoke->findMethod(qtcore_Smoke->findClass("QAbstractItemModel"), nameId);
 		Smoke::Index i = meth.smoke->methodMaps[meth.index].method;
 		i = -i;		// turn into ambiguousMethodList index
 		while (o->smoke->ambiguousMethodList[i] != 0) {
@@ -844,8 +853,8 @@ qobject_staticmetaobject(VALUE /*klass*/)
 	QMetaObject * meta = new QMetaObject(QObject::staticMetaObject);
 
 	smokeruby_object  * m = alloc_smokeruby_object(	true, 
-													qt_Smoke, 
-													qt_Smoke->idClass("QMetaObject").index, 
+													qtcore_Smoke, 
+													qtcore_Smoke->idClass("QMetaObject").index, 
 													meta );
 
 	VALUE obj = set_obj_info("Qt::MetaObject", m);
@@ -916,7 +925,7 @@ qsignalmapper_mapping(int argc, VALUE * argv, VALUE self)
 		smokeruby_object *o = value_obj_info(self);
 		smokeruby_object *a = value_obj_info(argv[0]);
 
-		Smoke::ModuleIndex nameId = qt_Smoke->NullModuleIndex;
+		Smoke::ModuleIndex nameId = qtcore_Smoke->NullModuleIndex;
 		nameId = o->smoke->idMethodName("mapping#");
 		Smoke::ModuleIndex ci(o->smoke, o->classId);
 		Smoke::ModuleIndex meth = o->smoke->findMethod(ci, nameId);
@@ -952,7 +961,7 @@ qsignalmapper_set_mapping(int argc, VALUE * argv, VALUE self)
 		smokeruby_object *o = value_obj_info(self);
 		smokeruby_object *a = value_obj_info(argv[1]);
 
-		Smoke::ModuleIndex nameId = qt_Smoke->NullModuleIndex;
+		Smoke::ModuleIndex nameId = qtcore_Smoke->NullModuleIndex;
 		nameId = o->smoke->idMethodName("setMapping##");
 		Smoke::ModuleIndex ci(o->smoke, o->classId);
 		Smoke::ModuleIndex meth = o->smoke->findMethod(ci, nameId);
@@ -1090,16 +1099,16 @@ static VALUE
 qvariant_from_value(int argc, VALUE * argv, VALUE self)
 {
 	if (argc == 2) {
-		Smoke::ModuleIndex nameId = qt_Smoke->NullModuleIndex;
+		Smoke::ModuleIndex nameId = qtcore_Smoke->NullModuleIndex;
 		if (TYPE(argv[0]) == T_DATA) {
-			nameId = qt_Smoke->idMethodName("QVariant#");
+			nameId = qtcore_Smoke->idMethodName("QVariant#");
 		} else if (TYPE(argv[0]) == T_ARRAY || TYPE(argv[0]) == T_ARRAY) {
-			nameId = qt_Smoke->idMethodName("QVariant?");
+			nameId = qtcore_Smoke->idMethodName("QVariant?");
 		} else {
-			nameId = qt_Smoke->idMethodName("QVariant$");
+			nameId = qtcore_Smoke->idMethodName("QVariant$");
 		}
 
-		Smoke::ModuleIndex meth = qt_Smoke->findMethod(qt_Smoke->idClass("QVariant"), nameId);
+		Smoke::ModuleIndex meth = qtcore_Smoke->findMethod(qtcore_Smoke->idClass("QVariant"), nameId);
 		Smoke::Index i = meth.smoke->methodMaps[meth.index].method;
 		i = -i;		// turn into ambiguousMethodList index
 		while (meth.smoke->ambiguousMethodList[i] != 0) {
@@ -1171,7 +1180,7 @@ qvariant_from_value(int argc, VALUE * argv, VALUE self)
 		return rb_funcall(qvariant_class, rb_intern("new"), 1, argv[0]);
 	}
 
-	smokeruby_object * vo = alloc_smokeruby_object(true, qt_Smoke, qt_Smoke->idClass("QVariant").index, v);
+	smokeruby_object * vo = alloc_smokeruby_object(true, qtcore_Smoke, qtcore_Smoke->idClass("QVariant").index, v);
 	VALUE result = set_obj_info("Qt::Variant", vo);
 
 	return result;
@@ -1184,11 +1193,11 @@ static Smoke::Index new_qvariant_qlist = 0;
 static Smoke::Index new_qvariant_qmap = 0;
 
 	if (new_qvariant_qlist == 0) {
-		Smoke::ModuleIndex nameId = qt_Smoke->findMethodName("Qvariant", "QVariant?");
-		Smoke::ModuleIndex meth = qt_Smoke->findMethod(qt_Smoke->findClass("QVariant"), nameId);
+		Smoke::ModuleIndex nameId = qtcore_Smoke->findMethodName("Qvariant", "QVariant?");
+		Smoke::ModuleIndex meth = qtcore_Smoke->findMethod(qtcore_Smoke->findClass("QVariant"), nameId);
 		Smoke::Index i = meth.smoke->methodMaps[meth.index].method;
 		i = -i;		// turn into ambiguousMethodList index
-		while (qt_Smoke->ambiguousMethodList[i] != 0) {
+		while (qtcore_Smoke->ambiguousMethodList[i] != 0) {
 			const char * argType = meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args]].name;
 
 			if (qstrcmp(argType, "const QList<QVariant>&" ) == 0) {
@@ -1202,9 +1211,9 @@ static Smoke::Index new_qvariant_qmap = 0;
 	}
 
 	if (argc == 1 && TYPE(argv[0]) == T_HASH) {
-		_current_method.smoke = qt_Smoke;
+		_current_method.smoke = qtcore_Smoke;
 		_current_method.index = new_qvariant_qmap;
-		QtRuby::MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
+		QtRuby::MethodCall c(qtcore_Smoke, _current_method.index, self, argv, argc-1);
 		c.next();
     	return *(c.var());
 	} else if (	argc == 1 
@@ -1212,9 +1221,9 @@ static Smoke::Index new_qvariant_qmap = 0;
 				&& RARRAY_LEN(argv[0]) > 0
 				&& TYPE(rb_ary_entry(argv[0], 0)) != T_STRING )
 	{
-		_current_method.smoke = qt_Smoke;
+		_current_method.smoke = qtcore_Smoke;
 		_current_method.index = new_qvariant_qlist;
-		QtRuby::MethodCall c(qt_Smoke, _current_method.index, self, argv, argc-1);
+		QtRuby::MethodCall c(qtcore_Smoke, _current_method.index, self, argv, argc-1);
 		c.next();
 		return *(c.var());
 	}
@@ -1554,7 +1563,7 @@ getIsa(VALUE /*self*/, VALUE classId)
 	smoke->classes[id].parents;
 
     while(*parents) {
-	//logger("\tparent: %s", qt_Smoke->classes[*parents].className);
+	//logger("\tparent: %s", qtcore_Smoke->classes[*parents].className);
 	rb_ary_push(parents_list, rb_str_new2(smoke->classes[*parents++].className));
     }
     return parents_list;
@@ -1720,7 +1729,7 @@ classIsa(VALUE /*self*/, VALUE className_value, VALUE base_value)
 {
     char *className = StringValuePtr(className_value);
     char *base = StringValuePtr(base_value);
-    return qt_Smoke->isDerivedFromByName(className, base) ? Qtrue : Qfalse;
+    return qtcore_Smoke->isDerivedFromByName(className, base) ? Qtrue : Qfalse;
 }
 
 static VALUE
@@ -1910,8 +1919,8 @@ make_metaObject(VALUE /*self*/, VALUE obj, VALUE parentMeta, VALUE stringdata_va
 
 #endif
 	smokeruby_object  * m = alloc_smokeruby_object(	true, 
-													qt_Smoke, 
-													qt_Smoke->idClass("QMetaObject").index, 
+													qtcore_Smoke, 
+													qtcore_Smoke->idClass("QMetaObject").index, 
 													meta );
 
     return Data_Wrap_Struct(qmetaobject_class, smokeruby_mark, smokeruby_free, m);
@@ -1978,7 +1987,7 @@ isQObject(VALUE /*self*/, VALUE c)
 {
     const char* classname = strdup(StringValuePtr(c));
 
-    return qt_Smoke->isDerivedFromByName(classname, "QObject");
+    return qtcore_Smoke->isDerivedFromByName(classname, "QObject");
 
     free((void*) classname);
 }
@@ -1998,7 +2007,7 @@ static VALUE
 findClass(VALUE /*self*/, VALUE name_value)
 {
     char *name = StringValuePtr(name_value);
-    Smoke::ModuleIndex mi = qt_Smoke->findClass(name);
+    Smoke::ModuleIndex mi = qtcore_Smoke->findClass(name);
     return rb_funcall(moduleindex_class, rb_intern("new"), 2, INT2NUM(smokeList.indexOf(mi.smoke)), INT2NUM(mi.index));
 }
 
@@ -2006,7 +2015,7 @@ findClass(VALUE /*self*/, VALUE name_value)
 // idMethodName(VALUE /*self*/, VALUE name_value)
 // {
 //     char *name = StringValuePtr(name_value);
-//     return INT2NUM(qt_Smoke->idMethodName(name).index);
+//     return INT2NUM(qtcore_Smoke->idMethodName(name).index);
 // }
 // 
 // static VALUE
@@ -2014,7 +2023,7 @@ findClass(VALUE /*self*/, VALUE name_value)
 // {
 //     int idclass = NUM2INT(idclass_value);
 //     int idmethodname = NUM2INT(idmethodname_value);
-//     return INT2NUM(qt_Smoke->idMethod(idclass, idmethodname).index);
+//     return INT2NUM(qtcore_Smoke->idMethod(idclass, idmethodname).index);
 // }
 
 static VALUE
@@ -2065,7 +2074,7 @@ setCurrentMethod(VALUE self, VALUE meth_value)
     int smokeidx = NUM2INT(rb_funcall(meth_value, rb_intern("smoke"), 0));
     int meth = NUM2INT(rb_funcall(meth_value, rb_intern("index"), 0));
     // FIXME: damn, this is lame, and it doesn't handle ambiguous methods
-    _current_method.smoke = smokeList[smokeidx];  //qt_Smoke->methodMaps[meth].method;
+    _current_method.smoke = smokeList[smokeidx];  //qtcore_Smoke->methodMaps[meth].method;
     _current_method.index = meth;
     return self;
 }
@@ -2075,9 +2084,44 @@ getClassList(VALUE /*self*/)
 {
     VALUE class_list = rb_ary_new();
 
-    for (int i = 1; i <= qt_Smoke->numClasses; i++) {
-        if (qt_Smoke->classes[i].className && !qt_Smoke->classes[i].external)
-            rb_ary_push(class_list, rb_str_new2(qt_Smoke->classes[i].className));
+    for (int i = 1; i <= qtcore_Smoke->numClasses; i++) {
+        if (qtcore_Smoke->classes[i].className && !qtcore_Smoke->classes[i].external)
+            rb_ary_push(class_list, rb_str_new2(qtcore_Smoke->classes[i].className));
+    }
+
+    for (int i = 1; i <= qtgui_Smoke->numClasses; i++) {
+        if (qtgui_Smoke->classes[i].className && !qtgui_Smoke->classes[i].external)
+            rb_ary_push(class_list, rb_str_new2(qtgui_Smoke->classes[i].className));
+    }
+
+    for (int i = 1; i <= qtxml_Smoke->numClasses; i++) {
+        if (qtxml_Smoke->classes[i].className && !qtxml_Smoke->classes[i].external)
+            rb_ary_push(class_list, rb_str_new2(qtxml_Smoke->classes[i].className));
+    }
+
+    for (int i = 1; i <= qtsql_Smoke->numClasses; i++) {
+        if (qtsql_Smoke->classes[i].className && !qtsql_Smoke->classes[i].external)
+            rb_ary_push(class_list, rb_str_new2(qtsql_Smoke->classes[i].className));
+    }
+
+    for (int i = 1; i <= qtopengl_Smoke->numClasses; i++) {
+        if (qtopengl_Smoke->classes[i].className && !qtopengl_Smoke->classes[i].external)
+            rb_ary_push(class_list, rb_str_new2(qtopengl_Smoke->classes[i].className));
+    }
+
+    for (int i = 1; i <= qtnetwork_Smoke->numClasses; i++) {
+        if (qtnetwork_Smoke->classes[i].className && !qtnetwork_Smoke->classes[i].external)
+            rb_ary_push(class_list, rb_str_new2(qtnetwork_Smoke->classes[i].className));
+    }
+
+    for (int i = 1; i <= qtsvg_Smoke->numClasses; i++) {
+        if (qtsvg_Smoke->classes[i].className && !qtsvg_Smoke->classes[i].external)
+            rb_ary_push(class_list, rb_str_new2(qtsvg_Smoke->classes[i].className));
+    }
+
+    for (int i = 1; i <= qtsvg_Smoke->numClasses; i++) {
+        if (qtdbus_Smoke->classes[i].className && !qtdbus_Smoke->classes[i].external)
+            rb_ary_push(class_list, rb_str_new2(qtdbus_Smoke->classes[i].className));
     }
 
     return class_list;
@@ -2273,19 +2317,34 @@ set_qtruby_embedded_wrapped(VALUE /*self*/, VALUE yn)
   return Qnil;
 }
 
-static QtRuby::Binding binding;
+#define INIT_BINDING(module) \
+    static QtRuby::Binding module##_binding = QtRuby::Binding(module##_Smoke); \
+    QtRubyModule module = { "QtRuby_" #module, resolve_classname_qt, 0, &module##_binding }; \
+    qtruby_modules[module##_Smoke] = module; \
+	smokeList << module##_Smoke;
 
 extern Q_DECL_EXPORT void
 Init_qtruby4()
 {
-    if (qt_Smoke == 0) init_qt_Smoke();
-    smokeList << qt_Smoke;
-
-    binding = QtRuby::Binding(qt_Smoke);
-    QtRubyModule module = { "QtRuby", resolve_classname_qt, 0, &binding };
-    qtruby_modules[qt_Smoke] = module;
-
+    init_qtcore_Smoke();
+    init_qtgui_Smoke();
+    init_qtxml_Smoke();
+    init_qtsql_Smoke();
+    init_qtopengl_Smoke();
+    init_qtnetwork_Smoke();
+    init_qtsvg_Smoke();
+    init_qtdbus_Smoke();
+	
     install_handlers(Qt_handlers);
+	
+    INIT_BINDING(qtcore)
+    INIT_BINDING(qtgui)
+    INIT_BINDING(qtxml)
+    INIT_BINDING(qtsql)
+    INIT_BINDING(qtopengl)
+    INIT_BINDING(qtnetwork)
+    INIT_BINDING(qtsvg)
+    INIT_BINDING(qtdbus)
 
 	if (qt_module == Qnil) {
 		qt_module = rb_define_module("Qt");

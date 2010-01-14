@@ -4,7 +4,7 @@ INCLUDE_DIRECTORIES (${QT_INCLUDES} ${KDE4_INCLUDE_DIR})
 set(qtscript_LIBRARY_SRC qtscript.cpp qtscripthandlers.cpp)
 
 add_library(qtscript MODULE ${qtscript_LIBRARY_SRC})
-target_link_libraries(qtscript ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} smokeqt smokeqtscript qtruby4shared)
+target_link_libraries(qtscript ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} smokeqtcore smokeqtscript qtruby4shared)
 set_target_properties(qtscript PROPERTIES PREFIX "")
 install(TARGETS qtscript DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
 install(FILES qtscript.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/qtscript)

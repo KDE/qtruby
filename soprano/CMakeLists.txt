@@ -3,7 +3,7 @@ INCLUDE_DIRECTORIES (${QT_INCLUDES})
 
 set(rubysoprano_LIBRARY_SRC soprano.cpp sopranohandlers.cpp)
 add_library(rubysoprano MODULE ${rubysoprano_LIBRARY_SRC})
-target_link_libraries(rubysoprano ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} smokeqt smokesoprano qtruby4shared)
+target_link_libraries(rubysoprano ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} smokeqtcore smokesoprano qtruby4shared)
 set_target_properties(rubysoprano PROPERTIES PREFIX "" OUTPUT_NAME soprano)
 install(TARGETS rubysoprano DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
 install(FILES soprano.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/soprano)

@@ -63,7 +63,7 @@
 #include <ruby.h>
 
 #include <smoke/smoke.h>
-#include <smoke/qt_smoke.h>
+#include <smoke/qtcore_smoke.h>
 
 #undef free
 #undef malloc
@@ -494,8 +494,8 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
     char *c = StringValuePtr(c_value);
     char *name = StringValuePtr(name_value);
     VALUE result = rb_ary_new();
-    Smoke::ModuleIndex classId = qt_Smoke->findClass(c);    
-    Smoke::ModuleIndex meth = qt_Smoke->NullModuleIndex;
+    Smoke::ModuleIndex classId = qtcore_Smoke->findClass(c);    
+    Smoke::ModuleIndex meth = qtcore_Smoke->NullModuleIndex;
     if (classId.smoke != 0) {
         meth = classId.smoke->findMethod(c, name);
     }
@@ -628,11 +628,11 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
 
 #define PUSH_QTRUBY_METHOD		\
 		if (	(methodRef.flags & (Smoke::mf_internal|Smoke::mf_ctor|Smoke::mf_dtor)) == 0 \
-				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator=") != 0 \
-				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator!=") != 0 \
-				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator--") != 0 \
-				&& strcmp(qt_Smoke->methodNames[methodRef.name], "operator++") != 0 \
-				&& strncmp(qt_Smoke->methodNames[methodRef.name], "operator ", strlen("operator ")) != 0 \
+				&& strcmp(qtcore_Smoke->methodNames[methodRef.name], "operator=") != 0 \
+				&& strcmp(qtcore_Smoke->methodNames[methodRef.name], "operator!=") != 0 \
+				&& strcmp(qtcore_Smoke->methodNames[methodRef.name], "operator--") != 0 \
+				&& strcmp(qtcore_Smoke->methodNames[methodRef.name], "operator++") != 0 \
+				&& strncmp(qtcore_Smoke->methodNames[methodRef.name], "operator ", strlen("operator ")) != 0 \
 				&& (	(flags == 0 && (methodRef.flags & (Smoke::mf_static|Smoke::mf_enum|Smoke::mf_protected)) == 0) \
 						|| (	flags == Smoke::mf_static \
 								&& (methodRef.flags & Smoke::mf_enum) == 0 \
@@ -641,18 +641,18 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
 						|| (	flags == Smoke::mf_protected \
 								&& (methodRef.flags & Smoke::mf_static) == 0 \
 								&& (methodRef.flags & Smoke::mf_protected) == Smoke::mf_protected ) ) ) { \
-			if (strncmp(qt_Smoke->methodNames[methodRef.name], "operator", strlen("operator")) == 0) { \
-				if (op_re.indexIn(qt_Smoke->methodNames[methodRef.name]) != -1) { \
+			if (strncmp(qtcore_Smoke->methodNames[methodRef.name], "operator", strlen("operator")) == 0) { \
+				if (op_re.indexIn(qtcore_Smoke->methodNames[methodRef.name]) != -1) { \
 					rb_ary_push(result, rb_str_new2((op_re.cap(1) + op_re.cap(2)).toLatin1())); \
 				} else { \
-					rb_ary_push(result, rb_str_new2(qt_Smoke->methodNames[methodRef.name] + strlen("operator"))); \
+					rb_ary_push(result, rb_str_new2(qtcore_Smoke->methodNames[methodRef.name] + strlen("operator"))); \
 				} \
-			} else if (predicate_re.indexIn(qt_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 0) { \
+			} else if (predicate_re.indexIn(qtcore_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 0) { \
 				rb_ary_push(result, rb_str_new2((predicate_re.cap(2).toLower() + predicate_re.cap(3) + "?").toLatin1())); \
-			} else if (set_re.indexIn(qt_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 1) { \
+			} else if (set_re.indexIn(qtcore_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 1) { \
 				rb_ary_push(result, rb_str_new2((set_re.cap(2).toLower() + set_re.cap(3) + "=").toLatin1())); \
 			} else { \
-				rb_ary_push(result, rb_str_new2(qt_Smoke->methodNames[methodRef.name])); \
+				rb_ary_push(result, rb_str_new2(qtcore_Smoke->methodNames[methodRef.name])); \
 			} \
 		}
  
@@ -1024,36 +1024,36 @@ static QRegExp * rx = 0;
 				}			
 			} else if (staticType == "bool") {
 				arg->argType = xmoc_bool;
-				smoke = qt_Smoke;
+				smoke = qtcore_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "int") {
 				arg->argType = xmoc_int;
-				smoke = qt_Smoke;
+				smoke = qtcore_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "uint") {
 				arg->argType = xmoc_uint;
-				smoke = qt_Smoke;
+				smoke = qtcore_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "long") {
 				arg->argType = xmoc_long;
-				smoke = qt_Smoke;
+				smoke = qtcore_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "ulong") {
 				arg->argType = xmoc_ulong;
-				smoke = qt_Smoke;
+				smoke = qtcore_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "double") {
 				arg->argType = xmoc_double;
-				smoke = qt_Smoke;
+				smoke = qtcore_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "char*") {
 				arg->argType = xmoc_charstar;
-				smoke = qt_Smoke;
+				smoke = qtcore_Smoke;
 				typeId = smoke->idType(name.constData());
 			} else if (staticType == "QString") {
 				arg->argType = xmoc_QString;
 				name += "*";
-				smoke = qt_Smoke;
+				smoke = qtcore_Smoke;
 				typeId = smoke->idType(name.constData());
 			}
 
@@ -1232,14 +1232,14 @@ value_to_type_flag(VALUE ruby_value)
 VALUE prettyPrintMethod(Smoke::Index id) 
 {
     VALUE r = rb_str_new2("");
-    Smoke::Method &meth = qt_Smoke->methods[id];
-    const char *tname = qt_Smoke->types[meth.ret].name;
+    Smoke::Method &meth = qtcore_Smoke->methods[id];
+    const char *tname = qtcore_Smoke->types[meth.ret].name;
     if(meth.flags & Smoke::mf_static) rb_str_catf(r, "static ");
     rb_str_catf(r, "%s ", (tname ? tname:"void"));
-    rb_str_catf(r, "%s::%s(", qt_Smoke->classes[meth.classId].className, qt_Smoke->methodNames[meth.name]);
+    rb_str_catf(r, "%s::%s(", qtcore_Smoke->classes[meth.classId].className, qtcore_Smoke->methodNames[meth.name]);
     for(int i = 0; i < meth.numArgs; i++) {
 	if(i) rb_str_catf(r, ", ");
-	tname = qt_Smoke->types[qt_Smoke->argumentList[meth.args+i]].name;
+	tname = qtcore_Smoke->types[qtcore_Smoke->argumentList[meth.args+i]].name;
 	rb_str_catf(r, "%s", (tname ? tname:"void"));
     }
     rb_str_catf(r, ")");

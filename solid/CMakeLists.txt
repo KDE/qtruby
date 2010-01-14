@@ -8,7 +8,7 @@ target_link_libraries(rubysolid
     ${QT_QTCORE_LIBRARY} 
     ${RUBY_LIBRARY} 
     ${KDE4_SOLID_LIBS}
-    smokeqt 
+    smokeqtcore
     smokesolid 
     qtruby4shared)
 set_target_properties(rubysolid PROPERTIES PREFIX "" OUTPUT_NAME solid)

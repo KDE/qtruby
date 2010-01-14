@@ -38,8 +38,15 @@
 
 #include <smoke.h>
 
-#include <smoke/qt_smoke.h>
-#include <smoke/kde_smoke.h>
+#include <smoke/qtcore_smoke.h>
+#include <smoke/kdecore_smoke.h>
+#include <smoke/kdeui_smoke.h>
+#include <smoke/kparts_smoke.h>
+#include <smoke/kio_smoke.h>
+#include <smoke/knewstuff2_smoke.h>
+#include <smoke/knewstuff3_smoke.h>
+#include <smoke/kfile_smoke.h>
+#include <smoke/kutils_smoke.h>
 
 #include <qtruby.h>
 #include <smokeruby.h>
@@ -52,11 +59,55 @@ const char* resolve_classname_kde(smokeruby_object * o);
 static VALUE getClassList(VALUE /*self*/)
 {
     VALUE classList = rb_ary_new();
-    for (int i = 1; i < kde_Smoke->numClasses; i++) {
-        if (kde_Smoke->classes[i].className && !kde_Smoke->classes[i].external) {
-            rb_ary_push(classList, rb_str_new2(kde_Smoke->classes[i].className));
+
+    for (int i = 1; i < kdecore_Smoke->numClasses; i++) {
+        if (kdecore_Smoke->classes[i].className && !kdecore_Smoke->classes[i].external) {
+            rb_ary_push(classList, rb_str_new2(kdecore_Smoke->classes[i].className));
         }
     }
+    
+    for (int i = 1; i < kdeui_Smoke->numClasses; i++) {
+        if (kdeui_Smoke->classes[i].className && !kdeui_Smoke->classes[i].external) {
+            rb_ary_push(classList, rb_str_new2(kdeui_Smoke->classes[i].className));
+        }
+    }
+    
+    for (int i = 1; i < kparts_Smoke->numClasses; i++) {
+        if (kparts_Smoke->classes[i].className && !kparts_Smoke->classes[i].external) {
+            rb_ary_push(classList, rb_str_new2(kparts_Smoke->classes[i].className));
+        }
+    }
+    
+    for (int i = 1; i < kio_Smoke->numClasses; i++) {
+        if (kio_Smoke->classes[i].className && !kio_Smoke->classes[i].external) {
+            rb_ary_push(classList, rb_str_new2(kio_Smoke->classes[i].className));
+        }
+    }
+    
+    for (int i = 1; i < knewstuff2_Smoke->numClasses; i++) {
+        if (knewstuff2_Smoke->classes[i].className && !knewstuff2_Smoke->classes[i].external) {
+            rb_ary_push(classList, rb_str_new2(knewstuff2_Smoke->classes[i].className));
+        }
+    }
+    
+    for (int i = 1; i < knewstuff3_Smoke->numClasses; i++) {
+        if (knewstuff3_Smoke->classes[i].className && !knewstuff3_Smoke->classes[i].external) {
+            rb_ary_push(classList, rb_str_new2(knewstuff3_Smoke->classes[i].className));
+        }
+    }
+    
+    for (int i = 1; i < kfile_Smoke->numClasses; i++) {
+        if (kfile_Smoke->classes[i].className && !kfile_Smoke->classes[i].external) {
+            rb_ary_push(classList, rb_str_new2(kfile_Smoke->classes[i].className));
+        }
+    }
+    
+    for (int i = 1; i < kutils_Smoke->numClasses; i++) {
+        if (kutils_Smoke->classes[i].className && !kutils_Smoke->classes[i].external) {
+            rb_ary_push(classList, rb_str_new2(kutils_Smoke->classes[i].className));
+        }
+    }
+    
     return classList;
 }
 
@@ -84,7 +135,7 @@ config_initialize(int argc, VALUE * argv, VALUE self)
 		}
 
 		KConfigSkeleton * ptr = new KConfigSkeleton(0);
-		Smoke::ModuleIndex mi = qt_Smoke->findClass("KConfigSkeleton");
+		Smoke::ModuleIndex mi = qtcore_Smoke->findClass("KConfigSkeleton");
 		smokeruby_object  * o = alloc_smokeruby_object(	true, 
 														mi.smoke, 
 														mi.index, 
@@ -134,7 +185,7 @@ kactioncollection_add_action(int argc, VALUE * argv, VALUE self)
 		smokeruby_object *o = value_obj_info(self);
 		smokeruby_object *a = value_obj_info(argv[1]);
 
-		Smoke::ModuleIndex nameId = qt_Smoke->NullModuleIndex;
+		Smoke::ModuleIndex nameId = qtcore_Smoke->NullModuleIndex;
 		nameId = o->smoke->idMethodName("addAction$#");
 		Smoke::ModuleIndex ci(o->smoke, o->classId);
 		Smoke::ModuleIndex meth = o->smoke->findMethod(ci, nameId);
@@ -219,7 +270,7 @@ static VALUE new_kconfigskeleton_string_item(int argc, VALUE * argv, VALUE self)
 		return rb_call_super(argc, argv);
 	}
 
-	Smoke::ModuleIndex mi = qt_Smoke->findClass(SkeletonItemSTR);
+	Smoke::ModuleIndex mi = qtcore_Smoke->findClass(SkeletonItemSTR);
 	smokeruby_object  * o = alloc_smokeruby_object(	true, 
 													mi.smoke, 
 													mi.index, 
@@ -283,7 +334,7 @@ static VALUE new_kconfigskeleton_stringlist_item(int argc, VALUE * argv, VALUE s
 		return rb_call_super(argc, argv);
 	}
 
-	Smoke::ModuleIndex mi = qt_Smoke->findClass(SkeletonItemSTR);
+	Smoke::ModuleIndex mi = qtcore_Smoke->findClass(SkeletonItemSTR);
 	smokeruby_object  * o = alloc_smokeruby_object(	true, 
 													mi.smoke, 
 													mi.index, 
@@ -347,7 +398,7 @@ static VALUE new_kconfigskeleton_primitive_item(int argc, VALUE * argv, VALUE se
 		return rb_call_super(argc, argv);
 	}
 
-	Smoke::ModuleIndex mi = qt_Smoke->findClass(SkeletonItemSTR);
+	Smoke::ModuleIndex mi = qtcore_Smoke->findClass(SkeletonItemSTR);
 	smokeruby_object  * o = alloc_smokeruby_object(	true, 
 													mi.smoke, 
 													mi.index, 
@@ -400,7 +451,7 @@ static VALUE new_kconfigskeleton_item(int argc, VALUE * argv, VALUE self)
 		return rb_call_super(argc, argv);
 	}
 
-	Smoke::ModuleIndex mi = qt_Smoke->findClass(SkeletonItemSTR);
+	Smoke::ModuleIndex mi = qtcore_Smoke->findClass(SkeletonItemSTR);
 	smokeruby_object  * o = alloc_smokeruby_object(	true, 
 													mi.smoke, 
 													mi.index, 
@@ -584,20 +635,34 @@ setup_kde_modules()
 	rb_define_singleton_method(nepomuk_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 }
 
-static QtRuby::Binding binding;
+#define INIT_BINDING(module) \
+    static QtRuby::Binding module##_binding = QtRuby::Binding(module##_Smoke); \
+    QtRubyModule module = { "QtRuby_" #module, resolve_classname_kde, 0, &module##_binding }; \
+    qtruby_modules[module##_Smoke] = module; \
+    smokeList << module##_Smoke;
 
 Q_DECL_EXPORT void
 Init_korundum4()
 {
     rb_require("Qt4");    // need to initialize the core runtime first
-    init_kde_Smoke();
 
-    binding = QtRuby::Binding(kde_Smoke);
+    init_kdecore_Smoke();
+    init_kdeui_Smoke();
+    init_kparts_Smoke();
+    init_kio_Smoke();
+    init_knewstuff2_Smoke();
+    init_knewstuff3_Smoke();
+    init_kfile_Smoke();
+    init_kutils_Smoke();
 
-    smokeList << kde_Smoke;
-
-    QtRubyModule module = { "KDE", resolve_classname_kde, classCreated, &binding };
-    qtruby_modules[kde_Smoke] = module;
+    INIT_BINDING(kdecore)
+    INIT_BINDING(kdeui)
+    INIT_BINDING(kparts)
+    INIT_BINDING(kio)
+    INIT_BINDING(knewstuff2)
+    INIT_BINDING(knewstuff3)
+    INIT_BINDING(kfile)
+    INIT_BINDING(kutils)
 
     install_handlers(KDE_handlers);
 
