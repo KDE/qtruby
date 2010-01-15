@@ -637,7 +637,7 @@ setup_kde_modules()
 
 #define INIT_BINDING(module) \
     static QtRuby::Binding module##_binding = QtRuby::Binding(module##_Smoke); \
-    QtRubyModule module = { "QtRuby_" #module, resolve_classname_kde, 0, &module##_binding }; \
+    QtRubyModule module = { "QtRuby_" #module, resolve_classname_kde, classCreated, &module##_binding }; \
     qtruby_modules[module##_Smoke] = module; \
     smokeList << module##_Smoke;
 
