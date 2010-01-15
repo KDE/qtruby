@@ -574,7 +574,6 @@ module KDE
                 elsif classname =~ /^(KIO|KParts|KNS|KNS3|KWallet|KAuth|KSettings)::/
                     now = classname
                 elsif classname =~ /^K/
-#                elsif classname =~ /^K/ && classname !~ /::/
 					now = classname.sub(/(^K)/, 'KDE::')
 				end
 				now
