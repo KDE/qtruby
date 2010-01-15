@@ -294,6 +294,7 @@ TypeHandler KDE_handlers[] = {
     { "KPluginInfo::List&", marshall_KPluginInfoList },
     { "KService::List", marshall_KServiceList },
     { "QList<KService::Ptr>", marshall_KServiceList },
+    { "QList<KSharedPtr<KService>>", marshall_KServiceList },
     { "QList<KSharedPtr<KService> >", marshall_KServiceList },
     { "KService::Ptr", marshall_KServicePtr },
     { "KSharedConfig::Ptr", marshall_KSharedConfigPtr },
