@@ -1,3 +1,8 @@
+2010-01-15  Richard Dale  <richard.j.dale@gmail.com>
+    * Nested classes such as KEncodingFileDialog::Result weren't being 
+    correctly converted to their ruby form with a KDE:: namespace. Thanks
+    to Stefano Crocco for reporting the bug
+
 2009-09-22  Richard Dale  <richard.j.dale@gmail.com>
     * Fix broken KDE::ConfigGroup.readEntry method. Thanks to Paulo Capriotti
       for reporting the bug
