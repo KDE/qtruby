@@ -494,8 +494,8 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
     char *c = StringValuePtr(c_value);
     char *name = StringValuePtr(name_value);
     VALUE result = rb_ary_new();
-    Smoke::ModuleIndex classId = qtcore_Smoke->findClass(c);    
-    Smoke::ModuleIndex meth = qtcore_Smoke->NullModuleIndex;
+    Smoke::ModuleIndex classId = Smoke::findClass(c);    
+    Smoke::ModuleIndex meth = Smoke::NullModuleIndex;
     if (classId.smoke != 0) {
         meth = classId.smoke->findMethod(c, name);
     }

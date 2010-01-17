@@ -925,7 +925,7 @@ qsignalmapper_mapping(int argc, VALUE * argv, VALUE self)
 		smokeruby_object *o = value_obj_info(self);
 		smokeruby_object *a = value_obj_info(argv[0]);
 
-		Smoke::ModuleIndex nameId = qtcore_Smoke->NullModuleIndex;
+		Smoke::ModuleIndex nameId = Smoke::NullModuleIndex;
 		nameId = o->smoke->idMethodName("mapping#");
 		Smoke::ModuleIndex ci(o->smoke, o->classId);
 		Smoke::ModuleIndex meth = o->smoke->findMethod(ci, nameId);
@@ -961,7 +961,7 @@ qsignalmapper_set_mapping(int argc, VALUE * argv, VALUE self)
 		smokeruby_object *o = value_obj_info(self);
 		smokeruby_object *a = value_obj_info(argv[1]);
 
-		Smoke::ModuleIndex nameId = qtcore_Smoke->NullModuleIndex;
+		Smoke::ModuleIndex nameId = Smoke::NullModuleIndex;
 		nameId = o->smoke->idMethodName("setMapping##");
 		Smoke::ModuleIndex ci(o->smoke, o->classId);
 		Smoke::ModuleIndex meth = o->smoke->findMethod(ci, nameId);
@@ -1099,7 +1099,7 @@ static VALUE
 qvariant_from_value(int argc, VALUE * argv, VALUE self)
 {
 	if (argc == 2) {
-		Smoke::ModuleIndex nameId = qtcore_Smoke->NullModuleIndex;
+		Smoke::ModuleIndex nameId = Smoke::NullModuleIndex;
 		if (TYPE(argv[0]) == T_DATA) {
 			nameId = qtcore_Smoke->idMethodName("QVariant#");
 		} else if (TYPE(argv[0]) == T_ARRAY || TYPE(argv[0]) == T_ARRAY) {
@@ -1729,7 +1729,7 @@ classIsa(VALUE /*self*/, VALUE className_value, VALUE base_value)
 {
     char *className = StringValuePtr(className_value);
     char *base = StringValuePtr(base_value);
-    return qtcore_Smoke->isDerivedFromByName(className, base) ? Qtrue : Qfalse;
+    return Smoke::isDerivedFromByName(className, base) ? Qtrue : Qfalse;
 }
 
 static VALUE
@@ -1987,7 +1987,7 @@ isQObject(VALUE /*self*/, VALUE c)
 {
     const char* classname = strdup(StringValuePtr(c));
 
-    return qtcore_Smoke->isDerivedFromByName(classname, "QObject");
+    return Smoke::isDerivedFromByName(classname, "QObject");
 
     free((void*) classname);
 }
@@ -2007,7 +2007,7 @@ static VALUE
 findClass(VALUE /*self*/, VALUE name_value)
 {
     char *name = StringValuePtr(name_value);
-    Smoke::ModuleIndex mi = qtcore_Smoke->findClass(name);
+    Smoke::ModuleIndex mi = Smoke::findClass(name);
     return rb_funcall(moduleindex_class, rb_intern("new"), 2, INT2NUM(smokeList.indexOf(mi.smoke)), INT2NUM(mi.index));
 }
 
@@ -2230,7 +2230,7 @@ create_qt_class(VALUE /*self*/, VALUE package_value, VALUE module_value)
 
     rb_define_singleton_method(module_value, "method_missing", (VALUE (*) (...)) module_method_missing, -1);
     rb_define_singleton_method(module_value, "const_missing", (VALUE (*) (...)) module_method_missing, -1);
-	
+
 	foreach(QString s, packageName.mid(strlen(moduleName) + 2).split("::")) {
 		klass = rb_define_class_under(klass, (const char*) s.toLatin1(), qt_base_class);
 	}

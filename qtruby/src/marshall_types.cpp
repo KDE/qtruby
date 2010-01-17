@@ -675,7 +675,7 @@ SigSlotBase::prepareReturnValue(void** o)
 				o[0] = new QDBusVariant;
 #endif
 			} else {
-				Smoke::ModuleIndex ci = qtcore_Smoke->findClass(type);
+				Smoke::ModuleIndex ci = Smoke::findClass(type);
 				if (ci.index != 0) {
 					Smoke::ModuleIndex mi = ci.smoke->findMethod(type, type);
 					if (mi.index) {
