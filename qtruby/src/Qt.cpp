@@ -461,7 +461,7 @@ static char p[CAT_BUFFER_SIZE];
 const char *
 resolve_classname(smokeruby_object * o)
 {
-	if (o->smoke->isDerivedFromByName(o->smoke->classes[o->classId].className, "QObject")) {
+	if (Smoke::isDerivedFrom(o->smoke->classes[o->classId].className, "QObject")) {
 		QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject").index);
 		const QMetaObject * meta = qobject->metaObject();
 

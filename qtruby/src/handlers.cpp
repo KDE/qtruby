@@ -197,7 +197,7 @@ smokeruby_mark(void * p)
 	if (do_debug & qtdb_gc) qWarning("Checking for mark (%s*)%p", className, o->ptr);
 
     if (o->ptr && o->allocated) {
-		if (o->smoke->isDerivedFromByName(className, "QObject")) {
+		if (Smoke::isDerivedFrom(className, "QObject")) {
 			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject").index);
 			// Only mark the QObject tree if the current item doesn't have a parent.
 			// This avoids marking parts of a tree more than once.
@@ -206,7 +206,7 @@ smokeruby_mark(void * p)
 			}
 		}
 
-		if (o->smoke->isDerivedFromByName(className, "QWidget")) {
+		if (Smoke::isDerivedFrom(className, "QWidget")) {
 			QWidget * widget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget").index);
 			QLayout * layout = widget->layout();
 			if (layout != 0) {
@@ -218,7 +218,7 @@ smokeruby_mark(void * p)
 			}
 		}
 
-		if (o->smoke->isDerivedFromByName(className, "QListWidget")) {
+		if (Smoke::isDerivedFrom(className, "QListWidget")) {
 			QListWidget * listwidget = (QListWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QListWidget").index);
 			
 			for (int i = 0; i < listwidget->count(); i++) {
@@ -232,7 +232,7 @@ smokeruby_mark(void * p)
 			return;
 		}
 	
-		if (o->smoke->isDerivedFromByName(className, "QTableWidget")) {
+		if (Smoke::isDerivedFrom(className, "QTableWidget")) {
 			QTableWidget * table = (QTableWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTableWidget").index);
 			QTableWidgetItem *item;
 
@@ -249,7 +249,7 @@ smokeruby_mark(void * p)
 			return;		
 		}
 
-		if (o->smoke->isDerivedFromByName(className, "QTreeWidget")) {
+		if (Smoke::isDerivedFrom(className, "QTreeWidget")) {
 			QTreeWidget * qtreewidget = (QTreeWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTreeWidget").index);
 
 			for (int i = 0; i < qtreewidget->topLevelItemCount(); i++) {
@@ -264,7 +264,7 @@ smokeruby_mark(void * p)
 			return;
 		}
 
-		if (o->smoke->isDerivedFromByName(className, "QLayout")) {
+		if (Smoke::isDerivedFrom(className, "QLayout")) {
 			QLayout * qlayout = (QLayout *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayout").index);
 			for (int i = 0; i < qlayout->count(); ++i) {
 				QLayoutItem * item = qlayout->itemAt(i);
@@ -279,7 +279,7 @@ smokeruby_mark(void * p)
 			return;
 		}
 
-		if (o->smoke->isDerivedFromByName(className, "QStandardItemModel")) {
+		if (Smoke::isDerivedFrom(className, "QStandardItemModel")) {
 			QStandardItemModel * model = (QStandardItemModel *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QStandardItemModel").index);
 			for (int row = 0; row < model->rowCount(); row++) {
 				for (int column = 0; column < model->columnCount(); column++) {
@@ -299,7 +299,7 @@ smokeruby_mark(void * p)
 			return;
 		}
 
-		if (o->smoke->isDerivedFromByName(className, "QGraphicsWidget")) {
+		if (Smoke::isDerivedFrom(className, "QGraphicsWidget")) {
 			QGraphicsWidget * widget = (QGraphicsWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsWidget").index);
 			QGraphicsLayout * layout = widget->layout();
 			if (layout != 0) {
@@ -311,7 +311,7 @@ smokeruby_mark(void * p)
 			}
 		}
 
-		if (o->smoke->isDerivedFromByName(className, "QGraphicsLayout")) {
+		if (Smoke::isDerivedFrom(className, "QGraphicsLayout")) {
 			QGraphicsLayout * qlayout = (QGraphicsLayout *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsLayout").index);
 			for (int i = 0; i < qlayout->count(); ++i) {
 				QGraphicsLayoutItem * item = qlayout->itemAt(i);
@@ -326,7 +326,7 @@ smokeruby_mark(void * p)
 			return;
 		}
 
-		if (o->smoke->isDerivedFromByName(className, "QGraphicsItem")) {
+		if (Smoke::isDerivedFrom(className, "QGraphicsItem")) {
 			QGraphicsItem * item = (QGraphicsItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsItem").index);
 			// Only mark the QGraphicsItem tree if the current item doesn't have a parent.
 			// This avoids marking parts of a tree more than once.
@@ -335,7 +335,7 @@ smokeruby_mark(void * p)
 			}
 		}
 
-		if (o->smoke->isDerivedFromByName(className, "QGraphicsScene")) {
+		if (Smoke::isDerivedFrom(className, "QGraphicsScene")) {
 			QGraphicsScene * scene = (QGraphicsScene *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsScene").index);
 			QList<QGraphicsItem *> list = scene->items();
 			for (int i = 0; i < list.size(); i++) {
@@ -379,13 +379,13 @@ smokeruby_free(void * p)
 	unmapPointer(o, o->classId, 0);
 	object_count --;
 	
-	if (o->smoke->isDerivedFromByName(className, "QLayoutItem")) {
+	if (Smoke::isDerivedFrom(className, "QLayoutItem")) {
 		QLayoutItem * item = (QLayoutItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayoutItem").index);
 		if (item->layout() != 0 || item->widget() != 0 || item->spacerItem() != 0) {
 			free_smokeruby_object(o);
 			return;
 		}
-	} else if (o->smoke->isDerivedFromByName(className, "QStandardItem")) {
+	} else if (Smoke::isDerivedFrom(className, "QStandardItem")) {
 		QStandardItem * item = (QStandardItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QStandardItem").index);
 		if (item->model() != 0 || item->parent() != 0) {
 			free_smokeruby_object(o);
@@ -397,19 +397,19 @@ smokeruby_free(void * p)
 			free_smokeruby_object(o);
 			return;
 		}
-	} else if (o->smoke->isDerivedFromByName(className, "QTableWidgetItem")) {
+	} else if (Smoke::isDerivedFrom(className, "QTableWidgetItem")) {
 		QTableWidgetItem * item = (QTableWidgetItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTableWidgetItem").index);
 		if (item->tableWidget() != 0) {
 			free_smokeruby_object(o);
 			return;
 		}
-	} else if (o->smoke->isDerivedFromByName(className, "QWidget")) {
+	} else if (Smoke::isDerivedFrom(className, "QWidget")) {
 		QWidget * qwidget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget").index);
 		if (qwidget->parentWidget() != 0) {
 			free_smokeruby_object(o);
 			return;
 		}
-	} else if (o->smoke->isDerivedFromByName(className, "QObject")) {
+	} else if (Smoke::isDerivedFrom(className, "QObject")) {
 		QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject").index);
 		if (qobject->parent() != 0) {
 			free_smokeruby_object(o);
@@ -444,7 +444,7 @@ smokeruby_free(void * p)
 Q_DECL_EXPORT const char *
 resolve_classname_qt(smokeruby_object * o)
 {
-	if (o->smoke->isDerivedFromByName(o->smoke->classes[o->classId].className, "QEvent")) {
+	if (Smoke::isDerivedFrom(o->smoke->classes[o->classId].className, "QEvent")) {
 		QEvent * qevent = (QEvent *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QEvent").index);
 		switch (qevent->type()) {
 		case QEvent::Timer:
@@ -667,7 +667,7 @@ resolve_classname_qt(smokeruby_object * o)
 		default:
 			break;
 		}
-	} else if (o->smoke->isDerivedFromByName(o->smoke->classes[o->classId].className, "QGraphicsItem")) {
+	} else if (Smoke::isDerivedFrom(o->smoke->classes[o->classId].className, "QGraphicsItem")) {
 		QGraphicsItem * item = (QGraphicsItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsItem").index);
 		switch (item->type()) {
 		case 1:
@@ -700,7 +700,7 @@ resolve_classname_qt(smokeruby_object * o)
 			o->classId = o->smoke->idClass("QGraphicsItemGroup").index;
 			break;
 		}
-	} else if (o->smoke->isDerivedFromByName(o->smoke->classes[o->classId].className, "QLayoutItem")) {
+	} else if (Smoke::isDerivedFrom(o->smoke->classes[o->classId].className, "QLayoutItem")) {
 		QLayoutItem * item = (QLayoutItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayoutItem").index);
 		if (item->widget() != 0) {
 			o->classId = o->smoke->idClass("QWidgetItem").index;

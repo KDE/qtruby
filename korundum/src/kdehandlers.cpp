@@ -56,7 +56,7 @@
 const char*
 resolve_classname_kde(smokeruby_object * o)
 {
-	if (o->smoke->isDerivedFromByName(o->smoke->classes[o->classId].className, "KArchiveEntry")) {
+	if (Smoke::isDerivedFrom(o->smoke->classes[o->classId].className, "KArchiveEntry")) {
 		KArchiveEntry * entry = (KArchiveEntry *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("KArchiveEntry").index);
 		if (entry->isDirectory()) {
 			return "KDE::ArchiveDirectory";
