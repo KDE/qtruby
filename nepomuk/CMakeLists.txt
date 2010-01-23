@@ -7,9 +7,9 @@ add_library(rubynepomuk MODULE ${rubynepomuk_LIBRARY_SRC})
 target_link_libraries(rubynepomuk 
     ${RUBY_LIBRARY} 
     ${NEPOMUK_LIBRARIES}
-    smokeqt 
+    smokeqtcore 
     smokesoprano
-    smokekde 
+    smokekdecore 
     smokenepomuk 
     qtruby4shared)
 set_target_properties(rubynepomuk PROPERTIES PREFIX "" OUTPUT_NAME nepomuk)
