@@ -20,7 +20,7 @@
 #include <QtCore/qhash.h>
 #include <QtCore/qurl.h>
 
-#include <smoke/qt_smoke.h>
+#include <smoke/qtcore_smoke.h>
 #include <qtruby.h>
 #include <smokeruby.h>
 #include <marshall_macros.h>
@@ -81,8 +81,8 @@ void marshall_QHashQUrlNepomukVariant(Marshall *m) {
 
             if (key == Qnil) {
                 smokeruby_object  * k = alloc_smokeruby_object( true, 
-                                                                qt_Smoke, 
-                                                                qt_Smoke->idClass("QUrl").index, 
+                                                                qtcore_Smoke, 
+                                                                qtcore_Smoke->idClass("QUrl").index, 
                                                                 keyPtr );
                 key = set_obj_info("Qt::Url", k);
             }

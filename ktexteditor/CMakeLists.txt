@@ -7,8 +7,8 @@ add_library(rubyktexteditor MODULE ${rubyktexteditor_LIBRARY_SRC})
 target_link_libraries(rubyktexteditor 
     ${QT_QTCORE_LIBRARY} 
     ${RUBY_LIBRARY} 
-    smokeqt 
-    smokekde 
+    smokeqtcore 
+    smokekdecore 
     smokektexteditor 
     qtruby4shared)
 set_target_properties(rubyktexteditor PROPERTIES PREFIX "" OUTPUT_NAME ktexteditor)

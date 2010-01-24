@@ -925,11 +925,11 @@ qsignalmapper_mapping(int argc, VALUE * argv, VALUE self)
 		while (meth.smoke->ambiguousMethodList[i] != 0) {
 			if (	(	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args]].name,
 									"QObject*" ) == 0 
-						&& a->smoke->isDerivedFromByName(a->smoke->classes[a->classId].className, "QObject")
-						&& !a->smoke->isDerivedFromByName(a->smoke->classes[a->classId].className, "QWidget") )
+						&& a->smoke->isDerivedFrom(a->smoke->classes[a->classId].className, "QObject")
+						&& !a->smoke->isDerivedFrom(a->smoke->classes[a->classId].className, "QWidget") )
 					|| (	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args]].name,
 										"QWidget*" ) == 0 
-							&& a->smoke->isDerivedFromByName(a->smoke->classes[a->classId].className, "QWidget") ) )
+							&& a->smoke->isDerivedFrom(a->smoke->classes[a->classId].className, "QWidget") ) )
 			{
 				_current_method.smoke = meth.smoke;
 				_current_method.index = meth.smoke->ambiguousMethodList[i];
@@ -961,11 +961,11 @@ qsignalmapper_set_mapping(int argc, VALUE * argv, VALUE self)
 		while (meth.smoke->ambiguousMethodList[i] != 0) {
 			if (	(	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args + 1]].name,
 									"QObject*" ) == 0 
-						&& a->smoke->isDerivedFromByName(a->smoke->classes[a->classId].className, "QObject")
-						&& !a->smoke->isDerivedFromByName(a->smoke->classes[a->classId].className, "QWidget") )
+						&& a->smoke->isDerivedFrom(a->smoke->classes[a->classId].className, "QObject")
+						&& !a->smoke->isDerivedFrom(a->smoke->classes[a->classId].className, "QWidget") )
 					|| (	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args + 1]].name,
 										"QWidget*" ) == 0 
-							&& a->smoke->isDerivedFromByName(a->smoke->classes[a->classId].className, "QWidget") ) )
+							&& a->smoke->isDerivedFrom(a->smoke->classes[a->classId].className, "QWidget") ) )
 			{
 				_current_method.smoke = meth.smoke;
 				_current_method.index = meth.smoke->ambiguousMethodList[i];
@@ -1720,7 +1720,7 @@ classIsa(VALUE /*self*/, VALUE className_value, VALUE base_value)
 {
     char *className = StringValuePtr(className_value);
     char *base = StringValuePtr(base_value);
-    return qt_Smoke->isDerivedFromByName(className, base) ? Qtrue : Qfalse;
+    return qt_Smoke->isDerivedFrom(className, base) ? Qtrue : Qfalse;
 }
 
 static VALUE
@@ -1978,7 +1978,7 @@ isQObject(VALUE /*self*/, VALUE c)
 {
     const char* classname = strdup(StringValuePtr(c));
 
-    return qt_Smoke->isDerivedFromByName(classname, "QObject");
+    return qt_Smoke->isDerivedFrom(classname, "QObject");
 
     free((void*) classname);
 }

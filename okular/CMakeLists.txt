@@ -8,8 +8,8 @@ target_link_libraries(rubyokular
     ${QT_QTCORE_LIBRARY} 
     ${RUBY_LIBRARY} 
     ${OKULAR_LIBRARIES}
-    smokeqt 
-    smokekde 
+    smokeqtcore 
+    smokekdecore 
     smokeokular 
     qtruby4shared)
 set_target_properties(rubyokular PROPERTIES PREFIX "" OUTPUT_NAME okular)

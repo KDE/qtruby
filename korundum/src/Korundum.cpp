@@ -143,11 +143,11 @@ kactioncollection_add_action(int argc, VALUE * argv, VALUE self)
 		while (meth.smoke->ambiguousMethodList[i] != 0) {
 			if (	(	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args + 1]].name,
 									"QAction*" ) == 0 
-						&& a->smoke->isDerivedFromByName(a->smoke->classes[a->classId].className, "QAction")
-						&& !a->smoke->isDerivedFromByName(a->smoke->classes[a->classId].className, "KAction") )
+						&& a->smoke->isDerivedFrom(a->smoke->classes[a->classId].className, "QAction")
+						&& !a->smoke->isDerivedFrom(a->smoke->classes[a->classId].className, "KAction") )
 					|| (	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args + 1]].name,
 										"KAction*" ) == 0 
-							&& a->smoke->isDerivedFromByName(a->smoke->classes[a->classId].className, "KAction") ) )
+							&& a->smoke->isDerivedFrom(a->smoke->classes[a->classId].className, "KAction") ) )
 			{
 				_current_method.smoke = meth.smoke;
 				_current_method.index = meth.smoke->ambiguousMethodList[i];
