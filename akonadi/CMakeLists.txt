@@ -10,8 +10,7 @@ target_link_libraries(rubyakonadi
     ${RUBY_LIBRARY} 
     ${KDEPIMLIBS_AKONADI_LIBS} 
     ${KDEPIMLIBS_AKONADI_KMIME_LIBS}
-    smokeqt 
-    smokekde 
+    smokeqtcore
     smokeakonadi 
     qtruby4shared)
 set_target_properties(rubyakonadi PROPERTIES PREFIX "" OUTPUT_NAME akonadi)
