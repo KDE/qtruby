@@ -17,7 +17,7 @@
  ***************************************************************************/
 
 #include "marshall_types.h"
-#include <smoke/qt_smoke.h>
+#include <smoke/qtcore_smoke.h>
 
 #include <QtCore/qvector.h>
 #include <QtCore/qlist.h>
@@ -675,7 +675,7 @@ SigSlotBase::prepareReturnValue(void** o)
 				o[0] = new QDBusVariant;
 #endif
 			} else {
-				Smoke::ModuleIndex ci = qt_Smoke->findClass(type);
+				Smoke::ModuleIndex ci = qtcore_Smoke->findClass(type);
 				if (ci.index != 0) {
 					Smoke::ModuleIndex mi = ci.smoke->findMethod(type, type);
 					if (mi.index) {

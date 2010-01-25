@@ -37,8 +37,14 @@ target_link_libraries(korundum4
     ${KDE4_KPTY_LIBS}
     ${KDE4_KUTILS_LIBS}
     ${RUBY_LIBRARY} 
-    smokeqt 
-    smokekde 
+    smokekdecore 
+    smokekdeui 
+    smokekio 
+    smokekparts 
+    smokekfile 
+    smokeknewstuff2 
+    smokeknewstuff3 
+    smokekutils      
     qtruby4shared)
 
 set_target_properties(korundum4 PROPERTIES PREFIX "")

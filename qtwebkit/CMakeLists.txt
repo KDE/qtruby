@@ -3,7 +3,7 @@ INCLUDE_DIRECTORIES (${QT_INCLUDES})
 
 set(rubyqtwebkit_LIBRARY_SRC qtwebkit.cpp qtwebkithandlers.cpp)
 add_library(rubyqtwebkit MODULE ${rubyqtwebkit_LIBRARY_SRC})
-target_link_libraries(rubyqtwebkit ${QT_QTWEBKIT_LIBRARY} ${RUBY_LIBRARY} smokeqt smokeqtwebkit qtruby4shared)
+target_link_libraries(rubyqtwebkit ${QT_QTWEBKIT_LIBRARY} ${RUBY_LIBRARY} smokeqtcore smokeqtwebkit qtruby4shared)
 set_target_properties(rubyqtwebkit PROPERTIES PREFIX "" OUTPUT_NAME qtwebkit)
 install(TARGETS rubyqtwebkit DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
 install(FILES qtwebkit.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/qtwebkit)
