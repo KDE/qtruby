@@ -571,7 +571,7 @@ module KDE
 					now = classname.sub(/KCore/,'KDE::')
 				elsif classname =~ /^(KConfigSkeleton|KWin|KDateTime|KTimeZone|KSettings)::/
 					now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
-                elsif classname =~ /^(KIO|KParts|KNS|KNS3|KWallet|KAuth|KSettings)::/
+                elsif classname =~ /^(KTextEditor|KParts|KIO|KParts|KNS|KNS3|KWallet|KAuth|KSettings)::/
                     now = classname
                 elsif classname =~ /^K/
 					now = classname.sub(/(^K)/, 'KDE::')
