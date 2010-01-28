@@ -229,8 +229,8 @@ void marshall_ValueListItem(Marshall *m) {
 
 			VALUE av = rb_ary_new();
 
-			int ix = m->smoke()->idClass(ItemSTR).index;
-			const char * className = qtruby_modules[m->smoke()].binding->className(ix);
+			Smoke::ModuleIndex classId = Smoke::findClass(ItemSTR);
+			const char * className = qtruby_modules[m->smoke()].binding->className(classId.index);
 
 			for(int i=0; i < valuelist->size() ; ++i) {
 				void *p = (void *) &(valuelist->at(i));
@@ -244,7 +244,7 @@ void marshall_ValueListItem(Marshall *m) {
 				if(obj == Qnil) {
 					smokeruby_object  * o = alloc_smokeruby_object(	false, 
 																	m->smoke(), 
-																	m->smoke()->idClass(ItemSTR).index, 
+																	classId.index, 
 																	p );
 					obj = set_obj_info(className, o);
 				}
