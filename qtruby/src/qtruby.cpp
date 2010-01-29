@@ -2057,6 +2057,15 @@ dumpCandidates(VALUE /*self*/, VALUE rmeths)
 }
 
 static VALUE
+isConstMethod(VALUE /*self*/, VALUE idx)
+{
+	int id = NUM2INT(rb_funcall(idx, rb_intern("index"), 0));
+	Smoke* smoke = smokeList[NUM2INT(rb_funcall(idx, rb_intern("smoke"), 0))];
+	const Smoke::Method &meth = smoke->methods[id];
+	return (meth.flags & Smoke::mf_const) ? Qtrue : Qfalse;
+}
+
+static VALUE
 isObject(VALUE /*self*/, VALUE obj)
 {
     void * ptr = 0;
@@ -2397,6 +2406,7 @@ Init_qtruby4()
     rb_define_module_function(qt_internal_module, "findAllMethods", (VALUE (*) (...)) findAllMethods, -1);
     rb_define_module_function(qt_internal_module, "findAllMethodNames", (VALUE (*) (...)) findAllMethodNames, 3);
     rb_define_module_function(qt_internal_module, "dumpCandidates", (VALUE (*) (...)) dumpCandidates, 1);
+    rb_define_module_function(qt_internal_module, "isConstMethod", (VALUE (*) (...)) isConstMethod, 1);
     rb_define_module_function(qt_internal_module, "isObject", (VALUE (*) (...)) isObject, 1);
     rb_define_module_function(qt_internal_module, "setCurrentMethod", (VALUE (*) (...)) setCurrentMethod, 1);
     rb_define_module_function(qt_internal_module, "getClassList", (VALUE (*) (...)) getClassList, 0);
