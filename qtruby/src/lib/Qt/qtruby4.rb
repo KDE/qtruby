@@ -2505,51 +2505,52 @@ module Qt
 
 		def Internal.checkarg(argtype, typename)
 			puts "      #{typename} (#{argtype})" if debug_level >= DebugLevel::High
+			const_point = typename =~ /^const\s+/ ? -1 : 0
 			if argtype == 'i'
 				if typename =~ /^int&?$|^signed int&?$|^signed$|^qint32&?$/
-					return 3
+					return 6 + const_point
 				elsif typename =~ /^quint32&?$/
-					return 2
+					return 4 + const_point
 				elsif typename =~ /^(?:short|ushort|unsigned short int|unsigned short|uchar||unsigned char|uint|long|ulong|unsigned long int|unsigned|float|double|WId|Q_PID|^quint16&?$|^qint16&?$)$/
-					return 2
+					return 4 + const_point
 				elsif typename =~ /^(quint|qint|qulong|qlong|qreal)/
-					return 2
+					return 4 + const_point
 				else 
 					t = typename.sub(/^const\s+/, '')
 					t.sub!(/[&*]$/, '')
 					if isEnum(t)
-						return 1
+						return 2
 					end
 				end
 			elsif argtype == 'n'
 				if typename =~ /^double$|^qreal$/
-					return 3
+					return 6 + const_point
 				elsif typename =~ /^float$/
-					return 2
+					return 4 + const_point
 				elsif typename =~ /^int&?$/
-					return 1
+					return 2 + const_point
 				elsif typename =~ /^(?:short|ushort|uint|long|ulong|signed|unsigned|float|double)$/
-					return 1
+					return 2 + const_point
 				else 
 					t = typename.sub(/^const\s+/, '')
 					t.sub!(/[&*]$/, '')
 					if isEnum(t)
-						return 1
+						return 2 + const_point
 					end
 				end
 			elsif argtype == 'B'
 				if typename =~ /^(?:bool)[*&]?$/
-					return 1
+					return 2 + const_point
 				end
 			elsif argtype == 's'
 				if typename =~ /^(const )?((QChar)[*&]?)$/
-					return 3
+					return 6 + const_point
 				elsif typename =~ /^(?:(u(nsigned )?)?char\*)$/
-					return 2
+					return 4 + const_point
 				elsif typename =~ /^(?:const (u(nsigned )?)?char\*)$/
-					return 1
+					return 2 + const_point
 				elsif typename =~ /^(?:(?:const )?(QString)[*&]?)$/
-					return 4
+					return 8 + const_point
 				end
 			elsif argtype == 'a'
 				# FIXME: shouldn't be hardcoded. Installed handlers should tell what ruby type they expect.
@@ -2563,35 +2564,35 @@ module Qt
 						    char\*\*
 						)
 					        )$/x
-					return 1
+					return 2 + const_point
 				end
 			elsif argtype == 'u'
 				# Give nil matched against string types a higher score than anything else
 				if typename =~ /^(?:u?char\*|const u?char\*|(?:const )?((Q(C?)String))[*&]?)$/
-					return 2
+					return 4 + const_point
 				# Numerics will give a runtime conversion error, so they fail the match
 				elsif typename =~ /^(?:short|ushort|uint|long|ulong|signed|unsigned|int)$/
 					return -99
 				else
-					return 1
+					return 2 + const_point
 				end
 			elsif argtype == 'U'
 				if typename =~ /QStringList/
-					return 2
+					return 4 + const_point
 				else
-					return 1
+					return 2 + const_point
 				end
 			else
 				t = typename.sub(/^const\s+/, '')
 				t.sub!(/(::)?Ptr$/, '')
 				t.sub!(/[&*]$/, '')
 				if argtype == t
-					return 2
+					return 4 + const_point
 				elsif classIsa(argtype, t)
-					return 1
+					return 2 + const_point
 				elsif isEnum(argtype) and 
 						(t =~ /int|qint32|uint|quint32|long|ulong/ or isEnum(t))
-					return 1
+					return 2 + const_point
 				end
 			end
 			return -99
@@ -2711,8 +2712,12 @@ module Qt
 					# If ambiguous matches occur the problem must be fixed be adjusting the relative
 					# ranking of the arg types involved in checkarg().
 					elsif current_match == best_match
-						puts "multiple methods matching, this is an error" if debug_level >= DebugLevel::Minimal
-						chosen = nil
+						if !isConstMethod(id) and isConstMethod(chosen)
+							chosen = id
+						elsif isConstMethod(id) == isConstMethod(chosen)
+							puts "multiple methods matching, this is an error" if debug_level >= DebugLevel::Minimal
+							chosen = nil
+						end
 					end
 					puts "match => #{id.index} score: #{current_match}" if debug_level >= DebugLevel::High
 				end
