@@ -241,7 +241,7 @@ Binding::callMethod(Smoke::Index method, void *ptr, Smoke::Stack args, bool /*is
 	smokeruby_object *o = value_obj_info(obj);
 
 	if (do_debug & qtdb_virtual) {
-		Smoke::Method & meth = smoke->methods[method];
+		const Smoke::Method & meth = smoke->methods[method];
 		QByteArray signature(smoke->methodNames[meth.name]);
 		signature += "(";
 			for (int i = 0; i < meth.numArgs; i++) {
@@ -525,14 +525,14 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
         if (i == 0) {		// shouldn't happen
             rb_raise(rb_eArgError, "Corrupt method %s::%s", c, name);
         } else if(i > 0) {	// single match
-            Smoke::Method &methodRef = meth.smoke->methods[i];
+            const Smoke::Method &methodRef = meth.smoke->methods[i];
             if ((methodRef.flags & Smoke::mf_internal) == 0) {
                 rb_ary_push(result, rb_funcall(moduleindex_class, rb_intern("new"), 2, INT2NUM(smokeList.indexOf(meth.smoke)), INT2NUM(i)));
             }
         } else {		// multiple match
             i = -i;		// turn into ambiguousMethodList index
             while (meth.smoke->ambiguousMethodList[i]) {
-                Smoke::Method &methodRef = meth.smoke->methods[meth.smoke->ambiguousMethodList[i]];
+                const Smoke::Method &methodRef = meth.smoke->methods[meth.smoke->ambiguousMethodList[i]];
                 if ((methodRef.flags & Smoke::mf_internal) == 0) {
                     rb_ary_push(result, rb_funcall(moduleindex_class, rb_intern("new"), 2, INT2NUM(smokeList.indexOf(meth.smoke)), INT2NUM(meth.smoke->ambiguousMethodList[i])));
 //#ifdef DEBUG
@@ -596,14 +596,14 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
                     Smoke::Index ix = smoke->methodMaps[i].method;
                     VALUE meths = rb_ary_new();
                     if (ix >= 0) {	// single match
-                        Smoke::Method &methodRef = smoke->methods[ix];
+                        const Smoke::Method &methodRef = smoke->methods[ix];
                         if ((methodRef.flags & Smoke::mf_internal) == 0) {
                             rb_ary_push(meths, rb_funcall(moduleindex_class, rb_intern("new"), 2, INT2NUM(smokeList.indexOf(smoke)), INT2NUM((int) ix)));
                         }
                     } else {		// multiple match
                         ix = -ix;		// turn into ambiguousMethodList index
                         while (smoke->ambiguousMethodList[ix]) {
-                            Smoke::Method &methodRef = smoke->methods[smoke->ambiguousMethodList[ix]];
+                            const Smoke::Method &methodRef = smoke->methods[smoke->ambiguousMethodList[ix]];
                             if ((methodRef.flags & Smoke::mf_internal) == 0) {
                                 rb_ary_push(meths, rb_funcall(moduleindex_class, rb_intern("new"), 2, INT2NUM(smokeList.indexOf(smoke)), INT2NUM((int)smoke->ambiguousMethodList[ix])));
                             }
@@ -628,11 +628,11 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
 
 #define PUSH_QTRUBY_METHOD		\
 		if (	(methodRef.flags & (Smoke::mf_internal|Smoke::mf_ctor|Smoke::mf_dtor)) == 0 \
-				&& strcmp(qtcore_Smoke->methodNames[methodRef.name], "operator=") != 0 \
-				&& strcmp(qtcore_Smoke->methodNames[methodRef.name], "operator!=") != 0 \
-				&& strcmp(qtcore_Smoke->methodNames[methodRef.name], "operator--") != 0 \
-				&& strcmp(qtcore_Smoke->methodNames[methodRef.name], "operator++") != 0 \
-				&& strncmp(qtcore_Smoke->methodNames[methodRef.name], "operator ", strlen("operator ")) != 0 \
+				&& strcmp(s->methodNames[methodRef.name], "operator=") != 0 \
+				&& strcmp(s->methodNames[methodRef.name], "operator!=") != 0 \
+				&& strcmp(s->methodNames[methodRef.name], "operator--") != 0 \
+				&& strcmp(s->methodNames[methodRef.name], "operator++") != 0 \
+				&& strncmp(s->methodNames[methodRef.name], "operator ", strlen("operator ")) != 0 \
 				&& (	(flags == 0 && (methodRef.flags & (Smoke::mf_static|Smoke::mf_enum|Smoke::mf_protected)) == 0) \
 						|| (	flags == Smoke::mf_static \
 								&& (methodRef.flags & Smoke::mf_enum) == 0 \
@@ -641,18 +641,18 @@ findAllMethods(int argc, VALUE * argv, VALUE /*self*/)
 						|| (	flags == Smoke::mf_protected \
 								&& (methodRef.flags & Smoke::mf_static) == 0 \
 								&& (methodRef.flags & Smoke::mf_protected) == Smoke::mf_protected ) ) ) { \
-			if (strncmp(qtcore_Smoke->methodNames[methodRef.name], "operator", strlen("operator")) == 0) { \
-				if (op_re.indexIn(qtcore_Smoke->methodNames[methodRef.name]) != -1) { \
+			if (strncmp(s->methodNames[methodRef.name], "operator", strlen("operator")) == 0) { \
+				if (op_re.indexIn(s->methodNames[methodRef.name]) != -1) { \
 					rb_ary_push(result, rb_str_new2((op_re.cap(1) + op_re.cap(2)).toLatin1())); \
 				} else { \
-					rb_ary_push(result, rb_str_new2(qtcore_Smoke->methodNames[methodRef.name] + strlen("operator"))); \
+					rb_ary_push(result, rb_str_new2(s->methodNames[methodRef.name] + strlen("operator"))); \
 				} \
-			} else if (predicate_re.indexIn(qtcore_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 0) { \
+			} else if (predicate_re.indexIn(s->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 0) { \
 				rb_ary_push(result, rb_str_new2((predicate_re.cap(2).toLower() + predicate_re.cap(3) + "?").toLatin1())); \
-			} else if (set_re.indexIn(qtcore_Smoke->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 1) { \
+			} else if (set_re.indexIn(s->methodNames[methodRef.name]) != -1 && methodRef.numArgs == 1) { \
 				rb_ary_push(result, rb_str_new2((set_re.cap(2).toLower() + set_re.cap(3) + "=").toLatin1())); \
 			} else { \
-				rb_ary_push(result, rb_str_new2(qtcore_Smoke->methodNames[methodRef.name])); \
+				rb_ary_push(result, rb_str_new2(s->methodNames[methodRef.name])); \
 			} \
 		}
  
@@ -701,13 +701,13 @@ findAllMethodNames(VALUE /*self*/, VALUE result, VALUE classid, VALUE flags_valu
         if (icmp == 0) {
  			for (Smoke::Index i=methmin ; i <= methmax ; i++) {
 				Smoke::Index ix= s->methodMaps[i].method;
-				if (ix >= 0) {	// single match
-					Smoke::Method &methodRef = s->methods[ix];
+				if (ix > 0) {	// single match
+					const Smoke::Method &methodRef = s->methods[ix];
 					PUSH_QTRUBY_METHOD
 				} else {		// multiple match
 					ix = -ix;		// turn into ambiguousMethodList index
 					while (s->ambiguousMethodList[ix]) {
-						Smoke::Method &methodRef = s->methods[s->ambiguousMethodList[ix]];
+						const Smoke::Method &methodRef = s->methods[s->ambiguousMethodList[ix]];
 						PUSH_QTRUBY_METHOD
 						ix++;
 					}
@@ -1232,7 +1232,7 @@ value_to_type_flag(VALUE ruby_value)
 VALUE prettyPrintMethod(Smoke::Index id) 
 {
     VALUE r = rb_str_new2("");
-    Smoke::Method &meth = qtcore_Smoke->methods[id];
+    const Smoke::Method &meth = qtcore_Smoke->methods[id];
     const char *tname = qtcore_Smoke->types[meth.ret].name;
     if(meth.flags & Smoke::mf_static) rb_str_catf(r, "static ");
     rb_str_catf(r, "%s ", (tname ? tname:"void"));
