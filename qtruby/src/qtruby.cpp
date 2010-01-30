@@ -777,7 +777,7 @@ qabstractitemmodel_createindex(int argc, VALUE * argv, VALUE self)
 			if (	qstrcmp(	o->smoke->types[o->smoke->argumentList[o->smoke->methods[o->smoke->ambiguousMethodList[i]].args + 2]].name,
 							"void*" ) == 0 )
 			{
-	    		Smoke::Method &m = o->smoke->methods[o->smoke->ambiguousMethodList[i]];
+	    		const Smoke::Method &m = o->smoke->methods[o->smoke->ambiguousMethodList[i]];
 				Smoke::ClassFn fn = o->smoke->classes[m.classId].classFn;
 				Smoke::StackItem stack[4];
 				stack[1].s_int = NUM2INT(argv[0]);
@@ -1437,7 +1437,7 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 	Smoke::ModuleIndex classIdx(o->smoke, o->classId);
 	Smoke::ModuleIndex meth = nameId.smoke->findMethod(classIdx, nameId);
 	if (meth.index > 0) {
-		Smoke::Method &m = meth.smoke->methods[meth.smoke->methodMaps[meth.index].method];
+		const Smoke::Method &m = meth.smoke->methods[meth.smoke->methodMaps[meth.index].method];
 		Smoke::ClassFn fn = meth.smoke->classes[m.classId].classFn;
 		Smoke::StackItem i[4];
 		i[1].s_enum = _c;
@@ -1719,7 +1719,7 @@ get_arg_type_name(VALUE /*self*/, VALUE method_value, VALUE idx_value)
     int smokeIndex = NUM2INT(rb_funcall(method_value, rb_intern("smoke"), 0));
     Smoke * smoke = smokeList[smokeIndex];
     int idx = NUM2INT(idx_value);
-    Smoke::Method &m = smoke->methods[method];
+    const Smoke::Method &m = smoke->methods[method];
     Smoke::Index *args = smoke->argumentList + m.args;
     return rb_str_new2((char*)smoke->types[args[idx]].name);
 }
@@ -1803,7 +1803,7 @@ parent_meta_object(VALUE obj)
 		// Should never happen..
 	}
 
-	Smoke::Method &methodId = meth.smoke->methods[meth.smoke->methodMaps[meth.index].method];
+	const Smoke::Method &methodId = meth.smoke->methods[meth.smoke->methodMaps[meth.index].method];
 	Smoke::ClassFn fn = o->smoke->classes[methodId.classId].classFn;
 	Smoke::StackItem i[1];
 	(*fn)(methodId.method, o->ptr, i);
@@ -1963,7 +1963,7 @@ dispose(VALUE self)
 	Smoke::ModuleIndex classIdx(o->smoke, o->classId);
 	Smoke::ModuleIndex meth = nameId.smoke->findMethod(classIdx, nameId);
 	if(meth.index > 0) {
-		Smoke::Method &m = meth.smoke->methods[meth.smoke->methodMaps[meth.index].method];
+		const Smoke::Method &m = meth.smoke->methods[meth.smoke->methodMaps[meth.index].method];
 		Smoke::ClassFn fn = meth.smoke->classes[m.classId].classFn;
 		Smoke::StackItem i[1];
 		(*fn)(m.method, o->ptr, i);
@@ -2036,7 +2036,7 @@ dumpCandidates(VALUE /*self*/, VALUE rmeths)
 	    rb_str_catf(errmsg, "\t");
 	    int id = NUM2INT(rb_funcall(rb_ary_entry(rmeths, i), rb_intern("index"), 0));
 	    Smoke* smoke = smokeList[NUM2INT(rb_funcall(rb_ary_entry(rmeths, i), rb_intern("smoke"), 0))];
-	    Smoke::Method &meth = smoke->methods[id];
+	    const Smoke::Method &meth = smoke->methods[id];
 	    const char *tname = smoke->types[meth.ret].name;
 	    if(meth.flags & Smoke::mf_enum) {
 			rb_str_catf(errmsg, "enum ");
