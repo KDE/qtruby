@@ -49,7 +49,7 @@ void marshall_PackageStructurePtr(Marshall *m) {
             o->smoke = m->smoke();
             o->classId = m->smoke()->idClass("Plasma::PackageStructure").index;
             o->ptr = package;
-            o->allocated = true;
+            o->allocated = false;
             obj = set_obj_info("Plasma::PackageStructure", o);
         }
 
