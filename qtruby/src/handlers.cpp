@@ -198,7 +198,7 @@ smokeruby_mark(void * p)
 
     if (o->ptr && o->allocated) {
 		if (Smoke::isDerivedFrom(className, "QObject")) {
-			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject").index);
+			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject", true).index);
 			// Only mark the QObject tree if the current item doesn't have a parent.
 			// This avoids marking parts of a tree more than once.
 			if (qobject->parent() == 0) {
@@ -207,7 +207,7 @@ smokeruby_mark(void * p)
 		}
 
 		if (Smoke::isDerivedFrom(className, "QWidget")) {
-			QWidget * widget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget").index);
+			QWidget * widget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget", true).index);
 			QLayout * layout = widget->layout();
 			if (layout != 0) {
 				obj = getPointerObject(layout);
@@ -219,7 +219,7 @@ smokeruby_mark(void * p)
 		}
 
 		if (Smoke::isDerivedFrom(className, "QListWidget")) {
-			QListWidget * listwidget = (QListWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QListWidget").index);
+			QListWidget * listwidget = (QListWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QListWidget", true).index);
 			
 			for (int i = 0; i < listwidget->count(); i++) {
 				QListWidgetItem * item = listwidget->item(i);
@@ -233,7 +233,7 @@ smokeruby_mark(void * p)
 		}
 	
 		if (Smoke::isDerivedFrom(className, "QTableWidget")) {
-			QTableWidget * table = (QTableWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTableWidget").index);
+			QTableWidget * table = (QTableWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTableWidget", true).index);
 			QTableWidgetItem *item;
 
 			for ( int row = 0; row < table->rowCount(); row++ ) {
@@ -250,7 +250,7 @@ smokeruby_mark(void * p)
 		}
 
 		if (Smoke::isDerivedFrom(className, "QTreeWidget")) {
-			QTreeWidget * qtreewidget = (QTreeWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTreeWidget").index);
+			QTreeWidget * qtreewidget = (QTreeWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTreeWidget", true).index);
 
 			for (int i = 0; i < qtreewidget->topLevelItemCount(); i++) {
 				QTreeWidgetItem * item = qtreewidget->topLevelItem(i);
@@ -265,7 +265,7 @@ smokeruby_mark(void * p)
 		}
 
 		if (Smoke::isDerivedFrom(className, "QLayout")) {
-			QLayout * qlayout = (QLayout *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayout").index);
+			QLayout * qlayout = (QLayout *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayout", true).index);
 			for (int i = 0; i < qlayout->count(); ++i) {
 				QLayoutItem * item = qlayout->itemAt(i);
 				if (item != 0) {
@@ -280,7 +280,7 @@ smokeruby_mark(void * p)
 		}
 
 		if (Smoke::isDerivedFrom(className, "QStandardItemModel")) {
-			QStandardItemModel * model = (QStandardItemModel *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QStandardItemModel").index);
+			QStandardItemModel * model = (QStandardItemModel *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QStandardItemModel", true).index);
 			for (int row = 0; row < model->rowCount(); row++) {
 				for (int column = 0; column < model->columnCount(); column++) {
 					QStandardItem * item = model->item(row, column);
@@ -300,7 +300,7 @@ smokeruby_mark(void * p)
 		}
 
 		if (Smoke::isDerivedFrom(className, "QGraphicsWidget")) {
-			QGraphicsWidget * widget = (QGraphicsWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsWidget").index);
+			QGraphicsWidget * widget = (QGraphicsWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsWidget", true).index);
 			QGraphicsLayout * layout = widget->layout();
 			if (layout != 0) {
 				obj = getPointerObject(layout);
@@ -312,7 +312,7 @@ smokeruby_mark(void * p)
 		}
 
 		if (Smoke::isDerivedFrom(className, "QGraphicsLayout")) {
-			QGraphicsLayout * qlayout = (QGraphicsLayout *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsLayout").index);
+			QGraphicsLayout * qlayout = (QGraphicsLayout *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsLayout", true).index);
 			for (int i = 0; i < qlayout->count(); ++i) {
 				QGraphicsLayoutItem * item = qlayout->itemAt(i);
 				if (item != 0) {
@@ -327,7 +327,7 @@ smokeruby_mark(void * p)
 		}
 
 		if (Smoke::isDerivedFrom(className, "QGraphicsItem")) {
-			QGraphicsItem * item = (QGraphicsItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsItem").index);
+			QGraphicsItem * item = (QGraphicsItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsItem", true).index);
 			// Only mark the QGraphicsItem tree if the current item doesn't have a parent.
 			// This avoids marking parts of a tree more than once.
 			if (item->parentItem() == 0) {
@@ -336,7 +336,7 @@ smokeruby_mark(void * p)
 		}
 
 		if (Smoke::isDerivedFrom(className, "QGraphicsScene")) {
-			QGraphicsScene * scene = (QGraphicsScene *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsScene").index);
+			QGraphicsScene * scene = (QGraphicsScene *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsScene", true).index);
 			QList<QGraphicsItem *> list = scene->items();
 			for (int i = 0; i < list.size(); i++) {
 				QGraphicsItem * item = list.at(i);
@@ -380,13 +380,13 @@ smokeruby_free(void * p)
 	object_count --;
 	
 	if (Smoke::isDerivedFrom(className, "QLayoutItem")) {
-		QLayoutItem * item = (QLayoutItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayoutItem").index);
+		QLayoutItem * item = (QLayoutItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayoutItem", true).index);
 		if (item->layout() != 0 || item->widget() != 0 || item->spacerItem() != 0) {
 			free_smokeruby_object(o);
 			return;
 		}
 	} else if (Smoke::isDerivedFrom(className, "QStandardItem")) {
-		QStandardItem * item = (QStandardItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QStandardItem").index);
+		QStandardItem * item = (QStandardItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QStandardItem", true).index);
 		if (item->model() != 0 || item->parent() != 0) {
 			free_smokeruby_object(o);
 			return;
@@ -398,19 +398,19 @@ smokeruby_free(void * p)
 			return;
 		}
 	} else if (Smoke::isDerivedFrom(className, "QTableWidgetItem")) {
-		QTableWidgetItem * item = (QTableWidgetItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTableWidgetItem").index);
+		QTableWidgetItem * item = (QTableWidgetItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QTableWidgetItem", true).index);
 		if (item->tableWidget() != 0) {
 			free_smokeruby_object(o);
 			return;
 		}
 	} else if (Smoke::isDerivedFrom(className, "QWidget")) {
-		QWidget * qwidget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget").index);
+		QWidget * qwidget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget", true).index);
 		if (qwidget->parentWidget() != 0) {
 			free_smokeruby_object(o);
 			return;
 		}
 	} else if (Smoke::isDerivedFrom(className, "QObject")) {
-		QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject").index);
+		QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject", true).index);
 		if (qobject->parent() != 0) {
 			free_smokeruby_object(o);
 			return;
@@ -444,51 +444,58 @@ smokeruby_free(void * p)
 Q_DECL_EXPORT const char *
 resolve_classname_qt(smokeruby_object * o)
 {
+#define SET_SMOKERUBY_OBJECT(className) \
+    { \
+        Smoke::ModuleIndex mi = Smoke::findClass(className); \
+        o->classId = mi.index; \
+        o->smoke = mi.smoke; \
+    }
+
 	if (Smoke::isDerivedFrom(o->smoke->classes[o->classId].className, "QEvent")) {
-		QEvent * qevent = (QEvent *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QEvent").index);
+		QEvent * qevent = (QEvent *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QEvent", true).index);
 		switch (qevent->type()) {
 		case QEvent::Timer:
-			o->classId = o->smoke->idClass("QTimerEvent").index;
+   			SET_SMOKERUBY_OBJECT("QTimerEvent")
 			break;
 		case QEvent::MouseButtonPress:
 		case QEvent::MouseButtonRelease:
 		case QEvent::MouseButtonDblClick:
 		case QEvent::MouseMove:
-			o->classId = o->smoke->idClass("QMouseEvent").index;
+   			SET_SMOKERUBY_OBJECT("QMouseEvent")
 			break;
 		case QEvent::KeyPress:
 		case QEvent::KeyRelease:
 		case QEvent::ShortcutOverride:
-			o->classId = o->smoke->idClass("QKeyEvent").index;
+   			SET_SMOKERUBY_OBJECT("QKeyEvent")
 			break;
 		case QEvent::FocusIn:
 		case QEvent::FocusOut:
-			o->classId = o->smoke->idClass("QFocusEvent").index;
+   			SET_SMOKERUBY_OBJECT("QFocusEvent")
 			break;
 		case QEvent::Enter:
 		case QEvent::Leave:
-			o->classId = o->smoke->idClass("QEvent").index;
+   			SET_SMOKERUBY_OBJECT("QEvent")
 			break;
 		case QEvent::Paint:
-			o->classId = o->smoke->idClass("QPaintEvent").index;
+   			SET_SMOKERUBY_OBJECT("QPaintEvent")
 			break;
 		case QEvent::Move:
-			o->classId = o->smoke->idClass("QMoveEvent").index;
+   			SET_SMOKERUBY_OBJECT("QMoveEvent")
 			break;
 		case QEvent::Resize:
-			o->classId = o->smoke->idClass("QResizeEvent").index;
+   			SET_SMOKERUBY_OBJECT("QResizeEvent")
 			break;
 		case QEvent::Create:
 		case QEvent::Destroy:
-			o->classId = o->smoke->idClass("QEvent").index;
+   			SET_SMOKERUBY_OBJECT("QEvent")
 			break;
 		case QEvent::Show:
-			o->classId = o->smoke->idClass("QShowEvent").index;
+   			SET_SMOKERUBY_OBJECT("QShowEvent")
 			break;
 		case QEvent::Hide:
-			o->classId = o->smoke->idClass("QHideEvent").index;
+   			SET_SMOKERUBY_OBJECT("QHideEvent")
 		case QEvent::Close:
-			o->classId = o->smoke->idClass("QCloseEvent").index;
+   			SET_SMOKERUBY_OBJECT("QCloseEvent")
 			break;
 		case QEvent::Quit:
 		case QEvent::ParentChange:
@@ -498,10 +505,10 @@ resolve_classname_qt(smokeruby_object * o)
 		case QEvent::WindowDeactivate:
 		case QEvent::ShowToParent:
 		case QEvent::HideToParent:
-			o->classId = o->smoke->idClass("QEvent").index;
+   			SET_SMOKERUBY_OBJECT("QEvent")
 			break;
 		case QEvent::Wheel:
-			o->classId = o->smoke->idClass("QWheelEvent").index;
+   			SET_SMOKERUBY_OBJECT("QWheelEvent")
 			break;
 		case QEvent::WindowTitleChange:
 		case QEvent::WindowIconChange:
@@ -510,36 +517,36 @@ resolve_classname_qt(smokeruby_object * o)
 		case QEvent::ApplicationLayoutDirectionChange:
 		case QEvent::ApplicationPaletteChange:
 		case QEvent::PaletteChange:
-			o->classId = o->smoke->idClass("QEvent").index;
+   			SET_SMOKERUBY_OBJECT("QEvent")
 			break;
 		case QEvent::Clipboard:
-			o->classId = o->smoke->idClass("QClipboardEvent").index;
+   			SET_SMOKERUBY_OBJECT("QClipboardEvent")
 			break;
 		case QEvent::Speech:
 		case QEvent::MetaCall:
 		case QEvent::SockAct:
 		case QEvent::WinEventAct:
 		case QEvent::DeferredDelete:
-			o->classId = o->smoke->idClass("QEvent").index;
+   			SET_SMOKERUBY_OBJECT("QEvent")
 			break;
 		case QEvent::DragEnter:
-			o->classId = o->smoke->idClass("QDragEnterEvent").index;
+   			SET_SMOKERUBY_OBJECT("QDragEnterEvent")
 			break;
 		case QEvent::DragLeave:
-			o->classId = o->smoke->idClass("QDragLeaveEvent").index;
+   			SET_SMOKERUBY_OBJECT("QDragLeaveEvent")
 			break;
 		case QEvent::DragMove:
-			o->classId = o->smoke->idClass("QDragMoveEvent").index;
+   			SET_SMOKERUBY_OBJECT("QDragMoveEvent")
 		case QEvent::Drop:
-			o->classId = o->smoke->idClass("QDropEvent").index;
+   			SET_SMOKERUBY_OBJECT("QDropEvent")
 			break;
 		case QEvent::DragResponse:
-			o->classId = o->smoke->idClass("QDragResponseEvent").index;
+   			SET_SMOKERUBY_OBJECT("QDragResponseEvent")
 			break;
 		case QEvent::ChildAdded:
 		case QEvent::ChildRemoved:
 		case QEvent::ChildPolished:
-			o->classId = o->smoke->idClass("QChildEvent").index;
+   			SET_SMOKERUBY_OBJECT("QChildEvent")
 			break;
 		case QEvent::ShowWindowRequest:
 		case QEvent::PolishRequest:
@@ -549,24 +556,24 @@ resolve_classname_qt(smokeruby_object * o)
 		case QEvent::EmbeddingControl:
 		case QEvent::ActivateControl:
 		case QEvent::DeactivateControl:
-			o->classId = o->smoke->idClass("QEvent").index;
+   			SET_SMOKERUBY_OBJECT("QEvent")
 			break;
         case QEvent::ContextMenu:
-            o->classId = o->smoke->idClass("QContextMenuEvent").index;
+			SET_SMOKERUBY_OBJECT("QContextMenuEvent")
             break;
         case QEvent::DynamicPropertyChange:
-            o->classId = o->smoke->idClass("QDynamicPropertyChangeEvent").index;
+			SET_SMOKERUBY_OBJECT("QDynamicPropertyChangeEvent")
             break;
 		case QEvent::InputMethod:
-			o->classId = o->smoke->idClass("QInputMethodEvent").index;
+   			SET_SMOKERUBY_OBJECT("QInputMethodEvent")
 			break;
 		case QEvent::AccessibilityPrepare:
-			o->classId = o->smoke->idClass("QEvent").index;
+   			SET_SMOKERUBY_OBJECT("QEvent")
 			break;
 		case QEvent::TabletMove:
 		case QEvent::TabletPress:
 		case QEvent::TabletRelease:
-			o->classId = o->smoke->idClass("QTabletEvent").index;
+   			SET_SMOKERUBY_OBJECT("QTabletEvent")
 			break;
 		case QEvent::LocaleChange:
 		case QEvent::LanguageChange:
@@ -574,10 +581,10 @@ resolve_classname_qt(smokeruby_object * o)
 		case QEvent::Style:
 		case QEvent::OkRequest:
 		case QEvent::HelpRequest:
-			o->classId = o->smoke->idClass("QEvent").index;
+   			SET_SMOKERUBY_OBJECT("QEvent")
 			break;
 		case QEvent::IconDrag:
-			o->classId = o->smoke->idClass("QIconDragEvent").index;
+   			SET_SMOKERUBY_OBJECT("QIconDragEvent")
 			break;
 		case QEvent::FontChange:
 		case QEvent::EnabledChange:
@@ -586,36 +593,36 @@ resolve_classname_qt(smokeruby_object * o)
 		case QEvent::IconTextChange:
 		case QEvent::ModifiedChange:
 		case QEvent::MouseTrackingChange:
-			o->classId = o->smoke->idClass("QEvent").index;
+   			SET_SMOKERUBY_OBJECT("QEvent")
 			break;
 		case QEvent::WindowBlocked:
 		case QEvent::WindowUnblocked:
 		case QEvent::WindowStateChange:
-			o->classId = o->smoke->idClass("QWindowStateChangeEvent").index;
+   			SET_SMOKERUBY_OBJECT("QWindowStateChangeEvent")
 			break;
 		case QEvent::ToolTip:
 		case QEvent::WhatsThis:
-			o->classId = o->smoke->idClass("QHelpEvent").index;
+   			SET_SMOKERUBY_OBJECT("QHelpEvent")
 			break;
 		case QEvent::StatusTip:
-			o->classId = o->smoke->idClass("QEvent").index;
+   			SET_SMOKERUBY_OBJECT("QEvent")
 			break;
 		case QEvent::ActionChanged:
 		case QEvent::ActionAdded:
 		case QEvent::ActionRemoved:
-			o->classId = o->smoke->idClass("QActionEvent").index;
+   			SET_SMOKERUBY_OBJECT("QActionEvent")
 			break;
 		case QEvent::FileOpen:
-			o->classId = o->smoke->idClass("QFileOpenEvent").index;
+   			SET_SMOKERUBY_OBJECT("QFileOpenEvent")
 			break;
 		case QEvent::Shortcut:
-			o->classId = o->smoke->idClass("QShortcutEvent").index;
+   			SET_SMOKERUBY_OBJECT("QShortcutEvent")
 			break;
 		case QEvent::WhatsThisClicked:
-			o->classId = o->smoke->idClass("QWhatsThisClickedEvent").index;
+   			SET_SMOKERUBY_OBJECT("QWhatsThisClickedEvent")
 			break;
 		case QEvent::ToolBarChange:
-			o->classId = o->smoke->idClass("QToolBarChangeEvent").index;
+   			SET_SMOKERUBY_OBJECT("QToolBarChangeEvent")
 			break;
 		case QEvent::ApplicationActivated:
 		case QEvent::ApplicationDeactivated:
@@ -623,93 +630,95 @@ resolve_classname_qt(smokeruby_object * o)
 		case QEvent::EnterWhatsThisMode:
 		case QEvent::LeaveWhatsThisMode:
 		case QEvent::ZOrderChange:
-			o->classId = o->smoke->idClass("QEvent").index;
+   			SET_SMOKERUBY_OBJECT("QEvent")
 			break;
 		case QEvent::HoverEnter:
 		case QEvent::HoverLeave:
 		case QEvent::HoverMove:
-			o->classId = o->smoke->idClass("QHoverEvent").index;
+   			SET_SMOKERUBY_OBJECT("QHoverEvent")
 			break;
 		case QEvent::AccessibilityHelp:
 		case QEvent::AccessibilityDescription:
-			o->classId = o->smoke->idClass("QEvent").index;
+   			SET_SMOKERUBY_OBJECT("QEvent")
 #if QT_VERSION >= 0x40200
 		case QEvent::GraphicsSceneMouseMove:
 		case QEvent::GraphicsSceneMousePress:
 		case QEvent::GraphicsSceneMouseRelease:
 		case QEvent::GraphicsSceneMouseDoubleClick:
-			o->classId = o->smoke->idClass("QGraphicsSceneMouseEvent").index;
+   			SET_SMOKERUBY_OBJECT("QGraphicsSceneMouseEvent")
 			break;
 		case QEvent::GraphicsSceneContextMenu:
-			o->classId = o->smoke->idClass("QGraphicsSceneContextMenuEvent").index;
+   			SET_SMOKERUBY_OBJECT("QGraphicsSceneContextMenuEvent")
 			break;
 		case QEvent::GraphicsSceneHoverEnter:
 		case QEvent::GraphicsSceneHoverMove:
 		case QEvent::GraphicsSceneHoverLeave:
-			o->classId = o->smoke->idClass("QGraphicsSceneHoverEvent").index;
+   			SET_SMOKERUBY_OBJECT("QGraphicsSceneHoverEvent")
 			break;
 		case QEvent::GraphicsSceneHelp:
-			o->classId = o->smoke->idClass("QGraphicsSceneHelpEvent").index;
+   			SET_SMOKERUBY_OBJECT("QGraphicsSceneHelpEvent")
 			break;
 		case QEvent::GraphicsSceneDragEnter:
 		case QEvent::GraphicsSceneDragMove:
 		case QEvent::GraphicsSceneDragLeave:
 		case QEvent::GraphicsSceneDrop:
-			o->classId = o->smoke->idClass("QGraphicsSceneDragDropEvent").index;
+   			SET_SMOKERUBY_OBJECT("QGraphicsSceneDragDropEvent")
 			break;
 		case QEvent::GraphicsSceneWheel:
-			o->classId = o->smoke->idClass("QGraphicsSceneWheelEvent").index;
+   			SET_SMOKERUBY_OBJECT("QGraphicsSceneWheelEvent")
 			break;
 		case QEvent::KeyboardLayoutChange:
-			o->classId = o->smoke->idClass("QEvent").index;
+   			SET_SMOKERUBY_OBJECT("QEvent")
 			break;
 #endif
 		default:
 			break;
 		}
 	} else if (Smoke::isDerivedFrom(o->smoke->classes[o->classId].className, "QGraphicsItem")) {
-		QGraphicsItem * item = (QGraphicsItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsItem").index);
+		QGraphicsItem * item = (QGraphicsItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsItem", true).index);
 		switch (item->type()) {
 		case 1:
-			o->classId = o->smoke->idClass("QGraphicsItem").index;
+   			SET_SMOKERUBY_OBJECT("QGraphicsItem")
 			break;
 		case 2:
-			o->classId = o->smoke->idClass("QGraphicsPathItem").index;
+   			SET_SMOKERUBY_OBJECT("QGraphicsPathItem")
 			break;
 		case 3:
-			o->classId = o->smoke->idClass("QGraphicsRectItem").index;
+   			SET_SMOKERUBY_OBJECT("QGraphicsRectItem")
 		case 4:
-			o->classId = o->smoke->idClass("QGraphicsEllipseItem").index;
+   			SET_SMOKERUBY_OBJECT("QGraphicsEllipseItem")
 			break;
 		case 5:
-			o->classId = o->smoke->idClass("QGraphicsPolygonItem").index;
+   			SET_SMOKERUBY_OBJECT("QGraphicsPolygonItem")
 			break;
 		case 6:
-			o->classId = o->smoke->idClass("QGraphicsLineItem").index;
+   			SET_SMOKERUBY_OBJECT("QGraphicsLineItem")
 			break;
 		case 7:
-			o->classId = o->smoke->idClass("QGraphicsItem").index;
+   			SET_SMOKERUBY_OBJECT("QGraphicsItem")
 			break;
 		case 8:
-			o->classId = o->smoke->idClass("QGraphicsTextItem").index;
+   			SET_SMOKERUBY_OBJECT("QGraphicsTextItem")
 			break;
 		case 9:
-			o->classId = o->smoke->idClass("QGraphicsSimpleTextItem").index;
+   			SET_SMOKERUBY_OBJECT("QGraphicsSimpleTextItem")
 			break;
 		case 10:
-			o->classId = o->smoke->idClass("QGraphicsItemGroup").index;
+   			SET_SMOKERUBY_OBJECT("QGraphicsItemGroup")
 			break;
 		}
 	} else if (Smoke::isDerivedFrom(o->smoke->classes[o->classId].className, "QLayoutItem")) {
-		QLayoutItem * item = (QLayoutItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayoutItem").index);
+		QLayoutItem * item = (QLayoutItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayoutItem", true).index);
 		if (item->widget() != 0) {
-			o->classId = o->smoke->idClass("QWidgetItem").index;
+   			SET_SMOKERUBY_OBJECT("QWidgetItem")
 		} else if (item->spacerItem() != 0) {
-			o->classId = o->smoke->idClass("QSpacerItem").index;
+   			SET_SMOKERUBY_OBJECT("QSpacerItem")
 		}
 	}
 	
 	return qtruby_modules[o->smoke].binding->className(o->classId);
+
+#undef SET_SMOKERUBY_OBJECT
 }
 
 bool
