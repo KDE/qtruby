@@ -25,6 +25,7 @@
 #include <QtCore/qhash.h>
 #include <QtCore/qmap.h>
 
+#include "qtruby.h"
 #include "marshall.h"
 
 #define DEF_HASH_MARSHALLER(HashIdent,Item) namespace { char HashIdent##STR[] = #Item; }  \
@@ -69,7 +70,7 @@ void marshall_ItemList(Marshall *m) {
 				ptr = o->smoke->cast(
 					ptr,				// pointer
 					o->classId,				// from
-		    		o->smoke->idClass(ItemSTR).index	// to
+		    		o->smoke->idClass(ItemSTR, true).index	// to
 				);
 				cpplist->append((Item*)ptr);
 			}
@@ -102,6 +103,8 @@ void marshall_ItemList(Marshall *m) {
 
 			VALUE av = rb_ary_new();
 
+            Smoke::ModuleIndex mi = Smoke::findClass(ItemSTR);
+
 			for (int i=0; i < cpplist->size(); ++i) {
 				void *p = (void *) cpplist->at(i);
 
@@ -113,8 +116,8 @@ void marshall_ItemList(Marshall *m) {
 				VALUE obj = getPointerObject(p);
 				if (obj == Qnil) {
 					smokeruby_object  * o = alloc_smokeruby_object(	false, 
-																	m->smoke(), 
-																	m->smoke()->idClass(ItemSTR).index, 
+																	mi.smoke,
+																	mi.index, 
 																	p );
 
 					obj = set_obj_info(resolve_classname(o), o);
@@ -140,7 +143,7 @@ void marshall_ItemList(Marshall *m) {
 				  ptr = o->smoke->cast(
 					  ptr,				// pointer
 					  o->classId,				// from
-					  o->smoke->idClass(ItemSTR).index	// to
+					  o->smoke->idClass(ItemSTR, true).index	// to
 				  );
 
 				  cpplist->append((Item*)ptr);
@@ -179,7 +182,7 @@ void marshall_ValueListItem(Marshall *m) {
 
 				// Special case for the QList<QVariant> type
 				if (	qstrcmp(ItemSTR, "QVariant") == 0 
-						&& (!o || !o->ptr || o->classId != o->smoke->idClass("QVariant").index) ) 
+						&& (!o || !o->ptr || o->classId != o->smoke->idClass("QVariant", true).index) ) 
 				{
 					// If the value isn't a Qt::Variant, then try and construct
 					// a Qt::Variant from it
@@ -197,7 +200,7 @@ void marshall_ValueListItem(Marshall *m) {
 				ptr = o->smoke->cast(
 					ptr,				// pointer
 					o->classId,				// from
-					o->smoke->idClass(ItemSTR).index	        // to
+					o->smoke->idClass(ItemSTR, true).index	        // to
 				);
 				cpplist->append(*(Item*)ptr);
 			}
@@ -229,8 +232,8 @@ void marshall_ValueListItem(Marshall *m) {
 
 			VALUE av = rb_ary_new();
 
-			int ix = m->smoke()->idClass(ItemSTR).index;
-			const char * className = qtruby_modules[m->smoke()].binding->className(ix);
+			Smoke::ModuleIndex mi = Smoke::findClass(ItemSTR);
+			const char * className = qtruby_modules[mi.smoke].binding->className(mi.index);
 
 			for(int i=0; i < valuelist->size() ; ++i) {
 				void *p = (void *) &(valuelist->at(i));
@@ -243,8 +246,8 @@ void marshall_ValueListItem(Marshall *m) {
 				VALUE obj = getPointerObject(p);
 				if(obj == Qnil) {
 					smokeruby_object  * o = alloc_smokeruby_object(	false, 
-																	m->smoke(), 
-																	m->smoke()->idClass(ItemSTR).index, 
+																	mi.smoke, 
+																	mi.index, 
 																	p );
 					obj = set_obj_info(className, o);
 				}
@@ -298,7 +301,7 @@ void marshall_LinkedItemList(Marshall *m) {
 				ptr = o->smoke->cast(
 					ptr,				// pointer
 					o->classId,				// from
-		    		o->smoke->idClass(ItemSTR).index	// to
+		    		o->smoke->idClass(ItemSTR, true).index	// to
 				);
 				cpplist->append((Item*)ptr);
 			}
@@ -332,6 +335,8 @@ void marshall_LinkedItemList(Marshall *m) {
 
 			VALUE av = rb_ary_new();
 
+            Smoke::ModuleIndex mi = Smoke::findClass(ItemSTR);
+
 			QLinkedListIterator<Item*> iter(*valuelist);
 			while (iter.hasNext()) {
 				void * p = (void *) iter.next();
@@ -344,8 +349,8 @@ void marshall_LinkedItemList(Marshall *m) {
 				VALUE obj = getPointerObject(p);
 				if (obj == Qnil) {
 					smokeruby_object  * o = alloc_smokeruby_object(	false, 
-																	m->smoke(), 
-																	m->smoke()->idClass(ItemSTR).index, 
+																	mi.smoke,
+																	mi.index, 
 																	p );
 
 					obj = set_obj_info(resolve_classname(o), o);
@@ -389,7 +394,7 @@ void marshall_LinkedValueListItem(Marshall *m) {
 
 				// Special case for the QList<QVariant> type
 				if (	qstrcmp(ItemSTR, "QVariant") == 0 
-						&& (o == 0 || o->ptr == 0 || o->classId != o->smoke->idClass("QVariant").index) ) 
+						&& (o == 0 || o->ptr == 0 || o->classId != o->smoke->idClass("QVariant", true).index) ) 
 				{
 					// If the value isn't a Qt::Variant, then try and construct
 					// a Qt::Variant from it
@@ -407,7 +412,7 @@ void marshall_LinkedValueListItem(Marshall *m) {
 				ptr = o->smoke->cast(
 					ptr,				// pointer
 					o->classId,				// from
-					o->smoke->idClass(ItemSTR).index	        // to
+					o->smoke->idClass(ItemSTR, true).index	        // to
 				);
 				cpplist->append(*(Item*)ptr);
 			}
@@ -441,8 +446,8 @@ void marshall_LinkedValueListItem(Marshall *m) {
 
 			VALUE av = rb_ary_new();
 
-			int ix = m->smoke()->idClass(ItemSTR).index;
-			const char * className = qtruby_modules[m->smoke()].binding->className(ix);
+			Smoke::ModuleIndex mi = Smoke::findClass(ItemSTR);
+			const char * className = qtruby_modules[mi.smoke].binding->className(mi.index);
 
 			QLinkedListIterator<Item> iter(*valuelist);
 			while (iter.hasNext()) {
@@ -456,8 +461,8 @@ void marshall_LinkedValueListItem(Marshall *m) {
 				VALUE obj = getPointerObject(p);
 				if(obj == Qnil) {
 					smokeruby_object  * o = alloc_smokeruby_object(	false, 
-																	m->smoke(), 
-																	m->smoke()->idClass(ItemSTR).index, 
+																	mi.smoke,
+																	mi.index, 
 																	p );
 					obj = set_obj_info(className, o);
 				}
@@ -505,7 +510,7 @@ void marshall_Hash(Marshall *m) {
 			if( !o || !o->ptr)
 				continue;
 			void * val_ptr = o->ptr;
-			val_ptr = o->smoke->cast(val_ptr, o->classId, o->smoke->idClass(ValueSTR).index);
+			val_ptr = o->smoke->cast(val_ptr, o->classId, o->smoke->idClass(ValueSTR, true).index);
 			
 			(*hash)[QString(StringValuePtr(key))] = (Value*)val_ptr;
 		}
@@ -527,8 +532,8 @@ void marshall_Hash(Marshall *m) {
 		
 		VALUE hv = rb_hash_new();
 		
-		int val_ix = m->smoke()->idClass(ValueSTR).index;
-	    const char * val_className = qtruby_modules[m->smoke()].binding->className(val_ix);
+		Smoke::ModuleIndex val_mi = Smoke::findClass(ValueSTR);
+	    const char * val_className = qtruby_modules[val_mi.smoke].binding->className(val_mi.index);
 			
 		for (QHashIterator<QString, Value*> it(*hash); it.hasNext(); it.next()) {
 			void *val_p = it.value();
@@ -536,8 +541,8 @@ void marshall_Hash(Marshall *m) {
 				
 			if (value_obj == Qnil) {
 				smokeruby_object *o = ALLOC(smokeruby_object);
-				o->classId = m->smoke()->idClass(ValueSTR).index;
-				o->smoke = m->smoke();
+				o->classId = val_mi.index;
+				o->smoke = val_mi.smoke;
 				o->ptr = val_p;
 				o->allocated = false;
 				value_obj = set_obj_info(val_className, o);
@@ -583,7 +588,7 @@ void marshall_Map(Marshall *m) {
 				continue;
 			}
 			void * val_ptr = o->ptr;
-			val_ptr = o->smoke->cast(val_ptr, o->classId, o->smoke->idClass(ValueSTR).index);
+			val_ptr = o->smoke->cast(val_ptr, o->classId, o->smoke->idClass(ValueSTR, true).index);
 			
 			(*map)[QString(StringValuePtr(key))] = *((Value*)val_ptr);
 		}
@@ -606,8 +611,8 @@ void marshall_Map(Marshall *m) {
 		
 		VALUE hv = rb_hash_new();
 		
-		int val_ix = m->smoke()->idClass(ValueSTR).index;
-		const char * val_className = qtruby_modules[m->smoke()].binding->className(val_ix);
+        Smoke::ModuleIndex val_mi = Smoke::findClass(ValueSTR);
+        const char * val_className = qtruby_modules[val_mi.smoke].binding->className(val_mi.index);
 		QMapIterator<QString, Value> it(*map);
 		while (it.hasNext()) {
 			it.next();
@@ -616,8 +621,8 @@ void marshall_Map(Marshall *m) {
 				
 			if (value_obj == Qnil) {
 				smokeruby_object *o = ALLOC(smokeruby_object);
-				o->classId = m->smoke()->idClass(ValueSTR).index;
-				o->smoke = m->smoke();
+				o->classId = val_mi.index;
+				o->smoke = val_mi.smoke;
 				o->ptr = val_p;
 				o->allocated = false;
 				value_obj = set_obj_info(val_className, o);
