@@ -96,7 +96,7 @@ void marshall_KServicePtr(Marshall *m) {
 		    o->smoke = m->smoke();
 		    o->classId = m->smoke()->idClass("KService").index;
 		    o->ptr = service;
-		    o->allocated = true;
+		    o->allocated = false;
 		    obj = set_obj_info("KDE::Service", o);
 		}
 
@@ -138,7 +138,7 @@ void marshall_KSharedConfigPtr(Marshall *m) {
 		    o->smoke = m->smoke();
 		    o->classId = m->smoke()->idClass("KSharedConfig").index;
 		    o->ptr = config;
-		    o->allocated = true;
+		    o->allocated = false;
 		    obj = set_obj_info("KDE::SharedConfig", o);
 		}
 
@@ -181,7 +181,7 @@ void marshall_KSharedMimeTypePtr(Marshall *m) {
 		    o->smoke = m->smoke();
 		    o->classId = m->smoke()->idClass("KMimeType").index;
 		    o->ptr = config;
-		    o->allocated = true;
+		    o->allocated = false;
 		    obj = set_obj_info("KDE::MimeType", o);
 		}
 
