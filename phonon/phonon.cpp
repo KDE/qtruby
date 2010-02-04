@@ -30,7 +30,7 @@
 static VALUE getClassList(VALUE /*self*/)
 {
     VALUE classList = rb_ary_new();
-    for (int i = 1; i < phonon_Smoke->numClasses; i++) {
+    for (int i = 1; i <= phonon_Smoke->numClasses; i++) {
         if (phonon_Smoke->classes[i].className && !phonon_Smoke->classes[i].external)
             rb_ary_push(classList, rb_str_new2(phonon_Smoke->classes[i].className));
     }

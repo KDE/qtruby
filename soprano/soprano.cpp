@@ -19,7 +19,7 @@ Q_DECLARE_METATYPE(Soprano::Node)
 static VALUE getClassList(VALUE /*self*/)
 {
     VALUE classList = rb_ary_new();
-    for (int i = 1; i < soprano_Smoke->numClasses; i++) {
+    for (int i = 1; i <= soprano_Smoke->numClasses; i++) {
         if (soprano_Smoke->classes[i].className && !soprano_Smoke->classes[i].external)
             rb_ary_push(classList, rb_str_new2(soprano_Smoke->classes[i].className));
     }
