@@ -60,49 +60,49 @@ static VALUE getClassList(VALUE /*self*/)
 {
     VALUE classList = rb_ary_new();
 
-    for (int i = 1; i < kdecore_Smoke->numClasses; i++) {
+    for (int i = 1; i <= kdecore_Smoke->numClasses; i++) {
         if (kdecore_Smoke->classes[i].className && !kdecore_Smoke->classes[i].external) {
             rb_ary_push(classList, rb_str_new2(kdecore_Smoke->classes[i].className));
         }
     }
     
-    for (int i = 1; i < kdeui_Smoke->numClasses; i++) {
+    for (int i = 1; i <= kdeui_Smoke->numClasses; i++) {
         if (kdeui_Smoke->classes[i].className && !kdeui_Smoke->classes[i].external) {
             rb_ary_push(classList, rb_str_new2(kdeui_Smoke->classes[i].className));
         }
     }
     
-    for (int i = 1; i < kparts_Smoke->numClasses; i++) {
+    for (int i = 1; i <= kparts_Smoke->numClasses; i++) {
         if (kparts_Smoke->classes[i].className && !kparts_Smoke->classes[i].external) {
             rb_ary_push(classList, rb_str_new2(kparts_Smoke->classes[i].className));
         }
     }
     
-    for (int i = 1; i < kio_Smoke->numClasses; i++) {
+    for (int i = 1; i <= kio_Smoke->numClasses; i++) {
         if (kio_Smoke->classes[i].className && !kio_Smoke->classes[i].external) {
             rb_ary_push(classList, rb_str_new2(kio_Smoke->classes[i].className));
         }
     }
     
-    for (int i = 1; i < knewstuff2_Smoke->numClasses; i++) {
+    for (int i = 1; i <= knewstuff2_Smoke->numClasses; i++) {
         if (knewstuff2_Smoke->classes[i].className && !knewstuff2_Smoke->classes[i].external) {
             rb_ary_push(classList, rb_str_new2(knewstuff2_Smoke->classes[i].className));
         }
     }
     
-    for (int i = 1; i < knewstuff3_Smoke->numClasses; i++) {
+    for (int i = 1; i <= knewstuff3_Smoke->numClasses; i++) {
         if (knewstuff3_Smoke->classes[i].className && !knewstuff3_Smoke->classes[i].external) {
             rb_ary_push(classList, rb_str_new2(knewstuff3_Smoke->classes[i].className));
         }
     }
     
-    for (int i = 1; i < kfile_Smoke->numClasses; i++) {
+    for (int i = 1; i <= kfile_Smoke->numClasses; i++) {
         if (kfile_Smoke->classes[i].className && !kfile_Smoke->classes[i].external) {
             rb_ary_push(classList, rb_str_new2(kfile_Smoke->classes[i].className));
         }
     }
     
-    for (int i = 1; i < kutils_Smoke->numClasses; i++) {
+    for (int i = 1; i <= kutils_Smoke->numClasses; i++) {
         if (kutils_Smoke->classes[i].className && !kutils_Smoke->classes[i].external) {
             rb_ary_push(classList, rb_str_new2(kutils_Smoke->classes[i].className));
         }

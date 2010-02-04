@@ -30,7 +30,7 @@
 static VALUE getClassList(VALUE /*self*/)
 {
     VALUE classList = rb_ary_new();
-    for (int i = 1; i < khtml_Smoke->numClasses; i++) {
+    for (int i = 1; i <= khtml_Smoke->numClasses; i++) {
         if (khtml_Smoke->classes[i].className && !khtml_Smoke->classes[i].external)
             rb_ary_push(classList, rb_str_new2(khtml_Smoke->classes[i].className));
     }
