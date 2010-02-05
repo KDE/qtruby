@@ -573,6 +573,8 @@ module KDE
 					now = classname.sub(/^K?(?=[A-Z])/,'KDE::')
 				elsif classname =~ /^K/ && classname !~ /::/
 					now = classname.sub(/(^K)/, 'KDE::')
+				elsif classname =~ /^TerminalInterface/
+					now = "KDE::#{classname}"
 				end
 				now
 			end)
