@@ -33,7 +33,6 @@
 #include <kconfigskeleton.h>
 #include <kcoreconfigskeleton.h>
 #include <kurl.h>
-#include <kio/global.h>
 #include <kconfigskeleton.h>
 
 #include <smoke.h>
@@ -42,7 +41,6 @@
 #include <smoke/kdecore_smoke.h>
 #include <smoke/kdeui_smoke.h>
 #include <smoke/kparts_smoke.h>
-#include <smoke/kio_smoke.h>
 #include <smoke/knewstuff2_smoke.h>
 #include <smoke/knewstuff3_smoke.h>
 #include <smoke/kfile_smoke.h>
@@ -77,13 +75,7 @@ static VALUE getClassList(VALUE /*self*/)
             rb_ary_push(classList, rb_str_new2(kparts_Smoke->classes[i].className));
         }
     }
-    
-    for (int i = 1; i <= kio_Smoke->numClasses; i++) {
-        if (kio_Smoke->classes[i].className && !kio_Smoke->classes[i].external) {
-            rb_ary_push(classList, rb_str_new2(kio_Smoke->classes[i].className));
-        }
-    }
-    
+
     for (int i = 1; i <= knewstuff2_Smoke->numClasses; i++) {
         if (knewstuff2_Smoke->classes[i].className && !knewstuff2_Smoke->classes[i].external) {
             rb_ary_push(classList, rb_str_new2(knewstuff2_Smoke->classes[i].className));
@@ -558,7 +550,6 @@ VALUE kde_module;
 VALUE kde_internal_module;
 VALUE kparts_module;
 VALUE kns_module;
-VALUE kio_module;
 VALUE dom_module;
 VALUE kontact_module;
 VALUE ktexteditor_module;
@@ -590,10 +581,6 @@ setup_kde_modules()
 	rb_define_singleton_method(kns_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 	rb_define_singleton_method(kns_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
 	
-	kio_module = rb_define_module("KIO");
-	rb_define_singleton_method(kio_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
-	rb_define_singleton_method(kio_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
-
 	dom_module = rb_define_module("DOM");
     rb_define_singleton_method(dom_module, "method_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
     rb_define_singleton_method(dom_module, "const_missing", (VALUE (*) (...)) kde_module_method_missing, -1);
@@ -649,7 +636,6 @@ Init_korundum4()
     init_kdecore_Smoke();
     init_kdeui_Smoke();
     init_kparts_Smoke();
-    init_kio_Smoke();
     init_knewstuff2_Smoke();
     init_knewstuff3_Smoke();
     init_kfile_Smoke();
@@ -658,7 +644,6 @@ Init_korundum4()
     INIT_BINDING(kdecore)
     INIT_BINDING(kdeui)
     INIT_BINDING(kparts)
-    INIT_BINDING(kio)
     INIT_BINDING(knewstuff2)
     INIT_BINDING(knewstuff3)
     INIT_BINDING(kfile)
