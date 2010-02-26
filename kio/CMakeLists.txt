@@ -1,4 +1,4 @@
-include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src)
+include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src)
 
 set(rubykio_LIBRARY_SRC kio.cpp kiohandlers.cpp)
 add_library(rubykio MODULE ${rubykio_LIBRARY_SRC})

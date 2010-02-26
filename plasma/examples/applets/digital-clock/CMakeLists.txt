@@ -9,7 +9,7 @@ if(RBUIC4)
 	ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/calendar.rb COMMAND ${RBUIC4} ${UI_CALENDAR} -o ${CMAKE_CURRENT_BINARY_DIR}/calendar.rb COMMENT "Generating calendar.rb")
 	ADD_CUSTOM_TARGET(calendar ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/calendar.rb)
 
-	include_directories( ${RUBY_INCLUDE_PATH} )
+	include_directories( ${RUBY_INCLUDE_DIRS} )
 
 	install(FILES plasma-ruby-digital-clock-default.desktop DESTINATION ${SERVICES_INSTALL_DIR})
 

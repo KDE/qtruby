@@ -9,7 +9,7 @@ if(RUBY_VERSION)
     ADD_DEFINITIONS (-DRUBY_VERSION=0x${RUBY_VERSION_NUMBER})
 ENDIF(RUBY_VERSION)
 
-include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src ${KDE4_INCLUDE_DIR} ${QT_INCLUDES}  )
+include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src ${KDE4_INCLUDE_DIR} ${QT_INCLUDES}  )
 
 set(korundum_LIB_SRCS 
    Korundum.cpp 

@@ -1,4 +1,4 @@
-include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src)
+include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src)
 
 set(rubyphonon_LIBRARY_SRC phonon.cpp phononhandlers.cpp)
 add_library(rubyphonon MODULE ${rubyphonon_LIBRARY_SRC})

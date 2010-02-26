@@ -1,4 +1,4 @@
-macro_optional_find_package(RUBY)
+macro_optional_find_package(Ruby)
 
 #####################################################################
 # QtRuby/Korundum
@@ -47,13 +47,7 @@ set(OKULAR_ENABLED "no")
 set(SOLID_ENABLED "no")
 set(PLASMA_ENABLED "no")
 
-if(RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_PATH)
-   EXECUTE_PROCESS(COMMAND ${RUBY_EXECUTABLE} -e "print RUBY_VERSION"
-      OUTPUT_VARIABLE RUBY_VERSION)
-
-    STRING(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]+.*" "\\1" RUBY_VERSION_MAJOR "${RUBY_VERSION}")
-    STRING(REGEX REPLACE "^[0-9]+\\.([0-9])+\\.[0-9]+.*" "\\1" RUBY_VERSION_MINOR "${RUBY_VERSION}")
-    STRING(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" RUBY_VERSION_PATCH "${RUBY_VERSION}")
+if(RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_DIRS)
 
     # compute an overall version number which can be compared at once
     MATH(EXPR RUBY_VERSION_NUMBER "${RUBY_VERSION_MAJOR}*10000 + ${RUBY_VERSION_MINOR}*100 + ${RUBY_VERSION_PATCH}")
@@ -140,7 +134,7 @@ if(RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_PATH)
         add_subdirectory( solid )
         set(SOLID_ENABLED "yes")
     endif(ENABLE_SOLID_RUBY)
-endif(RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_PATH)
+endif(RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_DIRS)
 
 message(STATUS "Build QtRuby... " ${QTRUBY_ENABLED})
 message(STATUS "Build QtWebKit Ruby... " ${QTWEBKIT_ENABLED})
@@ -171,11 +165,11 @@ OPTION(ENABLE_KROSSRUBY "build Kross Ruby scripting library" ON)
 
 set(KROSSRUBY_ENABLED "no")
 if(ENABLE_KROSSRUBY)
-    if (RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_PATH)
+    if (RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_DIRS)
         EXECUTE_PROCESS(COMMAND ${RUBY_EXECUTABLE} -r mkmf -e "exit(have_func('rb_hash_foreach') ? 0 : 1)" RESULT_VARIABLE RUBY_HASH_FOREACH OUTPUT_QUIET)
         if (RUBY_HASH_FOREACH EQUAL 0)
 
-            set(CMAKE_REQUIRED_INCLUDES ${RUBY_INCLUDE_PATH})
+            set(CMAKE_REQUIRED_INCLUDES ${RUBY_INCLUDE_DIRS})
             set(CMAKE_REQUIRED_LIBRARIES ${RUBY_LIBRARY})
             CHECK_CXX_SOURCE_COMPILES("
                 #include <ruby.h>
@@ -199,9 +193,9 @@ if(ENABLE_KROSSRUBY)
             #endif (${RUBY_HASH_FOREACH} EQUAL 0)
 
         endif (RUBY_HASH_FOREACH EQUAL 0)
-    endif (RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_PATH)
+    endif (RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_DIRS)
     message(STATUS "Ruby Executable: " ${RUBY_EXECUTABLE})
     message(STATUS "Ruby Libraries: " ${RUBY_LIBRARY})
-    message(STATUS "Ruby Include Path: " ${RUBY_INCLUDE_PATH})
+    message(STATUS "Ruby Include Directories: " ${RUBY_INCLUDE_DIRS})
 endif(ENABLE_KROSSRUBY)
 message(STATUS "Build Kross Ruby... " ${KROSSRUBY_ENABLED})

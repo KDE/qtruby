@@ -1,6 +1,6 @@
 find_package(Qwt5 REQUIRED)
 
-include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src)
+include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src)
 INCLUDE_DIRECTORIES (${QT_INCLUDES} ${Qwt5_INCLUDE_DIR} )
 
 set(rubyqwt_LIBRARY_SRC qwt.cpp qwthandlers.cpp)
