@@ -22,8 +22,8 @@ OPTION(ENABLE_KTEXTEDITOR_RUBY "build KTextEditor" ON)
 OPTION(ENABLE_SOLID_RUBY "build Solid" ON)
 OPTION(ENABLE_PLASMA_RUBY "build Plasma" ON)
 
-SET(CUSTOM_RUBY_SITE_ARCH_DIR ${RUBY_SITE_ARCH_DIR} CACHE DIR "custom installation directory for ruby binary extension" )
-SET(CUSTOM_RUBY_SITE_LIB_DIR ${RUBY_SITE_LIB_DIR} CACHE DIR "custom installation directory for ruby extension" )
+SET(CUSTOM_RUBY_SITE_ARCH_DIR ${RUBY_SITEARCH_DIR} CACHE DIR "custom installation directory for ruby binary extension" )
+SET(CUSTOM_RUBY_SITE_LIB_DIR ${RUBY_SITELIB_DIR} CACHE DIR "custom installation directory for ruby extension" )
 
 set(QTRUBY_ENABLED "no")
 set(QTWEBKIT_ENABLED "no")
