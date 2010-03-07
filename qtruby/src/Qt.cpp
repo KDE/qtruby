@@ -461,7 +461,7 @@ static char p[CAT_BUFFER_SIZE];
 const char *
 resolve_classname(smokeruby_object * o)
 {
-	if (o->smoke->isDerivedFrom(o->smoke->classes[o->classId].className, "QObject")) {
+	if (Smoke::isDerivedFrom(o->smoke->classes[o->classId].className, "QObject")) {
 		QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject").index);
 		const QMetaObject * meta = qobject->metaObject();
 
@@ -494,8 +494,8 @@ findMethod(VALUE /*self*/, VALUE c_value, VALUE name_value)
     char *c = StringValuePtr(c_value);
     char *name = StringValuePtr(name_value);
     VALUE result = rb_ary_new();
-    Smoke::ModuleIndex classId = qtcore_Smoke->findClass(c);    
-    Smoke::ModuleIndex meth = qtcore_Smoke->NullModuleIndex;
+    Smoke::ModuleIndex classId = Smoke::findClass(c);    
+    Smoke::ModuleIndex meth = Smoke::NullModuleIndex;
     if (classId.smoke != 0) {
         meth = classId.smoke->findMethod(c, name);
     }
@@ -832,7 +832,7 @@ static QByteArray * pred = 0;
 					smokeruby_object *o = value_obj_info(self);
 					if (	o != 0 
 							&& o->ptr != 0 
-							&& o->smoke->isDerivedFrom(o->smoke, o->classId, o->smoke->idClass("QObject").smoke, o->smoke->idClass("QObject").index) )
+							&& Smoke::isDerivedFrom(Smoke::ModuleIndex(o->smoke, o->classId), Smoke::findClass("QObject")) )
 					{
 						QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject").index);
 static QByteArray * name = 0;
