@@ -1071,6 +1071,12 @@ module Qt
 		end
 	end
 
+	class GraphicsSceneDragDropEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class GraphicsSceneMouseEvent < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)
@@ -2698,7 +2704,7 @@ module Qt
 				methodIds.each do
 					|id|
 					puts "matching => smoke: #{id.smoke} index: #{id.index}" if debug_level >= DebugLevel::High
-					current_match = 0
+					current_match = (isConstMethod(id) ? 1 : 0)
 					(0...args.length).each do
 						|i|
 						current_match += checkarg(get_value_type(args[i]), get_arg_type_name(id, i))
@@ -2712,12 +2718,8 @@ module Qt
 					# If ambiguous matches occur the problem must be fixed be adjusting the relative
 					# ranking of the arg types involved in checkarg().
 					elsif current_match == best_match
-						if !isConstMethod(id) and isConstMethod(chosen)
-							chosen = id
-						elsif isConstMethod(id) == isConstMethod(chosen)
-							puts "multiple methods matching, this is an error" if debug_level >= DebugLevel::Minimal
-							chosen = nil
-						end
+						puts "multiple methods matching, this is an error" if debug_level >= DebugLevel::Minimal
+						chosen = nil
 					end
 					puts "match => #{id.index} score: #{current_match}" if debug_level >= DebugLevel::High
 				end
