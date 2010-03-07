@@ -1,3 +1,8 @@
+2010-03-07  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Fixed Qt::Object properties that were no longer working. Fixes bug 229784
+	  reported by ruby.twiddler
+
 2009-12-11  Richard Dale  <richard.j.dale@gmail.com>
 
     * Qt::DynamicPropertyChangeEvents were not being created correctly. Thanks

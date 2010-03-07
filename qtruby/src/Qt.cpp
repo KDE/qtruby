@@ -832,7 +832,7 @@ static QByteArray * pred = 0;
 					smokeruby_object *o = value_obj_info(self);
 					if (	o != 0 
 							&& o->ptr != 0 
-							&& o->smoke->isDerivedFrom(o->smoke, o->classId, o->smoke->idClass("QObject").smoke, o->smoke->idClass("QObject").index) )
+							&& Smoke::isDerivedFrom(Smoke::ModuleIndex(o->smoke, o->classId), Smoke::findClass("QObject")) )
 					{
 						QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject").index);
 static QByteArray * name = 0;
