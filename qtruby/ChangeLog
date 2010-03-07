@@ -4,6 +4,9 @@
 	  reported by ruby.twiddler
 	* Drag and drop events in Plasma applets weren't being handled correctly.
 	  Fixes problem reported by Robert Riemann
+	* QtRuby overrides public_methods(), singleton_methods() and 
+	  protected_methods(), but omitted the optional 'all' argument. Thanks to
+	  Paolo Capriotti for the fix and bug report.
 
 2009-12-11  Richard Dale  <richard.j.dale@gmail.com>
 

@@ -216,16 +216,16 @@ module Qt
 			qt_methods(super, 0x0)
 		end
 	
-		def protected_methods
+		def protected_methods(all=true)
 			# From smoke.h, Smoke::mf_protected 0x80
 			qt_methods(super, 0x80)
 		end
 	
-		def public_methods
+		def public_methods(all=true)
 			methods
 		end
 	
-		def singleton_methods
+		def singleton_methods(all=true)
 			# From smoke.h, Smoke::mf_static 0x01
 			qt_methods(super, 0x01)
 		end
