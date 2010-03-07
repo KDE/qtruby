@@ -1071,6 +1071,12 @@ module Qt
 		end
 	end
 
+	class GraphicsSceneDragDropEvent < Qt::Base 
+		def type(*args)
+			method_missing(:type, *args)
+		end
+	end
+
 	class GraphicsSceneMouseEvent < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)

@@ -2,6 +2,8 @@
 
 	* Fixed Qt::Object properties that were no longer working. Fixes bug 229784
 	  reported by ruby.twiddler
+	* Drag and drop events in Plasma applets weren't being handled correctly.
+	  Fixes problem reported by Robert Riemann
 
 2009-12-11  Richard Dale  <richard.j.dale@gmail.com>
 
