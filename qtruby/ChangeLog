@@ -1,5 +1,10 @@
-2010-03-07  Richard Dale  <richard.j.dale@gmail.com>
+2010-03-14  Richard Dale  <richard.j.dale@gmail.com>
+	
+	* The QtDBus classes weren't being correctly initialized as the count of 
+	  classes was being taken from the QtSvg smoke lib. Thanks to Paulo 
+	  Capriotti for finding the bug.
 
+2010-03-07  Richard Dale  <richard.j.dale@gmail.com>
 	* Fixed Qt::Object properties that were no longer working. Fixes bug 229784
 	  reported by ruby.twiddler
 	* Drag and drop events in Plasma applets weren't being handled correctly.

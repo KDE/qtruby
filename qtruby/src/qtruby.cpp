@@ -2124,7 +2124,7 @@ getClassList(VALUE /*self*/)
             rb_ary_push(class_list, rb_str_new2(qtsvg_Smoke->classes[i].className));
     }
 
-    for (int i = 1; i <= qtsvg_Smoke->numClasses; i++) {
+    for (int i = 1; i <= qtdbus_Smoke->numClasses; i++) {
         if (qtdbus_Smoke->classes[i].className && !qtdbus_Smoke->classes[i].external)
             rb_ary_push(class_list, rb_str_new2(qtdbus_Smoke->classes[i].className));
     }
