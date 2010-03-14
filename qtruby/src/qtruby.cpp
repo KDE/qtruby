@@ -925,7 +925,7 @@ qsignalmapper_mapping(int argc, VALUE * argv, VALUE self)
 		smokeruby_object *o = value_obj_info(self);
 		smokeruby_object *a = value_obj_info(argv[0]);
 
-		Smoke::ModuleIndex nameId = qtcore_Smoke->NullModuleIndex;
+		Smoke::ModuleIndex nameId = Smoke::NullModuleIndex;
 		nameId = o->smoke->idMethodName("mapping#");
 		Smoke::ModuleIndex ci(o->smoke, o->classId);
 		Smoke::ModuleIndex meth = o->smoke->findMethod(ci, nameId);
@@ -934,11 +934,11 @@ qsignalmapper_mapping(int argc, VALUE * argv, VALUE self)
 		while (meth.smoke->ambiguousMethodList[i] != 0) {
 			if (	(	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args]].name,
 									"QObject*" ) == 0 
-						&& a->smoke->isDerivedFrom(a->smoke->classes[a->classId].className, "QObject")
-						&& !a->smoke->isDerivedFrom(a->smoke->classes[a->classId].className, "QWidget") )
+						&& Smoke::isDerivedFrom(a->smoke->classes[a->classId].className, "QObject")
+						&& !Smoke::isDerivedFrom(a->smoke->classes[a->classId].className, "QWidget") )
 					|| (	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args]].name,
 										"QWidget*" ) == 0 
-							&& a->smoke->isDerivedFrom(a->smoke->classes[a->classId].className, "QWidget") ) )
+							&& Smoke::isDerivedFrom(a->smoke->classes[a->classId].className, "QWidget") ) )
 			{
 				_current_method.smoke = meth.smoke;
 				_current_method.index = meth.smoke->ambiguousMethodList[i];
@@ -961,7 +961,7 @@ qsignalmapper_set_mapping(int argc, VALUE * argv, VALUE self)
 		smokeruby_object *o = value_obj_info(self);
 		smokeruby_object *a = value_obj_info(argv[1]);
 
-		Smoke::ModuleIndex nameId = qtcore_Smoke->NullModuleIndex;
+		Smoke::ModuleIndex nameId = Smoke::NullModuleIndex;
 		nameId = o->smoke->idMethodName("setMapping##");
 		Smoke::ModuleIndex ci(o->smoke, o->classId);
 		Smoke::ModuleIndex meth = o->smoke->findMethod(ci, nameId);
@@ -970,11 +970,11 @@ qsignalmapper_set_mapping(int argc, VALUE * argv, VALUE self)
 		while (meth.smoke->ambiguousMethodList[i] != 0) {
 			if (	(	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args + 1]].name,
 									"QObject*" ) == 0 
-						&& a->smoke->isDerivedFrom(a->smoke->classes[a->classId].className, "QObject")
-						&& !a->smoke->isDerivedFrom(a->smoke->classes[a->classId].className, "QWidget") )
+						&& Smoke::isDerivedFrom(a->smoke->classes[a->classId].className, "QObject")
+						&& !Smoke::isDerivedFrom(a->smoke->classes[a->classId].className, "QWidget") )
 					|| (	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args + 1]].name,
 										"QWidget*" ) == 0 
-							&& a->smoke->isDerivedFrom(a->smoke->classes[a->classId].className, "QWidget") ) )
+							&& Smoke::isDerivedFrom(a->smoke->classes[a->classId].className, "QWidget") ) )
 			{
 				_current_method.smoke = meth.smoke;
 				_current_method.index = meth.smoke->ambiguousMethodList[i];
@@ -1099,7 +1099,7 @@ static VALUE
 qvariant_from_value(int argc, VALUE * argv, VALUE self)
 {
 	if (argc == 2) {
-		Smoke::ModuleIndex nameId = qtcore_Smoke->NullModuleIndex;
+		Smoke::ModuleIndex nameId = Smoke::NullModuleIndex;
 		if (TYPE(argv[0]) == T_DATA) {
 			nameId = qtcore_Smoke->idMethodName("QVariant#");
 		} else if (TYPE(argv[0]) == T_ARRAY || TYPE(argv[0]) == T_ARRAY) {
@@ -1729,7 +1729,7 @@ classIsa(VALUE /*self*/, VALUE className_value, VALUE base_value)
 {
     char *className = StringValuePtr(className_value);
     char *base = StringValuePtr(base_value);
-    return qtcore_Smoke->isDerivedFrom(className, base) ? Qtrue : Qfalse;
+    return Smoke::isDerivedFrom(className, base) ? Qtrue : Qfalse;
 }
 
 static VALUE
@@ -1985,11 +1985,7 @@ is_disposed(VALUE self)
 VALUE
 isQObject(VALUE /*self*/, VALUE c)
 {
-    const char* classname = strdup(StringValuePtr(c));
-
-    return qtcore_Smoke->isDerivedFrom(classname, "QObject");
-
-    free((void*) classname);
+    return Smoke::isDerivedFrom(StringValuePtr(c), "QObject");
 }
 
 // Returns the Smoke classId of a ruby instance
@@ -2007,7 +2003,7 @@ static VALUE
 findClass(VALUE /*self*/, VALUE name_value)
 {
     char *name = StringValuePtr(name_value);
-    Smoke::ModuleIndex mi = qtcore_Smoke->findClass(name);
+    Smoke::ModuleIndex mi = Smoke::findClass(name);
     return rb_funcall(moduleindex_class, rb_intern("new"), 2, INT2NUM(smokeList.indexOf(mi.smoke)), INT2NUM(mi.index));
 }
 
@@ -2128,7 +2124,7 @@ getClassList(VALUE /*self*/)
             rb_ary_push(class_list, rb_str_new2(qtsvg_Smoke->classes[i].className));
     }
 
-    for (int i = 1; i <= qtsvg_Smoke->numClasses; i++) {
+    for (int i = 1; i <= qtdbus_Smoke->numClasses; i++) {
         if (qtdbus_Smoke->classes[i].className && !qtdbus_Smoke->classes[i].external)
             rb_ary_push(class_list, rb_str_new2(qtdbus_Smoke->classes[i].className));
     }
@@ -2239,7 +2235,7 @@ create_qt_class(VALUE /*self*/, VALUE package_value, VALUE module_value)
 
     rb_define_singleton_method(module_value, "method_missing", (VALUE (*) (...)) module_method_missing, -1);
     rb_define_singleton_method(module_value, "const_missing", (VALUE (*) (...)) module_method_missing, -1);
-	
+
 	foreach(QString s, packageName.mid(strlen(moduleName) + 2).split("::")) {
 		klass = rb_define_class_under(klass, (const char*) s.toLatin1(), qt_base_class);
 	}
