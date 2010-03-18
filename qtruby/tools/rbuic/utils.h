@@ -45,9 +45,9 @@
 #define UTILS_H
 
 #include "ui4.h"
-#include <QString>
-#include <QList>
-#include <QHash>
+#include <QtCore/QString>
+#include <QtCore/QList>
+#include <QtCore/QHash>
 
 inline bool toBool(const QString &str)
 { return str.toLower() == QLatin1String("true"); }

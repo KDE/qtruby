@@ -41,7 +41,7 @@
 **
 ****************************************************************************/
 #include "ui4.h"
-#include <QDomDocument>
+#include <QtXml/QDomDocument>
 
 #if defined(QT_BEGIN_NAMESPACE)
   QT_BEGIN_NAMESPACE

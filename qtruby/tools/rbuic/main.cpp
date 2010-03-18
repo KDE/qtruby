@@ -44,10 +44,10 @@
 #include "uic.h"
 #include "option.h"
 #include "driver.h"
-#include <QFile>
-#include <QDir>
-#include <QTextStream>
-#include <QTextCodec>
+#include <QtCore/QFile>
+#include <QtCore/QDir>
+#include <QtCore/QTextStream>
+#include <QtCore/QTextCodec>
 
 #if defined(QT_BEGIN_NAMESPACE)
   QT_BEGIN_NAMESPACE

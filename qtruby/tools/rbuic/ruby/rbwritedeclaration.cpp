@@ -51,7 +51,7 @@
 #include "databaseinfo.h"
 #include "customwidgetsinfo.h"
 
-#include <QTextStream>
+#include <QtCore/QTextStream>
 
 namespace Ruby {
 
