@@ -19,10 +19,10 @@ module KIO
                     mod = Qt
                 elsif classname[0..4] == "KDE::"
                     mod = KDE
-                elsif classname[0..0] == "K" && classname[1] >= 65 && classname[1] <= 90
+                elsif classname[0..1] =~ /K[A-Z]/
                     mod = KDE
                     classname = "KDE::" + classname[1..(classname.size-1)]
-                elsif classname[0..0] == "Q" && classname[1] >= 65 && classname[1] <= 90
+                elsif classname[0..1] =~ /Q[A-Z]/
                     mod = Qt
                     classname = "Qt::" + classname[1..(classname.size-1)]
                 else
