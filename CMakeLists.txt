@@ -65,10 +65,11 @@ if(KDEVPLATFORM_FOUND)
     set(ENABLED_RUBY_MODULES "${ENABLED_RUBY_MODULES}, KDevPlatform")
 endif(KDEVPLATFORM_FOUND)
 
-if(Nepomuk_FOUND)
+# For nepomuk, we also must have found soprano, since soprano headers are used:
+if(Nepomuk_FOUND  AND  Soprano_FOUND)
     add_subdirectory( nepomuk )
     set(ENABLED_RUBY_MODULES "${ENABLED_RUBY_MODULES}, Nepomuk")
-endif(Nepomuk_FOUND)
+endif(Nepomuk_FOUND  AND  Soprano_FOUND)
 
 if(OKULAR_FOUND)
     add_subdirectory( okular )
