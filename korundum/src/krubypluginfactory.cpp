@@ -26,24 +26,18 @@
 #include <QDir>
 #include <QFileInfo>
 
+#include <QWidget>
+
 #include <KStandardDirs>
 #include <klibloader.h>
 #include <kdebug.h>
 
+#include <qtruby.h>
+
 extern "C" {
 extern VALUE rb_load_path;
+extern VALUE qt_internal_module;
 }
-
-/*
-    Duplicate the definition of this struct, to avoid linking directly
-    against the QtRuby libs
-*/
-struct smokeruby_object {
-    void *ptr;
-    bool allocated;
-    void *smoke;
-    int classId;
-};
 
 //
 // This function was borrowed from the kross code. It puts out
@@ -76,9 +70,18 @@ show_exception_message()
 static VALUE plugin_class = Qnil;
 
 static VALUE
-create_plugin_instance(VALUE av)
+create_plugin_instance3(VALUE av)
 {
-    return rb_funcall(plugin_class, rb_intern("new"), 2, Qnil, av);
+    VALUE pv = rb_ary_pop(av);
+    VALUE pw = rb_ary_pop(av);
+    return rb_funcall(plugin_class, rb_intern("new"), 3, pv, pw, av);
+}
+
+static VALUE
+create_plugin_instance2(VALUE av)
+{
+    VALUE pv = rb_ary_pop(av);
+    return rb_funcall(plugin_class, rb_intern("new"), 2, pv, av);
 }
 
 class KRubyPluginFactory : public KPluginFactory
@@ -157,7 +160,7 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
     rb_load_protect(rb_str_new2(encodedFilePath), 0, &state);
     if (state != 0) {
         show_exception_message();
-        kWarning() << "Failed to load" << encodedFilePath;
+        kWarning() << "Failed to load" << encodedFilePath << keyword << path;
         return 0;
     }
 
@@ -177,6 +180,21 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
         return 0;
     }
 
+    VALUE pw, po;
+    #define MKPARENT(cvar, rvar)\
+    if(cvar == 0) \
+        rvar = Qnil; \
+    else \
+    { \
+		Smoke::ModuleIndex mi = smokeList[0]->findClass("QObject"); \
+		smokeruby_object *o = alloc_smokeruby_object(false, mi.smoke, mi.smoke->idClass("QObject").index, cvar); \
+		const char *class_name = resolve_classname(o); \
+		rvar = set_obj_info(class_name, o); \
+    }
+    MKPARENT(parentWidget, pw)
+    MKPARENT(parent, po)
+    #undef MKPARENT
+
     // Assume the args list only contains strings, ints and booleans
     VALUE av = rb_ary_new();
     for (int i = 0; i < args.size(); ++i) {
@@ -188,12 +206,19 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
             rb_ary_push(av, args.at(i).toBool() ? Qtrue : Qfalse);
         }
     }
+    rb_ary_push(av, pw);
+    rb_ary_push(av, po);
 
-    VALUE plugin_value = rb_protect(create_plugin_instance, av, &state);
+    VALUE plugin_value = rb_protect(create_plugin_instance3, av, &state);
     if (state != 0 || plugin_value == Qnil) {
         show_exception_message();
-        kWarning() << "failed to create instance of plugin class";
-        return 0;
+        rb_ary_push(av, po);
+        plugin_value = rb_protect(create_plugin_instance2, av, &state);
+        if(state != 0 || plugin_value == Qnil) {
+            show_exception_message();
+            kWarning() << "failed to create instance of plugin class";
+            return 0;
+        }
     }
 
     // Set a global variable '$my_app_foo_bar + <numeric id>' to the value of the new 
@@ -220,6 +245,7 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
     smokeruby_object *o = 0;
     Data_Get_Struct(plugin_value, smokeruby_object, o);
     QObject * createdInstance = reinterpret_cast<QObject *>(o->ptr);
-    createdInstance->setParent(parent);
+    if(createdInstance->parent() == 0)
+        createdInstance->setParent(parent);
     return createdInstance;
 }

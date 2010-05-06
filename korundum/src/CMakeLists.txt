@@ -50,7 +50,7 @@ target_link_libraries(korundum4
 set_target_properties(korundum4 PROPERTIES PREFIX "")
 
 kde4_add_plugin(krubypluginfactory ${factory_SRCS})
-target_link_libraries(krubypluginfactory ${KDE4_KDECORE_LIBS} ${RUBY_LIBRARY})
+target_link_libraries(krubypluginfactory ${KDE4_KDECORE_LIBS} ${RUBY_LIBRARY} qtruby4shared)
 
 kde4_add_executable(krubyapplication ${application_SRCS})
 target_link_libraries(krubyapplication ${KDE4_KDECORE_LIBS} ${RUBY_LIBRARY})
