@@ -48,8 +48,6 @@ macro_optional_add_bindings(KDE4_FOUND "KTextEditor" ktexteditor)
 macro_optional_add_bindings(KDE4_FOUND "Solid" solid)
 macro_optional_add_bindings(KDE4_FOUND "Plasma" plasma)
 
-macro_optional_add_bindings(KDEVPLATFORM_FOUND "KDevPlatform" kdevplatform)
-
 # For nepomuk, we also must have found soprano, since soprano headers are used:
 if(Soprano_FOUND AND Nepomuk_FOUND)
     set(BUILD_Nepomuk TRUE)
