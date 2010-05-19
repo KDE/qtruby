@@ -4,7 +4,7 @@ INCLUDE_DIRECTORIES (${QT_INCLUDES} ${KDE4_INCLUDE_DIR})
 set(qttest_LIBRARY_SRC qttest.cpp qttesthandlers.cpp)
 
 add_library(qttest MODULE ${qttest_LIBRARY_SRC})
-target_link_libraries(qttest ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} smokeqtcore smokeqttest qtruby4shared)
+target_link_libraries(qttest ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} smokebase smokeqtcore smokeqttest qtruby4shared)
 set_target_properties(qttest PROPERTIES PREFIX "")
 install(TARGETS qttest DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
 install(FILES qttest.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/qttest)

@@ -34,7 +34,8 @@ target_link_libraries(  qtruby4shared
                             ${QT_QTCORE_LIBRARY} 
                             ${QT_QTGUI_LIBRARY} 
                             ${RUBY_LIBRARY} 
-                            ${QT_QTNETWORK_LIBRARY} 
+                            ${QT_QTNETWORK_LIBRARY}
+                            smokebase
                             smokeqtcore 
                             smokeqtgui 
                             smokeqtxml 

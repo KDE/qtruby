@@ -2,7 +2,7 @@ include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_DIRS} ${CMAKE_SOUR
 
 set(rubykio_LIBRARY_SRC kio.cpp kiohandlers.cpp)
 add_library(rubykio MODULE ${rubykio_LIBRARY_SRC})
-target_link_libraries(rubykio ${KIO_LIBS} ${KIO_LIBRARY} smokeqtcore smokekio qtruby4shared)
+target_link_libraries(rubykio ${KIO_LIBS} ${KIO_LIBRARY} smokebase smokeqtcore smokekio qtruby4shared)
 set_target_properties(rubykio PROPERTIES PREFIX "" OUTPUT_NAME kio)
 install(TARGETS rubykio DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
 install(FILES kio.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/kio)

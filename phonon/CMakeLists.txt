@@ -2,7 +2,7 @@ include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_DIRS} ${CMAKE_SOUR
 
 set(rubyphonon_LIBRARY_SRC phonon.cpp phononhandlers.cpp)
 add_library(rubyphonon MODULE ${rubyphonon_LIBRARY_SRC})
-target_link_libraries(rubyphonon ${PHONON_LIBS} ${RUBY_LIBRARY} smokeqtcore smokephonon qtruby4shared)
+target_link_libraries(rubyphonon ${PHONON_LIBS} ${RUBY_LIBRARY} smokebase smokeqtcore smokephonon qtruby4shared)
 set_target_properties(rubyphonon PROPERTIES PREFIX "" OUTPUT_NAME phonon)
 install(TARGETS rubyphonon DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
 install(FILES phonon.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/phonon)
