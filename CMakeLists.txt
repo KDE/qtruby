@@ -64,7 +64,6 @@ macro_optional_add_bindings(OKULAR_FOUND "Okular" okular)
 OPTION(ENABLE_KROSSRUBY "build Kross Ruby scripting library" ON)
 #OPTION(ENABLE_KROSSRUBY "build Kross Ruby scripting library" OFF)
 
-set(BUILD_KrossRuby FALSE)
 if (RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_DIRS)
     EXECUTE_PROCESS(COMMAND ${RUBY_EXECUTABLE} -r mkmf -e "exit(have_func('rb_hash_foreach') ? 0 : 1)" RESULT_VARIABLE RUBY_HASH_FOREACH OUTPUT_QUIET)
     if (RUBY_HASH_FOREACH EQUAL 0)
@@ -97,6 +96,6 @@ message(STATUS "Ruby Executable: " ${RUBY_EXECUTABLE})
 message(STATUS "Ruby Libraries: " ${RUBY_LIBRARY})
 message(STATUS "Ruby Include Directories: " ${RUBY_INCLUDE_DIRS})
 
-macro_optional_add_bindings(BUILD_KrossRuby "KrossRuby" krossruby)
+macro_optional_add_bindings(ENABLE_KROSSRUBY "KrossRuby" krossruby)
 
 macro_display_bindings_log()
