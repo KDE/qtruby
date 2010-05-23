@@ -74,7 +74,9 @@ if (RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_DIRS)
             #include <ruby.h>
             int main() { ruby_init(); return 0; }" RubyCompiles)
         if(RubyCompiles)
-            set(BUILD_KrossRuby TRUE)
+            if(ENABLE_KROSSRUBY)
+                set(BUILD_KrossRuby TRUE)
+            endif(ENABLE_KROSSRUBY)
         else(RubyCompiles)
             message(STATUS "Failed to compile a C++ program that embeds ruby.")
         endif(RubyCompiles)
@@ -96,6 +98,6 @@ message(STATUS "Ruby Executable: " ${RUBY_EXECUTABLE})
 message(STATUS "Ruby Libraries: " ${RUBY_LIBRARY})
 message(STATUS "Ruby Include Directories: " ${RUBY_INCLUDE_DIRS})
 
-macro_optional_add_bindings(ENABLE_KROSSRUBY "KrossRuby" krossruby)
+macro_optional_add_bindings(BUILD_KrossRuby "KrossRuby" krossruby)
 
 macro_display_bindings_log()
