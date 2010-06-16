@@ -405,7 +405,7 @@ smokeruby_free(void * p)
 		}
 	} else if (o->smoke->isDerivedFrom(className, "QWidget")) {
 		QWidget * qwidget = (QWidget *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QWidget", true).index);
-		if (qwidget->parentWidget() != 0) {
+		if (qwidget->parentWidget() != 0 || QCoreApplication::closingDown()) {
 			free_smokeruby_object(o);
 			return;
 		}
