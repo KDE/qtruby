@@ -1033,7 +1033,7 @@ static QRegExp * rx = 0;
 			} else if (staticType == "uint") {
 				arg->argType = xmoc_uint;
 				smoke = qtcore_Smoke;
-				typeId = smoke->idType(name.constData());
+				typeId = smoke->idType("unsigned int");
 			} else if (staticType == "long") {
 				arg->argType = xmoc_long;
 				smoke = qtcore_Smoke;
@@ -1041,7 +1041,7 @@ static QRegExp * rx = 0;
 			} else if (staticType == "ulong") {
 				arg->argType = xmoc_ulong;
 				smoke = qtcore_Smoke;
-				typeId = smoke->idType(name.constData());
+				typeId = smoke->idType("unsigned long");
 			} else if (staticType == "double") {
 				arg->argType = xmoc_double;
 				smoke = qtcore_Smoke;
