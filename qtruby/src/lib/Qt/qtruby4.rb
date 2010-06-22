@@ -708,16 +708,32 @@ module Qt
 		def serviceOwner(name)
     		return Qt::DBusReply.new(internalConstCall(Qt::DBus::AutoDetect, "GetNameOwner", [Qt::Variant.new(name)]))
 		end
+		
+		def service_owner(name)
+    		return serviceOwner(name)
+		end
 
 		def registeredServiceNames
 			return Qt::DBusReply.new(internalConstCall(Qt::DBus::AutoDetect, "ListNames"))
+		end
+
+		def registered_service_names
+			return registeredServiceNames
 		end
 
 		def isServiceRegistered(serviceName)
     		return Qt::DBusReply.new(internalConstCall(Qt::DBus::AutoDetect, "NameHasOwner", [Qt::Variant.new(serviceName)]))
 		end
 
+		def is_service_registered(serviceName)
+    		return isServiceRegistered(serviceName)
+		end
+
 		def serviceRegistered?(serviceName)
+    		return isServiceRegistered(serviceName)
+		end
+
+		def service_registered?(serviceName)
     		return isServiceRegistered(serviceName)
 		end
 
@@ -725,15 +741,27 @@ module Qt
     		return Qt::DBusReply.new(internalConstCall(Qt::DBus::AutoDetect, "GetConnectionUnixProcessID", [Qt::Variant.new(serviceName)]))
 		end
 
+		def service_pid(serviceName)
+    		return servicePid(serviceName)
+		end
+
 		def serviceUid(serviceName)
     		return Qt::DBusReply.new(internalConstCall(Qt::DBus::AutoDetect, "GetConnectionUnixUser", [Qt::Variant.new(serviceName)]))
+		end
+
+		def service_uid(serviceName)
+    		return serviceUid(serviceName)
 		end
 
 		def startService(name)
     		return call("StartServiceByName", Qt::Variant.new(name), Qt::Variant.new(0)).value
 		end
-	end
 
+		def start_service(name)
+    		startService(name)
+		end
+	end
+	
 	class DBusError < Qt::Base 
 		def type(*args)
 			method_missing(:type, *args)

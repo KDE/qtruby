@@ -2508,6 +2508,8 @@ Q_DECL_EXPORT TypeHandler Qt_handlers[] = {
     { "QVector<QPoint>&", marshall_QPointVector },
     { "QVector<qreal>", marshall_QVectorqreal },
     { "QVector<qreal>&", marshall_QVectorqreal },
+    { "QVector<double>", marshall_QVectorqreal },
+    { "QVector<double>&", marshall_QVectorqreal },
     { "QVector<QRectF>", marshall_QRectFVector },
     { "QVector<QRectF>&", marshall_QRectFVector },
     { "QVector<QRect>", marshall_QRectVector },

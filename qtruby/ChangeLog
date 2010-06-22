@@ -1,3 +1,15 @@
+2010-06-22  Richard Dale  <richard.j.dale@gmail.com>
+
+    * Added snakecase versions of the methods in the Qt::DBusConnectionInterface
+      class
+    * Fixed bug with missing QVector<double> marshaller. Fixes problem reported
+      by Sylvain Sauvage http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=586672
+      Thanks for the bug report.
+    * Add a version check when using rb_during_gc() as it was only added for 
+      Ruby 1.8.7
+    * Added a setScriptOwnership= method for changing whether an instance is owned
+      by the C++ or Ruby runtimes
+
 2010-03-14  Richard Dale  <richard.j.dale@gmail.com>
 	
 	* The QtDBus classes weren't being correctly initialized as the count of 

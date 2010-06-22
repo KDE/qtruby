@@ -1982,6 +1982,17 @@ is_disposed(VALUE self)
 	return (o != 0 && o->ptr != 0) ? Qfalse : Qtrue;
 }
 
+static VALUE
+set_script_ownership(VALUE self, VALUE value)
+{
+	smokeruby_object *o = value_obj_info(self);
+	if (o != 0) {
+		o->allocated = RTEST(value);
+	}
+	
+	return self;
+}
+
 VALUE
 isQObject(VALUE /*self*/, VALUE c)
 {
@@ -2371,6 +2382,9 @@ Init_qtruby4()
     rb_define_method(qt_base_class, "dispose", (VALUE (*) (...)) dispose, 0);
     rb_define_method(qt_base_class, "isDisposed", (VALUE (*) (...)) is_disposed, 0);
     rb_define_method(qt_base_class, "disposed?", (VALUE (*) (...)) is_disposed, 0);
+	
+    rb_define_method(qt_base_class, "scriptOwnership=", (VALUE (*) (...)) set_script_ownership, 1);
+    rb_define_method(qt_base_class, "script_ownership=", (VALUE (*) (...)) set_script_ownership, 1);
 
 	rb_define_method(qt_base_class, "qVariantValue", (VALUE (*) (...)) qvariant_value, 2);
 	rb_define_method(qt_base_class, "qVariantFromValue", (VALUE (*) (...)) qvariant_from_value, -1);
