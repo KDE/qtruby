@@ -3,7 +3,11 @@ INCLUDE_DIRECTORIES (${QT_INCLUDES})
 
 set(rubyqsci_LIBRARY_SRC qscintilla.cpp qscintillahandlers.cpp)
 add_library(rubyqscintilla MODULE ${rubyqsci_LIBRARY_SRC})
-target_link_libraries(rubyqscintilla ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} smokebase smokeqtcore smokeqsci qtruby4shared)
+target_link_libraries(rubyqscintilla
+    ${QSCINTILLA_LIBRARIES}
+    smokeqsci
+    qtruby4shared
+)
 set_target_properties(rubyqscintilla PROPERTIES PREFIX "" OUTPUT_NAME qscintilla)
 install(TARGETS rubyqscintilla DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
 install(FILES qscintilla.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/qscintilla)
