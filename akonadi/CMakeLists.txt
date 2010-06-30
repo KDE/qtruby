@@ -5,14 +5,12 @@ include_directories( ${KDEPIMLIBS_INCLUDE_DIR} )
 set(rubyakonadi_LIBRARY_SRC akonadi.cpp akonadihandlers.cpp)
 
 add_library(rubyakonadi MODULE ${rubyakonadi_LIBRARY_SRC})
-target_link_libraries(rubyakonadi 
-    ${QT_QTCORE_LIBRARY} 
-    ${RUBY_LIBRARY} 
-    ${KDEPIMLIBS_AKONADI_LIBS} 
+target_link_libraries(rubyakonadi
+    ${KDEPIMLIBS_AKONADI_LIBS}
     ${KDEPIMLIBS_AKONADI_KMIME_LIBS}
-    smokeqtcore
-    smokeakonadi 
-    qtruby4shared)
+    smokeakonadi
+    qtruby4shared
+)
 set_target_properties(rubyakonadi PROPERTIES PREFIX "" OUTPUT_NAME akonadi)
 
 install(TARGETS rubyakonadi DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})

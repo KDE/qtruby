@@ -4,14 +4,12 @@ include_directories (${SOPRANO_INCLUDE_DIR} ${QT_INCLUDES})
 set(rubynepomuk_LIBRARY_SRC nepomuk.cpp nepomukhandlers.cpp)
 
 add_library(rubynepomuk MODULE ${rubynepomuk_LIBRARY_SRC})
-target_link_libraries(rubynepomuk 
-    ${RUBY_LIBRARY} 
+target_link_libraries(rubynepomuk
     ${NEPOMUK_LIBRARIES}
-    smokeqtcore 
-    smokesoprano
-    smokekdecore 
-    smokenepomuk 
-    qtruby4shared)
+    ${SOPRANO_LIBRARIES}
+    smokenepomuk
+    qtruby4shared
+)
 set_target_properties(rubynepomuk PROPERTIES PREFIX "" OUTPUT_NAME nepomuk)
 install(TARGETS rubynepomuk DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
 install(FILES nepomuk.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/nepomuk)
