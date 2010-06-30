@@ -6,6 +6,7 @@ set(rubynepomuk_LIBRARY_SRC nepomuk.cpp nepomukhandlers.cpp)
 add_library(rubynepomuk MODULE ${rubynepomuk_LIBRARY_SRC})
 target_link_libraries(rubynepomuk
     ${NEPOMUK_LIBRARIES}
+    ${SOPRANO_LIBRARIES}
     smokenepomuk
     qtruby4shared)
 set_target_properties(rubynepomuk PROPERTIES PREFIX "" OUTPUT_NAME nepomuk)
