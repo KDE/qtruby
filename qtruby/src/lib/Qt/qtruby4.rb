@@ -2420,11 +2420,7 @@ module Qt
 			if metaObject.indexOfSlot(signature) == -1
 				self.class.slots signature
 			end
-			# This makes a difference between being and not being able
-			# to run with GC.stress= true. Reason unclear.
-			gc_disabled= GC.disable
 			@block = block
-			GC.enable unless gc_disabled
 		end
 
 		def invoke(*args)
@@ -2438,12 +2434,11 @@ module Qt
 			if metaObject.indexOfSlot(signature) == -1
 				self.class.slots signature
 			end
-			@target = target
 			@block = block
 		end
 
 		def invoke(*args)
-			@target.instance_exec(*args, &@block)
+			@block.call(*args)
 		end
 	end
 
@@ -2933,7 +2928,7 @@ module Qt
 			signature = Qt::MetaObject.normalizedSignature("invoke(%s)" % args).to_s
 			return Qt::Object.connect(	src,
 										signal,
-										Qt::BlockInvocation.new(target, block, signature),
+										Qt::BlockInvocation.new(target, block.to_proc, signature),
 										SLOT(signature) )
 		end
 
@@ -2945,7 +2940,7 @@ module Qt
 			signature = Qt::MetaObject.normalizedSignature("invoke(%s)" % args).to_s
 			return Qt::Object.connect(	src,
 										signal,
-										Qt::SignalBlockInvocation.new(src, block, signature),
+										Qt::SignalBlockInvocation.new(src, block.to_proc, signature),
 										SLOT(signature) )
 		end
 
