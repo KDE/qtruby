@@ -385,6 +385,12 @@ smokeruby_free(void * p)
 			free_smokeruby_object(o);
 			return;
 		}
+	} else if (o->smoke->isDerivedFrom(className, "QGraphicsItem")) {
+		QGraphicsItem * item = (QGraphicsItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsItem", true).index);
+		if (item->parentItem() != 0 || item->parentObject() != 0 || item->parentWidget() != 0) {
+			free_smokeruby_object(o);
+			return;
+		}
 	} else if (o->smoke->isDerivedFrom(className, "QLayoutItem")) {
 		QLayoutItem * item = (QLayoutItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayoutItem", true).index);
 		if (item->layout() != 0 || item->widget() != 0 || item->spacerItem() != 0) {
