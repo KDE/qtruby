@@ -379,7 +379,13 @@ smokeruby_free(void * p)
 	unmapPointer(o, o->classId, 0);
 	object_count --;
 	
-	if (o->smoke->isDerivedFrom(className, "QLayoutItem")) {
+	if (o->smoke->isDerivedFrom(className, "QGraphicsLayoutItem")) {
+		QGraphicsLayoutItem * item = (QGraphicsLayoutItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QGraphicsLayoutItem", true).index);
+		if (item->graphicsItem() != 0 || item->parentLayoutItem() != 0) {
+			free_smokeruby_object(o);
+			return;
+		}
+	} else if (o->smoke->isDerivedFrom(className, "QLayoutItem")) {
 		QLayoutItem * item = (QLayoutItem *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QLayoutItem", true).index);
 		if (item->layout() != 0 || item->widget() != 0 || item->spacerItem() != 0) {
 			free_smokeruby_object(o);
