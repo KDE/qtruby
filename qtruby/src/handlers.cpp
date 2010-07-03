@@ -199,9 +199,9 @@ smokeruby_mark(void * p)
     if (o->ptr && o->allocated) {
 		if (o->smoke->isDerivedFrom(className, "QObject")) {
 			QObject * qobject = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject", true).index);
-			// Only mark the QObject tree if the current item doesn't have a parent.
+			// Only mark the QObject tree if the current item doesn't have a parent or the parent isn't wrapped by the bindings.
 			// This avoids marking parts of a tree more than once.
-			if (qobject->parent() == 0) {
+			if (qobject->parent() == 0 || getPointerObject(qobject->parent()) == Qnil) {
 				mark_qobject_children(qobject);
 			}
 		}
