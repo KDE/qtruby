@@ -165,52 +165,79 @@ VALUE getPointerObject(void *ptr) {
 	}
 }
 
-void unmapPointer(smokeruby_object *o, Smoke::Index classId, void *lastptr) {
-	void *ptr = o->smoke->cast(o->ptr, o->classId, classId);
+void unmapPointer(void *ptr, Smoke *smoke, Smoke::Index fromClassId, Smoke::Index toClassId, void *lastptr) {
+	ptr = smoke->cast(ptr, fromClassId, toClassId);
+
 	if (ptr != lastptr) {
 		lastptr = ptr;
 		if (pointer_map() && pointer_map()->contains(ptr)) {
 			VALUE * obj_ptr = pointer_map()->operator[](ptr);
 		
 			if (do_debug & qtdb_gc) {
-				const char *className = o->smoke->classes[o->classId].className;
+				const char *className = smoke->classes[fromClassId].className;
 				qWarning("unmapPointer (%s*)%p -> %p size: %d", className, ptr, obj_ptr, pointer_map()->size() - 1);
 			}
-	    
+
 			pointer_map()->remove(ptr);
 			xfree((void*) obj_ptr);
 		}
-    }
-
-	for (Smoke::Index *i = o->smoke->inheritanceList + o->smoke->classes[classId].parents; *i; i++) {
-		unmapPointer(o, *i, lastptr);
 	}
+
+	if (smoke->classes[toClassId].external) {
+		// encountered external class
+		Smoke::ModuleIndex mi = Smoke::findClass(smoke->classes[toClassId].className);
+		if (!mi.index || !mi.smoke) return;
+
+		smoke = mi.smoke;
+		toClassId = mi.index;
+	}
+
+	for (Smoke::Index *i = smoke->inheritanceList + smoke->classes[toClassId].parents; *i; i++) {
+		unmapPointer(ptr, smoke, toClassId, *i, lastptr);
+	}
+}
+
+void unmapPointer(smokeruby_object *o, Smoke::Index classId, void *lastptr) {
+	unmapPointer(o->ptr, o->smoke, o->classId, classId, lastptr);
 }
 
 // Store pointer in pointer_map hash : "pointer_to_Qt_object" => weak ref to associated Ruby object
 // Recurse to store it also as casted to its parent classes.
 
-void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *lastptr) {
-    void *ptr = o->smoke->cast(o->ptr, o->classId, classId);
-	
+void mapPointer(VALUE obj, void *ptr, Smoke *smoke, Smoke::Index fromClassId, Smoke::Index toClassId, void *lastptr) {
+	ptr = smoke->cast(ptr, fromClassId, toClassId);
+
     if (ptr != lastptr) {
 		lastptr = ptr;
 		VALUE * obj_ptr = ALLOC(VALUE);
 		memcpy(obj_ptr, &obj, sizeof(VALUE));
 		
 		if (do_debug & qtdb_gc) {
-			const char *className = o->smoke->classes[o->classId].className;
+			const char *className = smoke->classes[fromClassId].className;
 			qWarning("mapPointer (%s*)%p -> %p size: %d", className, ptr, (void*)obj, pointer_map()->size() + 1);
 		}
 	
 		pointer_map()->insert(ptr, obj_ptr);
     }
-	
-	for (Smoke::Index *i = o->smoke->inheritanceList + o->smoke->classes[classId].parents; *i; i++) {
-		mapPointer(obj, o, *i, lastptr);
+
+	if (smoke->classes[toClassId].external) {
+		// encountered external class
+		Smoke::ModuleIndex mi = Smoke::findClass(smoke->classes[toClassId].className);
+		if (!mi.index || !mi.smoke) return;
+
+		smoke = mi.smoke;
+		toClassId = mi.index;
+	}
+
+	for (Smoke::Index *i = smoke->inheritanceList + smoke->classes[toClassId].parents; *i; i++) {
+		mapPointer(obj, ptr, smoke, toClassId, *i, lastptr);
 	}
 	
 	return;
+}
+
+void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *lastptr) {
+	mapPointer(obj, o->ptr, o->smoke, o->classId, classId, lastptr);
 }
 
 namespace QtRuby {
