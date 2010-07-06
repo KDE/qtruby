@@ -125,6 +125,11 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
     Q_UNUSED(iface);
     Q_UNUSED(parentWidget);
 
+    if (keyword.isEmpty()) {
+        kWarning() << "\"keyword\" is empty. It's either missing in the .desktop file or the app doesn't pass it to the pluginfactory.";
+        return 0;
+    }
+
     QString path = KStandardDirs::locate("data", keyword);
 
     if (path.isEmpty()) {
@@ -186,10 +191,10 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
         rvar = Qnil; \
     else \
     { \
-		Smoke::ModuleIndex mi = smokeList[0]->findClass("QObject"); \
-		smokeruby_object *o = alloc_smokeruby_object(false, mi.smoke, mi.smoke->idClass("QObject").index, cvar); \
-		const char *class_name = resolve_classname(o); \
-		rvar = set_obj_info(class_name, o); \
+        Smoke::ModuleIndex mi = smokeList[0]->findClass("QObject"); \
+        smokeruby_object *o = alloc_smokeruby_object(false, mi.smoke, mi.smoke->idClass("QObject").index, cvar); \
+        const char *class_name = resolve_classname(o); \
+        rvar = set_obj_info(class_name, o); \
     }
     MKPARENT(parentWidget, pw)
     MKPARENT(parent, po)
@@ -220,6 +225,14 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
             return 0;
         }
     }
+
+    // Set an instance variable '@componentData' that contains the plugin specific
+    // component data.
+    Smoke::ModuleIndex mi = Smoke::findClass("KComponentData");
+    smokeruby_object *comp_o = alloc_smokeruby_object(true, mi.smoke, mi.index, new KComponentData(moduleName, moduleName));
+    const char *class_name = resolve_classname(comp_o);
+    VALUE rb_componentData = set_obj_info(class_name, comp_o);
+    rb_iv_set(plugin_value, "@componentData", rb_componentData);
 
     // Set a global variable '$my_app_foo_bar + <numeric id>' to the value of the new 
     // instance of MyApp::FooBar to prevent it being GC'd. Note that it would be
