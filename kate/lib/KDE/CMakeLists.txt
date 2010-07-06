@@ -1,0 +1,2 @@
+install( FILES kate.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/KDE )
+
