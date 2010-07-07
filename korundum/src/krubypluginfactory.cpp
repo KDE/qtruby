@@ -218,10 +218,15 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
 
     VALUE plugin_value = rb_protect(create_plugin_instance3, av, &state);
     if (state != 0 || plugin_value == Qnil) {
-        show_exception_message();
+        VALUE lasterr = rb_gv_get("$!");
+        VALUE klass = rb_class_path(CLASS_OF(lasterr));    
+        if (qstrcmp(RSTRING(klass)->ptr, "ArgumentError") != 0) {
+            show_exception_message();
+        }
+        
         rb_ary_push(av, po);
         plugin_value = rb_protect(create_plugin_instance2, av, &state);
-        if(state != 0 || plugin_value == Qnil) {
+        if (state != 0 || plugin_value == Qnil) {
             show_exception_message();
             kWarning() << "failed to create instance of plugin class";
             return 0;
