@@ -24,25 +24,25 @@ require 'Qt'
 module KDE
 	def KDE.i18n(text, *args)
 		str = ki18n(text)
-		args.inject(str) { |str, arg| str = str.subs(arg) }
+		args.each { | arg | str = str.subs(arg) }
 		return str.toString
 	end
 
 	def KDE.i18nc(context, text, *args)
 		str = ki18nc(context, text)
-		args.inject(str) { |str, arg| str = str.subs(arg) }
+		args.each { | arg | str = str.subs(arg) }
 		return str.toString
 	end
 
 	def KDE.i18np(singular, plural, *args)
 		str = ki18np(singular, plural)
-		args.inject(str) { |str, arg| str = str.subs(arg) }
+		args.each { | arg | str = str.subs(arg) }
 		return str.toString
 	end
 
 	def KDE.i18ncp(context, singular, plural, *args)
 		str = ki18ncp(context, singular, plural)
-		args.inject(str) { |str, arg| str = str.subs(arg) }
+		args.each { | arg | str = str.subs(arg) }
 		return str.toString
 	end
 
