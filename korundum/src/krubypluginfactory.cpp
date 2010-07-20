@@ -220,7 +220,7 @@ QObject *KRubyPluginFactory::create(const char *iface, QWidget *parentWidget, QO
     if (state != 0 || plugin_value == Qnil) {
         VALUE lasterr = rb_gv_get("$!");
         VALUE klass = rb_class_path(CLASS_OF(lasterr));    
-        if (qstrcmp(RSTRING(klass)->ptr, "ArgumentError") != 0) {
+        if (qstrcmp(StringValuePtr(klass), "ArgumentError") != 0) {
             show_exception_message();
         }
         
