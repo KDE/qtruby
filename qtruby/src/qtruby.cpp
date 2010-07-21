@@ -990,6 +990,33 @@ qsignalmapper_set_mapping(int argc, VALUE * argv, VALUE self)
 	return rb_call_super(argc, argv);
 }
 
+// an array that contains VALUEs for strong references
+static VALUE strong_refs() {
+	static VALUE __array = rb_ary_new();
+	return __array;
+}
+
+static int rObject_typeId;
+
+// QMetaType helpers
+static void delete_ruby_object(void *ptr)
+{
+	VALUE *valueptr = (VALUE*) ptr;
+	rb_ary_delete(strong_refs(), *valueptr);
+	delete valueptr;
+}
+
+static void *create_ruby_object(const void *copyFrom)
+{
+	if (copyFrom) {
+		VALUE *copy = new VALUE(*(VALUE*) copyFrom);
+		rb_ary_push(strong_refs(), *copy);
+		return copy;
+	}
+
+	return new VALUE(Qnil);
+}
+
 static VALUE
 qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 {
@@ -1005,7 +1032,7 @@ qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 	QVariant * variant = (QVariant*) o->ptr;
 
 	// If the QVariant contains a user type, don't bother to look at the Ruby class argument
-	if (variant->type() >= QVariant::UserType) { 
+	if (variant->type() >= QVariant::UserType && variant->userType() != rObject_typeId) {
 #ifdef QT_QTDBUS 
 		if (qstrcmp(variant->typeName(), "QDBusObjectPath") == 0) {
 			QString s = qVariantValue<QDBusObjectPath>(*variant).path();
@@ -1020,6 +1047,8 @@ qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 		Smoke::ModuleIndex mi = o->smoke->findClass(variant->typeName());
 		vo = alloc_smokeruby_object(true, mi.smoke, mi.index, value_ptr);
 		return set_obj_info(qtruby_modules[mi.smoke].binding->className(mi.index), vo);
+	} else if (variant->userType() == rObject_typeId) {
+		return *(VALUE*) variant->data();
 	}
 
 	const char * classname = rb_class2name(variant_value_klass);
@@ -1095,6 +1124,11 @@ qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 	return result;
 }
 
+static VALUE create_qvariant_one_arg(VALUE arg)
+{
+	return rb_funcall(qvariant_class, rb_intern("new"), 1, arg);
+}
+
 static VALUE
 qvariant_from_value(int argc, VALUE * argv, VALUE self)
 {
@@ -1126,58 +1160,32 @@ qvariant_from_value(int argc, VALUE * argv, VALUE self)
 		}
 	}
 
-	const char * classname = rb_obj_classname(argv[0]);
-    smokeruby_object *o = value_obj_info(argv[0]);
-	if (o == 0 || o->ptr == 0) {
-		// Assume the Qt::Variant can be created with a
-		// Qt::Variant.new(obj) call
-		if (qstrcmp(classname, "Qt::Enum") == 0) {
-			return rb_funcall(qvariant_class, rb_intern("new"), 1, rb_funcall(argv[0], rb_intern("to_i"), 0));
-		} else {
-			return rb_funcall(qvariant_class, rb_intern("new"), 1, argv[0]);
-		}
-	}
-
 	QVariant * v = 0;
 
-	if (qstrcmp(classname, "Qt::Pixmap") == 0) {
-		v = new QVariant(qVariantFromValue(*(QPixmap*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Font") == 0) {
-		v = new QVariant(qVariantFromValue(*(QFont*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Brush") == 0) {
-		v = new QVariant(qVariantFromValue(*(QBrush*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Color") == 0) {
-		v = new QVariant(qVariantFromValue(*(QColor*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Palette") == 0) {
-		v = new QVariant(qVariantFromValue(*(QPalette*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Icon") == 0) {
-		v = new QVariant(qVariantFromValue(*(QIcon*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Image") == 0) {
-		v = new QVariant(qVariantFromValue(*(QImage*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Polygon") == 0) {
-		v = new QVariant(qVariantFromValue(*(QPolygon*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Region") == 0) {
-		v = new QVariant(qVariantFromValue(*(QRegion*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Bitmap") == 0) {
-		v = new QVariant(qVariantFromValue(*(QBitmap*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Cursor") == 0) {
-		v = new QVariant(qVariantFromValue(*(QCursor*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::SizePolicy") == 0) {
-		v = new QVariant(qVariantFromValue(*(QSizePolicy*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::KeySequence") == 0) {
-		v = new QVariant(qVariantFromValue(*(QKeySequence*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::Pen") == 0) {
-		v = new QVariant(qVariantFromValue(*(QPen*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::TextLength") == 0) {
-		v = new QVariant(qVariantFromValue(*(QTextLength*) o->ptr));
-	} else if (qstrcmp(classname, "Qt::TextFormat") == 0) {
-		v = new QVariant(qVariantFromValue(*(QTextFormat*) o->ptr));
-	} else if (QVariant::nameToType(o->smoke->classes[o->classId].className) >= QVariant::UserType) {
-		v = new QVariant(QMetaType::type(o->smoke->classes[o->classId].className), o->ptr);
+	const char * classname = rb_obj_classname(argv[0]);
+    smokeruby_object *o = value_obj_info(argv[0]);
+	int type = 0;
+
+	if (qstrcmp(classname, "Qt::Enum") == 0) {
+		return rb_funcall(qvariant_class, rb_intern("new"), 1, rb_funcall(argv[0], rb_intern("to_i"), 0));
+	} else if (o && o->ptr && (type = QVariant::nameToType(o->smoke->className(o->classId)))) {
+		v = new QVariant(type, o->ptr);
 	} else {
-		// Assume the Qt::Variant can be created with a
-		// Qt::Variant.new(obj) call
-		return rb_funcall(qvariant_class, rb_intern("new"), 1, argv[0]);
+		int error = 0;
+		VALUE result = rb_protect(&create_qvariant_one_arg, argv[0], &error);
+		if (!error) {
+			return result;
+		} else {
+			VALUE lasterr = rb_gv_get("$!");
+			VALUE klass = rb_class_path(CLASS_OF(lasterr));
+			if (qstrcmp(StringValuePtr(klass), "ArgumentError") == 0) {
+				// ArgumentError - no suitable constructor found
+				// Create a QVariant that contains an rObject
+				v = new QVariant(rObject_typeId, &argv[0]);
+			} else {
+				rb_raise(lasterr, "while creating the QVariant");
+			}
+		}
 	}
 
 	smokeruby_object * vo = alloc_smokeruby_object(true, qtcore_Smoke, qtcore_Smoke->idClass("QVariant").index, v);
@@ -2454,6 +2462,8 @@ Init_qtruby4()
     rb_intern("internalPointer");
 
 	rb_require("Qt/qtruby4.rb");
+
+	rObject_typeId = QMetaType::registerType("rObject", &delete_ruby_object, &create_ruby_object);
 
     // Do package initialization
     rb_funcall(qt_internal_module, rb_intern("init_all_classes"), 0);
