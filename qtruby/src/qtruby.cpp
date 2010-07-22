@@ -990,31 +990,27 @@ qsignalmapper_set_mapping(int argc, VALUE * argv, VALUE self)
 	return rb_call_super(argc, argv);
 }
 
-// an array that contains VALUEs for strong references
-static VALUE strong_refs() {
-	static VALUE __array = rb_ary_new();
-	return __array;
-}
-
 static int rObject_typeId;
 
 // QMetaType helpers
 static void delete_ruby_object(void *ptr)
 {
-	VALUE *valueptr = (VALUE*) ptr;
-	rb_ary_delete(strong_refs(), *valueptr);
-	delete valueptr;
+	rb_gc_unregister_address((VALUE*) ptr);
+	delete (VALUE*) ptr;
 }
 
 static void *create_ruby_object(const void *copyFrom)
 {
+	VALUE *object;
+
 	if (copyFrom) {
-		VALUE *copy = new VALUE(*(VALUE*) copyFrom);
-		rb_ary_push(strong_refs(), *copy);
-		return copy;
+		object = new VALUE(*(VALUE*) copyFrom);
+	} else {
+		object = new VALUE(Qnil);
 	}
 
-	return new VALUE(Qnil);
+	rb_gc_register_address(object);
+	return object;
 }
 
 static VALUE
