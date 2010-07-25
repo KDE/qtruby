@@ -1027,24 +1027,26 @@ qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 
 	QVariant * variant = (QVariant*) o->ptr;
 
-	// If the QVariant contains a user type, don't bother to look at the Ruby class argument
-	if (variant->type() >= QVariant::UserType && variant->userType() != rObject_typeId) {
+	if (variant->userType() == rObject_typeId) {
+		return *(VALUE*) variant->data();
 #ifdef QT_QTDBUS 
-		if (qstrcmp(variant->typeName(), "QDBusObjectPath") == 0) {
-			QString s = qVariantValue<QDBusObjectPath>(*variant).path();
-			return rb_str_new2(s.toLatin1());
-		} else if (qstrcmp(variant->typeName(), "QDBusSignature") == 0) {
-			QString s = qVariantValue<QDBusSignature>(*variant).signature();
-			return rb_str_new2(s.toLatin1());
-		}
+	} else if (variant->userType() == qMetaTypeId<QDBusObjectPath>()) {
+		QString s = qVariantValue<QDBusObjectPath>(*variant).path();
+		return rb_str_new2(s.toLatin1());
+	} else if (variant->userType() == qMetaTypeId<QDBusSignature>()) {
+		QString s = qVariantValue<QDBusSignature>(*variant).signature();
+		return rb_str_new2(s.toLatin1());
+	} else if (variant->userType() == qMetaTypeId<QDBusVariant>()) {
+		QVariant *ptr = new QVariant(qVariantValue<QDBusVariant>(*variant).variant());
+		vo = alloc_smokeruby_object(true, qtcore_Smoke, qtcore_Smoke->idClass("QVariant").index, ptr);
+		return set_obj_info("Qt::Variant", vo);
 #endif
-
+	} else if (variant->type() >= QVariant::UserType) {
+		// If the QVariant contains a user type, don't bother to look at the Ruby class argument
 		value_ptr = QMetaType::construct(QMetaType::type(variant->typeName()), (void *) variant->constData());
 		Smoke::ModuleIndex mi = o->smoke->findClass(variant->typeName());
 		vo = alloc_smokeruby_object(true, mi.smoke, mi.index, value_ptr);
 		return set_obj_info(qtruby_modules[mi.smoke].binding->className(mi.index), vo);
-	} else if (variant->userType() == rObject_typeId) {
-		return *(VALUE*) variant->data();
 	}
 
 	const char * classname = rb_class2name(variant_value_klass);
