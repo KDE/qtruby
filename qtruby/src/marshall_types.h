@@ -132,6 +132,10 @@ public:
 		if (_target == Qnil && !(method().flags & Smoke::mf_static)) {
 			rb_raise(rb_eArgError, "%s is not a class method\n", _smoke->methodNames[method().name]);
 		}
+
+		if (rb_obj_frozen_p(_target) && !(method().flags & Smoke::mf_const)) {
+			rb_raise(rb_eRuntimeError, "%p (%s) is frozen, can't call non-const method '%s' on it\n", _o->ptr, classname(), _smoke->methodNames[method().name]);
+		}
 	
 		Smoke::ClassFn fn = _smoke->classes[method().classId].classFn;
 		void * ptr = 0;

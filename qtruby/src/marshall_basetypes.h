@@ -10,6 +10,9 @@
 #ifndef MARSHALL_BASETYPES_H
 #define MARSHALL_BASETYPES_H
 
+#include "qtruby.h"
+#include "smokeruby.h"
+
 template <class T> T* smoke_ptr(Marshall *m) { return (T*) m->item().s_voidp; }
 
 template<> bool* smoke_ptr<bool>(Marshall *m) { return &m->item().s_bool; }
@@ -144,6 +147,7 @@ void marshall_to_ruby<SmokeClassWrapper>(Marshall *m)
 	smokeruby_object  * o = alloc_smokeruby_object(false, m->smoke(), m->type().classId(), p);
 
 	const char * classname = resolve_classname(o);
+	bool freeze = false;
 	if (m->type().isConst() && m->type().isRef()) {
 		p = construct_copy( o );
 		if (do_debug & qtdb_gc) {
@@ -153,12 +157,19 @@ void marshall_to_ruby<SmokeClassWrapper>(Marshall *m)
 		if (p) {
 			o->ptr = p;
 			o->allocated = true;
+		} else {
+			freeze = true;
 		}
+	} else if (m->type().isConst() && m->type().isPtr()) {
+		freeze = true;
 	}
 		
 	obj = set_obj_info(classname, o);
 	if (do_debug & qtdb_gc) {
 		qWarning("allocating %s %p -> %p\n", classname, o->ptr, (void*)obj);
+	}
+	if (freeze) {
+		rb_obj_freeze(obj);
 	}
 
 /*
