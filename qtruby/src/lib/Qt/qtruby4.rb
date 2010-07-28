@@ -2727,13 +2727,7 @@ module Qt
 				methodIds.each do
 					|id|
 					puts "matching => smoke: #{id.smoke} index: #{id.index}" if debug_level >= DebugLevel::High
-
-					if this.frozen?
-						current_match = (isConstMethod(id) ? 1 : 0)
-					else
-						current_match = (isConstMethod(id) ? 0 : 1)
-					end
-
+					current_match = (isConstMethod(id) ? 1 : 0)
 					(0...args.length).each do
 						|i|
 						current_match += checkarg(get_value_type(args[i]), get_arg_type_name(id, i))

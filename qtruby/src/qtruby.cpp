@@ -40,8 +40,7 @@
 #include <QtGui/qwidget.h>
 
 #ifdef QT_QTDBUS
-#include <QtDBus/QDBusObjectPath>
-#include <QtDBus/QDBusSignature>
+#include <QtDBus/qdbusargument.h>
 #endif
 
 #include <smoke/smoke.h>
@@ -617,6 +616,45 @@ qimage_scan_line(VALUE self, VALUE ix)
   const uchar * bytes = image->scanLine(NUM2INT(ix));
   return rb_str_new((const char *) bytes, image->bytesPerLine());
 }
+
+#ifdef QT_QTDBUS 
+static VALUE
+qdbusargument_endarraywrite(VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QDBusArgument * arg = (QDBusArgument *) o->ptr;
+	arg->endArray();
+	return self;
+}
+
+static VALUE
+qdbusargument_endmapwrite(VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QDBusArgument * arg = (QDBusArgument *) o->ptr;
+	arg->endMap();
+	return self;
+}
+
+static VALUE
+qdbusargument_endmapentrywrite(VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QDBusArgument * arg = (QDBusArgument *) o->ptr;
+	arg->endMapEntry();
+	return self;
+}
+
+static VALUE
+qdbusargument_endstructurewrite(VALUE self)
+{
+    smokeruby_object *o = value_obj_info(self);
+	QDBusArgument * arg = (QDBusArgument *) o->ptr;
+	arg->endStructure();
+	return self;
+}
+
+#endif
 
 // The QtRuby runtime's overloaded method resolution mechanism can't currently
 // distinguish between Ruby Arrays containing different sort of instances.
@@ -2242,6 +2280,17 @@ create_qt_class(VALUE /*self*/, VALUE package_value, VALUE module_value)
 		rb_define_method(klass, "mapping", (VALUE (*) (...)) qsignalmapper_mapping, -1);
 		rb_define_method(klass, "setMapping", (VALUE (*) (...)) qsignalmapper_set_mapping, -1);
 		rb_define_method(klass, "set_mapping", (VALUE (*) (...)) qsignalmapper_set_mapping, -1);
+#ifdef QT_QTDBUS
+	} else if (packageName == "Qt::DBusArgument") {
+		rb_define_method(klass, "endArrayWrite", (VALUE (*) (...)) qdbusargument_endarraywrite, 0);
+		rb_define_method(klass, "end_array_write", (VALUE (*) (...)) qdbusargument_endarraywrite, 0);
+		rb_define_method(klass, "endMapEntryWrite", (VALUE (*) (...)) qdbusargument_endmapentrywrite, 0);
+		rb_define_method(klass, "end_map_entry_write", (VALUE (*) (...)) qdbusargument_endmapentrywrite, 0);
+		rb_define_method(klass, "endMapWrite", (VALUE (*) (...)) qdbusargument_endmapwrite, 0);
+		rb_define_method(klass, "end_map_write", (VALUE (*) (...)) qdbusargument_endmapwrite, 0);
+		rb_define_method(klass, "endStructureWrite", (VALUE (*) (...)) qdbusargument_endstructurewrite, 0);
+		rb_define_method(klass, "end_structure_write", (VALUE (*) (...)) qdbusargument_endstructurewrite, 0);
+#endif
 	}
 
 	foreach(QtRubyModule m, qtruby_modules.values()) {
