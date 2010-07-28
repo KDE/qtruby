@@ -2411,6 +2411,7 @@ Q_DECL_EXPORT TypeHandler Qt_handlers[] = {
     { "int*", marshall_it<int *> },
     { "int&", marshall_it<int *> },
     { "KIO::filesize_t", marshall_it<long long> },
+    { "long long", marshall_it<long long> },
     { "long long int", marshall_it<long long> },
     { "long long int&", marshall_it<long long> },
     { "QDBusVariant", marshall_QDBusVariant },
