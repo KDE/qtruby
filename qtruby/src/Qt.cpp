@@ -99,7 +99,7 @@ int do_debug = qtdb_gc;
 int do_debug = qtdb_none;
 #endif
 
-typedef QHash<void *, VALUE *> PointerMap;
+typedef QHash<void *, SmokeValue> PointerMap;
 Q_GLOBAL_STATIC(PointerMap, pointer_map)
 int object_count = 0;
 
@@ -149,6 +149,10 @@ void *value_to_ptr(VALUE ruby_value) {  // ptr on success, null on fail
 }
 
 VALUE getPointerObject(void *ptr) {
+  return getSmokeValue(ptr).value;
+}
+
+SmokeValue getSmokeValue(void *ptr) {
 	if (!pointer_map() || !pointer_map()->contains(ptr)) {
 		if (do_debug & qtdb_gc) {
 			qWarning("getPointerObject %p -> nil", ptr);
@@ -156,12 +160,12 @@ VALUE getPointerObject(void *ptr) {
 				qWarning("getPointerObject pointer_map deleted");
 			}
 		}
-	    return Qnil;
+	    return SmokeValue();
 	} else {
 		if (do_debug & qtdb_gc) {
-			qWarning("getPointerObject %p -> %p", ptr, (void *) *(pointer_map()->operator[](ptr)));
+			qWarning("getPointerObject %p -> %p", ptr, (void *) pointer_map()->operator[](ptr).value);
 		}
-		return *(pointer_map()->operator[](ptr));
+		return pointer_map()->operator[](ptr);
 	}
 }
 
@@ -171,15 +175,14 @@ void unmapPointer(void *ptr, Smoke *smoke, Smoke::Index fromClassId, Smoke::Inde
 	if (ptr != lastptr) {
 		lastptr = ptr;
 		if (pointer_map() && pointer_map()->contains(ptr)) {
-			VALUE * obj_ptr = pointer_map()->operator[](ptr);
+			VALUE obj_ptr = pointer_map()->operator[](ptr).value;
 		
 			if (do_debug & qtdb_gc) {
 				const char *className = smoke->classes[fromClassId].className;
-				qWarning("unmapPointer (%s*)%p -> %p size: %d", className, ptr, obj_ptr, pointer_map()->size() - 1);
+				qWarning("unmapPointer (%s*)%p -> %p size: %d", className, ptr, (void*)(&obj_ptr), pointer_map()->size() - 1);
 			}
 
 			pointer_map()->remove(ptr);
-			xfree((void*) obj_ptr);
 		}
 	}
 
@@ -204,20 +207,19 @@ void unmapPointer(smokeruby_object *o, Smoke::Index classId, void *lastptr) {
 // Store pointer in pointer_map hash : "pointer_to_Qt_object" => weak ref to associated Ruby object
 // Recurse to store it also as casted to its parent classes.
 
-void mapPointer(VALUE obj, void *ptr, Smoke *smoke, Smoke::Index fromClassId, Smoke::Index toClassId, void *lastptr) {
+void mapPointer(VALUE obj, smokeruby_object* o, void *ptr, Smoke *smoke, Smoke::Index fromClassId, Smoke::Index toClassId, void *lastptr) {
 	ptr = smoke->cast(ptr, fromClassId, toClassId);
 
     if (ptr != lastptr) {
 		lastptr = ptr;
-		VALUE * obj_ptr = ALLOC(VALUE);
-		memcpy(obj_ptr, &obj, sizeof(VALUE));
-		
+        
 		if (do_debug & qtdb_gc) {
 			const char *className = smoke->classes[fromClassId].className;
 			qWarning("mapPointer (%s*)%p -> %p size: %d", className, ptr, (void*)obj, pointer_map()->size() + 1);
 		}
-	
-		pointer_map()->insert(ptr, obj_ptr);
+        
+        SmokeValue value(obj, o);
+		pointer_map()->insert(ptr, value);
     }
 
 	if (smoke->classes[toClassId].external) {
@@ -230,14 +232,14 @@ void mapPointer(VALUE obj, void *ptr, Smoke *smoke, Smoke::Index fromClassId, Sm
 	}
 
 	for (Smoke::Index *i = smoke->inheritanceList + smoke->classes[toClassId].parents; *i; i++) {
-		mapPointer(obj, ptr, smoke, toClassId, *i, lastptr);
+		mapPointer(obj, o, ptr, smoke, toClassId, *i, lastptr);
 	}
 	
 	return;
 }
 
 void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *lastptr) {
-	mapPointer(obj, o->ptr, o->smoke, o->classId, classId, lastptr);
+	mapPointer(obj, o, o->ptr, o->smoke, o->classId, classId, lastptr);
 }
 
 namespace QtRuby {
@@ -250,9 +252,10 @@ Binding::deleted(Smoke::Index classId, void *ptr) {
 	if (!pointer_map()) {
 	return;
 	}
-	VALUE obj = getPointerObject(ptr);
-	smokeruby_object *o = value_obj_info(obj);
+
+	smokeruby_object *o = getSmokeValue(ptr).o;
 	if (do_debug & qtdb_gc) {
+	  	qWarning("unmapping: o = %p, ptr = %p\n", o, ptr);
     	qWarning("%p->~%s()", ptr, smoke->className(classId));
     }
 	if (!o || !o->ptr) {

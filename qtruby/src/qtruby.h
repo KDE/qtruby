@@ -70,6 +70,20 @@ struct smokeruby_object {
     int classId;
 };
 
+struct SmokeValue
+{
+  VALUE value;
+  smokeruby_object* o;
+  
+  SmokeValue()
+  : value(Qnil)
+  , o(0) { }
+  
+  SmokeValue(VALUE value, smokeruby_object* o)
+  : value(value)
+  , o(o) { }
+};
+
 struct TypeHandler {
     const char *name;
     Marshall::HandlerFn fn;
@@ -140,6 +154,7 @@ extern Q_DECL_EXPORT smokeruby_object *value_obj_info(VALUE value);
 extern Q_DECL_EXPORT void *value_to_ptr(VALUE ruby_value); // ptr on success, null on fail
 
 extern Q_DECL_EXPORT VALUE getPointerObject(void *ptr);
+extern Q_DECL_EXPORT SmokeValue getSmokeValue(void *ptr);
 extern Q_DECL_EXPORT void mapPointer(VALUE obj, smokeruby_object *o, Smoke::Index classId, void *lastptr);
 extern Q_DECL_EXPORT void unmapPointer(smokeruby_object *, Smoke::Index, void*);
 
