@@ -333,6 +333,14 @@ smokeruby_mark(void * p)
 			if (item->parentItem() == 0) {
 				mark_qgraphicsitem_children(item);
 			}
+			if (QGraphicsEffect* effect = item->graphicsEffect()) {
+				obj = getPointerObject(effect);
+				if (obj != Qnil) {
+				  if (do_debug & qtdb_gc) 
+					qWarning("Marking (%s*)%p -> %p", "QGraphicsEffect", effect, (void*)obj);
+					rb_gc_mark(obj);
+				}
+			}
 		}
 
 		if (o->smoke->isDerivedFrom(className, "QGraphicsScene")) {
