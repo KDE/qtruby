@@ -1132,9 +1132,11 @@ qvariant_from_value(int argc, VALUE * argv, VALUE self)
 {
 	if (argc == 2) {
 		Smoke::ModuleIndex nameId = Smoke::NullModuleIndex;
+		const char *typeName = StringValuePtr(argv[1]);
+
 		if (TYPE(argv[0]) == T_DATA) {
 			nameId = qtcore_Smoke->idMethodName("QVariant#");
-		} else if (TYPE(argv[0]) == T_ARRAY || TYPE(argv[0]) == T_ARRAY) {
+		} else if (TYPE(argv[0]) == T_ARRAY || qstrcmp(typeName, "long long") == 0 || qstrcmp(typeName, "unsigned long long") == 0) {
 			nameId = qtcore_Smoke->idMethodName("QVariant?");
 		} else {
 			nameId = qtcore_Smoke->idMethodName("QVariant$");
@@ -1145,7 +1147,7 @@ qvariant_from_value(int argc, VALUE * argv, VALUE self)
 		i = -i;		// turn into ambiguousMethodList index
 		while (meth.smoke->ambiguousMethodList[i] != 0) {
 			if (	qstrcmp(	meth.smoke->types[meth.smoke->argumentList[meth.smoke->methods[meth.smoke->ambiguousMethodList[i]].args]].name,
-								StringValuePtr(argv[1]) ) == 0 )
+								typeName ) == 0 )
 			{
 				_current_method.smoke = meth.smoke;
 				_current_method.index = meth.smoke->ambiguousMethodList[i];
@@ -1156,6 +1158,8 @@ qvariant_from_value(int argc, VALUE * argv, VALUE self)
 
 			i++;
 		}
+
+		printf("No suitable method for signature QVariant::QVariant(%s) found - looking for another suitable constructor\n", StringValuePtr(argv[1]));
 	}
 
 	QVariant * v = 0;
