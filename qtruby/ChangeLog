@@ -1,3 +1,9 @@
+2010-08-17  Richard Dale  <richard.j.dale@gmail.com>
+
+    * Don't use rb_during_gc() to skip virtual method callbacks during virtual
+      method callbacks as it's probably a bad idea and causes build problems
+      with old ruby interpreters.
+
 2010-06-22  Richard Dale  <richard.j.dale@gmail.com>
 
     * Added snakecase versions of the methods in the Qt::DBusConnectionInterface

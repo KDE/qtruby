@@ -298,9 +298,8 @@ Binding::callMethod(Smoke::Index method, void *ptr, Smoke::Stack args, bool /*is
 	if (qstrncmp(methodName, "operator", sizeof("operator") - 1) == 0) {
 		methodName += (sizeof("operator") - 1);
 	}
-		// If the virtual method hasn't been overriden, just call the C++ one.
-		// During GC, avoid checking for override and just call the C++ version
-	if (rb_during_gc() || rb_respond_to(obj, rb_intern(methodName)) == 0) {
+
+    if (rb_respond_to(obj, rb_intern(methodName)) == 0) {
     	return false;
 	}
 	QtRuby::VirtualMethodCall c(smoke, method, args, obj, ALLOCA_N(VALUE, smoke->methods[method].numArgs));
