@@ -80,7 +80,7 @@ if (RUBY_EXECUTABLE AND RUBY_LIBRARY AND RUBY_INCLUDE_DIRS)
             #include <ruby.h>
             int main() { ruby_init(); return 0; }" RubyCompiles)
         if(RubyCompiles)
-            if(ENABLE_KROSSRUBY AND RUBY_VERSION_MAJOR = 9 AND RUBY_VERSION_MINOR < 9)
+            if(ENABLE_KROSSRUBY AND RUBY_VERSION_MAJOR = 1 AND RUBY_VERSION_MINOR < 9)
                 set(BUILD_KrossRuby TRUE)
             endif(ENABLE_KROSSRUBY AND RUBY_VERSION_MAJOR = 1 AND RUBY_VERSION_MINOR < 9)
         else(RubyCompiles)
