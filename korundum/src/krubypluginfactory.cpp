@@ -52,16 +52,17 @@ show_exception_message()
     VALUE bt = rb_funcall(info, rb_intern("backtrace"), 0);
     VALUE message = RARRAY_PTR(bt)[0];
 
+    VALUE obj_string = rb_obj_as_string(info);
     QString errormessage = QString("%1: %2 (%3)")
-                            .arg( STR2CSTR(message) )
-                            .arg( STR2CSTR(rb_obj_as_string(info)) )
-                            .arg( rb_class2name(CLASS_OF(info)) );
+                            .arg( QString::fromLatin1(StringValuePtr(message)) )
+                            .arg( QString::fromLatin1(StringValuePtr(obj_string)) )
+                            .arg( QString::fromLatin1(rb_class2name(CLASS_OF(info))) );
     fprintf(stderr, "%s\n", errormessage.toLatin1().constData());
 
     QString tracemessage;
     for(int i = 1; i < RARRAY_LEN(bt); ++i) {
         if( TYPE(RARRAY_PTR(bt)[i]) == T_STRING ) {
-            QString s = QString("%1\n").arg( STR2CSTR(RARRAY_PTR(bt)[i]) );
+            QString s = QString("%1\n").arg( QString::fromLatin1(StringValuePtr(RARRAY_PTR(bt)[i])) );
             Q_ASSERT( ! s.isNull() );
             tracemessage += s;
             fprintf(stderr, "\t%s", s.toLatin1().constData());
