@@ -1,3 +1,7 @@
+2010-09-30  Richard Dale  <richard.j.dale@gmail.com>
+    * Replace STR2CSTR macros with StringValuePtr so that the
+      krubypluginfactory.cpp builds with Ruby 1.9
+
 2009-09-22  Richard Dale  <richard.j.dale@gmail.com>
     * Fix broken KDE::ConfigGroup.readEntry method. Thanks to Paulo Capriotti
       for reporting the bug
