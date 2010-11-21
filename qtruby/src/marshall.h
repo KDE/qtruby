@@ -10,7 +10,7 @@
 #ifndef MARSHALL_H
 #define MARSHALL_H
 
-#include <smoke/smoke.h>
+#include <smoke.h>
 #include <ruby.h>
 
 class SmokeType;

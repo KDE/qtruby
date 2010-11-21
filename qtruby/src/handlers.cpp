@@ -64,7 +64,7 @@
 #include <QtNetwork/qnetworkcookie.h>
 #endif
 
-#include <smoke/smoke.h>
+#include <smoke.h>
 
 #undef DEBUG
 #ifndef _GNU_SOURCE

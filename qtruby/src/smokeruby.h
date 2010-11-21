@@ -10,7 +10,7 @@
 #ifndef SMOKERUBY_H
 #define SMOKERUBY_H
 
-#include <smoke/smoke.h>
+#include <smoke.h>
 
 #undef DEBUG
 #ifndef _GNU_SOURCE

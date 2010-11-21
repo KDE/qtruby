@@ -23,7 +23,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qmetaobject.h>
 
-#include <smoke/smoke.h>
+#include <smoke.h>
 
 #include "marshall.h"
 #include "qtruby.h"

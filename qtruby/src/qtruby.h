@@ -19,7 +19,7 @@
 #define QTRUBY_H
 
 #include <QHash>
-#include <smoke/smoke.h>
+#include <smoke.h>
 
 #include "marshall.h"
 

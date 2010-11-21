@@ -43,7 +43,7 @@
 #include <QtDBus/qdbusargument.h>
 #endif
 
-#include <smoke/smoke.h>
+#include <smoke.h>
 
 #include <smoke/qtcore_smoke.h>
 #include <smoke/qtgui_smoke.h>

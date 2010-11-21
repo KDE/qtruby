@@ -62,7 +62,7 @@
 
 #include <ruby.h>
 
-#include <smoke/smoke.h>
+#include <smoke.h>
 #include <smoke/qtcore_smoke.h>
 
 #undef free
