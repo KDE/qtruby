@@ -1,6 +1,6 @@
 add_subdirectory( lib )
 
-include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src ${KATE_INCLUDE_DIR})
+include_directories( ${CMAKE_SOURCE_DIR}/generator ${RUBY_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src ${KATE_INCLUDE_DIR})
 INCLUDE_DIRECTORIES (${QT_INCLUDES})
 
 set(kate_LIB_SRCS

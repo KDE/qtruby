@@ -7,7 +7,6 @@ else(KDEPIMLIBS_FOUND AND Akonadi_FOUND)
 endif(KDEPIMLIBS_FOUND AND Akonadi_FOUND)
 macro_optional_add_bindings(BUILD_Akonadi "Akonadi" akonadi)
 
-add_subdirectory(korundum)
 add_subdirectory(kio)
 add_subdirectory(khtml)
 add_subdirectory(ktexteditor)

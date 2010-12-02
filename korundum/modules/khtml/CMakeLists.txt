@@ -1,4 +1,4 @@
-include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src)
+include_directories( ${CMAKE_SOURCE_DIR}/generator ${RUBY_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src)
 
 set(rubykhtml_LIBRARY_SRC khtml.cpp khtmlhandlers.cpp)
 add_library(rubykhtml MODULE ${rubykhtml_LIBRARY_SRC})

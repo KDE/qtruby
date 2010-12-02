@@ -1,4 +1,4 @@
-include_directories( ${CMAKE_SOURCE_DIR}/smoke ${RUBY_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src)
+include_directories( ${CMAKE_SOURCE_DIR}/generator ${RUBY_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src)
 include_directories (${QT_INCLUDES} ${SOPRANO_INCLUDE_DIR})
 
 set(rubysoprano_LIBRARY_SRC soprano.cpp sopranohandlers.cpp)
