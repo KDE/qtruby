@@ -45,14 +45,14 @@
 
 #include <smoke.h>
 
-#include <smoke/qtcore_smoke.h>
-#include <smoke/qtgui_smoke.h>
-#include <smoke/qtxml_smoke.h>
-#include <smoke/qtsql_smoke.h>
-#include <smoke/qtopengl_smoke.h>
-#include <smoke/qtnetwork_smoke.h>
-#include <smoke/qtsvg_smoke.h>
-#include <smoke/qtdbus_smoke.h>
+#include <smoke/qt/qtcore_smoke.h>
+#include <smoke/qt/qtgui_smoke.h>
+#include <smoke/qt/qtxml_smoke.h>
+#include <smoke/qt/qtsql_smoke.h>
+#include <smoke/qt/qtopengl_smoke.h>
+#include <smoke/qt/qtnetwork_smoke.h>
+#include <smoke/qt/qtsvg_smoke.h>
+#include <smoke/qt/qtdbus_smoke.h>
 
 #include <ruby.h>
 

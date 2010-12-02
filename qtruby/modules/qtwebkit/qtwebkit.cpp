@@ -4,7 +4,7 @@
 #include <QList>
 #include <QtDebug>
 
-#include <smoke/qtwebkit_smoke.h>
+#include <smoke/qt/qtwebkit_smoke.h>
 
 #include <qtruby.h>
 
