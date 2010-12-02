@@ -24,3 +24,7 @@ MATH(EXPR RUBY_VERSION_NUMBER "${RUBY_VERSION_MAJOR}*10000 + ${RUBY_VERSION_MINO
 
 
 macro_display_bindings_log()
+
+add_subdirectory( examples )
+add_subdirectory( src )
+add_subdirectory( tools )
