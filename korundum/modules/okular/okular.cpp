@@ -21,7 +21,7 @@
 #include <QList>
 #include <QtDebug>
 
-#include <smoke/okular_smoke.h>
+#include <smoke/kde/okular_smoke.h>
 
 #include <qtruby.h>
 

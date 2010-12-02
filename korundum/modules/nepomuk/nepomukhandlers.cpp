@@ -20,7 +20,7 @@
 #include <QtCore/qhash.h>
 #include <QtCore/qurl.h>
 
-#include <smoke/qtcore_smoke.h>
+#include <smoke/qt/qtcore_smoke.h>
 #include <qtruby.h>
 #include <smokeruby.h>
 #include <marshall_macros.h>

@@ -21,7 +21,7 @@
 #include <QList>
 #include <QtDebug>
 
-#include <smoke/ktexteditor_smoke.h>
+#include <smoke/kde/ktexteditor_smoke.h>
 
 #include <qtruby.h>
 

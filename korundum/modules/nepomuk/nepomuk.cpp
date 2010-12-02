@@ -21,7 +21,7 @@
 #include <QList>
 #include <QtDebug>
 
-#include <smoke/nepomuk_smoke.h>
+#include <smoke/kde/nepomuk_smoke.h>
 
 #include <qtruby.h>
 
