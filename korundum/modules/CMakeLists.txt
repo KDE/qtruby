@@ -1,3 +1,18 @@
+macro_optional_find_package(Soprano)
+macro_log_feature(SOPRANO_FOUND "Soprano" "Soprano libraries" "http://soprano.sourceforge.net" FALSE "" "Needed to compile Soprano bindings")
+
+macro_optional_find_package(Nepomuk)
+macro_log_feature(NEPOMUK_FOUND "Nepomuk" "Nepomuk libraries" "http://www.kde.org" FALSE "" "Needed to compile Nepomuk bindings")
+
+macro_optional_find_package(KdepimLibs)
+macro_log_feature(KDEPIMLIBS_FOUND "kdepimlibs" "KDE PIM libraries" "http://www.kde.org" FALSE "" "Needed to compile Akonadi bindings")
+
+macro_optional_find_package(Akonadi)
+macro_log_feature(AKONADI_FOUND "Akonadi" "Akonadi libraries" "http://www.kde.org" FALSE "" "Needed to compile Akonadi bindings")
+
+macro_optional_find_package(Okular)
+macro_log_feature(OKULAR_FOUND "Okular" "Okular libraries" "http://www.kde.org" FALSE "" "Needed to compile Okular bindings")
+
 macro_optional_add_bindings(Soprano_FOUND "Soprano" soprano)
 
 if(KDEPIMLIBS_FOUND AND Akonadi_FOUND)

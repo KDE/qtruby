@@ -4,6 +4,8 @@ set(COMPILE_RUBY FALSE CACHE INTERNAL "")
 
 find_package(Ruby REQUIRED)
 find_package(Qt4 REQUIRED)
+macro_optional_find_package(QScintilla)
+macro_log_feature(QSCINTILLA_FOUND "QScintilla2" "QScintilla2 libraries" "http://www.riverbankcomputing.co.uk/software/qscintilla/intro" FALSE "" "Needed to compile QScintilla2 bindings")
 
 if (RUBY_LIBRARY AND RUBY_INCLUDE_DIRS AND RUBY_EXECUTABLE)
     set(COMPILE_RUBY TRUE CACHE INTERNAL "")
