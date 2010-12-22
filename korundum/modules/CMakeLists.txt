@@ -1,17 +1,4 @@
-macro_optional_find_package(Soprano)
-macro_log_feature(SOPRANO_FOUND "Soprano" "Soprano libraries" "http://soprano.sourceforge.net" FALSE "" "Needed to compile Soprano bindings")
-
-macro_optional_find_package(Nepomuk)
-macro_log_feature(NEPOMUK_FOUND "Nepomuk" "Nepomuk libraries" "http://www.kde.org" FALSE "" "Needed to compile Nepomuk bindings")
-
-macro_optional_find_package(KdepimLibs)
-macro_log_feature(KDEPIMLIBS_FOUND "kdepimlibs" "KDE PIM libraries" "http://www.kde.org" FALSE "" "Needed to compile Akonadi bindings")
-
-macro_optional_find_package(Akonadi)
-macro_log_feature(AKONADI_FOUND "Akonadi" "Akonadi libraries" "http://www.kde.org" FALSE "" "Needed to compile Akonadi bindings")
-
-macro_optional_find_package(Okular)
-macro_log_feature(OKULAR_FOUND "Okular" "Okular libraries" "http://www.kde.org" FALSE "" "Needed to compile Okular bindings")
+project(KorundumModules)
 
 macro_optional_add_bindings(Soprano_FOUND "Soprano" soprano)
 
@@ -84,3 +71,5 @@ message(STATUS "Ruby Libraries: " ${RUBY_LIBRARY})
 message(STATUS "Ruby Include Directories: " ${RUBY_INCLUDE_DIRS})
 
 macro_optional_add_bindings(BUILD_KrossRuby "KrossRuby" krossruby)
+
+macro_display_bindings_log()
