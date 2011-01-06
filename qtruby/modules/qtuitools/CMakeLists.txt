@@ -4,7 +4,7 @@ INCLUDE_DIRECTORIES (${QT_INCLUDES})
 set(rubyqtuitools_LIBRARY_SRC qtuitools.cpp qtuitoolshandlers.cpp)
 add_library(rubyqtuitools MODULE ${rubyqtuitools_LIBRARY_SRC})
 target_link_libraries(rubyqtuitools
-    smokeqtuitools
+    ${SMOKE_QTUITOOLS_LIBRARY}
     qtruby4shared
 )
 set_target_properties(rubyqtuitools PROPERTIES PREFIX "" OUTPUT_NAME qtuitools)

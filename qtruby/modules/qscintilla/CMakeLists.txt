@@ -5,7 +5,7 @@ set(rubyqsci_LIBRARY_SRC qscintilla.cpp qscintillahandlers.cpp)
 add_library(rubyqscintilla MODULE ${rubyqsci_LIBRARY_SRC})
 target_link_libraries(rubyqscintilla
     ${QSCINTILLA_LIBRARIES}
-    smokeqsci
+    ${SMOKE_QSCI_LIBRARY}
     qtruby4shared
 )
 set_target_properties(rubyqscintilla PROPERTIES PREFIX "" OUTPUT_NAME qscintilla)

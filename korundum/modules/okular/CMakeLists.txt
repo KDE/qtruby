@@ -7,7 +7,11 @@ add_library(rubyokular MODULE ${rubyokular_LIBRARY_SRC})
 target_link_libraries(rubyokular
     ${OKULAR_LIBRARIES}
     smokeokular
-    qtruby4shared)
+    ${QTRUBY4SHARED_LIBRARY}
+    ${RUBY_LIBRARY}
+    ${QT_QTCORE_LIBRARY}
+    ${SMOKE_BASE_LIBRARY}
+)
 set_target_properties(rubyokular PROPERTIES PREFIX "" OUTPUT_NAME okular)
 install(TARGETS rubyokular DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
 install(FILES okular.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/okular)

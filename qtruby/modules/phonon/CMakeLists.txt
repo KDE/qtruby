@@ -1,10 +1,10 @@
-include_directories( ${CMAKE_SOURCE_DIR}/generator ${RUBY_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src)
+include_directories( ${QT_INCLUDES} ${CMAKE_SOURCE_DIR}/generator ${RUBY_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src)
 
 set(rubyphonon_LIBRARY_SRC phonon.cpp phononhandlers.cpp)
 add_library(rubyphonon MODULE ${rubyphonon_LIBRARY_SRC})
 target_link_libraries(rubyphonon
     ${PHONON_LIBS}
-    smokephonon
+    ${SMOKE_PHONON_LIBRARY}
     qtruby4shared
 )
 set_target_properties(rubyphonon PROPERTIES PREFIX "" OUTPUT_NAME phonon)

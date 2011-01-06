@@ -10,8 +10,11 @@ set(kate_LIB_SRCS
 kde4_add_library(kate SHARED ${kate_LIB_SRCS})
 
 target_link_libraries(kate
-    qtruby4shared
+    ${QTRUBY4SHARED_LIBRARY}
     smokekate
+    ${SMOKE_BASE_LIBRARY}
+    ${QT_QTCORE_LIBRARY}
+    ${RUBY_LIBRARY}
     ${KATEINTERFACES_LIBRARY}
 )
 set_target_properties(kate PROPERTIES PREFIX "")

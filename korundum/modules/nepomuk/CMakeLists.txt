@@ -8,7 +8,12 @@ target_link_libraries(rubynepomuk
     ${NEPOMUK_LIBRARIES}
     ${SOPRANO_LIBRARIES}
     smokenepomuk
-    qtruby4shared)
+    ${SMOKE_BASE_LIBRARY}
+    ${SMOKE_QTCORE_LIBRARY}
+    ${QTRUBY4SHARED_LIBRARY}
+    ${RUBY_LIBRARY}
+    ${QT_QTCORE_LIBRARY}
+)
 set_target_properties(rubynepomuk PROPERTIES PREFIX "" OUTPUT_NAME nepomuk)
 install(TARGETS rubynepomuk DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
 install(FILES nepomuk.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/nepomuk)

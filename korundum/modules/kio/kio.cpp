@@ -21,7 +21,7 @@
 #include <QList>
 #include <QtDebug>
 
-#include <smoke/kde/kio_smoke.h>
+#include <kio_smoke.h>
 
 #include <qtruby.h>
 

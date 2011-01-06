@@ -10,8 +10,12 @@ set(plasma_applet_LIB_SRCS
 kde4_add_library(plasma_applet SHARED ${plasma_applet_LIB_SRCS})
 
 target_link_libraries(plasma_applet
-    qtruby4shared
-    smokeplasma
+    ${SMOKE_BASE_LIBRARY}
+    ${SMOKE_QTCORE_LIBRARY}
+    ${SMOKE_PLASMA_LIBRARY}
+    ${QT_QTCORE_LIBRARY}
+    ${QTRUBY4SHARED_LIBRARY}
+    ${RUBY_LIBRARY}
 )
 set_target_properties(plasma_applet PROPERTIES PREFIX "")
 install(TARGETS plasma_applet DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})

@@ -5,8 +5,11 @@ set(rubysoprano_LIBRARY_SRC soprano.cpp sopranohandlers.cpp)
 add_library(rubysoprano MODULE ${rubysoprano_LIBRARY_SRC})
 target_link_libraries(rubysoprano
     ${SOPRANO_LIBRARIES}
-    smokesoprano
-    qtruby4shared
+    ${SMOKE_BASE_LIBRARY}
+    ${SMOKE_SOPRANO_LIBRARY}
+    ${QT_QTCORE_LIBRARY}
+    ${QTRUBY4SHARED_LIBRARY}
+    ${RUBY_LIBRARY}
 )
 set_target_properties(rubysoprano PROPERTIES PREFIX "" OUTPUT_NAME soprano)
 

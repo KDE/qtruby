@@ -3,8 +3,11 @@ include_directories( ${CMAKE_SOURCE_DIR}/generator ${RUBY_INCLUDE_DIRS} ${CMAKE_
 set(rubykhtml_LIBRARY_SRC khtml.cpp khtmlhandlers.cpp)
 add_library(rubykhtml MODULE ${rubykhtml_LIBRARY_SRC})
 target_link_libraries(rubykhtml
-    smokekhtml
-    qtruby4shared
+    ${SMOKE_BASE_LIBRARY}
+    ${SMOKE_KHTML_LIBRARY}
+    ${QTRUBY4SHARED_LIBRARY}
+    ${QT_QTCORE_LIBRARY}
+    ${RUBY_LIBRARY}
 )
 set_target_properties(rubykhtml PROPERTIES PREFIX "" OUTPUT_NAME khtml)
 install(TARGETS rubykhtml DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})

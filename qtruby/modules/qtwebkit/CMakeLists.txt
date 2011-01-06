@@ -5,7 +5,7 @@ set(rubyqtwebkit_LIBRARY_SRC qtwebkit.cpp qtwebkithandlers.cpp)
 add_library(rubyqtwebkit MODULE ${rubyqtwebkit_LIBRARY_SRC})
 target_link_libraries(rubyqtwebkit
     ${QT_QTWEBKIT_LIBRARY}
-    smokeqtwebkit
+    ${SMOKE_QTWEBKIT_LIBRARY}
     qtruby4shared
 )
 set_target_properties(rubyqtwebkit PROPERTIES PREFIX "" OUTPUT_NAME qtwebkit)

@@ -1,3 +1,5 @@
+project(KorundumModules)
+
 macro_optional_find_package(Soprano)
 macro_log_feature(SOPRANO_FOUND "Soprano" "Soprano libraries" "http://soprano.sourceforge.net" FALSE "" "Needed to compile Soprano bindings")
 
@@ -84,3 +86,5 @@ message(STATUS "Ruby Libraries: " ${RUBY_LIBRARY})
 message(STATUS "Ruby Include Directories: " ${RUBY_INCLUDE_DIRS})
 
 macro_optional_add_bindings(BUILD_KrossRuby "KrossRuby" krossruby)
+
+macro_display_bindings_log()

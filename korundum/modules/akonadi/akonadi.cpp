@@ -21,7 +21,7 @@
 #include <QList>
 #include <QtDebug>
 
-#include <smoke/kde/akonadi_smoke.h>
+#include <akonadi_smoke.h>
 
 #include <qtruby.h>
 

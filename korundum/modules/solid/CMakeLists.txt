@@ -6,8 +6,11 @@ set(rubysolid_LIBRARY_SRC solid.cpp solidhandlers.cpp)
 add_library(rubysolid MODULE ${rubysolid_LIBRARY_SRC})
 target_link_libraries(rubysolid
     ${KDE4_SOLID_LIBS}
-    smokesolid
-    qtruby4shared
+    ${SMOKE_BASE_LIBRARY}
+    ${SMOKE_SOLID_LIBRARY}
+    ${QT_QTCORE_LIBRARY}
+    ${QTRUBY4SHARED_LIBRARY}
+    ${RUBY_LIBRARY}
 )
 set_target_properties(rubysolid PROPERTIES PREFIX "" OUTPUT_NAME solid)
 install(TARGETS rubysolid DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})

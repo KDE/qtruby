@@ -6,7 +6,7 @@ set(qtscript_LIBRARY_SRC qtscript.cpp qtscripthandlers.cpp)
 add_library(qtscript MODULE ${qtscript_LIBRARY_SRC})
 target_link_libraries(qtscript
     ${QT_QTSCRIPT_LIBRARY}
-    smokeqtscript
+    ${SMOKE_QTSCRIPT_LIBRARY}
     qtruby4shared
 )
 set_target_properties(qtscript PROPERTIES PREFIX "")

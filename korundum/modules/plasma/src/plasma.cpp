@@ -4,7 +4,7 @@
 #include <QList>
 #include <QtDebug>
 
-#include <smoke/kde/plasma_smoke.h>
+#include <plasma_smoke.h>
 
 #include <qtruby.h>
 

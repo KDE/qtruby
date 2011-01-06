@@ -6,7 +6,7 @@ INCLUDE_DIRECTORIES (${QT_INCLUDES} ${Qwt5_INCLUDE_DIR} )
 set(rubyqwt_LIBRARY_SRC qwt.cpp qwthandlers.cpp)
 add_library(rubyqwt MODULE ${rubyqwt_LIBRARY_SRC})
 target_link_libraries(rubyqwt
-    smokeqwt
+    ${SMOKE_QWT_LIBRARY}
     qtruby4shared
 )
 set_target_properties(rubyqwt PROPERTIES PREFIX "" OUTPUT_NAME qwt)

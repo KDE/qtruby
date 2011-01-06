@@ -7,7 +7,7 @@
 #include <soprano/node.h>
 #include <soprano/statement.h>
 
-#include <smoke/kde/soprano_smoke.h>
+#include <soprano_smoke.h>
 
 #include <qtruby.h>
 

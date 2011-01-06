@@ -37,14 +37,14 @@
 
 #include <smoke.h>
 
-#include <smoke/qt/qtcore_smoke.h>
-#include <smoke/kde/kdecore_smoke.h>
-#include <smoke/kde/kdeui_smoke.h>
-#include <smoke/kde/kparts_smoke.h>
-#include <smoke/kde/knewstuff2_smoke.h>
-#include <smoke/kde/knewstuff3_smoke.h>
-#include <smoke/kde/kfile_smoke.h>
-#include <smoke/kde/kutils_smoke.h>
+#include <qtcore_smoke.h>
+#include <kdecore_smoke.h>
+#include <kdeui_smoke.h>
+#include <kparts_smoke.h>
+#include <knewstuff2_smoke.h>
+#include <knewstuff3_smoke.h>
+#include <kfile_smoke.h>
+#include <kutils_smoke.h>
 
 #include <qtruby.h>
 #include <smokeruby.h>

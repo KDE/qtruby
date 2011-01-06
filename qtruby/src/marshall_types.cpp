@@ -17,7 +17,7 @@
  ***************************************************************************/
 
 #include "marshall_types.h"
-#include <smoke/qt/qtcore_smoke.h>
+#include <qtcore_smoke.h>
 
 #include <QtCore/qvector.h>
 #include <QtCore/qlist.h>

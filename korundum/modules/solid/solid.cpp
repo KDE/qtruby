@@ -21,7 +21,7 @@
 #include <QList>
 #include <QtDebug>
 
-#include <smoke/kde/solid_smoke.h>
+#include <solid_smoke.h>
 
 #include <qtruby.h>
 

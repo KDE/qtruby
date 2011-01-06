@@ -5,7 +5,7 @@ set(qttest_LIBRARY_SRC qttest.cpp qttesthandlers.cpp)
 
 add_library(qttest MODULE ${qttest_LIBRARY_SRC})
 target_link_libraries(qttest
-    smokeqttest
+    ${SMOKE_QTTEST_LIBRARY}
     qtruby4shared
 )
 set_target_properties(qttest PROPERTIES PREFIX "")

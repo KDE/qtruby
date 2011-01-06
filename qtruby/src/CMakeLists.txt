@@ -13,7 +13,7 @@ if(RUBY_VERSION)
     ADD_DEFINITIONS (-DRUBY_VERSION=0x${RUBY_VERSION_NUMBER})
 ENDIF(RUBY_VERSION)
 
-include_directories( ${CMAKE_SOURCE_DIR}/smoke/qt ${CMAKE_SOURCE_DIR}/generator ${RUBY_INCLUDE_DIRS} )
+include_directories( ${SMOKE_INCLUDE_DIR} ${RUBY_INCLUDE_DIRS} )
 INCLUDE_DIRECTORIES (${QT_INCLUDES})
 
 
@@ -35,15 +35,15 @@ target_link_libraries(  qtruby4shared
                             ${QT_QTGUI_LIBRARY} 
                             ${RUBY_LIBRARY} 
                             ${QT_QTNETWORK_LIBRARY}
-                            smokebase
-                            smokeqtcore 
-                            smokeqtgui 
-                            smokeqtxml 
-                            smokeqtopengl 
-                            smokeqtsql 
-                            smokeqtnetwork 
-                            smokeqtdbus 
-                            smokeqtsvg )
+                            ${SMOKE_BASE_LIBRARY}
+                            ${SMOKE_QTCORE_LIBRARY} 
+                            ${SMOKE_QTGUI_LIBRARY} 
+                            ${SMOKE_QTXML_LIBRARY} 
+                            ${SMOKE_QTOPENGL_LIBRARY} 
+                            ${SMOKE_QTSQL_LIBRARY} 
+                            ${SMOKE_QTNETWORK_LIBRARY} 
+                            ${SMOKE_QTDBUS_LIBRARY} 
+                            ${SMOKE_QTSVG_LIBRARY} )
 
 target_link_libraries(  qtruby4 
                             ${QT_QTCORE_LIBRARY} 
@@ -51,14 +51,14 @@ target_link_libraries(  qtruby4
                             ${QT_QTDBUS_LIBRARY} 
                             ${RUBY_LIBRARY} 
                             ${QT_QTNETWORK_LIBRARY} 
-                            smokeqtcore 
-                            smokeqtgui 
-                            smokeqtxml 
-                            smokeqtopengl 
-                            smokeqtsql 
-                            smokeqtnetwork 
-                            smokeqtdbus 
-                            smokeqtsvg
+                            ${SMOKE_QTCORE_LIBRARY} 
+                            ${SMOKE_QTGUI_LIBRARY} 
+                            ${SMOKE_QTXML_LIBRARY} 
+                            ${SMOKE_QTOPENGL_LIBRARY} 
+                            ${SMOKE_QTSQL_LIBRARY} 
+                            ${SMOKE_QTNETWORK_LIBRARY} 
+                            ${SMOKE_QTDBUS_LIBRARY} 
+                            ${SMOKE_QTSVG_LIBRARY}
                             qtruby4shared )
 
 # target_link_libraries(qtrubyinternal ${QT_QTCORE_LIBRARY} ${RUBY_LIBRARY} ${QT_QTNETWORK_LIBRARY})

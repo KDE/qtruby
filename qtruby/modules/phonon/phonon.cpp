@@ -21,7 +21,7 @@
 #include <QList>
 #include <QtDebug>
 
-#include <smoke/qt/phonon_smoke.h>
+#include <phonon_smoke.h>
 
 #include <qtruby.h>
 

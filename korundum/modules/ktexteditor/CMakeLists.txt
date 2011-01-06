@@ -5,8 +5,11 @@ set(rubyktexteditor_LIBRARY_SRC ktexteditor.cpp ktexteditorhandlers.cpp)
 
 add_library(rubyktexteditor MODULE ${rubyktexteditor_LIBRARY_SRC})
 target_link_libraries(rubyktexteditor
-    smokektexteditor
-    qtruby4shared)
+    ${SMOKE_BASE_LIBRARY}
+    ${SMOKE_KTEXTEDITOR_LIBRARY}
+    ${QT_QTCORE_LIBRARY}
+    ${QTRUBY4SHARED_LIBRARY}
+    ${RUBY_LIBRARY})
 set_target_properties(rubyktexteditor PROPERTIES PREFIX "" OUTPUT_NAME ktexteditor)
 install(TARGETS rubyktexteditor DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
 install(FILES ktexteditor.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/ktexteditor)

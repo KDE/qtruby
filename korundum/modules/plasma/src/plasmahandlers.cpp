@@ -20,7 +20,7 @@
 #include <qtruby.h>
 #include <smokeruby.h>
 #include <marshall_macros.h>
-#include <smoke/qt/qtcore_smoke.h>
+#include <qtcore_smoke.h>
 
 #include <plasma/packagestructure.h>
 #include <plasma/containment.h>

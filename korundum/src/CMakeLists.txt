@@ -36,21 +36,26 @@ target_link_libraries(korundum4
     ${KDE4_KNEWSTUFF2_LIBS}
     ${KDE4_KPTY_LIBS}
     ${KDE4_KUTILS_LIBS}
-    ${RUBY_LIBRARY} 
+    ${RUBY_LIBRARY}
+    ${SMOKE_BASE_LIBRARY}
     smokekdecore 
     smokekdeui 
-    smokekio 
+    ${SMOKE_KIO_LIBRARY} 
     smokekparts 
     smokekfile 
     smokeknewstuff2 
     smokeknewstuff3 
     smokekutils      
-    qtruby4shared)
+    ${QTRUBY4SHARED_LIBRARY})
 
 set_target_properties(korundum4 PROPERTIES PREFIX "")
 
 kde4_add_plugin(krubypluginfactory ${factory_SRCS})
-target_link_libraries(krubypluginfactory ${KDE4_KDECORE_LIBS} ${KDE4_KIO_LIBS} ${RUBY_LIBRARY} qtruby4shared)
+target_link_libraries(krubypluginfactory ${KDE4_KDECORE_LIBS}
+        ${KDE4_KIO_LIBS}
+        ${RUBY_LIBRARY}
+        ${SMOKE_BASE_LIBRARY}
+        ${QTRUBY4SHARED_LIBRARY})
 
 kde4_add_executable(krubyapplication ${application_SRCS})
 target_link_libraries(krubyapplication ${KDE4_KDECORE_LIBS} ${RUBY_LIBRARY})

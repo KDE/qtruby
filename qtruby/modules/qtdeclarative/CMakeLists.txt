@@ -5,7 +5,7 @@ set(rubyqtdeclarative_LIBRARY_SRC qtdeclarative.cpp qtdeclarativehandlers.cpp)
 add_library(rubyqtdeclarative MODULE ${rubyqtdeclarative_LIBRARY_SRC})
 target_link_libraries(rubyqtdeclarative
     ${QT_QTWEBKIT_LIBRARY}
-    smokeqtdeclarative
+    ${SMOKE_QTDECLARATIVE_LIBRARY}
     qtruby4shared
 )
 set_target_properties(rubyqtdeclarative PROPERTIES PREFIX "" OUTPUT_NAME qtdeclarative)
