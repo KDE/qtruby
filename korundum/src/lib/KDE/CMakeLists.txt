@@ -1,1 +1,0 @@
-install( FILES  korundum4.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/KDE )
