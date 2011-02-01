@@ -66,8 +66,9 @@ target_link_libraries(  qtruby4
 set_target_properties(qtruby4 PROPERTIES PREFIX "")
 set_target_properties(qtruby4shared PROPERTIES VERSION 2.0.0 SOVERSION 2)
 
-install(TARGETS qtruby4shared DESTINATION ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX} )
+install(TARGETS qtruby4shared EXPORT QtRuby4Export DESTINATION ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX} )
 install(TARGETS qtruby4 DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
+install(EXPORT QtRuby4Export DESTINATION ${CMAKE_INSTALL_PREFIX}/share/qtruby4/cmake NAMESPACE QTRUBY4_ )
 
 install(FILES qtruby.h marshall.h marshall_basetypes.h marshall_complex.h marshall_macros.h marshall_primitives.h marshall_types.h smokeruby.h DESTINATION ${CMAKE_INSTALL_PREFIX}/include/qtruby)
 
