@@ -1,3 +1,8 @@
+2011-04-23  Richard Dale  <richard.j.dale@gmail.com>
+
+    * Apply a patch from David Palacio which fixes a crash when creating a 
+      Qt::Variant from a list or a hash
+
 2010-06-22  Richard Dale  <richard.j.dale@gmail.com>
 
     * Added snakecase versions of the methods in the Qt::DBusConnectionInterface

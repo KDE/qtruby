@@ -1223,7 +1223,7 @@ static Smoke::Index new_qvariant_qmap = 0;
 	if (argc == 1 && TYPE(argv[0]) == T_HASH) {
 		_current_method.smoke = qtcore_Smoke;
 		_current_method.index = new_qvariant_qmap;
-		QtRuby::MethodCall c(qtcore_Smoke, _current_method.index, self, argv, argc-1);
+		QtRuby::MethodCall c(qtcore_Smoke, _current_method.index, self, argv, argc);
 		c.next();
     	return *(c.var());
 	} else if (	argc == 1 
@@ -1233,7 +1233,7 @@ static Smoke::Index new_qvariant_qmap = 0;
 	{
 		_current_method.smoke = qtcore_Smoke;
 		_current_method.index = new_qvariant_qlist;
-		QtRuby::MethodCall c(qtcore_Smoke, _current_method.index, self, argv, argc-1);
+		QtRuby::MethodCall c(qtcore_Smoke, _current_method.index, self, argv, argc);
 		c.next();
 		return *(c.var());
 	}
