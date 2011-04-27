@@ -1,3 +1,8 @@
+2011-04-27  Richard Dale  <richard.j.dale@gmail.com>
+
+    * In the Qt::Application constructor, when converting ARGV to the C style
+      'int argc, char * argv[]' format, 'argc' was always set to 2
+
 2011-04-23  Richard Dale  <richard.j.dale@gmail.com>
 
     * Apply a patch from David Palacio which fixes a crash when creating a 

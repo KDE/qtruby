@@ -456,7 +456,7 @@ module Qt
 	class Application < Qt::Base
 		def initialize(*args)
 			if args.length == 1 && args[0].kind_of?(Array)
-				super(args.length + 1, [$0] + args[0])
+				super(args[0].length + 1, [$0] + args[0])
 			else
 				super(*args)
 			end
