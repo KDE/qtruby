@@ -310,13 +310,16 @@ static void
 initializeMetaObject(const Smoke::ModuleIndex& classId, MetaObject * meta)
 {
     Smoke * smoke = classId.smoke;
-    MetaObject * current = metaObjects()->value(classId);
-    Q_FOREACH(MetaObject::RubyMethod method, current->rubyMethods) {
-        rb_define_method(meta->rubyClass, method.name, method.func, method.argc);
-    }
+    if (metaObjects()->contains(classId)) {
+        MetaObject * current = metaObjects()->value(classId);
 
-    if (meta->resolver == 0 && current->resolver != 0)
-        meta->resolver = current->resolver;
+        Q_FOREACH(MetaObject::RubyMethod method, current->rubyMethods) {
+            rb_define_method(meta->rubyClass, method.name, method.func, method.argc);
+        }
+
+        if (meta->resolver == 0 && current->resolver != 0)
+            meta->resolver = current->resolver;
+    }
 
     for (   Smoke::Index * parent = smoke->inheritanceList + smoke->classes[classId.index].parents;
             *parent != 0;
@@ -350,16 +353,7 @@ initializeClass(const Smoke::ModuleIndex& classId, const QString& rubyClassName)
     meta->free = Object::free;
     meta->rubyClass = klass;
     meta->classId = classId;
-
     initializeMetaObject(classId, meta);
-    /*
-    for (int i = 0; i < typeResolvers()->size(); ++i) {
-        if (Smoke::isDerivedFrom(classId, typeResolvers()->at(i).first)) {
-            meta->resolver = typeResolvers()->at(i).second;
-        }
-    }
-    */
-    
     rubyMetaObjects()->insert(klass, meta);
     
     return klass;
