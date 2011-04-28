@@ -51,6 +51,11 @@ namespace QtRuby {
             {
                 return classId.smoke->classes[classId.index].className;
             }
+
+            inline void * cast(const Smoke::ModuleIndex targetId)
+            {
+                return classId.smoke->cast(value, classId, targetId);
+            }
         public:
             void* value;
             Object::ValueOwnership ownership;

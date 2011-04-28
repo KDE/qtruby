@@ -17,16 +17,18 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef QTRUBY_FIND_H
-#define QTRUBY_FIND_H
+#ifndef QTRUBY_QOBJECT_H
+#define QTRUBY_QOBJECT_H
 
 #include <ruby.h>
 
 #include "qtruby_export.h"
 
 namespace QtRuby {
+    extern VALUE qobject_qt_metacast(VALUE self, VALUE klass);
+    extern VALUE inherits_qobject(int argc, VALUE * argv, VALUE /*self*/);
     extern VALUE find_qobject_children(int argc, VALUE *argv, VALUE self);
     extern VALUE find_qobject_child(int argc, VALUE *argv, VALUE self);
 }
 
-#endif // QTRUBY_FIND_H
+#endif // QTRUBY_QOBJECT_H

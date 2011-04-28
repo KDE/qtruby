@@ -37,6 +37,7 @@ namespace QtRuby {
         QTRUBY_EXPORT extern QHash<Smoke*, Module> modules;
         
         QTRUBY_EXPORT extern Smoke::ModuleIndex QObjectClassId;
+        QTRUBY_EXPORT extern Smoke::ModuleIndex QMetaObjectClassId;
         QTRUBY_EXPORT extern Smoke::ModuleIndex QDateClassId;
         QTRUBY_EXPORT extern Smoke::ModuleIndex QDateTimeClassId;
         QTRUBY_EXPORT extern Smoke::ModuleIndex QTimeClassId;

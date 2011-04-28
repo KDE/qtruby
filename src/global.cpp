@@ -43,6 +43,7 @@ namespace QtRuby {
 
         
 Smoke::ModuleIndex QObjectClassId;
+Smoke::ModuleIndex QMetaObjectClassId;
 Smoke::ModuleIndex QDateClassId;
 Smoke::ModuleIndex QDateTimeClassId;
 Smoke::ModuleIndex QTimeClassId;
@@ -89,7 +90,7 @@ void
 unmapPointer(Object::Instance * instance, const Smoke::ModuleIndex& classId, void *lastptr)
 {
     Smoke * smoke = classId.smoke;
-    void * ptr = instance->classId.smoke->cast(instance->value, instance->classId, classId);
+    void * ptr = instance->cast(classId);
     
     if (ptr != lastptr) {
         lastptr = ptr;
@@ -127,7 +128,7 @@ void
 mapPointer(VALUE obj, Object::Instance * instance, const Smoke::ModuleIndex& classId, void *lastptr)
 {
     Smoke * smoke = classId.smoke;
-    void * ptr = instance->classId.smoke->cast(instance->value, instance->classId, classId);
+    void * ptr = instance->cast(classId);
      
     if (ptr != lastptr) {
         lastptr = ptr; 

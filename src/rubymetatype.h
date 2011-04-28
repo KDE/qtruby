@@ -234,7 +234,7 @@ VALUE qRubySmokeValueFromSequence(const Container &cont)
 inline void * qRubySmokeValueToSequence_helper(VALUE item, Smoke::ModuleIndex classId)
 {
     QtRuby::Object::Instance * instance = QtRuby::Object::Instance::get(item);
-    return instance->classId.smoke->cast(instance->value, instance->classId, classId);
+    return instance->cast(classId);
 }
 
 template <class Container>

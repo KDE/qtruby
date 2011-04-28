@@ -31,7 +31,7 @@
 #include <utils.h>
 #include <object.h>
 
-#include "find.h"
+#include "qobject.h"
 
 
 static void
@@ -39,9 +39,7 @@ qeventTypeResolver(QtRuby::Object::Instance * instance)
 {
     Smoke::ModuleIndex classId = instance->classId;
     Smoke * smoke = classId.smoke;
-    QEvent * qevent = static_cast<QEvent*>( smoke->cast(    instance->value, 
-                                                            instance->classId,
-                                                            QtRuby::Global::QEventClassId ) );
+    QEvent * qevent = reinterpret_cast<QEvent*>(instance->cast(QtRuby::Global::QEventClassId));
     switch (qevent->type()) {
     case QEvent::Timer:
         instance->classId = smoke->findClass("QTimerEvent");
@@ -262,7 +260,7 @@ qeventTypeResolver(QtRuby::Object::Instance * instance)
         break;
     }
 
-    instance->value = instance->classId.smoke->cast(instance->value, classId, instance->classId);
+    instance->value = instance->cast(instance->classId);
     return;
 }
 
@@ -271,9 +269,7 @@ qobjectTypeResolver(QtRuby::Object::Instance * instance)
 {
     Smoke::ModuleIndex classId = instance->classId;
     Smoke * smoke = classId.smoke;
-    QObject * qobject = static_cast<QObject*>( smoke->cast( instance->value, 
-                                                            instance->classId,
-                                                            QtRuby::Global::QObjectClassId ) );
+    QObject * qobject = reinterpret_cast<QObject*>(instance->cast(QtRuby::Global::QObjectClassId));
     const QMetaObject * meta = qobject->metaObject();
 
     while (meta != 0) {
@@ -286,7 +282,7 @@ qobjectTypeResolver(QtRuby::Object::Instance * instance)
         meta = meta->superClass();
     }
     
-    instance->value = instance->classId.smoke->cast(instance->value, classId, instance->classId);
+    instance->value = instance->cast(instance->classId);
     return;
 }
 
@@ -306,6 +302,7 @@ Init_qtcore()
     QtRuby::Global::modules[qtcore_Smoke] = qtcore_module;
 
     QtRuby::Global::QObjectClassId = qtcore_Smoke->idClass("QObject");
+    QtRuby::Global::QMetaObjectClassId = qtcore_Smoke->idClass("QMetaObject");
     QtRuby::Global::QDateClassId = qtcore_Smoke->idClass("QDate");
     QtRuby::Global::QDateTimeClassId = qtcore_Smoke->idClass("QDateTime");
     QtRuby::Global::QTimeClassId = qtcore_Smoke->idClass("QTime");
@@ -318,8 +315,22 @@ Init_qtcore()
     QtRuby::Global::defineTypeResolver(QtRuby::Global::QEventClassId, qeventTypeResolver);
     QtRuby::Global::defineTypeResolver(QtRuby::Global::QObjectClassId, qobjectTypeResolver );
 
-    QtRuby::Global::defineMethod(QtRuby::Global::QObjectClassId, "findChildren", (VALUE (*) (...)) QtRuby::find_qobject_children, -1);
-    QtRuby::Global::defineMethod(QtRuby::Global::QObjectClassId, "findChild", (VALUE (*) (...)) QtRuby::find_qobject_child, -1);
+    QtRuby::Global::defineMethod(   QtRuby::Global::QObjectClassId,
+                                    "inherits",
+                                    (VALUE (*) (...)) QtRuby::inherits_qobject,
+                                    -1 );
+    QtRuby::Global::defineMethod(   QtRuby::Global::QObjectClassId,
+                                    "findChildren",
+                                    (VALUE (*) (...)) QtRuby::find_qobject_children,
+                                    -1);
+    QtRuby::Global::defineMethod(   QtRuby::Global::QObjectClassId,
+                                    "findChild",
+                                    (VALUE (*) (...)) QtRuby::find_qobject_child,
+                                    -1 );
+    QtRuby::Global::defineMethod(   QtRuby::Global::QObjectClassId,
+                                    "qobject_cast",
+                                    (VALUE (*) (...)) QtRuby::qobject_qt_metacast,
+                                    1 );
 
     rb_require("qtcore/qtcore.rb");
     

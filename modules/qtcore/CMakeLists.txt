@@ -7,7 +7,7 @@ include_directories(
 
 set(rubyqtcore_LIBRARY_SRC
     qtcore.cpp
-    find.cpp
+    qobject.cpp
     qtcorehandlers.cpp)
 
 add_library(rubyqtcore MODULE ${rubyqtcore_LIBRARY_SRC})

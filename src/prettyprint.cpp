@@ -207,9 +207,7 @@ inspect_qobject(VALUE self)
     rb_str_resize(inspect_str, RSTRING_LEN(inspect_str) - 1);
 
     Object::Instance * instance = Object::Instance::get(self);
-    QObject * qobject = static_cast<QObject*>(instance->classId.smoke->cast(    instance->value,
-                                                                                instance->classId,
-                                                                                Global::QObjectClassId ) );
+    QObject * qobject = reinterpret_cast<QObject*>(instance->cast(QtRuby::Global::QObjectClassId));
 
     QString value_list;
     value_list.append(QString(" objectName=\"%1\"").arg(qobject->objectName()));
@@ -253,9 +251,7 @@ pretty_print_qobject(VALUE self, VALUE pp)
     rb_funcall(pp, rb_intern("breakable"), 0);
 
     Object::Instance * instance = Object::Instance::get(self);
-    QObject * qobject = static_cast<QObject*>(instance->classId.smoke->cast(    instance->value,
-                                                                                instance->classId,
-                                                                                Global::QObjectClassId ) );
+    QObject * qobject = reinterpret_cast<QObject*>(instance->cast(QtRuby::Global::QObjectClassId));
 
     QString value_list;
 

@@ -263,9 +263,7 @@ convertFromRubyValue(VALUE value, int type, void *ptr)
         if (instance == 0 || instance->value == 0) {
             return false;
         } else {
-            ptr = instance->classId.smoke->cast(    instance->value,
-                                                    instance->classId,
-                                                    classId );
+            ptr = instance->cast(classId);
             return true;
         }
     }

@@ -166,9 +166,7 @@ cast_object_to(VALUE /*self*/, VALUE obj, VALUE new_klass)
 
     Object::ValueOwnership ownership = instance->ownership;
     instance->ownership = Object::QtOwnership;
-    void * ptr = instance->classId.smoke->cast( instance->value,
-                                                instance->classId,
-                                                classId );
+    void * ptr = instance->cast(classId);
     return Global::wrapInstance(classId, ptr, ownership, new_klass);
 }
 

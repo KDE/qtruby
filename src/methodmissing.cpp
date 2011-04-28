@@ -152,7 +152,7 @@ VALUE method_missing(int argc, VALUE * argv, VALUE self)
                     // Check for property getter/setter calls, and for slots in QObject classes
                     // not in the smoke library
                     if (Smoke::isDerivedFrom(instance->classId, Smoke::findClass("QObject"))) {
-                        QObject * qobject = (QObject *) instance->classId.smoke->cast(instance->value, instance->classId, Smoke::findClass("QObject"));
+                        QObject * qobject = reinterpret_cast<QObject*>(instance->cast(Global::QObjectClassId));
                         QByteArray name;
 
                         name = rb_id2name(SYM2ID(argv[0]));

@@ -23,9 +23,57 @@
 #include <object.h>
 #include <global.h>
 
-#include "find.h"
+#include "qobject.h"
 
 namespace QtRuby {
+
+VALUE
+qobject_qt_metacast(VALUE self, VALUE klass)
+{
+    Object::Instance * instance = Object::Instance::get(self);
+    if (instance == 0 || instance->value == 0) {
+        return Qnil;
+    }
+
+    Smoke::ModuleIndex classId = Global::idFromRubyClass(klass);
+    if (classId == Smoke::NullModuleIndex) {
+        return Qnil;
+    }
+
+    QObject * qobj = reinterpret_cast<QObject*>(instance->cast(Global::QObjectClassId));
+    if (qobj == 0) {
+        return Qnil;
+    }
+
+    void* ret = qobj->qt_metacast(classId.smoke->classes[classId.index].className);
+
+    if (ret == 0) {
+        return Qnil;
+    }
+
+    VALUE obj = Global::wrapInstance(classId, ret, instance->ownership);
+    instance->ownership = Object::QtOwnership;
+    return obj;
+}
+
+// Allow classnames in both 'Qt::Widget' and 'QWidget' formats to be
+// used as an argument to Qt::Object.inherits()
+VALUE
+inherits_qobject(int argc, VALUE * argv, VALUE /*self*/)
+{
+    if (argc != 1) {
+        return rb_call_super(argc, argv);
+    }
+
+    Smoke::ModuleIndex classId = Smoke::findClass(StringValuePtr(argv[0]));
+
+    if (classId == Smoke::NullModuleIndex) {
+        return rb_call_super(argc, argv);
+    } else {
+        VALUE super_class = rb_str_new2(classId.smoke->classes[classId.index].className);
+        return rb_call_super(argc, &super_class);
+    }
+}
 
 /* Adapted from the internal function qt_qFindChildren() in qobject.cpp */
 static void
@@ -40,19 +88,17 @@ rb_qFindChildren_helper(VALUE parent, const QString &name, VALUE re,
         rv = RARRAY_PTR(children)[i];
         Object::Instance * instance = Object::Instance::get(rv);
 
-        QObject * obj = reinterpret_cast<QObject*>(instance->classId.smoke->cast(   instance->value,
-                                                                                    instance->classId,
-                                                                                    Global::QObjectClassId ) );
+        QObject * qobj = reinterpret_cast<QObject*>(instance->cast(Global::QObjectClassId));
 
         // The original code had 'if (mo.cast(obj))' as a test, but it doesn't work here
-        if (obj->qt_metacast(mo.className()) != 0) {
+        if (qobj->qt_metacast(mo.className()) != 0) {
             if (re != Qnil) {
                 VALUE re_test = rb_funcall(re, rb_intern("=~"), 1, rb_funcall(rv, rb_intern("objectName"), 0));
                 if (re_test != Qnil && re_test != Qfalse) {
                     rb_ary_push(list, rv);
                 }
             } else {
-                if (name.isNull() || obj->objectName() == name) {
+                if (name.isNull() || qobj->objectName() == name) {
                     rb_ary_push(list, rv);
                 }
             }
@@ -102,10 +148,9 @@ rb_qFindChild_helper(VALUE parent, const QString &name, const QMetaObject &mo)
     for (i = 0; i < RARRAY_LEN(children); ++i) {
         rv = RARRAY_PTR(children)[i];
         Object::Instance * instance = Object::Instance::get(rv);
-        QObject * obj = reinterpret_cast<QObject*>(instance->classId.smoke->cast(   instance->value,
-                                                                                    instance->classId,
-                                                                                    Global::QObjectClassId ) );
-        if (obj->qt_metacast(mo.className()) != 0 && (name.isNull() || obj->objectName() == name))
+        QObject * qobj = reinterpret_cast<QObject*>(instance->cast(Global::QObjectClassId));
+
+        if (qobj->qt_metacast(mo.className()) != 0 && (name.isNull() || qobj->objectName() == name))
             return rv;
     }
     for (i = 0; i < RARRAY_LEN(children); ++i) {

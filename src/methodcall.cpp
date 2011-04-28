@@ -186,9 +186,7 @@ void MethodCall::callMethod()
     void *ptr = 0;
 
     if (m_instance != 0 && m_instance->value != 0) {
-        ptr = m_instance->classId.smoke->cast(  m_instance->value, 
-                                                m_instance->classId, 
-                                                Smoke::ModuleIndex(m_smoke, m_methodRef.classId) );
+        ptr = m_instance->cast(Smoke::ModuleIndex(m_smoke, m_methodRef.classId));
     }
     
     (*fn)(m_methodRef.method, ptr, m_stack);
