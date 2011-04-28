@@ -134,7 +134,7 @@ MethodCall::MethodCall( const QVector<Smoke::ModuleIndex>& methodIds,
                         VALUE target,
                         VALUE * args ) :
     m_methodIds(methodIds), m_methodRef(methodIds[0].smoke->methods[methodIds[0].index]), 
-    m_current(-1), m_target(target),
+    m_current(-1), m_target(target), m_returnValue(Qnil),
     m_valueList(args), m_called(false), m_error(false)
 {
     m_methodId = m_methodIds[0]; 
@@ -208,7 +208,10 @@ void MethodCall::callMethod()
             argsString << QString::fromLatin1(StringValuePtr(str));
         }
 
-        VALUE val = rb_funcall(m_returnValue, rb_intern("to_s"), 0, 0);
+        VALUE val = rb_str_new2("");
+        if (m_returnValue != Qnil)
+            val = rb_funcall(m_returnValue, rb_intern("to_s"), 0, 0);
+
         qWarning(   "Trace@%s:%d %s.%s(%s) => %s",
                     rb_sourcefile(),
                     rb_sourceline(),
