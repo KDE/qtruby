@@ -43,8 +43,8 @@ namespace QtRuby {
 
         struct RubyMethod {
             QByteArray name;
-            CFunc fn;
-            int arity;
+            CFunc func;
+            int argc;
         };
         
         Smoke::ModuleIndex classId;

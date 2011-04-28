@@ -66,9 +66,6 @@ Q_GLOBAL_STATIC(MetaObjectsMap, metaObjects)
 typedef QHash<VALUE, QtRuby::MetaObject *> RubyMetaObjectsMap;
 Q_GLOBAL_STATIC(RubyMetaObjectsMap, rubyMetaObjects)
 
-typedef QList<QPair<Smoke::ModuleIndex, Object::TypeResolver> > TypeResolvers;
-Q_GLOBAL_STATIC(TypeResolvers, typeResolvers)
-
 VALUE
 getRubyValue(const void *ptr)
 {
@@ -214,15 +211,36 @@ wrapInstance(const Smoke::ModuleIndex& classId, void * ptr, Object::ValueOwnersh
     return obj;
 }
 
+static MetaObject *
+createMetaObject(const  Smoke::ModuleIndex& classId)
+{
+    MetaObject * meta = 0;
+    if (metaObjects()->contains(classId)) {
+        meta = metaObjects()->value(classId);
+    } else {
+        meta = new MetaObject();
+        metaObjects()->insert(classId, meta);
+    }
+
+    return meta;
+}
+
 void
 defineMethod(const Smoke::ModuleIndex& classId, const char* name, VALUE (*func)(ANYARGS), int argc)
 {
+    MetaObject * meta = createMetaObject(classId);
+    MetaObject::RubyMethod method;
+    method.name = QByteArray(name);
+    method.func = func;
+    method.argc = argc;
+    meta->rubyMethods.append(method);
 }
 
 void 
-defineTypeResolver(const Smoke::ModuleIndex& baseClass, Object::TypeResolver typeResolver)
+defineTypeResolver(const Smoke::ModuleIndex& classId, Object::TypeResolver typeResolver)
 {
-    typeResolvers()->append(QPair<Smoke::ModuleIndex, Object::TypeResolver>(baseClass, typeResolver));
+    MetaObject * meta = createMetaObject(classId);
+    meta->resolver = typeResolver;
 }
 
 void 
@@ -288,6 +306,33 @@ initialize()
     // Debug::DoDebug = (Debug::MethodMatches | Debug::MethodMissing | Debug::Calls | Debug::GC | Debug::Virtual);
 }
 
+static void
+initializeMetaObject(const Smoke::ModuleIndex& classId, MetaObject * meta)
+{
+    Smoke * smoke = classId.smoke;
+    MetaObject * current = metaObjects()->value(classId);
+    Q_FOREACH(MetaObject::RubyMethod method, current->rubyMethods) {
+        rb_define_method(meta->rubyClass, method.name, method.func, method.argc);
+    }
+
+    if (meta->resolver == 0 && current->resolver != 0)
+        meta->resolver = current->resolver;
+
+    for (   Smoke::Index * parent = smoke->inheritanceList + smoke->classes[classId.index].parents;
+            *parent != 0;
+            parent++ )
+    {
+        if (smoke->classes[*parent].external) {
+            Smoke::ModuleIndex mi = Smoke::findClass(smoke->classes[*parent].className);
+            if (mi != Smoke::NullModuleIndex) {
+                initializeMetaObject(mi, meta);
+            }
+        } else {
+            initializeMetaObject(Smoke::ModuleIndex(smoke, *parent), meta);
+        }
+    }
+}
+
 VALUE
 initializeClass(const Smoke::ModuleIndex& classId, const QString& rubyClassName)
 {
@@ -297,23 +342,24 @@ initializeClass(const Smoke::ModuleIndex& classId, const QString& rubyClassName)
     rb_define_singleton_method(klass, "const_missing", (VALUE (*) (...)) module_method_missing, -1);
     
     for (int i = 1; i < components.count(); ++i) {
-        // qDebug() << "s:" << elements[i];
-        klass = rb_define_class_under(klass, (const char*) components[i].toLatin1(), QtBaseClass);
+        klass = rb_define_class_under(klass, components[i].toLatin1().constData(), QtBaseClass);
     }
 
-    MetaObject * meta = new MetaObject();
+    MetaObject * meta = createMetaObject(classId);
     meta->mark = Object::mark;
     meta->free = Object::free;
     meta->rubyClass = klass;
     meta->classId = classId;
 
+    initializeMetaObject(classId, meta);
+    /*
     for (int i = 0; i < typeResolvers()->size(); ++i) {
         if (Smoke::isDerivedFrom(classId, typeResolvers()->at(i).first)) {
             meta->resolver = typeResolvers()->at(i).second;
         }
     }
+    */
     
-    metaObjects()->insert(classId, meta);
     rubyMetaObjects()->insert(klass, meta);
     
     return klass;
