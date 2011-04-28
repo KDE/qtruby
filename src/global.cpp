@@ -228,9 +228,8 @@ defineTypeResolver(const Smoke::ModuleIndex& baseClass, Object::TypeResolver typ
 void 
 resolveType(Object::Instance * instance)
 {
-    Smoke::ModuleIndex classId = instance->classId;
-    Q_ASSERT(metaObjects()->contains(classId));
-    MetaObject * meta = metaObjects()->value(classId);
+    Q_ASSERT(metaObjects()->contains(instance->classId));
+    MetaObject * meta = metaObjects()->value(instance->classId);
 
     if (meta->resolver != 0) {
         (*meta->resolver)(instance);
@@ -307,14 +306,18 @@ initializeClass(const Smoke::ModuleIndex& classId, const QString& rubyClassName)
     meta->free = Object::free;
     meta->rubyClass = klass;
     meta->classId = classId;
-    meta->resolver = 0;
+
+    for (int i = 0; i < typeResolvers()->size(); ++i) {
+        if (Smoke::isDerivedFrom(classId, typeResolvers()->at(i).first)) {
+            meta->resolver = typeResolvers()->at(i).second;
+        }
+    }
     
     metaObjects()->insert(classId, meta);
     rubyMetaObjects()->insert(klass, meta);
     
     return klass;
 }
-
 
     } // namespace Global
 } // namespace QtRuby

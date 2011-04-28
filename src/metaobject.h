@@ -37,6 +37,8 @@ namespace QtRuby {
     struct QTRUBY_EXPORT MetaObject
     {
     public:
+        MetaObject() : resolver(0), mark(0), free(0) {}
+
         typedef VALUE (*CFunc)(ANYARGS);
 
         struct RubyMethod {
