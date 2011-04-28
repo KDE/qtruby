@@ -274,6 +274,7 @@ initialize()
     rb_define_module_function(QtInternalModule, "debug", (VALUE (*) (...)) Debug::debugging, 0);
     
     rb_define_module_function(QtInternalModule, "set_qtruby_embedded", (VALUE (*) (...)) set_qtruby_embedded_wrapped, 1);
+    rb_define_module_function(QtInternalModule, "application_terminated=", (VALUE (*) (...)) set_application_terminated, 1);
     
     rb_define_module_function(QtModule, "version", (VALUE (*) (...)) version, 0);
     rb_define_module_function(QtModule, "qtruby_version", (VALUE (*) (...)) qtruby_version, 0);

@@ -70,6 +70,7 @@ namespace QtRuby {
         static void free(void * ptr);
     };
 
+    extern VALUE set_application_terminated(VALUE /*self*/, VALUE yn);
     extern VALUE dispose(VALUE self);
     extern VALUE is_disposed(VALUE self);
     extern VALUE cast_object_to(VALUE /*self*/, VALUE obj, VALUE new_klass);

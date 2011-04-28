@@ -82,7 +82,9 @@ void Object::Instance::dispose()
 
 Object::Instance::~Instance() 
 {
-    finalize();
+    // TODO: Don't delete anything for now until custom free() methods have
+    // been implemented
+    // finalize();
 }
 
 Object::Instance * Object::Instance::get(VALUE value)
@@ -93,6 +95,15 @@ Object::Instance * Object::Instance::get(VALUE value)
     Object::Instance * instance = 0;
     Data_Get_Struct(value, Object::Instance, instance);
     return instance;
+}
+
+static bool application_terminated = false;
+
+VALUE
+set_application_terminated(VALUE /*self*/, VALUE yn)
+{
+    application_terminated = (yn == Qtrue);
+    return Qnil;
 }
 
 void Object::mark(void * ptr)
@@ -107,6 +118,9 @@ void Object::free(void * ptr)
 {
     Object::Instance * instance = reinterpret_cast<Object::Instance *>(ptr);
 
+    if (application_terminated)
+        return;
+
     if (Debug::DoDebug & Debug::GC) {
         qWarning("Checking for delete (%s*)%p allocated: %s",
                  instance->className(),
@@ -120,7 +134,6 @@ void Object::free(void * ptr)
         qWarning("Deleting (%s*)%p", instance->className(), instance->value);
     }
 
-    instance->dispose();
     delete instance;
 }
 

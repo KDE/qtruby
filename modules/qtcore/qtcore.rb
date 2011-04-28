@@ -1,5 +1,5 @@
 =begin
-     Copyright 2009-2011 by Richard Dale <richard.j.dale@gmail.com>
+     Copyright 2003-2011 by Richard Dale <richard.j.dale@gmail.com>
 
      This program is free software; you can redistribute it and/or modify
      it under the terms of the GNU Library General Public License as
@@ -48,7 +48,7 @@ module Qt
     # Runs the initializer as far as allocating the Qt C++ instance.
     # Then use a throw to jump back to here with the C++ instance
     # wrapped in a new ruby variable of type T_DATA
-    def Internal.try_initialize(instance,  args)
+    def Internal.try_initialize(instance, *args)
       initializer = instance.method(:initialize)
       catch :newqt do
         initializer.call(*args)
