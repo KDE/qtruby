@@ -8,7 +8,7 @@ include_directories(
     ${QT_INCLUDES}
     ${RUBY_INCLUDE_DIRS}
     ${SMOKE_INCLUDE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 set(    qtrubyruntime_LIB_SRCS
