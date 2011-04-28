@@ -66,6 +66,9 @@ Q_GLOBAL_STATIC(MetaObjectsMap, metaObjects)
 typedef QHash<VALUE, QtRuby::MetaObject *> RubyMetaObjectsMap;
 Q_GLOBAL_STATIC(RubyMetaObjectsMap, rubyMetaObjects)
 
+typedef QList<QPair<Smoke::ModuleIndex, Object::TypeResolver> > TypeResolvers;
+Q_GLOBAL_STATIC(TypeResolvers, typeResolvers)
+
 VALUE
 getRubyValue(const void *ptr)
 {
@@ -187,7 +190,7 @@ idFromRubyClass(VALUE klass)
 }
 
 VALUE
-wrapInstance(Smoke::ModuleIndex classId, void * ptr, Object::ValueOwnership ownership, VALUE klass)
+wrapInstance(const Smoke::ModuleIndex& classId, void * ptr, Object::ValueOwnership ownership, VALUE klass)
 {
     // qDebug() << Q_FUNC_INFO << "className:" << classId.smoke->classes[classId.index].className << " ownership:" << ownership;
     
@@ -211,23 +214,26 @@ wrapInstance(Smoke::ModuleIndex classId, void * ptr, Object::ValueOwnership owne
     return obj;
 }
 
-static QList<QPair<Smoke::ModuleIndex, Object::TypeResolver> > typeResolvers;
-static QHash<Smoke::ModuleIndex, Object::TypeResolver> typeResolverMap;
+void
+defineMethod(const Smoke::ModuleIndex& classId, const char* name, VALUE (*func)(ANYARGS), int argc)
+{
+}
 
 void 
-registerTypeResolver(const Smoke::ModuleIndex& baseClass, Object::TypeResolver typeResolver)
+defineTypeResolver(const Smoke::ModuleIndex& baseClass, Object::TypeResolver typeResolver)
 {
-    typeResolvers << QPair<Smoke::ModuleIndex, Object::TypeResolver>(baseClass, typeResolver);
+    typeResolvers()->append(QPair<Smoke::ModuleIndex, Object::TypeResolver>(baseClass, typeResolver));
 }
 
 void 
 resolveType(Object::Instance * instance)
 {
-    if (typeResolverMap.contains(instance->classId)) {
-        Object::TypeResolver resolver = typeResolverMap[instance->classId];
-        Smoke::ModuleIndex classId = instance->classId;
-        (*resolver)(instance);
-        instance->value = instance->classId.smoke->cast(instance->value, classId, instance->classId);
+    Smoke::ModuleIndex classId = instance->classId;
+    Q_ASSERT(metaObjects()->contains(classId));
+    MetaObject * meta = metaObjects()->value(classId);
+
+    if (meta->resolver != 0) {
+        (*meta->resolver)(instance);
     }
 }
 

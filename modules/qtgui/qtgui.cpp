@@ -28,7 +28,8 @@
 static void
 qgraphicsitemTypeResolver(QtRuby::Object::Instance * instance)
 {
-    Smoke * smoke = instance->classId.smoke;    
+    Smoke::ModuleIndex classId = instance->classId;
+    Smoke * smoke = classId.smoke;
     QGraphicsItem * item = static_cast<QGraphicsItem*>( smoke->cast(    instance->value, 
                                                                         instance->classId,
                                                                         QtRuby::Global::QGraphicsItemClassId ) );
@@ -63,7 +64,8 @@ qgraphicsitemTypeResolver(QtRuby::Object::Instance * instance)
         instance->classId = smoke->findClass("QGraphicsItemGroup");
         break;
     }
-    
+
+    instance->value = instance->classId.smoke->cast(instance->value, classId, instance->classId);
     return;
 }
 
@@ -82,7 +84,7 @@ Init_qtgui()
     QtRuby::Global::modules[qtgui_Smoke] = qtgui_module;
     QtRuby::Global::QGraphicsItemClassId = qtgui_Smoke->idClass("QGraphicsItem");
     QtRuby::Marshall::installHandlers(QtRuby::QtGuiHandlers);
-    QtRuby::Global::registerTypeResolver(QtRuby::Global::QGraphicsItemClassId,
+    QtRuby::Global::defineTypeResolver(QtRuby::Global::QGraphicsItemClassId,
                                          qgraphicsitemTypeResolver);
     
     rb_require("qtgui/qtgui.rb");
@@ -108,7 +110,17 @@ Init_qtgui()
     }
 
     QtRuby::registerQtGuiTypes();
-    
+
+    /*
+    for (int i = 0; i < 2000; i++) {
+        if (QMetaType::isRegistered(i)) {
+            QByteArray typeName(QMetaType::typeName(i));
+            if (!typeName.isEmpty())
+                qDebug() << "typeName:" << QMetaType::typeName(i);
+        }
+    }
+    */
+
     return;
 }
 

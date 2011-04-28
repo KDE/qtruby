@@ -64,12 +64,13 @@ namespace QtRuby {
         QTRUBY_EXPORT QByteArray rubyClassNameFromId(const Smoke::ModuleIndex& classId);
         QTRUBY_EXPORT Smoke::ModuleIndex idFromRubyClass(VALUE klass);
                                                                                                 
-        QTRUBY_EXPORT VALUE wrapInstance(   Smoke::ModuleIndex classId,
+        QTRUBY_EXPORT VALUE wrapInstance(   const Smoke::ModuleIndex& classId,
                                             void * ptr,
                                             Object::ValueOwnership ownership = Object::QtOwnership,
                                             VALUE klass = Qnil);
         
-        QTRUBY_EXPORT void registerTypeResolver(const Smoke::ModuleIndex& baseClass, Object::TypeResolver);
+        QTRUBY_EXPORT void defineMethod(const Smoke::ModuleIndex& classId, const char* name, VALUE (*func)(ANYARGS), int argc);
+        QTRUBY_EXPORT void defineTypeResolver(const Smoke::ModuleIndex& baseClass, Object::TypeResolver);
         QTRUBY_EXPORT void resolveType(Object::Instance * instance);
         
         QTRUBY_EXPORT void initialize();
