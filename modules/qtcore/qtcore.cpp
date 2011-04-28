@@ -1,5 +1,5 @@
 /*
- *   Copyright 2009-2011 by Richard Dale <richard.j.dale@gmail.com>
+ *   Copyright 2003-2011 by Richard Dale <richard.j.dale@gmail.com>
 
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Library General Public License as
@@ -23,13 +23,16 @@
 #include <QtCore/QRegExp>
 #include <QtCore/qdebug.h>
 
+#include <smoke/qtcore_smoke.h>
+
 #include <global.h>
 #include <marshall.h>
 #include <rubymetatype.h>
 #include <utils.h>
 #include <object.h>
 
-#include <smoke/qtcore_smoke.h>
+#include "find.h"
+
 
 static void
 qeventTypeResolver(QtRuby::Object::Instance * instance)
@@ -310,10 +313,13 @@ Init_qtcore()
 
     QtRuby::Marshall::installHandlers(QtRuby::QtCoreHandlers);
 
+    QtRuby::Global::initialize();
+
     QtRuby::Global::defineTypeResolver(QtRuby::Global::QEventClassId, qeventTypeResolver);
     QtRuby::Global::defineTypeResolver(QtRuby::Global::QObjectClassId, qobjectTypeResolver );
 
-    QtRuby::Global::initialize();
+    QtRuby::Global::defineMethod(QtRuby::Global::QObjectClassId, "findChildren", (VALUE (*) (...)) QtRuby::find_qobject_children, -1);
+    QtRuby::Global::defineMethod(QtRuby::Global::QObjectClassId, "findChild", (VALUE (*) (...)) QtRuby::find_qobject_child, -1);
 
     rb_require("qtcore/qtcore.rb");
     

@@ -5,7 +5,11 @@ include_directories(
     ${SMOKE_INCLUDE_DIR}
 )
 
-set(rubyqtcore_LIBRARY_SRC qtcore.cpp qtcorehandlers.cpp)
+set(rubyqtcore_LIBRARY_SRC
+    qtcore.cpp
+    find.cpp
+    qtcorehandlers.cpp)
+
 add_library(rubyqtcore MODULE ${rubyqtcore_LIBRARY_SRC})
 target_link_libraries(rubyqtcore
     ${QT_QTCORE_LIBRARY}

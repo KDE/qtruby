@@ -340,7 +340,7 @@ VALUE
 initializeClass(const Smoke::ModuleIndex& classId, const QString& rubyClassName)
 {
     QStringList components = rubyClassName.split("::");
-    VALUE klass = rb_define_module((const char*) components[0].toLatin1());
+    VALUE klass = rb_define_module(components[0].toLatin1().constData());
     rb_define_singleton_method(klass, "method_missing", (VALUE (*) (...)) module_method_missing, -1);
     rb_define_singleton_method(klass, "const_missing", (VALUE (*) (...)) module_method_missing, -1);
     
