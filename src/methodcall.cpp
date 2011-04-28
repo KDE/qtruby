@@ -204,13 +204,8 @@ void MethodCall::callMethod()
     if ((Debug::DoDebug & Debug::Calls) != 0) {
         QStringList argsString;
         for (int i = 0; i < m_methodRef.numArgs; ++i) {
-            VALUE str = rb_funcall(m_valueList[i], rb_intern("to_s"), 0, 0);
-            argsString << QString::fromLatin1(StringValuePtr(str));
+            argsString << QString::fromLatin1(Debug::to_s(m_valueList[i]));
         }
-
-        VALUE val = rb_str_new2("");
-        if (m_returnValue != Qnil)
-            val = rb_funcall(m_returnValue, rb_intern("to_s"), 0, 0);
 
         qWarning(   "Trace@%s:%d %s.%s(%s) => %s",
                     rb_sourcefile(),
@@ -218,7 +213,7 @@ void MethodCall::callMethod()
                     Global::rubyClassNameFromId(Smoke::ModuleIndex(m_smoke, m_methodRef.classId)).constData(),
                     (m_methodRef.flags & Smoke::mf_ctor) != 0 ? "new" : m_smoke->methodNames[m_methodRef.name],
                     argsString.join(", ").toLatin1().constData(),
-                    StringValuePtr(val) );
+                    Debug::to_s(m_returnValue).constData() );
     }
 }
 

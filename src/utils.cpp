@@ -414,8 +414,7 @@ resolveMethod(  Smoke::ModuleIndex classId,
     if (matchState != ImplicitTypeConversionsState && (Debug::DoDebug & Debug::MethodMatches) != 0) {
         QStringList argsString;
         for (int i = 0; i < argc; ++i) {
-            VALUE str = rb_funcall(args[i], rb_intern("to_s"), 0, 0);
-            argsString << QString::fromLatin1(StringValuePtr(str));
+            argsString << QString::fromLatin1(Debug::to_s(args[i]));
         }
 
         qWarning(   "%s@%s:%d for %s.%s(%s):",

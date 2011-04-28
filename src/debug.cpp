@@ -89,6 +89,20 @@ methodToString(const Smoke::ModuleIndex& methodId)
 
     return result;
 }
+
+QByteArray to_s(VALUE value)
+{
+    if (value == Qnil) {
+        return "nil";
+    } else if (value == Qtrue) {
+        return "true";
+    } else if (value == Qfalse) {
+        return "false";
+    } else {
+        VALUE str = rb_funcall(value, rb_intern("to_s"), 0, 0);
+        return StringValuePtr(str);
+    }
+}
         
 VALUE
 qdebug(VALUE klass, VALUE msg)

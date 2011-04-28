@@ -42,7 +42,8 @@ namespace QtRuby {
         };
         
         QTRUBY_EXPORT QString methodToString(const Smoke::ModuleIndex& methodId);
-   
+        QTRUBY_EXPORT QByteArray to_s(VALUE);
+
         extern VALUE qdebug(VALUE klass, VALUE msg);
         extern VALUE qfatal(VALUE klass, VALUE msg);
         extern VALUE qwarning(VALUE klass, VALUE msg);
