@@ -8,6 +8,7 @@ include_directories(
 set(rubyqtcore_LIBRARY_SRC
     qtcore.cpp
     rubyqobject.cpp
+    typeresolver.cpp
     qtcorehandlers.cpp)
 
 add_library(rubyqtcore MODULE ${rubyqtcore_LIBRARY_SRC})

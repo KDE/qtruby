@@ -5,7 +5,7 @@ include_directories(
     ${SMOKE_INCLUDE_DIR}
 )
 
-set(rubyqtgui_LIBRARY_SRC qtgui.cpp qtguihandlers.cpp)
+set(rubyqtgui_LIBRARY_SRC qtgui.cpp qtguihandlers.cpp typeresolver.cpp)
 add_library(rubyqtgui MODULE ${rubyqtgui_LIBRARY_SRC})
 target_link_libraries(rubyqtgui
                             ${QT_QTCORE_LIBRARY}

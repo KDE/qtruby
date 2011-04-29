@@ -18,54 +18,13 @@
  */
 
 #include <QtCore/qdebug.h>
-#include <QtGui/QGraphicsItem>
 
 #include <global.h>
 #include <marshall.h>
 
 #include <smoke/qtgui_smoke.h>
 
-static void
-qgraphicsitemTypeResolver(QtRuby::Object::Instance * instance)
-{
-    Smoke::ModuleIndex classId = instance->classId;
-    Smoke * smoke = classId.smoke;
-    QGraphicsItem * item = reinterpret_cast<QGraphicsItem*>(instance->cast(QtRuby::Global::QGraphicsItemClassId));
-    switch (item->type()) {
-    case 1:
-        instance->classId = smoke->findClass("QGraphicsItem");
-        break;
-    case 2:
-        instance->classId = smoke->findClass("QGraphicsPathItem");
-        break;
-    case 3:
-        instance->classId = smoke->findClass("QGraphicsRectItem");
-    case 4:
-        instance->classId = smoke->findClass("QGraphicsEllipseItem");
-        break;
-    case 5:
-        instance->classId = smoke->findClass("QGraphicsPolygonItem");
-        break;
-    case 6:
-        instance->classId = smoke->findClass("QGraphicsLineItem");
-        break;
-    case 7:
-        instance->classId = smoke->findClass("QGraphicsItem");
-        break;
-    case 8:
-        instance->classId = smoke->findClass("QGraphicsTextItem");
-        break;
-    case 9:
-        instance->classId = smoke->findClass("QGraphicsSimpleTextItem");
-        break;
-    case 10:
-        instance->classId = smoke->findClass("QGraphicsItemGroup");
-        break;
-    }
-
-    instance->value = instance->cast(instance->classId);
-    return;
-}
+#include "typeresolver.h"
 
 namespace QtRuby {
 extern Marshall::TypeHandler QtGuiHandlers[];
@@ -83,7 +42,7 @@ Init_qtgui()
     QtRuby::Global::QGraphicsItemClassId = qtgui_Smoke->idClass("QGraphicsItem");
     QtRuby::Marshall::installHandlers(QtRuby::QtGuiHandlers);
     QtRuby::Global::defineTypeResolver(QtRuby::Global::QGraphicsItemClassId,
-                                         qgraphicsitemTypeResolver);
+                                         QtRuby::qgraphicsitemTypeResolver);
     
     rb_require("qtgui/qtgui.rb");
 
