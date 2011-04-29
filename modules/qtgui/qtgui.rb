@@ -41,20 +41,6 @@ module Qt
     end
   end
 
-  class Action < Qt::Base
-    def setShortcut(arg)
-      if arg.kind_of?(String)
-        return super(Qt::KeySequence.new(arg))
-      else
-        return super(arg)
-      end
-    end
-
-    def shortcut=(arg)
-      setShortcut(arg)
-    end
-  end
-
   class ActionEvent < Qt::Base
     def type(*args)
       method_missing(:type, *args)
@@ -87,20 +73,6 @@ module Qt
   class ButtonGroup < Qt::Base
     def id(*args)
       method_missing(:id, *args)
-    end
-  end
-
-  class CheckBox < Qt::Base
-    def setShortcut(arg)
-      if arg.kind_of?(String)
-        return super(Qt::KeySequence.new(arg))
-      else
-        return super(arg)
-      end
-    end
-
-    def shortcut=(arg)
-      setShortcut(arg)
     end
   end
 
@@ -636,34 +608,6 @@ module Qt
     end
   end
 
-  class PushButton < Qt::Base
-    def setShortcut(arg)
-      if arg.kind_of?(String)
-        return super(Qt::KeySequence.new(arg))
-      else
-        return super(arg)
-      end
-    end
-
-    def shortcut=(arg)
-      setShortcut(arg)
-    end
-  end
-
-  class RadioButton < Qt::Base
-    def setShortcut(arg)
-      if arg.kind_of?(String)
-        return super(Qt::KeySequence.new(arg))
-      else
-        return super(arg)
-      end
-    end
-
-    def shortcut=(arg)
-      setShortcut(arg)
-    end
-  end
-
   class Rect < Qt::Base
     def inspect
       str = super
@@ -885,20 +829,6 @@ module Qt
   class TextTableCell < Qt::Base
     def format(*args)
       method_missing(:format, *args)
-    end
-  end
-
-  class ToolButton < Qt::Base
-    def setShortcut(arg)
-      if arg.kind_of?(String)
-        return super(Qt::KeySequence.new(arg))
-      else
-        return super(arg)
-      end
-    end
-
-    def shortcut=(arg)
-      setShortcut(arg)
     end
   end
 
