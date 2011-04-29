@@ -23,7 +23,7 @@
 #include <object.h>
 #include <global.h>
 
-#include "qobject.h"
+#include "rubyqobject.h"
 
 namespace QtRuby {
 

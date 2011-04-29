@@ -17,8 +17,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef QTRUBY_QOBJECT_H
-#define QTRUBY_QOBJECT_H
+#ifndef QTRUBY_RUBYQOBJECT_H
+#define QTRUBY_RUBYQOBJECT_H
 
 #include <ruby.h>
 
@@ -31,4 +31,4 @@ namespace QtRuby {
     extern VALUE find_qobject_child(int argc, VALUE *argv, VALUE self);
 }
 
-#endif // QTRUBY_QOBJECT_H
+#endif // QTRUBY_RUBYQOBJECT_H

@@ -7,7 +7,7 @@ include_directories(
 
 set(rubyqtcore_LIBRARY_SRC
     qtcore.cpp
-    qobject.cpp
+    rubyqobject.cpp
     qtcorehandlers.cpp)
 
 add_library(rubyqtcore MODULE ${rubyqtcore_LIBRARY_SRC})
@@ -18,7 +18,7 @@ target_link_libraries(rubyqtcore
 )
 set_target_properties(rubyqtcore PROPERTIES PREFIX "" OUTPUT_NAME qtcore)
 install(TARGETS rubyqtcore DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
-install(FILES qtcore.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/qtcore)
+install(FILES qtcore.rb internal.rb enum.rb base.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/qtcore)
 
 if (Q_WS_MAC)
     install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CUSTOM_RUBY_SITE_ARCH_DIR}/qtcore.so\"  \"${CUSTOM_RUBY_SITE_ARCH_DIR}/qtcore.bundle\" )" )

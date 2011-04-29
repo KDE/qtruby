@@ -31,7 +31,7 @@
 #include <utils.h>
 #include <object.h>
 
-#include "qobject.h"
+#include "rubyqobject.h"
 
 
 static void
