@@ -18,6 +18,7 @@
  */
 
 #include <QtCore/qdebug.h>
+#include <QtCore/QTimer>
 
 #include <smoke/qtcore_smoke.h>
 
@@ -66,6 +67,20 @@ q_unregister_resource_data(VALUE /*self*/, VALUE version, VALUE tree_value, VALU
     memcpy((void *) data, (const void *) RSTRING_PTR(data_value), RSTRING_LEN(data_value));
 
     return qUnregisterResourceData(NUM2INT(version), tree, name, data) ? Qtrue : Qfalse;
+}
+
+static VALUE
+qtimer_single_shot(int argc, VALUE * argv, VALUE /*self*/)
+{
+    if (rb_block_given_p()) {
+        if (argc == 2) {
+            return rb_funcall(Global::QtInternalModule, rb_intern("single_shot_timer_connect"), 3, argv[0], argv[1], rb_block_proc());
+        } else {
+            rb_raise(rb_eArgError, "Invalid argument list");
+        }
+    } else {
+        return rb_call_super(argc, argv);
+    }
 }
 
 }
@@ -172,6 +187,9 @@ Init_qtcore()
         } else if (className == "QAbstractItemModel") {
             rb_define_method(klass, "createIndex", (VALUE (*) (...)) QtRuby::qabstract_item_model_createindex, -1);
             rb_define_method(klass, "create_index", (VALUE (*) (...)) QtRuby::qabstract_item_model_createindex, -1);
+        } else if (className == "QtTimer") {
+            rb_define_singleton_method(klass, "singleShot", (VALUE (*) (...)) QtRuby::qtimer_single_shot, -1);
+            rb_define_singleton_method(klass, "single_shot", (VALUE (*) (...)) QtRuby::qtimer_single_shot, -1);
         }
         // VALUE name = rb_funcall(klass, rb_intern("name"), 0);
         // qDebug() << "name:" << StringValuePtr(name);
