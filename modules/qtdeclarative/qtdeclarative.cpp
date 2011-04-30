@@ -1,62 +1,63 @@
-#include <ruby.h>
+/*
+ *   Copyright 2009 by Richard Dale <richard.j.dale@gmail.com>
 
-#include <QHash>
-#include <QList>
-#include <QtDebug>
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU Library General Public License as
+ *   published by the Free Software Foundation; either version 2, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this program; if not, write to the
+ *   Free Software Foundation, Inc.,
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 
-#include <qtdeclarative_smoke.h>
+#include <global.h>
+#include <marshall.h>
 
-#include <qtruby.h>
+#include <smoke/qtdeclarative_smoke.h>
 
-#include <iostream>
-
-static VALUE getClassList(VALUE /*self*/)
-{
-    VALUE classList = rb_ary_new();
-    for (int i = 1; i <= qtdeclarative_Smoke->numClasses; i++) {
-        if (qtdeclarative_Smoke->classes[i].className && !qtdeclarative_Smoke->classes[i].external) {
-            rb_ary_push(classList, rb_str_new2(qtdeclarative_Smoke->classes[i].className));
-        }
-    }
-    return classList;
+namespace QtRuby {
+extern Marshall::TypeHandler QtDeclarativeHandlers[];
+extern void registerQtDeclarativeTypes();
 }
-
-const char*
-resolve_classname_qtdeclarative(smokeruby_object * o)
-{
-    return qtruby_modules[o->smoke].binding->className(o->classId);
-}
-
-extern TypeHandler QtDeclarative_handlers[];
 
 extern "C" {
-
-VALUE qtdeclarative_module;
-VALUE qtdeclarative_internal_module;
-
-static QtRuby::Binding binding;
 
 Q_DECL_EXPORT void
 Init_qtdeclarative()
 {
     init_qtdeclarative_Smoke();
+    QtRuby::Module qtdeclarative_module = { "qtdeclarative", new QtRuby::Binding(qtdeclarative_Smoke) };
+    QtRuby::Global::modules[qtdeclarative_Smoke] = qtdeclarative_module;
+    QtRuby::Marshall::installHandlers(QtRuby::QtDeclarativeHandlers);
 
-    binding = QtRuby::Binding(qtdeclarative_Smoke);
+    Smoke * smoke = qtdeclarative_Smoke;
+    for (int i = 1; i <= smoke->numClasses; i++) {
+        Smoke::ModuleIndex classId(smoke, i);
+        QString className = QString::fromLatin1(smoke->classes[i].className);
 
-    smokeList << qtdeclarative_Smoke;
+        if (    smoke->classes[i].external
+                || className.contains("Internal")
+                || className == "Qt"
+                || className == "QGlobalSpace") {
+            continue;
+        }
 
-    QtRubyModule module = { "QtDeclarative", resolve_classname_qtdeclarative, 0, &binding };
-    qtruby_modules[qtdeclarative_Smoke] = module;
+        if (className.startsWith("Q"))
+            className = className.mid(1).prepend("Qt::");
 
-    install_handlers(QtDeclarative_handlers);
+        VALUE klass = QtRuby::Global::initializeClass(classId, className);
+    }
 
-    qtdeclarative_module = rb_define_module("QtDeclarative");
-    qtdeclarative_internal_module = rb_define_module_under(qtdeclarative_module, "Internal");
+    QtRuby::registerQtDeclarativeTypes();
 
-    rb_define_singleton_method(qtdeclarative_internal_module, "getClassList", (VALUE (*) (...)) getClassList, 0);
-
-    rb_require("qtdeclarative/qtdeclarative.rb");
-    rb_funcall(qtdeclarative_internal_module, rb_intern("init_all_classes"), 0);
+    return;
 }
 
 }

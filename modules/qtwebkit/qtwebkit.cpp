@@ -1,62 +1,63 @@
-#include <ruby.h>
+/*
+ *   Copyright 2009 by Richard Dale <richard.j.dale@gmail.com>
 
-#include <QHash>
-#include <QList>
-#include <QtDebug>
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU Library General Public License as
+ *   published by the Free Software Foundation; either version 2, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this program; if not, write to the
+ *   Free Software Foundation, Inc.,
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 
-#include <qtwebkit_smoke.h>
+#include <global.h>
+#include <marshall.h>
 
-#include <qtruby.h>
+#include <smoke/qtwebkit_smoke.h>
 
-#include <iostream>
-
-static VALUE getClassList(VALUE /*self*/)
-{
-    VALUE classList = rb_ary_new();
-    for (int i = 1; i <= qtwebkit_Smoke->numClasses; i++) {
-        if (qtwebkit_Smoke->classes[i].className && !qtwebkit_Smoke->classes[i].external) {
-            rb_ary_push(classList, rb_str_new2(qtwebkit_Smoke->classes[i].className));
-        }
-    }
-    return classList;
+namespace QtRuby {
+extern Marshall::TypeHandler QtWebKitHandlers[];
+extern void registerQtWebKitTypes();
 }
-
-const char*
-resolve_classname_qtwebkit(smokeruby_object * o)
-{
-    return qtruby_modules[o->smoke].binding->className(o->classId);
-}
-
-extern TypeHandler QtWebKit_handlers[];
 
 extern "C" {
-
-VALUE qtwebkit_module;
-VALUE qtwebkit_internal_module;
-
-static QtRuby::Binding binding;
 
 Q_DECL_EXPORT void
 Init_qtwebkit()
 {
     init_qtwebkit_Smoke();
+    QtRuby::Module qtwebkit_module = { "qtwebkit", new QtRuby::Binding(qtwebkit_Smoke) };
+    QtRuby::Global::modules[qtwebkit_Smoke] = qtwebkit_module;
+    QtRuby::Marshall::installHandlers(QtRuby::QtWebKitHandlers);
 
-    binding = QtRuby::Binding(qtwebkit_Smoke);
+    Smoke * smoke = qtwebkit_Smoke;
+    for (int i = 1; i <= smoke->numClasses; i++) {
+        Smoke::ModuleIndex classId(smoke, i);
+        QString className = QString::fromLatin1(smoke->classes[i].className);
 
-    smokeList << qtwebkit_Smoke;
+        if (    smoke->classes[i].external
+                || className.contains("Internal")
+                || className == "Qt"
+                || className == "QGlobalSpace") {
+            continue;
+        }
 
-    QtRubyModule module = { "QtWebKit", resolve_classname_qtwebkit, 0, &binding };
-    qtruby_modules[qtwebkit_Smoke] = module;
+        if (className.startsWith("Q"))
+            className = className.mid(1).prepend("Qt::");
 
-    install_handlers(QtWebKit_handlers);
+        VALUE klass = QtRuby::Global::initializeClass(classId, className);
+    }
 
-    qtwebkit_module = rb_define_module("QtWebKit");
-    qtwebkit_internal_module = rb_define_module_under(qtwebkit_module, "Internal");
+    QtRuby::registerQtWebKitTypes();
 
-    rb_define_singleton_method(qtwebkit_internal_module, "getClassList", (VALUE (*) (...)) getClassList, 0);
-
-    rb_require("qtwebkit/qtwebkit.rb");
-    rb_funcall(qtwebkit_internal_module, rb_intern("init_all_classes"), 0);
+    return;
 }
 
 }

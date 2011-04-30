@@ -1,47 +1,66 @@
-/***************************************************************************
-                          phononhandlers.cpp  -  Phonon specific marshallers
-                             -------------------
-    begin                : Sat Jun 28 2008
-    copyright            : (C) 2008 by Richard Dale
-    email                : richard.j.dale@gmail.com
- ***************************************************************************/
+/*
+ *   Copyright 2009 by Richard Dale <richard.j.dale@gmail.com>
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU Library General Public License as
+ *   published by the Free Software Foundation; either version 2, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this program; if not, write to the
+ *   Free Software Foundation, Inc.,
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 
-#include <ruby.h>
+#include "marshall.h"
+#include "global.h"
+#include "rubymetatype.h"
 
-#include <qtruby.h>
-#include <smokeruby.h>
-#include <marshall_macros.h>
-
+#include <phonon/effect.h>
 #include <phonon/effectparameter.h>
+#include <phonon/effectwidget.h>
 #include <phonon/mediasource.h>
 #include <phonon/path.h>
+#include <phonon/volumefadereffect.h>
 
-DEF_LIST_MARSHALLER( PhononEffectList, QList<Phonon::Effect*>, Phonon::Effect )
+Q_DECLARE_METATYPE(Phonon::Effect*)
+Q_DECLARE_METATYPE(Phonon::EffectParameter)
+Q_DECLARE_METATYPE(Phonon::MediaSource)
+// Q_DECLARE_METATYPE(Phonon::ObjectDescription<Phonon::AudioChannelType>)
+// Q_DECLARE_METATYPE(Phonon::ObjectDescription<Phonon::SubtitleType>)
+Q_DECLARE_METATYPE(Phonon::Path)
+Q_DECLARE_METATYPE(QList<Phonon::Effect*>)
+Q_DECLARE_METATYPE(QList<Phonon::EffectParameter>)
+Q_DECLARE_METATYPE(QList<Phonon::MediaSource>)
+Q_DECLARE_METATYPE(QList<Phonon::Path>)
 
-DEF_VALUELIST_MARSHALLER( PhononAudioChannelDescriptionList, QList<Phonon::AudioChannelDescription>, Phonon::AudioChannelDescription )
-DEF_VALUELIST_MARSHALLER( PhononEffectParameterList, QList<Phonon::EffectParameter>, Phonon::EffectParameter )
-DEF_VALUELIST_MARSHALLER( PhononMediaSourceList, QList<Phonon::MediaSource>, Phonon::MediaSource )
-DEF_VALUELIST_MARSHALLER( PhononPathList, QList<Phonon::Path>, Phonon::Path )
-DEF_VALUELIST_MARSHALLER( PhononSubtitleDescriptionList, QList<Phonon::SubtitleDescription>, Phonon::SubtitleDescription )
+namespace QtRuby {
 
-TypeHandler Phonon_handlers[] = {
-    { "QList<Phonon::AudioChannelDescription>", marshall_PhononAudioChannelDescriptionList },
-    { "QList<Phonon::Effect*>", marshall_PhononEffectList },
-    { "QList<Phonon::EffectParameter>", marshall_PhononEffectParameterList },
-    { "QList<Phonon::MediaSource>", marshall_PhononMediaSourceList },
-    { "QList<Phonon::MediaSource>&", marshall_PhononMediaSourceList },
-    { "QList<Phonon::Path>", marshall_PhononPathList },
-    { "QList<Phonon::SubtitleDescription>", marshall_PhononSubtitleDescriptionList },
-//  "QList<QExplicitlySharedDataPointer<Phonon::ObjectDescriptionData> >"
-//  "QList<QExplicitlySharedDataPointer<Phonon::ObjectDescriptionData> >&"
+Marshall::TypeHandler PhononHandlers[] = {
+    { "QList<Phonon::Effect*>", marshall_Container<QList<Phonon::Effect*> > },
+    { "QList<Phonon::EffectParameter>", marshall_Container<QList<Phonon::EffectParameter> > },
+    { "QList<Phonon::MediaSource>", marshall_Container<QList<Phonon::MediaSource> > },
+    { "QList<Phonon::MediaSource>&", marshall_Container<QList<Phonon::MediaSource> > },
+    { "QList<Phonon::Path>", marshall_Container<QList<Phonon::Path> > },
     { 0, 0 }
 };
+
+void registerPhononTypes()
+{
+    qRubySmokeRegisterSequenceMetaType<QList<Phonon::EffectParameter> >();
+    qRubySmokeRegisterSequenceMetaType<QList<Phonon::MediaSource> >();
+    qRubySmokeRegisterSequenceMetaType<QList<Phonon::Path> >();
+
+    qRubySmokeRegisterPointerSequenceMetaType<QList<Phonon::Effect*> >();
+
+    return;
+}
+
+}
+
+// kate: space-indent on; indent-width 4; replace-tabs on; mixed-indent off;

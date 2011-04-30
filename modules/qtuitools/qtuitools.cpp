@@ -1,78 +1,63 @@
-/***************************************************************************
-                          qtuitoolshandlers.cpp  -  QtUiTools specific marshallers
-                             -------------------
-    begin                : Sat Jun 28 2008
-    copyright            : (C) 2008 by Richard Dale
-    email                : richard.j.dale@gmail.com
- ***************************************************************************/
+/*
+ *   Copyright 2009 by Richard Dale <richard.j.dale@gmail.com>
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU Library General Public License as
+ *   published by the Free Software Foundation; either version 2, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this program; if not, write to the
+ *   Free Software Foundation, Inc.,
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 
-#include <ruby.h>
+#include <global.h>
+#include <marshall.h>
 
-#include <QHash>
-#include <QList>
-#include <QtDebug>
+#include <smoke/qtuitools_smoke.h>
 
-#include <qtuitools_smoke.h>
-
-#include <qtruby.h>
-
-#include <iostream>
-
-static VALUE getClassList(VALUE /*self*/)
-{
-    VALUE classList = rb_ary_new();
-    for (int i = 1; i <= qtuitools_Smoke->numClasses; i++) {
-        if (qtuitools_Smoke->classes[i].className && !qtuitools_Smoke->classes[i].external)
-            rb_ary_push(classList, rb_str_new2(qtuitools_Smoke->classes[i].className));
-    }
-    return classList;
+namespace QtRuby {
+extern Marshall::TypeHandler QtUiToolsHandlers[];
+extern void registerQtUiToolsTypes();
 }
-
-const char*
-resolve_classname_qtuitools(smokeruby_object * o)
-{
-    return qtruby_modules[o->smoke].binding->className(o->classId);
-}
-
-extern TypeHandler QtUiTools_handlers[];
 
 extern "C" {
-
-VALUE qtuitools_module;
-VALUE qtuitools_internal_module;
-
-static QtRuby::Binding binding;
 
 Q_DECL_EXPORT void
 Init_qtuitools()
 {
     init_qtuitools_Smoke();
+    QtRuby::Module qtuitools_module = { "qtuitools", new QtRuby::Binding(qtuitools_Smoke) };
+    QtRuby::Global::modules[qtuitools_Smoke] = qtuitools_module;
+    QtRuby::Marshall::installHandlers(QtRuby::QtUiToolsHandlers);
 
-    binding = QtRuby::Binding(qtuitools_Smoke);
+    Smoke * smoke = qtuitools_Smoke;
+    for (int i = 1; i <= smoke->numClasses; i++) {
+        Smoke::ModuleIndex classId(smoke, i);
+        QString className = QString::fromLatin1(smoke->classes[i].className);
 
-    smokeList << qtuitools_Smoke;
+        if (    smoke->classes[i].external
+                || className.contains("Internal")
+                || className == "Qt"
+                || className == "QGlobalSpace") {
+            continue;
+        }
 
-    QtRubyModule module = { "QtUiTools", resolve_classname_qtuitools, 0, &binding };
-    qtruby_modules[qtuitools_Smoke] = module;
+        if (className.startsWith("Q"))
+            className = className.mid(1).prepend("Qt::");
 
-    install_handlers(QtUiTools_handlers);
+        VALUE klass = QtRuby::Global::initializeClass(classId, className);
+    }
 
-    qtuitools_module = rb_define_module("QtUiTools");
-    qtuitools_internal_module = rb_define_module_under(qtuitools_module, "Internal");
+    QtRuby::registerQtUiToolsTypes();
 
-    rb_define_singleton_method(qtuitools_internal_module, "getClassList", (VALUE (*) (...)) getClassList, 0);
-
-    rb_require("qtuitools/qtuitools.rb");
-    rb_funcall(qtuitools_internal_module, rb_intern("init_all_classes"), 0);
+    return;
 }
 
 }

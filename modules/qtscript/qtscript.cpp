@@ -1,78 +1,63 @@
-/***************************************************************************
-                          qtscript.cpp  -  QtScript ruby extension
-                             -------------------
-    begin                : 11-07-2008
-    copyright            : (C) 2008 by Richard Dale
-    email                : richard.j.dale@gmail.com
- ***************************************************************************/
+/*
+ *   Copyright 2009 by Richard Dale <richard.j.dale@gmail.com>
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU Library General Public License as
+ *   published by the Free Software Foundation; either version 2, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this program; if not, write to the
+ *   Free Software Foundation, Inc.,
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 
-#include <ruby.h>
+#include <global.h>
+#include <marshall.h>
 
-#include <QHash>
-#include <QList>
-#include <QtDebug>
+#include <smoke/qtscript_smoke.h>
 
-#include <qtscript_smoke.h>
-
-#include <qtruby.h>
-
-#include <iostream>
-
-static VALUE getClassList(VALUE /*self*/)
-{
-    VALUE classList = rb_ary_new();
-    for (int i = 1; i <= qtscript_Smoke->numClasses; i++) {
-        if (qtscript_Smoke->classes[i].className && !qtscript_Smoke->classes[i].external)
-            rb_ary_push(classList, rb_str_new2(qtscript_Smoke->classes[i].className));
-    }
-    return classList;
+namespace QtRuby {
+extern Marshall::TypeHandler QtScriptHandlers[];
+extern void registerQtScriptTypes();
 }
-
-const char*
-resolve_classname_qtscript(smokeruby_object * o)
-{
-    return qtruby_modules[o->smoke].binding->className(o->classId);
-}
-
-extern TypeHandler QtScript_handlers[];
 
 extern "C" {
-
-VALUE qtscript_module;
-VALUE qtscript_internal_module;
-
-static QtRuby::Binding binding;
 
 Q_DECL_EXPORT void
 Init_qtscript()
 {
     init_qtscript_Smoke();
+    QtRuby::Module qtscript_module = { "qtscript", new QtRuby::Binding(qtscript_Smoke) };
+    QtRuby::Global::modules[qtscript_Smoke] = qtscript_module;
+    QtRuby::Marshall::installHandlers(QtRuby::QtScriptHandlers);
 
-    binding = QtRuby::Binding(qtscript_Smoke);
+    Smoke * smoke = qtscript_Smoke;
+    for (int i = 1; i <= smoke->numClasses; i++) {
+        Smoke::ModuleIndex classId(smoke, i);
+        QString className = QString::fromLatin1(smoke->classes[i].className);
 
-    smokeList << qtscript_Smoke;
+        if (    smoke->classes[i].external
+                || className.contains("Internal")
+                || className == "Qt"
+                || className == "QGlobalSpace") {
+            continue;
+        }
 
-    QtRubyModule module = { "QtScript", resolve_classname_qtscript, 0, &binding };
-    qtruby_modules[qtscript_Smoke] = module;
+        if (className.startsWith("Q"))
+            className = className.mid(1).prepend("Qt::");
 
-    install_handlers(QtScript_handlers);
+        VALUE klass = QtRuby::Global::initializeClass(classId, className);
+    }
 
-    qtscript_module = rb_define_module("QtScript");
-    qtscript_internal_module = rb_define_module_under(qtscript_module, "Internal");
+    QtRuby::registerQtScriptTypes();
 
-    rb_define_singleton_method(qtscript_internal_module, "getClassList", (VALUE (*) (...)) getClassList, 0);
-
-    rb_require("qtscript/qtscript.rb");
-    rb_funcall(qtscript_internal_module, rb_intern("init_all_classes"), 0);
+    return;
 }
 
 }
