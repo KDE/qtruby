@@ -34,7 +34,7 @@ namespace QtRuby {
     extern VALUE qabstract_item_model_insertcolumns(int argc, VALUE * argv, VALUE self);
     extern VALUE qabstract_item_model_removerows(int argc, VALUE * argv, VALUE self);
     extern VALUE qabstract_item_model_removecolumns(int argc, VALUE * argv, VALUE self);
-
+    extern VALUE qabstract_item_model_createindex(int argc, VALUE * argv, VALUE self);
 }
 
 #endif // QTRUBY_RUBYQABSTRACTITEMMODEL_H

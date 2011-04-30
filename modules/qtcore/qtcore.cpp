@@ -169,8 +169,10 @@ Init_qtcore()
             rb_define_method(QtRuby::Global::QListModelClass, "remove_rows", (VALUE (*) (...)) QtRuby::qabstract_item_model_removerows, -1);
             rb_define_method(QtRuby::Global::QListModelClass, "removeColumns", (VALUE (*) (...)) QtRuby::qabstract_item_model_removecolumns, -1);
             rb_define_method(QtRuby::Global::QListModelClass, "remove_columns", (VALUE (*) (...)) QtRuby::qabstract_item_model_removecolumns, -1);
+        } else if (className == "QAbstractItemModel") {
+            rb_define_method(klass, "createIndex", (VALUE (*) (...)) QtRuby::qabstract_item_model_createindex, -1);
+            rb_define_method(klass, "create_index", (VALUE (*) (...)) QtRuby::qabstract_item_model_createindex, -1);
         }
-
         // VALUE name = rb_funcall(klass, rb_intern("name"), 0);
         // qDebug() << "name:" << StringValuePtr(name);
     }

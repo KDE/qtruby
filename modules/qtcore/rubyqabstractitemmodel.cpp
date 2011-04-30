@@ -191,4 +191,41 @@ qabstract_item_model_removecolumns(int argc, VALUE * argv, VALUE self)
     rb_raise(rb_eArgError, "Invalid argument list");
 }
 
+VALUE
+qabstract_item_model_createindex(int argc, VALUE * argv, VALUE self)
+{
+    if (argc == 2 || argc == 3) {
+        Object::Instance * instance = Object::Instance::get(self);
+        Smoke * smoke = instance->classId.smoke;
+        Smoke::ModuleIndex nameId = smoke->idMethodName("createIndex$$$");
+        Smoke::ModuleIndex meth = smoke->findMethod(Smoke::findClass("QAbstractItemModel"), nameId);
+        Smoke::Index i = meth.smoke->methodMaps[meth.index].method;
+        i = -i;     // turn into ambiguousMethodList index
+        while (smoke->ambiguousMethodList[i] != 0) {
+            if (    qstrcmp(    smoke->types[smoke->argumentList[smoke->methods[smoke->ambiguousMethodList[i]].args + 2]].name,
+                            "void*" ) == 0 )
+            {
+                const Smoke::Method &m = smoke->methods[smoke->ambiguousMethodList[i]];
+                Smoke::ClassFn fn = smoke->classes[m.classId].classFn;
+                Smoke::StackItem stack[4];
+                stack[1].s_int = NUM2INT(argv[0]);
+                stack[2].s_int = NUM2INT(argv[1]);
+
+                if (argc == 2) {
+                    stack[3].s_voidp = (void*) Qnil;
+                } else {
+                    stack[3].s_voidp = (void*) argv[2];
+                }
+
+                (*fn)(m.method, instance->value, stack);
+                return Global::wrapInstance(Smoke::findClass("QModelIndex"), stack[0].s_voidp, Object::ScriptOwnership);
+            }
+
+            i++;
+        }
+    }
+
+    return rb_call_super(argc, argv);
+}
+
 }
