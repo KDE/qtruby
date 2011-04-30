@@ -16,6 +16,7 @@ target_link_libraries(rubyqtdbus
 )
 set_target_properties(rubyqtdbus PROPERTIES PREFIX "" OUTPUT_NAME qtdbus)
 install(TARGETS rubyqtdbus DESTINATION ${CUSTOM_RUBY_SITE_ARCH_DIR})
+install(FILES qtdbus.rb DESTINATION ${CUSTOM_RUBY_SITE_LIB_DIR}/qtdbus)
 
 if (Q_WS_MAC)
     install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CUSTOM_RUBY_SITE_ARCH_DIR}/qtdbus.so\"  \"${CUSTOM_RUBY_SITE_ARCH_DIR}/qtdbus.bundle\" )" )

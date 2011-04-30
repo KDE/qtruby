@@ -43,7 +43,7 @@ Init_qtgui()
     QtRuby::Marshall::installHandlers(QtRuby::QtGuiHandlers);
     QtRuby::Global::defineTypeResolver(QtRuby::Global::QGraphicsItemClassId,
                                          QtRuby::qgraphicsitemTypeResolver);
-    
+
     rb_require("qtgui/qtgui.rb");
 
     Smoke * smoke = qtgui_Smoke;

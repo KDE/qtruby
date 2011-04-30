@@ -7,6 +7,7 @@ include_directories(
 
 set(rubyqtcore_LIBRARY_SRC
     qtcore.cpp
+    rubyqabstractitemmodel.cpp
     rubyqobject.cpp
     typeresolver.cpp
     qtcorehandlers.cpp)

@@ -27,12 +27,47 @@
 #include <utils.h>
 #include <object.h>
 
+#include "rubyqabstractitemmodel.h"
 #include "rubyqobject.h"
 #include "typeresolver.h"
+
+extern bool qRegisterResourceData(int, const unsigned char *, const unsigned char *, const unsigned char *);
+extern bool qUnregisterResourceData(int, const unsigned char *, const unsigned char *, const unsigned char *);
 
 namespace QtRuby {
 extern Marshall::TypeHandler QtCoreHandlers[];
 extern void registerQtCoreTypes();
+
+static VALUE
+q_register_resource_data(VALUE /*self*/, VALUE version, VALUE tree_value, VALUE name_value, VALUE data_value)
+{
+    const unsigned char * tree = (const unsigned char *) malloc(RSTRING_LEN(tree_value));
+    memcpy((void *) tree, (const void *) RSTRING_PTR(tree_value), RSTRING_LEN(tree_value));
+
+    const unsigned char * name = (const unsigned char *) malloc(RSTRING_LEN(name_value));
+    memcpy((void *) name, (const void *) RSTRING_PTR(name_value), RSTRING_LEN(name_value));
+
+    const unsigned char * data = (const unsigned char *) malloc(RSTRING_LEN(data_value));
+    memcpy((void *) data, (const void *) RSTRING_PTR(data_value), RSTRING_LEN(data_value));
+
+    return qRegisterResourceData(NUM2INT(version), tree, name, data) ? Qtrue : Qfalse;
+}
+
+static VALUE
+q_unregister_resource_data(VALUE /*self*/, VALUE version, VALUE tree_value, VALUE name_value, VALUE data_value)
+{
+    const unsigned char * tree = (const unsigned char *) malloc(RSTRING_LEN(tree_value));
+    memcpy((void *) tree, (const void *) RSTRING_PTR(tree_value), RSTRING_LEN(tree_value));
+
+    const unsigned char * name = (const unsigned char *) malloc(RSTRING_LEN(name_value));
+    memcpy((void *) name, (const void *) RSTRING_PTR(name_value), RSTRING_LEN(name_value));
+
+    const unsigned char * data = (const unsigned char *) malloc(RSTRING_LEN(data_value));
+    memcpy((void *) data, (const void *) RSTRING_PTR(data_value), RSTRING_LEN(data_value));
+
+    return qUnregisterResourceData(NUM2INT(version), tree, name, data) ? Qtrue : Qfalse;
+}
+
 }
 
 extern "C" {
@@ -50,6 +85,7 @@ Init_qtcore()
     QtRuby::Global::QDateTimeClassId = qtcore_Smoke->idClass("QDateTime");
     QtRuby::Global::QTimeClassId = qtcore_Smoke->idClass("QTime");
     QtRuby::Global::QEventClassId = qtcore_Smoke->idClass("QEvent");
+    QtRuby::Global::QVariantClassId = qtcore_Smoke->idClass("QVariant");
 
     QtRuby::Marshall::installHandlers(QtRuby::QtCoreHandlers);
 
@@ -75,8 +111,11 @@ Init_qtcore()
                                     (VALUE (*) (...)) QtRuby::qobject_qt_metacast,
                                     1 );
 
+    rb_define_module_function(QtRuby::Global::QtModule, "qRegisterResourceData", (VALUE (*) (...)) QtRuby::q_register_resource_data, 4);
+    rb_define_module_function(QtRuby::Global::QtModule, "qUnregisterResourceData", (VALUE (*) (...)) QtRuby::q_unregister_resource_data, 4);
+
     rb_require("qtcore/qtcore.rb");
-    
+
     Smoke * smoke = qtcore_Smoke;
     for (int i = 1; i <= smoke->numClasses; i++) {
         Smoke::ModuleIndex classId(smoke, i);
@@ -93,6 +132,45 @@ Init_qtcore()
             className = className.mid(1).prepend("Qt::");
 
         VALUE klass = QtRuby::Global::initializeClass(classId, className);
+
+        if (className == "QAbstractTableModel") {
+            QtRuby::Global::QTableModelClass = rb_define_class_under(QtRuby::Global::QtModule, "TableModel", klass);
+            rb_define_method(QtRuby::Global::QTableModelClass, "rowCount", (VALUE (*) (...)) QtRuby::qabstract_item_model_rowcount, -1);
+            rb_define_method(QtRuby::Global::QTableModelClass, "row_count", (VALUE (*) (...)) QtRuby::qabstract_item_model_rowcount, -1);
+            rb_define_method(QtRuby::Global::QTableModelClass, "columnCount", (VALUE (*) (...)) QtRuby::qabstract_item_model_columncount, -1);
+            rb_define_method(QtRuby::Global::QTableModelClass, "column_count", (VALUE (*) (...)) QtRuby::qabstract_item_model_columncount, -1);
+            rb_define_method(QtRuby::Global::QTableModelClass, "data", (VALUE (*) (...)) QtRuby::qabstract_item_model_data, -1);
+            rb_define_method(QtRuby::Global::QTableModelClass, "setData", (VALUE (*) (...)) QtRuby::qabstract_item_model_setdata, -1);
+            rb_define_method(QtRuby::Global::QTableModelClass, "set_data", (VALUE (*) (...)) QtRuby::qabstract_item_model_setdata, -1);
+            rb_define_method(QtRuby::Global::QTableModelClass, "flags", (VALUE (*) (...)) QtRuby::qabstract_item_model_flags, 1);
+            rb_define_method(QtRuby::Global::QTableModelClass, "insertRows", (VALUE (*) (...)) QtRuby::qabstract_item_model_insertrows, -1);
+            rb_define_method(QtRuby::Global::QTableModelClass, "insert_rows", (VALUE (*) (...)) QtRuby::qabstract_item_model_insertrows, -1);
+            rb_define_method(QtRuby::Global::QTableModelClass, "insertColumns", (VALUE (*) (...)) QtRuby::qabstract_item_model_insertcolumns, -1);
+            rb_define_method(QtRuby::Global::QTableModelClass, "insert_columns", (VALUE (*) (...)) QtRuby::qabstract_item_model_insertcolumns, -1);
+            rb_define_method(QtRuby::Global::QTableModelClass, "removeRows", (VALUE (*) (...)) QtRuby::qabstract_item_model_removerows, -1);
+            rb_define_method(QtRuby::Global::QTableModelClass, "remove_rows", (VALUE (*) (...)) QtRuby::qabstract_item_model_removerows, -1);
+            rb_define_method(QtRuby::Global::QTableModelClass, "removeColumns", (VALUE (*) (...)) QtRuby::qabstract_item_model_removecolumns, -1);
+            rb_define_method(QtRuby::Global::QTableModelClass, "remove_columns", (VALUE (*) (...)) QtRuby::qabstract_item_model_removecolumns, -1);
+
+            QtRuby::Global::QListModelClass = rb_define_class_under(QtRuby::Global::QtModule, "ListModel", klass);
+            rb_define_method(QtRuby::Global::QListModelClass, "rowCount", (VALUE (*) (...)) QtRuby::qabstract_item_model_rowcount, -1);
+            rb_define_method(QtRuby::Global::QListModelClass, "row_count", (VALUE (*) (...)) QtRuby::qabstract_item_model_rowcount, -1);
+            rb_define_method(QtRuby::Global::QListModelClass, "columnCount", (VALUE (*) (...)) QtRuby::qabstract_item_model_columncount, -1);
+            rb_define_method(QtRuby::Global::QListModelClass, "column_count", (VALUE (*) (...)) QtRuby::qabstract_item_model_columncount, -1);
+            rb_define_method(QtRuby::Global::QListModelClass, "data", (VALUE (*) (...)) QtRuby::qabstract_item_model_data, -1);
+            rb_define_method(QtRuby::Global::QListModelClass, "setData", (VALUE (*) (...)) QtRuby::qabstract_item_model_setdata, -1);
+            rb_define_method(QtRuby::Global::QListModelClass, "set_data", (VALUE (*) (...)) QtRuby::qabstract_item_model_setdata, -1);
+            rb_define_method(QtRuby::Global::QListModelClass, "flags", (VALUE (*) (...)) QtRuby::qabstract_item_model_flags, 1);
+            rb_define_method(QtRuby::Global::QListModelClass, "insertRows", (VALUE (*) (...)) QtRuby::qabstract_item_model_insertrows, -1);
+            rb_define_method(QtRuby::Global::QListModelClass, "insert_rows", (VALUE (*) (...)) QtRuby::qabstract_item_model_insertrows, -1);
+            rb_define_method(QtRuby::Global::QListModelClass, "insertColumns", (VALUE (*) (...)) QtRuby::qabstract_item_model_insertcolumns, -1);
+            rb_define_method(QtRuby::Global::QListModelClass, "insert_columns", (VALUE (*) (...)) QtRuby::qabstract_item_model_insertcolumns, -1);
+            rb_define_method(QtRuby::Global::QListModelClass, "removeRows", (VALUE (*) (...)) QtRuby::qabstract_item_model_removerows, -1);
+            rb_define_method(QtRuby::Global::QListModelClass, "remove_rows", (VALUE (*) (...)) QtRuby::qabstract_item_model_removerows, -1);
+            rb_define_method(QtRuby::Global::QListModelClass, "removeColumns", (VALUE (*) (...)) QtRuby::qabstract_item_model_removecolumns, -1);
+            rb_define_method(QtRuby::Global::QListModelClass, "remove_columns", (VALUE (*) (...)) QtRuby::qabstract_item_model_removecolumns, -1);
+        }
+
         // VALUE name = rb_funcall(klass, rb_intern("name"), 0);
         // qDebug() << "name:" << StringValuePtr(name);
     }

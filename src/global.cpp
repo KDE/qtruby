@@ -56,6 +56,9 @@ VALUE QtModule;
 VALUE QtInternalModule;
 VALUE QtBaseClass;
 
+VALUE QTableModelClass;
+VALUE QListModelClass;
+
 QHash<Smoke*, Module> modules;
 
 typedef QHash<const void *, QtRuby::Object> RubyValuesMap;

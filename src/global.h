@@ -35,7 +35,7 @@ namespace QtRuby {
 
     namespace Global {
         QTRUBY_EXPORT extern QHash<Smoke*, Module> modules;
-        
+
         QTRUBY_EXPORT extern Smoke::ModuleIndex QObjectClassId;
         QTRUBY_EXPORT extern Smoke::ModuleIndex QMetaObjectClassId;
         QTRUBY_EXPORT extern Smoke::ModuleIndex QDateClassId;
@@ -43,37 +43,41 @@ namespace QtRuby {
         QTRUBY_EXPORT extern Smoke::ModuleIndex QTimeClassId;
         QTRUBY_EXPORT extern Smoke::ModuleIndex QEventClassId;
         QTRUBY_EXPORT extern Smoke::ModuleIndex QGraphicsItemClassId;
-        
+        QTRUBY_EXPORT extern Smoke::ModuleIndex QVariantClassId;
+
         QTRUBY_EXPORT extern VALUE QtEnum;
 
         QTRUBY_EXPORT extern VALUE QtModule;
         QTRUBY_EXPORT extern VALUE QtInternalModule;
         QTRUBY_EXPORT extern VALUE QtBaseClass;
-        
+
+        QTRUBY_EXPORT extern VALUE QTableModelClass;
+        QTRUBY_EXPORT extern VALUE QListModelClass;
+
         QTRUBY_EXPORT VALUE getRubyValue(const void * ptr);
-        
+
         QTRUBY_EXPORT void unmapPointer(    Object::Instance * instance,
                                             const Smoke::ModuleIndex& classId, 
                                             void * lastptr = 0 );
-                                                
+
         QTRUBY_EXPORT void mapPointer(  VALUE obj,
                                         Object::Instance * instance, 
                                         const Smoke::ModuleIndex& classId, 
                                         void * lastptr = 0 );
-                                        
+
         QTRUBY_EXPORT VALUE rubyClassFromId(const Smoke::ModuleIndex& classId);
         QTRUBY_EXPORT QByteArray rubyClassNameFromId(const Smoke::ModuleIndex& classId);
         QTRUBY_EXPORT Smoke::ModuleIndex idFromRubyClass(VALUE klass);
-                                                                                                
+
         QTRUBY_EXPORT VALUE wrapInstance(   const Smoke::ModuleIndex& classId,
                                             void * ptr,
                                             Object::ValueOwnership ownership = Object::QtOwnership,
                                             VALUE klass = Qnil);
-        
+
         QTRUBY_EXPORT void defineMethod(const Smoke::ModuleIndex& classId, const char* name, VALUE (*func)(ANYARGS), int argc);
         QTRUBY_EXPORT void defineTypeResolver(const Smoke::ModuleIndex& baseClass, Object::TypeResolver);
         QTRUBY_EXPORT void resolveType(Object::Instance * instance);
-        
+
         QTRUBY_EXPORT void initialize();
         QTRUBY_EXPORT VALUE initializeClass(    const Smoke::ModuleIndex& classId,
                                                 const QString& rubyClassName );
