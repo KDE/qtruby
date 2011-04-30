@@ -17,6 +17,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <QtDBus/QDBusArgument>
+
 #include <global.h>
 #include <marshall.h>
 
@@ -25,6 +27,43 @@
 namespace QtRuby {
 extern Marshall::TypeHandler QtDBusHandlers[];
 extern void registerQtDBusTypes();
+
+static VALUE
+qdbusargument_endarraywrite(VALUE self)
+{
+    Object::Instance * instance = Object::Instance::get(self);
+    QDBusArgument * arg = reinterpret_cast<QDBusArgument *>(instance->value);
+    arg->endArray();
+    return self;
+}
+
+static VALUE
+qdbusargument_endmapwrite(VALUE self)
+{
+    Object::Instance * instance = Object::Instance::get(self);
+    QDBusArgument * arg = reinterpret_cast<QDBusArgument *>(instance->value);
+    arg->endMap();
+    return self;
+}
+
+static VALUE
+qdbusargument_endmapentrywrite(VALUE self)
+{
+    Object::Instance * instance = Object::Instance::get(self);
+    QDBusArgument * arg = reinterpret_cast<QDBusArgument *>(instance->value);
+    arg->endMapEntry();
+    return self;
+}
+
+static VALUE
+qdbusargument_endstructurewrite(VALUE self)
+{
+    Object::Instance * instance = Object::Instance::get(self);
+    QDBusArgument * arg = reinterpret_cast<QDBusArgument *>(instance->value);
+    arg->endStructure();
+    return self;
+}
+
 }
 
 extern "C" {
@@ -55,6 +94,17 @@ Init_qtdbus()
             className = className.mid(1).prepend("Qt::");
 
         VALUE klass = QtRuby::Global::initializeClass(classId, className);
+
+        if (className == "QDBusArgument") {
+            rb_define_method(klass, "endArrayWrite", (VALUE (*) (...)) QtRuby::qdbusargument_endarraywrite, 0);
+            rb_define_method(klass, "end_array_write", (VALUE (*) (...)) QtRuby::qdbusargument_endarraywrite, 0);
+            rb_define_method(klass, "endMapEntryWrite", (VALUE (*) (...)) QtRuby::qdbusargument_endmapentrywrite, 0);
+            rb_define_method(klass, "end_map_entry_write", (VALUE (*) (...)) QtRuby::qdbusargument_endmapentrywrite, 0);
+            rb_define_method(klass, "endMapWrite", (VALUE (*) (...)) QtRuby::qdbusargument_endmapwrite, 0);
+            rb_define_method(klass, "end_map_write", (VALUE (*) (...)) QtRuby::qdbusargument_endmapwrite, 0);
+            rb_define_method(klass, "endStructureWrite", (VALUE (*) (...)) QtRuby::qdbusargument_endstructurewrite, 0);
+            rb_define_method(klass, "end_structure_write", (VALUE (*) (...)) QtRuby::qdbusargument_endstructurewrite, 0);
+        }
     }
 
     QtRuby::registerQtDBusTypes();
