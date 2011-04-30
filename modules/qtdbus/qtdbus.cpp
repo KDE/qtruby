@@ -37,6 +37,8 @@ Init_qtdbus()
     QtRuby::Global::modules[qtdbus_Smoke] = qtdbus_module;
     QtRuby::Marshall::installHandlers(QtRuby::QtDBusHandlers);
 
+    rb_require("qtdbus/qtdbus.rb");
+
     Smoke * smoke = qtdbus_Smoke;
     for (int i = 1; i <= smoke->numClasses; i++) {
         Smoke::ModuleIndex classId(smoke, i);
