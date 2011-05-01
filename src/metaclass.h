@@ -14,12 +14,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public 
+ * You should have received a copy of the GNU Lesser General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef QTRUBY_METAOBJECT_H
-#define QTRUBY_METAOBJECT_H
+#ifndef QTRUBY_METACLASS_H
+#define QTRUBY_METACLASS_H
 
 #include <smoke.h>
 #include <ruby.h>
@@ -33,11 +33,11 @@
 #include "object.h"
 
 namespace QtRuby {
-    
-    struct QTRUBY_EXPORT MetaObject
+
+    struct QTRUBY_EXPORT MetaClass
     {
     public:
-        MetaObject() : resolver(0), mark(0), free(0) {}
+        MetaClass() : resolver(0), mark(0), free(0) {}
 
         typedef VALUE (*CFunc)(ANYARGS);
 
@@ -46,16 +46,16 @@ namespace QtRuby {
             CFunc func;
             int argc;
         };
-        
+
         Smoke::ModuleIndex classId;
         inline const char * className()
         {
             return classId.smoke->classes[classId.index].className;
         }
-            
+
         VALUE rubyClass;
         const char * rubyClassName();
-        
+
         QVector<RubyMethod> rubyMethods;
         Object::TypeResolver resolver;
         RUBY_DATA_FUNC mark;
@@ -63,4 +63,4 @@ namespace QtRuby {
     };
 }
 
-#endif // QTRUBY_METAOBJECT_H
+#endif // QTRUBY_METACLASS_H

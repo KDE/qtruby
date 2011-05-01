@@ -35,16 +35,16 @@ MethodCall::ArgumentTypeConversion::ArgumentTypeConversion(Smoke::ModuleIndex me
 {
     m_stack = new Smoke::StackItem[method().numArgs + 1];
     QByteArray methodName(m_methodId.smoke->methodNames[method().name]);
-    
+
     if (methodName.startsWith("operator ")) {
         m_type.set(m_methodId.smoke, method().ret);
     } else {
         m_type.set(m_methodId.smoke, (m_methodId.smoke->argumentList + method().args)[0]);
     }
-    
+
     Marshall::HandlerFn handlerFn = getMarshallFn(type());
     (*handlerFn)(this);
-    
+
     // Note that the method called can be in one of two forms:
     //      1) A constructor 'Foobar::Foobar(value)',
     //      2) A 'value::operator Foobar()' method. 
@@ -69,19 +69,19 @@ MethodCall::ArgumentTypeConversion::~ArgumentTypeConversion()
         className = m_methodId.smoke->classes[method().classId].className;
         classId = Smoke::ModuleIndex(m_methodId.smoke, method().classId);
     }
-    
+
     QByteArray destructorName(className);
     destructorName.prepend("~");
     Smoke::ModuleIndex nameId = classId.smoke->findMethodName(className, destructorName);
     Smoke::ModuleIndex methodId = classId.smoke->findMethod(classId, nameId);
-    
+
     if (methodId != Smoke::NullModuleIndex) {
         Smoke::Method &methodRef = classId.smoke->methods[classId.smoke->methodMaps[methodId.index].method];
         Smoke::ClassFn fn = classId.smoke->classes[methodRef.classId].classFn;
         m_stack[1] = m_stack[0];
         (*fn)(methodRef.method, m_stack[1].s_voidp, m_stack);
     }
-    
+
     delete[] m_stack; 
 }
 
@@ -155,7 +155,7 @@ MethodCall::~MethodCall()
 void MethodCall::unsupported()
 {
     m_error = true;
-    
+
     if (qstrcmp(m_smoke->className(m_methodRef.classId), "QGlobalSpace") == 0) {
         rb_raise(   rb_eArgError,
                     "Cannot handle '%s' as argument to %s",
@@ -175,9 +175,9 @@ void MethodCall::callMethod()
     if (m_called || m_error) {
         return;
     }
-    
+
     m_called = true;
-    
+
     if (m_target == Qnil && !(m_methodRef.flags & Smoke::mf_static)) {
         rb_raise(rb_eArgError, "%s is not a class method\n", m_smoke->methodNames[m_methodRef.name]);
     }
@@ -188,9 +188,9 @@ void MethodCall::callMethod()
     if (m_instance != 0 && !m_instance->isNull()) {
         ptr = m_instance->cast(Smoke::ModuleIndex(m_smoke, m_methodRef.classId));
     }
-    
+
     (*fn)(m_methodRef.method, ptr, m_stack);
-    
+
     if ((m_methodRef.flags & Smoke::mf_ctor) != 0) {
         Smoke::StackItem initializeInstanceStack[2];
         initializeInstanceStack[1].s_voidp = Global::modules[m_smoke].binding;
@@ -219,7 +219,7 @@ void MethodCall::next()
 {
     int previous = m_current;
     m_current++;
-    
+
     while (!m_called && !m_error && m_current < m_methodRef.numArgs) {
         if (hasTypeConversion()) {
             ArgumentTypeConversion conversion(typeConversion(), item(), *var());
@@ -228,10 +228,10 @@ void MethodCall::next()
             Marshall::HandlerFn fn = getMarshallFn(type());
             (*fn)(this);
         }
-        
+
         m_current++;
     }
-    
+
     callMethod();
     m_current = previous;
 }

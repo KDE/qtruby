@@ -14,20 +14,20 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public 
+ * You should have received a copy of the GNU Lesser General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "metaobject.h"
+#include "metaclass.h"
 
 namespace QtRuby {
-    
-    const char * MetaObject::rubyClassName()
-    {
-        VALUE name = rb_funcall(rubyClass, rb_intern("name"), 0);
-        return StringValuePtr(name);
-    }
-    
+
+const char * MetaClass::rubyClassName()
+{
+    VALUE name = rb_funcall(rubyClass, rb_intern("name"), 0);
+    return StringValuePtr(name);
+}
+
 }
 
 // kate: space-indent on; indent-width 4; replace-tabs on; mixed-indent off;

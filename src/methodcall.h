@@ -34,12 +34,12 @@
 namespace QtRuby {
 
     class QTRUBY_EXPORT MethodCall : public Marshall {
-        
+
        class ArgumentTypeConversion : Marshall {
         public:
             ArgumentTypeConversion(Smoke::ModuleIndex methodId, Smoke::StackItem& item, VALUE& value);
             ~ArgumentTypeConversion();
-            
+
             inline const Smoke::Method &method() { return m_methodId.smoke->methods[m_methodId.index]; }
             inline SmokeType type() { return m_type; }
             inline Marshall::Action action() { return Marshall::FromVALUE; }
@@ -50,7 +50,7 @@ namespace QtRuby {
 
             void unsupported();
             void next();
-            
+
         private:
             Smoke::ModuleIndex m_methodId;
             Smoke::StackItem& m_item;
@@ -58,7 +58,7 @@ namespace QtRuby {
             VALUE& m_value;
             Smoke::Stack m_stack;
         };
-        
+
         class ReturnValue : Marshall {
         public:
             ReturnValue(Smoke::ModuleIndex methodId, Smoke::Stack stack, VALUE * returnValue);
@@ -73,13 +73,13 @@ namespace QtRuby {
 
             void unsupported();
             void next();
-            
+
         private:
             Smoke::ModuleIndex m_methodId;
             Smoke::Stack m_stack;
             VALUE * m_returnValue;
         };
-        
+
     public:
         MethodCall( const QVector<Smoke::ModuleIndex>& methodIds,
                     VALUE target,
@@ -93,7 +93,7 @@ namespace QtRuby {
             if (m_current < 0 || m_error) {
                 return &m_returnValue;
             }
-            
+
             return &(m_valueList[m_current]);
         }
         inline Smoke *smoke() { return m_smoke; }
@@ -103,12 +103,12 @@ namespace QtRuby {
 
         void callMethod();
         void next();
-        
+
         inline bool hasTypeConversion() {
             return  (m_current + 1) < m_methodIds.count()
                     && m_methodIds[m_current + 1] != Smoke::NullModuleIndex;
         }
-        
+
         inline Smoke::ModuleIndex typeConversion() {
             return m_methodIds[m_current + 1];
         }

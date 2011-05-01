@@ -32,7 +32,7 @@
 #include "debug.h"
 #include "funcall.h"
 #include "methodmissing.h"
-#include "metaobject.h"
+#include "metaclass.h"
 
 static uint qHash(const Smoke::ModuleIndex& mi) {
     return qHash(mi.index) ^ qHash(mi.smoke);
@@ -66,11 +66,11 @@ QHash<Smoke*, Module> modules;
 typedef QHash<const void *, QtRuby::Object> RubyValuesMap;
 Q_GLOBAL_STATIC(RubyValuesMap, rubyValues)
 
-typedef QHash<Smoke::ModuleIndex, QtRuby::MetaObject *> MetaObjectsMap;
-Q_GLOBAL_STATIC(MetaObjectsMap, metaObjects)
+typedef QHash<Smoke::ModuleIndex, QtRuby::MetaClass *> MetaClasssMap;
+Q_GLOBAL_STATIC(MetaClasssMap, metaClasses)
 
-typedef QHash<VALUE, QtRuby::MetaObject *> RubyMetaObjectsMap;
-Q_GLOBAL_STATIC(RubyMetaObjectsMap, rubyMetaObjects)
+typedef QHash<VALUE, QtRuby::MetaClass *> RubyMetaClasssMap;
+Q_GLOBAL_STATIC(RubyMetaClasssMap, rubyMetaClasses)
 
 VALUE
 getRubyValue(const void *ptr)
@@ -96,18 +96,18 @@ unmapPointer(Object::Instance * instance, const Smoke::ModuleIndex& classId, voi
 {
     Smoke * smoke = classId.smoke;
     void * ptr = instance->cast(classId);
-    
+
     if (ptr != lastptr) {
         lastptr = ptr;
         if (rubyValues() && rubyValues()->contains(ptr)) {
             VALUE value = rubyValues()->operator[](ptr).value;
-            
+
             if (Debug::DoDebug & Debug::GC) {
                 Object::Instance * instance = Object::Instance::get(value);
                 const char *className = instance->classId.smoke->classes[instance->classId.index].className;
                 qWarning("QtRuby::Global::unmapPointer (%s*)%p -> 0x%8.8x size: %d", className, ptr, static_cast<uint>(value), rubyValues()->size() - 1);
             }
-            
+
             rubyValues()->remove(ptr);
         }
     }
@@ -134,20 +134,20 @@ mapPointer(VALUE obj, Object::Instance * instance, const Smoke::ModuleIndex& cla
 {
     Smoke * smoke = classId.smoke;
     void * ptr = instance->cast(classId);
-     
+
     if (ptr != lastptr) {
         lastptr = ptr; 
-        
+
         if (Debug::DoDebug & Debug::GC) {
             Object::Instance * instance = Object::Instance::get(obj);
             const char *className = instance->classId.smoke->classes[instance->classId.index].className;
             qWarning("QtRuby::Global::mapPointer (%s*)%p -> %p size: %d", className, ptr, (void*)obj, rubyValues()->size() + 1);
         }
-        
+
         QtRuby::Object value(obj, instance);
         rubyValues()->insert(ptr, value);
     }
-    
+
     for (   Smoke::Index * parent = smoke->inheritanceList + smoke->classes[classId.index].parents; 
             *parent != 0; 
             parent++ ) 
@@ -161,15 +161,15 @@ mapPointer(VALUE obj, Object::Instance * instance, const Smoke::ModuleIndex& cla
             mapPointer(obj, instance, Smoke::ModuleIndex(smoke, *parent), lastptr);
         }
     }
-    
+
     return;
 }
 
 QByteArray
 rubyClassNameFromId(const Smoke::ModuleIndex& classId)
 {
-    if (metaObjects()->contains(classId))
-        return QByteArray(metaObjects()->value(classId)->rubyClassName());
+    if (metaClasses()->contains(classId))
+        return QByteArray(metaClasses()->value(classId)->rubyClassName());
     else
         return QByteArray();
 }
@@ -177,8 +177,8 @@ rubyClassNameFromId(const Smoke::ModuleIndex& classId)
 VALUE
 rubyClassFromId(const Smoke::ModuleIndex& classId)
 {
-    if (metaObjects()->contains(classId))
-        return metaObjects()->value(classId)->rubyClass;
+    if (metaClasses()->contains(classId))
+        return metaClasses()->value(classId)->rubyClass;
     else
         return Qnil;
 }
@@ -186,8 +186,8 @@ rubyClassFromId(const Smoke::ModuleIndex& classId)
 Smoke::ModuleIndex
 idFromRubyClass(VALUE klass)
 {
-    if (rubyMetaObjects()->contains(klass))
-        return rubyMetaObjects()->value(klass)->classId;
+    if (rubyMetaClasses()->contains(klass))
+        return rubyMetaClasses()->value(klass)->classId;
     else
         return Smoke::NullModuleIndex;
 }
@@ -196,7 +196,7 @@ VALUE
 wrapInstance(const Smoke::ModuleIndex& classId, void * ptr, Object::ValueOwnership ownership, VALUE klass)
 {
     // qDebug() << Q_FUNC_INFO << "className:" << classId.smoke->classes[classId.index].className << " ownership:" << ownership;
-    
+
     Object::Instance * instance = new Object::Instance();
     instance->classId = classId;
     instance->value = ptr;
@@ -206,10 +206,10 @@ wrapInstance(const Smoke::ModuleIndex& classId, void * ptr, Object::ValueOwnersh
     if (klass == Qnil)
         klass = rubyClassFromId(classId);
 
-    Q_ASSERT(metaObjects()->contains(classId));
-    MetaObject * meta = metaObjects()->value(classId);
+    Q_ASSERT(metaClasses()->contains(classId));
+    MetaClass * meta = metaClasses()->value(classId);
     VALUE obj = Data_Wrap_Struct(klass, meta->mark, meta->free, (void *) instance);
-    
+
     if (ownership != Object::QtOwnership) {
         mapPointer(obj, instance, instance->classId);
     }
@@ -217,15 +217,15 @@ wrapInstance(const Smoke::ModuleIndex& classId, void * ptr, Object::ValueOwnersh
     return obj;
 }
 
-static MetaObject *
-createMetaObject(const  Smoke::ModuleIndex& classId)
+static MetaClass *
+createMetaClass(const  Smoke::ModuleIndex& classId)
 {
-    MetaObject * meta = 0;
-    if (metaObjects()->contains(classId)) {
-        meta = metaObjects()->value(classId);
+    MetaClass * meta = 0;
+    if (metaClasses()->contains(classId)) {
+        meta = metaClasses()->value(classId);
     } else {
-        meta = new MetaObject();
-        metaObjects()->insert(classId, meta);
+        meta = new MetaClass();
+        metaClasses()->insert(classId, meta);
     }
 
     return meta;
@@ -234,8 +234,8 @@ createMetaObject(const  Smoke::ModuleIndex& classId)
 void
 defineMethod(const Smoke::ModuleIndex& classId, const char* name, VALUE (*func)(ANYARGS), int argc)
 {
-    MetaObject * meta = createMetaObject(classId);
-    MetaObject::RubyMethod method;
+    MetaClass * meta = createMetaClass(classId);
+    MetaClass::RubyMethod method;
     method.name = QByteArray(name);
     method.func = func;
     method.argc = argc;
@@ -245,15 +245,15 @@ defineMethod(const Smoke::ModuleIndex& classId, const char* name, VALUE (*func)(
 void 
 defineTypeResolver(const Smoke::ModuleIndex& classId, Object::TypeResolver typeResolver)
 {
-    MetaObject * meta = createMetaObject(classId);
+    MetaClass * meta = createMetaClass(classId);
     meta->resolver = typeResolver;
 }
 
 void 
 resolveType(Object::Instance * instance)
 {
-    Q_ASSERT(metaObjects()->contains(instance->classId));
-    MetaObject * meta = metaObjects()->value(instance->classId);
+    Q_ASSERT(metaClasses()->contains(instance->classId));
+    MetaClass * meta = metaClasses()->value(instance->classId);
 
     if (meta->resolver != 0) {
         (*meta->resolver)(instance);
@@ -289,11 +289,11 @@ initialize()
     rb_define_singleton_method(QtBaseClass, "const_missing", (VALUE (*) (...)) class_method_missing, -1);
     rb_define_singleton_method(QtModule, "const_missing", (VALUE (*) (...)) module_method_missing, -1);
     rb_define_method(QtBaseClass, "const_missing", (VALUE (*) (...)) method_missing, -1);
-    
+
     rb_define_method(QtBaseClass, "dispose", (VALUE (*) (...)) dispose, 0);
     rb_define_method(QtBaseClass, "isDisposed", (VALUE (*) (...)) is_disposed, 0);
     rb_define_method(QtBaseClass, "disposed?", (VALUE (*) (...)) is_disposed, 0);
-    
+
     rb_define_module_function(QtInternalModule, "cast_object_to", (VALUE (*) (...)) cast_object_to, 2);
     rb_define_module_function(QtModule, "dynamic_cast", (VALUE (*) (...)) cast_object_to, 2);
 
@@ -314,13 +314,13 @@ initialize()
 }
 
 static void
-initializeMetaObject(const Smoke::ModuleIndex& classId, MetaObject * meta)
+initializeMetaClass(const Smoke::ModuleIndex& classId, MetaClass * meta)
 {
     Smoke * smoke = classId.smoke;
-    if (metaObjects()->contains(classId)) {
-        MetaObject * current = metaObjects()->value(classId);
+    if (metaClasses()->contains(classId)) {
+        MetaClass * current = metaClasses()->value(classId);
 
-        Q_FOREACH(MetaObject::RubyMethod method, current->rubyMethods) {
+        Q_FOREACH(MetaClass::RubyMethod method, current->rubyMethods) {
             rb_define_method(meta->rubyClass, method.name, method.func, method.argc);
         }
 
@@ -335,10 +335,10 @@ initializeMetaObject(const Smoke::ModuleIndex& classId, MetaObject * meta)
         if (smoke->classes[*parent].external) {
             Smoke::ModuleIndex mi = Smoke::findClass(smoke->classes[*parent].className);
             if (mi != Smoke::NullModuleIndex) {
-                initializeMetaObject(mi, meta);
+                initializeMetaClass(mi, meta);
             }
         } else {
-            initializeMetaObject(Smoke::ModuleIndex(smoke, *parent), meta);
+            initializeMetaClass(Smoke::ModuleIndex(smoke, *parent), meta);
         }
     }
 }
@@ -350,19 +350,19 @@ initializeClass(const Smoke::ModuleIndex& classId, const QString& rubyClassName)
     VALUE klass = rb_define_module(components[0].toLatin1().constData());
     rb_define_singleton_method(klass, "method_missing", (VALUE (*) (...)) module_method_missing, -1);
     rb_define_singleton_method(klass, "const_missing", (VALUE (*) (...)) module_method_missing, -1);
-    
+
     for (int i = 1; i < components.count(); ++i) {
         klass = rb_define_class_under(klass, components[i].toLatin1().constData(), QtBaseClass);
     }
 
-    MetaObject * meta = createMetaObject(classId);
+    MetaClass * meta = createMetaClass(classId);
     meta->mark = Object::mark;
     meta->free = Object::free;
     meta->rubyClass = klass;
     meta->classId = classId;
-    initializeMetaObject(classId, meta);
-    rubyMetaObjects()->insert(klass, meta);
-    
+    initializeMetaClass(classId, meta);
+    rubyMetaClasses()->insert(klass, meta);
+
     return klass;
 }
 

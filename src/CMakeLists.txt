@@ -16,7 +16,7 @@ set(    qtrubyruntime_LIB_SRCS
             funcall.cpp
             global.cpp
             object.cpp
-            metaobject.cpp
+            metaclass.cpp
             methodmissing.cpp
             prettyprint.cpp
             smokebinding.cpp
