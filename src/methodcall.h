@@ -81,7 +81,7 @@ namespace QtRuby {
         };
         
     public:
-        MethodCall( const QVector<Smoke::ModuleIndex>& methodids,
+        MethodCall( const QVector<Smoke::ModuleIndex>& methodIds,
                     VALUE target,
                     VALUE * args );
         ~MethodCall();
