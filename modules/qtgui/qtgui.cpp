@@ -18,6 +18,7 @@
  */
 
 #include <QtCore/qdebug.h>
+#include <QtGui/QApplication>
 
 #include <global.h>
 #include <marshall.h>
@@ -29,6 +30,7 @@
 namespace QtRuby {
 extern Marshall::TypeHandler QtGuiHandlers[];
 extern void registerQtGuiTypes();
+
 }
 
 extern "C" {
@@ -62,6 +64,7 @@ Init_qtgui()
             className = className.mid(1).prepend("Qt::");
 
         VALUE klass = QtRuby::Global::initializeClass(classId, className);
+
         // VALUE name = rb_funcall(klass, rb_intern("name"), 0);
         // qDebug() << "name:" << StringValuePtr(name);
     }
