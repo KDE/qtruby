@@ -41,7 +41,7 @@ static uint qHash(const Smoke::ModuleIndex& mi) {
 namespace QtRuby {
     namespace Global {
 
-        
+
 Smoke::ModuleIndex QObjectClassId;
 Smoke::ModuleIndex QMetaObjectClassId;
 Smoke::ModuleIndex QDateClassId;
@@ -49,15 +49,17 @@ Smoke::ModuleIndex QDateTimeClassId;
 Smoke::ModuleIndex QTimeClassId;
 Smoke::ModuleIndex QEventClassId;
 Smoke::ModuleIndex QGraphicsItemClassId;
-
-VALUE QtEnum;
+Smoke::ModuleIndex QVariantClassId;
 
 VALUE QtModule;
 VALUE QtInternalModule;
 VALUE QtBaseClass;
+VALUE QtEnumClass;
 
-VALUE QTableModelClass;
 VALUE QListModelClass;
+VALUE QMetaObjectClass;
+VALUE QTableModelClass;
+VALUE QVariantClass;
 
 QHash<Smoke*, Module> modules;
 
@@ -276,6 +278,7 @@ initialize()
     QtModule = rb_define_module("Qt");
     QtInternalModule = rb_define_module_under(QtModule, "Internal");
     QtBaseClass = rb_define_class_under(QtModule, "Base", rb_cObject);
+    QtEnumClass = rb_define_class_under(QtModule, "Enum", rb_cObject);
 
     rb_define_singleton_method(QtBaseClass, "new", (VALUE (*) (...)) new_qt, -1);
     rb_define_method(QtBaseClass, "initialize", (VALUE (*) (...)) initialize_qt, -1);

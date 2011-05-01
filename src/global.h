@@ -45,14 +45,15 @@ namespace QtRuby {
         QTRUBY_EXPORT extern Smoke::ModuleIndex QGraphicsItemClassId;
         QTRUBY_EXPORT extern Smoke::ModuleIndex QVariantClassId;
 
-        QTRUBY_EXPORT extern VALUE QtEnum;
-
         QTRUBY_EXPORT extern VALUE QtModule;
         QTRUBY_EXPORT extern VALUE QtInternalModule;
         QTRUBY_EXPORT extern VALUE QtBaseClass;
+        QTRUBY_EXPORT extern VALUE QtEnumClass;
 
-        QTRUBY_EXPORT extern VALUE QTableModelClass;
         QTRUBY_EXPORT extern VALUE QListModelClass;
+        QTRUBY_EXPORT extern VALUE QMetaObjectClass;
+        QTRUBY_EXPORT extern VALUE QTableModelClass;
+        QTRUBY_EXPORT extern VALUE QVariantClass;
 
         QTRUBY_EXPORT VALUE getRubyValue(const void * ptr);
 
