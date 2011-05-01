@@ -31,7 +31,7 @@ VALUE
 qobject_qt_metacast(VALUE self, VALUE klass)
 {
     Object::Instance * instance = Object::Instance::get(self);
-    if (instance == 0 || instance->value == 0) {
+    if (instance == 0 || instance->isNull()) {
         return Qnil;
     }
 

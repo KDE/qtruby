@@ -177,7 +177,7 @@ qvariant_from_value(int argc, VALUE * argv, VALUE self)
 
     if (qstrcmp(classname, "Qt::Enum") == 0) {
         return rb_funcall(Global::QVariantClass, rb_intern("new"), 1, rb_funcall(argv[0], rb_intern("to_i"), 0));
-    } else if (instance != 0 && instance->value != 0 && (type = QVariant::nameToType(instance->className()))) {
+    } else if (instance != 0 && !instance->isNull() && (type = QVariant::nameToType(instance->className()))) {
         v = new QVariant(type, instance->value);
     } else {
         int error = 0;

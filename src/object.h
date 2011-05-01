@@ -52,6 +52,8 @@ namespace QtRuby {
                 return classId.smoke->classes[classId.index].className;
             }
 
+            inline bool isNull() { return value == 0; }
+
             inline void * cast(const Smoke::ModuleIndex targetId)
             {
                 return classId.smoke->cast(value, classId, targetId);

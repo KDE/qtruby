@@ -150,7 +150,7 @@ VALUE
 is_disposed(VALUE self)
 {
     Object::Instance * instance = Object::Instance::get(self);
-    return (instance != 0 && instance->value != 0) ? Qfalse : Qtrue;
+    return (instance != 0 && !instance->isNull()) ? Qfalse : Qtrue;
 }
 
 

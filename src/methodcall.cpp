@@ -185,7 +185,7 @@ void MethodCall::callMethod()
     Smoke::ClassFn fn = m_smoke->classes[m_methodRef.classId].classFn;
     void *ptr = 0;
 
-    if (m_instance != 0 && m_instance->value != 0) {
+    if (m_instance != 0 && !m_instance->isNull()) {
         ptr = m_instance->cast(Smoke::ModuleIndex(m_smoke, m_methodRef.classId));
     }
     

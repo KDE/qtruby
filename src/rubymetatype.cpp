@@ -260,7 +260,7 @@ convertFromRubyValue(VALUE value, int type, void *ptr)
             return false;
 
         Object::Instance * instance = Object::Instance::get(value);
-        if (instance == 0 || instance->value == 0) {
+        if (instance == 0 || instance->isNull()) {
             return false;
         } else {
             ptr = instance->cast(classId);

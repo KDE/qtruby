@@ -89,7 +89,7 @@ VALUE method_missing(int argc, VALUE * argv, VALUE self)
     // qDebug() << Q_FUNC_INFO << "selector:" << selector;
     Object::Instance * instance = Object::Instance::get(self);
 
-    if (instance == 0 || instance->value == 0) {
+    if (instance == 0 || instance->isNull()) {
         return rb_call_super(argc, argv);
     }
 

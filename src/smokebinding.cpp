@@ -106,7 +106,7 @@ void Binding::deleted(Smoke::Index classId, void* ptr)
         qWarning("%p->~%s()", ptr, smoke->className(classId));
     }
     
-    if (instance == 0 || instance->value == 0) {
+    if (instance == 0 || instance->isNull()) {
         return;
     }
     

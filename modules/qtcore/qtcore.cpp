@@ -50,7 +50,7 @@ static VALUE
 qchar_to_s(VALUE self)
 {
     Object::Instance * instance = Object::Instance::get(self);
-    if (instance == 0 || instance->value == 0) {
+    if (instance == 0 || instance->isNull()) {
         return Qnil;
     }
 
