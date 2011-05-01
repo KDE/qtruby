@@ -9,6 +9,7 @@ set(rubyqtcore_LIBRARY_SRC
     qtcore.cpp
     rubyqabstractitemmodel.cpp
     rubyqobject.cpp
+    rubyqvariant.cpp
     typeresolver.cpp
     qtcorehandlers.cpp)
 

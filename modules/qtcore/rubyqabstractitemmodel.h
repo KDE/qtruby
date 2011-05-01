@@ -25,16 +25,17 @@
 #include "qtruby_export.h"
 
 namespace QtRuby {
-    extern VALUE qabstract_item_model_rowcount(int argc, VALUE * argv, VALUE self);
-    extern VALUE qabstract_item_model_insertrows(int argc, VALUE * argv, VALUE self);
-    extern VALUE qabstract_item_model_columncount(int argc, VALUE * argv, VALUE self);
-    extern VALUE qabstract_item_model_data(int argc, VALUE * argv, VALUE self);
-    extern VALUE qabstract_item_model_setdata(int argc, VALUE * argv, VALUE self);
-    extern VALUE qabstract_item_model_flags(VALUE self, VALUE model_index);
-    extern VALUE qabstract_item_model_insertcolumns(int argc, VALUE * argv, VALUE self);
-    extern VALUE qabstract_item_model_removerows(int argc, VALUE * argv, VALUE self);
-    extern VALUE qabstract_item_model_removecolumns(int argc, VALUE * argv, VALUE self);
-    extern VALUE qabstract_item_model_createindex(int argc, VALUE * argv, VALUE self);
+    extern VALUE qmodelindex_internalpointer(VALUE self);
+    extern VALUE qabstractitemmodel_rowcount(int argc, VALUE * argv, VALUE self);
+    extern VALUE qabstractitemmodel_insertrows(int argc, VALUE * argv, VALUE self);
+    extern VALUE qabstractitemmodel_columncount(int argc, VALUE * argv, VALUE self);
+    extern VALUE qabstractitemmodel_data(int argc, VALUE * argv, VALUE self);
+    extern VALUE qabstractitemmodel_setdata(int argc, VALUE * argv, VALUE self);
+    extern VALUE qabstractitemmodel_flags(VALUE self, VALUE model_index);
+    extern VALUE qabstractitemmodel_insertcolumns(int argc, VALUE * argv, VALUE self);
+    extern VALUE qabstractitemmodel_removerows(int argc, VALUE * argv, VALUE self);
+    extern VALUE qabstractitemmodel_removecolumns(int argc, VALUE * argv, VALUE self);
+    extern VALUE qabstractitemmodel_createindex(int argc, VALUE * argv, VALUE self);
 }
 
 #endif // QTRUBY_RUBYQABSTRACTITEMMODEL_H

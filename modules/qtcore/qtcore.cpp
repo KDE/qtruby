@@ -18,6 +18,7 @@
  */
 
 #include <QtCore/qdebug.h>
+#include <QtCore/QCoreApplication>
 #include <QtCore/QTimer>
 
 #include <smoke/qtcore_smoke.h>
@@ -30,6 +31,7 @@
 
 #include "rubyqabstractitemmodel.h"
 #include "rubyqobject.h"
+#include "rubyqvariant.h"
 #include "typeresolver.h"
 
 extern bool qRegisterResourceData(int, const unsigned char *, const unsigned char *, const unsigned char *);
@@ -38,6 +40,37 @@ extern bool qUnregisterResourceData(int, const unsigned char *, const unsigned c
 namespace QtRuby {
 extern Marshall::TypeHandler QtCoreHandlers[];
 extern void registerQtCoreTypes();
+
+// The only way to convert a QChar to a QString is to
+// pass a QChar to a QString constructor. However,
+// QStrings aren't in the QtRuby api, so add this
+// convenience method 'Qt::Char.to_s' to get a ruby
+// string from a Qt::Char.
+static VALUE
+qchar_to_s(VALUE self)
+{
+    Object::Instance * instance = Object::Instance::get(self);
+    if (instance == 0 || instance->value == 0) {
+        return Qnil;
+    }
+
+    QChar * qchar = reinterpret_cast<QChar*>(instance->value);
+    QString s(*qchar);
+    return qRubyValueFromValue(s);
+}
+
+// Returns $qApp.ARGV() - the original ARGV array with Qt command line options removed
+static VALUE
+qcoreapplication_argv(VALUE /*self*/)
+{
+    VALUE result = rb_ary_new();
+    // Drop argv[0], as it isn't included in the ruby global ARGV
+    for (int index = 1; index < qApp->argc(); index++) {
+        rb_ary_push(result, rb_str_new2(qApp->argv()[index]));
+    }
+
+    return result;
+}
 
 static VALUE
 q_register_resource_data(VALUE /*self*/, VALUE version, VALUE tree_value, VALUE name_value, VALUE data_value)
@@ -83,59 +116,56 @@ qtimer_single_shot(int argc, VALUE * argv, VALUE /*self*/)
     }
 }
 
+// static int rObject_typeId;
+
+// QMetaType helpers
+static void delete_ruby_object(void *ptr)
+{
+    rb_gc_unregister_address((VALUE*) ptr);
+    delete (VALUE*) ptr;
 }
 
-extern "C" {
-
-Q_DECL_EXPORT void
-Init_qtcore()
+static void *create_ruby_object(const void *copyFrom)
 {
-    init_qtcore_Smoke();
-    QtRuby::Module qtcore_module = { "qtcore", new QtRuby::Binding(qtcore_Smoke) };
-    QtRuby::Global::modules[qtcore_Smoke] = qtcore_module;
+    VALUE *object;
 
-    QtRuby::Global::QObjectClassId = qtcore_Smoke->idClass("QObject");
-    QtRuby::Global::QMetaObjectClassId = qtcore_Smoke->idClass("QMetaObject");
-    QtRuby::Global::QDateClassId = qtcore_Smoke->idClass("QDate");
-    QtRuby::Global::QDateTimeClassId = qtcore_Smoke->idClass("QDateTime");
-    QtRuby::Global::QTimeClassId = qtcore_Smoke->idClass("QTime");
-    QtRuby::Global::QEventClassId = qtcore_Smoke->idClass("QEvent");
-    QtRuby::Global::QVariantClassId = qtcore_Smoke->idClass("QVariant");
+    if (copyFrom) {
+        object = new VALUE(*(VALUE*) copyFrom);
+    } else {
+        object = new VALUE(Qnil);
+    }
 
-    QtRuby::Marshall::installHandlers(QtRuby::QtCoreHandlers);
+    rb_gc_register_address(object);
+    return object;
+}
 
-    QtRuby::Global::initialize();
+void initializeClasses(Smoke * smoke)
+{
+    Global::QObjectClassId = smoke->idClass("QObject");
+    Global::QMetaObjectClassId = smoke->idClass("QMetaObject");
+    Global::QDateClassId = smoke->idClass("QDate");
+    Global::QDateTimeClassId = smoke->idClass("QDateTime");
+    Global::QTimeClassId = smoke->idClass("QTime");
+    Global::QEventClassId = smoke->idClass("QEvent");
+    Global::QVariantClassId = smoke->idClass("QVariant");
 
-    QtRuby::Global::defineTypeResolver(QtRuby::Global::QEventClassId, QtRuby::qeventTypeResolver);
-    QtRuby::Global::defineTypeResolver(QtRuby::Global::QObjectClassId, QtRuby::qobjectTypeResolver );
+    Global::defineTypeResolver(Global::QEventClassId, qeventTypeResolver);
+    Global::defineTypeResolver(Global::QObjectClassId, qobjectTypeResolver );
 
-    QtRuby::Global::defineMethod(   QtRuby::Global::QObjectClassId,
-                                    "inherits",
-                                    (VALUE (*) (...)) QtRuby::inherits_qobject,
-                                    -1 );
-    QtRuby::Global::defineMethod(   QtRuby::Global::QObjectClassId,
-                                    "findChildren",
-                                    (VALUE (*) (...)) QtRuby::find_qobject_children,
-                                    -1);
-    QtRuby::Global::defineMethod(   QtRuby::Global::QObjectClassId,
-                                    "findChild",
-                                    (VALUE (*) (...)) QtRuby::find_qobject_child,
-                                    -1 );
-    QtRuby::Global::defineMethod(   QtRuby::Global::QObjectClassId,
-                                    "qobject_cast",
-                                    (VALUE (*) (...)) QtRuby::qobject_qt_metacast,
-                                    1 );
+    Global::defineMethod(Global::QObjectClassId, "inherits", (VALUE (*) (...)) inherits_qobject, -1);
+    Global::defineMethod(Global::QObjectClassId, "findChildren", (VALUE (*) (...)) find_qobject_children, -1);
+    Global::defineMethod(Global::QObjectClassId, "findChild", (VALUE (*) (...)) find_qobject_child, -1);
+    Global::defineMethod(Global::QObjectClassId, "qobject_cast", (VALUE (*) (...)) qobject_qt_metacast, 1);
 
-    rb_define_module_function(QtRuby::Global::QtModule, "qRegisterResourceData", (VALUE (*) (...)) QtRuby::q_register_resource_data, 4);
-    rb_define_module_function(QtRuby::Global::QtModule, "qUnregisterResourceData", (VALUE (*) (...)) QtRuby::q_unregister_resource_data, 4);
+    rb_define_module_function(Global::QtModule, "qRegisterResourceData", (VALUE (*) (...)) q_register_resource_data, 4);
+    rb_define_module_function(Global::QtModule, "qUnregisterResourceData", (VALUE (*) (...)) q_unregister_resource_data, 4);
 
-    rb_require("qtcore/qtcore.rb");
+    QMetaType::registerType("rObject", &delete_ruby_object, &create_ruby_object);
 
-    Smoke * smoke = qtcore_Smoke;
     for (int i = 1; i <= smoke->numClasses; i++) {
         Smoke::ModuleIndex classId(smoke, i);
         QString className = QString::fromLatin1(smoke->classes[i].className);
-        
+
         if (    smoke->classes[i].external
                 || className.contains("Internal")
                 || className == "Qt"
@@ -146,59 +176,107 @@ Init_qtcore()
         if (className.startsWith("Q"))
             className = className.mid(1).prepend("Qt::");
 
-        VALUE klass = QtRuby::Global::initializeClass(classId, className);
+        VALUE klass = Global::initializeClass(classId, className);
 
-        if (className == "QAbstractTableModel") {
-            QtRuby::Global::QTableModelClass = rb_define_class_under(QtRuby::Global::QtModule, "TableModel", klass);
-            rb_define_method(QtRuby::Global::QTableModelClass, "rowCount", (VALUE (*) (...)) QtRuby::qabstract_item_model_rowcount, -1);
-            rb_define_method(QtRuby::Global::QTableModelClass, "row_count", (VALUE (*) (...)) QtRuby::qabstract_item_model_rowcount, -1);
-            rb_define_method(QtRuby::Global::QTableModelClass, "columnCount", (VALUE (*) (...)) QtRuby::qabstract_item_model_columncount, -1);
-            rb_define_method(QtRuby::Global::QTableModelClass, "column_count", (VALUE (*) (...)) QtRuby::qabstract_item_model_columncount, -1);
-            rb_define_method(QtRuby::Global::QTableModelClass, "data", (VALUE (*) (...)) QtRuby::qabstract_item_model_data, -1);
-            rb_define_method(QtRuby::Global::QTableModelClass, "setData", (VALUE (*) (...)) QtRuby::qabstract_item_model_setdata, -1);
-            rb_define_method(QtRuby::Global::QTableModelClass, "set_data", (VALUE (*) (...)) QtRuby::qabstract_item_model_setdata, -1);
-            rb_define_method(QtRuby::Global::QTableModelClass, "flags", (VALUE (*) (...)) QtRuby::qabstract_item_model_flags, 1);
-            rb_define_method(QtRuby::Global::QTableModelClass, "insertRows", (VALUE (*) (...)) QtRuby::qabstract_item_model_insertrows, -1);
-            rb_define_method(QtRuby::Global::QTableModelClass, "insert_rows", (VALUE (*) (...)) QtRuby::qabstract_item_model_insertrows, -1);
-            rb_define_method(QtRuby::Global::QTableModelClass, "insertColumns", (VALUE (*) (...)) QtRuby::qabstract_item_model_insertcolumns, -1);
-            rb_define_method(QtRuby::Global::QTableModelClass, "insert_columns", (VALUE (*) (...)) QtRuby::qabstract_item_model_insertcolumns, -1);
-            rb_define_method(QtRuby::Global::QTableModelClass, "removeRows", (VALUE (*) (...)) QtRuby::qabstract_item_model_removerows, -1);
-            rb_define_method(QtRuby::Global::QTableModelClass, "remove_rows", (VALUE (*) (...)) QtRuby::qabstract_item_model_removerows, -1);
-            rb_define_method(QtRuby::Global::QTableModelClass, "removeColumns", (VALUE (*) (...)) QtRuby::qabstract_item_model_removecolumns, -1);
-            rb_define_method(QtRuby::Global::QTableModelClass, "remove_columns", (VALUE (*) (...)) QtRuby::qabstract_item_model_removecolumns, -1);
+        if (className == "Qt::MetaObject") {
+            Global::QMetaObjectClass = klass;
+        } else if (className == "Qt::Variant") {
+            Global::QVariantClass = klass;
+            Global::QVariantClassId = classId;
+            rb_define_singleton_method(Global::QVariantClass, "fromValue", (VALUE (*) (...)) qvariant_from_value, -1);
+            rb_define_singleton_method(Global::QVariantClass, "from_value", (VALUE (*) (...)) qvariant_from_value, -1);
+            rb_define_singleton_method(Global::QVariantClass, "new", (VALUE (*) (...)) new_qvariant, -1);
+        } else if (className == "Qt::Char") {
+            rb_define_method(klass, "to_s", (VALUE (*) (...)) qchar_to_s, 0);
+      /*
+        } else if (className == "QByteArray") {
+            rb_define_method(klass, "+", (VALUE (*) (...)) qbytearray_append, 1);
+            rb_define_method(klass, "data", (VALUE (*) (...)) qbytearray_data, 0);
+            rb_define_method(klass, "constData", (VALUE (*) (...)) qbytearray_data, 0);
+            rb_define_method(klass, "const_data", (VALUE (*) (...)) qbytearray_data, 0);
+        } else if (className == "QImage") {
+            rb_define_method(klass, "bits", (VALUE (*) (...)) qimage_bits, 0);
+            rb_define_method(klass, "scanLine", (VALUE (*) (...)) qimage_scan_line, 1);
+        } else if (className == "QItemSelection") {
+            rb_define_method(klass, "[]", (VALUE (*) (...)) qitemselection_at, 1);
+            rb_define_method(klass, "at", (VALUE (*) (...)) qitemselection_at, 1);
+            rb_define_method(klass, "count", (VALUE (*) (...)) qitemselection_count, 0);
+            rb_define_method(klass, "length", (VALUE (*) (...)) qitemselection_count, 0);
+        } else if (className == "QPainter") {
+            rb_define_method(klass, "drawLines", (VALUE (*) (...)) qpainter_drawlines, -1);
+            rb_define_method(klass, "draw_lines", (VALUE (*) (...)) qpainter_drawlines, -1);
+            rb_define_method(klass, "drawRects", (VALUE (*) (...)) qpainter_drawrects, -1);
+            rb_define_method(klass, "draw_rects", (VALUE (*) (...)) qpainter_drawrects, -1);
+    */
+        } else if (className == "Qt::ModelIndex") {
+            rb_define_method(klass, "internalPointer", (VALUE (*) (...)) qmodelindex_internalpointer, 0);
+            rb_define_method(klass, "internal_pointer", (VALUE (*) (...)) qmodelindex_internalpointer, 0);
+        } else if (className == "Qt::CoreApplication") {
+            Global::defineMethod(classId, "ARGV", (VALUE (*) (...)) qcoreapplication_argv, 0);
+        } else if (className == "Qt::AbstractTableModel") {
+            Global::QTableModelClass = rb_define_class_under(Global::QtModule, "TableModel", klass);
+            rb_define_method(Global::QTableModelClass, "rowCount", (VALUE (*) (...)) qabstractitemmodel_rowcount, -1);
+            rb_define_method(Global::QTableModelClass, "row_count", (VALUE (*) (...)) qabstractitemmodel_rowcount, -1);
+            rb_define_method(Global::QTableModelClass, "columnCount", (VALUE (*) (...)) qabstractitemmodel_columncount, -1);
+            rb_define_method(Global::QTableModelClass, "column_count", (VALUE (*) (...)) qabstractitemmodel_columncount, -1);
+            rb_define_method(Global::QTableModelClass, "data", (VALUE (*) (...)) qabstractitemmodel_data, -1);
+            rb_define_method(Global::QTableModelClass, "setData", (VALUE (*) (...)) qabstractitemmodel_setdata, -1);
+            rb_define_method(Global::QTableModelClass, "set_data", (VALUE (*) (...)) qabstractitemmodel_setdata, -1);
+            rb_define_method(Global::QTableModelClass, "flags", (VALUE (*) (...)) qabstractitemmodel_flags, 1);
+            rb_define_method(Global::QTableModelClass, "insertRows", (VALUE (*) (...)) qabstractitemmodel_insertrows, -1);
+            rb_define_method(Global::QTableModelClass, "insert_rows", (VALUE (*) (...)) qabstractitemmodel_insertrows, -1);
+            rb_define_method(Global::QTableModelClass, "insertColumns", (VALUE (*) (...)) qabstractitemmodel_insertcolumns, -1);
+            rb_define_method(Global::QTableModelClass, "insert_columns", (VALUE (*) (...)) qabstractitemmodel_insertcolumns, -1);
+            rb_define_method(Global::QTableModelClass, "removeRows", (VALUE (*) (...)) qabstractitemmodel_removerows, -1);
+            rb_define_method(Global::QTableModelClass, "remove_rows", (VALUE (*) (...)) qabstractitemmodel_removerows, -1);
+            rb_define_method(Global::QTableModelClass, "removeColumns", (VALUE (*) (...)) qabstractitemmodel_removecolumns, -1);
+            rb_define_method(Global::QTableModelClass, "remove_columns", (VALUE (*) (...)) qabstractitemmodel_removecolumns, -1);
 
-            QtRuby::Global::QListModelClass = rb_define_class_under(QtRuby::Global::QtModule, "ListModel", klass);
-            rb_define_method(QtRuby::Global::QListModelClass, "rowCount", (VALUE (*) (...)) QtRuby::qabstract_item_model_rowcount, -1);
-            rb_define_method(QtRuby::Global::QListModelClass, "row_count", (VALUE (*) (...)) QtRuby::qabstract_item_model_rowcount, -1);
-            rb_define_method(QtRuby::Global::QListModelClass, "columnCount", (VALUE (*) (...)) QtRuby::qabstract_item_model_columncount, -1);
-            rb_define_method(QtRuby::Global::QListModelClass, "column_count", (VALUE (*) (...)) QtRuby::qabstract_item_model_columncount, -1);
-            rb_define_method(QtRuby::Global::QListModelClass, "data", (VALUE (*) (...)) QtRuby::qabstract_item_model_data, -1);
-            rb_define_method(QtRuby::Global::QListModelClass, "setData", (VALUE (*) (...)) QtRuby::qabstract_item_model_setdata, -1);
-            rb_define_method(QtRuby::Global::QListModelClass, "set_data", (VALUE (*) (...)) QtRuby::qabstract_item_model_setdata, -1);
-            rb_define_method(QtRuby::Global::QListModelClass, "flags", (VALUE (*) (...)) QtRuby::qabstract_item_model_flags, 1);
-            rb_define_method(QtRuby::Global::QListModelClass, "insertRows", (VALUE (*) (...)) QtRuby::qabstract_item_model_insertrows, -1);
-            rb_define_method(QtRuby::Global::QListModelClass, "insert_rows", (VALUE (*) (...)) QtRuby::qabstract_item_model_insertrows, -1);
-            rb_define_method(QtRuby::Global::QListModelClass, "insertColumns", (VALUE (*) (...)) QtRuby::qabstract_item_model_insertcolumns, -1);
-            rb_define_method(QtRuby::Global::QListModelClass, "insert_columns", (VALUE (*) (...)) QtRuby::qabstract_item_model_insertcolumns, -1);
-            rb_define_method(QtRuby::Global::QListModelClass, "removeRows", (VALUE (*) (...)) QtRuby::qabstract_item_model_removerows, -1);
-            rb_define_method(QtRuby::Global::QListModelClass, "remove_rows", (VALUE (*) (...)) QtRuby::qabstract_item_model_removerows, -1);
-            rb_define_method(QtRuby::Global::QListModelClass, "removeColumns", (VALUE (*) (...)) QtRuby::qabstract_item_model_removecolumns, -1);
-            rb_define_method(QtRuby::Global::QListModelClass, "remove_columns", (VALUE (*) (...)) QtRuby::qabstract_item_model_removecolumns, -1);
-        } else if (className == "QAbstractItemModel") {
-            rb_define_method(klass, "createIndex", (VALUE (*) (...)) QtRuby::qabstract_item_model_createindex, -1);
-            rb_define_method(klass, "create_index", (VALUE (*) (...)) QtRuby::qabstract_item_model_createindex, -1);
-        } else if (className == "QtTimer") {
-            rb_define_singleton_method(klass, "singleShot", (VALUE (*) (...)) QtRuby::qtimer_single_shot, -1);
-            rb_define_singleton_method(klass, "single_shot", (VALUE (*) (...)) QtRuby::qtimer_single_shot, -1);
+            Global::QListModelClass = rb_define_class_under(Global::QtModule, "ListModel", klass);
+            rb_define_method(Global::QListModelClass, "rowCount", (VALUE (*) (...)) qabstractitemmodel_rowcount, -1);
+            rb_define_method(Global::QListModelClass, "row_count", (VALUE (*) (...)) qabstractitemmodel_rowcount, -1);
+            rb_define_method(Global::QListModelClass, "columnCount", (VALUE (*) (...)) qabstractitemmodel_columncount, -1);
+            rb_define_method(Global::QListModelClass, "column_count", (VALUE (*) (...)) qabstractitemmodel_columncount, -1);
+            rb_define_method(Global::QListModelClass, "data", (VALUE (*) (...)) qabstractitemmodel_data, -1);
+            rb_define_method(Global::QListModelClass, "setData", (VALUE (*) (...)) qabstractitemmodel_setdata, -1);
+            rb_define_method(Global::QListModelClass, "set_data", (VALUE (*) (...)) qabstractitemmodel_setdata, -1);
+            rb_define_method(Global::QListModelClass, "flags", (VALUE (*) (...)) qabstractitemmodel_flags, 1);
+            rb_define_method(Global::QListModelClass, "insertRows", (VALUE (*) (...)) qabstractitemmodel_insertrows, -1);
+            rb_define_method(Global::QListModelClass, "insert_rows", (VALUE (*) (...)) qabstractitemmodel_insertrows, -1);
+            rb_define_method(Global::QListModelClass, "insertColumns", (VALUE (*) (...)) qabstractitemmodel_insertcolumns, -1);
+            rb_define_method(Global::QListModelClass, "insert_columns", (VALUE (*) (...)) qabstractitemmodel_insertcolumns, -1);
+            rb_define_method(Global::QListModelClass, "removeRows", (VALUE (*) (...)) qabstractitemmodel_removerows, -1);
+            rb_define_method(Global::QListModelClass, "remove_rows", (VALUE (*) (...)) qabstractitemmodel_removerows, -1);
+            rb_define_method(Global::QListModelClass, "removeColumns", (VALUE (*) (...)) qabstractitemmodel_removecolumns, -1);
+            rb_define_method(Global::QListModelClass, "remove_columns", (VALUE (*) (...)) qabstractitemmodel_removecolumns, -1);
+        } else if (className == "Qt::AbstractItemModel") {
+            rb_define_method(klass, "createIndex", (VALUE (*) (...)) qabstractitemmodel_createindex, -1);
+            rb_define_method(klass, "create_index", (VALUE (*) (...)) qabstractitemmodel_createindex, -1);
+        } else if (className == "Qt::Timer") {
+            rb_define_singleton_method(klass, "singleShot", (VALUE (*) (...)) qtimer_single_shot, -1);
+            rb_define_singleton_method(klass, "single_shot", (VALUE (*) (...)) qtimer_single_shot, -1);
         }
         // VALUE name = rb_funcall(klass, rb_intern("name"), 0);
         // qDebug() << "name:" << StringValuePtr(name);
     }
-    
-   //  QtRuby::Global::initializeClasses(qtcore_Smoke);
+}
 
+}
+
+extern "C" {
+
+Q_DECL_EXPORT void
+Init_qtcore()
+{
+    init_qtcore_Smoke();
+    QtRuby::Module qtcore_module = { "qtcore", new QtRuby::Binding(qtcore_Smoke) };
+    QtRuby::Global::modules[qtcore_Smoke] = qtcore_module;
     QtRuby::registerQtCoreTypes();
-        
+    QtRuby::Marshall::installHandlers(QtRuby::QtCoreHandlers);
+    QtRuby::Global::initialize();
+    QtRuby::initializeClasses(qtcore_Smoke);
+    rb_require("qtcore/qtcore.rb");
+
     return;
 }
 

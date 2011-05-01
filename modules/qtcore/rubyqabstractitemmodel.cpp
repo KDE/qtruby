@@ -28,7 +28,16 @@
 namespace QtRuby {
 
 VALUE
-qabstract_item_model_rowcount(int argc, VALUE * argv, VALUE self)
+qmodelindex_internalpointer(VALUE self)
+{
+    Object::Instance * instance = Object::Instance::get(self);
+    QModelIndex * index = reinterpret_cast<QModelIndex *>(instance->value);
+    void * ptr = index->internalPointer();
+    return ptr != 0 ? (VALUE) ptr : Qnil;
+}
+
+VALUE
+qabstractitemmodel_rowcount(int argc, VALUE * argv, VALUE self)
 {
     Object::Instance * instance = Object::Instance::get(self);
     QAbstractItemModel * model  = reinterpret_cast<QAbstractItemModel*>(instance->value);
@@ -46,7 +55,7 @@ qabstract_item_model_rowcount(int argc, VALUE * argv, VALUE self)
 }
 
 VALUE
-qabstract_item_model_columncount(int argc, VALUE * argv, VALUE self)
+qabstractitemmodel_columncount(int argc, VALUE * argv, VALUE self)
 {
     Object::Instance * instance = Object::Instance::get(self);
     QAbstractItemModel * model  = reinterpret_cast<QAbstractItemModel*>(instance->value);
@@ -64,7 +73,7 @@ qabstract_item_model_columncount(int argc, VALUE * argv, VALUE self)
 }
 
 VALUE
-qabstract_item_model_data(int argc, VALUE * argv, VALUE self)
+qabstractitemmodel_data(int argc, VALUE * argv, VALUE self)
 {
     Object::Instance * instance = Object::Instance::get(self);
     QAbstractItemModel * model  = reinterpret_cast<QAbstractItemModel*>(instance->value);
@@ -83,7 +92,7 @@ qabstract_item_model_data(int argc, VALUE * argv, VALUE self)
 }
 
 VALUE
-qabstract_item_model_setdata(int argc, VALUE * argv, VALUE self)
+qabstractitemmodel_setdata(int argc, VALUE * argv, VALUE self)
 {
     Object::Instance * instance = Object::Instance::get(self);
     QAbstractItemModel * model  = reinterpret_cast<QAbstractItemModel*>(instance->value);
@@ -106,7 +115,7 @@ qabstract_item_model_setdata(int argc, VALUE * argv, VALUE self)
 }
 
 VALUE
-qabstract_item_model_flags(VALUE self, VALUE model_index)
+qabstractitemmodel_flags(VALUE self, VALUE model_index)
 {
     Object::Instance * instance = Object::Instance::get(self);
     QAbstractItemModel * model  = reinterpret_cast<QAbstractItemModel*>(instance->value);
@@ -116,7 +125,7 @@ qabstract_item_model_flags(VALUE self, VALUE model_index)
 }
 
 VALUE
-qabstract_item_model_insertrows(int argc, VALUE * argv, VALUE self)
+qabstractitemmodel_insertrows(int argc, VALUE * argv, VALUE self)
 {
     Object::Instance * instance = Object::Instance::get(self);
     QAbstractItemModel * model  = reinterpret_cast<QAbstractItemModel*>(instance->value);
@@ -135,7 +144,7 @@ qabstract_item_model_insertrows(int argc, VALUE * argv, VALUE self)
 }
 
 VALUE
-qabstract_item_model_insertcolumns(int argc, VALUE * argv, VALUE self)
+qabstractitemmodel_insertcolumns(int argc, VALUE * argv, VALUE self)
 {
     Object::Instance * instance = Object::Instance::get(self);
     QAbstractItemModel * model  = reinterpret_cast<QAbstractItemModel*>(instance->value);
@@ -154,7 +163,7 @@ qabstract_item_model_insertcolumns(int argc, VALUE * argv, VALUE self)
 }
 
 VALUE
-qabstract_item_model_removerows(int argc, VALUE * argv, VALUE self)
+qabstractitemmodel_removerows(int argc, VALUE * argv, VALUE self)
 {
     Object::Instance * instance = Object::Instance::get(self);
     QAbstractItemModel * model  = reinterpret_cast<QAbstractItemModel*>(instance->value);
@@ -173,7 +182,7 @@ qabstract_item_model_removerows(int argc, VALUE * argv, VALUE self)
 }
 
 VALUE
-qabstract_item_model_removecolumns(int argc, VALUE * argv, VALUE self)
+qabstractitemmodel_removecolumns(int argc, VALUE * argv, VALUE self)
 {
     Object::Instance * instance = Object::Instance::get(self);
     QAbstractItemModel * model  = reinterpret_cast<QAbstractItemModel*>(instance->value);
@@ -192,7 +201,7 @@ qabstract_item_model_removecolumns(int argc, VALUE * argv, VALUE self)
 }
 
 VALUE
-qabstract_item_model_createindex(int argc, VALUE * argv, VALUE self)
+qabstractitemmodel_createindex(int argc, VALUE * argv, VALUE self)
 {
     if (argc == 2 || argc == 3) {
         Object::Instance * instance = Object::Instance::get(self);
