@@ -25,6 +25,16 @@
 namespace QtRuby {
 extern Marshall::TypeHandler PhononHandlers[];
 extern void registerPhononTypes();
+
+static void initializeClasses(Smoke * smoke)
+{
+    for (int i = 1; i <= smoke->numClasses; i++) {
+        Smoke::ModuleIndex classId(smoke, i);
+        QString className = QString::fromLatin1(smoke->classes[i].className);
+        VALUE klass = Global::initializeClass(classId, className);
+    }
+}
+
 }
 
 extern "C" {
@@ -36,22 +46,8 @@ Init_phonon()
     QtRuby::Module phonon_module = { "phonon", new QtRuby::Binding(phonon_Smoke) };
     QtRuby::Global::modules[phonon_Smoke] = phonon_module;
     QtRuby::Marshall::installHandlers(QtRuby::PhononHandlers);
-
-    Smoke * smoke = phonon_Smoke;
-    for (int i = 1; i <= smoke->numClasses; i++) {
-        Smoke::ModuleIndex classId(smoke, i);
-        QString className = QString::fromLatin1(smoke->classes[i].className);
-
-        if (    smoke->classes[i].external
-                || className.contains("Internal")
-                || className == "QGlobalSpace") {
-            continue;
-        }
-
-        VALUE klass = QtRuby::Global::initializeClass(classId, className);
-    }
-
     QtRuby::registerPhononTypes();
+    QtRuby::initializeClasses(phonon_Smoke);
 
     return;
 }

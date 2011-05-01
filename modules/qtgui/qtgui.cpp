@@ -31,6 +31,29 @@ namespace QtRuby {
 extern Marshall::TypeHandler QtGuiHandlers[];
 extern void registerQtGuiTypes();
 
+static void initializeClasses(Smoke * smoke)
+{
+    Global::QGraphicsItemClassId = qtgui_Smoke->idClass("QGraphicsItem");
+    Global::defineTypeResolver(Global::QGraphicsItemClassId, qgraphicsitemTypeResolver);
+
+    for (int i = 1; i <= smoke->numClasses; i++) {
+        Smoke::ModuleIndex classId(smoke, i);
+        QString className = QString::fromLatin1(smoke->classes[i].className);
+
+        if (    smoke->classes[i].external
+                || className.contains("Internal")
+                || className == "Qt" )
+        {
+            continue;
+        }
+
+        if (className.startsWith("Q"))
+            className = className.mid(1).prepend("Qt::");
+
+        VALUE klass = Global::initializeClass(classId, className);
+    }
+}
+
 }
 
 extern "C" {
@@ -41,45 +64,10 @@ Init_qtgui()
     init_qtgui_Smoke();
     QtRuby::Module qtgui_module = { "qtgui", new QtRuby::Binding(qtgui_Smoke) };
     QtRuby::Global::modules[qtgui_Smoke] = qtgui_module;
-    QtRuby::Global::QGraphicsItemClassId = qtgui_Smoke->idClass("QGraphicsItem");
-    QtRuby::Marshall::installHandlers(QtRuby::QtGuiHandlers);
-    QtRuby::Global::defineTypeResolver(QtRuby::Global::QGraphicsItemClassId,
-                                         QtRuby::qgraphicsitemTypeResolver);
-
-    rb_require("qtgui/qtgui.rb");
-
-    Smoke * smoke = qtgui_Smoke;
-    for (int i = 1; i <= smoke->numClasses; i++) {
-        Smoke::ModuleIndex classId(smoke, i);
-        QString className = QString::fromLatin1(smoke->classes[i].className);
-
-        if (    smoke->classes[i].external
-                || className.contains("Internal")
-                || className == "Qt"
-                || className == "QGlobalSpace") {
-            continue;
-        }
-
-        if (className.startsWith("Q"))
-            className = className.mid(1).prepend("Qt::");
-
-        VALUE klass = QtRuby::Global::initializeClass(classId, className);
-
-        // VALUE name = rb_funcall(klass, rb_intern("name"), 0);
-        // qDebug() << "name:" << StringValuePtr(name);
-    }
-
     QtRuby::registerQtGuiTypes();
-
-    /*
-    for (int i = 0; i < 2000; i++) {
-        if (QMetaType::isRegistered(i)) {
-            QByteArray typeName(QMetaType::typeName(i));
-            if (!typeName.isEmpty())
-                qDebug() << "typeName:" << QMetaType::typeName(i);
-        }
-    }
-    */
+    QtRuby::Marshall::installHandlers(QtRuby::QtGuiHandlers);
+    QtRuby::initializeClasses(qtgui_Smoke);
+    rb_require("qtgui/qtgui.rb");
 
     return;
 }

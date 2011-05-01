@@ -139,7 +139,7 @@ static void *create_ruby_object(const void *copyFrom)
     return object;
 }
 
-void initializeClasses(Smoke * smoke)
+static void initializeClasses(Smoke * smoke)
 {
     Global::QObjectClassId = smoke->idClass("QObject");
     Global::QMetaObjectClassId = smoke->idClass("QMetaObject");
@@ -168,8 +168,8 @@ void initializeClasses(Smoke * smoke)
 
         if (    smoke->classes[i].external
                 || className.contains("Internal")
-                || className == "Qt"
-                || className == "QGlobalSpace") {
+                || className == "Qt" )
+        {
             continue;
         }
 

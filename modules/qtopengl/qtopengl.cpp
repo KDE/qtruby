@@ -28,6 +28,27 @@
 namespace QtRuby {
 extern Marshall::TypeHandler QtOpenGLHandlers[];
 extern void registerQtOpenGLTypes();
+
+static void initializeClasses(Smoke * smoke)
+{
+    for (int i = 1; i <= smoke->numClasses; i++) {
+        Smoke::ModuleIndex classId(smoke, i);
+        QString className = QString::fromLatin1(smoke->classes[i].className);
+
+        if (    smoke->classes[i].external
+                || className.contains("Internal")
+                || className == "Qt" )
+        {
+            continue;
+        }
+
+        if (className.startsWith("Q"))
+            className = className.mid(1).prepend("Qt::");
+
+        VALUE klass = Global::initializeClass(classId, className);
+    }
+}
+
 }
 
 extern "C" {
@@ -38,27 +59,9 @@ Init_qtopengl()
     init_qtopengl_Smoke();
     QtRuby::Module qtopengl_module = { "qtopengl", new QtRuby::Binding(qtopengl_Smoke) };
     QtRuby::Global::modules[qtopengl_Smoke] = qtopengl_module;
-    QtRuby::Marshall::installHandlers(QtRuby::QtOpenGLHandlers);
-
-    Smoke * smoke = qtopengl_Smoke;
-    for (int i = 1; i <= smoke->numClasses; i++) {
-        Smoke::ModuleIndex classId(smoke, i);
-        QString className = QString::fromLatin1(smoke->classes[i].className);
-
-        if (    smoke->classes[i].external
-                || className.contains("Internal")
-                || className == "Qt"
-                || className == "QGlobalSpace") {
-            continue;
-        }
-
-        if (className.startsWith("Q"))
-            className = className.mid(1).prepend("Qt::");
-
-        VALUE klass = QtRuby::Global::initializeClass(classId, className);
-    }
-
     QtRuby::registerQtOpenGLTypes();
+    QtRuby::Marshall::installHandlers(QtRuby::QtOpenGLHandlers);
+    QtRuby::initializeClasses(qtopengl_Smoke);
 
     return;
 }

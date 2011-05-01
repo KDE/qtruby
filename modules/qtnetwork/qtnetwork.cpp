@@ -28,6 +28,27 @@
 namespace QtRuby {
 extern Marshall::TypeHandler QtNetworkHandlers[];
 extern void registerQtNetworkTypes();
+
+static void initializeClasses(Smoke * smoke)
+{
+    for (int i = 1; i <= smoke->numClasses; i++) {
+        Smoke::ModuleIndex classId(smoke, i);
+        QString className = QString::fromLatin1(smoke->classes[i].className);
+
+        if (    smoke->classes[i].external
+                || className.contains("Internal")
+                || className == "Qt" )
+        {
+            continue;
+        }
+
+        if (className.startsWith("Q"))
+            className = className.mid(1).prepend("Qt::");
+
+        VALUE klass = Global::initializeClass(classId, className);
+    }
+}
+
 }
 
 extern "C" {
@@ -38,27 +59,9 @@ Init_qtnetwork()
     init_qtnetwork_Smoke();
     QtRuby::Module qtnetwork_module = { "qtnetwork", new QtRuby::Binding(qtnetwork_Smoke) };
     QtRuby::Global::modules[qtnetwork_Smoke] = qtnetwork_module;
-    QtRuby::Marshall::installHandlers(QtRuby::QtNetworkHandlers);
-
-    Smoke * smoke = qtnetwork_Smoke;
-    for (int i = 1; i <= smoke->numClasses; i++) {
-        Smoke::ModuleIndex classId(smoke, i);
-        QString className = QString::fromLatin1(smoke->classes[i].className);
-
-        if (    smoke->classes[i].external
-                || className.contains("Internal")
-                || className == "Qt"
-                || className == "QGlobalSpace") {
-            continue;
-        }
-
-        if (className.startsWith("Q"))
-            className = className.mid(1).prepend("Qt::");
-
-        VALUE klass = QtRuby::Global::initializeClass(classId, className);
-    }
-
     QtRuby::registerQtNetworkTypes();
+    QtRuby::Marshall::installHandlers(QtRuby::QtNetworkHandlers);
+    QtRuby::initializeClasses(qtnetwork_Smoke);
 
     return;
 }

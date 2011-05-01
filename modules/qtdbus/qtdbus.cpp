@@ -64,6 +64,37 @@ qdbusargument_endstructurewrite(VALUE self)
     return self;
 }
 
+static void initializeClasses(Smoke * smoke)
+{
+    for (int i = 1; i <= smoke->numClasses; i++) {
+        Smoke::ModuleIndex classId(smoke, i);
+        QString className = QString::fromLatin1(smoke->classes[i].className);
+
+        if (    smoke->classes[i].external
+                || className.contains("Internal")
+                || className == "Qt" )
+        {
+            continue;
+        }
+
+        if (className.startsWith("Q"))
+            className = className.mid(1).prepend("Qt::");
+
+        VALUE klass = Global::initializeClass(classId, className);
+
+        if (className == "Qt::DBusArgument") {
+            rb_define_method(klass, "endArrayWrite", (VALUE (*) (...)) qdbusargument_endarraywrite, 0);
+            rb_define_method(klass, "end_array_write", (VALUE (*) (...)) qdbusargument_endarraywrite, 0);
+            rb_define_method(klass, "endMapEntryWrite", (VALUE (*) (...)) qdbusargument_endmapentrywrite, 0);
+            rb_define_method(klass, "end_map_entry_write", (VALUE (*) (...)) qdbusargument_endmapentrywrite, 0);
+            rb_define_method(klass, "endMapWrite", (VALUE (*) (...)) qdbusargument_endmapwrite, 0);
+            rb_define_method(klass, "end_map_write", (VALUE (*) (...)) qdbusargument_endmapwrite, 0);
+            rb_define_method(klass, "endStructureWrite", (VALUE (*) (...)) qdbusargument_endstructurewrite, 0);
+            rb_define_method(klass, "end_structure_write", (VALUE (*) (...)) qdbusargument_endstructurewrite, 0);
+        }
+    }
+}
+
 }
 
 extern "C" {
@@ -74,40 +105,10 @@ Init_qtdbus()
     init_qtdbus_Smoke();
     QtRuby::Module qtdbus_module = { "qtdbus", new QtRuby::Binding(qtdbus_Smoke) };
     QtRuby::Global::modules[qtdbus_Smoke] = qtdbus_module;
-    QtRuby::Marshall::installHandlers(QtRuby::QtDBusHandlers);
-
-    rb_require("qtdbus/qtdbus.rb");
-
-    Smoke * smoke = qtdbus_Smoke;
-    for (int i = 1; i <= smoke->numClasses; i++) {
-        Smoke::ModuleIndex classId(smoke, i);
-        QString className = QString::fromLatin1(smoke->classes[i].className);
-
-        if (    smoke->classes[i].external
-                || className.contains("Internal")
-                || className == "Qt"
-                || className == "QGlobalSpace") {
-            continue;
-        }
-
-        if (className.startsWith("Q"))
-            className = className.mid(1).prepend("Qt::");
-
-        VALUE klass = QtRuby::Global::initializeClass(classId, className);
-
-        if (className == "QDBusArgument") {
-            rb_define_method(klass, "endArrayWrite", (VALUE (*) (...)) QtRuby::qdbusargument_endarraywrite, 0);
-            rb_define_method(klass, "end_array_write", (VALUE (*) (...)) QtRuby::qdbusargument_endarraywrite, 0);
-            rb_define_method(klass, "endMapEntryWrite", (VALUE (*) (...)) QtRuby::qdbusargument_endmapentrywrite, 0);
-            rb_define_method(klass, "end_map_entry_write", (VALUE (*) (...)) QtRuby::qdbusargument_endmapentrywrite, 0);
-            rb_define_method(klass, "endMapWrite", (VALUE (*) (...)) QtRuby::qdbusargument_endmapwrite, 0);
-            rb_define_method(klass, "end_map_write", (VALUE (*) (...)) QtRuby::qdbusargument_endmapwrite, 0);
-            rb_define_method(klass, "endStructureWrite", (VALUE (*) (...)) QtRuby::qdbusargument_endstructurewrite, 0);
-            rb_define_method(klass, "end_structure_write", (VALUE (*) (...)) QtRuby::qdbusargument_endstructurewrite, 0);
-        }
-    }
-
     QtRuby::registerQtDBusTypes();
+    QtRuby::Marshall::installHandlers(QtRuby::QtDBusHandlers);
+    QtRuby::initializeClasses(qtdbus_Smoke);
+    rb_require("qtdbus/qtdbus.rb");
 
     return;
 }

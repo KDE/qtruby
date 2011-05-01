@@ -28,6 +28,27 @@
 namespace QtRuby {
 extern Marshall::TypeHandler QtSvgHandlers[];
 extern void registerQtSvgTypes();
+
+static void initializeClasses(Smoke * smoke)
+{
+    for (int i = 1; i <= smoke->numClasses; i++) {
+        Smoke::ModuleIndex classId(smoke, i);
+        QString className = QString::fromLatin1(smoke->classes[i].className);
+
+        if (    smoke->classes[i].external
+                || className.contains("Internal")
+                || className == "Qt" )
+        {
+            continue;
+        }
+
+        if (className.startsWith("Q"))
+            className = className.mid(1).prepend("Qt::");
+
+        VALUE klass = Global::initializeClass(classId, className);
+    }
+}
+
 }
 
 extern "C" {
@@ -38,27 +59,9 @@ Init_qtsvg()
     init_qtsvg_Smoke();
     QtRuby::Module qtsvg_module = { "qtsvg", new QtRuby::Binding(qtsvg_Smoke) };
     QtRuby::Global::modules[qtsvg_Smoke] = qtsvg_module;
-    QtRuby::Marshall::installHandlers(QtRuby::QtSvgHandlers);
-
-    Smoke * smoke = qtsvg_Smoke;
-    for (int i = 1; i <= smoke->numClasses; i++) {
-        Smoke::ModuleIndex classId(smoke, i);
-        QString className = QString::fromLatin1(smoke->classes[i].className);
-
-        if (    smoke->classes[i].external
-                || className.contains("Internal")
-                || className == "Qt"
-                || className == "QGlobalSpace") {
-            continue;
-        }
-
-        if (className.startsWith("Q"))
-            className = className.mid(1).prepend("Qt::");
-
-        VALUE klass = QtRuby::Global::initializeClass(classId, className);
-    }
-
     QtRuby::registerQtSvgTypes();
+    QtRuby::Marshall::installHandlers(QtRuby::QtSvgHandlers);
+    QtRuby::initializeClasses(qtsvg_Smoke);
 
     return;
 }

@@ -346,6 +346,9 @@ initializeMetaClass(const Smoke::ModuleIndex& classId, MetaClass * meta)
 VALUE
 initializeClass(const Smoke::ModuleIndex& classId, const QString& rubyClassName)
 {
+    if (qstrcmp(classId.smoke->classes[classId.index].className, "QGlobalSpace") == 0)
+        return Qnil;
+
     QStringList components = rubyClassName.split("::");
     VALUE klass = rb_define_module(components[0].toLatin1().constData());
     rb_define_singleton_method(klass, "method_missing", (VALUE (*) (...)) module_method_missing, -1);

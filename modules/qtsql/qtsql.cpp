@@ -28,6 +28,27 @@
 namespace QtRuby {
 extern Marshall::TypeHandler QtSqlHandlers[];
 extern void registerQtSqlTypes();
+
+static void initializeClasses(Smoke * smoke)
+{
+    for (int i = 1; i <= smoke->numClasses; i++) {
+        Smoke::ModuleIndex classId(smoke, i);
+        QString className = QString::fromLatin1(smoke->classes[i].className);
+
+        if (    smoke->classes[i].external
+                || className.contains("Internal")
+                || className == "Qt" )
+        {
+            continue;
+        }
+
+        if (className.startsWith("Q"))
+            className = className.mid(1).prepend("Qt::");
+
+        VALUE klass = Global::initializeClass(classId, className);
+    }
+}
+
 }
 
 extern "C" {
@@ -38,27 +59,9 @@ Init_qtsql()
     init_qtsql_Smoke();
     QtRuby::Module qtsql_module = { "qtsql", new QtRuby::Binding(qtsql_Smoke) };
     QtRuby::Global::modules[qtsql_Smoke] = qtsql_module;
-    QtRuby::Marshall::installHandlers(QtRuby::QtSqlHandlers);
-
-    Smoke * smoke = qtsql_Smoke;
-    for (int i = 1; i <= smoke->numClasses; i++) {
-        Smoke::ModuleIndex classId(smoke, i);
-        QString className = QString::fromLatin1(smoke->classes[i].className);
-
-        if (    smoke->classes[i].external
-                || className.contains("Internal")
-                || className == "Qt"
-                || className == "QGlobalSpace") {
-            continue;
-        }
-
-        if (className.startsWith("Q"))
-            className = className.mid(1).prepend("Qt::");
-
-        VALUE klass = QtRuby::Global::initializeClass(classId, className);
-    }
-
     QtRuby::registerQtSqlTypes();
+    QtRuby::Marshall::installHandlers(QtRuby::QtSqlHandlers);
+    QtRuby::initializeClasses(qtsql_Smoke);
 
     return;
 }

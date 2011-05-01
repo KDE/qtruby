@@ -25,6 +25,27 @@
 namespace QtRuby {
 extern Marshall::TypeHandler QtDeclarativeHandlers[];
 extern void registerQtDeclarativeTypes();
+
+static void initializeClasses(Smoke * smoke)
+{
+    for (int i = 1; i <= smoke->numClasses; i++) {
+        Smoke::ModuleIndex classId(smoke, i);
+        QString className = QString::fromLatin1(smoke->classes[i].className);
+
+        if (    smoke->classes[i].external
+                || className.contains("Internal")
+                || className == "Qt" )
+        {
+            continue;
+        }
+
+        if (className.startsWith("Q"))
+            className = className.mid(1).prepend("Qt::");
+
+        VALUE klass = Global::initializeClass(classId, className);
+    }
+}
+
 }
 
 extern "C" {
@@ -35,27 +56,9 @@ Init_qtdeclarative()
     init_qtdeclarative_Smoke();
     QtRuby::Module qtdeclarative_module = { "qtdeclarative", new QtRuby::Binding(qtdeclarative_Smoke) };
     QtRuby::Global::modules[qtdeclarative_Smoke] = qtdeclarative_module;
-    QtRuby::Marshall::installHandlers(QtRuby::QtDeclarativeHandlers);
-
-    Smoke * smoke = qtdeclarative_Smoke;
-    for (int i = 1; i <= smoke->numClasses; i++) {
-        Smoke::ModuleIndex classId(smoke, i);
-        QString className = QString::fromLatin1(smoke->classes[i].className);
-
-        if (    smoke->classes[i].external
-                || className.contains("Internal")
-                || className == "Qt"
-                || className == "QGlobalSpace") {
-            continue;
-        }
-
-        if (className.startsWith("Q"))
-            className = className.mid(1).prepend("Qt::");
-
-        VALUE klass = QtRuby::Global::initializeClass(classId, className);
-    }
-
     QtRuby::registerQtDeclarativeTypes();
+    QtRuby::Marshall::installHandlers(QtRuby::QtDeclarativeHandlers);
+    QtRuby::initializeClasses(qtdeclarative_Smoke);
 
     return;
 }
