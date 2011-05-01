@@ -17,18 +17,31 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef QTRUBY_RUBYQOBJECT_H
-#define QTRUBY_RUBYQOBJECT_H
+#include <QtGui/QImage>
 
-#include <ruby.h>
+#include <object.h>
+#include <global.h>
 
-#include "qtruby_export.h"
+#include "rubyqimage.h"
 
 namespace QtRuby {
-    extern VALUE qobject_qt_metacast(VALUE self, VALUE klass);
-    extern VALUE inherits_qobject(int argc, VALUE * argv, VALUE /*self*/);
-    extern VALUE find_qobject_children(int argc, VALUE *argv, VALUE self);
-    extern VALUE find_qobject_child(int argc, VALUE *argv, VALUE self);
+
+VALUE
+qimage_bits(VALUE self)
+{
+  Object::Instance * instance = Object::Instance::get(self);
+  QImage * image = reinterpret_cast<QImage*>(instance->value);
+  const uchar * bytes = image->bits();
+  return rb_str_new((const char *) bytes, image->numBytes());
 }
 
-#endif // QTRUBY_RUBYQOBJECT_H
+VALUE
+qimage_scan_line(VALUE self, VALUE ix)
+{
+  Object::Instance * instance = Object::Instance::get(self);
+  QImage * image = reinterpret_cast<QImage*>(instance->value);
+  const uchar * bytes = image->scanLine(NUM2INT(ix));
+  return rb_str_new((const char *) bytes, image->bytesPerLine());
+}
+
+}

@@ -17,18 +17,16 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef QTRUBY_RUBYQOBJECT_H
-#define QTRUBY_RUBYQOBJECT_H
+#ifndef QTRUBY_RUBYQPAINTER_H
+#define QTRUBY_RUBYQPAINTER_H
 
 #include <ruby.h>
 
 #include "qtruby_export.h"
 
 namespace QtRuby {
-    extern VALUE qobject_qt_metacast(VALUE self, VALUE klass);
-    extern VALUE inherits_qobject(int argc, VALUE * argv, VALUE /*self*/);
-    extern VALUE find_qobject_children(int argc, VALUE *argv, VALUE self);
-    extern VALUE find_qobject_child(int argc, VALUE *argv, VALUE self);
+    extern VALUE qpainter_drawlines(int argc, VALUE * argv, VALUE self);
+    extern VALUE qpainter_drawrects(int argc, VALUE * argv, VALUE self);
 }
 
-#endif // QTRUBY_RUBYQOBJECT_H
+#endif // QTRUBY_RUBYQPAINTER_H

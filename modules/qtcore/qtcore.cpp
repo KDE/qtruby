@@ -30,6 +30,7 @@
 #include <object.h>
 
 #include "rubyqabstractitemmodel.h"
+#include "rubyqbytearray.h"
 #include "rubyqobject.h"
 #include "rubyqvariant.h"
 #include "typeresolver.h"
@@ -188,26 +189,11 @@ static void initializeClasses(Smoke * smoke)
             rb_define_singleton_method(Global::QVariantClass, "new", (VALUE (*) (...)) new_qvariant, -1);
         } else if (className == "Qt::Char") {
             rb_define_method(klass, "to_s", (VALUE (*) (...)) qchar_to_s, 0);
-      /*
         } else if (className == "QByteArray") {
             rb_define_method(klass, "+", (VALUE (*) (...)) qbytearray_append, 1);
             rb_define_method(klass, "data", (VALUE (*) (...)) qbytearray_data, 0);
             rb_define_method(klass, "constData", (VALUE (*) (...)) qbytearray_data, 0);
             rb_define_method(klass, "const_data", (VALUE (*) (...)) qbytearray_data, 0);
-        } else if (className == "QImage") {
-            rb_define_method(klass, "bits", (VALUE (*) (...)) qimage_bits, 0);
-            rb_define_method(klass, "scanLine", (VALUE (*) (...)) qimage_scan_line, 1);
-        } else if (className == "QItemSelection") {
-            rb_define_method(klass, "[]", (VALUE (*) (...)) qitemselection_at, 1);
-            rb_define_method(klass, "at", (VALUE (*) (...)) qitemselection_at, 1);
-            rb_define_method(klass, "count", (VALUE (*) (...)) qitemselection_count, 0);
-            rb_define_method(klass, "length", (VALUE (*) (...)) qitemselection_count, 0);
-        } else if (className == "QPainter") {
-            rb_define_method(klass, "drawLines", (VALUE (*) (...)) qpainter_drawlines, -1);
-            rb_define_method(klass, "draw_lines", (VALUE (*) (...)) qpainter_drawlines, -1);
-            rb_define_method(klass, "drawRects", (VALUE (*) (...)) qpainter_drawrects, -1);
-            rb_define_method(klass, "draw_rects", (VALUE (*) (...)) qpainter_drawrects, -1);
-    */
         } else if (className == "Qt::ModelIndex") {
             rb_define_method(klass, "internalPointer", (VALUE (*) (...)) qmodelindex_internalpointer, 0);
             rb_define_method(klass, "internal_pointer", (VALUE (*) (...)) qmodelindex_internalpointer, 0);

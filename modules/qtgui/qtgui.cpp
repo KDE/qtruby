@@ -26,6 +26,9 @@
 #include <smoke/qtgui_smoke.h>
 
 #include "typeresolver.h"
+#include "rubyqimage.h"
+#include "rubyqitemselection.h"
+#include "rubyqpainter.h"
 
 namespace QtRuby {
 extern Marshall::TypeHandler QtGuiHandlers[];
@@ -51,6 +54,21 @@ static void initializeClasses(Smoke * smoke)
             className = className.mid(1).prepend("Qt::");
 
         VALUE klass = Global::initializeClass(classId, className);
+
+        if (className == "Qt::Image") {
+            rb_define_method(klass, "bits", (VALUE (*) (...)) qimage_bits, 0);
+            rb_define_method(klass, "scanLine", (VALUE (*) (...)) qimage_scan_line, 1);
+        } else if (className == "Qt::ItemSelection") {
+            rb_define_method(klass, "[]", (VALUE (*) (...)) qitemselection_at, 1);
+            rb_define_method(klass, "at", (VALUE (*) (...)) qitemselection_at, 1);
+            rb_define_method(klass, "count", (VALUE (*) (...)) qitemselection_count, 0);
+            rb_define_method(klass, "length", (VALUE (*) (...)) qitemselection_count, 0);
+        } else if (className == "Qt::Painter") {
+            rb_define_method(klass, "drawLines", (VALUE (*) (...)) qpainter_drawlines, -1);
+            rb_define_method(klass, "draw_lines", (VALUE (*) (...)) qpainter_drawlines, -1);
+            rb_define_method(klass, "drawRects", (VALUE (*) (...)) qpainter_drawrects, -1);
+            rb_define_method(klass, "draw_rects", (VALUE (*) (...)) qpainter_drawrects, -1);
+        }
     }
 }
 

@@ -17,18 +17,33 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef QTRUBY_RUBYQOBJECT_H
-#define QTRUBY_RUBYQOBJECT_H
+#include <QtGui/QItemSelection>
 
-#include <ruby.h>
+#include <object.h>
+#include <global.h>
 
-#include "qtruby_export.h"
+#include "rubyqitemselection.h"
 
 namespace QtRuby {
-    extern VALUE qobject_qt_metacast(VALUE self, VALUE klass);
-    extern VALUE inherits_qobject(int argc, VALUE * argv, VALUE /*self*/);
-    extern VALUE find_qobject_children(int argc, VALUE *argv, VALUE self);
-    extern VALUE find_qobject_child(int argc, VALUE *argv, VALUE self);
+
+VALUE
+qitemselection_at(VALUE self, VALUE i)
+{
+    Object::Instance * instance = Object::Instance::get(self);
+    QItemSelection * item = reinterpret_cast<QItemSelection *>(instance->value);
+    QItemSelectionRange range = item->at(NUM2INT(i));
+
+    return Global::wrapInstance(    Smoke::findClass("QItemSelectionRange"),
+                                    new QItemSelectionRange(range),
+                                    Object::ScriptOwnership );
 }
 
-#endif // QTRUBY_RUBYQOBJECT_H
+VALUE
+qitemselection_count(VALUE self)
+{
+    Object::Instance * instance = Object::Instance::get(self);
+    QItemSelection * item = reinterpret_cast<QItemSelection *>(instance->value);
+    return INT2NUM(item->count());
+}
+
+}

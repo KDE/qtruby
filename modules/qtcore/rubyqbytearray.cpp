@@ -17,18 +17,33 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef QTRUBY_RUBYQOBJECT_H
-#define QTRUBY_RUBYQOBJECT_H
+#include <QtCore/QByteArray>
 
-#include <ruby.h>
+#include <object.h>
+#include <global.h>
 
-#include "qtruby_export.h"
+#include "rubyqbytearray.h"
 
 namespace QtRuby {
-    extern VALUE qobject_qt_metacast(VALUE self, VALUE klass);
-    extern VALUE inherits_qobject(int argc, VALUE * argv, VALUE /*self*/);
-    extern VALUE find_qobject_children(int argc, VALUE *argv, VALUE self);
-    extern VALUE find_qobject_child(int argc, VALUE *argv, VALUE self);
+
+// There is a QByteArray operator method in the Smoke lib that takes a QString
+// arg and returns a QString. This is normally the desired behaviour, so
+// special case a '+' method here.
+VALUE
+qbytearray_append(VALUE self, VALUE str)
+{
+    Object::Instance * instance = Object::Instance::get(self);
+    QByteArray * bytes = reinterpret_cast<QByteArray *>(instance->value);
+    (*bytes) += (const char *) StringValuePtr(str);
+    return self;
 }
 
-#endif // QTRUBY_RUBYQOBJECT_H
+VALUE
+qbytearray_data(VALUE self)
+{
+  Object::Instance * instance = Object::Instance::get(self);
+  QByteArray * bytes = reinterpret_cast<QByteArray *>(instance->value);
+  return rb_str_new(bytes->data(), bytes->size());
+}
+
+}
