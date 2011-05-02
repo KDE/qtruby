@@ -29,7 +29,23 @@
 #include "smokebinding.h"
 #include "object.h"
 
-#define QTRUBY_VERSION "3"
+#if !defined RSTRING_LEN
+#define RSTRING_LEN(a) RSTRING(a)->len
+#endif
+#if !defined RSTRING_PTR
+#define RSTRING_PTR(a) RSTRING(a)->ptr
+#endif
+#if !defined RARRAY_LEN
+#define RARRAY_LEN(a) RARRAY(a)->len
+#endif
+#if !defined RARRAY_PTR
+#define RARRAY_PTR(a) RARRAY(a)->ptr
+#endif
+#if !defined StringValueCStr
+#define StringValueCStr(s) STR2CSTR(s)
+#endif
+
+#define QTRUBY_VERSION "3.0.0"
 
 namespace QtRuby {
 
