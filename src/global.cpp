@@ -239,6 +239,19 @@ defineMethod(const Smoke::ModuleIndex& classId, const char* name, VALUE (*func)(
     method.name = QByteArray(name);
     method.func = func;
     method.argc = argc;
+    method.isSingleton = false;
+    meta->rubyMethods.append(method);
+}
+
+void
+defineSingletonMethod(const Smoke::ModuleIndex& classId, const char* name, VALUE (*func)(ANYARGS), int argc)
+{
+    MetaClass * meta = createMetaClass(classId);
+    MetaClass::RubyMethod method;
+    method.name = QByteArray(name);
+    method.func = func;
+    method.argc = argc;
+    method.isSingleton = true;
     meta->rubyMethods.append(method);
 }
 
@@ -302,10 +315,10 @@ initialize()
     rb_define_method(rb_cObject, "qWarning", (VALUE (*) (...)) Debug::qwarning, 1);
     rb_define_module_function(QtInternalModule, "setDebug", (VALUE (*) (...)) Debug::setDebug, 1);
     rb_define_module_function(QtInternalModule, "debug", (VALUE (*) (...)) Debug::debugging, 0);
-    
+
     rb_define_module_function(QtInternalModule, "set_qtruby_embedded", (VALUE (*) (...)) set_qtruby_embedded_wrapped, 1);
     rb_define_module_function(QtInternalModule, "application_terminated=", (VALUE (*) (...)) set_application_terminated, 1);
-    
+
     rb_define_module_function(QtModule, "version", (VALUE (*) (...)) version, 0);
     rb_define_module_function(QtModule, "qtruby_version", (VALUE (*) (...)) qtruby_version, 0);
 
@@ -321,7 +334,10 @@ initializeMetaClass(const Smoke::ModuleIndex& classId, MetaClass * meta)
         MetaClass * current = metaClasses()->value(classId);
 
         Q_FOREACH(MetaClass::RubyMethod method, current->rubyMethods) {
-            rb_define_method(meta->rubyClass, method.name, method.func, method.argc);
+            if (method.isSingleton)
+                rb_define_singleton_method(meta->rubyClass, method.name, method.func, method.argc);
+            else
+                rb_define_method(meta->rubyClass, method.name, method.func, method.argc);
         }
 
         if (meta->resolver == 0 && current->resolver != 0)

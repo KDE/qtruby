@@ -92,6 +92,8 @@ namespace QtRuby {
                                             VALUE klass = Qnil);
 
         QTRUBY_EXPORT void defineMethod(const Smoke::ModuleIndex& classId, const char* name, VALUE (*func)(ANYARGS), int argc);
+        QTRUBY_EXPORT void defineSingletonMethod(const Smoke::ModuleIndex& classId, const char* name, VALUE (*func)(ANYARGS), int argc);
+
         QTRUBY_EXPORT void defineTypeResolver(const Smoke::ModuleIndex& baseClass, Object::TypeResolver);
         QTRUBY_EXPORT void resolveType(Object::Instance * instance);
 

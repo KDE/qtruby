@@ -45,6 +45,7 @@ namespace QtRuby {
             QByteArray name;
             CFunc func;
             int argc;
+            bool isSingleton;
         };
 
         Smoke::ModuleIndex classId;
