@@ -76,7 +76,7 @@ mungedMethods(const QByteArray& methodName, int argc, VALUE * args, MethodMatche
                 || TYPE(value) == T_BIGNUM
                 || value == Qtrue
                 || value == Qfalse
-//                || value.instanceOf(QtRuby::Global::QtEnum) )
+                || (TYPE(value) == T_OBJECT && rb_funcall(value, rb_intern("class"), 0) == Global::QtEnumClass)
                 || TYPE(value) == T_STRING )
         {
             if (matchState == ImplicitTypeConversionsState) {
