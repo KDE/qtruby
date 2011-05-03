@@ -35,24 +35,23 @@ static QHash<QByteArray, QVector<Smoke::ModuleIndex> > methodCache;
 
 static const char * valueToTypeFlag(VALUE value)
 {
-    const char * classname = rb_obj_classname(value);
     const char *r = "";
     if (value == Qnil)
         r = "u";
-    else if (TYPE(value) == T_FIXNUM || TYPE(value) == T_BIGNUM || qstrcmp(classname, "Qt::Integer") == 0)
+    else if (TYPE(value) == T_FIXNUM || TYPE(value) == T_BIGNUM)
         r = "i";
     else if (TYPE(value) == T_FLOAT)
         r = "n";
     else if (TYPE(value) == T_STRING)
         r = "s";
-    else if(value == Qtrue || value == Qfalse || qstrcmp(classname, "Qt::Boolean") == 0)
+    else if(value == Qtrue || value == Qfalse)
         r = "B";
-    else if (qstrcmp(classname, "Qt::Enum") == 0) {
-//        VALUE temp = rb_funcall(Global::QtInternalModule, rb_intern("get_qenum_type"), 1, value);
-//        r = StringValuePtr(temp);
+    else if ((TYPE(value) == T_OBJECT && rb_funcall(value, rb_intern("class"), 0) == Global::QtEnumClass)) {
+        VALUE temp = rb_funcall(value, rb_intern("type"), 0);
+        r = StringValuePtr(temp);
     } else if (TYPE(value) == T_DATA) {
         Object::Instance * instance = Object::Instance::get(value);
-        
+
         if (instance == 0 || instance->classId == Smoke::NullModuleIndex) {
             r = "a";
         } else {
@@ -115,7 +114,7 @@ VALUE method_missing(int argc, VALUE * argv, VALUE self)
             methodName = (char *) static_cast<const char *>(pred);
         }
     }
-    
+
     {
         if (!methodCache.contains(selector)) {
             MethodMatches matches = QtRuby::resolveMethod(instance->classId, methodName, argc - 1, argv + 1);
@@ -129,7 +128,7 @@ VALUE method_missing(int argc, VALUE * argv, VALUE self)
                 // Good, found a single best match in matches[0]
                 methodCache[selector] = matches[0].first;
             }
-            
+
             if (!methodCache.contains(selector)) {
                 if (    qstrcmp(methodName, "-") == 0
                         || qstrcmp(methodName, "+") == 0
@@ -231,9 +230,9 @@ VALUE class_method_missing(int argc, VALUE * argv, VALUE klass)
     VALUE result = Qnil;
     const char * methodName = rb_id2name(SYM2ID(argv[0]));
     QByteArray selector = selectorSignature(argc - 1, argv + 1, klass, methodName);
-    // qDebug() << Q_FUNC_INFO << "selector:" << selector;
-    Smoke::ModuleIndex classId = Global::idFromRubyClass(klass);
-    
+    qDebug() << Q_FUNC_INFO << "selector:" << selector;
+    Smoke::ModuleIndex classId = Global::idFromRubyClass(klass, true);
+
     if (!methodCache.contains(selector)) {
         MethodMatches matches = QtRuby::resolveMethod(classId, methodName, argc - 1, argv + 1);
 
@@ -316,7 +315,7 @@ VALUE initialize_qt(int argc, VALUE * argv, VALUE self)
 
     {
         VALUE klass = rb_funcall(self, rb_intern("class"), 0);
-        Smoke::ModuleIndex classId = Global::idFromRubyClass(klass);
+        Smoke::ModuleIndex classId = Global::idFromRubyClass(klass, true);
         QByteArray className(classId.smoke->classes[classId.index].className);
         QByteArray selector = selectorSignature(argc, argv, klass, className);
         // qDebug() << Q_FUNC_INFO << "selector:" << selector;

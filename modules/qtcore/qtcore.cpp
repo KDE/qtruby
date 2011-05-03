@@ -167,14 +167,11 @@ static void initializeClasses(Smoke * smoke)
         Smoke::ModuleIndex classId(smoke, i);
         QString className = QString::fromLatin1(smoke->classes[i].className);
 
-        if (    smoke->classes[i].external
-                || className.contains("Internal")
-                || className == "Qt" )
-        {
+        if (smoke->classes[i].external || className.contains("Internal")) {
             continue;
         }
 
-        if (className.startsWith("Q"))
+        if (className != "Qt" && className.startsWith("Q"))
             className = className.mid(1).prepend("Qt::");
 
         VALUE klass = Global::initializeClass(classId, className);

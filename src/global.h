@@ -84,7 +84,7 @@ namespace QtRuby {
 
         QTRUBY_EXPORT VALUE rubyClassFromId(const Smoke::ModuleIndex& classId);
         QTRUBY_EXPORT QByteArray rubyClassNameFromId(const Smoke::ModuleIndex& classId);
-        QTRUBY_EXPORT Smoke::ModuleIndex idFromRubyClass(VALUE klass);
+        QTRUBY_EXPORT Smoke::ModuleIndex idFromRubyClass(VALUE klass, bool superclasses = false);
 
         QTRUBY_EXPORT VALUE wrapInstance(   const Smoke::ModuleIndex& classId,
                                             void * ptr,

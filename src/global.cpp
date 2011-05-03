@@ -33,6 +33,7 @@
 #include "funcall.h"
 #include "methodmissing.h"
 #include "metaclass.h"
+#include "rubyqmetaobject.h"
 
 static uint qHash(const Smoke::ModuleIndex& mi) {
     return qHash(mi.index) ^ qHash(mi.smoke);
@@ -184,12 +185,21 @@ rubyClassFromId(const Smoke::ModuleIndex& classId)
 }
 
 Smoke::ModuleIndex
-idFromRubyClass(VALUE klass)
+idFromRubyClass(VALUE klass, bool superclasses)
 {
-    if (rubyMetaClasses()->contains(klass))
+    if (rubyMetaClasses()->contains(klass)) {
         return rubyMetaClasses()->value(klass)->classId;
-    else
-        return Smoke::NullModuleIndex;
+    } else {
+        if (superclasses && TYPE(klass) == T_CLASS) {
+            VALUE superclass = rb_funcall(klass, rb_intern("superclass"), 0);
+            if (superclass == rb_cObject)
+                return Smoke::NullModuleIndex;
+            else
+                return idFromRubyClass(superclass, true);
+        } else {
+            return Smoke::NullModuleIndex;
+        }
+    }
 }
 
 VALUE
@@ -321,6 +331,12 @@ initialize()
 
     rb_define_module_function(QtModule, "version", (VALUE (*) (...)) version, 0);
     rb_define_module_function(QtModule, "qtruby_version", (VALUE (*) (...)) qtruby_version, 0);
+
+    QObjectClassId = Smoke::findClass("QObject");
+    defineSingletonMethod(QObjectClassId, "slots", (VALUE (*) (...)) ruby_slots, -1);
+    defineSingletonMethod(QObjectClassId, "private_slots", (VALUE (*) (...)) ruby_private_slots, -1);
+    defineSingletonMethod(QObjectClassId, "signals", (VALUE (*) (...)) ruby_signals, -1);
+    defineSingletonMethod(QObjectClassId, "q_classinfo", (VALUE (*) (...)) ruby_classinfo, 2);
 
     Debug::DoDebug = (Debug::MethodMatches | Debug::MethodMissing | Debug::Calls | Debug::GC);
     // Debug::DoDebug = (Debug::MethodMatches | Debug::MethodMissing | Debug::Calls | Debug::GC | Debug::Virtual);

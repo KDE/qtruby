@@ -40,11 +40,11 @@ constructorName(const Smoke::ModuleIndex& classId)
 {
     QByteArray name(classId.smoke->classes[classId.index].className);
     int pos = name.lastIndexOf("::");
-    
+
     if (pos != -1) {
         name = name.mid(pos + strlen("::"));
     }
-    
+
     return name;
 }
 
@@ -134,11 +134,11 @@ inheritanceDistance(Smoke* smoke, Smoke::Index classId, Smoke::Index baseId, int
     if (baseId == 0) {
         return 100;
     }
-    
+
     if (classId == baseId) {
         return distance;
     }
-    
+
     for (   Smoke::Index* parent = smoke->inheritanceList + smoke->classes[classId].parents; 
             *parent != 0; 
             parent++ ) 
@@ -148,7 +148,7 @@ inheritanceDistance(Smoke* smoke, Smoke::Index classId, Smoke::Index baseId, int
             return result;
         }
     }
-    
+
     return 100;
 }
 
@@ -276,7 +276,7 @@ matchArgument(VALUE actual, const Smoke::Type& typeRef)
     } else {
         matchDistance += 100;
     }
-    
+
     return matchDistance;
 }
 
@@ -297,7 +297,7 @@ findCandidates(Smoke::ModuleIndex classId, const QVector<QByteArray>& mungedMeth
                 Smoke * smoke = it.key();
                 methodId = smoke->findMethod(   smoke->idClass("QGlobalSpace"), 
                                                 smoke->idMethodName(mungedMethod) );
-                
+
                 if (methodId != Smoke::NullModuleIndex) {
                     methodIds.append(methodId);
                 }
@@ -306,9 +306,9 @@ findCandidates(Smoke::ModuleIndex classId, const QVector<QByteArray>& mungedMeth
             methodIds.append(methodId);
         }
     }
-    
+
     QVector<Smoke::ModuleIndex> candidates;
-    
+
     foreach (Smoke::ModuleIndex methodId, methodIds) {
         Smoke::Index ix = methodId.smoke->methodMaps[methodId.index].method;
         Smoke::ModuleIndex mi;
@@ -325,9 +325,9 @@ findCandidates(Smoke::ModuleIndex classId, const QVector<QByteArray>& mungedMeth
                 candidates.append(mi);
                 ix++;
             }
-        }        
+        }
     }
-    
+
     return candidates;
 }
 
@@ -341,26 +341,26 @@ resolveMethod(  Smoke::ModuleIndex classId,
     QVector<QByteArray> mungedMethods = QtRuby::mungedMethods(methodName, argc, args, matchState);
     QVector<Smoke::ModuleIndex> candidates = findCandidates(classId, mungedMethods);
     MethodMatches matches;
-        
+
     foreach (Smoke::ModuleIndex method, candidates) {
         Smoke::Method& methodRef = method.smoke->methods[method.index];
-        
+
         if ((methodRef.flags & Smoke::mf_internal) == 0) {
             QVector<Smoke::ModuleIndex> methods;
             methods.append(method);
             int matchDistance = 0;
-            
+
             // If a method is overloaded only on const-ness, prefer the
             // non-const version
             if ((methodRef.flags & Smoke::mf_const) != 0) {
                 matchDistance += 1;
             }
-            
+
             for (int i = 0; i < methodRef.numArgs; i++) {
                 VALUE actual = args[i];
                 ushort argFlags = method.smoke->types[method.smoke->argumentList[methodRef.args+i]].flags;
                 int distance = matchArgument(actual, method.smoke->types[method.smoke->argumentList[methodRef.args+i]]);
-                
+
                 if (matchState == ImplicitTypeConversionsState) {
                     if ((argFlags & Smoke::tf_elem) == Smoke::t_class && distance >= 100) {
                         QByteArray className = typeName(method.smoke->types[method.smoke->argumentList[methodRef.args+i]]);
@@ -369,20 +369,20 @@ resolveMethod(  Smoke::ModuleIndex classId,
                                                                 constructorName(argClassId), 
                                                                 1, &actual,
                                                                 ArgumentTypeConversionState );
-                        
+
                         if (cmatches.count() > 0 && cmatches[0].second <= 10) {
                             matchDistance += cmatches[0].second;
                             methods.append(cmatches[0].first[0]);
                             continue;
                         }
-                        
+
                         if (TYPE(actual) == T_DATA) {
                             Object::Instance * instance = Object::Instance::get(actual);
                             cmatches = resolveMethod(   instance->classId, 
                                                         QByteArray("operator ") + className, 
                                                         0, 0,
                                                         ArgumentTypeConversionState );
-                            
+
                             if (cmatches.count() > 0 && cmatches[0].second <= 10) {
                                 matchDistance += cmatches[0].second;
                                 methods.append(cmatches[0].first[0]);
@@ -390,13 +390,13 @@ resolveMethod(  Smoke::ModuleIndex classId,
                             }
                         }
                     }
-                    
+
                     methods.append(Smoke::NullModuleIndex);
                 }
-                
+
                 matchDistance += distance;
             }
-            
+
             if (matches.count() > 0 && matchDistance <= matches[0].second) {
                 matches.prepend(MethodMatch(methods, matchDistance));
             } else {
@@ -412,7 +412,7 @@ resolveMethod(  Smoke::ModuleIndex classId,
         // conversions can be done for the arguments
         matches = resolveMethod(classId, methodName, argc, args, ImplicitTypeConversionsState);
     }
-    
+
     if (matchState != ImplicitTypeConversionsState && (Debug::DoDebug & Debug::MethodMatches) != 0) {
         QStringList argsString;
         for (int i = 0; i < argc; ++i) {
@@ -436,7 +436,7 @@ resolveMethod(  Smoke::ModuleIndex classId,
                 matches[i].second);
         }
     }
-    
+
     return matches;    
 }
 
@@ -456,7 +456,7 @@ constructCopy(Object::Instance* instance)
         qWarning("QtRuby::constructCopy() failed %s %p\n", className, instance->value);
         return 0;
     }
-    
+
     Smoke::Index method = ccMethod.smoke->methodMaps[ccMethod.index].method;
     if (method > 0) {
         // Make sure it's a copy constructor

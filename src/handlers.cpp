@@ -292,14 +292,10 @@ static void marshall_basetype(Marshall *m)
         }
         case Marshall::ToVALUE:
         {
-            qDebug() << Q_FUNC_INFO << "enum:" << m->type().name() << " value:" << m->item().s_enum;
             *(m->var()) = rb_funcall(   Global::QtEnumClass,
                                         rb_intern("new"),
                                         2, INT2NUM(m->item().s_enum), rb_str_new2(m->type().name()) );
 
-//            VALUEList args;
-//            args << (uint) m->item().s_enum << m->type().name();
-//            *(m->var()) = QtRuby::Global::QtEnum.call(VALUE(), args);
             break;
         }
         default:
