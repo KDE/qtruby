@@ -23,6 +23,7 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QLocale>
 #include <QtCore/QRegExp>
+#include <QtCore/qdebug.h>
 
 #include "marshall.h"
 #include "global.h"
@@ -32,7 +33,7 @@ Q_DECLARE_METATYPE(QLocale::Country)
 Q_DECLARE_METATYPE(QList<QLocale::Country>)
 
 namespace QtRuby {
-    
+
 static void marshall_basetype(Marshall *m)
 {
     switch(m->type().element()) {        
@@ -53,7 +54,7 @@ static void marshall_basetype(Marshall *m)
             break;
         }
         break;
-    
+
     case Smoke::t_char:
         switch(m->action()) {
         case Marshall::FromVALUE:
@@ -75,7 +76,7 @@ static void marshall_basetype(Marshall *m)
             break;
         }
         break;
-    
+
     case Smoke::t_uchar:
         switch(m->action()) {
         case Marshall::FromVALUE:
@@ -97,7 +98,7 @@ static void marshall_basetype(Marshall *m)
             break;
         }
         break;
-    
+
     case Smoke::t_short:
         switch(m->action()) {
         case Marshall::FromVALUE:
@@ -119,7 +120,7 @@ static void marshall_basetype(Marshall *m)
             break;
         }
         break;
-        
+
     case Smoke::t_ushort:
         switch(m->action()) {
         case Marshall::FromVALUE:
@@ -141,7 +142,7 @@ static void marshall_basetype(Marshall *m)
             break;
         }
         break;
-        
+
     case Smoke::t_int:
         switch(m->action()) {
         case Marshall::FromVALUE:
@@ -163,7 +164,7 @@ static void marshall_basetype(Marshall *m)
             break;
         }
         break;
-        
+
     case Smoke::t_uint:
         switch(m->action()) {
         case Marshall::FromVALUE:
@@ -185,7 +186,7 @@ static void marshall_basetype(Marshall *m)
             break;
         }
         break;
-        
+
     case Smoke::t_long:
         switch(m->action()) {
         case Marshall::FromVALUE:
@@ -207,7 +208,7 @@ static void marshall_basetype(Marshall *m)
             break;
         }
         break;
-        
+
     case Smoke::t_ulong:
         switch(m->action()) {
         case Marshall::FromVALUE:
@@ -229,7 +230,7 @@ static void marshall_basetype(Marshall *m)
             break;
         }
         break;
-        
+
     case Smoke::t_float:
         switch(m->action()) {
         case Marshall::FromVALUE:
@@ -251,7 +252,7 @@ static void marshall_basetype(Marshall *m)
             break;
         }
         break;
-        
+
     case Smoke::t_double:
         switch(m->action()) {
         case Marshall::FromVALUE:
@@ -273,7 +274,7 @@ static void marshall_basetype(Marshall *m)
             break;
         }
         break;
-        
+
     case Smoke::t_enum:
         switch(m->action()) {
         case Marshall::FromVALUE:
@@ -282,15 +283,20 @@ static void marshall_basetype(Marshall *m)
 
             if (value == Qnil) {
                 m->item().s_enum = 0;
-//            } else if (value.instanceOf(QtRuby::Global::QtEnum)) {
-//                m->item().s_enum = value.property("value").toUInt32();
+            } else if (TYPE(value) == T_OBJECT) {
+                m->item().s_enum = static_cast<uint>(NUM2UINT(rb_funcall(value, rb_intern("to_i"), 0)));
             } else {
-                m->item().s_enum = (uint) NUM2UINT(value);
+                m->item().s_enum = static_cast<uint>(NUM2UINT(value));
             }
             break;
         }
         case Marshall::ToVALUE:
         {
+            qDebug() << Q_FUNC_INFO << "enum:" << m->type().name() << " value:" << m->item().s_enum;
+            *(m->var()) = rb_funcall(   Global::QtEnumClass,
+                                        rb_intern("new"),
+                                        2, INT2NUM(m->item().s_enum), rb_str_new2(m->type().name()) );
+
 //            VALUEList args;
 //            args << (uint) m->item().s_enum << m->type().name();
 //            *(m->var()) = QtRuby::Global::QtEnum.call(VALUE(), args);
@@ -301,7 +307,7 @@ static void marshall_basetype(Marshall *m)
             break;
         }
         break;
-        
+
     case Smoke::t_class:
         switch(m->action()) {
         case Marshall::FromVALUE:
@@ -325,54 +331,54 @@ static void marshall_basetype(Marshall *m)
                 } else {
                     m->item().s_class = 0;
                 }
-                
+
                 return;
             } else if (value.isRegExp()) {
                 m->item().s_class = new QRegExp(value.toRegExp());
                 return;
             }
             */
-            
+
             if (TYPE(value) != T_DATA) {
                 m->item().s_class = 0;
                 return;
             }
-            
+
             Object::Instance * instance = Object::Instance::get(value);
             void * ptr = instance->value;
-            
+
             if (!m->cleanup() && m->type().isStack()) {
                 ptr = constructCopy(instance);
             }
-            
+
             ptr = instance->classId.smoke->cast(    ptr, 
                                                     instance->classId, 
                                                     Smoke::ModuleIndex(m->smoke(), m->type().classId()) );
-            
+
             m->item().s_class = ptr;
             break;
         }
-        
+
         case Marshall::ToVALUE:
         {
             if (m->item().s_voidp == 0) {
                 *(m->var()) = Qnil;
                 return;
             }
-            
+
             void * ptr = m->item().s_voidp;
             VALUE value = QtRuby::Global::getRubyValue(ptr);
-            
+
             if (value != Qnil) {
                 *(m->var()) = value;
                 return ;
             }
-            
+
             QByteArray className(m->smoke()->classes[m->type().classId()].className);
             VALUE obj = Global::wrapInstance(   Smoke::findClass(className),
                                                 ptr,
                                                 Object::QtOwnership );
-            
+
             if (m->type().isConst() && m->type().isRef()) {
                 Object::Instance * instance = Object::Instance::get(obj);
                 ptr = constructCopy(instance);
@@ -387,19 +393,19 @@ static void marshall_basetype(Marshall *m)
             *(m->var()) = obj;
             break;
         }
-        
+
         default:
             m->unsupported();
             break;
         }
         break;
-        
+
     default:
         m->unsupported();
         break;
     }
 }
-    
+
 static void marshall_void(Marshall * /*m*/) {}
 static void marshall_unknown(Marshall *m) {
     m->unsupported();
@@ -412,7 +418,7 @@ static void marshall_unknown(Marshall *m) {
 void marshall_QListEnum(Marshall *m) {
     switch(m->action()) {
     case Marshall::FromVALUE:
-    {        
+    {
 //        m->item().s_voidp = new QList<QLocale::Country>(qscriptvalue_cast<QList<QLocale::Country> >(*(m->var())));
         break;
     }
@@ -422,7 +428,7 @@ void marshall_QListEnum(Marshall *m) {
 //        *(m->var()) = m->engine()->toScriptValue(*(static_cast<QList<QLocale::Country>* >(m->item().s_voidp)));
         break;
     }
-    
+
     default:
         m->unsupported();
         break;
@@ -442,16 +448,16 @@ Marshall::HandlerFn Marshall::getMarshallFn(const SmokeType &type) {
     if (type.element() != 0) {
         return marshall_basetype;
     }
-    
+
     if (type.name() == 0) {
         return marshall_void;
     }
-    
+
     TypeHandler * handler = TypeHandlers[type.name()];
     if (handler == 0 && type.isConst() && qstrlen(type.name()) > qstrlen("const ")) {
         handler = TypeHandlers[type.name() + qstrlen("const ")];
     }
-    
+
     if (handler != 0) {
         return handler->fn;
     }
