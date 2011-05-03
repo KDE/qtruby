@@ -134,7 +134,7 @@ MethodCall::MethodCall( const QVector<Smoke::ModuleIndex>& methodIds,
                         VALUE target,
                         VALUE * args ) :
     m_methodIds(methodIds), m_methodRef(methodIds[0].smoke->methods[methodIds[0].index]), 
-    m_current(-1), m_target(target), m_returnValue(Qnil),
+    m_current(-1), m_target(target), m_instance(0), m_returnValue(Qnil),
     m_valueList(args), m_called(false), m_error(false)
 {
     m_methodId = m_methodIds[0]; 
