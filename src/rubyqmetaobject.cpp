@@ -291,6 +291,7 @@ static int buildMetaObject(MetaObjectBuilder *d, char *buf)
 static VALUE
 toMetaObject(MetaObjectBuilder * meta)
 {
+    qDebug() << Q_FUNC_INFO;
     if (meta->metaObject != 0) {
         Object::Instance * instance = Object::Instance::get(meta->rubyMetaObject);
         Q_ASSERT(instance->value == meta->metaObject);
@@ -302,6 +303,7 @@ toMetaObject(MetaObjectBuilder * meta)
     char *buf = reinterpret_cast<char *>(qMalloc(size));
     buildMetaObject(meta, buf);
     meta->metaObject = reinterpret_cast<QMetaObject *>(buf);
+    qDebug() << Q_FUNC_INFO << "class name:" <<  meta->metaObject->className();
     meta->rubyMetaObject = Global::wrapInstance(Global::QMetaObjectClassId, meta->metaObject, Object::ScriptOwnership);
     return meta->rubyMetaObject;
 }
@@ -312,6 +314,7 @@ Q_GLOBAL_STATIC(MetaObjectBuilderMap, metaObjectBuilders)
 static MetaObjectBuilder *
 createMetaObjectBuilder(VALUE klass)
 {
+    qDebug() << Q_FUNC_INFO;
     MetaObjectBuilder * meta = 0;
     if (metaObjectBuilders()->contains(klass)) {
         meta = metaObjectBuilders()->value(klass);
@@ -320,7 +323,6 @@ createMetaObjectBuilder(VALUE klass)
         metaObjectBuilders()->insert(klass, meta);
         VALUE name = rb_funcall(klass, rb_intern("name"), 0);
         meta->className = QByteArray(StringValuePtr(name));
-        qDebug() << Q_FUNC_INFO << "class name:" <<  meta->className;
         rb_define_method(klass, "qt_metacall", (VALUE (*) (...)) qt_metacall, -1);
         rb_define_method(klass, "metaObject", (VALUE (*) (...)) metaObject, 0);
     }
@@ -331,6 +333,7 @@ createMetaObjectBuilder(VALUE klass)
 static QMetaObject*
 parentMetaObject(VALUE obj)
 {
+    qDebug() << Q_FUNC_INFO;
     Object::Instance * instance = Object::Instance::get(obj);
     Smoke::ModuleIndex nameId = instance->classId.smoke->idMethodName("metaObject");
     Smoke::ModuleIndex meth = instance->classId.smoke->findMethod(instance->classId, nameId);
@@ -348,6 +351,7 @@ parentMetaObject(VALUE obj)
 static QMetaObject *
 createMetaObject(VALUE klass, VALUE self)
 {
+    qDebug() << Q_FUNC_INFO;
     MetaObjectBuilder * meta = createMetaObjectBuilder(klass);
     VALUE superclass = rb_funcall(klass, rb_intern("superclass"), 0);
     Smoke::ModuleIndex superClassId = Global::idFromRubyClass(superclass);
@@ -365,7 +369,8 @@ createMetaObject(VALUE klass, VALUE self)
 VALUE
 metaObject(VALUE self)
 {
-    VALUE klass = rb_funcall(klass, rb_intern("class"), 0);
+    qDebug() << Q_FUNC_INFO;
+    VALUE klass = rb_funcall(self, rb_intern("class"), 0);
     MetaObjectBuilder * meta = createMetaObjectBuilder(klass);
     if (meta->changed)
         meta->metaObject = createMetaObject(klass, self);
