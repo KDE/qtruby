@@ -199,14 +199,16 @@ matchArgument(VALUE actual, const Smoke::Type& typeRef)
             break;
         }
         }
-//    } else if (actual.instanceOf(QtRuby::Global::QtEnum)) {
-    } else if (false) {
+    } else if (TYPE(actual) == T_OBJECT && rb_funcall(actual, rb_intern("class"), 0) == Global::QtEnumClass) {
         switch (typeRef.flags & Smoke::tf_elem) {
         case Smoke::t_enum:
-//            if (actual.property("typeName").toString().toLatin1() != argType) {
-//                matchDistance += 100;
-//            }
+        {
+            VALUE temp = rb_funcall(actual, rb_intern("type"), 0);
+            if (argType != StringValuePtr(temp)) {
+                matchDistance += 100;
+            }
             break;
+        }
         case Smoke::t_uint:
             matchDistance += 1;
             break;                    
