@@ -1464,10 +1464,6 @@ qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 			o->smoke->classes[o->classId].className );
 	}
 
-    if (_c != QMetaObject::InvokeMetaMethod) {
-		return argv[1];
-	}
-
 	QObject * qobj = (QObject *) o->smoke->cast(o->ptr, o->classId, o->smoke->idClass("QObject").index);
 	// get obj metaobject with a virtual call
 	const QMetaObject *metaobject = qobj->metaObject();
@@ -1499,7 +1495,19 @@ static QRegExp * rx = 0;
 		QtRuby::InvokeSlot slot(self, rb_intern(name.toLatin1()), mocArgs, _o);
 		slot.next();
 	}
-	
+	else if (_c == QMetaObject::ReadProperty) {
+		VALUE variant = rb_funcall(self, rb_intern("qt_readprop"), 1, argv[1]);
+		smokeruby_object *smoke_variant = value_obj_info(variant);
+		_o[0] = smoke_variant->ptr;
+	}
+	else if (_c == QMetaObject::WriteProperty) {
+		smokeruby_object *smoke_variant = alloc_smokeruby_object(true,
+				qtcore_Smoke, qtcore_Smoke->idClass("QVariant").index, _o[0]);
+		VALUE variant = set_obj_info("Qt::Variant", smoke_variant);
+		rb_funcall(self, rb_intern("qt_writeprop"), 2, argv[1], variant);
+	}
+
+
 	return INT2NUM(id - count);
 }
 

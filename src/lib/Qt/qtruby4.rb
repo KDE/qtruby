@@ -56,6 +56,30 @@ module Qt
 		MethodCompatibility = 0x10
 		MethodCloned = 0x20
 		MethodScriptable = 0x40
+
+		#
+		# From the enum PropertyFlags in qt-copy/src/tools/moc/generator.cpp
+		#
+		Invalid = 0x00000000
+		Readable = 0x00000001
+		Writable = 0x00000002
+		Resettable = 0x00000004
+		EnumOrFlag = 0x00000008
+		StdCppSet = 0x00000100
+		#Override = 0x00000200
+		Constant = 0x00000400
+		Final = 0x00000800
+		Designable = 0x00001000
+		ResolveDesignable = 0x00002000
+		Scriptable = 0x00004000
+		ResolveScriptable = 0x00008000
+		Stored = 0x00010000
+		ResolveStored = 0x00020000
+		Editable = 0x00040000
+		ResolveEditable = 0x00080000
+		User = 0x00100000
+		ResolveUser = 0x00200000
+		Notify = 0x00400000
 	end
 	
 	class Base
@@ -77,6 +101,12 @@ module Qt
 			meta.changed = true
 		end
 
+		def self.properties(*propertylist)
+			meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
+			meta.add_properties(propertylist)
+			meta.changed = true
+		end
+
 		def self.q_signal(signal)
 			meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
 			meta.add_signals([signal], Internal::MethodSignal | Internal::AccessProtected)
@@ -86,6 +116,12 @@ module Qt
 		def self.q_slot(slot)
 			meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
 			meta.add_slots([slot], Internal::MethodSlot | Internal::AccessPublic)
+			meta.changed = true
+		end
+
+		def self.q_property(property)
+			meta = Qt::Meta[self.name] || Qt::MetaInfo.new(self)
+			meta.add_properties([property])
 			meta.changed = true
 		end
 
@@ -241,6 +277,54 @@ module Qt
 			ids << classid
 			ids.each { |c| Qt::Internal::findAllMethodNames(meths, c, flags) }
 			return meths.uniq
+		end
+
+		# helper to qt_metacall (from qtruby.cpp), for ReadProperty
+		def qt_readprop(idx)
+			meta = Qt::Meta[self.class.name] || Qt::MetaInfo.new(self.class)
+			idx -= metaObject.propertyOffset
+			if idx >= 0 && idx < meta.properties.length
+				prop = meta.properties[idx]
+				if prop.read
+					begin
+						ret = self.send(prop.read)
+					rescue NoMethodError
+						qWarning("#{self.class.name}: READ method #{prop.read.inspect} for property #{prop.name.inspect} not defined")
+					rescue Exception
+						qWarning("#{self.class.name}: READ method #{prop.read.inspect} for property #{prop.name.inspect} raised #{$!}")
+					end
+					#Qt::Variant.new(ret)	 # no-op if ret is already a Qt::Variant ?
+					ret.is_a?(Qt::Variant) ? ret : Qt::Variant.new(ret)
+				else
+					# shouldn't happen
+					qWarning("#{self.class.name}: no READ method found for property #{prop.name.inspect}")
+				end
+			else
+				# not our property, ignore. qt_metacall will return >=0.
+			end
+		end
+
+		# helper to qt_metacall (from qtruby.cpp), for WriteProperty
+		def qt_writeprop(idx, var)
+			meta = Qt::Meta[self.class.name] || Qt::MetaInfo.new(self.class)
+			idx -= metaObject.propertyOffset
+			if idx >= 0 && idx < meta.properties.length
+				prop = meta.properties[idx]
+				if prop.write
+					begin
+						val = prop.type == "QVariant" ? var : var.value
+						self.send(prop.write, val)
+					rescue NoMethodError
+						qWarning("#{self.class.name}: WRITE method #{prop.write.inspect} for property #{prop.name.inspect} not defined")
+					rescue Exception
+						qWarning("#{self.class.name}: WRITE method #{prop.write.inspect} for property #{prop.name.inspect} raised #{$!}")
+					end
+				else
+					qWarning("#{self.class.name}: no WRITE method found for property #{prop.name.inspect}")
+				end
+			else
+				# not our property, ignore. qt_metacall will return >=0.
+			end
 		end
 	end # Qt::Base
 	
@@ -2837,7 +2921,7 @@ module Qt
 			end
 		end
 
-		def Internal.makeMetaData(classname, classinfos, dbus, signals, slots)
+		def Internal.makeMetaData(classname, classinfos, dbus, signals, slots, properties)
 			# Each entry in 'stringdata' corresponds to a string in the
 			# qt_meta_stringdata_<classname> structure.
 			# 'pack_string' is used to convert 'stringdata' into the
@@ -2848,12 +2932,17 @@ module Qt
 
 			# This is used to create the array of uints that make up the
 			# qt_meta_data_<classname> structure in the metaObject
-			data = [1, 								# revision
-					string_table.call(classname), 	# classname
-					classinfos.length, classinfos.length > 0 ? 10 : 0, 	# classinfo
-					signals.length + slots.length, 
-					10 + (2*classinfos.length), 	# methods
-					0, 0, 							# properties
+			num_classinfo	= classinfos.length
+			offs_classinfo	= classinfos.length > 0 ? 10 : 0
+			num_methods		= signals.length + slots.length
+			offs_methods	= 10 + 2*num_classinfo
+			num_properties	= properties.length
+			offs_properties = offs_methods + 5*num_methods
+			data = [1,								# revision
+					string_table.call(classname),	# classname
+					num_classinfo, offs_classinfo,	# classinfo
+					num_methods, offs_methods,		# methods
+					num_properties, offs_properties, # properties
 					0, 0]							# enums/sets
 
 			classinfos.each do |entry|
@@ -2885,6 +2974,39 @@ module Qt
 				end
 			end
 
+			properties.each do |prop|
+				data.push string_table.call(prop.name)
+				data.push string_table.call(prop.type)
+
+				# determine property flags
+				flags = 0
+				flags |= Readable if prop.read
+				flags |= Writable if prop.write
+				# TODO: property flag StdCppSet ?
+				flags |= Resettable if prop.reset
+				# TODO: property flag EnumOrFlag ?
+				flags |= Constant if prop.constant
+				flags |= Final if prop.final
+				flags |= Designable if prop.designable
+				flags |= Scriptable if prop.scriptable
+				flags |= Stored if prop.stored
+				flags |= Editable			 # ? TODO: property flag Editable
+				flags |= User if prop.user
+				flags |= Notify if prop.notify
+				# TODO: property flags Resolve* ?
+
+				data.push flags
+			end
+			properties.each do |prop|
+				if prop.notify
+					notifyId = signals.find_index { |s| s.name == prop.notify }
+					if notifyId.nil?
+						raise "NOTIFY signal #{prop.notify} not found"
+					end
+					data.push(notifyId)
+				end
+			end
+
 			data.push 0		# eod
 
 			return [stringdata.pack(pack_string), data]
@@ -2909,8 +3031,9 @@ module Qt
 				stringdata, data = makeMetaData(	qobject.class.name,
 													meta.classinfos,  
 													meta.dbus,
-													meta.signals, 
-													meta.slots )
+													meta.signals,
+													meta.slots,
+													meta.properties )
 				meta.metaobject = make_metaObject(qobject, parentMeta, stringdata, data)
 				meta.changed = false
 			end
@@ -2977,8 +3100,67 @@ module Qt
 	#  :reply_type is 'int'
 	QObjectMember = Struct.new :name, :full_name, :arg_types, :reply_type, :access
 
+	# An entry for each property
+	class QObjectProperty
+		attr_reader :type, :name
+
+		def initialize(type, name, keys)
+			@type = type
+			@name = name
+			@keys = keys
+
+			raise "READ function required" unless @keys[:read]
+
+			# normalize function attributes
+			@keys[:write] ||= nil
+			@keys[:notify] ||= nil
+			@keys[:reset] ||= nil
+
+			# normalize booleans
+			%w[designable scriptable stored].each { |k|
+				k = k.to_sym
+				if @keys.key?(k)
+					@keys[k] = to_bool(@keys[k])
+				else
+					@keys[k] = true
+				end
+			}
+			%w[user constant final].each { |k|
+				k = k.to_sym
+				@keys[k] = to_bool(@keys[k])
+			}
+		end
+
+		def method_missing(name)
+			if @keys.key?(name)
+				@keys[name]
+			else
+				raise(NoMethodError.new("#{name}: no such property attribute"))
+			end
+		end
+
+		private
+		def to_bool(x)
+			if x.nil?
+				false
+			elsif x.is_a?(String)
+				x_ = x.downcase
+				if %[true 1 yes t].member?(x_)
+					true
+				elsif %[false 0 no f].member?(x_)
+					false
+				else
+					raise "not boolean: #{x}"
+				end
+			else
+				x && true
+			end
+		end
+	end
+
 	class MetaInfo
 		attr_accessor :classinfos, :dbus, :signals, :slots, :metaobject, :mocargs, :changed
+		attr_accessor :properties
 
 		def initialize(klass)
 			Meta[klass.name] = self
@@ -2986,6 +3168,7 @@ module Qt
 			@metaobject = nil
 			@signals = []
 			@slots = []
+			@properties = []
 			@classinfos = []
 			@dbus = false
 			@changed = false
@@ -3043,6 +3226,43 @@ module Qt
 					qWarning( "#{@klass.name}: Invalid slot format: '#{slot}'" )
 				end
 			end
+		end
+
+		def add_properties(propertylist)
+			propertylist.each { |prop|
+				if prop =~ /^([\w,<>:]*)\s+([^\s]*)(.*)/
+					type = $1
+					name = $2
+					keys = $3.split
+
+					begin
+						# turn the keyword list into a key-value hash
+						keyhash = {}
+						while keyword = keys.shift
+							k = keyword.downcase.to_sym
+							case k
+							when :read			then keyhash[k] = keys.shift
+							when :write			then keyhash[k] = keys.shift
+							when :reset			then keyhash[k] = keys.shift
+							when :notify		then keyhash[k] = keys.shift
+							when :designable	then keyhash[k] = keys.shift
+							when :scriptable	then keyhash[k] = keys.shift
+							when :stored		then keyhash[k] = keys.shift
+							when :user			then keyhash[k] = keys.shift
+							when :constant		then keyhash[k] = true
+							when :final			then keyhash[k] = true
+							else raise "unrecognized keyword '#{keyword}'"
+							end
+						end
+
+						@properties.push QObjectProperty.new(type, name, keyhash)
+					rescue
+						qWarning( "#{@klass.name}: Property #{name}: #{$!}" )
+					end
+				else
+					qWarning( "#{@klass.name}: Invalid property format: '#{prop}'" )
+				end
+			}
 		end
 
 		def add_classinfo(key, value)
