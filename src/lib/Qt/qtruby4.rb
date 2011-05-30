@@ -2628,6 +2628,8 @@ module Qt
 					return 4 + const_point
 				elsif typename =~ /^(quint|qint|qulong|qlong|qreal)/
 					return 4 + const_point
+				elsif typename =~ /^(long long)$/
+					return 2 + const_point
 				else 
 					t = typename.sub(/^const\s+/, '')
 					t.sub!(/[&*]$/, '')
