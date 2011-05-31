@@ -1863,6 +1863,7 @@ make_metaObject(VALUE /*self*/, VALUE obj, VALUE parentMeta, VALUE stringdata_va
 	QMetaObject * meta = new QMetaObject;
 	*meta = ob;
 
+#define DEBUG
 #ifdef DEBUG
 	printf("make_metaObject() superdata: %p %s\n", meta->d.superdata, superdata->className());
 	

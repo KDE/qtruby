@@ -3230,7 +3230,44 @@ module Qt
 
 		def add_properties(propertylist)
 			propertylist.each { |prop|
-				if prop =~ /^([\w,<>:]*)\s+([^\s]*)(.*)/
+				if prop.is_a?(Symbol)
+
+					# properties :foo
+					#  =
+					# signals 'fooChanged(QVariant)'
+					# properties 'QVariant foo READ foo WRITE foo NOTIFY fooChanged'
+
+					proptype = "QVariant"
+					propname = prop.to_s
+
+					# add the notify signal
+					signame  = propname + "Changed"
+					sigspec  = signame + "(" + proptype + ")"
+					sigflags = Internal::MethodSignal | Internal::AccessProtected
+					@signals.push QObjectMember.new(signame, sigspec, proptype, "", sigflags)
+					Internal.addSignalMethods(@klass, [signame])
+
+					# add reader and writer
+					writer  = propname + "="
+					propvar = ("@" + propname).to_sym
+					#@klass.send(:define_method, prop) {
+					#	instance_variable_get(propvar)
+					#}
+					@klass.send(:attr_reader, prop)
+					@klass.send(:define_method, writer) { |x|
+						x = x.value if x.is_a?(Qt::Variant)
+						instance_variable_set(propvar, x)
+						self.send(signame.to_sym, x)
+						x
+					}
+
+					# add the property
+					keys = { :read  => propname,
+							 :write => writer,
+							 :notify => signame }
+					@properties.push QObjectProperty.new(proptype, propname, keys)
+						
+				elsif prop =~ /^([\w,<>:]*)\s+([^\s]*)(.*)/
 					type = $1
 					name = $2
 					keys = $3.split
@@ -3259,6 +3296,7 @@ module Qt
 					rescue
 						qWarning( "#{@klass.name}: Property #{name}: #{$!}" )
 					end
+
 				else
 					qWarning( "#{@klass.name}: Invalid property format: '#{prop}'" )
 				end
