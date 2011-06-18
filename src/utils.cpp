@@ -81,7 +81,7 @@ mungedMethods(const QByteArray& methodName, int argc, VALUE * args, MethodMatche
         {
             if (matchState == ImplicitTypeConversionsState) {
                 QVector<QByteArray> temp;
-                foreach (QByteArray mungedMethod, result) {
+                foreach (const QByteArray& mungedMethod, result) {
                     temp.append(mungedMethod + '$');
                     temp.append(mungedMethod + '#');
                 }
@@ -94,7 +94,7 @@ mungedMethods(const QByteArray& methodName, int argc, VALUE * args, MethodMatche
         } else if (TYPE(value) == T_ARRAY) {
             if (matchState == ImplicitTypeConversionsState) {
                 QVector<QByteArray> temp;
-                foreach (QByteArray mungedMethod, result) {
+                foreach (const QByteArray& mungedMethod, result) {
                     temp.append(mungedMethod + '?');
                     temp.append(mungedMethod + '#');
                 }
@@ -106,7 +106,7 @@ mungedMethods(const QByteArray& methodName, int argc, VALUE * args, MethodMatche
             }
         } else if (value == Qnil) {
             QVector<QByteArray> temp;
-            foreach (QByteArray mungedMethod, result) {
+            foreach (const QByteArray& mungedMethod, result) {
                 temp.append(mungedMethod + '$');
                 temp.append(mungedMethod + '?');
                 temp.append(mungedMethod + '#');
@@ -286,7 +286,7 @@ findCandidates(Smoke::ModuleIndex classId, const QVector<QByteArray>& mungedMeth
     Smoke::Class & klass = classId.smoke->classes[classId.index];
     QVector<Smoke::ModuleIndex> methodIds;
 
-    foreach (QByteArray mungedMethod, mungedMethods) {
+    foreach (const QByteArray& mungedMethod, mungedMethods) {
         Smoke::ModuleIndex methodId = classId.smoke->findMethod(klass.className, mungedMethod);
 
         if (methodId.index == 0) {
@@ -309,7 +309,7 @@ findCandidates(Smoke::ModuleIndex classId, const QVector<QByteArray>& mungedMeth
 
     QVector<Smoke::ModuleIndex> candidates;
 
-    foreach (Smoke::ModuleIndex methodId, methodIds) {
+    foreach (const Smoke::ModuleIndex& methodId, methodIds) {
         Smoke::Index ix = methodId.smoke->methodMaps[methodId.index].method;
         Smoke::ModuleIndex mi;
         if (ix == 0) {
@@ -342,7 +342,7 @@ resolveMethod(  Smoke::ModuleIndex classId,
     QVector<Smoke::ModuleIndex> candidates = findCandidates(classId, mungedMethods);
     MethodMatches matches;
 
-    foreach (Smoke::ModuleIndex method, candidates) {
+    foreach (const Smoke::ModuleIndex& method, candidates) {
         Smoke::Method& methodRef = method.smoke->methods[method.index];
 
         if ((methodRef.flags & Smoke::mf_internal) == 0) {
