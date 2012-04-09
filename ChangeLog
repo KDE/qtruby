@@ -1,3 +1,8 @@
+2012-04-09  Richard Dale  <richard.j.dale@gmail.com>
+
+    * Rename rb_str_catf() as qtruby_str_catf() as it clashes with a function
+    in Ruby 1.9.2 with the same name
+
 2011-05-30  Richard Dale  <richard.j.dale@gmail.com>
 
     * 'long long' types were no longer being marshalled correctly
@@ -9,7 +14,7 @@
 
 2011-04-23  Richard Dale  <richard.j.dale@gmail.com>
 
-    * Apply a patch from David Palacio which fixes a crash when creating a 
+    * Apply a patch from David Palacio which fixes a crash when creating a
       Qt::Variant from a list or a hash
 
 2010-06-22  Richard Dale  <richard.j.dale@gmail.com>
@@ -26,9 +31,9 @@
 	  idea IMHO.
 
 2010-03-14  Richard Dale  <richard.j.dale@gmail.com>
-	
-	* The QtDBus classes weren't being correctly initialized as the count of 
-	  classes was being taken from the QtSvg smoke lib. Thanks to Paulo 
+
+	* The QtDBus classes weren't being correctly initialized as the count of
+	  classes was being taken from the QtSvg smoke lib. Thanks to Paulo
 	  Capriotti for finding the bug.
 
 2010-03-07  Richard Dale  <richard.j.dale@gmail.com>
@@ -36,7 +41,7 @@
 	  reported by ruby.twiddler
 	* Drag and drop events in Plasma applets weren't being handled correctly.
 	  Fixes problem reported by Robert Riemann
-	* QtRuby overrides public_methods(), singleton_methods() and 
+	* QtRuby overrides public_methods(), singleton_methods() and
 	  protected_methods(), but omitted the optional 'all' argument. Thanks to
 	  Paolo Capriotti for the fix and bug report.
 
@@ -51,7 +56,7 @@
       in QtRuby, so add a 'private_slots' method to declare them. For example:
 
         class MyFirstTest < Qt::Object
-            private_slots   :initTestCase, :myFirstTest, 
+            private_slots   :initTestCase, :myFirstTest,
                             :mySecondTest, :cleanupTestCase
 
 2009-11-12  Richard Dale  <richard.j.dale@gmail.com>
@@ -89,7 +94,7 @@
         This makes a difference between being and being not able to run
         with GC.stress= true. Reason unclear, comments appreciated.
 
-        2) Extended typename =~ /^(?:u?char\*)$/ checks to support 
+        2) Extended typename =~ /^(?:u?char\*)$/ checks to support
         unsigned char.
 
         3) Skip "def instance_exec" if it is already defined
@@ -119,8 +124,8 @@
 	  primitive types to be passed as arguments where the expected arg type
 	  was a Qt::Variant. However, it subverts the 'munged method name' scheme
 	  of fast overloaded method resolution because for every method argument of
-	  type '#' (a class), it adds another of type '$' (a primitive type). So 
-	  with that scheme we might as well have only two of the munged method 
+	  type '#' (a class), it adds another of type '$' (a primitive type). So
+	  with that scheme we might as well have only two of the munged method
 	  types instead of three. Sometime we need to add support for C++ implicit
 	  constructors in resolving overloaded methods at runtime, but that is a
 	  really hard problem. In the meantime I think it is best to add support
@@ -128,7 +133,7 @@
 	  such as was done for the QtDBus and Plasma Data Engine apis.
 
 2009-06-23  Richard Dale  <richard.j.dale@gmail.com>
-	* In smokeruby_mark() layouts owned by QWidgets or QGraphicsWidgets are 
+	* In smokeruby_mark() layouts owned by QWidgets or QGraphicsWidgets are
 	  now marked. Items owned by QLayouts or QGraphicsLayouts are also marked.
 	  This fixes some premature garbage collection problems in Plasma Applets,
 	  reported by David Palacio.
@@ -143,24 +148,24 @@
 	  a Plasma::PopupApplet to match the underlying C++ type.
 
 2009-04-17  Richard Dale  <richard.j.dale@gmail.com>
-	* When Qt::StandardItemModel#setItemPrototype was used with a 
-      Qt::StandardItem it crashed because the clone() method was using 
+	* When Qt::StandardItemModel#setItemPrototype was used with a
+      Qt::StandardItem it crashed because the clone() method was using
       Object#clone. So special case the clone() method. Thanks to Stefano Crocco
       for reporting the bug.
 
 2009-04-07  Richard Dale  <richard.j.dale@gmail.com>
-	* The ActiveRecord based model classes were setting changed values in the 
+	* The ActiveRecord based model classes were setting changed values in the
 	  'attributes' and then saving the changed instance, like this
- 
+
 	  foo.attributes['my_att'] = value
 	  foo.save
 
-	  However, this no longer works with ActiveRecord, and the instance can 
+	  However, this no longer works with ActiveRecord, and the instance can
 	  be changed more directly like this
-	  
+
 	  foo['my_att'] = value
 	  foo.save
-	* QtRuby wasn't building on Mac OS X with a version of Qt built without 
+	* QtRuby wasn't building on Mac OS X with a version of Qt built without
 	  QtDBus support, so add some #ifdefs to fix that
 
 2009-03-24  Richard Dale  <richard.j.dale@gmail.com>
@@ -169,8 +174,8 @@
 2009-03-20  Richard Dale  <richard.j.dale@gmail.com>
 	* Remove 'LIBRARY' from this line in qtruby/src/CMakeLists.txt:
 
-	  install(TARGETS qtruby4shared 
-	          LIBRARY DESTINATION 
+	  install(TARGETS qtruby4shared
+	          LIBRARY DESTINATION
 	          ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX} )
 
 	  It was causing problems with a configuration error when building QtRuby
@@ -190,9 +195,9 @@
 	  to Stefano Crocco for finding the problem.
 	* A problem has been found with QtRuby when it is run with Ruby 1.9.1
 	  and GC.stess is true. Thanks to Davor Ocelic for reporting it.
-	  In the smokeruby_mark() function called during garbage collection, 
-	  any virtual methods which are called on the instances being checked 
-	  could have overriden by Ruby methods.  So the Wt::Ruby runtime uses 
+	  In the smokeruby_mark() function called during garbage collection,
+	  any virtual methods which are called on the instances being checked
+	  could have overriden by Ruby methods.  So the Wt::Ruby runtime uses
 	  'respond_to()' to find out whether they have been overriden.
 	  However, this involves calling 'rb_intern()' on the method name,
 	  which means memory could be allocated, giving an error when running under
@@ -208,7 +213,7 @@
 		  This means that there is no longer a need for different sym links to
 		  the script for each QtRuby extension.
 		- One or more class names can be specifed. If no class name is given
-		  it means that all of the classes in the loaded QtRuby extensions 
+		  it means that all of the classes in the loaded QtRuby extensions
 		  should be searched
 		- A '-s' option attempts to show matching methods with Ruby types
 	* Removed the rbqtsh program as it was never really very useful
@@ -223,20 +228,20 @@
 	  as Soprano
 
 2009-02-25  Richard Dale  <richard.j.dale@gmail.com>
-	* Restored the note in the COPYING file about having permission from 
+	* Restored the note in the COPYING file about having permission from
 	  Trolltech, now Qt Software, to use the 'Qt' in QtRuby.
 
 2009-02-07  Richard Dale  <richard.j.dale@gmail.com>
-	* Add a Qt::dynamic_cast method as a synonym with a less clunky name for 
+	* Add a Qt::dynamic_cast method as a synonym with a less clunky name for
 	  Qt::Internal.cast_object_to
 
 2009-02-04  Richard Dale  <richard.j.dale@gmail.com>
-	* In Ruby 1.9.1 the arity of a block with no arguments is 0, whereas in 
-	  Ruby 1.8.x it is -1. This meant that blocks passed to QtRuby 
+	* In Ruby 1.9.1 the arity of a block with no arguments is 0, whereas in
+	  Ruby 1.8.x it is -1. This meant that blocks passed to QtRuby
 	  constructors with no args weren't working with Ruby 1.9.1
 
 2009-02-02  Richard Dale  <richard.j.dale@gmail.com>
-	* Set up a RUBY_VERSION macro to use to test for whether QtRuby is being 
+	* Set up a RUBY_VERSION macro to use to test for whether QtRuby is being
 	  built for Ruby 1.9 or not. Add patches from Mr Napalm for building with
 	  Ruby 1.9, for the new 'per string' encoding. Also add conditional code
 	  for whether to use the new rb_frame_callee() function or the old
@@ -247,7 +252,7 @@
 	  to construct which meant that it didn't work with classnames containing
 	  '::' scope operators. So strip out the scope part of the classname to
 	  create the consructor name.
-	* Make Qt::Internal#try_initialize catch a ':newqt' symbol rather than a 
+	* Make Qt::Internal#try_initialize catch a ':newqt' symbol rather than a
 	  string.
 
 2009-01-14  Richard Dale  <richard.j.dale@gmail.com>
@@ -256,7 +261,7 @@
 
 2009-01-13  Richard Dale  <richard.j.dale@gmail.com>
 	* Upped the QtRuby version number to 2.0.0
-	* Special cased some constants whose names clashed with Ruby classes. 
+	* Special cased some constants whose names clashed with Ruby classes.
 
 2008-12-19  Richard Dale  <richard.j.dale@gmail.com>
 	* When the construct_copy() function was used to copy and instance, it
@@ -266,7 +271,7 @@
 	  Palacio
 
 2008-12-18  Richard Dale  <richard.j.dale@gmail.com>
-	* Added another patch from Davor Ocelic for Ruby 1.9 compatible RSTRING 
+	* Added another patch from Davor Ocelic for Ruby 1.9 compatible RSTRING
 	  usage - thanks Davor
 
 2008-12-12  Richard Dale  <richard.j.dale@gmail.com>
@@ -289,7 +294,7 @@
 	  report.
 
 2008-12-11  Richard Dale  <richard.j.dale@gmail.com>
-	* Make some changes from the patch at 
+	* Make some changes from the patch at
       http://napalm.sf.cz/qt4-qtruby-ruby1.9.patch to make it easier to port
 	  qtruby to Ruby 1.9. Thanks to Davor Ocelic and Mr Napalm.
 
@@ -320,7 +325,7 @@
 
 	* From Bartosz Wadolowski (thanks for the patch):
 
-	unsigned char* marshalling in qtruby didn't work. The patch works as char* 
+	unsigned char* marshalling in qtruby didn't work. The patch works as char*
 	case does - I simply copied code and added one casting.
 	It also fixes method matching with string argument in qtruby4.rb. In
 	cases when method could take constant or regular (unsigned)char
@@ -332,7 +337,7 @@
 
 	  QImage ( uchar * data, int width, int height, Format format )
 	  QImage ( const uchar * data, int width, int height, Format format )
-	  QImage ( uchar * data, int width, int height, int bytesPerLine, Format 
+	  QImage ( uchar * data, int width, int height, int bytesPerLine, Format
                format )
 	  QImage ( const uchar * data, int width, int height, int bytesPerLine,
 			  Format format )
@@ -367,7 +372,7 @@
 
 2008-08-22  Richard Dale  <richard.j.dale@gmail.com>
 
-	* Argument types of 'unsigned short' were not being matched in the 
+	* Argument types of 'unsigned short' were not being matched in the
 	  overloaded method resolution code which was causing a Qt::KeyEvent
 	  constructor to fail. Fixes a problem reported by Stefano Crocco.
 
@@ -385,8 +390,8 @@
 
 2008-08-11  Richard Dale  <richard.j.dale@gmail.com>
 
-	* Added a qobject_cast() method that uses qt_metacast() to cast one 
-	  instance of QObject to another. This allow the KTextEditor:: 
+	* Added a qobject_cast() method that uses qt_metacast() to cast one
+	  instance of QObject to another. This allow the KTextEditor::
 	  interface classes to be used. Fixes a problem reported by Stefano
 	  Crocco. Example usage:
 
@@ -417,8 +422,8 @@
 2008-07-21  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Qt::Variant.fromValue() and Qt::Variant.value() now both work correctly
-	  with custom types, after a regression in the change to modular smoke. 
-	  It should no longer be necessary to use qVariantValue() or 
+	  with custom types, after a regression in the change to modular smoke.
+	  It should no longer be necessary to use qVariantValue() or
 	  qVariantFromValue().
 	* In the smoke library method calls for pure virtual methods were not
 	  being generated, only callbacks to override them. However, that
@@ -444,7 +449,7 @@
 2008-07-13  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Remove the smoke2kross() function as it isn't needed anymore. Change
-	  the kross2smoke() function so that it assumes Kross will return a 
+	  the kross2smoke() function so that it assumes Kross will return a
 	  pointer to a pointer, instead of just a pointer to the C++ instance.
 
 2008-07-12  Richard Dale  <richard.j.dale@gmail.com>
@@ -453,7 +458,7 @@
       the C++ instance is at the start. This should make it easier for
 	  QtRuby to interoperate with Kross
 	* The type of a slot arg should always be in the smoke module of the slot
-	  being invoked. However, that isn't true for a dataUpdated() slot in a 
+	  being invoked. However, that isn't true for a dataUpdated() slot in a
       PlasmaScripting::Applet. So make GetMocArguments search through all the
 	  loaded smoke modules if the arg type isn't found at first.
 	* In the GC mark function the tests for a QObject type had gone missing, so
@@ -504,7 +509,7 @@
 2008-06-22  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Fix bug in resolve_classname_qt() caused by missing break statments
-	* Move list marshaller macro definitions to the top of the 
+	* Move list marshaller macro definitions to the top of the
 	  marshall_macros.h header, and add a DEF_HASH_MARSHALLER macro
 	* Add a set_qtruby_embedded() function to qtruby for use with plugins
 	  like plasma
@@ -524,7 +529,7 @@
 2008-06-13  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Remove unnecessary special casing for Qt::TextEdit::ExtraSelection,
-      just make it an ording QtRuby class instead of a Struct, and add a 
+      just make it an ording QtRuby class instead of a Struct, and add a
 	  marshaller for QList<QTextEdit::ExtraSelection>
 
 2008-06-14  Arno Rehn  <arno@arnorehn.de>
@@ -545,7 +550,7 @@
 	  library, such as KAction, it was failing to resolve it. This was
 	  because it was only looking in the smoke library of the arg type
 	  declared in the method. Hence, an arg type of 'QAction' was not
-	  being resolved to 'KAction'. Thanks to Stefano Crocco for reporting 
+	  being resolved to 'KAction'. Thanks to Stefano Crocco for reporting
 	  the bug.
 
 2008-06-09  Richard Dale  <richard.j.dale@gmail.com>
@@ -582,7 +587,7 @@
 2008-05-28  Richard Dale  <richard.j.dale@gmail.com>
 
 	* The enum Qt::Process::StandardError was clashing with the exception of
-	  the same name, so add a constant to the Qt::Process class instead. 
+	  the same name, so add a constant to the Qt::Process class instead.
 	  Thanks to Stefano Crocco for reporting the bug.
 
 2008-05-22  Arno Rehn  <arno@arnorehn.de>
@@ -596,9 +601,9 @@
 	  was. This caused a crash. Why such a major problem hasn't caused any
 	  problems before is a mystery - it wasn't a result of the modular smoke
 	  changes.
-	* qtruby4.rb calls Kernel#y instead of Qt::Point#y on inspect and 
+	* qtruby4.rb calls Kernel#y instead of Qt::Point#y on inspect and
 	  pretty_print when the yaml gem is loaded.
-	  The attached patch fixes the problem by calling Qt::Point#y and 
+	  The attached patch fixes the problem by calling Qt::Point#y and
 	  Qt::PointF#y explicitly. Thanks to Paolo Capriotti for the bug report
 	  and fix.
 
@@ -629,7 +634,7 @@
 2008-04-14  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Special case the KDE::DateTime and KDE::TimeZone classes so that
-	  nested classes, such as KDE::DateTime::Spec work with them. 
+	  nested classes, such as KDE::DateTime::Spec work with them.
 	  TODO: make this work automatically without needing extra code.
 
 2008-04-10  Richard Dale  <richard.j.dale@gmail.com>
@@ -646,7 +651,7 @@
 	  virtual method callbacks and slot invocations in wrapped with
 	  a rb_protect() call. Otherwise, rb_funcall() is called directly
 	  and any uncaught Ruby exceptions will terminate the app.
-	* Borrowed a function from the kross code to put out an error message 
+	* Borrowed a function from the kross code to put out an error message
 	  and stacktrace on stderr for the current exception, when qtruby
 	  has been compiled with the embedded option.
 
@@ -664,8 +669,8 @@
 	  giving sys stackerror exceptions because the stack underflowed
 	  relative to where it was when the krubypluginfactory was loaded.
 	* Add more checking for Qnil in the marshallers for primitive types
-	  to make the runtime more robust. 
-	* Added some more range=(Range) methods as synonyms for 
+	  to make the runtime more robust.
+	* Added some more range=(Range) methods as synonyms for
 	  setRange(Integer, Integer)
 	* Changed the examples to use range=
 	* Added a rbplasmaapi command line tool for introspecting the Ruby api
@@ -719,12 +724,12 @@
 
 	* When a method call began or ended with an underscore, and it
 	  was missing from a qtruby instance, it caused ruby to loop,
-	  rather than report the method as missing. Thanks to Daniel 
+	  rather than report the method as missing. Thanks to Daniel
 	  Brumbaugh Keeney for reporting the bug.
 
 2008-03-04  Richard Dale  <richard.j.dale@gmail.com>
 
-	* Make symbolic links to rbqtapi as rbqt3api, rbqt4api, rbkdeapi 
+	* Make symbolic links to rbqtapi as rbqt3api, rbqt4api, rbkdeapi
 	  and rbkde4api
 
 2008-03-03  Richard Dale  <richard.j.dale@gmail.com>
@@ -796,7 +801,7 @@ value
 
 	* Fixed a regression introduced when slots were made directly
 callable.
-	  It broke the code to invoke remote QtDBus methods because the 
+	  It broke the code to invoke remote QtDBus methods because the
 	  remote methods become slots in the QMetaObject of the
 QDBusInterface
 	  being used as a proxy. The code was trying to invoke those slots
@@ -834,7 +839,7 @@ on
 2007-09-07  Richard Dale  <rdale@foton.es>
 
 	* Added a kross2qtruby method from Cyrille Berger to convert from a
-kross 
+kross
 	  instance to a qtruby instance
 	* Fixed bug in overloaded method resolution where a quint32 was being
 given
@@ -853,7 +858,7 @@ for
 	* Fixed an error in the QGraphicsPixmapItem class which made it
 impossible
 	  to instantiate
-	* Building QtRuby against Qt 4.2 failed because of a reference to 
+	* Building QtRuby against Qt 4.2 failed because of a reference to
 	  the Qt 4.3 QMdiSubWindow class not being #ifdef'd correctly. Thanks
 to
 	  mhlmi on #qtruby irc for reporting these two bugs.
@@ -901,7 +906,7 @@ QXmlStream*
 
 2007-03-17  Richard Dale  <rdale@foton.es>
 
-	* The code to allow the type() method to be used for Qt::GraphicsItem 
+	* The code to allow the type() method to be used for Qt::GraphicsItem
 	  classes had the wrong names for the classes
 	* Improved the resolution of QGraphicsItem classes in
 resolve_classname()
@@ -920,25 +925,25 @@ malloc'd
 with the
 	  small number of methods that 'took ownership' of the string and
 expected
-	  it to stay around after the method call. However, it introduces a 
+	  it to stay around after the method call. However, it introduces a
 	  memory leak for the 95% of methods that don't need it, and also
 means
-	  that if the 'char *' is changed during the method call, the changes 
+	  that if the 'char *' is changed during the method call, the changes
 	  aren't reflected in the ruby string. Thanks to Jan Wedekind for the
-	  discussion leading up to changing the code. Any methods where this 
+	  discussion leading up to changing the code. Any methods where this
 	  behaviour is wrong will now need to be special cased.
 
 2007-03-06  Richard Dale  <rdale@foton.es>
 
 	* Call rb_gc_mark() on the internalPointer VALUE within a
-Qt::ModelIndex 
+Qt::ModelIndex
 	  to prevent it being GC'd too early
 	* Added 'double&' and 'double*' marshallers
 	* Fixed memory leak when creating new Qt::ModelIndexes
 
 2007-02-27  Richard Dale  <rdale@foton.es>
 
-	* Added marshallers for QwtArray<double> and QwtArray<int> 
+	* Added marshallers for QwtArray<double> and QwtArray<int>
 	  (ie QVector<int>)
 	* Added a fix from Knut Franke to make the QVector<double> marshaller
 	  work with any sort of Ruby number. Thanks Knut..
@@ -954,14 +959,14 @@ Qt::ModelIndex
 DateTimes.
 	  Qt::Dates, Qt::Times and Qt::DateTimes can also be constructed from
 	  their ruby equivalents as a single arg. This makes it easier to
-	  integrate Qt::AbstractItemModels with Rails ActiveRecord and 
+	  integrate Qt::AbstractItemModels with Rails ActiveRecord and
 	  ActiveResource
 
 2007-02-17  Richard Dale  <rdale@foton.es>
 
 	* If a new Ruby class is created for a custom C++ QObject derived
 class,
-	  then create Ruby constants in the class for any enums defined via 
+	  then create Ruby constants in the class for any enums defined via
 	  Q_ENUMS which are in the same scope as the new class. For instance:
 
 		class TestObject : public QObject
@@ -1035,7 +1040,7 @@ Qt::DBusVariant
 	* QtRuby was crashing in virtual method callbacks with a memory
 corruption
 	  problem. The stack of ruby VALUES for the arguments to the callback
-is 
+is
 	  now allocated via ALLOCA_N, rather than calloc which cures the
 crashes.
 	* Changed tabs to spaces in the pixelator example
@@ -1052,11 +1057,11 @@ camel
 
 	* Added the painting/fontsampler example
 	* There is no way to distinguish between the two constructors:
-	 	 QTreeWidgetItem (const QTreeWidgetItem & other) 
-		 QTreeWidgetItem (QTreeWidgetItem * parent, const QStringList & 
+	 	 QTreeWidgetItem (const QTreeWidgetItem & other)
+		 QTreeWidgetItem (QTreeWidgetItem * parent, const QStringList &
            strings, int type = Type)
 	  when the latter has a single argument. So force the second variant
-to 
+to
       be called
 	* Added the desktop/screenshot example
 	* Added the desktop/systray example
@@ -1070,7 +1075,7 @@ image
 	  from another. This is because the C++ QImage::operator=(const
 QImage&)
 	  method isn't easily called from QtRuby
-	* Fixed do_method_missing() so that 'operator=' methods don't get 
+	* Fixed do_method_missing() so that 'operator=' methods don't get
 	  transformed into setOperator() methods
 
 2006-12-12  Richard Dale  <rdale@foton.es>
@@ -1118,7 +1123,7 @@ qVariantFromValue
 2006-11-30  Richard Dale  <rdale@foton.es>
 
 	* The Qt::KeySequence constructor wasn't working when passed a
-	  Qt::Key enum type and it needed to be cast to an Integer via 
+	  Qt::Key enum type and it needed to be cast to an Integer via
 	  a to_i() call.
 	* When a Qt::DBusInterface.call() method was invoked without using
 	  the call() method, but by calling the method directly, and the
@@ -1127,7 +1132,7 @@ method
 	  value was converted to nil.
 	* Fixed some errors in the mainwindows/mdi example, thanks to shirk
 	  and |Vargas| for pointing them out.
-	  
+
 2006-11-23  Richard Dale  <rdale@foton.es>
 
 	* Made Qt::TreeWidgetItem and Qt::TreeWidget Enumerable
@@ -1136,7 +1141,7 @@ method
 	* Added inspect() and pretty_print() methods to Qt::TreeWidgetItem,
 	  Qt::ListWidgetItem and Qt::TableWidgetItem
 	* Removed instructions for creating a 'rubyw' executable in Mac OS X
-	  as it isn't needed anymore with Qt 4.x. Thanks to Hans Fugal for 
+	  as it isn't needed anymore with Qt 4.x. Thanks to Hans Fugal for
 	  pointing that out.
 
 2006-11-21  Richard Dale  <rdale@foton.es>
@@ -1212,7 +1217,7 @@ QGradiantStops
 
 2006-10-05  Richard Dale  <rdale@foton.es>
 
-	* Each rbuic generated class is now wrapped in a Ui module so that as 
+	* Each rbuic generated class is now wrapped in a Ui module so that as
 	  well as class 'Ui_Foobar' there is a 'Ui::Foobar' version.
 
 	* Added the QtDBus chat example
@@ -1230,7 +1235,7 @@ passed
 2006-10-03  Richard Dale  <rdale@foton.es>
 
 	* Added ruby implementations of
-Qt::DBusConnectionInterface.serviceOwner(), 
+Qt::DBusConnectionInterface.serviceOwner(),
 	  registeredServiceNames(), isServiceRegistered(), servicePid(),
 serviceUid()
 	  and startService()
@@ -1260,11 +1265,11 @@ like
 
 		app = Qt::Application.new(ARGV)
 		bus = Qt::DBusConnection.sessionBus()
-		proxy = Qt::DBusInterface.new(  "org.freedesktop.DBus", 
-		                                "/org/freedesktop/DBus", 
-		                                "org.freedesktop.DBus", 
+		proxy = Qt::DBusInterface.new(  "org.freedesktop.DBus",
+		                                "/org/freedesktop/DBus",
+		                                "org.freedesktop.DBus",
 		                                bus )
-		
+
 		result = proxy.ListNames()
 
 		# result is
@@ -1277,7 +1282,7 @@ the one for 'String'
 2006-10-01  Richard Dale  <rdale@foton.es>
 
 	* The Qt::DBusMessage.type method now works. Fixes problem reported
-by 
+by
 	  Peter Rullmann.
 
 2006-09-28  Richard Dale  <rdale@foton.es>
@@ -1306,7 +1311,7 @@ installed
 	* Renamed 'qtruby.rb' as qtruby4.rb, and qtruby.so as qtruby4.so
 
 	* Qt4.rb and Qt3.rb files are installed to allow either Qt3 or
-	  Qt4 versions of QtRuby to be used with require 'Qt4' or 
+	  Qt4 versions of QtRuby to be used with require 'Qt4' or
 	  require 'Qt3' statements
 
 	* A Qt.rb symbolic link is created by the install so that by default
@@ -1344,7 +1349,7 @@ channel.
 
 	* Blocks can now be used as slots in Qt::Object.connect() calls.
 There are two
-	  versions, a singleton method and an instance method. 
+	  versions, a singleton method and an instance method.
 
 	* Here is an example of the class method connect() call with a block
 as a target:
@@ -1355,7 +1360,7 @@ as a target:
 clicked' }
 
 	  The block is executed in the context of the target instance, 'app'
-in this 
+in this
 	  case.
 
 	* And the instance method form:
@@ -1368,7 +1373,7 @@ in this
 			...
 
 	  The block is executed in the context of self - the instance making
-the 
+the
 	  connect() call.
 
 	* The Rails version of the Ruby 1.9 method Object#instance_exec was
@@ -1429,14 +1434,14 @@ fix
 2006-07-18  Richard Dale  <rdale@foton.es>
 
 	* The code to change a Ruby 'foo?' method call to a Qt C++ 'setFoo()'
-was 
+was
 	  using QStrings to change the text. However, it then converted the
 result
-	  to a QByteArray via toLatin() and referenced the contents of the 
+	  to a QByteArray via toLatin() and referenced the contents of the
 	  QByteArray via a 'const char *' cast when the QByteArray had gone
 out of
 	  scope and had been deleted. Thanks to Carlto Wang again for
-reporting 
+reporting
       this bug.
 
 	* Some of the code for debug logging of garbage collection wrote
@@ -1490,7 +1495,7 @@ using
 
 2006-06-26  Richard Dale  <rdale@foton.es>
 
-	* Applied a fix from Cvetoslav Ludmiloff to make 
+	* Applied a fix from Cvetoslav Ludmiloff to make
 	  Qt::AbstractItemModel.createIndex() work without conversion errrors
 	  for large Ruby BigNum values.
 
@@ -1516,7 +1521,7 @@ Qt::UiBuilder
 		class Foo < Qt::PushButton
 			slots 'int greeting(QString)'
 			signals 'int doit(QString)'
-		
+
 			def initialize
 				super
 				connect(self, SIGNAL('doit(QString)'), self,
@@ -1529,7 +1534,7 @@ QListWidgetItem
 
 2006-06-07  Richard Dale  <rdale@foton.es>
 
-	* qt_metacall() was returning an incorrect value when called with, 
+	* qt_metacall() was returning an incorrect value when called with,
 	  Ruby slots. This doesn't normally matter, but was causing D-BUS
 	  slot invocations via qt-dbus to fail.
 
@@ -1580,7 +1585,7 @@ an
 	  than staying as a Qt::ByteArray:
 
         block = Qt::ByteArray.new
-    
+
         if comment
             block += "/*\n"
             block += "    " + header + "\n"
@@ -1596,7 +1601,7 @@ causing
 	  a crash.
 	* A list of properties is now returned via
 Qt::MetaObject.propertyNames
-	  for a Qt::Object with properties for the inspect and pretty_print 
+	  for a Qt::Object with properties for the inspect and pretty_print
 	  methods.
 	* Fixed a pile of errors in the itemviews/chart example
 	* Added Qt::ItemSelection.at, [], count and length methods
@@ -1605,7 +1610,7 @@ Qt::MetaObject.propertyNames
 
 	* When an unknown C++ class is found, a corresponding Ruby class is
 now
-	  created. For instance, if a KPresenter KPart is loaded, a 
+	  created. For instance, if a KPresenter KPart is loaded, a
 	  KDE::PresenterDoc class is created.
 	* It is now possible to set and get properties without needing to use
 	  Qt::Object.property() and Qt::Object.setProperty(). For instance:
@@ -1666,7 +1671,7 @@ property
     * Fixed bug where qtruby failed to link on some machines
 	  such as Windows, where the 'char' type defaults to
 	  unsigned, so define them as 'signed char' instead.
- 
+
 2006-04-17  Richard Dale  <rdale@foton.es>
 
 	* Added the network/ftp, broadcastreceiver and broadcastsender
@@ -1686,7 +1691,7 @@ is now split
 
 	* Added xml/saxbookmarks, xml/dombookmarks and widgets/tooltips
 examples
-	* Improved garbage collection marking, Children QTreeWidgets and 
+	* Improved garbage collection marking, Children QTreeWidgets and
 	  QListWidgets are now marked. QObject tree instances are only marked
 	  starting at an instance which has no parent to improved efficiency,
 	  otherwise the same sub trees would be marked several times as a
@@ -1742,7 +1747,7 @@ line
 	* The marshaller for QList<QImageTextKeyLang> was defined wrongly.
 
 2006-04-05  Richard Dale  <rdale@foton.es>
-	
+
 	* Added the itemviews/puzzle example
 	* Added a QModelIndexList marshaller
 	* Added inspect and pretty_print methods for Qt::ModelIndex
@@ -1763,7 +1768,7 @@ line
 	* Added the itemviews/simpledommodel and itemviews/simpletreemodel
 	  examples
 
-	* Special cased the Qt::AbstractItemModel.createIndex() and 
+	* Special cased the Qt::AbstractItemModel.createIndex() and
 	  Qt::ModelIndex.internalPointer() methods so they can save
 	  and restore Ruby VALUE instances.
 
@@ -1782,7 +1787,7 @@ methods, so special case
 	  the overload method resolution for now..
 
 2006-04-03  Richard Dale  <rdale@foton.es>
-	
+
 	* The models used for QTableView and QListView are the private
 classes
 	  QTableModel and QListModel. They are accessed as
@@ -1810,7 +1815,7 @@ called
 	* Added various explicit calls to method_missing() for methods which
 	  are defined in Kernel and Object, such
 as 'exec', 'select', 'format'
-	  etc. Otherwise, the corresponding methods in the Smoke library were 
+	  etc. Otherwise, the corresponding methods in the Smoke library were
 	  not being invoked correctly.
 	* Removed a virtual destructor compile warning
 	* Removed obsolete qtruby-only.patch and kdevelop project file
@@ -1835,16 +1840,16 @@ Array
 2006-02-20  Richard Dale  <rdale@foton.es>
 
 	* After a const value based list such as QVector<QPointF> was passed
-	  to a C++ method, the correspoding Ruby Array was being updating 
+	  to a C++ method, the correspoding Ruby Array was being updating
 	  with the values when it didn't need to be. There is also a bug
 which
 	  meant the the values in the Ruby Array were being set to nil. That
 	  bug still isn't fixed. Partly fixes bug reported by akincisor on
 the
 	  #qtruby irc channel.
-	 
+
 2006-02-16  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
-	
+
 	* In Qt4 when the type signature of a slot or signal argument type is
 	  normalized, any '&' character for a reference type is removed,
 along
@@ -1869,8 +1874,8 @@ widgets/wiggly
 
 2005-12-16  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
-	* The logger_backend() function has been removed and replaced with 
-	  qWarning() calls. This was because of problems with getting the 
+	* The logger_backend() function has been removed and replaced with
+	  qWarning() calls. This was because of problems with getting the
 	  logger_backend() code to work on Windows.
 
 2005-12-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -1920,18 +1925,18 @@ Chan-Nui.
 2005-10-05  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added network/fortuneserver and fortuneclient examples
-	* The Qt::ByteArray class is now a normal Smoke class, 
+	* The Qt::ByteArray class is now a normal Smoke class,
 	  rather than a special case, as it's easier to make a
 	  Qt::ByteArray look like a ruby String, than the other way
 	  round.
-	* The overloaded method resolution for enum arg types has been 
+	* The overloaded method resolution for enum arg types has been
 	  improved
 	* Added missing relational operators to Qt::Integer
 	* Fixed bug in marshalling unsigned shorts
 
 2005-10-03  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
-	* Ported the RuBoids OpenGL artificial life example to Qt4 and 
+	* Ported the RuBoids OpenGL artificial life example to Qt4 and
 	  added opengl/grabber
 
 2005-10-01  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -1977,7 +1982,7 @@ Chan-Nui.
 
 2005-09-01  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
-	* Added draganddrop/draggabletext, draggableicons, fridgemagnets, 
+	* Added draganddrop/draggabletext, draggableicons, fridgemagnets,
 	  puzzle examples.
 	* Added itemviews/dirview, chart and pixelator Qt4 examples.
 	* Fixed bug in QtByteArray marshalling where an underlying QByteArray
@@ -1995,9 +2000,9 @@ in the
 
 2005-08-24  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
-	* Added dialogs examples; complexwizard, extension,  findfiles,  
+	* Added dialogs examples; complexwizard, extension,  findfiles,
 	  simplewizard,  standarddialogs and  tabdialog
-	* Changed the types of Qt3 long longs and other Q_* types to the 
+	* Changed the types of Qt3 long longs and other Q_* types to the
 	  Qt4 equivalents
 
 2005-08-24  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -2009,13 +2014,13 @@ in the
 
 2005-08-23  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
-	* Fixed some code to obtain a Qt::Object's properties for Qt4. Added 
+	* Fixed some code to obtain a Qt::Object's properties for Qt4. Added
 	  property inspecting code for the new QPointF, QRectF etc types
 	* Fixed a missing attr accessor bug in Qt::Enum
 	* Added the sliders, spinboxes and tetrix code examples
 
 2005-08-22  Caleb Tennis <caleb@aei-tech.com>
-        * Started a migration to more template based classes. 
+        * Started a migration to more template based classes.
 Hopefully this is
           just a start, but this *should* reduce redundant code by
 making use of
@@ -2069,8 +2074,8 @@ iterator
 
 	* Add findChild and findChildren methods which attempt to mimic their
 Qt::Object
-          counterparts.  Unit tests included.  e.g.:   
-            object.findChildren(Qt::Widget) 
+          counterparts.  Unit tests included.  e.g.:
+            object.findChildren(Qt::Widget)
             object.findChildren(Qt::Object, "ObjectName")
             object.findChildren(Qt::Object, /SomeName*/)
 
@@ -2090,7 +2095,7 @@ create
         * Modified new_qobject to only add method definitions if the
 kclass
           doesn't respond_to qt_metacall (was a TODO item).
- 
+
         * Prefer using Ruby's ALLOCA_N over calloc in new_qt
 
 2005-08-19  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -2120,7 +2125,7 @@ exception
 
 2005-08-17  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
-	* Left some debugging code in. qt_metacall() was not being called 
+	* Left some debugging code in. qt_metacall() was not being called
 	  correctly for non-ruby C++ slots.
 
 2005-08-17  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -2139,10 +2144,10 @@ the same way as
 	  before.
 
 2005-08-09  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
-	
+
 	* Caleb Tennis wrote:
 	  One nice feature would be to allow Qt::Object::inherits() to use
-the QtRuby 
+the QtRuby
 	  naming scheme for valid lookups.  For example, right now:
 
 	    irb(main):001:0> w = Qt::Widget.new(nil)
@@ -2173,9 +2178,9 @@ Trolltech's permission,
 2005-07-15  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Qt::Socket started working correctly when I and regenerated and
-rebuilt 
-	  my Smoke library. Before then it was calling the wrong version of 
-	  QSocket::at() for some reason, and wasn't discarding bytes that had 
+rebuilt
+	  my Smoke library. Before then it was calling the wrong version of
+	  QSocket::at() for some reason, and wasn't discarding bytes that had
 	  already been read.
 	* Removed comment from the client.rb example about
 Qt::Socket.canReadLine
@@ -2198,7 +2203,7 @@ reported
 	* When a Qt method returned a QString value type, such as:
 	       QString QSocket::readLine()
 	  A temporary QString was being created that wasn't deleted and
-caused a 
+caused a
 	  memory leak. Fixes problem reported by Caleb Tennis.
 
 2005-06-28  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -2208,14 +2213,14 @@ caused a
 command
 	  shows the type of the underlying C++ enum:
 
-	  (rdb:1) p AlignTop 
+	  (rdb:1) p AlignTop
 	  16
 
-	  (rdb:1) pp AlignTop 
+	  (rdb:1) pp AlignTop
 	  #<Qt::Enum:0x1825db68 @type=Qt::AlignmentFlags, @value=16>
 
 2005-06-04  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
-	
+
 	* Upped the version to 1.0.10
 
 2005-06-04  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -2241,7 +2246,7 @@ have
 2005-05-28  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Added support for the QScintilla text editing widget, including an
-optional 
+optional
 	   '--enable-qscintilla=yes' configure option. The QScintilla classes
 are included in a
 	  Qext:: namespace. Thanks to Blackshack for the idea and configure
@@ -2369,7 +2374,7 @@ runtime
 2005-01-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Made some changes to get code generated by the rbkconfig_compiler
-	  to work. When an argument is a non-const reference to a primitive 
+	  to work. When an argument is a non-const reference to a primitive
 	  type, or a QString or QStringList, then don't delete it after the
 	  method call. This is because a class like KConfigSkeleton takes
 	  references, and then 'squirrels them away' - before the references
@@ -2409,7 +2414,7 @@ Constructors for nested
 
 	* Added a Qt::Integer.coerce method so that Qt::Integers and
 Qt::Enums can be
-	  combined in arithmetic expressions with ruby Integers. 
+	  combined in arithmetic expressions with ruby Integers.
 
 2005-01-04  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
@@ -2423,15 +2428,15 @@ properties
 2004-12-30  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Fixed an interesting bug reported by Stephan Oehlert. Kernel has a
-method called 
+method called
 	  open() which takes a String as the first argument. But when a call
-is made to an open() 
+is made to an open()
 	  method in the Qt classes, it messes up the method_missing() logic
-to divert it to the 
+to divert it to the
 	  Smoke library. Instead it attempts to call the Kernel method with
 the wrong arg types.
 
-	* The problem is fixed by calling the appropriate method based on the 
+	* The problem is fixed by calling the appropriate method based on the
 	  type of the first arg. However, it is no longer possible to
 override virtual methods
 	  called 'open'.
@@ -2462,7 +2467,7 @@ Before a callcc() call
 	  had been used for the jumping which worked fine. However, it made
 the frame stack
 	  look strange when debugging code with the KDevelop debugger. The
-fix is to use 
+fix is to use
 	  catch and throw instead, as they leave the stack in a more normal
 looking state.
 
@@ -2471,7 +2476,7 @@ looking state.
 	* Added a work round for a bug caused by an incompatibility between
 QtRuby
 	  the 'require time' statement, reported by David Crosby
-	
+
 	CCMAIL: dcrosby42@gmail.com
 
 2004-12-18  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -2479,9 +2484,9 @@ QtRuby
 	* Added a 'receivers' property to the Qt::Object inspector. This
 allows the active signal
 	  connections for a Qt::Object instance to be viewed in the KDevelop
-debugger as a 
+debugger as a
 	  Hash. The hash keys are the signal names, and the hash values are
-arrays of the target 
+arrays of the target
 	  signals/slots as Qt::Connection instances.
 
 2004-12-17  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -2531,7 +2536,7 @@ instance
  * Greatly improved the Qt::Object Qt property based inspect() and
 pretty_print()
    methods. Property types such as Qt::Point, Qt::Font and Qt::Rect
-can be 
+can be
    viewed as expandable items in the KDevelop debugger variable tree.
 
 2004-12-09  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -2540,13 +2545,13 @@ can be
 improve debugging -
    Qt::Color, Qt::Font, Qt::Point, Qt::Rect, Qt::Size, Qt::Date,
 Qt::DateTime and Qt::Time
-   
+
 2004-12-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * Added inspect() and pretty_print() methods for Qt::Objects that get
 the QObject properties and
    show them as 'name=value' pairs. This means the KDevelop debugger
-can make Qt::Object 
+can make Qt::Object
    variables expandable and show their properties.
 
 2004-11-29  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -2601,11 +2606,11 @@ of it causing a seg fault.
  * If the smokeruby_mark() function was called for an instance of a
 QObject, it should
    mark all the instances below it in the QObject tree, as not needing
-garbage collection. 
+garbage collection.
    However, if a node in the tree didn't have a mapping onto a ruby
-instance the marking 
+instance the marking
    process stopped there, even though the grandchildren and their
-descendants might 
+descendants might
    have a valid mapping onto ruby instances.
  * The solution is to always traverse the entire tree. Fixes problem
 reported by Han Holl.
@@ -2619,7 +2624,7 @@ rb_gc_mark() to
    prevent them being garbage collected
  * The top level widgets are no longer disposed() on Qt::Application
 exit
- * Fixed some bugs in the chart example. 
+ * Fixed some bugs in the chart example.
 
 2004-10-13  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
@@ -2638,7 +2643,7 @@ enums can be compared with
 2004-10-12  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
  * Added Qt::Application.ARGV. It returns the original ruby ARGV array
-with Qt command line 
+with Qt command line
    options removed.
 
 2004-10-11  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -2646,7 +2651,7 @@ with Qt command line
  * Added a global flag 'application_terminated'. Once this is set the
 QtRuby runtime will no longer
    delete any C++ instances. This will hopefully fix crash on
-application exit problems reported 
+application exit problems reported
    by Thibauld Favre.
 
  CCMAIL: kde-bindings@kde.org
@@ -2676,7 +2681,7 @@ an integer
                             100
                         end
                      end
- 
+
    Now gives the following error:
 
                qsize.rb:12:in `method_missing': Invalid type,
@@ -2727,7 +2732,7 @@ Qt::MainWindow need to clean up.
  * The layout of the ruby code generated by rbuic has been improved
 with better indenting.
  * attr_reader attribute accessors have been added for the most
-important instance variables 
+important instance variables
    in an rbuic generated class to make them more easily accessed from
 another class.
 
@@ -2739,7 +2744,7 @@ runtime uses the
 the resolution
    of the name. However, the numeric classId into the array of
 classnames in the Smoke
-   runtime was not being updated in line with the more accurate name. 
+   runtime was not being updated in line with the more accurate name.
  * This caused problems with method argument matching which uses the
 numeric classId
    rather than the ruby object's classname, and so QtRuby wrongly
@@ -2762,7 +2767,7 @@ all the ruby
    instances are garbage collected. The problem is that this is done
 in an arbitrary
    order, and Qt::Application was occasionally crashing in its
-destructor because 
+destructor because
    QMetaObject info it still needed was being deleted before then.
 
  * Fixes problem reported by Thibauld Favre
@@ -2801,7 +2806,7 @@ a crash;
    instead of throwing a ruby exception when a programming error is
 made.
    If there is only one method found in the Smoke runtime, it assumes
-that it must 
+that it must
    be the right one and just takes that.
 
  * For example:
@@ -2927,9 +2932,9 @@ following
    character is capitalised. For example, either of these two forms
 can be used
    to call the same method:
-  
+
      create_standard_status_bar_action()
-  
+
      createStandardStatusBarAction()
 
 2004-08-23  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -2973,7 +2978,7 @@ class
    had virtual method callbacks, this meant that the ruby instance
 couldn't
    be found, and the callback couldn't be made.
- 
+
  * Hence, the Qt::ToolTip callback in examples/qt-examples/tooltip
 didn't
    work, as that class doesn't have a virtual destructor.
@@ -2989,7 +2994,7 @@ matching
  * Qt::Enums and Qt::Integers can be marshalled to uints, longs and
 ulongs as
    well as ints.
-   
+
  * Added a '==' operator to Qt::Enums so they can be compared with
 ruby Integers
 
@@ -3006,13 +3011,13 @@ Integer
    type. When they were nested, the Integer didn't know how to convert
 the
    Enum it was being or'd with to an Integer.
- 
+
  * The solution is to add bit operators to the Enum class which return
 Enums
    rather than Integers.
 
  * The following code didn't work:
-     
+
      def initialize(message)
          super(nil, "passivedlg",
                  Qt::WStyle_Customize | Qt::WX11BypassWM |
@@ -3028,14 +3033,14 @@ Qt::WStyle_StaysOnTop |
  * The Qt::Enum class was missing bit operations, so various bit
 methods
    were added to Qt::Enum's superclass, Qt::Integer.
- 
+
  * This was causing this line from examples/uimodules/uidialogs.rb to
 fail:
 
      dlg =   KDE::DialogBase.new(parent, "sample_dialog", false,
 caption,
                                         KDE::DialogBase::Ok |
-KDE::DialogBase::Cancel, 
+KDE::DialogBase::Cancel,
                                  KDE::DialogBase::Ok, true )
 
 2004-07-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -3049,7 +3054,7 @@ is
 	  now used when they can't be found in the Smoke library. Removed
 Alex's
 	  comment about the previous approach, now I agree this is the best
-way 
+way
 	  to show errors.
 
 	CCMAIL: me@lypanov.ne
@@ -3080,10 +3085,10 @@ give the
 	* For example, this incorrect line:
 
 	    color_group.setColor( ColorGroup::MyMissingConst, blue )
-	  
+
 	  Gives this error:
 
-	    splitter.rb:16:in `const_missing': unresolved constant 
+	    splitter.rb:16:in `const_missing': unresolved constant
 	        reference MyMissingConst (ArgumentError)
 
 	* Implements suggestion from Jeff on the kdebindings list
@@ -3129,7 +3134,7 @@ localised either.
 2004-07-11  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Qt eucJP and Shift-JIS codecs used to support ruby $KCODE values
-of 's' 
+of 's'
 	  for SJIS and 'e' for EUC
 
 2004-07-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -3150,19 +3155,19 @@ friendly
 	  There is a similar problem for bool arg types as with ints, and the
 mutable
 	  Qt::Boolean class can be used like this:
-		
+
 	    # QFont getFont(bool * ok, const QFont&initial, QWidget* parent =
-0);		
-		
+0);
+
 	    ok = Qt::Boolean.new
 	    font = Qt::FontDialog.getFont(ok, Qt::Font.new("Helvetica
 [Cronyx]", 10), self)
-	    if !ok.nil? 
+	    if !ok.nil?
                 # font is set to the font the user selected
-	    else 
+	    else
                 # the user canceled the dialog
 	    end
-		
+
 	  Use 'nil?' to test the value returned in the Boolean
 	* Signal and slot type signatures are 'normalized' and any unwanted
 white space
@@ -3179,15 +3184,15 @@ when passed to a
 does get updated
 	  when passed as an argument. For example, this C++
 method 'findByFileContent()':
-		
+
 		# static Ptr findByFileContent( const QString &fileName, int
 *accuracy=0 );
 
 		acc = Qt::Integer.new(0)
         	fc = KDE::MimeType.findByFileContent("mimetype.rb", acc)
-		
+
 	  It supports the arithmetic operators, and so expressions such
-as 'acc + 3' 
+as 'acc + 3'
 	  will work.
 
 2004-07-02  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -3199,7 +3204,7 @@ as 'acc + 3'
 	* The internal findAllMethods() method now returns nil rather than an
 empty array
 	  if the given classid is greater than 'smoke->numClasses'.
-Otherwise, it wasn't 
+Otherwise, it wasn't
 	  possible to distinguish between a class with no methods, or
 reaching the end of
 	  the classes array.
@@ -3220,17 +3225,17 @@ garbage collection, and
 	    whether or not it has a parent. Use the dispose() and
 isDisposed() methods like
 	    this:
-		
-		item0.takeItem(item1)  
-		item0.insertItem(item1)  
-		
+
+		item0.takeItem(item1)
+		item0.insertItem(item1)
+
 		item2.dispose
 		if item2.isDisposed
 		    puts "item2 is disposed"
 		end
 
 	  - Fixes problem reported by Hans Fugel
-	
+
 2004-06-26  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* The marshalling TypeHandler function pointers are now looked up in
@@ -3295,7 +3300,7 @@ subclasses using rtti() calls
 
 	* When a mutable, non-const QString, int*, int&, bool* or bool& is
 passed
-	  to a method, the corresponding ruby value is now updated after the 
+	  to a method, the corresponding ruby value is now updated after the
 	  method call.
 	* Some f'ns are no longer static, so that the korundum extension can
 link
@@ -3309,7 +3314,7 @@ korundum
 2004-03-01  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* Fixed bugs in QCString, QString and QByteArray marshalling.
-	  - When a C++ method with a mutable, non-const QCString arg type 
+	  - When a C++ method with a mutable, non-const QCString arg type
 	    is called from ruby, the C++ arg value is copied back into the
 	    corresponding ruby arg VALUE after the call.
 	  - A pointer to a locally allocated QString was being returned,
@@ -3335,8 +3340,8 @@ korundum
 	  of 'Programming with Qt'
 	* Improved classname resolution via the Qt rtti mechanisms in
 	  QObject, QEvent and QCanvasItem. This fixed a problem in the
-	  KillerFilter example when a QMouseEvent was passed to the ruby 
-	  event handler, it was being instantiated as a ruby Qt::Event, 
+	  KillerFilter example when a QMouseEvent was passed to the ruby
+	  event handler, it was being instantiated as a ruby Qt::Event,
 	  rather than a Qt::MouseEvent.
 
 2003-11-11  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -3390,7 +3395,7 @@ QListView
 2003-10-27  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* The smokeruby_mark() f'n was completely wrong, as it is only called
-if 
+if
 	  the current object is already marked. So marking the current object
 	  doesn't make a lot of sense. Instead, if the instance is a kind of
 	  QObject then its childeren are marked.
@@ -3426,7 +3431,7 @@ form 'operator+=',
 	* Fixed serious random crash problem
 	  - qt_invoke() and qt_emit() were not calling super if a ruby signal
 or
-	    slot hadn't been found, which stopped C++ signals from working. 
+	    slot hadn't been found, which stopped C++ signals from working.
 	  - This prevented destroy() signals from invoking event filter list
 clean
 	    up when a QObject was deleted, leaving deleted instances in the
@@ -3453,7 +3458,7 @@ libsmokekde
 
 2003-10-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
-	* Korundum KDE ruby extension 
+	* Korundum KDE ruby extension
 	  - made various changes so it can be linked against the QtRuby code
 
 2003-09-18  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -3494,9 +3499,9 @@ marshalling.
 
 2003-09-12  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
-	* More passing blocks to constructors fun! You can now also pass 
+	* More passing blocks to constructors fun! You can now also pass
 	  an arg to the block, and it will be run in the context of the arg:
-		
+
 		w = MyWidget.new { |theWidget| theWidget.setCaption "foobar" }
 
 	I got this idea from the FXRuby bindings, from the ChangeLog:
@@ -3506,7 +3511,7 @@ marshalling.
 	Rich Kilmer for this suggestion."
 
 	If you don't pass an arg to the block, the block is run in the
-context 
+context
 	  of the new instance as before.
 
 	* Debugging left in handlers.cpp (must stop doing this)
@@ -3549,7 +3554,7 @@ works.
 2003-09-08  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
 	* The pointer_map is now a QPtrDict rather than a ruby Hash, and
-	  the entries are weak references. An implementation was tried 
+	  the entries are weak references. An implementation was tried
 	  using the ruby WeakRef class, but it didn't work because
 rb_gc_mark()
 	  didn't prevent them being garbage collected.
@@ -3564,7 +3569,7 @@ rb_gc_mark()
 rb_raise()
 	* Decided changing method calls like foobar? to isFoobar() not a good
 idea,
-	  as the Qt property could just as also be hasFoobar() or foobar() 
+	  as the Qt property could just as also be hasFoobar() or foobar()
 
 2003-09-06  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
@@ -3625,7 +3630,7 @@ the normal target class.
 
 2003-08-25  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
 
-	* Removed ugly _current_object global variable. 
+	* Removed ugly _current_object global variable.
           The current target object is now passed to the MethodCall
 constructor.
 
@@ -3674,7 +3679,7 @@ name)
 2003-08-12  Alexander Kellett   <lypanov@kde.org>
 
 	* Add several new marshalling types - QCanvasItemList for example,
-	  unfortuantely due to several improvements in Qt 3.2 these 
+	  unfortuantely due to several improvements in Qt 3.2 these
 	  improvements will not be seen when compiling against Qt 3.1.2
 
 2003-08-05  Richard Dale  <Richard_Dale@tipitina.demon.co.uk>
@@ -3715,9 +3720,9 @@ string
 
 2003-08-01  Alexander Kellett   <lypanov@kde.org>
 
-	* Slightly improve ease of debugging of qtruby programs 
+	* Slightly improve ease of debugging of qtruby programs
 	  which subclass Qt base classes by print out some useful
-	  debugging informationn when/if method_missing ever 
+	  debugging informationn when/if method_missing ever
 	  fails to find a matching function in the baseclass.
 
 2003-08-01  Alex Zepeda   <zipzippy@sonic.net>
