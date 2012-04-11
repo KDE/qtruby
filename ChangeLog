@@ -1,3 +1,8 @@
+2012-04-11  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Fix bug in Qt::Variant#value where it as failing for ushort and QChar
+	variants. Thanks to Yaohan Chen for reporting the bug
+
 2012-04-09  Richard Dale  <richard.j.dale@gmail.com>
 
     * Rename rb_str_catf() as qtruby_str_catf() as it clashes with a function

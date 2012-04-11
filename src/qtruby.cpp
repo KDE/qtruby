@@ -1044,6 +1044,17 @@ qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 	} else if (variant->type() >= QVariant::UserType) {
 		// If the QVariant contains a user type, don't bother to look at the Ruby class argument
 		value_ptr = QMetaType::construct(QMetaType::type(variant->typeName()), (void *) variant->constData());
+
+		if (qstrcmp(variant->typeName(), "uchar") == 0) {
+			return UINT2NUM(*reinterpret_cast<uchar*>(value_ptr));
+		} else if (qstrcmp(variant->typeName(), "char") == 0) {
+			return INT2NUM(*reinterpret_cast<char*>(value_ptr));
+		} else if (qstrcmp(variant->typeName(), "ushort") == 0) {
+			return UINT2NUM(*reinterpret_cast<ushort*>(value_ptr));
+		} else if (qstrcmp(variant->typeName(), "short") == 0) {
+			return INT2NUM(*reinterpret_cast<short*>(value_ptr));
+		}
+
 		Smoke::ModuleIndex mi = o->smoke->findClass(variant->typeName());
 		vo = alloc_smokeruby_object(true, mi.smoke, mi.index, value_ptr);
 		return set_obj_info(qtruby_modules[mi.smoke].binding->className(mi.index), vo);
@@ -1055,7 +1066,10 @@ qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 		return Qnil;
 	}
 
-	if (qstrcmp(classname, "Qt::Pixmap") == 0) {
+	if (qstrcmp(classname, "Qt::Char") == 0) {
+		QChar v = qVariantValue<QChar>(*variant);
+		value_ptr = (void *) new QChar(v);
+	} else if (qstrcmp(classname, "Qt::Pixmap") == 0) {
 		QPixmap v = qVariantValue<QPixmap>(*variant);
 		value_ptr = (void *) new QPixmap(v);
 	} else if (qstrcmp(classname, "Qt::Font") == 0) {
