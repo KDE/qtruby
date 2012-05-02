@@ -1,3 +1,8 @@
+2012-05-02  Richard Dale  <richard.j.dale@gmail.com>
+
+	* Add missing 'GLuint' and 'GLint' marshallers. Fixes bug reported by
+	twelvechairs on #qtruby - thanks for the report.
+
 2012-04-11  Richard Dale  <richard.j.dale@gmail.com>
 
 	* Fix bug in Qt::Variant#value where it as failing for ushort and QChar
