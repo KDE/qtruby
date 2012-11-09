@@ -157,6 +157,7 @@ static void initializeClasses(Smoke * smoke)
     Global::defineMethod(Global::QObjectClassId, "findChildren", (VALUE (*) (...)) find_qobject_children, -1);
     Global::defineMethod(Global::QObjectClassId, "findChild", (VALUE (*) (...)) find_qobject_child, -1);
     Global::defineMethod(Global::QObjectClassId, "qobject_cast", (VALUE (*) (...)) qobject_qt_metacast, 1);
+    Global::defineMethod(Global::QObjectClassId, "qt_metacall", (VALUE (*) (...)) qobject_qt_metacall, -1);
 
     rb_define_module_function(Global::QtModule, "qRegisterResourceData", (VALUE (*) (...)) q_register_resource_data, 4);
     rb_define_module_function(Global::QtModule, "qUnregisterResourceData", (VALUE (*) (...)) q_unregister_resource_data, 4);

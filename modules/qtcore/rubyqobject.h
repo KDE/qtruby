@@ -26,9 +26,10 @@
 
 namespace QtRuby {
     extern VALUE qobject_qt_metacast(VALUE self, VALUE klass);
+    extern VALUE qobject_qt_metacall(int /*argc*/, VALUE * argv, VALUE self);
     extern VALUE inherits_qobject(int argc, VALUE * argv, VALUE /*self*/);
-    extern VALUE find_qobject_children(int argc, VALUE *argv, VALUE self);
-    extern VALUE find_qobject_child(int argc, VALUE *argv, VALUE self);
+    extern VALUE find_qobject_children(int argc, VALUE * argv, VALUE self);
+    extern VALUE find_qobject_child(int argc, VALUE * argv, VALUE self);
 }
 
 #endif // QTRUBY_RUBYQOBJECT_H

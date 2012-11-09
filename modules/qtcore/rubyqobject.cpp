@@ -19,6 +19,7 @@
 
 #include <QtCore/QString>
 #include <QtCore/QMetaObject>
+#include <QtCore/QDebug>
 
 #include <object.h>
 #include <global.h>
@@ -54,6 +55,13 @@ qobject_qt_metacast(VALUE self, VALUE klass)
     VALUE obj = Global::wrapInstance(classId, ret, instance->ownership);
     instance->ownership = Object::QtOwnership;
     return obj;
+}
+
+
+VALUE 
+qobject_qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
+{
+    qDebug() << Q_FUNC_INFO;
 }
 
 // Allow classnames in both 'Qt::Widget' and 'QWidget' formats to be
