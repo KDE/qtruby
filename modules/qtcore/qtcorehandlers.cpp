@@ -20,10 +20,10 @@
  */
 
 
-#include <QtCore/QByteArray>                                                                                                              
+#include <QtCore/QByteArray>
 #include <QtCore/QDate>
 #include <QtCore/QDateTime>
-#include <QtCore/QFileInfo>                                                                                                               
+#include <QtCore/QFileInfo>
 #include <QtCore/QLine>
 #include <QtCore/QList>
 #include <QtCore/QLocale>
@@ -66,10 +66,10 @@ Q_DECLARE_METATYPE(QFileInfo)
 Q_DECLARE_METATYPE(QList<bool>)
 Q_DECLARE_METATYPE(QList<int>)
 Q_DECLARE_METATYPE(QList<unsigned int>)
-Q_DECLARE_METATYPE(QList<QByteArray>)                                                                                                              
-Q_DECLARE_METATYPE(QList<QDate>)                                                                                                              
-Q_DECLARE_METATYPE(QList<QDateTime>)                                                                                                              
-Q_DECLARE_METATYPE(QList<QFileInfo>)                                                                                                              
+Q_DECLARE_METATYPE(QList<QByteArray>)
+Q_DECLARE_METATYPE(QList<QDate>)
+Q_DECLARE_METATYPE(QList<QDateTime>)
+Q_DECLARE_METATYPE(QList<QFileInfo>)
 Q_DECLARE_METATYPE(QList<QLocale::Country>)
 Q_DECLARE_METATYPE(QList<QModelIndex>)
 Q_DECLARE_METATYPE(QList<QObject*>)
@@ -78,7 +78,7 @@ Q_DECLARE_METATYPE(QList<QRectF>)
 Q_DECLARE_METATYPE(QList<QRegExp>)
 Q_DECLARE_METATYPE(QList<QSize>)
 Q_DECLARE_METATYPE(QList<QStringList>)
-Q_DECLARE_METATYPE(QList<QTime>)                                                                                                              
+Q_DECLARE_METATYPE(QList<QTime>)
 Q_DECLARE_METATYPE(QList<QUrl>)
 Q_DECLARE_METATYPE(QList<QVariant>)
 Q_DECLARE_METATYPE(QLocale::Country)
@@ -141,7 +141,7 @@ static void marshall_QString(Marshall *m) {
 
         QString * s = reinterpret_cast<QString*>(m->item().s_voidp);
         *(m->var()) = qRubyValueFromValue(*s);
-        
+
         if (m->cleanup() || m->type().isStack() ) {
             delete s;
         }
@@ -218,7 +218,7 @@ static void marshall_CStringArray(Marshall *m) {
 
         break;
     }
-    
+
     default:
         m->unsupported();
         break;
@@ -356,7 +356,7 @@ void marshall_PrimitiveRef(Marshall *m) {
         }
         break;
     }
-    
+
     default:
         m->unsupported();
         break;
@@ -469,8 +469,8 @@ Marshall::TypeHandler QtCoreHandlers[] = {
     { 0, 0 }
 };
 
-void registerQtCoreTypes() 
-{     
+void registerQtCoreTypes()
+{
     qRubyRegisterSequenceMetaType<QList<QStringList> >();
     qRubyRegisterSequenceMetaType<QList<bool> >();
     qRubyRegisterSequenceMetaType<QList<double> >();

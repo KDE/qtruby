@@ -14,7 +14,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public 
+ * You should have received a copy of the GNU Lesser General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -103,7 +103,7 @@ QByteArray to_s(VALUE value)
         return StringValuePtr(str);
     }
 }
-        
+
 VALUE
 qdebug(VALUE klass, VALUE msg)
 {
@@ -140,7 +140,7 @@ debugging(VALUE /*self*/)
     return INT2NUM(DoDebug);
 }
 
-    }    
+    }
 }
 
 // kate: space-indent on; indent-width 4; replace-tabs on; mixed-indent off;

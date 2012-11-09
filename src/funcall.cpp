@@ -38,7 +38,7 @@ set_qtruby_embedded(bool yn)
 }
 
 namespace QtRuby {
-    
+
 bool qtruby_embedded = false;
 
 //

@@ -29,9 +29,9 @@
 #include <QtCore/qdebug.h>
 
 namespace QtRuby {
-    
+
 MethodCall::ArgumentTypeConversion::ArgumentTypeConversion(Smoke::ModuleIndex methodId, Smoke::StackItem& item, VALUE& value) :
-    m_methodId(methodId), m_item(item), m_value(value) 
+    m_methodId(methodId), m_item(item), m_value(value)
 {
     m_stack = new Smoke::StackItem[method().numArgs + 1];
     QByteArray methodName(m_methodId.smoke->methodNames[method().name]);
@@ -47,7 +47,7 @@ MethodCall::ArgumentTypeConversion::ArgumentTypeConversion(Smoke::ModuleIndex me
 
     // Note that the method called can be in one of two forms:
     //      1) A constructor 'Foobar::Foobar(value)',
-    //      2) A 'value::operator Foobar()' method. 
+    //      2) A 'value::operator Foobar()' method.
     // In case 1) the argument is in m_stack[1], and the result in m_stack[0]
     // In case 2) the instance to call the method on, is m_stack[1].s_voidp,
     // and the result is in m_stack[0].
@@ -61,7 +61,7 @@ MethodCall::ArgumentTypeConversion::~ArgumentTypeConversion()
     QByteArray methodName(m_methodId.smoke->methodNames[method().name]);
     QByteArray className;
     Smoke::ModuleIndex classId;
-    
+
     if (methodName.startsWith("operator ")) {
         className = methodName.mid(qstrlen("operator "));
         classId = Smoke::findClass(className);
@@ -82,7 +82,7 @@ MethodCall::ArgumentTypeConversion::~ArgumentTypeConversion()
         (*fn)(methodRef.method, m_stack[1].s_voidp, m_stack);
     }
 
-    delete[] m_stack; 
+    delete[] m_stack;
 }
 
 void
@@ -96,7 +96,7 @@ MethodCall::ArgumentTypeConversion::unsupported()
 }
 
 void
-MethodCall::ArgumentTypeConversion::next() 
+MethodCall::ArgumentTypeConversion::next()
 {
 }
 
@@ -126,18 +126,18 @@ MethodCall::ReturnValue::unsupported()
 }
 
 void
-MethodCall::ReturnValue::next() 
+MethodCall::ReturnValue::next()
 {
 }
 
 MethodCall::MethodCall( const QVector<Smoke::ModuleIndex>& methodIds,
                         VALUE target,
                         VALUE * args ) :
-    m_methodIds(methodIds), m_methodRef(methodIds[0].smoke->methods[methodIds[0].index]), 
+    m_methodIds(methodIds), m_methodRef(methodIds[0].smoke->methods[methodIds[0].index]),
     m_current(-1), m_target(target), m_instance(0), m_returnValue(Qnil),
     m_valueList(args), m_called(false), m_error(false)
 {
-    m_methodId = m_methodIds[0]; 
+    m_methodId = m_methodIds[0];
     m_smoke = m_methodId.smoke;
 
     if (m_target != Qnil)
@@ -147,9 +147,9 @@ MethodCall::MethodCall( const QVector<Smoke::ModuleIndex>& methodIds,
     m_stack = new Smoke::StackItem[m_methodRef.numArgs + 1];
 }
 
-MethodCall::~MethodCall() 
-{ 
-    delete[] m_stack; 
+MethodCall::~MethodCall()
+{
+    delete[] m_stack;
 }
 
 void MethodCall::unsupported()

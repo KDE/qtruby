@@ -71,7 +71,7 @@ static QByteArray selectorSignature(int argc, VALUE * argv, VALUE klass, const c
     selector = rb_class2name(klass);
     selector += ';';
     selector += methodName;
-    
+
     for(int i = 0; i < argc; ++i) {
         selector += ';';
         selector += valueToTypeFlag(argv[i]);

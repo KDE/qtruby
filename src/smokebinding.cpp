@@ -14,7 +14,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public 
+ * You should have received a copy of the GNU Lesser General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -28,7 +28,7 @@
 #include "utils.h"
 
 namespace QtRuby {
-    
+
 Binding::Binding(Smoke* s)
     : SmokeBinding(s) { }
 
@@ -43,7 +43,7 @@ char* Binding::className(Smoke::Index classId)
 bool Binding::callMethod(Smoke::Index method, void* ptr, Smoke::Stack args, bool /*isAbstract*/)
 {
     QByteArray methodName(smoke->methodNames[smoke->methods[method].name]);
-    
+
     VALUE obj = Global::getRubyValue(ptr);
     if (obj == Qnil) {
         if ((Debug::DoDebug & Debug::Virtual) != 0) {
@@ -55,30 +55,30 @@ bool Binding::callMethod(Smoke::Index method, void* ptr, Smoke::Stack args, bool
                         Debug::methodToString(methodId).toLatin1().constData(),
                         (uint) obj );
         }
-        
+
         return false;
     }
-    
-    
+
+
     if ((Debug::DoDebug & Debug::Virtual) != 0) {
-        Smoke::ModuleIndex methodId(smoke, method);        
-        qWarning(   "module: %s %p->%s called", 
+        Smoke::ModuleIndex methodId(smoke, method);
+        qWarning(   "module: %s %p->%s called",
                     smoke->moduleName(),
                     ptr,
                     Debug::methodToString(methodId).toLatin1().constData() );
     }
-    
+
     Object::Instance * instance = Object::Instance::get(obj);
     if (instance == 0) {
         if ((Debug::DoDebug & Debug::Virtual) != 0) {
-            Smoke::ModuleIndex methodId(smoke, method);        
+            Smoke::ModuleIndex methodId(smoke, method);
             qWarning(   "module: %s Cannot find instance for virtual method %p->%s -> 0x%8.8x",
                         smoke->moduleName(),
                         ptr,
                         Debug::methodToString(methodId).toLatin1().constData(),
                         (uint) obj );
         }
-        
+
         return false;
     }
 
@@ -101,18 +101,18 @@ void Binding::deleted(Smoke::Index classId, void* ptr)
 {
     VALUE obj = Global::getRubyValue(ptr);
     Object::Instance * instance = Object::Instance::get(obj);
-    
+
     if ((Debug::DoDebug & Debug::GC) != 0) {
         qWarning("%p->~%s()", ptr, smoke->className(classId));
     }
-    
+
     if (instance == 0 || instance->isNull()) {
         return;
     }
-    
+
     Global::unmapPointer(instance, instance->classId);
     instance->value = 0;
-    
+
     return;
 }
 

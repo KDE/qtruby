@@ -14,7 +14,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public 
+ * You should have received a copy of the GNU Lesser General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -38,7 +38,7 @@
 
 namespace QtRuby {
 
-void Object::Instance::finalize() 
+void Object::Instance::finalize()
 {
     switch (ownership) {
     case QScriptEngine::QtOwnership:
@@ -69,18 +69,18 @@ void Object::Instance::dispose()
     methodName.prepend("~");
     Smoke::ModuleIndex nameId = classId.smoke->findMethodName(className(), methodName);
     Smoke::ModuleIndex methodId = classId.smoke->findMethod(classId, nameId);
-    
+
     if (methodId.index > 0) {
         Smoke::Method &methodRef = methodId.smoke->methods[methodId.smoke->methodMaps[methodId.index].method];
         Smoke::ClassFn fn = methodId.smoke->classes[methodRef.classId].classFn;
         Smoke::StackItem destroyInstanceStack[1];
         (*fn)(methodRef.method, value, destroyInstanceStack);
     }
-    
+
     value = 0;
 }
 
-Object::Instance::~Instance() 
+Object::Instance::~Instance()
 {
     // TODO: Don't delete anything for now until custom free() methods have
     // been implemented
@@ -127,9 +127,9 @@ void Object::free(void * ptr)
                  instance->value,
                  instance->ownership == Object::ScriptOwnership ? "true" : "false");
     }
-    
+
     Global::unmapPointer(instance, instance->classId, 0);
-    
+
     if (Debug::DoDebug & Debug::GC) {
         qWarning("Deleting (%s*)%p", instance->className(), instance->value);
     }

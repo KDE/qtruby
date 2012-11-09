@@ -28,7 +28,7 @@
 namespace QtRuby {
 
     class VirtualMethodCall : public Marshall {
-        
+
         class ReturnValue : Marshall {
         public:
             ReturnValue(Smoke::ModuleIndex methodId, Smoke::Stack stack, VALUE returnValue);
@@ -43,14 +43,14 @@ namespace QtRuby {
 
             void unsupported();
             void next();
-            
+
         private:
             Smoke::ModuleIndex m_methodId;
             Smoke::Stack m_stack;
             SmokeType m_type;
             VALUE m_returnValue;
         };
-        
+
     public:
         VirtualMethodCall(Smoke::ModuleIndex methodId, Smoke::Stack stack, VALUE obj, VALUE * args);
 
@@ -67,7 +67,7 @@ namespace QtRuby {
         void unsupported();
         void callMethod();
         void next();
-        
+
     private:
         Smoke::ModuleIndex m_methodId;
         Smoke::Stack m_stack;

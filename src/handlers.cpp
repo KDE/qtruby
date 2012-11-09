@@ -36,7 +36,7 @@ namespace QtRuby {
 
 static void marshall_basetype(Marshall *m)
 {
-    switch(m->type().element()) {        
+    switch(m->type().element()) {
     case Smoke::t_bool:
         switch(m->action()) {
         case Marshall::FromVALUE:
@@ -347,8 +347,8 @@ static void marshall_basetype(Marshall *m)
                 ptr = constructCopy(instance);
             }
 
-            ptr = instance->classId.smoke->cast(    ptr, 
-                                                    instance->classId, 
+            ptr = instance->classId.smoke->cast(    ptr,
+                                                    instance->classId,
                                                     Smoke::ModuleIndex(m->smoke(), m->type().classId()) );
 
             m->item().s_class = ptr;
@@ -418,7 +418,7 @@ void marshall_QListEnum(Marshall *m) {
 //        m->item().s_voidp = new QList<QLocale::Country>(qscriptvalue_cast<QList<QLocale::Country> >(*(m->var())));
         break;
     }
- 
+
     case Marshall::ToVALUE:
     {
 //        *(m->var()) = m->engine()->toScriptValue(*(static_cast<QList<QLocale::Country>* >(m->item().s_voidp)));

@@ -2,7 +2,7 @@
  *   Copyright 2003-2011-2010 by Richard Dale <richard.j.dale@gmail.com>
 
  *   Adapted from the code in src/script/qrubyengine.h in Qt 4.5
- 
+
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Library General Public License as
  *   published by the Free Software Foundation; either version 2, or
@@ -30,7 +30,7 @@
 /*
     Allows a metatype to be declared for a type containing a single comma.
     For example:
-        Q_DECLARE_METATYPE2(QList<QPair<QByteArray,QByteArray> >)       
+        Q_DECLARE_METATYPE2(QList<QPair<QByteArray,QByteArray> >)
  */
 #define Q_DECLARE_METATYPE2(TYPE1, TYPE2)                               \
     QT_BEGIN_NAMESPACE                                                  \
@@ -162,40 +162,40 @@ int qRubyRegisterSequenceMetaType(
 }
 
 namespace QtRuby {
-    
+
 template <class Container>
 void marshall_Container(Marshall *m) {
     switch(m->action()) {
     case Marshall::FromVALUE:
-    {        
+    {
         m->item().s_voidp = new Container(qrubyvalue_cast<Container>(*(m->var())));
         m->next();
-        
+
         if (!m->type().isConst()) {
             *(m->var()) = qRubyValueFromValue(*(static_cast<Container*>(m->item().s_voidp)));
         }
-        
+
         if (m->cleanup()) {
             delete static_cast<Container*>(m->item().s_voidp);
-        }        
+        }
         break;
     }
- 
+
     case Marshall::ToVALUE:
     {
         *(m->var()) = qRubyValueFromValue(*(static_cast<Container*>(m->item().s_voidp)));
         m->next();
-        
+
         if (!m->type().isConst()) {
             *(static_cast<Container*>(m->item().s_voidp)) = qrubyvalue_cast<Container>(*(m->var()));
         }
-        
+
         if (m->cleanup()) {
             delete static_cast<Container*>(m->item().s_voidp);
         }
         break;
     }
-    
+
     default:
         m->unsupported();
         break;
@@ -210,7 +210,7 @@ inline VALUE qRubySmokeValueFromSequence_helper(Smoke::ModuleIndex classId, void
     if (value != Qnil) {
         return value;
     }
-    
+
     return QtRuby::Global::wrapInstance(classId, ptr);
 }
 
@@ -227,7 +227,7 @@ VALUE qRubySmokeValueFromSequence(const Container &cont)
     for (it = begin, i = 0; it != end; ++it, ++i) {
         rb_ary_push(a, qRubySmokeValueFromSequence_helper(classId, (void *) &(*it)));
     }
-    
+
     return a;
 }
 
@@ -244,7 +244,7 @@ void qRubySmokeValueToSequence(VALUE value, Container &cont)
     const char * typeName = QMetaType::typeName(qMetaTypeId<typename Container::value_type>());
     Smoke::ModuleIndex classId = Smoke::findClass(typeName);
     for (quint32 i = 0; i < len; ++i) {
-                
+
 #if defined Q_CC_MSVC && !defined Q_CC_MSVC_NET
         cont.push_back(*(static_cast<Container::value_type *>(qRubySmokeValueToSequence_helper(rb_ary_entry(value, i), classId))));
 #else
@@ -279,7 +279,7 @@ VALUE qRubySmokeValueFromPointerSequence(const Container &cont)
     for (it = begin, i = 0; it != end; ++it, ++i) {
         rb_ary_push(a, qRubySmokeValueFromSequence_helper(classId, (void *) *it));
     }
-    
+
     return a;
 }
 
@@ -292,7 +292,7 @@ void qRubySmokeValueToPointerSequence(VALUE value, Container &cont)
     typeName.chop(1);
     Smoke::ModuleIndex classId = Smoke::findClass(typeName);
     for (quint32 i = 0; i < len; ++i) {
-                
+
 #if defined Q_CC_MSVC && !defined Q_CC_MSVC_NET
         cont.push_back(static_cast<Container::value_type>(qRubySmokeValueToSequence_helper(rb_ary_entry(value, i), classId)));
 #else
@@ -332,7 +332,7 @@ VALUE qRubySmokeValueFromPairSequence(const Container &cont)
         } else {
             rb_ary_push(pair, qRubySmokeValueFromSequence_helper(firstClassId, (void *) &((*it).first)));
         }
-        
+
         if (secondClassId == Smoke::NullModuleIndex) {
             rb_ary_push(pair, qRubyValueFromValue((*it).second));
         } else {
@@ -341,7 +341,7 @@ VALUE qRubySmokeValueFromPairSequence(const Container &cont)
 
         rb_ary_push(a, pair);
     }
-    
+
     return a;
 }
 
@@ -355,7 +355,7 @@ void qRubySmokeValueToPairSequence(VALUE value, Container &container)
     Smoke::ModuleIndex secondClassId = Smoke::findClass(secondTypeName);
     for (quint32 i = 0; i < len; ++i) {
         VALUE pair = rb_ary_entry(value, i);
-        
+
         if (firstClassId == Smoke::NullModuleIndex) {
             if (secondClassId == Smoke::NullModuleIndex) {
                 container.push_back(QPair<typename Container::value_type::first_type, typename Container::value_type::second_type>(
@@ -404,20 +404,20 @@ VALUE qRubySmokeValueFromHash(const Container &container)
     typename Container::const_iterator it;
     for (it = begin; it != end; ++it) {
         VALUE key;
-        
+
         if (keyClassId == Smoke::NullModuleIndex) {
             key = qRubyValueFromValue(it.key());
         } else {
             key = qRubySmokeValueFromSequence_helper(keyClassId, (void *) &(it.key()));
         }
-        
+
         if (mappedClassId == Smoke::NullModuleIndex) {
             rb_hash_aset(value, key, qRubyValueFromValue(it.value()));
         } else {
             rb_hash_aset(value, key, qRubySmokeValueFromSequence_helper(mappedClassId, (void *) &(it.value())));
         }
     }
-    
+
     return value;
 }
 

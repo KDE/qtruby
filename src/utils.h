@@ -15,7 +15,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public 
+ * You should have received a copy of the GNU Lesser General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -35,22 +35,22 @@
 #include "object.h"
 
 namespace QtRuby {
-    
+
     enum MethodMatchesState {
         InitialState,
         ImplicitTypeConversionsState,
         ArgumentTypeConversionState
     };
-    
+
     typedef QPair<QVector<Smoke::ModuleIndex>, int> MethodMatch;
     typedef QVector<MethodMatch> MethodMatches;
 
-    QTRUBY_EXPORT MethodMatches resolveMethod(  Smoke::ModuleIndex classId, 
-                                                const QByteArray& methodName, 
+    QTRUBY_EXPORT MethodMatches resolveMethod(  Smoke::ModuleIndex classId,
+                                                const QByteArray& methodName,
                                                 int argc,
                                                 VALUE * args,
                                                 MethodMatchesState matchState = InitialState );
-                                                
+
     QTRUBY_EXPORT void * constructCopy(Object::Instance *instance);
 }
 

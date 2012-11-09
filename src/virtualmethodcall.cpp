@@ -23,9 +23,9 @@
 #include "funcall.h"
 
 namespace QtRuby {
-    
+
 VirtualMethodCall::ReturnValue::ReturnValue(Smoke::ModuleIndex methodId, Smoke::Stack stack, VALUE returnValue) :
-    m_methodId(methodId), m_stack(stack), m_returnValue(returnValue) 
+    m_methodId(methodId), m_stack(stack), m_returnValue(returnValue)
 {
     m_type.set(m_methodId.smoke, method().ret);
     Marshall::HandlerFn fn = getMarshallFn(type());
@@ -43,7 +43,7 @@ VirtualMethodCall::ReturnValue::unsupported()
 }
 
 void
-VirtualMethodCall::ReturnValue::next() 
+VirtualMethodCall::ReturnValue::next()
 {
 }
 
@@ -76,7 +76,7 @@ VirtualMethodCall::callMethod()
     if (m_called) {
         return;
     }
-    
+
     m_called = true;
     VALUE returnValue = Qnil;
     QTRUBY_INIT_STACK
@@ -91,13 +91,13 @@ VirtualMethodCall::next()
 {
     int previous = m_current;
     m_current++;
-    
+
     while (!m_called && m_current < m_methodRef.numArgs) {
         Marshall::HandlerFn fn = getMarshallFn(type());
         (*fn)(this);
         m_current++;
     }
- 
+
     callMethod();
     m_current = previous;
 }

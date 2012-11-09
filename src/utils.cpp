@@ -131,6 +131,7 @@ mungedMethods(const QByteArray& methodName, int argc, VALUE * args, MethodMatche
 static int
 inheritanceDistance(Smoke* smoke, Smoke::Index classId, Smoke::Index baseId, int distance)
 {
+    qDebug() << Q_FUNC_INFO << "smoke:" << smoke << "classId:" << classId << smoke->className(classId) << "baseId:" << baseId << smoke->className(baseId) << "distance:" << distance;
     if (baseId == 0) {
         return 100;
     }
@@ -252,10 +253,13 @@ matchArgument(VALUE actual, const Smoke::Type& typeRef)
 //            matchDistance += 100;
 //        }
     } else if (TYPE(actual) == T_DATA) {
+        qDebug() << Q_FUNC_INFO << "fullArgType:" << fullArgType << "argType:" << argType;
         if ((typeRef.flags & Smoke::t_class) != 0) {
             Object::Instance * instance = Object::Instance::get(actual);
             Smoke::ModuleIndex classId = instance->classId.smoke->idClass(argType, true);
             matchDistance += inheritanceDistance(instance->classId.smoke, instance->classId.index, classId.index, 0);
+            qDebug() << Q_FUNC_INFO << "matchDistance:" << matchDistance << " " << instance->classId.index << " " << classId.index;
+
         } else {
             matchDistance += 100;
         }

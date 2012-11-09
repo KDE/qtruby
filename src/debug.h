@@ -14,7 +14,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public 
+ * You should have received a copy of the GNU Lesser General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -28,7 +28,7 @@
 
 namespace QtRuby {
     namespace Debug {
-        
+
         QTRUBY_EXPORT extern uint DoDebug;
 
         enum QtDebugChannel {
@@ -40,14 +40,14 @@ namespace QtRuby {
             Virtual = 0x10,
             Verbose = 0x20
         };
-        
+
         QTRUBY_EXPORT QString methodToString(const Smoke::ModuleIndex& methodId);
         QTRUBY_EXPORT QByteArray to_s(VALUE);
 
         extern VALUE qdebug(VALUE klass, VALUE msg);
         extern VALUE qfatal(VALUE klass, VALUE msg);
         extern VALUE qwarning(VALUE klass, VALUE msg);
-        
+
         extern VALUE setDebug(VALUE self, VALUE on_value);
         extern VALUE debugging(VALUE /*self*/);
     }

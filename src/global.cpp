@@ -92,7 +92,7 @@ getRubyValue(const void *ptr)
     }
 }
 
-void 
+void
 unmapPointer(Object::Instance * instance, const Smoke::ModuleIndex& classId, void *lastptr)
 {
     Smoke * smoke = classId.smoke;
@@ -113,9 +113,9 @@ unmapPointer(Object::Instance * instance, const Smoke::ModuleIndex& classId, voi
         }
     }
 
-    for (   Smoke::Index * parent = smoke->inheritanceList + smoke->classes[classId.index].parents; 
-            *parent != 0; 
-            parent++ ) 
+    for (   Smoke::Index * parent = smoke->inheritanceList + smoke->classes[classId.index].parents;
+            *parent != 0;
+            parent++ )
     {
         if (smoke->classes[*parent].external) {
             Smoke::ModuleIndex mi = Smoke::findClass(smoke->classes[*parent].className);
@@ -130,14 +130,14 @@ unmapPointer(Object::Instance * instance, const Smoke::ModuleIndex& classId, voi
 // Store pointer in g_rubyValues hash : "pointer_to_Qt_object" => weak ref to associated VALUE object
 // Recurse to store it also as casted to its parent classes.
 
-void 
+void
 mapPointer(VALUE obj, Object::Instance * instance, const Smoke::ModuleIndex& classId, void *lastptr)
 {
     Smoke * smoke = classId.smoke;
     void * ptr = instance->cast(classId);
 
     if (ptr != lastptr) {
-        lastptr = ptr; 
+        lastptr = ptr;
 
         if (Debug::DoDebug & Debug::GC) {
             Object::Instance * instance = Object::Instance::get(obj);
@@ -149,9 +149,9 @@ mapPointer(VALUE obj, Object::Instance * instance, const Smoke::ModuleIndex& cla
         rubyValues()->insert(ptr, value);
     }
 
-    for (   Smoke::Index * parent = smoke->inheritanceList + smoke->classes[classId.index].parents; 
-            *parent != 0; 
-            parent++ ) 
+    for (   Smoke::Index * parent = smoke->inheritanceList + smoke->classes[classId.index].parents;
+            *parent != 0;
+            parent++ )
     {
         if (smoke->classes[*parent].external) {
             Smoke::ModuleIndex mi = Smoke::findClass(smoke->classes[*parent].className);
@@ -265,14 +265,14 @@ defineSingletonMethod(const Smoke::ModuleIndex& classId, const char* name, VALUE
     meta->rubyMethods.append(method);
 }
 
-void 
+void
 defineTypeResolver(const Smoke::ModuleIndex& classId, Object::TypeResolver typeResolver)
 {
     MetaClass * meta = createMetaClass(classId);
     meta->resolver = typeResolver;
 }
 
-void 
+void
 resolveType(Object::Instance * instance)
 {
     Q_ASSERT(metaClasses()->contains(instance->classId));

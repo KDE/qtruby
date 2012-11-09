@@ -30,7 +30,7 @@ Q_DECLARE_METATYPE(QObjectList)
 Q_DECLARE_METATYPE(QList<int>)
 
 namespace QtRuby {
-    
+
 class RubyTypeInfo
 {
 public:
@@ -40,7 +40,7 @@ public:
     Marshall::MarshallFunction marshall;
     Marshall::DemarshallFunction demarshall;
 };
-    
+
 typedef QHash<int, RubyTypeInfo *> TypeInfosMap;
 Q_GLOBAL_STATIC(TypeInfosMap, typeInfos)
 static QTextCodec *codec = 0;
@@ -267,7 +267,7 @@ convertFromRubyValue(VALUE value, int type, void *ptr)
             return true;
         }
     }
-    
+
     // check if it's one of the types we know
     switch (QMetaType::Type(type)) {
     case QMetaType::Bool:

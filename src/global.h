@@ -74,12 +74,12 @@ namespace QtRuby {
         QTRUBY_EXPORT VALUE getRubyValue(const void * ptr);
 
         QTRUBY_EXPORT void unmapPointer(    Object::Instance * instance,
-                                            const Smoke::ModuleIndex& classId, 
+                                            const Smoke::ModuleIndex& classId,
                                             void * lastptr = 0 );
 
         QTRUBY_EXPORT void mapPointer(  VALUE obj,
-                                        Object::Instance * instance, 
-                                        const Smoke::ModuleIndex& classId, 
+                                        Object::Instance * instance,
+                                        const Smoke::ModuleIndex& classId,
                                         void * lastptr = 0 );
 
         QTRUBY_EXPORT VALUE rubyClassFromId(const Smoke::ModuleIndex& classId);
