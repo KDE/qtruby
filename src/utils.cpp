@@ -128,25 +128,63 @@ mungedMethods(const QByteArray& methodName, int argc, VALUE * args, MethodMatche
     return result;
 }
 
+// Count the number of parent classes between the classId and baseId classes. This method
+// will fully resolve Smoke classes and look in all smoke modules
 static int
-inheritanceDistance(Smoke* smoke, Smoke::Index classId, Smoke::Index baseId, int distance)
+inheritanceDistance(Smoke::ModuleIndex classId, Smoke::ModuleIndex baseId, int distance)
 {
-    qDebug() << Q_FUNC_INFO << "smoke:" << smoke << "classId:" << classId << smoke->className(classId) << "baseId:" << baseId << smoke->className(baseId) << "distance:" << distance;
-    if (baseId == 0) {
+    // qDebug() << Q_FUNC_INFO << "smoke:" << classId.smoke << "classId:" << classId.index << classId.smoke->className(classId.index) << "baseId:" << baseId.index << baseId.smoke->className(baseId.index) << "distance:" << distance;
+    if (baseId == Smoke::NullModuleIndex) {
         return 100;
     }
 
     if (classId == baseId) {
         return distance;
     }
+    
+    Smoke* smoke = classId.smoke;
+    for (   Smoke::Index* parent = smoke->inheritanceList + smoke->classes[classId.index].parents;
+            *parent != 0;
+            parent++ )
+    {
+        Smoke::ModuleIndex target;
+        if (smoke->classes[*parent].external) {
+            target = Smoke::findClass(smoke->classes[*parent].className);
+        } else {
+            target.smoke = smoke;
+            target.index = *parent;
+        }
+ 
+        int result = inheritanceDistance(target, baseId, distance + 1);
+        if (result != 100) {
+            return result;
+        }
+    }
+    
+    return 100;    
+}
+
+// Count the number of parent classes between the classId and baseId classes. This method
+// will only look in the same Smoke module as the 'smoke' arg passed to it.
+static int
+inheritanceDistance(Smoke* smoke, Smoke::Index classId, Smoke::Index baseId, int distance)
+{
+    // qDebug() << Q_FUNC_INFO << "smoke:" << smoke << "classId:" << classId << smoke->className(classId) << "baseId:" << baseId << smoke->className(baseId) << "distance:" << distance;
+    if (baseId == 0) {
+        return 100;
+    }
 
     for (   Smoke::Index* parent = smoke->inheritanceList + smoke->classes[classId].parents; 
             *parent != 0; 
             parent++ ) 
     {
-        int result = inheritanceDistance(smoke, *parent, baseId, distance + 1);
-        if (result != 100) {
-            return result;
+        if (*parent == baseId) {
+            return distance + 1;
+        } else {
+            int result = inheritanceDistance(smoke, *parent, baseId, distance + 1);
+            if (result != 100) {
+                return result;
+            }
         }
     }
 
@@ -253,12 +291,17 @@ matchArgument(VALUE actual, const Smoke::Type& typeRef)
 //            matchDistance += 100;
 //        }
     } else if (TYPE(actual) == T_DATA) {
-        qDebug() << Q_FUNC_INFO << "fullArgType:" << fullArgType << "argType:" << argType;
+        // qDebug() << Q_FUNC_INFO << "fullArgType:" << fullArgType << "argType:" << argType;
         if ((typeRef.flags & Smoke::t_class) != 0) {
             Object::Instance * instance = Object::Instance::get(actual);
             Smoke::ModuleIndex classId = instance->classId.smoke->idClass(argType, true);
-            matchDistance += inheritanceDistance(instance->classId.smoke, instance->classId.index, classId.index, 0);
-            qDebug() << Q_FUNC_INFO << "matchDistance:" << matchDistance << " " << instance->classId.index << " " << classId.index;
+            int distance = inheritanceDistance(instance->classId.smoke, instance->classId.index, classId.index, 0);
+            if (distance == 100) {
+                classId = Smoke::findClass(argType);
+                matchDistance += inheritanceDistance(instance->classId, classId, 0);
+            } else {
+                matchDistance += distance;
+            }
 
         } else {
             matchDistance += 100;
