@@ -362,6 +362,31 @@ void marshall_PrimitiveRef(Marshall *m) {
         break;
     }
 }
+static void marshall_VoidPtrArrary(Marshall *m) {
+    switch(m->action()) {
+    case Marshall::FromVALUE:
+    {
+        VALUE rv = *(m->var());
+        if (rv != Qnil) {
+            Data_Get_Struct(rv, void*, m->item().s_voidp);
+        } else {
+            m->item().s_voidp = 0;
+        }
+        break;
+    }
+
+    case Marshall::ToVALUE:
+    {
+        VALUE rv = Data_Wrap_Struct(rb_cObject, 0, 0, m->item().s_voidp);
+        *(m->var()) = rv;
+        break;
+    }
+
+    default:
+        m->unsupported();
+        break;
+    }
+}
 
 Marshall::TypeHandler QtCoreHandlers[] = {
     { "bool*", marshall_PrimitiveRef<bool> },
@@ -464,6 +489,7 @@ Marshall::TypeHandler QtCoreHandlers[] = {
     { "unsigned char&", marshall_PrimitiveRef<unsigned char> },
     { "unsigned int&", marshall_PrimitiveRef<unsigned int> },
     { "unsigned long&", marshall_PrimitiveRef<unsigned long> },
+    { "void**", marshall_VoidPtrArrary },
 
 
     { 0, 0 }
