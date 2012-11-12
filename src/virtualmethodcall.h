@@ -59,7 +59,7 @@ namespace QtRuby {
         inline SmokeType type() { return SmokeType(m_methodId.smoke, m_args[m_current]); }
         inline Marshall::Action action() { return Marshall::ToVALUE; }
         inline Smoke::StackItem &item() { return m_stack[m_current + 1]; }
-        inline VALUE * var() { return &(m_args[m_current]); }
+        inline VALUE * var() { return &(m_valueList[m_current]); }
         inline const Smoke::Method &method() { return m_methodRef; }
         inline Smoke *smoke() { return m_methodId.smoke; }
         inline bool cleanup() { return false; }   // is this right?
@@ -71,8 +71,9 @@ namespace QtRuby {
     private:
         Smoke::ModuleIndex m_methodId;
         Smoke::Stack m_stack;
+        Smoke::Index * m_args;
         VALUE m_obj;
-        VALUE * m_args;
+        VALUE * m_valueList;
         int m_current;
         bool m_called;
         Smoke::Method & m_methodRef;
