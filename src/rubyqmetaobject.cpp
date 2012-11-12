@@ -319,6 +319,7 @@ toMetaObject(MetaObjectBuilder * meta)
         instance->value = 0;
         qFree(meta->metaObject);
     }
+    meta->signalCount = meta->signalMethods.count();
     meta->methods = meta->signalMethods + meta->slotMethods;
     int size = buildMetaObject(meta, 0);
     
@@ -474,7 +475,6 @@ VALUE ruby_signals(int argc, VALUE * argv, VALUE self)
     MetaObjectBuilder * meta = createMetaObjectBuilder(self);
     meta->addMethods(argc, argv, MethodSignal | AccessPublic);
     meta->changed = true;
-    meta->signalCount = argc;
     return Qnil;
 }
 
