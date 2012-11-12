@@ -1,3 +1,11 @@
+2012-11-12  Richard Dale  <richard.j.dale@gmail.com>
+
+Correctly initialize the data uints when constructing a QMetaObject,
+and add a signalCount data value (the QMetaObject is still revision
+3 which is probably wrong).
+
+Add a dump() method for debugging the QMetaObject construction
+
 2012-11-10  Richard Dale  <richard.j.dale@gmail.com>
 
 When finding the 'inheritanceDistance' for an argument passed to a

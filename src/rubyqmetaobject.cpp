@@ -26,6 +26,8 @@
 #include "global.h"
 #include "rubyqmetaobject.h"
 
+#define DEBUG
+
 // The code to dynamically create QMetaObjects is derived from
 // qmetaobjectbuilder.cpp in Qt Declarative
 
@@ -83,6 +85,7 @@ struct QMetaObjectPrivate
     int enumeratorCount, enumeratorData;
     int constructorCount, constructorData;
     int flags;
+    int signalCount;
 };
 
 struct MetaMethodBuilder
@@ -109,11 +112,15 @@ struct MetaObjectBuilder {
     bool changed;
     QMetaObject *superClass;
     int flags;
+    int signalCount;
     QByteArray className;
     QVector<MetaClassInfoBuilder> classInfos;
     QVector<MetaMethodBuilder> methods;
     VALUE rubyMetaObject;
     QMetaObject * metaObject;
+#ifdef DEBUG
+    void dump(const QMetaObject * meta, int stringDataLength);
+#endif
 };
 
 // Align on a specific type boundary.
@@ -200,10 +207,11 @@ static int buildMetaObject(MetaObjectBuilder *d, char *buf)
     QMetaObjectPrivate *pmeta
         = reinterpret_cast<QMetaObjectPrivate *>(buf + size);
     int pmetaSize = size;
-    dataIndex = 13;     // Number of fields in the QMetaObjectPrivate.
+    dataIndex = 14;     // Number of fields in the QMetaObjectPrivate.
     if (buf) {
         pmeta->revision = 3;
         pmeta->flags = d->flags;
+        pmeta->signalCount = d->signalCount;
         pmeta->className = 0;   // Class name is always the first string.
 
         pmeta->classInfoCount = d->classInfos.size();
@@ -213,6 +221,12 @@ static int buildMetaObject(MetaObjectBuilder *d, char *buf)
         pmeta->methodCount = d->methods.size();
         pmeta->methodData = dataIndex;
         dataIndex += 5 * d->methods.size();
+        pmeta->propertyCount = 0;
+        pmeta->propertyData = 0;
+        pmeta->enumeratorCount = 0;
+        pmeta->enumeratorData = 0;
+        pmeta->constructorCount = 0;
+        pmeta->constructorData = 0;
     } else {
         dataIndex += 2 * d->classInfos.size();
         dataIndex += 5 * d->methods.size();
@@ -233,7 +247,7 @@ static int buildMetaObject(MetaObjectBuilder *d, char *buf)
     }
 
     // Reset the current data position to just past the QMetaObjectPrivate.
-    dataIndex = 13;
+    dataIndex = 14;
 
     // Add the class name to the string table.
     int offset = 0;
@@ -276,6 +290,11 @@ static int buildMetaObject(MetaObjectBuilder *d, char *buf)
 
     // One more empty string to act as a terminator.
     buildString(buf, str, &offset, QByteArray(), -1);
+
+#ifdef DEBUG
+    if (buf)
+        d->dump(meta, offset);
+#endif    
     size += offset;
 
     // Output the zero terminator in the data array.
@@ -300,10 +319,11 @@ toMetaObject(MetaObjectBuilder * meta)
     }
 
     int size = buildMetaObject(meta, 0);
+    
     char *buf = reinterpret_cast<char *>(qMalloc(size));
     buildMetaObject(meta, buf);
     meta->metaObject = reinterpret_cast<QMetaObject *>(buf);
-    qDebug() << Q_FUNC_INFO << "class name:" <<  meta->metaObject->className();
+    qDebug() << Q_FUNC_INFO << "class name:" <<  meta->metaObject->className();   
     meta->rubyMetaObject = Global::wrapInstance(Global::QMetaObjectClassId, meta->metaObject, Object::ScriptOwnership);
     return meta->rubyMetaObject;
 }
@@ -380,6 +400,7 @@ metaObject(VALUE self)
 VALUE
 qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
 {
+    qDebug() << Q_FUNC_INFO;
     return Qnil;
 }
 
@@ -430,6 +451,7 @@ VALUE ruby_signals(int argc, VALUE * argv, VALUE self)
     MetaObjectBuilder * meta = createMetaObjectBuilder(self);
     meta->addMethods(argc, argv, MethodSignal | AccessPublic);
     meta->changed = true;
+    meta->signalCount = argc;
     return Qnil;
 }
 
@@ -443,5 +465,142 @@ VALUE ruby_classinfo(VALUE self, VALUE name, VALUE value)
     meta->changed = true;
     return Qnil;
 }
+
+#ifdef DEBUG
+void MetaObjectBuilder::dump(const QMetaObject * meta, int stringDataLength)
+{
+    printf("make_metaObject() superdata: %p %s\n", meta->d.superdata, meta->d.superdata->className());
+
+    printf(
+    " // content:\n"
+    "    %4d,       // revision\n"
+    "    %4d,       // classname\n"
+    "    %4d, %4d, // classinfo\n"
+    "    %4d, %4d, // methods\n"
+    "    %4d, %4d, // properties\n"
+    "    %4d, %4d, // enums/sets\n"
+    "    %4d, %4d, // constructors\n"
+    "    %4d,       // flags\n"
+    "    %4d,       // signalCount\n",
+    meta->d.data[0], meta->d.data[1], meta->d.data[2], meta->d.data[3],
+    meta->d.data[4], meta->d.data[5],
+    meta->d.data[6], meta->d.data[7],
+    meta->d.data[8], meta->d.data[9],
+    meta->d.data[10], meta->d.data[11],
+    meta->d.data[12], meta->d.data[13] );
+
+    int s = meta->d.data[3];
+
+    if (meta->d.data[2] > 0) {
+        printf("\n // classinfo: key, value\n");
+        for (uint j = 0; j < meta->d.data[2]; j++) {
+            printf("      %d,    %d\n", meta->d.data[s + (j * 2)], meta->d.data[s + (j * 2) + 1]);
+        }
+    }
+
+    s = meta->d.data[5];
+    bool signal_headings = true;
+    bool slot_headings = true;
+    bool method_headings = true;
+
+    for (uint j = 0; j < meta->d.data[4]; j++) {
+        if (signal_headings && (meta->d.data[s + (j * 5) + 4] & 0x04) != 0) {
+            printf("\n // signals: signature, parameters, type, tag, flags\n");
+            signal_headings = false;
+        }
+
+        if (slot_headings && (meta->d.data[s + (j * 5) + 4] & 0x08) != 0) {
+            printf("\n // slots: signature, parameters, type, tag, flags\n");
+            slot_headings = false;
+        }
+
+        if (    method_headings
+                && (meta->d.data[s + (j * 5) + 4] & 0x04) == 0
+                && (meta->d.data[s + (j * 5) + 4] & 0x08) == 0 )
+        {
+            printf("\n // methods: signature, parameters, type, tag, flags\n");
+            method_headings = false;
+        }
+
+        printf("    %4d, %4d, %4d, %4d, 0x%2.2x\n",
+            meta->d.data[s + (j * 5)], meta->d.data[s + (j * 5) + 1], meta->d.data[s + (j * 5) + 2],
+            meta->d.data[s + (j * 5) + 3], meta->d.data[s + (j * 5) + 4]);
+    }
+
+    if (meta->d.data[6] != 0) {
+        printf("\n // properties: name, type, flags\n");
+    }
+
+    s = meta->d.data[7];
+    for (uint j = 0; j < meta->d.data[6]; j++) {
+        printf("    %4d, %4d, 0x%.8x\n",
+            meta->d.data[s + (j * 3)], meta->d.data[s + (j * 3) + 1], meta->d.data[s + (j * 3) + 2]);
+    }
+
+    if (meta->d.data[6] != 0) {
+        printf("\n // properties: notify_signal_id\n");
+    }
+
+    s += (meta->d.data[6] * 3);
+    for (uint j = 0; j < meta->d.data[6]; j++) {
+        printf("    %4d,\n",
+            meta->d.data[s + j]);
+    }
+
+    if (meta->d.data[8] != 0) {
+        printf("\n // enums: name, flags, count, data\n");
+    }
+
+    s = meta->d.data[9];
+    for (uint j = 0; j < meta->d.data[8]; j++) {
+        printf("    %4d, 0x%.1x, %4d, %4d\n",
+            meta->d.data[s + (j * 4)], meta->d.data[s + (j * 4) + 1], meta->d.data[s + (j * 4) + 2], meta->d.data[s + (j * 4) + 3]);
+    }
+
+    s += (meta->d.data[8] * 4);
+
+    if (meta->d.data[8] != 0) {
+        printf("\n // enum data: key, value\n");
+
+        for (uint j = 0; j < meta->d.data[s + (j * 2)] != 0; j++) {
+            printf("    %4d, %4d\n",
+                meta->d.data[s + (j * 2)], meta->d.data[s + (j * 2) + 1]);
+        }
+    }
+
+    s = meta->d.data[11];
+
+    if (meta->d.data[10] != 0) {
+        printf("\n // constructors: signature, parameters, type, tag, flags\n");
+
+        for (uint j = 0; j < meta->d.data[10]; j++) {
+            printf("    %4d, %4d, %4d, %4d, 0x%02x\n",
+                meta->d.data[s + (j * 5)], meta->d.data[s + (j * 5) + 1], meta->d.data[s + (j * 5) + 2],
+                meta->d.data[s + (j * 5) + 3], meta->d.data[s + (j * 5) + 4]);
+        }
+    }
+
+    printf("\n       0        // eod\n");
+
+    printf("\nqt_meta_stringdata:\n    \"");
+
+    int strlength = 0;
+    for (int j = 0; j < stringDataLength; j++) {
+        strlength++;
+        if (meta->d.stringdata[j] == 0) {
+            printf("\\0");
+            if (strlength > 40) {
+                printf("\"\n    \"");
+                strlength = 0;
+            }
+        } else {
+            printf("%c", meta->d.stringdata[j]);
+        }
+    }
+    printf("\"\n\n");
+
+    return;
+}
+#endif
 
 }
