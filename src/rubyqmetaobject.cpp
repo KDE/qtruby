@@ -115,6 +115,8 @@ struct MetaObjectBuilder {
     int signalCount;
     QByteArray className;
     QVector<MetaClassInfoBuilder> classInfos;
+    QVector<MetaMethodBuilder> signalMethods;
+    QVector<MetaMethodBuilder> slotMethods;
     QVector<MetaMethodBuilder> methods;
     VALUE rubyMetaObject;
     QMetaObject * metaObject;
@@ -317,7 +319,7 @@ toMetaObject(MetaObjectBuilder * meta)
         instance->value = 0;
         qFree(meta->metaObject);
     }
-
+    meta->methods = meta->signalMethods + meta->slotMethods;
     int size = buildMetaObject(meta, 0);
     
     char *buf = reinterpret_cast<char *>(qMalloc(size));
@@ -398,9 +400,26 @@ metaObject(VALUE self)
 }
 
 VALUE
-qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
+qt_metacall(int argc, VALUE * argv, VALUE self)
 {
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << "argc:" << argc;
+    // Arguments: QMetaObject::Call _c, int id, void ** _o
+    VALUE tmp = rb_funcall(argv[0], rb_intern("to_i"), 0);
+    qDebug() << Q_FUNC_INFO << "tmp:" <<  tmp;
+    uint tmp1 = NUM2UINT(tmp);
+    qDebug() << Q_FUNC_INFO << "tmp1:" <<  tmp1;
+    QMetaObject::Call _c = static_cast<QMetaObject::Call>(tmp1);
+    qDebug() << Q_FUNC_INFO << "c_:" <<  _c;
+    int id = NUM2INT(argv[1]);
+    qDebug() << Q_FUNC_INFO << "c_:" <<  _c << "id:" << id;
+    return Qnil;
+    void ** _o = 0;
+
+    // Note that for a slot with no args and no return type,
+    // it isn't an error to get a NULL value of _o here.
+    Data_Get_Struct(argv[2], void*, _o);
+    qDebug() << Q_FUNC_INFO << "c_:" <<  _c << "id:" << id << "_o:" << _o;
+    
     return Qnil;
 }
 
@@ -424,7 +443,11 @@ MetaObjectBuilder::addMethods(int argc, VALUE * argv, int attributes)
 
         method.signature = QMetaObject::normalizedSignature(method.signature);
         method.attributes = attributes;
-        methods.append(method);
+        if ((attributes & MethodSignal) != 0) {
+            signalMethods.append(method);
+        } else {
+            slotMethods.append(method);
+        }
     }
     // qDebug() << Q_FUNC_INFO << "returnType" << method.returnType << " signature:" << method.signature;
     return;
