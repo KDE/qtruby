@@ -6,7 +6,6 @@ include_directories(
 )
 
 set(rubyqtcore_LIBRARY_SRC
-    invokeslot.cpp
     qtcore.cpp
     rubyqabstractitemmodel.cpp
     rubyqbytearray.cpp

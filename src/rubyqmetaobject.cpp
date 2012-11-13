@@ -19,11 +19,13 @@
  */
 
 #include <QtCore/qdebug.h>
+#include <QtCore/QMetaMethod>
 #include <QtCore/QMetaObject>
 #include <QtCore/QHash>
 
 #include "object.h"
 #include "global.h"
+#include "invokeslot.h"
 #include "rubyqmetaobject.h"
 
 #define DEBUG
@@ -359,16 +361,17 @@ parentMetaObject(VALUE obj)
     qDebug() << Q_FUNC_INFO;
     Object::Instance * instance = Object::Instance::get(obj);
     Smoke::ModuleIndex nameId = instance->classId.smoke->idMethodName("metaObject");
-    Smoke::ModuleIndex meth = instance->classId.smoke->findMethod(instance->classId, nameId);
-    if (meth == Smoke::NullModuleIndex) {
+    Smoke::ModuleIndex methodId = instance->classId.smoke->findMethod(instance->classId, nameId);
+    if (methodId == Smoke::NullModuleIndex) {
         // Should never happen..
+        return 0;
     }
 
-    const Smoke::Method &methodId = meth.smoke->methods[meth.smoke->methodMaps[meth.index].method];
-    Smoke::ClassFn fn = instance->classId.smoke->classes[methodId.classId].classFn;
-    Smoke::StackItem i[1];
-    (*fn)(methodId.method, instance->value, i);
-    return reinterpret_cast<QMetaObject*>(i[0].s_voidp);
+    const Smoke::Method &methodRef = methodId.smoke->methods[methodId.smoke->methodMaps[methodId.index].method];
+    Smoke::ClassFn fn = instance->classId.smoke->classes[methodRef.classId].classFn;
+    Smoke::StackItem stack[1];
+    (*fn)(methodRef.method, instance->value, stack);
+    return reinterpret_cast<QMetaObject*>(stack[0].s_voidp);
 }
 
 static QMetaObject *
@@ -400,28 +403,66 @@ metaObject(VALUE self)
     return meta->rubyMetaObject;
 }
 
+ID
+signatureToMethodID(const QByteArray& signature)
+{
+    QByteArray methodName;
+    int index = signature.indexOf('(');
+    if (index != -1) {
+        methodName = signature.mid(0, index);
+    }
+
+    return rb_intern(methodName);
+}
+
 VALUE
 qt_metacall(int argc, VALUE * argv, VALUE self)
 {
     qDebug() << Q_FUNC_INFO << "argc:" << argc;
-    // Arguments: QMetaObject::Call _c, int id, void ** _o
-    VALUE tmp = rb_funcall(argv[0], rb_intern("to_i"), 0);
-    qDebug() << Q_FUNC_INFO << "tmp:" <<  tmp;
-    uint tmp1 = NUM2UINT(tmp);
-    qDebug() << Q_FUNC_INFO << "tmp1:" <<  tmp1;
-    QMetaObject::Call _c = static_cast<QMetaObject::Call>(tmp1);
-    qDebug() << Q_FUNC_INFO << "c_:" <<  _c;
-    int id = NUM2INT(argv[1]);
-    qDebug() << Q_FUNC_INFO << "c_:" <<  _c << "id:" << id;
-    return Qnil;
-    void ** _o = 0;
+    QMetaObject::Call _c = static_cast<QMetaObject::Call>(NUM2UINT(rb_funcall(argv[0], rb_intern("to_i"), 0)));
+    int _id = NUM2INT(argv[1]);
+    void ** _a = 0;
 
     // Note that for a slot with no args and no return type,
-    // it isn't an error to get a NULL value of _o here.
-    Data_Get_Struct(argv[2], void*, _o);
-    qDebug() << Q_FUNC_INFO << "c_:" <<  _c << "id:" << id << "_o:" << _o;
+    // it isn't an error to get a NULL value of _a here.
+    Data_Get_Struct(argv[2], void*, _a);
+    qDebug() << Q_FUNC_INFO << "c_:" <<  _c << "_id:" << _id << "_a:" << _a;
     
-    return Qnil;
+    Object::Instance * instance = Object::Instance::get(self);
+    Smoke::ModuleIndex nameId = instance->classId.smoke->idMethodName("qt_metacall$$?");
+    Smoke::ModuleIndex methodId = nameId.smoke->findMethod(instance->classId, nameId);
+    if (methodId == Smoke::NullModuleIndex) {
+        // Should never happen..
+        rb_raise(   rb_eRuntimeError,
+                    "Cannot find %s::qt_metacall() method\n",
+                    instance->classId.smoke->classes[instance->classId.index].className );
+        return _id;
+    }
+    
+    const Smoke::Method &methodRef = methodId.smoke->methods[methodId.smoke->methodMaps[methodId.index].method];
+    Smoke::ClassFn fn = methodId.smoke->classes[methodRef.classId].classFn;
+    Smoke::StackItem stack[4];
+    stack[1].s_enum = _c;
+    stack[2].s_int = _id;
+    stack[3].s_voidp = _a;
+    (*fn)(methodRef.method, instance->value, stack);
+    _id = stack[0].s_int;
+    if (_id < 0) {
+        return INT2NUM(_id);
+    }
+    
+    VALUE klass = rb_funcall(self, rb_intern("class"), 0);
+    MetaObjectBuilder * builder = createMetaObjectBuilder(klass);
+    QMetaObject * meta = builder->metaObject;
+
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        QMetaMethod method = meta->method(meta->methodOffset() + _id);
+        ID methodID = signatureToMethodID(method.signature());
+        qDebug() << Q_FUNC_INFO << method.signature();
+        InvokeSlot slot(self, methodID, method, _a);
+    }
+
+    return INT2NUM(_id);
 }
 
 void

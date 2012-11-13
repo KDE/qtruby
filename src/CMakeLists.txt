@@ -16,6 +16,7 @@ set(qtrubyruntime_LIB_SRCS
     funcall.cpp
     global.cpp
     object.cpp
+    invokeslot.cpp
     metaclass.cpp
     methodmissing.cpp
     prettyprint.cpp

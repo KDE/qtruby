@@ -17,7 +17,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-
+#include "funcall.h"
 #include "invokeslot.h"
 #include "smokebinding.h"
 #include "global.h"
@@ -27,22 +27,7 @@
 
 #include <QtCore/QStringList>
 #include <QtCore/qdebug.h>
-static bool qtruby_embedded = false;
 
-extern "C" {
-
-Q_DECL_EXPORT void
-set_qtruby_embedded(bool yn) {
-#if !defined(RUBY_INIT_STACK)
-    if (yn) {
-        qWarning("ERROR: set_qtruby_embedded(true) called but RUBY_INIT_STACK is undefined");
-        qWarning("       Upgrade to Ruby 1.8.6 or greater");
-    }
-#endif
-    qtruby_embedded = yn;
-}
-
-}
 
 // This is based on the SWIG SWIG_INIT_STACK and SWIG_RELEASE_STACK macros.
 // If RUBY_INIT_STACK is only called when an embedded extension such as, a
@@ -143,8 +128,8 @@ InvokeSlot::ReturnValue::next()
 {
 }
 
-InvokeSlot::InvokeSlot(VALUE obj, ID slotName, const QMetaMethod& metaMethod, void ** a) :
-    m_obj(obj), m_slotName(slotName), m_metaMethod(metaMethod), _a(a),
+InvokeSlot::InvokeSlot(VALUE obj, ID methodID, const QMetaMethod& metaMethod, void ** a) :
+    m_obj(obj), m_methodID(methodID), m_metaMethod(metaMethod), _a(a),
     m_current(-1), m_called(false), m_error(false)
 {
 
@@ -168,7 +153,7 @@ void InvokeSlot::callMethod()
 
     VALUE result;
     QTRUBY_INIT_STACK
-    QTRUBY_FUNCALL2(result, m_obj, m_slotName, m_argCount, m_rubyArgs)
+    QTRUBY_FUNCALL2(result, m_obj, m_methodID, m_argCount, m_rubyArgs)
     QTRUBY_RELEASE_STACK
 
     if (qstrcmp(m_metaMethod.typeName(), "") != 0) {
