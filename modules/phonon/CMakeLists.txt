@@ -1,4 +1,4 @@
-include_directories( ${QT_INCLUDES} ${CMAKE_SOURCE_DIR}/generator ${RUBY_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src)
+include_directories( ${QT_INCLUDES} ${PHONON_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/generator ${RUBY_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/ruby/qtruby/src)
 
 set(rubyphonon_LIBRARY_SRC phonon.cpp phononhandlers.cpp)
 add_library(rubyphonon MODULE ${rubyphonon_LIBRARY_SRC})
