@@ -55,6 +55,9 @@ namespace QtRuby {
     QTRUBY_EXPORT void * constructCopy(Object::Instance *instance);
     
     QTRUBY_EXPORT SmokeType findSmokeType(const char* typeName, Smoke * smoke = 0);
+    
+    QTRUBY_EXPORT void smokeStackItemToQt(const SmokeType & type, const Smoke::StackItem &stackItem, void * _a);
+    QTRUBY_EXPORT void smokeStackItemFromQt(const SmokeType & type, Smoke::StackItem &stackItem, void * _a);
 }
 
 #endif

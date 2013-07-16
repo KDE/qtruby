@@ -132,10 +132,10 @@ MethodCall::ReturnValue::next()
 
 MethodCall::MethodCall( const QVector<Smoke::ModuleIndex>& methodIds,
                         VALUE target,
-                        VALUE * args ) :
+                        VALUE * argv ) :
     m_methodIds(methodIds), m_methodRef(methodIds[0].smoke->methods[methodIds[0].index]),
     m_current(-1), m_target(target), m_instance(0), m_returnValue(Qnil),
-    m_valueList(args), m_called(false), m_error(false)
+    m_argv(argv), m_called(false), m_error(false)
 {
     m_methodId = m_methodIds[0];
     m_smoke = m_methodId.smoke;
@@ -202,7 +202,7 @@ void MethodCall::callMethod()
     if ((Debug::DoDebug & Debug::Calls) != 0) {
         QStringList argsString;
         for (int i = 0; i < m_methodRef.numArgs; ++i) {
-            argsString << QString::fromLatin1(Debug::to_s(m_valueList[i]));
+            argsString << QString::fromLatin1(Debug::to_s(m_argv[i]));
         }
 
         qWarning(   "Trace@%s:%d %s.%s(%s) => %s",

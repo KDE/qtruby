@@ -129,25 +129,28 @@ InvokeSlot::ReturnValue::next()
 {
 }
 
-InvokeSlot::InvokeSlot(VALUE obj, ID methodID, VALUE *valueList, const QMetaMethod& metaMethod, void ** a) :
-    m_obj(obj), m_methodID(methodID), m_valueList(valueList), m_metaMethod(metaMethod), _a(a),
+InvokeSlot::InvokeSlot(VALUE self, ID methodID, VALUE *valueList, const QMetaMethod& metaMethod, void ** a) :
+    m_self(self), m_methodID(methodID), m_argv(valueList), m_metaMethod(metaMethod), _a(a),
     m_current(-1), m_called(false), m_error(false)
 {
-    Object::Instance * instance = Object::Instance::get(m_obj);
+    Object::Instance * instance = Object::Instance::get(m_self);
     m_smoke = instance->classId.smoke;
-    m_argCount = m_metaMethod.parameterTypes().count();
-    m_smokeTypes = new SmokeType[m_argCount + 1];
+    m_argc = m_metaMethod.parameterTypes().count();
+    m_smokeTypes = new SmokeType[m_argc + 1];
     QList<QByteArray> types = m_metaMethod.parameterTypes();
 
-    for (int index = 0; index < m_argCount; index++) {
+    for (int index = 0; index < m_argc; index++) {
         const char* typeName = types[index].constData();
         m_smokeTypes[index] = findSmokeType(typeName, m_smoke);
     }
+    
+    m_stack = new Smoke::StackItem[m_argc + 1];
 }
 
 InvokeSlot::~InvokeSlot()
 {
     delete[] m_smokeTypes;
+    delete[] m_stack;
 }
 
 SmokeType InvokeSlot::type()
@@ -157,72 +160,8 @@ SmokeType InvokeSlot::type()
 
 Smoke::StackItem &InvokeSlot::item()
 {
-    qDebug() << Q_FUNC_INFO << "Smoke type name:" << type().name();
-    qDebug() << Q_FUNC_INFO << "Smoke type element:" << type().element();
-    
-    switch(type().element()) {
-    case Smoke::t_bool:
-        m_stackItem.s_bool = *((bool*) _a[m_current + 1]);
-        qDebug() << Q_FUNC_INFO << "Found a bool arg:" << m_stackItem.s_bool;
-        break;
-
-    case Smoke::t_char:
-        m_stackItem.s_char = *static_cast<char*>(_a[m_current + 1]);
-        break;
-
-    case Smoke::t_uchar:
-        m_stackItem.s_uchar = *static_cast<uchar*>(_a[m_current + 1]);
-        break;
-
-    case Smoke::t_short:
-        m_stackItem.s_short = *static_cast<short*>(_a[m_current + 1]);
-        break;
-
-    case Smoke::t_ushort:
-        m_stackItem.s_ushort = *static_cast<ushort*>(_a[m_current + 1]);
-        break;
-
-    case Smoke::t_int:
-        m_stackItem.s_int = *static_cast<int*>(_a[m_current + 1]);
-        break;
-
-    case Smoke::t_uint:
-        m_stackItem.s_char = *static_cast<char*>(_a[m_current + 1]);
-       break;
-
-    case Smoke::t_long:
-        m_stackItem.s_uint = *static_cast<uint*>(_a[m_current + 1]);
-        break;
-
-    case Smoke::t_ulong:
-        m_stackItem.s_ulong = *static_cast<ulong*>(_a[m_current + 1]);
-        break;
-
-    case Smoke::t_float:
-        m_stackItem.s_float = *static_cast<float*>(_a[m_current + 1]);
-        break;
-
-    case Smoke::t_double:
-        m_stackItem.s_double = *static_cast<double*>(_a[m_current + 1]);
-        break;
-
-    case Smoke::t_enum:
-        m_stackItem.s_uint = *static_cast<uint*>(_a[m_current + 1]);
-       break;
-
-    case Smoke::t_class:
-        m_stackItem.s_class = *static_cast<void**>(_a[m_current + 1]);
-        break;
-        
-    case Smoke::t_voidp:
-        m_stackItem.s_voidp = *static_cast<void**>(_a[m_current + 1]);
-        break;
-
-    default:
-        break;
-    }
-
-     return m_stackItem;
+    smokeStackItemFromQt(type(), m_stack[m_current + 1], _a[m_current + 1]);
+    return m_stack[m_current + 1];
 }
 
 void InvokeSlot::unsupported()
@@ -240,7 +179,7 @@ void InvokeSlot::callMethod()
 
     VALUE result;
     QTRUBY_INIT_STACK
-    QTRUBY_FUNCALL2(result, m_obj, m_methodID, m_argCount, m_valueList)
+    QTRUBY_FUNCALL2(result, m_self, m_methodID, m_argc, m_argv)
     QTRUBY_RELEASE_STACK
 
     if (qstrcmp(m_metaMethod.typeName(), "") != 0) {

@@ -50,7 +50,7 @@ VirtualMethodCall::ReturnValue::next()
 }
 
 VirtualMethodCall::VirtualMethodCall(Smoke::ModuleIndex methodId, Smoke::Stack stack, VALUE obj, VALUE * args) :
-    m_methodId(methodId), m_stack(stack), m_obj(obj), m_valueList(args),
+    m_methodId(methodId), m_stack(stack), m_obj(obj), m_argv(args),
     m_current(-1), m_called(false),
     m_methodRef(methodId.smoke->methods[methodId.index])
 {
@@ -83,7 +83,7 @@ VirtualMethodCall::callMethod()
     m_called = true;
     VALUE returnValue = Qnil;
     QTRUBY_INIT_STACK
-    QTRUBY_FUNCALL2(returnValue, m_obj, rb_intern(m_methodId.smoke->methodNames[m_methodRef.name]), m_methodRef.numArgs, m_valueList)
+    QTRUBY_FUNCALL2(returnValue, m_obj, rb_intern(m_methodId.smoke->methodNames[m_methodRef.name]), m_methodRef.numArgs, m_argv)
     QTRUBY_RELEASE_STACK
 
     ReturnValue result(m_methodId, m_stack, returnValue);

@@ -576,4 +576,142 @@ findSmokeType(const char* typeName, Smoke *smoke)
     return SmokeType(0, 0);
 }
 
+void smokeStackItemToQt(const SmokeType & type, Smoke::StackItem &stackItem, void ** _a)
+{
+    qDebug() << Q_FUNC_INFO << "Smoke type name:" << type.name();
+    qDebug() << Q_FUNC_INFO << "Smoke type element:" << type.element();
+    
+    switch(type.element()) {
+    case Smoke::t_bool:
+        *_a = &stackItem.s_bool;
+        break;
+
+    case Smoke::t_char:
+        *_a = &stackItem.s_char;
+        break;
+
+    case Smoke::t_uchar:
+        *_a = &stackItem.s_uchar;
+        break;
+
+    case Smoke::t_short:
+        *_a = &stackItem.s_short;
+        break;
+
+    case Smoke::t_ushort:
+        *_a = &stackItem.s_ushort;
+        break;
+
+    case Smoke::t_int:
+        *_a = &stackItem.s_int;
+        break;
+
+    case Smoke::t_uint:
+       *_a = &stackItem.s_char;
+       break;
+
+    case Smoke::t_long:
+        *_a = &stackItem.s_uint;
+        break;
+
+    case Smoke::t_ulong:
+        *_a = &stackItem.s_ulong;
+        break;
+
+    case Smoke::t_float:
+        *_a = &stackItem.s_float;
+        break;
+
+    case Smoke::t_double:
+        *_a = &stackItem.s_double;
+        break;
+
+    case Smoke::t_enum:
+       *_a = &stackItem.s_uint;
+       break;
+
+    case Smoke::t_class:
+        *_a = &stackItem.s_class;
+        break;
+        
+    case Smoke::t_voidp:
+        *_a = &stackItem.s_voidp;
+        break;
+
+    default:
+        break;
+    }
+
+     return;
+}
+
+void smokeStackItemFromQt(const SmokeType & type, Smoke::StackItem &stackItem, void * _a)
+{
+    qDebug() << Q_FUNC_INFO << "Smoke type name:" << type.name();
+    qDebug() << Q_FUNC_INFO << "Smoke type element:" << type.element();
+    
+    switch(type.element()) {
+    case Smoke::t_bool:
+        stackItem.s_bool = *static_cast<bool*>(_a);
+        break;
+
+    case Smoke::t_char:
+        stackItem.s_char = *static_cast<char*>(_a);
+        break;
+
+    case Smoke::t_uchar:
+        stackItem.s_uchar = *static_cast<uchar*>(_a);
+        break;
+
+    case Smoke::t_short:
+        stackItem.s_short = *static_cast<short*>(_a);
+        break;
+
+    case Smoke::t_ushort:
+        stackItem.s_ushort = *static_cast<ushort*>(_a);
+        break;
+
+    case Smoke::t_int:
+        stackItem.s_int = *static_cast<int*>(_a);
+        break;
+
+    case Smoke::t_uint:
+        stackItem.s_char = *static_cast<char*>(_a);
+       break;
+
+    case Smoke::t_long:
+        stackItem.s_uint = *static_cast<uint*>(_a);
+        break;
+
+    case Smoke::t_ulong:
+        stackItem.s_ulong = *static_cast<ulong*>(_a);
+        break;
+
+    case Smoke::t_float:
+        stackItem.s_float = *static_cast<float*>(_a);
+        break;
+
+    case Smoke::t_double:
+        stackItem.s_double = *static_cast<double*>(_a);
+        break;
+
+    case Smoke::t_enum:
+        stackItem.s_uint = *static_cast<uint*>(_a);
+       break;
+
+    case Smoke::t_class:
+        stackItem.s_class = *static_cast<void**>(_a);
+        break;
+        
+    case Smoke::t_voidp:
+        stackItem.s_voidp = *static_cast<void**>(_a);
+        break;
+
+    default:
+        break;
+    }
+
+     return;
+}
+
 }

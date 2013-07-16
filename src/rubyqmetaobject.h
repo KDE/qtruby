@@ -32,6 +32,7 @@ namespace QtRuby {
     extern VALUE ruby_signals(int argc, VALUE * argv, VALUE self);
     extern VALUE ruby_classinfo(VALUE self, VALUE key, VALUE value);
     extern VALUE qt_metacall(int /*argc*/, VALUE * argv, VALUE self);
+    extern VALUE qt_signal(int argc, VALUE * argv, VALUE self);
     extern VALUE metaObject(VALUE self);
 }
 

@@ -1,5 +1,5 @@
 /*
- *   Copyright 2003-2011 by Richard Dale <richard.j.dale@gmail.com>
+ *   Copyright 2003-2013 by Richard Dale <richard.j.dale@gmail.com>
 
  *   Based on the PerlQt marshalling code by Ashley Winters
 
@@ -19,69 +19,82 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef QTRUBY_VIRTUAL_METHOD_CALL_H
-#define QTRUBY_VIRTUAL_METHOD_CALL_H
+#ifndef QTRUBY_EMIT_SIGNAL_H
+#define QTRUBY_EMIT_SIGNAL_H
 
 #include <smoke.h>
+#include <ruby.h>
+
+#include <QtCore/QMetaMethod>
+#include <QtCore/QVector>
+
+#include "qtruby_export.h"
 #include "marshall.h"
+#include "object.h"
 
 namespace QtRuby {
 
-    class VirtualMethodCall : public Marshall {
+    class QTRUBY_EXPORT EmitSignal : public Marshall {
 
         class ReturnValue : Marshall {
         public:
-            ReturnValue(Smoke::ModuleIndex methodId, Smoke::Stack stack, VALUE returnValue);
+            ReturnValue(VALUE* returnValue, const QMetaMethod& metaMethod, void ** a);
 
-            inline const Smoke::Method &method() { return m_methodId.smoke->methods[m_methodId.index]; }
+            // inline const Smoke::Method &method() { return m_methodId.smoke->methods[m_methodId.index]; }
             inline SmokeType type() { return m_type; }
             inline Marshall::Action action() { return Marshall::FromVALUE; }
             inline Smoke::StackItem &item() { return m_stack[0]; }
-            inline VALUE * var() { return &m_returnValue; }
-            inline Smoke *smoke() { return m_methodId.smoke; }
+            inline VALUE * var() { return m_returnValue; }
+            inline Smoke *smoke() { return m_smoke; }
             inline bool cleanup() { return false; }
 
             void unsupported();
             void next();
 
         private:
-            Smoke::ModuleIndex m_methodId;
+            VALUE* m_returnValue;
+            const QMetaMethod& m_metaMethod;
+            void ** _a;
+            Smoke* m_smoke;
             Smoke::Stack m_stack;
             SmokeType m_type;
-            VALUE m_returnValue;
-        };
+       };
 
     public:
-        VirtualMethodCall(Smoke::ModuleIndex methodId, Smoke::Stack stack, VALUE obj, VALUE * args);
+        EmitSignal(QObject * qobject, const QMetaMethod& metaMethod, int id, int argc, VALUE * argv, VALUE self, VALUE * result);
+        ~EmitSignal();
 
-        ~VirtualMethodCall();
-
-        inline SmokeType type() { return SmokeType(m_methodId.smoke, m_args[m_current]); }
-        inline Marshall::Action action() { return Marshall::ToVALUE; }
-        inline Smoke::StackItem &item() { return m_stack[m_current + 1]; }
+        // inline SmokeType type() { return SmokeType(m_smoke, m_args[m_current]); }
+        SmokeType type();
+        inline Marshall::Action action() { return Marshall::FromVALUE; }
+        // inline Smoke::StackItem &item() { return m_stack[m_current + 1]; }
+        Smoke::StackItem &item();
         inline VALUE * var() { return &(m_argv[m_current]); }
-        inline const Smoke::Method &method() { return m_methodRef; }
-        inline Smoke *smoke() { return m_methodId.smoke; }
-        inline bool cleanup() { return false; }   // is this right?
+        inline Smoke *smoke() { return m_smoke; }
+        inline bool cleanup() { return false; }
 
         void unsupported();
         void callMethod();
         void next();
-
     private:
-        Smoke::ModuleIndex m_methodId;
+        QObject * m_qobject;
+        VALUE m_self;
+        ID m_methodID;
+        const QMetaMethod& m_metaMethod;
+        int m_id;
+        void ** _a;
+        Smoke * m_smoke;
         Smoke::Stack m_stack;
-        Smoke::Index * m_args;
-        VALUE m_obj;
-        VALUE * m_argv;
+        SmokeType * m_smokeTypes;
         int m_current;
         bool m_called;
-        Smoke::Method & m_methodRef;
+        bool m_error;
+        int m_argc;
+        VALUE* m_argv;
     };
-
 }
 
-#endif // QTRUBY_VIRTUAL_METHOD_CALL_H
+#endif // QTRUBY_INVOKE_SLOT_H
 
 // kate: space-indent on; indent-width 4; replace-tabs on; mixed-indent off;
 

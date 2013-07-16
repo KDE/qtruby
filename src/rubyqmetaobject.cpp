@@ -25,6 +25,7 @@
 
 #include "object.h"
 #include "global.h"
+#include "emitsignal.h"
 #include "invokeslot.h"
 #include "rubyqmetaobject.h"
 
@@ -191,7 +192,8 @@ buildParameterNames(const QByteArray& signature, const QList<QByteArray>& parame
 // Build a QMetaObject in "buf" based on the information in "d".
 // If "buf" is null, then return the number of bytes needed to
 // build the QMetaObject.
-static int buildMetaObject(MetaObjectBuilder *d, char *buf)
+static int 
+buildMetaObject(MetaObjectBuilder *d, char *buf)
 {
     int size = 0;
     int dataIndex;
@@ -403,16 +405,22 @@ metaObject(VALUE self)
     return meta->rubyMetaObject;
 }
 
-ID
-signatureToMethodID(const QByteArray& signature)
+static QByteArray
+signatureToName(const QByteArray& signature)
 {
     QByteArray methodName;
     int index = signature.indexOf('(');
-    if (index != -1) {
-        methodName = signature.mid(0, index);
+    int space = signature.lastIndexOf(' ', index);
+    if (index != -1 && space < index) {
+        methodName = signature.mid(space + 1, index - space - 1);
     }
+    return methodName;
+}
 
-    return rb_intern(methodName);
+static ID
+signatureToMethodID(const QByteArray& signature)
+{
+    return rb_intern(signatureToName(signature));
 }
 
 VALUE
@@ -466,6 +474,39 @@ qt_metacall(int argc, VALUE * argv, VALUE self)
     return INT2NUM(_id);
 }
 
+VALUE
+qt_signal(int argc, VALUE * argv, VALUE self)
+{
+    Object::Instance * instance = Object::Instance::get(self);
+    QObject * qobject = reinterpret_cast<QObject*>(instance->cast(QtRuby::Global::QObjectClassId));
+    if (qobject->signalsBlocked()) {
+        return Qfalse;
+    }
+    
+#if RUBY_VERSION >= 0x10900
+    QByteArray signalName(rb_id2name(rb_frame_callee()));
+#else
+    QByteArray signalName(rb_id2name(rb_frame_last_func()));
+#endif
+
+    qDebug() << Q_FUNC_INFO << "argc:" << argc << "name:" << signalName;
+    
+    const QMetaObject * meta = qobject->metaObject();
+    for (int id = meta->methodOffset(); id < meta->methodCount(); ++id) {
+        QMetaMethod method = meta->method(id);
+        if (method.methodType() == QMetaMethod::Signal) {
+            QByteArray name = signatureToName(method.signature());
+            if (name == signalName && method.parameterTypes().count() == argc) {
+                qDebug() << Q_FUNC_INFO << "signal name" << name << "signal:" << method.signature();
+                VALUE result = Qnil;
+                QtRuby::EmitSignal signal(qobject, method, id, argc, argv, self, &result);
+                signal.next();
+                return result;
+            }
+        }
+    }
+}
+
 void
 MetaObjectBuilder::addMethods(int argc, VALUE * argv, int attributes)
 {
@@ -517,6 +558,19 @@ VALUE ruby_signals(int argc, VALUE * argv, VALUE self)
     MetaObjectBuilder * meta = createMetaObjectBuilder(self);
     meta->addMethods(argc, argv, MethodSignal | AccessPublic);
     meta->changed = true;
+    
+    for (int i = 0; i < argc; ++i) {
+        QByteArray signature;
+        if (TYPE(argv[i]) == T_SYMBOL) {
+            rb_define_method(self, rb_id2name(SYM2ID(argv[i])), (VALUE (*) (...)) qt_signal, -1);
+        } else {
+            QByteArray signature(StringValuePtr(argv[i]));
+            QByteArray name = signatureToName(signature);
+            qDebug() << Q_FUNC_INFO << "signal name" << name;
+            rb_define_method(self, name.constData(), (VALUE (*) (...)) qt_signal, -1);
+        }
+    }
+
     return Qnil;
 }
 

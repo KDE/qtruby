@@ -13,6 +13,7 @@ include_directories(
 
 set(qtrubyruntime_LIB_SRCS
     debug.cpp
+    emitsignal.cpp
     funcall.cpp
     global.cpp
     object.cpp

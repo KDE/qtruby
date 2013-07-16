@@ -83,7 +83,7 @@ namespace QtRuby {
     public:
         MethodCall( const QVector<Smoke::ModuleIndex>& methodIds,
                     VALUE target,
-                    VALUE * args );
+                    VALUE * argv );
         ~MethodCall();
 
         inline SmokeType type() { return SmokeType(m_smoke, m_args[m_current]); }
@@ -94,7 +94,7 @@ namespace QtRuby {
                 return &m_returnValue;
             }
 
-            return &(m_valueList[m_current]);
+            return &(m_argv[m_current]);
         }
         inline Smoke *smoke() { return m_smoke; }
         inline bool cleanup() { return true; }
@@ -123,7 +123,7 @@ namespace QtRuby {
         VALUE m_target;
         QtRuby::Object::Instance * m_instance;
         VALUE m_returnValue;
-        VALUE * m_valueList;
+        VALUE * m_argv;
         bool m_called;
         bool m_error;
     };
