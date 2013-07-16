@@ -737,5 +737,30 @@ module Qt
 
 end
 
+class Object
+  def SIGNAL(signal)
+    if signal.kind_of? Symbol
+      return "2" + signal.to_s + "()"
+    else
+      return "2" + signal
+    end
+  end
+
+  def SLOT(slot)
+    if slot.kind_of? Symbol
+      return "1" + slot.to_s + "()"
+    else
+      return "1" + slot
+    end
+  end
+
+  def emit(signal)
+    return signal
+  end
+
+  def QT_TR_NOOP(x) x end
+  def QT_TRANSLATE_NOOP(scope, x) x end
+end
+
 # kate: space-indent on; indent-width 2; replace-tabs on; mixed-indent off;
 
