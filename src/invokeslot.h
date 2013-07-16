@@ -61,17 +61,15 @@ namespace QtRuby {
        };
 
     public:
-        InvokeSlot(VALUE obj, ID methodID, const QMetaMethod& metaMethod, void ** a);
+        InvokeSlot(VALUE obj, ID methodID, VALUE *valueList, const QMetaMethod& metaMethod, void ** a);
         ~InvokeSlot();
 
         // inline SmokeType type() { return SmokeType(m_smoke, m_args[m_current]); }
-        inline SmokeType type() { return SmokeType(); }
+        SmokeType type();
         inline Marshall::Action action() { return Marshall::ToVALUE; }
         // inline Smoke::StackItem &item() { return m_stack[m_current + 1]; }
-        inline Smoke::StackItem &item() { return m_stackItem; }
-        inline VALUE * var() {
-            return m_rubyArgs + m_current;
-        }
+        Smoke::StackItem &item();
+        inline VALUE * var() { return &(m_valueList[m_current]); }
         inline Smoke *smoke() { return m_smoke; }
         inline bool cleanup() { return false; }
 
@@ -84,11 +82,12 @@ namespace QtRuby {
         const QMetaMethod& m_metaMethod;
         void ** _a;
         Smoke * m_smoke;
+        SmokeType * m_smokeTypes;
         int m_current;
         bool m_called;
         bool m_error;
         int m_argCount;
-        VALUE* m_rubyArgs;
+        VALUE* m_valueList;
         Smoke::StackItem m_stackItem;
     };
 }

@@ -1,3 +1,7 @@
+2013-07-16  Richard Dale  <richard.j.dale@gmail.com>
+
+Add support for invoking ruby slots
+
 2012-11-12  Richard Dale  <richard.j.dale@gmail.com>
 
 Correctly initialize the data uints when constructing a QMetaObject,

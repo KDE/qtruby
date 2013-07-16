@@ -545,4 +545,35 @@ constructCopy(Object::Instance* instance)
     return args[0].s_voidp;
 }
 
+SmokeType
+findSmokeType(const char* typeName, Smoke *smoke)
+{
+    qDebug() << Q_FUNC_INFO << "arg type:" << typeName;
+    
+    Smoke::Index typeId = 0;
+    if (smoke != 0) {
+        typeId = smoke->idType(typeName);
+        qDebug() << Q_FUNC_INFO << "TypeId:" << typeId;
+        if (typeId != 0) {
+            qDebug() << Q_FUNC_INFO << "module:" << smoke->moduleName() << "TypeId:" << typeId;
+            return SmokeType(smoke, typeId);
+        }
+    }
+    
+    QHashIterator<Smoke*, Module> it(Global::modules);
+    while (it.hasNext()) {
+        it.next();
+        smoke = it.key();
+        typeId = smoke->idType(typeName);
+        qDebug() << Q_FUNC_INFO << "module:" << smoke->moduleName() << "TypeId:" << typeId;
+        if (typeId != 0) {
+            qDebug() << Q_FUNC_INFO << "module:" << smoke->moduleName() << "TypeId:" << typeId;
+            return SmokeType(smoke, typeId);
+        }
+    }
+    
+    qDebug() << Q_FUNC_INFO << "Failed to find a typeId:" << typeId;    
+    return SmokeType(0, 0);
+}
+
 }

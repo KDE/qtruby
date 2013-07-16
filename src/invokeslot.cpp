@@ -21,6 +21,7 @@
 #include "invokeslot.h"
 #include "smokebinding.h"
 #include "global.h"
+#include "utils.h"
 #include "debug.h"
 
 #include "smoke/qtcore_smoke.h"
@@ -128,15 +129,100 @@ InvokeSlot::ReturnValue::next()
 {
 }
 
-InvokeSlot::InvokeSlot(VALUE obj, ID methodID, const QMetaMethod& metaMethod, void ** a) :
-    m_obj(obj), m_methodID(methodID), m_metaMethod(metaMethod), _a(a),
+InvokeSlot::InvokeSlot(VALUE obj, ID methodID, VALUE *valueList, const QMetaMethod& metaMethod, void ** a) :
+    m_obj(obj), m_methodID(methodID), m_valueList(valueList), m_metaMethod(metaMethod), _a(a),
     m_current(-1), m_called(false), m_error(false)
 {
+    Object::Instance * instance = Object::Instance::get(m_obj);
+    m_smoke = instance->classId.smoke;
+    m_argCount = m_metaMethod.parameterTypes().count();
+    m_smokeTypes = new SmokeType[m_argCount + 1];
+    QList<QByteArray> types = m_metaMethod.parameterTypes();
 
+    for (int index = 0; index < m_argCount; index++) {
+        const char* typeName = types[index].constData();
+        m_smokeTypes[index] = findSmokeType(typeName, m_smoke);
+    }
 }
 
 InvokeSlot::~InvokeSlot()
 {
+    delete[] m_smokeTypes;
+}
+
+SmokeType InvokeSlot::type()
+{
+    return m_smokeTypes[m_current];
+}
+
+Smoke::StackItem &InvokeSlot::item()
+{
+    qDebug() << Q_FUNC_INFO << "Smoke type name:" << type().name();
+    qDebug() << Q_FUNC_INFO << "Smoke type element:" << type().element();
+    
+    switch(type().element()) {
+    case Smoke::t_bool:
+        m_stackItem.s_bool = *((bool*) _a[m_current + 1]);
+        qDebug() << Q_FUNC_INFO << "Found a bool arg:" << m_stackItem.s_bool;
+        break;
+
+    case Smoke::t_char:
+        m_stackItem.s_char = *static_cast<char*>(_a[m_current + 1]);
+        break;
+
+    case Smoke::t_uchar:
+        m_stackItem.s_uchar = *static_cast<uchar*>(_a[m_current + 1]);
+        break;
+
+    case Smoke::t_short:
+        m_stackItem.s_short = *static_cast<short*>(_a[m_current + 1]);
+        break;
+
+    case Smoke::t_ushort:
+        m_stackItem.s_ushort = *static_cast<ushort*>(_a[m_current + 1]);
+        break;
+
+    case Smoke::t_int:
+        m_stackItem.s_int = *static_cast<int*>(_a[m_current + 1]);
+        break;
+
+    case Smoke::t_uint:
+        m_stackItem.s_char = *static_cast<char*>(_a[m_current + 1]);
+       break;
+
+    case Smoke::t_long:
+        m_stackItem.s_uint = *static_cast<uint*>(_a[m_current + 1]);
+        break;
+
+    case Smoke::t_ulong:
+        m_stackItem.s_ulong = *static_cast<ulong*>(_a[m_current + 1]);
+        break;
+
+    case Smoke::t_float:
+        m_stackItem.s_float = *static_cast<float*>(_a[m_current + 1]);
+        break;
+
+    case Smoke::t_double:
+        m_stackItem.s_double = *static_cast<double*>(_a[m_current + 1]);
+        break;
+
+    case Smoke::t_enum:
+        m_stackItem.s_uint = *static_cast<uint*>(_a[m_current + 1]);
+       break;
+
+    case Smoke::t_class:
+        m_stackItem.s_class = *static_cast<void**>(_a[m_current + 1]);
+        break;
+        
+    case Smoke::t_voidp:
+        m_stackItem.s_voidp = *static_cast<void**>(_a[m_current + 1]);
+        break;
+
+    default:
+        break;
+    }
+
+     return m_stackItem;
 }
 
 void InvokeSlot::unsupported()
@@ -146,6 +232,7 @@ void InvokeSlot::unsupported()
 
 void InvokeSlot::callMethod()
 {
+    qDebug() << Q_FUNC_INFO;
     if (m_called) {
         return;
     }
@@ -153,7 +240,7 @@ void InvokeSlot::callMethod()
 
     VALUE result;
     QTRUBY_INIT_STACK
-    QTRUBY_FUNCALL2(result, m_obj, m_methodID, m_argCount, m_rubyArgs)
+    QTRUBY_FUNCALL2(result, m_obj, m_methodID, m_argCount, m_valueList)
     QTRUBY_RELEASE_STACK
 
     if (qstrcmp(m_metaMethod.typeName(), "") != 0) {
@@ -163,6 +250,17 @@ void InvokeSlot::callMethod()
 
 void InvokeSlot::next()
 {
+    int previous = m_current;
+    m_current++;
+    
+    while(!m_called && m_current < m_metaMethod.parameterTypes().count()) {
+        Marshall::HandlerFn fn = getMarshallFn(type());
+        (*fn)(this);
+        m_current++;
+    }
+
+    callMethod();
+    m_current = previous;
 }
 
 }

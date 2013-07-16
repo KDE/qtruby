@@ -33,9 +33,10 @@
 
 #include "qtruby_export.h"
 #include "object.h"
+#include "marshall.h"
 
 namespace QtRuby {
-
+    
     enum MethodMatchesState {
         InitialState,
         ImplicitTypeConversionsState,
@@ -52,6 +53,8 @@ namespace QtRuby {
                                                 MethodMatchesState matchState = InitialState );
 
     QTRUBY_EXPORT void * constructCopy(Object::Instance *instance);
+    
+    QTRUBY_EXPORT SmokeType findSmokeType(const char* typeName, Smoke * smoke = 0);
 }
 
 #endif

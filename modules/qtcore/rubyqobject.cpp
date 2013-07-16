@@ -57,13 +57,6 @@ qobject_qt_metacast(VALUE self, VALUE klass)
     return obj;
 }
 
-
-VALUE 
-qobject_qt_metacall(int /*argc*/, VALUE * argv, VALUE self)
-{
-    qDebug() << Q_FUNC_INFO;
-}
-
 // Allow classnames in both 'Qt::Widget' and 'QWidget' formats to be
 // used as an argument to Qt::Object.inherits()
 VALUE

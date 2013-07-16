@@ -339,7 +339,7 @@ Q_GLOBAL_STATIC(MetaObjectBuilderMap, metaObjectBuilders)
 static MetaObjectBuilder *
 createMetaObjectBuilder(VALUE klass)
 {
-    qDebug() << Q_FUNC_INFO;
+    // qDebug() << Q_FUNC_INFO;
     MetaObjectBuilder * meta = 0;
     if (metaObjectBuilders()->contains(klass)) {
         meta = metaObjectBuilders()->value(klass);
@@ -395,7 +395,7 @@ createMetaObject(VALUE klass, VALUE self)
 VALUE
 metaObject(VALUE self)
 {
-    qDebug() << Q_FUNC_INFO;
+    // qDebug() << Q_FUNC_INFO;
     VALUE klass = rb_funcall(self, rb_intern("class"), 0);
     MetaObjectBuilder * meta = createMetaObjectBuilder(klass);
     if (meta->changed)
@@ -459,7 +459,8 @@ qt_metacall(int argc, VALUE * argv, VALUE self)
         QMetaMethod method = meta->method(meta->methodOffset() + _id);
         ID methodID = signatureToMethodID(method.signature());
         qDebug() << Q_FUNC_INFO << method.signature();
-        InvokeSlot slot(self, methodID, method, _a);
+        InvokeSlot slot(self, methodID, ALLOCA_N(VALUE, method.parameterTypes().count()), method, _a);
+        slot.next();
     }
 
     return INT2NUM(_id);
