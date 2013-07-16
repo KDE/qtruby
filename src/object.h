@@ -1,6 +1,6 @@
 /*
- * Copyright 2003-2011 Ian Monroe <imonroe@kde.org>
- * Copyright 2003-2011 by Richard Dale <richard.j.dale@gmail.com>
+ * Copyright 2003-2013 Ian Monroe <imonroe@kde.org>
+ * Copyright 2003-2013 by Richard Dale <richard.j.dale@gmail.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public

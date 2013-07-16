@@ -1,5 +1,5 @@
 /*
- *   Copyright 2003-2011 by Richard Dale <richard.j.dale@gmail.com>
+ *   Copyright 2003-2013 by Richard Dale <richard.j.dale@gmail.com>
 
  *   Based on the PerlQt marshalling code by Ashley Winters
 

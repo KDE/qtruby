@@ -1,5 +1,5 @@
 /*
- *   Copyright 2003-2011-2010 by Richard Dale <richard.j.dale@gmail.com>
+ *   Copyright 2003-2013-2010 by Richard Dale <richard.j.dale@gmail.com>
 
  *   Adapted from the code in src/script/qrubyengine.h in Qt 4.5
 
