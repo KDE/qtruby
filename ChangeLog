@@ -1,3 +1,7 @@
+2013-07-17  Richard Dale  <richard.j.dale@gmail.com>
+
+Emitting ruby signals now working
+
 2013-07-16  Richard Dale  <richard.j.dale@gmail.com>
 
 Add support for invoking ruby slots

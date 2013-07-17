@@ -52,11 +52,13 @@ EmitSignal::EmitSignal(QObject * qobject, const QMetaMethod& metaMethod, int id,
     m_metaMethod(metaMethod),
     m_id(id),
     m_argc(argc),
-    m_argv(argv)
+    m_argv(argv),
+    m_current(-1), m_called(false), m_error(false)
 {
     Object::Instance * instance = Object::Instance::get(m_self);
     m_smoke = instance->classId.smoke;
     _a = new void*[argc + 1];
+    _a[0] = 0;
     m_smokeTypes = new SmokeType[argc + 1];
     QList<QByteArray> types = m_metaMethod.parameterTypes();
 
@@ -106,6 +108,8 @@ void EmitSignal::next()
         (*fn)(this);
         m_current++;
     }
+
+    // qDebug() << Q_FUNC_INFO << "_a[0]" << _a[0] << "_a[1]" << _a[1] << "*(_a[1])" << *((int*)_a[1]);
 
     m_qobject->metaObject()->activate(m_qobject, m_id, _a);
     m_current = previous;
