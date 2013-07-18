@@ -63,8 +63,7 @@ EmitSignal::EmitSignal(QObject * qobject, const QMetaMethod& metaMethod, int id,
     QList<QByteArray> types = m_metaMethod.parameterTypes();
 
     for (int index = 0; index < argc; index++) {
-        const char* typeName = types[index].constData();
-        m_smokeTypes[index] = findSmokeType(typeName, m_smoke);
+        m_smokeTypes[index] = findSmokeType(types[index], m_smoke);
     }
     
     m_stack = new Smoke::StackItem[m_argc + 1];

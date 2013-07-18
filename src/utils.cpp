@@ -546,7 +546,7 @@ constructCopy(Object::Instance* instance)
 }
 
 SmokeType
-findSmokeType(const char* typeName, Smoke *smoke)
+findSmokeType(const QByteArray& typeName, Smoke *smoke)
 {
     qDebug() << Q_FUNC_INFO << "arg type:" << typeName;
     
@@ -556,7 +556,14 @@ findSmokeType(const char* typeName, Smoke *smoke)
         qDebug() << Q_FUNC_INFO << "TypeId:" << typeId;
         if (typeId != 0) {
             qDebug() << Q_FUNC_INFO << "module:" << smoke->moduleName() << "TypeId:" << typeId;
-            return SmokeType(smoke, typeId);
+            SmokeType result(smoke, typeId);
+            if (    (result.element() == Smoke::t_voidp || result.element() == Smoke::t_class)
+                    && result.isStack() ) 
+            {
+                return findSmokeType(typeName + "*", smoke);
+            } else {
+                return result;
+            }
         }
     }
     
@@ -568,18 +575,29 @@ findSmokeType(const char* typeName, Smoke *smoke)
         qDebug() << Q_FUNC_INFO << "module:" << smoke->moduleName() << "TypeId:" << typeId;
         if (typeId != 0) {
             qDebug() << Q_FUNC_INFO << "module:" << smoke->moduleName() << "TypeId:" << typeId;
-            return SmokeType(smoke, typeId);
+            SmokeType result(smoke, typeId);
+            if (    (result.element() == Smoke::t_voidp || result.element() == Smoke::t_class)
+                    && result.isStack() ) 
+            {
+                return findSmokeType(typeName + "*", smoke);
+            } else {
+                return result;
+            }
         }
     }
     
-    qDebug() << Q_FUNC_INFO << "Failed to find a typeId:" << typeId;    
-    return SmokeType(0, 0);
+
+    return SmokeType(smoke, 0);
 }
 
-void smokeStackItemToQt(const SmokeType & type, Smoke::StackItem &stackItem, void ** _a)
+void smokeStackItemToQt(const SmokeType& type, Smoke::StackItem &stackItem, void ** _a)
 {
     qDebug() << Q_FUNC_INFO << "Smoke type name:" << type.name();
     qDebug() << Q_FUNC_INFO << "Smoke type element:" << type.element();
+    qDebug() << Q_FUNC_INFO << "Smoke type isPtr:" << type.isPtr();
+    qDebug() << Q_FUNC_INFO << "Smoke type isRef:" << type.isRef();
+    qDebug() << Q_FUNC_INFO << "Smoke type isConst:" << type.isConst();
+    qDebug() << Q_FUNC_INFO << "Smoke type isClass:" << type.isClass();
     
     switch(type.element()) {
     case Smoke::t_bool:
@@ -645,11 +663,16 @@ void smokeStackItemToQt(const SmokeType & type, Smoke::StackItem &stackItem, voi
      return;
 }
 
-void smokeStackItemFromQt(const SmokeType & type, Smoke::StackItem &stackItem, void * _a)
+void smokeStackItemFromQt(const SmokeType& type, Smoke::StackItem &stackItem, void * _a)
 {
     qDebug() << Q_FUNC_INFO << "Smoke type name:" << type.name();
     qDebug() << Q_FUNC_INFO << "Smoke type element:" << type.element();
-    
+    qDebug() << Q_FUNC_INFO << "Smoke type isPtr:" << type.isPtr();
+    qDebug() << Q_FUNC_INFO << "Smoke type isRef:" << type.isRef();
+    qDebug() << Q_FUNC_INFO << "Smoke type isConst:" << type.isConst();
+    qDebug() << Q_FUNC_INFO << "Smoke type isClass:" << type.isClass();
+    qDebug() << Q_FUNC_INFO << "Smoke type isStack:" << type.isStack();
+
     switch(type.element()) {
     case Smoke::t_bool:
         stackItem.s_bool = *static_cast<bool*>(_a);
@@ -700,11 +723,11 @@ void smokeStackItemFromQt(const SmokeType & type, Smoke::StackItem &stackItem, v
        break;
 
     case Smoke::t_class:
-        stackItem.s_class = *static_cast<void**>(_a);
+        stackItem.s_voidp = _a;
         break;
         
     case Smoke::t_voidp:
-        stackItem.s_voidp = *static_cast<void**>(_a);
+        stackItem.s_voidp = _a;
         break;
 
     default:
