@@ -137,10 +137,9 @@ InvokeSlot::InvokeSlot(VALUE self, ID methodID, VALUE *valueList, const QMetaMet
     m_smoke = instance->classId.smoke;
     m_argc = m_metaMethod.parameterTypes().count();
     m_smokeTypes = new SmokeType[m_argc + 1];
-    QList<QByteArray> types = m_metaMethod.parameterTypes();
 
     for (int index = 0; index < m_argc; index++) {
-        m_smokeTypes[index] = findSmokeType(types[index], m_smoke);
+        m_smokeTypes[index] = findSmokeType(m_metaMethod.parameterTypes().at(index), m_smoke);
     }
     
     m_stack = new Smoke::StackItem[m_argc + 1];
@@ -159,7 +158,10 @@ SmokeType InvokeSlot::type()
 
 Smoke::StackItem &InvokeSlot::item()
 {
-    smokeStackItemFromQt(type(), m_stack[m_current + 1], _a[m_current + 1]);
+    smokeStackItemFromQt(   type(),
+                            m_metaMethod.parameterTypes().at(m_current),  
+                            m_stack[m_current + 1],
+                            _a[m_current + 1] );
     return m_stack[m_current + 1];
 }
 

@@ -60,10 +60,9 @@ EmitSignal::EmitSignal(QObject * qobject, const QMetaMethod& metaMethod, int id,
     _a = new void*[argc + 1];
     _a[0] = 0;
     m_smokeTypes = new SmokeType[argc + 1];
-    QList<QByteArray> types = m_metaMethod.parameterTypes();
 
     for (int index = 0; index < argc; index++) {
-        m_smokeTypes[index] = findSmokeType(types[index], m_smoke);
+        m_smokeTypes[index] = findSmokeType(m_metaMethod.parameterTypes().at(index), m_smoke);
     }
     
     m_stack = new Smoke::StackItem[m_argc + 1];
@@ -83,7 +82,10 @@ SmokeType EmitSignal::type()
 
 Smoke::StackItem &EmitSignal::item()
 {
-    smokeStackItemToQt(type(), m_stack[m_current + 1], &(_a[m_current + 1]));
+    smokeStackItemToQt( type(),
+                        m_metaMethod.parameterTypes().at(m_current),  
+                        m_stack[m_current + 1],
+                        &(_a[m_current + 1]) );
     return m_stack[m_current + 1];
 }
 

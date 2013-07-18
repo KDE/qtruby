@@ -590,7 +590,7 @@ findSmokeType(const QByteArray& typeName, Smoke *smoke)
     return SmokeType(smoke, 0);
 }
 
-void smokeStackItemToQt(const SmokeType& type, Smoke::StackItem &stackItem, void ** _a)
+void smokeStackItemToQt(const SmokeType& type, const QByteArray& parameterType, Smoke::StackItem &stackItem, void ** _a)
 {
     qDebug() << Q_FUNC_INFO << "Smoke type name:" << type.name();
     qDebug() << Q_FUNC_INFO << "Smoke type element:" << type.element();
@@ -648,12 +648,13 @@ void smokeStackItemToQt(const SmokeType& type, Smoke::StackItem &stackItem, void
        *_a = &stackItem.s_uint;
        break;
 
-    case Smoke::t_class:
-        *_a = &stackItem.s_class;
-        break;
-        
     case Smoke::t_voidp:
-        *_a = &stackItem.s_voidp;
+    case Smoke::t_class:
+        if (parameterType.endsWith('*')) {
+            *_a = &stackItem.s_class;
+        } else {
+            *_a = stackItem.s_class;
+        }
         break;
 
     default:
@@ -663,7 +664,7 @@ void smokeStackItemToQt(const SmokeType& type, Smoke::StackItem &stackItem, void
      return;
 }
 
-void smokeStackItemFromQt(const SmokeType& type, Smoke::StackItem &stackItem, void * _a)
+void smokeStackItemFromQt(const SmokeType& type, const QByteArray& parameterType, Smoke::StackItem &stackItem, void * _a)
 {
     qDebug() << Q_FUNC_INFO << "Smoke type name:" << type.name();
     qDebug() << Q_FUNC_INFO << "Smoke type element:" << type.element();
@@ -722,12 +723,13 @@ void smokeStackItemFromQt(const SmokeType& type, Smoke::StackItem &stackItem, vo
         stackItem.s_uint = *static_cast<uint*>(_a);
        break;
 
-    case Smoke::t_class:
-        stackItem.s_voidp = _a;
-        break;
-        
     case Smoke::t_voidp:
-        stackItem.s_voidp = _a;
+    case Smoke::t_class:
+        if (parameterType.endsWith('*')) {
+            stackItem.s_voidp = *static_cast<void**>(_a);
+        } else {
+            stackItem.s_voidp = _a;
+        }
         break;
 
     default:
