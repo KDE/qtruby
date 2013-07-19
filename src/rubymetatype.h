@@ -204,14 +204,16 @@ void marshall_Container(Marshall *m) {
 
 }
 
-inline VALUE qRubySmokeValueFromSequence_helper(Smoke::ModuleIndex classId, void * ptr)
+inline VALUE qRubySmokeValueFromSequence_helper(Smoke::ModuleIndex classId, 
+                                                void * ptr, 
+                                                QtRuby::Object::ValueOwnership ownership = QtRuby::Object::QtOwnership)
 {
     VALUE value = QtRuby::Global::getRubyValue(ptr);
     if (value != Qnil) {
         return value;
     }
 
-    return QtRuby::Global::wrapInstance(classId, ptr);
+    return QtRuby::Global::wrapInstance(classId, ptr, ownership);
 }
 
 template <class Container>
@@ -226,7 +228,7 @@ VALUE qRubySmokeValueFromSequence(const Container &cont)
     quint32 i;
     for (it = begin, i = 0; it != end; ++it, ++i) {
         typename Container::value_type * v = new typename Container::value_type(*it);
-        rb_ary_push(a, qRubySmokeValueFromSequence_helper(classId, (void *) v));
+        rb_ary_push(a, qRubySmokeValueFromSequence_helper(classId, (void *) v, QtRuby::Object::ScriptOwnership));
     }
 
     return a;
