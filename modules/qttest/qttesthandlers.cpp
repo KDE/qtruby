@@ -1,31 +1,46 @@
-/***************************************************************************
-                          qttesthandlers.cpp  -  QtTest specific marshallers
-                             -------------------
-    begin                : 29-10-2008
-    copyright            : (C) 2008 by Richard Dale
-    email                : richard.j.dale@gmail.com
- ***************************************************************************/
+/*
+ *   Copyright 2013 by Richard Dale <richard.j.dale@gmail.com>
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either veqtruby_project_template.rbrsion 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+ *   Based on the PerlQt marshalling code by Ashley Winters
 
-#include <ruby.h>
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU Library General Public License as
+ *   published by the Free Software Foundation; either version 2, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this program; if not, write to the
+ *   Free Software Foundation, Inc.,
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 
-#include <qtruby.h>
-#include <smokeruby.h>
-#include <marshall_macros.h>
+#include "marshall.h"
+#include "global.h"
+#include "rubymetatype.h"
 
 #include <QtTest/qtestaccessible.h>
 
-DEF_VALUELIST_MARSHALLER( QTestAccessibilityEventList, QList<QTestAccessibilityEvent>, QTestAccessibilityEvent )
+Q_DECLARE_METATYPE(QTestAccessibilityEvent)
+Q_DECLARE_METATYPE(QList<QTestAccessibilityEvent>)
 
-TypeHandler QtTest_handlers[] = {
-    { "QList<QTestAccessibilityEvent>", marshall_QTestAccessibilityEventList },
+namespace QtRuby {
+
+Marshall::TypeHandler QtTestHandlers[] = {
+    { "QList<QTestAccessibilityEvent>", marshall_Container<QList<QTestAccessibilityEvent> > },
     { 0, 0 }
 };
+
+void registerQtTestTypes()
+{
+
+    return;
+}
+
+}
+
+// kate: space-indent on; indent-width 4; replace-tabs on; mixed-indent off;

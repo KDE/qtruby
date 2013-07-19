@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require 'Qt4'
+require 'qtcore'
 require 'qttest'
 
 class MyFirstTest < Qt::Object

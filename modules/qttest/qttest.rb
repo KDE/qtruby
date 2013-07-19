@@ -1,36 +1,23 @@
 =begin
-/***************************************************************************
-                          qttest.rb  -  QtTest ruby client lib
-                             -------------------
-    begin                : 29-10-2008
-    copyright            : (C) 2008 by Richard Dale
-    email                : richard.j.dale@gmail.com
- ***************************************************************************/
+/*
+ *   Copyright 2013 by Richard Dale <richard.j.dale@gmail.com>
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+ *   This program is free software; you can redistribute it and/or modify
+ *   it under the terms of the GNU Library General Public License as
+ *   published by the Free Software Foundation; either version 2, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this program; if not, write to the
+ *   Free Software Foundation, Inc.,
+ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 =end
-
-module QtTest
-  module Internal
-    def self.init_all_classes
-      getClassList.each do |c|
-        classname = Qt::Internal::normalize_classname(c)
-        id = Qt::Internal::findClass(c);
-        Qt::Internal::insert_pclassid(classname, id)
-        Qt::Internal::cpp_names[classname] = c
-        klass = Qt::Internal::isQObject(c) ? Qt::Internal::create_qobject_class(classname, Qt)  : Qt::Internal::create_qt_class(classname, Qt)
-        Qt::Internal::classes[classname] = klass unless klass.nil?
-      end
-    end
-  end
-end
 
 module Qt
   class Test < Base
@@ -38,6 +25,9 @@ module Qt
     # This is the isValidSlot() function in testlib/qtestcase.cpp translated
     # to Ruby. Probably could be a bit shorter in Ruby..
     def self.validSlot?(sl)
+      p sl
+      p sl.typeName
+      p sl.parameterTypes
       if sl.access != Qt::MetaMethod::Private || !sl.parameterTypes.empty? ||
          sl.typeName != "" || sl.methodType != Qt::MetaMethod::Slot
         return false
