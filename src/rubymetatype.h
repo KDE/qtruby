@@ -225,7 +225,8 @@ VALUE qRubySmokeValueFromSequence(const Container &cont)
     typename Container::const_iterator it;
     quint32 i;
     for (it = begin, i = 0; it != end; ++it, ++i) {
-        rb_ary_push(a, qRubySmokeValueFromSequence_helper(classId, (void *) &(*it)));
+        typename Container::value_type * v = new typename Container::value_type(*it);
+        rb_ary_push(a, qRubySmokeValueFromSequence_helper(classId, (void *) v));
     }
 
     return a;

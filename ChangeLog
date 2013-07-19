@@ -1,3 +1,8 @@
+2013-07-18  Richard Dale  <richard.j.dale@gmail.com>
+
+When converting a C++ value list to ruby, create copies of the 
+elements
+
 2013-07-17  Richard Dale  <richard.j.dale@gmail.com>
 
 Emitting ruby signals now working
