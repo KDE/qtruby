@@ -230,7 +230,7 @@ VALUE class_method_missing(int argc, VALUE * argv, VALUE klass)
     VALUE result = Qnil;
     const char * methodName = rb_id2name(SYM2ID(argv[0]));
     QByteArray selector = selectorSignature(argc - 1, argv + 1, klass, methodName);
-    qDebug() << Q_FUNC_INFO << "selector:" << selector;
+    // qDebug() << Q_FUNC_INFO << "selector:" << selector;
     Smoke::ModuleIndex classId = Global::idFromRubyClass(klass, true);
 
     if (!methodCache.contains(selector)) {

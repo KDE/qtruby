@@ -338,7 +338,7 @@ initialize()
     defineSingletonMethod(QObjectClassId, "signals", (VALUE (*) (...)) ruby_signals, -1);
     defineSingletonMethod(QObjectClassId, "q_classinfo", (VALUE (*) (...)) ruby_classinfo, 2);
 
-    Debug::DoDebug = (Debug::MethodMatches | Debug::MethodMissing | Debug::Calls | Debug::GC);
+    // Debug::DoDebug = (Debug::MethodMatches | Debug::MethodMissing | Debug::Calls | Debug::GC);
     // Debug::DoDebug = (Debug::MethodMatches | Debug::MethodMissing | Debug::Calls | Debug::GC | Debug::Virtual);
 }
 
