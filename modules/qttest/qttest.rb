@@ -25,9 +25,6 @@ module Qt
     # This is the isValidSlot() function in testlib/qtestcase.cpp translated
     # to Ruby. Probably could be a bit shorter in Ruby..
     def self.validSlot?(sl)
-      p sl
-      p sl.typeName
-      p sl.parameterTypes
       if sl.access != Qt::MetaMethod::Private || !sl.parameterTypes.empty? ||
          sl.typeName != "" || sl.methodType != Qt::MetaMethod::Slot
         return false
