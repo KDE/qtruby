@@ -497,7 +497,6 @@ qt_signal(int argc, VALUE * argv, VALUE self)
         if (method.methodType() == QMetaMethod::Signal) {
             QByteArray name = signatureToName(method.signature());
             if (name == signalName && method.parameterTypes().count() == argc) {
-                qDebug() << Q_FUNC_INFO << "signal name" << name << "signal:" << method.signature();
                 VALUE result = Qnil;
                 QtRuby::EmitSignal signal(qobject, method, id, argc, argv, self, &result);
                 signal.next();

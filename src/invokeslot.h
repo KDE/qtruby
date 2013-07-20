@@ -38,14 +38,13 @@ namespace QtRuby {
 
         class ReturnValue : Marshall {
         public:
-            ReturnValue(VALUE* returnValue, const QMetaMethod& metaMethod, void ** a);
-
-            // inline const Smoke::Method &method() { return m_methodId.smoke->methods[m_methodId.index]; }
+            ReturnValue(Smoke* smoke, VALUE* returnValue, const QMetaMethod& metaMethod, void ** a);
+            
             inline SmokeType type() { return m_type; }
             inline Marshall::Action action() { return Marshall::FromVALUE; }
-            inline Smoke::StackItem &item() { return m_stack[0]; }
-            inline VALUE * var() { return m_returnValue; }
-            inline Smoke *smoke() { return m_smoke; }
+            inline Smoke::StackItem& item();
+            inline VALUE* var() { return m_returnValue; }
+            inline Smoke*smoke() { return m_smoke; }
             inline bool cleanup() { return false; }
 
             void unsupported();
@@ -56,7 +55,7 @@ namespace QtRuby {
             const QMetaMethod& m_metaMethod;
             void ** _a;
             Smoke* m_smoke;
-            Smoke::Stack m_stack;
+            Smoke::StackItem m_stackItem;
             SmokeType m_type;
        };
 
@@ -64,13 +63,11 @@ namespace QtRuby {
         InvokeSlot(VALUE self, ID methodID, VALUE *valueList, const QMetaMethod& metaMethod, void ** a);
         ~InvokeSlot();
 
-        // inline SmokeType type() { return SmokeType(m_smoke, m_args[m_current]); }
         SmokeType type();
         inline Marshall::Action action() { return Marshall::ToVALUE; }
-        // inline Smoke::StackItem &item() { return m_stack[m_current + 1]; }
         Smoke::StackItem &item();
-        inline VALUE * var() { return &(m_argv[m_current]); }
-        inline Smoke *smoke() { return m_smoke; }
+        inline VALUE* var() { return &(m_argv[m_current]); }
+        inline Smoke* smoke() { return m_smoke; }
         inline bool cleanup() { return false; }
 
         void unsupported();
@@ -81,9 +78,9 @@ namespace QtRuby {
         ID m_methodID;
         const QMetaMethod& m_metaMethod;
         void ** _a;
-        Smoke * m_smoke;
+        Smoke* m_smoke;
         Smoke::Stack m_stack;
-        SmokeType * m_smokeTypes;
+        SmokeType* m_smokeTypes;
         int m_current;
         bool m_called;
         bool m_error;

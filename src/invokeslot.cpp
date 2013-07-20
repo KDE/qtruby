@@ -114,9 +114,24 @@ funcall2_protect(VALUE obj)
       
 namespace QtRuby {
 
-InvokeSlot::ReturnValue::ReturnValue(VALUE* returnValue, const QMetaMethod& metaMethod, void ** a) :
-    m_returnValue(returnValue), m_metaMethod(metaMethod), _a(a)
+InvokeSlot::ReturnValue::ReturnValue(Smoke* smoke, VALUE* returnValue, const QMetaMethod& metaMethod, void ** a) :
+    m_smoke(smoke),
+    m_returnValue(returnValue), 
+    m_metaMethod(metaMethod), 
+    _a(a)
 {
+    m_type = findSmokeType(m_metaMethod.typeName(), m_smoke);
+    Marshall::HandlerFn fn = getMarshallFn(type());
+    (*fn)(this); 
+}
+
+Smoke::StackItem &InvokeSlot::ReturnValue::item()
+{
+    smokeStackItemToQt( type(),
+                        m_metaMethod.typeName(),  
+                        m_stackItem,
+                        &(_a[0]) );
+    return m_stackItem;
 }
 
 void
@@ -130,8 +145,14 @@ InvokeSlot::ReturnValue::next()
 }
 
 InvokeSlot::InvokeSlot(VALUE self, ID methodID, VALUE *valueList, const QMetaMethod& metaMethod, void ** a) :
-    m_self(self), m_methodID(methodID), m_argv(valueList), m_metaMethod(metaMethod), _a(a),
-    m_current(-1), m_called(false), m_error(false)
+    m_self(self), 
+    m_methodID(methodID), 
+    m_argv(valueList), 
+    m_metaMethod(metaMethod), 
+    _a(a),
+    m_current(-1), 
+    m_called(false), 
+    m_error(false)
 {
     Object::Instance * instance = Object::Instance::get(m_self);
     m_smoke = instance->classId.smoke;
@@ -182,9 +203,9 @@ void InvokeSlot::callMethod()
     QTRUBY_INIT_STACK
     QTRUBY_FUNCALL2(result, m_self, m_methodID, m_argc, m_argv)
     QTRUBY_RELEASE_STACK
-
+    
     if (qstrcmp(m_metaMethod.typeName(), "") != 0) {
-        ReturnValue r(&result, m_metaMethod, _a);
+        ReturnValue r(m_smoke, &result, m_metaMethod, _a);
     }
 }
 

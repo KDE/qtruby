@@ -31,9 +31,24 @@
 
 namespace QtRuby {
 
-EmitSignal::ReturnValue::ReturnValue(VALUE* returnValue, const QMetaMethod& metaMethod, void ** a) :
-    m_returnValue(returnValue), m_metaMethod(metaMethod), _a(a)
+EmitSignal::ReturnValue::ReturnValue(Smoke* smoke, VALUE* returnValue, const QMetaMethod& metaMethod, void ** a) :
+    m_smoke(smoke),
+    m_returnValue(returnValue), 
+    m_metaMethod(metaMethod), 
+    _a(a)
 {
+    m_type = findSmokeType(m_metaMethod.typeName(), m_smoke);
+    Marshall::HandlerFn fn = getMarshallFn(type());
+    (*fn)(this); 
+}
+
+Smoke::StackItem &EmitSignal::ReturnValue::item()
+{
+    smokeStackItemFromQt(   type(),
+                            m_metaMethod.typeName(),  
+                            m_stackItem,
+                            _a[0] );
+    return m_stackItem;
 }
 
 void
@@ -53,7 +68,10 @@ EmitSignal::EmitSignal(QObject * qobject, const QMetaMethod& metaMethod, int id,
     m_id(id),
     m_argc(argc),
     m_argv(argv),
-    m_current(-1), m_called(false), m_error(false)
+    m_result(result),
+    m_current(-1), 
+    m_called(false), 
+    m_error(false)
 {
     Object::Instance * instance = Object::Instance::get(m_self);
     m_smoke = instance->classId.smoke;
@@ -110,9 +128,11 @@ void EmitSignal::next()
         m_current++;
     }
 
-    // qDebug() << Q_FUNC_INFO << "_a[0]" << _a[0] << "_a[1]" << _a[1] << "*(_a[1])" << *((int*)_a[1]);
-
     m_qobject->metaObject()->activate(m_qobject, m_id, _a);
+    if (qstrcmp(m_metaMethod.typeName(), "") != 0) {
+        ReturnValue r(m_smoke, m_result, m_metaMethod, _a);
+    }
+
     m_current = previous;
 }
 
