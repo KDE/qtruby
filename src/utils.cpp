@@ -74,6 +74,7 @@ mungedMethods(const QByteArray& methodName, int argc, VALUE * args, MethodMatche
         VALUE value = args[i];
         if (    TYPE(value) == T_FIXNUM
                 || TYPE(value) == T_BIGNUM
+                || TYPE(value) == T_FLOAT
                 || value == Qtrue
                 || value == Qfalse
                 || (TYPE(value) == T_OBJECT && rb_funcall(value, rb_intern("class"), 0) == Global::QtEnumClass)
@@ -201,37 +202,82 @@ matchArgument(VALUE actual, const Smoke::Type& typeRef)
     fullArgType.replace("const ", "");
     QByteArray argType(typeName(typeRef));    
     int matchDistance = 0;
-    
-    if (TYPE(actual) == T_FIXNUM || TYPE(actual) == T_BIGNUM) {
+
+    if (TYPE(actual) == T_FIXNUM) {
         switch (typeRef.flags & Smoke::tf_elem) {
-        case Smoke::t_enum:
+        case Smoke::t_int:
+            // perfect
+            break;
+        case Smoke::t_long:
             matchDistance += 1;
             break;
+        case Smoke::t_short:
+            matchDistance += 2;
+            break;
+        case Smoke::t_enum:
+            matchDistance += 3;
+            break;
+        case Smoke::t_ulong:
+            matchDistance += 4;
+            break;
+        case Smoke::t_uint:
+            matchDistance += 5;
+            break;
+        case Smoke::t_ushort:
+            matchDistance += 6;
+            break;
+        case Smoke::t_char:
+            matchDistance += 7;
+            break;
+        case Smoke::t_uchar:
+            matchDistance += 8;
+            break;
+        default:
+        {
+            if (QString::fromLatin1(fullArgType).contains(QRegExp("^(signed|unsigned)?(bool|char|short|int|long)[&*]$")))
+                matchDistance += 9;
+            else
+                matchDistance += 100;
+            break;
+        }
+        }    
+    } else if (TYPE(actual) == T_BIGNUM) {
+        switch (typeRef.flags & Smoke::tf_elem) {
+        case Smoke::t_int:
+            // perfect
+            break;
+        case Smoke::t_long:
+            matchDistance += 1;
+            break;
+        case Smoke::t_enum:
+            matchDistance += 3;
+            break;
+        case Smoke::t_ulong:
+            matchDistance += 4;
+            break;
+        case Smoke::t_uint:
+            matchDistance += 5;
+            break;
+        default:
+        {
+            if (QString::fromLatin1(fullArgType).contains(QRegExp("^(signed|unsigned)?(int|long)[&*]$")))
+                matchDistance += 9;
+            else
+                matchDistance += 100;
+            break;
+        }
+        }    
+    } else if (TYPE(actual) == T_FLOAT) {
+        switch (typeRef.flags & Smoke::tf_elem) {
         case Smoke::t_double:
             // perfect
             break;
         case Smoke::t_float:
             matchDistance += 1;
             break;
-        case Smoke::t_long:
-        case Smoke::t_ulong:
-            matchDistance += 3;
-            break;
-        case Smoke::t_int:
-        case Smoke::t_uint:
-            matchDistance += 4;
-            break;
-        case Smoke::t_short:
-        case Smoke::t_ushort:
-            matchDistance += 5;
-            break;
-        case Smoke::t_char:
-        case Smoke::t_uchar:
-            matchDistance += 6;
-            break;
         default:
         {
-            if (QString::fromLatin1(fullArgType).contains(QRegExp("^(signed|unsigned)?(bool|char|short|int|long|double)[&*]$")))
+            if (QString::fromLatin1(fullArgType).contains(QRegExp("^(double|float)[&*]$")))
                 matchDistance += 7;
             else
                 matchDistance += 100;
