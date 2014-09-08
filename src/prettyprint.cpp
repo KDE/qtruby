@@ -24,8 +24,8 @@
 
 #include <QtGui/QColor>
 #include <QtGui/QCursor>
-#include <QtGui/QFont>
-#include <QtGui/QWidget>
+#include <QFont>
+#include <QWidget>
 
 #include "prettyprint.h"
 #include "object.h"

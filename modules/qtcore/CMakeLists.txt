@@ -1,6 +1,6 @@
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
-    ${QT_INCLUDES}
+    ${Qt5Core_INCLUDE_DIRS}
     ${RUBY_INCLUDE_DIRS}
     ${SMOKE_INCLUDE_DIR}
 )
@@ -17,7 +17,7 @@ set(rubyqtcore_LIBRARY_SRC
 
 add_library(rubyqtcore MODULE ${rubyqtcore_LIBRARY_SRC})
 target_link_libraries(rubyqtcore
-    ${QT_QTCORE_LIBRARY}
+    Qt5::Core
     ${SMOKE_QTCORE_LIBRARY}
     qtrubyruntime
 )

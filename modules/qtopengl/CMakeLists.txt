@@ -1,6 +1,8 @@
+find_package(Qt5OpenGL)
+
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
-    ${QT_INCLUDES}
+    ${Qt5OpenGL_INCLUDE_DIRS}
     ${RUBY_INCLUDE_DIRS}
     ${SMOKE_INCLUDE_DIR}
 )
@@ -8,10 +10,10 @@ include_directories(
 set(rubyqtopengl_LIBRARY_SRC qtopengl.cpp qtopenglhandlers.cpp)
 add_library(rubyqtopengl MODULE ${rubyqtopengl_LIBRARY_SRC})
 target_link_libraries(rubyqtopengl
-                            ${QT_QTCORE_LIBRARY}
-                            ${QT_QTOPENGL_LIBRARY}
+                            Qt5::Core
+                            Qt5::OpenGL
                             ${SMOKE_QTOPENGL_LIBRARY}
-                            smokeqtopengl
+                            smokeqt5opengl
                             qtrubyruntime
 )
 set_target_properties(rubyqtopengl PROPERTIES PREFIX "" OUTPUT_NAME qtopengl)

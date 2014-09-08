@@ -1,6 +1,8 @@
+find_package(Qt5Gui)
+
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
-    ${QT_INCLUDES}
+    ${Qt5Gui_INCLUDE_DIRS}
     ${RUBY_INCLUDE_DIRS}
     ${SMOKE_INCLUDE_DIR}
 )
@@ -16,10 +18,10 @@ set(rubyqtgui_LIBRARY_SRC
 
 add_library(rubyqtgui MODULE ${rubyqtgui_LIBRARY_SRC})
 target_link_libraries(rubyqtgui
-                            ${QT_QTCORE_LIBRARY}
-                            ${QT_QTGUI_LIBRARY}
+                            Qt5::Core
+                            Qt5::Gui
                             ${SMOKE_QTCORE_LIBRARY}
-                            smokeqtgui
+                            smokeqt5gui
                             qtrubyruntime
 )
 set_target_properties(rubyqtgui PROPERTIES PREFIX "" OUTPUT_NAME qtgui)

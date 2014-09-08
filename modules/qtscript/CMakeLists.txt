@@ -8,7 +8,7 @@ include_directories(
 set(rubyqtscript_LIBRARY_SRC qtscript.cpp qtscripthandlers.cpp)
 add_library(rubyqtscript MODULE ${rubyqtscript_LIBRARY_SRC})
 target_link_libraries(rubyqtscript
-                            ${QT_QTCORE_LIBRARY}
+                            Qt5::Core
                             ${QT_QTSCRIPT_LIBRARY}
                             ${SMOKE_QTCORE_LIBRARY}
                             smokeqtscript

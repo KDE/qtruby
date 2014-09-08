@@ -1,6 +1,8 @@
+find_package(Qt5Network)
+
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
-    ${QT_INCLUDES}
+    ${Qt5Network_INCLUDE_DIRS}
     ${RUBY_INCLUDE_DIRS}
     ${SMOKE_INCLUDE_DIR}
 )
@@ -8,7 +10,7 @@ include_directories(
 set(rubyqtnetwork_LIBRARY_SRC qtnetwork.cpp qtnetworkhandlers.cpp)
 add_library(rubyqtnetwork MODULE ${rubyqtnetwork_LIBRARY_SRC})
 target_link_libraries(rubyqtnetwork
-                            ${QT_QTCORE_LIBRARY}
+                            Qt5::Core
                             ${QT_QTNETWORK_LIBRARY}
                             ${SMOKE_QTNETWORK_LIBRARY}
                             smokeqtnetwork

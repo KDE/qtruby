@@ -17,10 +17,16 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <global.h>
+#ifndef QTRUBY_RUBYQPAINTER_H
+#define QTRUBY_RUBYQPAINTER_H
 
-#include "typeresolver.h"
+#include <ruby.h>
+
+#include "qtruby_export.h"
 
 namespace QtRuby {
-
+    extern VALUE qpainter_drawlines(int argc, VALUE * argv, VALUE self);
+    extern VALUE qpainter_drawrects(int argc, VALUE * argv, VALUE self);
 }
+
+#endif // QTRUBY_RUBYQPAINTER_H

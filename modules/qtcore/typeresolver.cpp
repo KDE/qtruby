@@ -146,9 +146,9 @@ qeventTypeResolver(QtRuby::Object::Instance * instance)
     case QEvent::InputMethod:
         instance->classId = smoke->findClass("QInputMethodEvent");
         break;
-    case QEvent::AccessibilityPrepare:
-        instance->classId = smoke->findClass("QEvent");
-        break;
+//    case QEvent::AccessibilityPrepare:
+//        instance->classId = smoke->findClass("QEvent");
+//        break;
     case QEvent::TabletMove:
     case QEvent::TabletPress:
     case QEvent::TabletRelease:
@@ -216,9 +216,9 @@ qeventTypeResolver(QtRuby::Object::Instance * instance)
     case QEvent::HoverMove:
         instance->classId = smoke->findClass("QHoverEvent");
         break;
-    case QEvent::AccessibilityHelp:
-    case QEvent::AccessibilityDescription:
-        instance->classId = smoke->findClass("QEvent");
+//    case QEvent::AccessibilityHelp:
+//    case QEvent::AccessibilityDescription:
+//        instance->classId = smoke->findClass("QEvent");
     case QEvent::GraphicsSceneMouseMove:
     case QEvent::GraphicsSceneMousePress:
     case QEvent::GraphicsSceneMouseRelease:

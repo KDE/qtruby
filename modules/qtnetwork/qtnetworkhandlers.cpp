@@ -36,8 +36,6 @@ Q_DECLARE_METATYPE2(QList<QPair<QHostAddress,int> >)
 Q_DECLARE_METATYPE(QHostAddress)
 Q_DECLARE_METATYPE(QNetworkAddressEntry)
 Q_DECLARE_METATYPE(QNetworkInterface)
-Q_DECLARE_METATYPE(QNetworkProxy)
-Q_DECLARE_METATYPE(QSslCertificate)
 Q_DECLARE_METATYPE(QSslCipher)
 Q_DECLARE_METATYPE(QSslError)
 
@@ -47,7 +45,6 @@ Q_DECLARE_METATYPE(QList<QNetworkInterface>)
 Q_DECLARE_METATYPE(QList<QNetworkProxy>)
 Q_DECLARE_METATYPE(QList<QSslCertificate>)
 Q_DECLARE_METATYPE(QList<QSslCipher>)
-Q_DECLARE_METATYPE(QList<QSslError>)
 
 namespace QtRuby {
 

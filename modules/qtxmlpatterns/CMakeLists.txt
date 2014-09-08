@@ -8,7 +8,7 @@ include_directories(
 set(rubyqtxmlpatterns_LIBRARY_SRC qtxmlpatterns.cpp qtxmlpatternshandlers.cpp)
 add_library(rubyqtxmlpatterns MODULE ${rubyqtxmlpatterns_LIBRARY_SRC})
 target_link_libraries(rubyqtxmlpatterns
-                            ${QT_QTCORE_LIBRARY}
+                            Qt5::Core
                             ${QT_QTXMLPATTERNS_LIBRARY}
                             ${SMOKE_QTXMLPATTERNS_LIBRARY}
                             smokeqtxmlpatterns

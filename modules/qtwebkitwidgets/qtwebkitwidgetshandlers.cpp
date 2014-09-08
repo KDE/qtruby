@@ -19,41 +19,31 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <QtWebKit/QWebDatabase>
-#include <QtWebKit/QWebSecurityOrigin>
-#include <QtWebKit/QWebHistory>
-#include <QtWebKit/QWebPluginFactory>
+#include <QtWebKitWidgets/QWebFrame>
 
+#include <QtWebKit/QWebElement>
 
 #include "marshall.h"
 #include "global.h"
 #include "rubymetatype.h"
 
-Q_DECLARE_METATYPE(QWebPluginFactory::Plugin)
-Q_DECLARE_METATYPE(QList<QWebPluginFactory::Plugin>)
-// Q_DECLARE_METATYPE(QWebSecurityOrigin)
-// Q_DECLARE_METATYPE(QList<QWebSecurityOrigin>)
-//Q_DECLARE_METATYPE(QWebHistoryItem)
-//Q_DECLARE_METATYPE(QList<QWebHistoryItem>)
+Q_DECLARE_METATYPE(QList<QWebElement>)
+Q_DECLARE_METATYPE(QWebFrame*)
+Q_DECLARE_METATYPE(QList<QWebFrame*>)
 
 namespace QtRuby {
 
-
-#if QT_VERSION >= 0x40600
-#endif
-
 Marshall::TypeHandler QtWebKitHandlers[] = {
-//    { "QList<QWebDatabase>", marshall_Container<QList<QWebDatabase> > },
-//    { "QList<QWebSecurityOrigin>", marshall_Container<QList<QWebSecurityOrigin> > },
-    { "QList<QWebPluginFactory::Plugin>", marshall_Container<QList<QWebPluginFactory::Plugin> > },
-//    { "QList<QWebHistoryItem>", marshall_QWebHistoryItemList },
+    { "QList<QWebFrame*>", marshall_Container<QList<QWebFrame*> > },
+    { "QList<QWebElement>", marshall_Container<QList<QWebElement> > },
 
     { 0, 0 }
 };
 
 void registerQtWebKitTypes()
 {
-    qRubySmokeRegisterSequenceMetaType<QList<QWebPluginFactory::Plugin> >();
+    qRubySmokeRegisterPointerSequenceMetaType<QList<QWebFrame*> >();
+    qRubySmokeRegisterSequenceMetaType<QList<QWebElement> >();
 
     return;
 }

@@ -17,9 +17,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <QtScript/QScriptValue>
-#include <QtScript/QScriptEngine>
-
 #include <global.h>
 #include <marshall.h>
 

@@ -25,9 +25,9 @@
 
 #include <QtCore/QByteArray>
 #include <QtCore/QRegExp>
-#include <QtCore/QMetaMethod>
-#include <QtGui/QApplication>
-#include <QtCore/qdebug.h>
+#include <QMetaMethod>
+#include <QApplication>
+#include <QDebug>
 
 namespace QtRuby {
 
@@ -193,7 +193,7 @@ VALUE method_missing(int argc, VALUE * argv, VALUE self)
                             // and call the slot directly
                             for (int id = meta->methodOffset(); id < meta->methodCount(); id++) {
                                 if (meta->method(id).methodType() == QMetaMethod::Slot) {
-                                    QByteArray signature(meta->method(id).signature());
+                                    QByteArray signature(meta->method(id).methodSignature());
                                     QByteArray methodName = signature.mid(0, signature.indexOf('('));
 
                                     // Don't check that the types of the ruby args match the c++ ones for now,

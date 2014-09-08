@@ -8,7 +8,7 @@ include_directories(
 set(rubyqtsvg_LIBRARY_SRC qtsvg.cpp qtsvghandlers.cpp)
 add_library(rubyqtsvg MODULE ${rubyqtsvg_LIBRARY_SRC})
 target_link_libraries(rubyqtsvg
-                            ${QT_QTCORE_LIBRARY}
+                            Qt5::Core
                             ${QT_QTSVG_LIBRARY}
                             ${SMOKE_QTSVG_LIBRARY}
                             smokeqtsvg

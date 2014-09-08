@@ -32,7 +32,7 @@ qimage_bits(VALUE self)
   Object::Instance * instance = Object::Instance::get(self);
   QImage * image = reinterpret_cast<QImage*>(instance->value);
   const uchar * bytes = image->bits();
-  return rb_str_new((const char *) bytes, image->numBytes());
+  return rb_str_new((const char *) bytes, image->byteCount());
 }
 
 VALUE

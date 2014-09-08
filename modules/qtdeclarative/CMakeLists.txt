@@ -8,7 +8,7 @@ include_directories(
 set(rubyqtdeclarative_LIBRARY_SRC qtdeclarative.cpp qtdeclarativehandlers.cpp)
 add_library(rubyqtdeclarative MODULE ${rubyqtdeclarative_LIBRARY_SRC})
 target_link_libraries(rubyqtdeclarative
-                            ${QT_QTCORE_LIBRARY}
+                            Qt5::Core
                             ${QT_QTDECLARATIVE_LIBRARY}
                             ${SMOKE_QTCORE_LIBRARY}
                             smokeqtdeclarative

@@ -20,11 +20,11 @@
 #include <global.h>
 #include <marshall.h>
 
-#include <smoke/qtsql_smoke.h>
+#include <smoke/qtwebkit_smoke.h>
 
 namespace QtRuby {
-extern Marshall::TypeHandler QtSqlHandlers[];
-extern void registerQtSqlTypes();
+extern Marshall::TypeHandler QtWebKitHandlers[];
+extern void registerQtWebKitTypes();
 
 static void initializeClasses(Smoke * smoke)
 {
@@ -51,14 +51,14 @@ static void initializeClasses(Smoke * smoke)
 extern "C" {
 
 Q_DECL_EXPORT void
-Init_qtsql()
+Init_qtwebkit()
 {
-    init_qtsql_Smoke();
-    QtRuby::Module qtsql_module = { "qtsql", new QtRuby::Binding(qtsql_Smoke) };
-    QtRuby::Global::modules[qtsql_Smoke] = qtsql_module;
-    QtRuby::registerQtSqlTypes();
-    QtRuby::Marshall::installHandlers(QtRuby::QtSqlHandlers);
-    QtRuby::initializeClasses(qtsql_Smoke);
+    init_qtwebkit_Smoke();
+    QtRuby::Module qtwebkit_module = { "qtwebkit", new QtRuby::Binding(qtwebkit_Smoke) };
+    QtRuby::Global::modules[qtwebkit_Smoke] = qtwebkit_module;
+    QtRuby::registerQtWebKitTypes();
+    QtRuby::Marshall::installHandlers(QtRuby::QtWebKitHandlers);
+    QtRuby::initializeClasses(qtwebkit_Smoke);
 
     return;
 }

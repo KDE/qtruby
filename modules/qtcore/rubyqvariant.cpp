@@ -52,9 +52,9 @@ qvariant_value(VALUE /*self*/, VALUE variant_value_klass, VALUE variant_value)
 #endif
     } else if (variant->type() >= QVariant::UserType) {
         // If the QVariant contains a user type, don't bother to look at the Ruby class argument
-        value_ptr = QMetaType::construct(QMetaType::type(variant->typeName()), (void *) variant->constData());
-        Smoke::ModuleIndex mi = Smoke::findClass(variant->typeName());
-        return Global::wrapInstance(mi, value_ptr, Object::ScriptOwnership);
+        // value_ptr = QMetaType::construct(QMetaType::type(variant->typeName()), (void *) variant->constData());
+        // Smoke::ModuleIndex mi = Smoke::findClass(variant->typeName());
+        // return Global::wrapInstance(mi, value_ptr, Object::ScriptOwnership);
     }
 
     const char * classname = rb_class2name(variant_value_klass);

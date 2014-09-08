@@ -17,9 +17,10 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <QtCore/qdebug.h>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QTimer>
+#include <QDebug>
+#include <QCoreApplication>
+#include <QTimer>
+#include <QStringList>
 
 #include <smoke/qtcore_smoke.h>
 
@@ -66,8 +67,8 @@ qcoreapplication_argv(VALUE /*self*/)
 {
     VALUE result = rb_ary_new();
     // Drop argv[0], as it isn't included in the ruby global ARGV
-    for (int index = 1; index < qApp->argc(); index++) {
-        rb_ary_push(result, rb_str_new2(qApp->argv()[index]));
+    for (int index = 1; index < QCoreApplication::instance()->arguments().size(); ++index) {
+        rb_ary_push(result, rb_str_new2(QCoreApplication::instance()->arguments().at(index).toLatin1().constData()));
     }
 
     return result;

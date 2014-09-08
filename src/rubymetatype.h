@@ -32,6 +32,7 @@
     For example:
         Q_DECLARE_METATYPE2(QList<QPair<QByteArray,QByteArray> >)
  */
+
 #define Q_DECLARE_METATYPE2(TYPE1, TYPE2)                               \
     QT_BEGIN_NAMESPACE                                                  \
     template <>                                                         \
@@ -41,10 +42,12 @@
         static int qt_metatype_id()                                     \
             {                                                           \
                 static QBasicAtomicInt metatype_id = Q_BASIC_ATOMIC_INITIALIZER(0); \
-                if (!metatype_id)                                       \
-                    metatype_id = qRegisterMetaType< TYPE1,TYPE2 >( #TYPE1 "," #TYPE2, \
-                               reinterpret_cast< TYPE1,TYPE2  *>(quintptr(-1))); \
-                return metatype_id;                                     \
+                if (const int id = metatype_id.loadAcquire())           \
+                    return id;                                          \
+                const int newId = qRegisterMetaType< TYPE1,TYPE2 >(#TYPE1 "," #TYPE2,      \
+                              reinterpret_cast< TYPE1,TYPE2 *>(quintptr(-1))); \
+                metatype_id.storeRelease(newId);                        \
+                return newId;                                           \
             }                                                           \
     };                                                                  \
     QT_END_NAMESPACE
@@ -204,8 +207,8 @@ void marshall_Container(Marshall *m) {
 
 }
 
-inline VALUE qRubySmokeValueFromSequence_helper(Smoke::ModuleIndex classId, 
-                                                void * ptr, 
+inline VALUE qRubySmokeValueFromSequence_helper(Smoke::ModuleIndex classId,
+                                                void * ptr,
                                                 QtRuby::Object::ValueOwnership ownership = QtRuby::Object::QtOwnership)
 {
     VALUE value = QtRuby::Global::getRubyValue(ptr);

@@ -1,3 +1,5 @@
+find_package(Qt5Widgets)
+
 add_definitions(-DBUILD_QTRUBY)
 
 if(RUBY_VERSION)
@@ -5,7 +7,7 @@ if(RUBY_VERSION)
 endif(RUBY_VERSION)
 
 include_directories(
-    ${QT_INCLUDES}
+    ${Qt5Widgets_INCLUDE_DIRS}
     ${RUBY_INCLUDE_DIRS}
     ${SMOKE_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -25,16 +27,16 @@ set(qtrubyruntime_LIB_SRCS
     utils.cpp
     methodcall.cpp
     rubymetatype.cpp
-    rubyqmetaobject.cpp
+#     rubyqmetaobject.cpp
     virtualmethodcall.cpp
     handlers.cpp )
 
 add_library(qtrubyruntime SHARED ${qtrubyruntime_LIB_SRCS})
 
 target_link_libraries(qtrubyruntime
-    ${QT_QTCORE_LIBRARY}
-    ${QT_QTGUI_LIBRARY}
-    ${SMOKE_QTCORE_LIBRARY}
+    Qt5::Core
+    Qt5::Widgets
+    Qt5::Gui
     ${RUBY_LIBRARY}
     ${SMOKE_BASE_LIBRARY}
 )

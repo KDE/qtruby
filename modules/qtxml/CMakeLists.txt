@@ -1,6 +1,8 @@
+find_package(Qt5Xml)
+
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
-    ${QT_INCLUDES}
+    ${Qt5Xml_INCLUDE_DIRS}
     ${RUBY_INCLUDE_DIRS}
     ${SMOKE_INCLUDE_DIR}
 )
@@ -8,9 +10,9 @@ include_directories(
 set(rubyqtxml_LIBRARY_SRC qtxml.cpp qtxmlhandlers.cpp)
 add_library(rubyqtxml MODULE ${rubyqtxml_LIBRARY_SRC})
 target_link_libraries(rubyqtxml
-                            ${QT_QTCORE_LIBRARY}
-                            ${QT_QTNETWORK_LIBRARY}
-                            ${SMOKE_QTNETWORK_LIBRARY}
+                            Qt5::Core
+                            Qt5::Xml
+                            ${SMOKE_QXML_LIBRARY}
                             smokeqtxml
                             qtrubyruntime
 )

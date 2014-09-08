@@ -18,24 +18,23 @@
  */
 
 #include <QDebug>
+#include <QApplication>
 
 #include <global.h>
 #include <marshall.h>
 
-#include <smoke/qtgui_smoke.h>
+#include <smoke/qt5/qtwidgets_smoke.h>
 
 #include "typeresolver.h"
-#include "rubyqimage.h"
-#include "rubyqitemselection.h"
 #include "rubyqpainter.h"
 
 namespace QtRuby {
-extern Marshall::TypeHandler QtGuiHandlers[];
-extern void registerQtGuiTypes();
+extern Marshall::TypeHandler QtWidgetsHandlers[];
+extern void registerQtWidgetsTypes();
 
 static void initializeClasses(Smoke * smoke)
 {
-    Global::QGraphicsItemClassId = qtgui_Smoke->idClass("QGraphicsItem");
+    Global::QGraphicsItemClassId = qtwidgets_Smoke->idClass("QGraphicsItem");
     Global::defineTypeResolver(Global::QGraphicsItemClassId, qgraphicsitemTypeResolver);
 
     for (int i = 1; i <= smoke->numClasses; i++) {
@@ -54,15 +53,7 @@ static void initializeClasses(Smoke * smoke)
 
         VALUE klass = Global::initializeClass(classId, className);
 
-        if (className == "Qt::Image") {
-            rb_define_method(klass, "bits", (VALUE (*) (...)) qimage_bits, 0);
-            rb_define_method(klass, "scanLine", (VALUE (*) (...)) qimage_scan_line, 1);
-        } else if (className == "Qt::ItemSelection") {
-            rb_define_method(klass, "[]", (VALUE (*) (...)) qitemselection_at, 1);
-            rb_define_method(klass, "at", (VALUE (*) (...)) qitemselection_at, 1);
-            rb_define_method(klass, "count", (VALUE (*) (...)) qitemselection_count, 0);
-            rb_define_method(klass, "length", (VALUE (*) (...)) qitemselection_count, 0);
-        } else if (className == "Qt::Painter") {
+        if (className == "Qt::Painter") {
             rb_define_method(klass, "drawLines", (VALUE (*) (...)) qpainter_drawlines, -1);
             rb_define_method(klass, "draw_lines", (VALUE (*) (...)) qpainter_drawlines, -1);
             rb_define_method(klass, "drawRects", (VALUE (*) (...)) qpainter_drawrects, -1);
@@ -76,15 +67,15 @@ static void initializeClasses(Smoke * smoke)
 extern "C" {
 
 Q_DECL_EXPORT void
-Init_qtgui()
+Init_qtwidgets()
 {
-    init_qtgui_Smoke();
-    QtRuby::Module qtgui_module = { "qtgui", new QtRuby::Binding(qtgui_Smoke) };
-    QtRuby::Global::modules[qtgui_Smoke] = qtgui_module;
-    QtRuby::registerQtGuiTypes();
-    QtRuby::Marshall::installHandlers(QtRuby::QtGuiHandlers);
-    QtRuby::initializeClasses(qtgui_Smoke);
-    rb_require("qtgui/qtgui.rb");
+    init_qtwidgets_Smoke();
+    QtRuby::Module qtwidgets_module = { "qtwidgets", new QtRuby::Binding(qtwidgets_Smoke) };
+    QtRuby::Global::modules[qtwidgets_Smoke] = qtwidgets_module;
+    QtRuby::registerQtWidgetsTypes();
+    QtRuby::Marshall::installHandlers(QtRuby::QtWidgetsHandlers);
+    QtRuby::initializeClasses(qtwidgets_Smoke);
+    rb_require("qtwidgets/qtwidgets.rb");
 
     return;
 }

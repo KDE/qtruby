@@ -195,7 +195,7 @@ createRubyValue(int type, const void *ptr)
         case QMetaType::QDate:
         case QMetaType::QRegExp:
         case QMetaType::QObjectStar:
-        case QMetaType::QWidgetStar:
+//        case QMetaType::QWidgetStar:
         case QMetaType::QVariant:
         {
             QByteArray typeName = QMetaType::typeName(type);

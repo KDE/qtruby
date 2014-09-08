@@ -1,6 +1,8 @@
+find_package(Qt5Sql)
+
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
-    ${QT_INCLUDES}
+    ${Qt5Sql_INCLUDE_DIRS}
     ${RUBY_INCLUDE_DIRS}
     ${SMOKE_INCLUDE_DIR}
 )
@@ -8,10 +10,10 @@ include_directories(
 set(rubyqtsql_LIBRARY_SRC qtsql.cpp qtsqlhandlers.cpp)
 add_library(rubyqtsql MODULE ${rubyqtsql_LIBRARY_SRC})
 target_link_libraries(rubyqtsql
-                            ${QT_QTCORE_LIBRARY}
-                            ${QT_QTSQL_LIBRARY}
+                            Qt5::Core
+                            Qt5::Sql
                             ${SMOKE_QTSQL_LIBRARY}
-                            smokeqtsql
+                            smokeqt5sql
                             qtrubyruntime
 )
 set_target_properties(rubyqtsql PROPERTIES PREFIX "" OUTPUT_NAME qtsql)

@@ -1,6 +1,8 @@
+find_package(Qt5WebKit)
+
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
-    ${QT_INCLUDES}
+    ${Qt5WebKit_INCLUDE_DIRS}
     ${RUBY_INCLUDE_DIRS}
     ${SMOKE_INCLUDE_DIR}
 )
@@ -8,8 +10,8 @@ include_directories(
 set(rubyqtwebkit_LIBRARY_SRC qtwebkit.cpp qtwebkithandlers.cpp)
 add_library(rubyqtwebkit MODULE ${rubyqtwebkit_LIBRARY_SRC})
 target_link_libraries(rubyqtwebkit
-                            ${QT_QTCORE_LIBRARY}
-                            ${QT_QTWEBKIT_LIBRARY}
+                            Qt5::Core
+                            Qt5::WebKit
                             ${SMOKE_QWEBKIT_LIBRARY}
                             qtrubyruntime
 )

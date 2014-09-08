@@ -17,10 +17,16 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <global.h>
+#ifndef QTRUBY_TYPERESOLVER_H
+#define QTRUBY_TYPERESOLVER_H
 
-#include "typeresolver.h"
+#include <ruby.h>
+
+#include <object.h>
+#include <qtruby_export.h>
 
 namespace QtRuby {
-
+    extern void qgraphicsitemTypeResolver(QtRuby::Object::Instance * instance);
 }
+
+#endif // QTRUBY_TYPERESOLVER_H

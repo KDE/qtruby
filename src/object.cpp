@@ -25,7 +25,7 @@
 #include "debug.h"
 #include "global.h"
 
-#include <smoke/qtcore_smoke.h>
+#include <smoke/qt5/qtcore_smoke.h>
 
 #include <QtCore/QtDebug>
 
@@ -33,7 +33,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QMetaMethod>
 #include <QtCore/QMetaObject>
-#include <QtGui/QWidget>
+// #include <QtGui/QWidget>
 #include <QtCore/QPair>
 
 namespace QtRuby {

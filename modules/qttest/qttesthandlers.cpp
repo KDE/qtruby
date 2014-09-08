@@ -23,21 +23,14 @@
 #include "global.h"
 #include "rubymetatype.h"
 
-#include <QtTest/qtestaccessible.h>
-
-Q_DECLARE_METATYPE(QTestAccessibilityEvent)
-Q_DECLARE_METATYPE(QList<QTestAccessibilityEvent>)
-
 namespace QtRuby {
 
 Marshall::TypeHandler QtTestHandlers[] = {
-    { "QList<QTestAccessibilityEvent>", marshall_Container<QList<QTestAccessibilityEvent> > },
     { 0, 0 }
 };
 
 void registerQtTestTypes()
 {
-
     return;
 }
 

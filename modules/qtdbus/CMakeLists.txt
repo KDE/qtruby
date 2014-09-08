@@ -1,6 +1,8 @@
+find_package(Qt5DBus)
+
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
-    ${QT_INCLUDES}
+    ${Qt5DBus_INCLUDE_DIRS}
     ${RUBY_INCLUDE_DIRS}
     ${SMOKE_INCLUDE_DIR}
 )
@@ -8,10 +10,10 @@ include_directories(
 set(rubyqtdbus_LIBRARY_SRC qtdbus.cpp qtdbushandlers.cpp)
 add_library(rubyqtdbus MODULE ${rubyqtdbus_LIBRARY_SRC})
 target_link_libraries(rubyqtdbus
-                            ${QT_QTCORE_LIBRARY}
-                            ${QT_QTDBUS_LIBRARY}
+                            Qt5::Core
+                            Qt5::DBus
                             ${SMOKE_QTCORE_LIBRARY}
-                            smokeqtdbus
+                            smokeqt5dbus
                             qtrubyruntime
 )
 set_target_properties(rubyqtdbus PROPERTIES PREFIX "" OUTPUT_NAME qtdbus)

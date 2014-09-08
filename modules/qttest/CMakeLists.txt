@@ -1,6 +1,8 @@
+find_package(Qt5Test)
+
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
-    ${QT_INCLUDES}
+    ${Qt5Test_INCLUDE_DIRS}
     ${RUBY_INCLUDE_DIRS}
     ${SMOKE_INCLUDE_DIR}
 )
@@ -8,10 +10,10 @@ include_directories(
 set(rubyqttest_LIBRARY_SRC qttest.cpp qttesthandlers.cpp)
 add_library(rubyqttest MODULE ${rubyqttest_LIBRARY_SRC})
 target_link_libraries(rubyqttest
-                            ${QT_QTCORE_LIBRARY}
-                            ${QT_QTTEST_LIBRARY}
+                            Qt5::Core
+                            Qt5::Test
                             ${SMOKE_QTTEST_LIBRARY}
-                            smokeqttest
+                            smokeqt5test
                             qtrubyruntime
 )
 set_target_properties(rubyqttest PROPERTIES PREFIX "" OUTPUT_NAME qttest)
