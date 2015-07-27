@@ -1,5 +1,5 @@
+cmake_minimum_required(VERSION 2.8.9)
 project(QtRuby)
-cmake_minimum_required(VERSION 2.6)
 set(COMPILE_RUBY FALSE CACHE INTERNAL "")
 
 find_package(Ruby REQUIRED)
